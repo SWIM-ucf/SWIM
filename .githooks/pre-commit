@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# Immediately exit shell if a command fails.
+# Expanding unset parameters will write a message to standard error.
+set -eu
+
+# Check formatting
+echo "Checking formatting..."
+if ! cargo fmt -- --check
+then
+	echo "Formatting check failed. See above for details."
+	exit 1
+fi
+echo "Formatting check passed."
+
+
+# Check linting
+echo "Checking linting..."
+if ! cargo clippy
+then
+	echo "Linting check failed. See above for details."
+	exit 1
+fi
+echo "Linting check passed."
+
+# Check tests
+echo "Checking tests..."
+if ! cargo test
+then
+	echo "At least one test has failed. See above for details."
+	exit 1
+fi
+echo "Tests passed."
+
+exit 0
