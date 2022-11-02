@@ -6,3 +6,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+yew = "0.19"
+monaco = { git = "https://github.com/siku2/rust-monaco", rev = "5684979fd326c875d6ee57306b243219fc38ff46" }
