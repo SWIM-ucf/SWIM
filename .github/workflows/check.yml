@@ -23,7 +23,7 @@ jobs:
     - uses: Swatinem/rust-cache@v2
 
     - name: Build
-      run: cargo build
+      run: trunk build
 
     - name: Run cargo fmt
       run: cargo fmt -- --check
