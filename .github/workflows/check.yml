@@ -30,14 +30,14 @@ jobs:
     - name: Set up build WASM target
       run: rustup target add wasm32-unknown-unknown
 
-    - name: Build
-      run: trunk build
-
     - name: Run cargo fmt
       run: cargo fmt -- --check
 
     - name: Run clippy
       run: cargo clippy --no-deps
+
+    - name: Build
+      run: trunk build
 
     - name: Run tests
       run: cargo test
