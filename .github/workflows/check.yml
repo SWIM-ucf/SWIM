@@ -22,14 +22,22 @@ jobs:
 
     - uses: Swatinem/rust-cache@v2
 
-    - name: Build
-      run: cargo build
+    - name: Install trunk
+      uses: jetli/trunk-action@v0.1.0
+      with:
+        version: 'latest'
+
+    - name: Set up build WASM target
+      run: rustup target add wasm32-unknown-unknown
 
     - name: Run cargo fmt
       run: cargo fmt -- --check
 
     - name: Run clippy
       run: cargo clippy --no-deps
+
+    - name: Build
+      run: trunk build
 
     - name: Run tests
       run: cargo test
