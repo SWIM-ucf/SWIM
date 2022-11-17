@@ -10,3 +10,7 @@ all:
 # repository tracking.
 init:
 	git config core.hooksPath .githooks
+
+# Run the pre-commit testing suite.
+suite:
+	bash .githooks/pre-commit
