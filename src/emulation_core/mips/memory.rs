@@ -6,7 +6,8 @@ pub struct Memory {
 
 impl Default for Memory {
     fn default() -> Self {
-        let memory: Vec<u8> = vec![0; CAPACITY_BYTES];
-        Self { memory }
+        Self {
+            memory: vec![0; CAPACITY_BYTES],
+        }
     }
 }
