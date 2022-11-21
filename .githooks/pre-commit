@@ -1,9 +1,9 @@
 #!/bin/sh
 
 if [ "$1" = "strict" ]; then
-	params="--deny warnings"
+	linting_params="--deny warnings"
 else
-	params=""
+	linting_params=""
 fi
 
 # Immediately exit shell if a command fails.
@@ -22,7 +22,7 @@ echo "Formatting check passed."
 
 # Check linting
 echo "Checking linting..."
-if ! cargo clippy --no-deps --tests -- $params
+if ! cargo clippy --no-deps --tests -- $linting_params
 then
 	echo "Linting check failed. See above for details."
 	exit 1
@@ -42,7 +42,7 @@ echo "Build check passed."
 
 # Check tests
 echo "Checking tests..."
-if ! cargo test -- $params
+if ! cargo test
 then
 	echo "At least one test has failed. See above for details."
 	exit 1

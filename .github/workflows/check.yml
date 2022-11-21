@@ -40,4 +40,4 @@ jobs:
       run: trunk build
 
     - name: Run tests
-      run: cargo test -- --deny warnings
+      run: cargo test
