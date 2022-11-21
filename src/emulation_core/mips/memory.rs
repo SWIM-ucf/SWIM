@@ -1,4 +1,4 @@
-const CAPACITY_BYTES: usize = 4 * 1024; // 4 KB
+pub const CAPACITY_BYTES: usize = 4 * 1024; // 4 KB
 
 pub struct Memory {
     pub memory: Vec<u8>,
