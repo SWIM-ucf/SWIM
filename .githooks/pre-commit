@@ -1,5 +1,11 @@
 #!/bin/sh
 
+if [ "$1" = "strict" ]; then
+	params="--deny warnings"
+else
+	params=""
+fi
+
 # Immediately exit shell if a command fails.
 # Expanding unset parameters will write a message to standard error.
 set -eu
@@ -16,7 +22,7 @@ echo "Formatting check passed."
 
 # Check linting
 echo "Checking linting..."
-if ! cargo clippy --no-deps
+if ! cargo clippy --no-deps -- --cfg test $params
 then
 	echo "Linting check failed. See above for details."
 	exit 1
@@ -36,7 +42,7 @@ echo "Build check passed."
 
 # Check tests
 echo "Checking tests..."
-if ! cargo test
+if ! cargo test -- $params
 then
 	echo "At least one test has failed. See above for details."
 	exit 1
