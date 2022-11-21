@@ -22,7 +22,7 @@ echo "Formatting check passed."
 
 # Check linting
 echo "Checking linting..."
-if ! cargo clippy --no-deps -- --cfg test $params
+if ! cargo clippy --no-deps --tests -- $params
 then
 	echo "Linting check failed. See above for details."
 	exit 1
