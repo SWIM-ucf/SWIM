@@ -1,2 +1,2 @@
-pub mod mips;
 pub mod datapath;
+pub mod mips;
