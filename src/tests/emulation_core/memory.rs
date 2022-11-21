@@ -56,4 +56,17 @@ fn write_out_of_bounds_address() {
         Err(e) => e.contains("bounds"),
         _ => false,
     })
+
+#[test]
+fn store_and_load_word() {
+    let mut memory = memory::Memory::default();
+
+    let address = 0;
+    let data = 500;
+    memory.store_word(address, data).ok();
+
+    assert!(match memory.load_word(address) {
+        Ok(loaded_data) => loaded_data == data,
+        _ => false,
+    });
 }
