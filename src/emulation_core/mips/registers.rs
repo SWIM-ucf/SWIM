@@ -1,4 +1,6 @@
 use std::ops::{Index, IndexMut};
+use std::str::FromStr;
+use strum_macros::EnumString;
 
 #[derive(Default)]
 pub struct Registers {
@@ -8,6 +10,8 @@ pub struct Registers {
     pub cc: u64,
 }
 
+#[derive(EnumString)]
+#[strum(ascii_case_insensitive)]
 pub enum RegisterType {
     Zero,
     At,
@@ -81,73 +85,17 @@ impl Index<&str> for Registers {
     type Output = u64;
 
     fn index(&self, index: &str) -> &Self::Output {
-        match index.to_ascii_lowercase().as_str() {
-            "pc" => &self.pc,
-            "zero" => &self.gpr[0],
-            "at" => &self.gpr[1],
-            "v0" => &self.gpr[2],
-            "v1" => &self.gpr[3],
-            "a0" => &self.gpr[4],
-            "a1" => &self.gpr[5],
-            "a2" => &self.gpr[6],
-            "a3" => &self.gpr[7],
-            "t0" => &self.gpr[8],
-            "t1" => &self.gpr[9],
-            "t2" => &self.gpr[10],
-            "t3" => &self.gpr[11],
-            "t4" => &self.gpr[12],
-            "t5" => &self.gpr[13],
-            "t6" => &self.gpr[14],
-            "t7" => &self.gpr[15],
-            "s0" => &self.gpr[16],
-            "s1" => &self.gpr[17],
-            "s2" => &self.gpr[18],
-            "s3" => &self.gpr[19],
-            "s4" => &self.gpr[20],
-            "s5" => &self.gpr[21],
-            "s6" => &self.gpr[22],
-            "s7" => &self.gpr[23],
-            "t8" => &self.gpr[24],
-            "t9" => &self.gpr[25],
-            "k0" => &self.gpr[26],
-            "k1" => &self.gpr[27],
-            "gp" => &self.gpr[28],
-            "sp" => &self.gpr[29],
-            "fp" => &self.gpr[30],
-            "ra" => &self.gpr[31],
-            "cc" => &self.cc,
-            "f0" => &self.fpr[0],
-            "f1" => &self.fpr[1],
-            "f2" => &self.fpr[2],
-            "f3" => &self.fpr[3],
-            "f4" => &self.fpr[4],
-            "f5" => &self.fpr[5],
-            "f6" => &self.fpr[6],
-            "f7" => &self.fpr[7],
-            "f8" => &self.fpr[8],
-            "f9" => &self.fpr[9],
-            "f10" => &self.fpr[10],
-            "f11" => &self.fpr[11],
-            "f12" => &self.fpr[12],
-            "f13" => &self.fpr[13],
-            "f14" => &self.fpr[14],
-            "f15" => &self.fpr[15],
-            "f16" => &self.fpr[16],
-            "f17" => &self.fpr[17],
-            "f18" => &self.fpr[18],
-            "f19" => &self.fpr[19],
-            "f20" => &self.fpr[20],
-            "f21" => &self.fpr[21],
-            "f22" => &self.fpr[22],
-            "f23" => &self.fpr[23],
-            "f24" => &self.fpr[24],
-            "f25" => &self.fpr[25],
-            "f26" => &self.fpr[26],
-            "f27" => &self.fpr[27],
-            "f28" => &self.fpr[28],
-            "f29" => &self.fpr[29],
-            "f30" => &self.fpr[30],
-            "f31" => &self.fpr[31],
+        match RegisterType::from_str(index) {
+            Ok(register) => &self[register],
+            _ => panic!("{} is not a valid register", index),
+        }
+    }
+}
+
+impl IndexMut<&str> for Registers {
+    fn index_mut(&mut self, index: &str) -> &mut Self::Output {
+        match RegisterType::from_str(index) {
+            Ok(register) => &mut self[register],
             _ => panic!("{} is not a valid register", index),
         }
     }
@@ -224,80 +172,6 @@ impl Index<RegisterType> for Registers {
             RegisterType::F29 => &self.fpr[29],
             RegisterType::F30 => &self.fpr[30],
             RegisterType::F31 => &self.fpr[31],
-        }
-    }
-}
-
-impl IndexMut<&str> for Registers {
-    fn index_mut(&mut self, index: &str) -> &mut Self::Output {
-        match index.to_ascii_lowercase().as_str() {
-            "pc" => &mut self.pc,
-            "zero" => &mut self.gpr[0],
-            "at" => &mut self.gpr[1],
-            "v0" => &mut self.gpr[2],
-            "v1" => &mut self.gpr[3],
-            "a0" => &mut self.gpr[4],
-            "a1" => &mut self.gpr[5],
-            "a2" => &mut self.gpr[6],
-            "a3" => &mut self.gpr[7],
-            "t0" => &mut self.gpr[8],
-            "t1" => &mut self.gpr[9],
-            "t2" => &mut self.gpr[10],
-            "t3" => &mut self.gpr[11],
-            "t4" => &mut self.gpr[12],
-            "t5" => &mut self.gpr[13],
-            "t6" => &mut self.gpr[14],
-            "t7" => &mut self.gpr[15],
-            "s0" => &mut self.gpr[16],
-            "s1" => &mut self.gpr[17],
-            "s2" => &mut self.gpr[18],
-            "s3" => &mut self.gpr[19],
-            "s4" => &mut self.gpr[20],
-            "s5" => &mut self.gpr[21],
-            "s6" => &mut self.gpr[22],
-            "s7" => &mut self.gpr[23],
-            "t8" => &mut self.gpr[24],
-            "t9" => &mut self.gpr[25],
-            "k0" => &mut self.gpr[26],
-            "k1" => &mut self.gpr[27],
-            "gp" => &mut self.gpr[28],
-            "sp" => &mut self.gpr[29],
-            "fp" => &mut self.gpr[30],
-            "ra" => &mut self.gpr[31],
-            "cc" => &mut self.cc,
-            "f0" => &mut self.fpr[0],
-            "f1" => &mut self.fpr[1],
-            "f2" => &mut self.fpr[2],
-            "f3" => &mut self.fpr[3],
-            "f4" => &mut self.fpr[4],
-            "f5" => &mut self.fpr[5],
-            "f6" => &mut self.fpr[6],
-            "f7" => &mut self.fpr[7],
-            "f8" => &mut self.fpr[8],
-            "f9" => &mut self.fpr[9],
-            "f10" => &mut self.fpr[10],
-            "f11" => &mut self.fpr[11],
-            "f12" => &mut self.fpr[12],
-            "f13" => &mut self.fpr[13],
-            "f14" => &mut self.fpr[14],
-            "f15" => &mut self.fpr[15],
-            "f16" => &mut self.fpr[16],
-            "f17" => &mut self.fpr[17],
-            "f18" => &mut self.fpr[18],
-            "f19" => &mut self.fpr[19],
-            "f20" => &mut self.fpr[20],
-            "f21" => &mut self.fpr[21],
-            "f22" => &mut self.fpr[22],
-            "f23" => &mut self.fpr[23],
-            "f24" => &mut self.fpr[24],
-            "f25" => &mut self.fpr[25],
-            "f26" => &mut self.fpr[26],
-            "f27" => &mut self.fpr[27],
-            "f28" => &mut self.fpr[28],
-            "f29" => &mut self.fpr[29],
-            "f30" => &mut self.fpr[30],
-            "f31" => &mut self.fpr[31],
-            _ => panic!("{} is not a valid register", index),
         }
     }
 }
