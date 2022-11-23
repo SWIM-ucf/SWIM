@@ -27,7 +27,9 @@ impl Memory {
     }
 
     // A word is 32 bits.
-    pub fn store_word(&mut self, address: usize, data: u32) -> Result<(), String> {
+    pub fn store_word(&mut self, address: u64, data: u32) -> Result<(), String> {
+        let address = address as usize;
+
         self.check_valid_address(address)?;
 
         self.memory[address] = ((data >> 24) & 0b11111111) as u8;
@@ -39,7 +41,9 @@ impl Memory {
     }
 
     // A word is 32 bits.
-    pub fn load_word(&self, address: usize) -> Result<u32, String> {
+    pub fn load_word(&self, address: u64) -> Result<u32, String> {
+        let address = address as usize;
+
         self.check_valid_address(address)?;
 
         let mut result: u32 = 0;

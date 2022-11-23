@@ -5,7 +5,7 @@ use crate::emulation_core::mips::memory;
 fn read_non_aligned_address() {
     let memory = memory::Memory::default();
 
-    let address: usize = 1;
+    let address: u64 = 1;
 
     assert!(match memory.load_word(address) {
         Err(e) => e.contains("align"),
@@ -19,7 +19,7 @@ fn read_out_of_bounds_address() {
     let memory = memory::Memory::default();
 
     // This test assumes that `CAPACITY_BYTES + 500` does not overflow.
-    let address: usize = memory::CAPACITY_BYTES + 500;
+    let address = (memory::CAPACITY_BYTES as u64) + 500;
 
     assert!(match memory.load_word(address) {
         Err(e) => e.contains("bounds"),
@@ -32,7 +32,7 @@ fn read_out_of_bounds_address() {
 fn write_non_aligned_address() {
     let mut memory = memory::Memory::default();
 
-    let address: usize = 1;
+    let address: u64 = 1;
 
     assert!(match memory.store_word(address, 0) {
         Err(e) => e.contains("align"),
@@ -46,7 +46,7 @@ fn write_out_of_bounds_address() {
     let mut memory = memory::Memory::default();
 
     // This test assumes that `CAPACITY_BYTES + 500` does not overflow.
-    let address: usize = memory::CAPACITY_BYTES + 500;
+    let address = (memory::CAPACITY_BYTES as u64) + 500;
 
     assert!(match memory.store_word(address, 0) {
         Err(e) => e.contains("bounds"),
