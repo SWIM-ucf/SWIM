@@ -84,6 +84,8 @@ pub enum RegisterType {
 impl Index<&str> for Registers {
     type Output = u64;
 
+    // Convert string to the corresponding RegistersEnum value and use this to index.
+    // If this is an invalid string, no enum will be returned, causing a panic as desired.
     fn index(&self, index: &str) -> &Self::Output {
         match RegisterType::from_str(index) {
             Ok(register) => &self[register],
@@ -93,6 +95,8 @@ impl Index<&str> for Registers {
 }
 
 impl IndexMut<&str> for Registers {
+    // Convert string to the corresponding RegistersEnum value and use this to index.
+    // If this is an invalid string, no enum will be returned, causing a panic as desired.
     fn index_mut(&mut self, index: &str) -> &mut Self::Output {
         match RegisterType::from_str(index) {
             Ok(register) => &mut self[register],
