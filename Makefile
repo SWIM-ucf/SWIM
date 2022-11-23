@@ -10,3 +10,12 @@ all:
 # repository tracking.
 init:
 	git config core.hooksPath .githooks
+
+# Run the pre-commit testing suite.
+suite:
+	bash .githooks/pre-commit
+
+# Run the pre-commit testing suite, but enforce more warnings. This is applicable
+# when using continuous integration.
+suite-strict:
+	bash .githooks/pre-commit strict

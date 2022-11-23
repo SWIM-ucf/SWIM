@@ -1,3 +1,7 @@
+pub mod emulation_core;
+#[cfg(test)]
+pub mod tests;
+
 use yew::prelude::*;
 
 #[function_component(App)]
