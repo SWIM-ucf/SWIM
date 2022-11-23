@@ -13,9 +13,9 @@ impl Default for Memory {
 }
 
 impl Memory {
-    // Determines if an address is valid in a given instance of Memory.
-    // If invalid, returns an instance of Err describing the problem with
-    // the address.
+    /// Determines if an address is valid in a given instance of Memory.
+    /// If invalid, returns an instance of Err describing the problem with
+    /// the address.
     fn check_valid_address(&self, address: usize) -> Result<(), String> {
         if address % 4 != 0 {
             return Err(String::from("Address is not byte-aligned"));
