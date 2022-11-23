@@ -2,6 +2,8 @@
 all:
 	@echo "Options:"
 	@echo " - init: Initialize local development environment."
+	@echo " - suite: Run the testing suite."
+	@echo " - suite-strict: Run the testing suite as CI would. Warnings become errors."
 
 # Initialize development environment. Run `make init` to execute.
 # This sets a local developer's git hook location to the .githooks/
