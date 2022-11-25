@@ -229,6 +229,7 @@ impl MipsDatapath {
                 self.signals.mem_write = MemWrite::NoWrite;
                 self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
                 self.signals.reg_dst = RegDst::Reg3;
+                self.signals.reg_width = RegWidth::Word;
                 self.signals.reg_write = RegWrite::YesWrite;
             }
             _ => error("Instruction not supported."),
@@ -243,6 +244,12 @@ impl MipsDatapath {
 
         self.read_data_1 = self.registers.gpr[reg1];
         self.read_data_2 = self.registers.gpr[reg2];
+
+        // Truncate the variable data if a 32-bit word is requested.
+        if let RegWidth::Word = self.signals.reg_width {
+            self.read_data_1 = self.registers.gpr[reg1] as u32 as u64;
+            self.read_data_2 = self.registers.gpr[reg2] as u32 as u64;
+        }
     }
 
     /// Set the ALU control signal based on the ALU operation signal.
@@ -272,6 +279,8 @@ impl MipsDatapath {
 
     /// Perform an ALU operation.
     fn alu(&mut self) {
+        // TODO: Support alternating between 32-bit and 64-bit operations.
+
         // Specify the inputs for the operation. The first will always
         // be the first register, but the second may be either the
         // second register or the sign-extended immediate value.
@@ -317,6 +326,11 @@ impl MipsDatapath {
             RegDst::Reg2 => self.rt as usize,
             RegDst::Reg3 => self.rd as usize,
         };
+
+        // If a 32-bit word is requested, ensure data is truncated.
+        if let RegWidth::Word = self.signals.reg_width {
+            self.data_result = self.data_result as u32 as u64;
+        }
 
         // Write.
         self.registers.gpr[destination] = self.data_result;

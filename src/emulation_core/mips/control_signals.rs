@@ -10,6 +10,7 @@ pub struct ControlSignals {
     pub mem_write: MemWrite,
     pub mem_write_src: MemWriteSrc,
     pub reg_dst: RegDst,
+    pub reg_width: RegWidth,
     pub reg_write: RegWrite,
 }
 
@@ -93,6 +94,13 @@ pub enum RegDst {
     Reg2 = 0,
     #[default]
     Reg3 = 1,
+}
+
+#[derive(Default)]
+pub enum RegWidth {
+    Word = 0,
+    #[default]
+    DoubleWord = 1,
 }
 
 #[derive(Default, Eq, PartialEq)]
