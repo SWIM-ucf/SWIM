@@ -218,7 +218,7 @@ impl MipsDatapath {
     /// instruction's opcode.
     fn set_control_signals(&mut self) {
         match self.opcode {
-            // R-type instructions (add, sub, and, or, slt, sltu)
+            // R-type instructions (add, sub, mul, div, and, or, slt, sltu)
             0 => {
                 self.signals.alu_op = AluOp::UseFunctField;
                 self.signals.alu_src = AluSrc::ReadRegister2;
@@ -269,6 +269,20 @@ impl MipsDatapath {
                 0b100101 => AluControl::Or,
                 0b101010 => AluControl::SetOnLessThanSigned,
                 0b101011 => AluControl::SetOnLessThanUnsigned,
+                0b011010 | 0b011011 | 0b011110 | 0b011111 => match self.shamt {
+                    0b00010 => AluControl::Division,
+                    _ => {
+                        error("Unsupported funct");
+                        AluControl::Addition // Stub
+                    }
+                },
+                0b011000 | 0b011001 | 0b011100 | 0b011101 => match self.shamt {
+                    0b00010 => AluControl::Multiplication,
+                    _ => {
+                        error("Unsupported funct");
+                        AluControl::Addition // Stub
+                    }
+                },
                 _ => {
                     error("Unsupported funct");
                     AluControl::Addition // Stub
@@ -300,6 +314,8 @@ impl MipsDatapath {
             AluControl::Or => input1 | input2,
             AluControl::LeftShift16 => input2 << 16,
             AluControl::Not => !input1,
+            AluControl::Multiplication => input1 * input2,
+            AluControl::Division => input1 / input2,
         }
 
         // TODO: Set the zero bit.
