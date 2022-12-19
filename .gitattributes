@@ -1,0 +1,9 @@
+*                     text=auto
+
+*.sh                  text eol=lf
+pre-commit            text eol=lf
+
+*.rs                  text diff=rust
+*.toml                text diff=toml
+Cargo.lock            text
+

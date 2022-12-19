@@ -10,10 +10,7 @@ all:
 # directory. This allows hooks to be changed and pushed via the repository,
 # as traditionally this is stored in .git/hooks, which is not under normal
 # repository tracking.
-# This additionally configures line endings to be consistent across
-# operating systems.
 init:
-	git config core.autocrlf true
 	git config core.hooksPath .githooks
 
 # Run the pre-commit testing suite.
