@@ -1,17 +1,16 @@
-//! A generic datapath.
-//!
-//! This has the ability to execute instructions, and to interface with
-//! registers and memory. The generic datapath interface additionally
-//! specifies a series of data types that correspond to the types of
-//! inputs and outputs associated with that datapath.
-//!
-//! This design allows developers to create their own datapaths for
-//! other architectures than the one created for the sake of this
-//! project ([`super::mips::datapath::MipsDatapath`]).
-
+/// A generic datapath.
+///
+/// This has the ability to execute instructions, and to interface with
+/// registers and memory. The generic datapath interface additionally
+/// specifies a series of data types that correspond to the types of
+/// inputs and outputs associated with that datapath.
+///
+/// This design allows developers to create their own datapaths for
+/// other architectures than the one created for the sake of this
+/// project ([`MipsDatapath`](super::mips::datapath::MipsDatapath)).
 pub trait Datapath {
     /// The type of data stored within registers. (Suggestions may
-    /// include `u16`, `u32`, or `u64` for 16-bit, 32-bit, or 64-bit
+    /// include [`u16`], [`u32`], or [`u64`] for 16-bit, 32-bit, or 64-bit
     /// registers, respectively.)
     type RegisterData;
 
