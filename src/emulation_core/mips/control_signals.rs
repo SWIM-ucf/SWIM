@@ -4,6 +4,7 @@ pub struct ControlSignals {
     pub alu_op: AluOp,
     pub alu_src: AluSrc,
     pub branch: Branch,
+    pub imm_shift: ImmShift,
     pub jump: Jump,
     pub mem_read: MemRead,
     pub mem_to_reg: MemToReg,
@@ -57,6 +58,15 @@ pub enum Branch {
 }
 
 #[derive(Default)]
+pub enum ImmShift {
+    #[default]
+    Shift0 = 0,
+    Shift16 = 1,
+    Shift32 = 2,
+    Shift48 = 3,
+}
+
+#[derive(Default)]
 pub enum Jump {
     #[default]
     NoJump = 0,
@@ -93,9 +103,10 @@ pub enum MemWriteSrc {
 
 #[derive(Default)]
 pub enum RegDst {
-    Reg2 = 0,
+    Reg1 = 0,
+    Reg2 = 1,
     #[default]
-    Reg3 = 1,
+    Reg3 = 2,
 }
 
 #[derive(Default)]

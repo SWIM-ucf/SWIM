@@ -223,6 +223,7 @@ impl MipsDatapath {
                 self.signals.alu_op = AluOp::UseFunctField;
                 self.signals.alu_src = AluSrc::ReadRegister2;
                 self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
                 self.signals.jump = Jump::NoJump;
                 self.signals.mem_read = MemRead::NoRead;
                 self.signals.mem_to_reg = MemToReg::UseAlu;
@@ -295,13 +296,21 @@ impl MipsDatapath {
     fn alu(&mut self) {
         // TODO: Support alternating between 32-bit and 64-bit operations.
 
+        // Left shift the immediate value based on the ImmShift control signal.
+        let alu_immediate = match self.signals.imm_shift {
+            ImmShift::Shift0 => self.sign_extend,
+            ImmShift::Shift16 => self.sign_extend << 16,
+            ImmShift::Shift32 => self.sign_extend << 32,
+            ImmShift::Shift48 => self.sign_extend << 48,
+        };
+
         // Specify the inputs for the operation. The first will always
         // be the first register, but the second may be either the
         // second register or the sign-extended immediate value.
         let input1 = self.read_data_1;
         let input2 = match self.signals.alu_src {
             AluSrc::ReadRegister2 => self.read_data_2,
-            AluSrc::ExtendedImmediate => self.sign_extend,
+            AluSrc::ExtendedImmediate => alu_immediate,
         };
 
         // Set the result.
@@ -339,6 +348,7 @@ impl MipsDatapath {
         // Determine the destination for the data to write. This is
         // determined by the RegDst control signal.
         let destination = match self.signals.reg_dst {
+            RegDst::Reg1 => self.rs as usize,
             RegDst::Reg2 => self.rt as usize,
             RegDst::Reg3 => self.rd as usize,
         };
