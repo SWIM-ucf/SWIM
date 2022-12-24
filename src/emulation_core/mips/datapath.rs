@@ -270,15 +270,29 @@ impl MipsDatapath {
                 0b100101 => AluControl::Or,
                 0b101010 => AluControl::SetOnLessThanSigned,
                 0b101011 => AluControl::SetOnLessThanUnsigned,
-                0b011010 | 0b011011 | 0b011110 | 0b011111 => match self.shamt {
-                    0b00010 => AluControl::Division,
+                0b011010 | 0b011110 => match self.shamt {
+                    0b00010 => AluControl::DivisionSigned,
                     _ => {
                         error("Unsupported funct");
                         AluControl::Addition // Stub
                     }
                 },
-                0b011000 | 0b011001 | 0b011100 | 0b011101 => match self.shamt {
-                    0b00010 => AluControl::Multiplication,
+                0b011011 | 0b011111 => match self.shamt {
+                    0b00010 => AluControl::DivisionUnsigned,
+                    _ => {
+                        error("Unsupported funct");
+                        AluControl::Addition // Stub
+                    }
+                },
+                0b011000 | 0b011100 => match self.shamt {
+                    0b00010 => AluControl::MultiplicationSigned,
+                    _ => {
+                        error("Unsupported funct");
+                        AluControl::Addition // Stub
+                    }
+                },
+                0b011001 | 0b011101 => match self.shamt {
+                    0b00010 => AluControl::MultiplicationUnsigned,
                     _ => {
                         error("Unsupported funct");
                         AluControl::Addition // Stub
@@ -323,8 +337,23 @@ impl MipsDatapath {
             AluControl::Or => input1 | input2,
             AluControl::LeftShift16 => input2 << 16,
             AluControl::Not => !input1,
-            AluControl::Multiplication => input1 * input2,
-            AluControl::Division => input1 / input2,
+            AluControl::MultiplicationSigned => ((input1 as i128) * (input2 as i128)) as u64,
+            AluControl::MultiplicationUnsigned => ((input1 as u128) * (input2 as u128)) as u64,
+            AluControl::DivisionSigned => {
+                if input2 == 0 {
+                    0
+                } else {
+                    ((input1 as i64) / (input2 as i64)) as u64
+                }
+            }
+            AluControl::DivisionUnsigned => {
+                if input2 == 0 {
+                    0
+                } else {
+                    input1 / input2
+                }
+            }
+        };
         }
 
         // TODO: Set the zero bit.
