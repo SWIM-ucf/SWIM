@@ -1,3 +1,5 @@
+//! Module for the API of a generic datapath.
+
 /// A generic datapath.
 ///
 /// This has the ability to execute instructions, and to interface with

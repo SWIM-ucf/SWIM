@@ -1,3 +1,5 @@
+//! Internal datapath control signals.
+
 #[derive(Default)]
 pub struct ControlSignals {
     pub alu_control: AluControl,

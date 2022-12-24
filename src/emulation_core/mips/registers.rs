@@ -1,3 +1,5 @@
+//! Register structure and API.
+
 use std::ops::{Index, IndexMut};
 use std::str::FromStr;
 use strum_macros::EnumString;

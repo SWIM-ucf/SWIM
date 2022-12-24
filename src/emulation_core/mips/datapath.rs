@@ -1,3 +1,5 @@
+//! Implementation of a MIPS64 datapath.
+
 use super::super::datapath::Datapath;
 use super::{control_signals::*, memory::Memory, registers::Registers};
 
@@ -6,6 +8,27 @@ use super::{control_signals::*, memory::Memory, registers::Registers};
 /// It is assumed that while moving through stages, only one
 /// instruction will be active any any given point in time. Due to this,
 /// we consider the datapath to be a "pseudo-single-cycle datapath."
+///
+/// For the most part, this datapath is an implementation of MIPS64 Version 6.
+/// (See below for exceptions.)
+///
+/// # Differences Compared to MIPS64 Version 6
+///
+/// It should be noted that this datapath chooses to diverge from the MIPS64
+/// version 6 specification for the sake of simplicity in a few places:
+///
+/// - There is no exception handling, including that for integer overflow. (See
+///   [`MipsDatapath::alu()`].)
+/// - 32-bit instructions are treated exclusively with 32 bits, and the upper 32
+///   bits stored in a register are completely ignored in any of these cases. For
+///   example, before an `add` instruction, it should be checked whether it is a
+///   sign-extended 32-bit value stored in a 64-bit register. Instead, the upper
+///   32 bits are ignored when being used for 32-bit instructions.
+/// - Instead of implementing the `cmp.condn.fmt` instructions, this datapath implements
+///   the `c.cond.fmt` instructions from MIPS64 version 5.
+/// - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
+///   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
+///   `bnezalc`, `beqc`, and `bovc` instructions.
 #[derive(Default)]
 pub struct MipsDatapath {
     pub registers: Registers,
@@ -307,6 +330,10 @@ impl MipsDatapath {
     }
 
     /// Perform an ALU operation.
+    ///
+    /// **Implementation Note:** Unlike the MIPS64 specification, this ALU
+    /// does not handle integer overflow exceptions. Should this be implemented
+    /// in the future, the ALU should be adjusted accordingly to address this.
     fn alu(&mut self) {
         // TODO: Support alternating between 32-bit and 64-bit operations.
 
