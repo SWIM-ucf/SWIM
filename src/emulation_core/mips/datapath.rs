@@ -392,6 +392,11 @@ impl MipsDatapath {
             RegDst::Reg3 => self.rd as usize,
         };
 
+        // If we are attempting to write to register $zero, stop.
+        if destination == 0 {
+            return;
+        }
+
         // If a 32-bit word is requested, ensure data is truncated and sign-extended.
         if let RegWidth::Word = self.signals.reg_width {
             self.data_result = self.data_result as i32 as u64;
