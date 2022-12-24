@@ -362,7 +362,7 @@ impl MipsDatapath {
 
         // Set the result.
         self.alu_result = match self.signals.alu_control {
-            AluControl::Addition => input1.wrapping_add(input2) as u64,
+            AluControl::Addition => input1.wrapping_add(input2),
             AluControl::Subtraction => (input1 as i64).wrapping_sub(input2 as i64) as u64,
             AluControl::SetOnLessThanSigned => ((input1 as i64) < (input2 as i64)) as u64,
             AluControl::SetOnLessThanUnsigned => (input1 < input2) as u64,
