@@ -26,8 +26,10 @@ pub enum AluControl {
     Or = 5,
     LeftShift16 = 6,
     Not = 7,
-    Multiplication = 8,
-    Division = 9,
+    MultiplicationSigned = 8,
+    MultiplicationUnsigned = 9,
+    DivisionSigned = 10,
+    DivisionUnsigned = 11,
 }
 
 #[derive(Default)]
