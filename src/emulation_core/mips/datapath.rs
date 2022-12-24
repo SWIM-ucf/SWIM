@@ -321,16 +321,22 @@ impl MipsDatapath {
         // Specify the inputs for the operation. The first will always
         // be the first register, but the second may be either the
         // second register or the sign-extended immediate value.
-        let input1 = self.read_data_1;
-        let input2 = match self.signals.alu_src {
+        let mut input1 = self.read_data_1;
+        let mut input2 = match self.signals.alu_src {
             AluSrc::ReadRegister2 => self.read_data_2,
             AluSrc::ExtendedImmediate => alu_immediate,
         };
 
+        // Truncate the inputs if 32-bit operations are expected.
+        if let RegWidth::Word = self.signals.reg_width {
+            input1 = input1 as i32 as u64;
+            input2 = input2 as i32 as u64;
+        }
+
         // Set the result.
         self.alu_result = match self.signals.alu_control {
-            AluControl::Addition => input1 + input2,
-            AluControl::Subtraction => input1 - input2,
+            AluControl::Addition => input1.wrapping_add(input2) as u64,
+            AluControl::Subtraction => (input1 as i64).wrapping_sub(input2 as i64) as u64,
             AluControl::SetOnLessThanSigned => ((input1 as i64) < (input2 as i64)) as u64,
             AluControl::SetOnLessThanUnsigned => (input1 < input2) as u64,
             AluControl::And => input1 & input2,
@@ -354,6 +360,10 @@ impl MipsDatapath {
                 }
             }
         };
+
+        // Truncate and sign-extend the output if 32-bit operations are expected.
+        if let RegWidth::Word = self.signals.reg_width {
+            self.alu_result = self.alu_result as i32 as i64 as u64;
         }
 
         // TODO: Set the zero bit.
@@ -382,9 +392,9 @@ impl MipsDatapath {
             RegDst::Reg3 => self.rd as usize,
         };
 
-        // If a 32-bit word is requested, ensure data is truncated.
+        // If a 32-bit word is requested, ensure data is truncated and sign-extended.
         if let RegWidth::Word = self.signals.reg_width {
-            self.data_result = self.data_result as u32 as u64;
+            self.data_result = self.data_result as i32 as u64;
         }
 
         // Write.
