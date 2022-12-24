@@ -1,8 +1,9 @@
+#![allow(clippy::unusual_byte_groupings)]
+
 use crate::emulation_core::datapath::Datapath;
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::emulation_core::mips::registers::RegisterType;
 
-#[allow(clippy::unusual_byte_groupings)]
 #[test]
 fn add_register_to_itself() {
     let mut datapath = MipsDatapath::default();
