@@ -67,3 +67,25 @@ fn store_and_load_word() {
         _ => false,
     });
 }
+
+// Stores a 64-bit doubleword in memory and attempts to read it back
+// with the same value.
+#[test]
+fn store_and_load_double_word() -> Result<(), String> {
+    let mut memory = Memory::default();
+
+    let address = 0;
+    // Large number that fits in 64 bits.
+    let data: u64 = 2_791_928_321_507;
+    memory.store_double_word(address, data)?;
+
+    let loaded_data = memory.load_double_word(address)?;
+
+    if loaded_data == data {
+        Ok(())
+    } else {
+        Err(String::from(
+            "Loaded data from memory did not match expected data",
+        ))
+    }
+}
