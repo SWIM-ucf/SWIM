@@ -42,6 +42,17 @@ impl Memory {
         Ok(())
     }
 
+    pub fn store_double_word(&mut self, address: u64, data: u64) -> Result<(), String> {
+        // Storing a doubleword is the same as storing two words.
+        let data_upper = (data >> 32) as u32;
+        let data_lower = data as u32;
+
+        self.store_word(address, data_upper)?;
+        self.store_word(address + 4, data_lower)?;
+
+        Ok(())
+    }
+
     // A word is 32 bits.
     pub fn load_word(&self, address: u64) -> Result<u32, String> {
         let address = address as usize;
@@ -53,6 +64,29 @@ impl Memory {
         result |= (self.memory[address + 1] as u32) << 16;
         result |= (self.memory[address + 2] as u32) << 8;
         result |= self.memory[address + 3] as u32;
+
+        Ok(result)
+    }
+
+    pub fn load_double_word(&self, address: u64) -> Result<u64, String> {
+        // Loading a doubleword is the same as loading two words.
+        let mut result: u64 = 0;
+
+        // Get the upper 32 bits of the doubleword.
+        match self.load_word(address) {
+            Ok(upper_data) => {
+                result |= (upper_data as u64) << 32;
+            }
+            Err(e) => return Err(e),
+        }
+
+        // Get the lower 32 bits of the doubleword.
+        match self.load_word(address + 4) {
+            Ok(lower_data) => {
+                result |= lower_data as u64;
+            }
+            Err(e) => return Err(e),
+        }
 
         Ok(result)
     }
