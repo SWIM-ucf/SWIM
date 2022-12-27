@@ -197,16 +197,13 @@ impl MipsDatapath {
     ///
     /// Read or write to memory.
     fn stage_memory(&mut self) {
-        // TODO
-        /*
-        if self.signals.mem_read == 1{
+        if let MemRead::YesRead = self.signals.mem_read {
             self.memory_read();
         }
 
-        if self.signals.mem_write == 1 {
+        if let MemWrite::YesWrite = self.signals.mem_write {
             self.memory_write();
         }
-        */
     }
 
     /// Stage 5 of 5: Writeback (WB)
@@ -415,6 +412,47 @@ impl MipsDatapath {
         }
 
         // TODO: Set the zero bit.
+    }
+
+    /// Read from memory based on the address provided by the ALU in
+    /// [`Self::alu_result`]. Returns the result to [`Self::memory_data`].
+    /// Should the address be invalid or otherwise memory cannot be
+    /// read at the given address, bitwise 0 will be used in lieu of
+    /// any data.
+    fn memory_read(&mut self) {
+        let address = self.alu_result;
+
+        // Load memory, first choosing the correct load function by the
+        // RegWidth control signal, then reading the result from this
+        // memory access.
+        self.memory_data = match self.signals.reg_width {
+            RegWidth::Word => self.memory.load_word(address).unwrap_or(0) as u64,
+            RegWidth::DoubleWord => self.memory.load_double_word(address).unwrap_or(0),
+        };
+    }
+
+    /// Write to memory based on the address provided by the ALU in
+    /// [`Self::alu_result`]. The source of the data being written to
+    /// memory is determined by [`MemWriteSrc`].
+    fn memory_write(&mut self) {
+        let address = self.alu_result;
+
+        let write_data = match self.signals.mem_write_src {
+            MemWriteSrc::PrimaryUnit => self.read_data_2,
+            // Awaiting implementation of the floating-point unit.
+            MemWriteSrc::FloatingPointUnit => todo!(),
+        };
+
+        // Choose the correct store function based on the RegWidth
+        // control signal.
+        match self.signals.reg_width {
+            RegWidth::Word => {
+                self.memory.store_word(address, write_data as u32).ok();
+            }
+            RegWidth::DoubleWord => {
+                self.memory.store_double_word(address, write_data).ok();
+            }
+        };
     }
 
     /// Write to a register. This will only write if the RegWrite
