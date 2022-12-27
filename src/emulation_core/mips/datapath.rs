@@ -33,6 +33,8 @@ use super::{control_signals::*, memory::Memory, registers::Registers};
 pub struct MipsDatapath {
     pub registers: Registers,
     pub memory: Memory,
+
+    /// The currently loaded instruction. Initialized after the Instruction Fetch stage.
     pub instruction: u32,
     pub signals: ControlSignals,
 
@@ -44,14 +46,33 @@ pub struct MipsDatapath {
     funct: u32,
     imm: u32,
 
+    /// *Data line.* Data read from the register file based on the `rs`
+    /// field of the instruction. Initialized after the Instruction
+    /// Decode stage.
     read_data_1: u64,
+
+    /// *Data line.* Data read from the register file based on the `rt`
+    /// field of the instruction. Initialized after the Instruction
+    /// Decode stage.
     read_data_2: u64,
+
+    /// *Data line.* The instruction's immediate value sign-extended to
+    /// 64 bits. Initialized after the Instruction Decode stage.
     sign_extend: u64,
 
+    /// *Data line.* The final result as provided by the ALU.
+    /// Initialized after the Execute stage.
     alu_result: u64,
+
+    /// *Data line.* The data retrieved from memory. Initialized after
+    /// the Memory stage.
     memory_data: u64,
+
+    /// *Data line.* The data after the `MemToReg` multiplexer, but
+    /// before the `DataWrite` multiplexer in the main processor.
     data_result: u64,
 
+    /// The currently-active stage in the datapath.
     current_stage: Stage,
 }
 
@@ -276,7 +297,7 @@ impl MipsDatapath {
         }
     }
 
-    /// Set the ALU control signal based on the ALU operation signal.
+    /// Set the ALU control signal based on the [`AluOp`] signal.
     fn set_alu_control(&mut self) {
         self.signals.alu_control = match self.signals.alu_op {
             AluOp::Addition => AluControl::Addition,
