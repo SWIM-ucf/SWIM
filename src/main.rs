@@ -1,16 +1,22 @@
 pub mod emulation_core;
 #[cfg(test)]
 pub mod tests;
+pub mod ui;
 
+use stylist::yew::*;
+use ui::editor::component::Editor;
 use yew::prelude::*;
 
-#[function_component(App)]
+#[styled_component(App)]
 fn app() -> Html {
     html! {
-        <h1>{ "Hello World" }</h1>
+        <div>
+            <h1>{"Welcome to SWIM"}</h1>
+            <Editor />
+        </div>
     }
 }
 
 fn main() {
-    yew::start_app::<App>();
+    yew::Renderer::<App>::new().render();
 }
