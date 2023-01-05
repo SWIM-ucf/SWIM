@@ -365,11 +365,13 @@ impl MipsDatapath {
 
         // Specify the inputs for the operation. The first will always
         // be the first register, but the second may be either the
-        // second register or the sign-extended immediate value.
+        // second register, the sign-extended immediate value, or the
+        // zero-extended immediate value.
         let mut input1 = self.read_data_1;
         let mut input2 = match self.signals.alu_src {
             AluSrc::ReadRegister2 => self.read_data_2,
-            AluSrc::ExtendedImmediate => alu_immediate,
+            AluSrc::SignExtendedImmediate => alu_immediate,
+            AluSrc::ZeroExtendedImmediate => self.imm as u64,
         };
 
         // Truncate the inputs if 32-bit operations are expected.
