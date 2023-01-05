@@ -260,7 +260,7 @@ impl MipsDatapath {
     fn set_control_signals(&mut self) {
         match self.opcode {
             // R-type instructions (add, sub, mul, div, and, or, slt, sltu)
-            0 => {
+            0b000000 => {
                 self.signals.alu_op = AluOp::UseFunctField;
                 self.signals.alu_src = AluSrc::ReadRegister2;
                 self.signals.branch = Branch::NoBranch;
@@ -272,6 +272,21 @@ impl MipsDatapath {
                 self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
                 self.signals.reg_dst = RegDst::Reg3;
                 self.signals.reg_width = RegWidth::Word;
+                self.signals.reg_write = RegWrite::YesWrite;
+            }
+            // Or immediate (ori)
+            0b001101 => {
+                self.signals.alu_op = AluOp::Or;
+                self.signals.alu_src = AluSrc::ZeroExtendedImmediate;
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_width = RegWidth::DoubleWord;
                 self.signals.reg_write = RegWrite::YesWrite;
             }
             _ => error("Instruction not supported."),
