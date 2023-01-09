@@ -42,14 +42,17 @@ pub struct MipsDatapath {
 
     pub instruction_enum: Instruction,
     
-    // --- The goal it to replace these members with the instruction enum --
+    // These members need to be moved to the seperate structs for each
+    // datapath part, or something of that nature. These memebers are
+    // effectively tmp datapath them registers, they should be be thought
+    // of as instructions fields.
     // opcode: u32,
-    // rs: u32,
-    // rt: u32,
-    // rd: u32,
-    // shamt: u32,
-    // funct: u32,
-    // imm: u32,
+    rs: u32,
+    rt: u32,
+    rd: u32,
+    shamt: u32,
+    funct: u32,
+    imm: u32,
 
     imm_reg: u64,
 
@@ -256,7 +259,15 @@ impl MipsDatapath {
                 funct: (self.instruction & 0x3F) as u8,
             }),
 
-            // As far as I know, there is no distinct way differentiate instruction outside
+            // ORI, feels kinda scummy to put this here
+            0b001101 => self.instruction_enum = Instruction::IType(IType {
+                op: ((self.instruction >> 26) & 0x3F) as u8,
+                rs: ((self.instruction >> 21) & 0x1F) as u8,
+                rt: ((self.instruction >> 16) & 0x1F) as u8,
+                immediate: (self.instruction & 0xFF) as u16,
+            }),
+
+            // As far as I know, there is no distinct way differentiate an instruction outside
             // whether they are R-type or not...This sadly this means our code design will
             // end up less elegant than desired
             _ => self.instruction_enum = Instruction::PlaceholderType(PlaceholderType {
@@ -281,6 +292,30 @@ impl MipsDatapath {
         self.imm_reg = ((self.imm_reg as i16) as i64) as u64;
     }
 
+
+    fn set_itype_control_signals<'a>(&'a mut self, I: IType) {
+        match I.op {
+            // Or immediate (ori)
+            // this code really needs to be moved somewhere else
+            0b001101 => {
+                self.signals.alu_op = AluOp::Or;
+                self.signals.alu_src = AluSrc::ZeroExtendedImmediate;
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_width = RegWidth::DoubleWord;
+                self.signals.reg_write = RegWrite::YesWrite;
+            },
+            _ => panic!("Unsupported itype instructions")
+        }
+    }
+
+
     /// Set the control signals for the datapath based on the
     /// instruction's opcode.
     fn set_control_signals(&mut self) {
@@ -303,7 +338,9 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::Word;
                 self.signals.reg_write = RegWrite::YesWrite;
             }
-            Instruction::IType(_) => panic!("IType instructions are not supported yet"),
+            Instruction::IType(I) => {
+                self.set_itype_control_signals(I.clone());
+            },
             Instruction::JType(_) => panic!("JType instructions are not supported yet"),
             Instruction::PlaceholderType(_) => {
                 // These are placeholder signals, they are correct for some R-Types
@@ -319,7 +356,7 @@ impl MipsDatapath {
                 self.signals.reg_dst = RegDst::Reg3;
                 self.signals.reg_width = RegWidth::Word;
                 self.signals.reg_write = RegWrite::YesWrite;
-            }
+            },
         }
     }
 
@@ -439,11 +476,13 @@ impl MipsDatapath {
 
         // Specify the inputs for the operation. The first will always
         // be the first register, but the second may be either the
-        // second register or the sign-extended immediate value.
+        // second register, the sign-extended immediate value, or the
+        // zero-extended immediate value.
         let mut input1 = self.read_data_1;
         let mut input2 = match self.signals.alu_src {
             AluSrc::ReadRegister2 => self.read_data_2,
-            AluSrc::ExtendedImmediate => alu_immediate,
+            AluSrc::SignExtendedImmediate => alu_immediate,
+            AluSrc::ZeroExtendedImmediate => self.imm as u64,
         };
 
         // Truncate the inputs if 32-bit operations are expected.

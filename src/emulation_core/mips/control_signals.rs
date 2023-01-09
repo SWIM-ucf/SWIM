@@ -118,7 +118,10 @@ pub enum AluSrc {
     ReadRegister2 = 0,
 
     /// Use the sign-extended 16-bit immediate field in the instruction. This may be left-shifted by some amount given by the [`ImmShift`] control signal.
-    ExtendedImmediate = 1,
+    SignExtendedImmediate = 1,
+
+    /// Use the zero-extended 16-bit immediate field in the instruction.
+    ZeroExtendedImmediate = 2,
 }
 
 /// Determines if the datapath should consider branching.
