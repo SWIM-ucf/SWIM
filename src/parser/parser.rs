@@ -9,7 +9,7 @@ use crate::parser::parser::parser_instruction_tokenization::OperandType::*;
 use crate::parser::parser::parser_preprocessing::*;
 
 
-fn main() {
+fn parser() {
 
     //this reads the name of the txt file holding the MIPS code as a command line argument,
     //and then copies the contents of that file into a String
