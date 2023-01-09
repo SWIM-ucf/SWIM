@@ -3,7 +3,7 @@
 
 pub mod instruction_types {
 
-    #[derive(Debug, Default)]
+    #[derive(Debug, Default, Clone, Copy)]
     pub struct RType {
         pub op: u8,
         pub rs: u8,
@@ -13,7 +13,7 @@ pub mod instruction_types {
         pub funct: u8,
     }
  
-    #[derive(Debug, Default)]
+    #[derive(Debug, Default, Clone, Copy)]
     pub struct IType {
         pub op: u8,
         pub rs: u8,
@@ -21,14 +21,14 @@ pub mod instruction_types {
         pub immediate: u16,
     }
 
-    #[derive(Debug, Default)]
+    #[derive(Debug, Default, Clone, Copy)]
     pub struct JType {
         pub op: u8,
         pub addr: u32,
     }
 
 
-    #[derive(Debug, Default)]
+    #[derive(Debug, Default, Clone, Copy)]
     pub struct PlaceholderType {
         pub op: u8,
         pub rs: u8,
