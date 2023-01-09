@@ -120,7 +120,7 @@ pub fn print_instruction_struct_contents(instruction: Instruction){
 
 #[cfg(test)]
 mod tokenize_instruction_tests{
-    use crate::parser::parser::parser_instruction_tokenization::{Instruction, tokenize_instruction};
+    use crate::parser::parser_instruction_tokenization::*;
 
     #[test]
     fn tokenize_instruction_returns_struct_with_tokens(){
@@ -137,8 +137,8 @@ mod tokenize_instruction_tests{
 }
 
 mod confirm_commas_tests {
-    use crate::parser::parser::parser_instruction_tokenization::{confirm_commas_in_instruction, Instruction};
-    use crate::parser::parser::parser_instruction_tokenization::ErrorType::MissingComma;
+    use crate::parser::parser_instruction_tokenization::*;
+    use crate::parser::parser_instruction_tokenization::ErrorType::*;
 
     #[test]
     fn confirm_comma_generates_error_when_a_middle_token_is_missing_a_comma() {
@@ -170,7 +170,7 @@ mod confirm_commas_tests {
 }
 
 mod create_vector_of_instructions_tests{
-    use crate::parser::parser::parser_instruction_tokenization::{create_vector_of_instructions, Instruction};
+    use crate::parser::parser_instruction_tokenization::{create_vector_of_instructions, Instruction};
 
     #[test]
     fn create_vector_of_instructions_builds_the_correct_number_of_instructions(){

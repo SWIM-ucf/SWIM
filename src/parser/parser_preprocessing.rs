@@ -20,7 +20,7 @@ pub fn remove_extra_spaces(string: String) -> String{
 
 #[cfg(test)]
 mod pre_processing_tests{
-    use crate::parser::parser::parser_preprocessing::remove_extra_spaces;
+    use crate::parser::parser_preprocessing::remove_extra_spaces;
 
     #[test]
     fn remove_extra_spaces_removes_instances_of_double_spaces() {
