@@ -3,20 +3,18 @@ use crate::parser::parser_instruction_tokenization::instruction_tokenization::Er
 use crate::parser::parser_instruction_tokenization::instruction_tokenization::OperandType::*;
 use crate::parser::parser_preprocessing::*;
 
-fn parser(mut file_string: String) -> Vec<Instruction> {
+pub fn parser(mut file_string: String) -> Vec<Instruction> {
 
 
 
     file_string = file_string.to_ascii_lowercase();
     file_string = remove_extra_spaces(file_string);
-    println!("{}\n", file_string);
 
     let init_instruction_list = create_vector_of_instructions(file_string);
     let mut instruction_list: Vec<Instruction> = vec![];
     for mut instruction in init_instruction_list {
         instruction = confirm_commas_in_instruction(instruction);
         instruction = read_instruction(instruction);
-        //print_instruction_struct_contents(instruction);
         instruction_list.push(instruction);
     }
 
