@@ -15,6 +15,7 @@ pub struct Registers {
 #[derive(EnumString)]
 #[strum(ascii_case_insensitive)]
 pub enum RegisterType {
+    Pc,
     Zero,
     At,
     V0,
@@ -47,8 +48,6 @@ pub enum RegisterType {
     Sp,
     Fp,
     Ra,
-    Cc,
-    Pc,
     F0,
     F1,
     F2,
@@ -81,6 +80,7 @@ pub enum RegisterType {
     F29,
     F30,
     F31,
+    Cc,
 }
 
 impl Index<&str> for Registers {
@@ -145,7 +145,6 @@ impl Index<RegisterType> for Registers {
             RegisterType::Sp => &self.gpr[29],
             RegisterType::Fp => &self.gpr[30],
             RegisterType::Ra => &self.gpr[31],
-            RegisterType::Cc => &self.cc,
             RegisterType::F0 => &self.fpr[0],
             RegisterType::F1 => &self.fpr[1],
             RegisterType::F2 => &self.fpr[2],
@@ -178,6 +177,7 @@ impl Index<RegisterType> for Registers {
             RegisterType::F29 => &self.fpr[29],
             RegisterType::F30 => &self.fpr[30],
             RegisterType::F31 => &self.fpr[31],
+            RegisterType::Cc => &self.cc,
         }
     }
 }
@@ -218,7 +218,6 @@ impl IndexMut<RegisterType> for Registers {
             RegisterType::Sp => &mut self.gpr[29],
             RegisterType::Fp => &mut self.gpr[30],
             RegisterType::Ra => &mut self.gpr[31],
-            RegisterType::Cc => &mut self.cc,
             RegisterType::F0 => &mut self.fpr[0],
             RegisterType::F1 => &mut self.fpr[1],
             RegisterType::F2 => &mut self.fpr[2],
@@ -251,6 +250,7 @@ impl IndexMut<RegisterType> for Registers {
             RegisterType::F29 => &mut self.fpr[29],
             RegisterType::F30 => &mut self.fpr[30],
             RegisterType::F31 => &mut self.fpr[31],
+            RegisterType::Cc => &mut self.cc,
         }
     }
 }
