@@ -71,3 +71,19 @@ fn access_bad_register_by_string() {
 
     registers["not_a_real_register"] = 7;
 }
+
+#[test]
+#[should_panic]
+fn no_modify_zero_register_by_enum() {
+    let mut registers = Registers::default();
+
+    registers[RegisterType::Zero] = 5;
+}
+
+#[test]
+#[should_panic]
+fn no_modify_zero_register_by_string() {
+    let mut registers = Registers::default();
+
+    registers["zero"] = 90;
+}

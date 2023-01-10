@@ -186,7 +186,7 @@ impl IndexMut<RegisterType> for Registers {
     fn index_mut(&mut self, index: RegisterType) -> &mut Self::Output {
         match index {
             RegisterType::Pc => &mut self.pc,
-            RegisterType::Zero => &mut self.gpr[0],
+            RegisterType::Zero => panic!("The $zero register cannot be accessed as mutable"),
             RegisterType::At => &mut self.gpr[1],
             RegisterType::V0 => &mut self.gpr[2],
             RegisterType::V1 => &mut self.gpr[3],
