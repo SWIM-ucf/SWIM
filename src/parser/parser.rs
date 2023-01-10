@@ -177,9 +177,8 @@ fn read_operands(
                         }
                     }
                 }
-            }
-            //RegisterFP => {}
-            //Label => {}
+            } //RegisterFP => {}
+              //Label => {}
         }
     }
     //if no errors are on the list by this point, we can safely push the operands' binaries onto the instruction representation
