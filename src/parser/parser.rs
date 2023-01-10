@@ -6,26 +6,25 @@ use crate::parser::parser_instruction_tokenization::OperandType::*;
 use crate::parser::parser_preprocessing::*;
 
 
-fn parser() {
+fn parser(mut file_string: String) -> Vec<Instruction> {
 
-    //this reads the name of the txt file holding the MIPS code as a command line argument,
-    //and then copies the contents of that file into a String
-    let args: Vec<String> = env::args().collect();
-    let path = &args[1];
-    let mut file_string: String = fs:: read_to_string(path).expect("Error in reading the file");
+
 
     file_string = file_string.to_ascii_lowercase();
     file_string = remove_extra_spaces(file_string);
     println!("{}\n", file_string);
 
-    let instruction_list = create_vector_of_instructions(file_string);
-
-
-    for mut instruction in instruction_list {
+    let init_instruction_list = create_vector_of_instructions(file_string);
+    let mut instruction_list: Vec<Instruction> = vec![];
+    for mut instruction in init_instruction_list {
         instruction = confirm_commas_in_instruction(instruction);
         instruction = read_instruction(instruction);
-        print_instruction_struct_contents(instruction);
+        //print_instruction_struct_contents(instruction);
+        instruction_list.push(instruction);
     }
+
+
+    return instruction_list;
 }
 
 //read_instruction takes an instruction and builds the binary and int representation of the instruction
