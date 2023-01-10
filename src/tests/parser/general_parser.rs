@@ -12,3 +12,16 @@ mod parser_main_function_tests{
 
     }
 }
+
+mod read_instruction_tests{
+    use crate::parser::parser::*;
+    use crate::parser::parser_instruction_tokenization::instruction_tokenization::Instruction;
+
+    #[test]
+    fn read_instruction_read_lui(){
+        let mut instruction = Instruction::default();
+        instruction.tokens = vec!["lui".to_string(), "$t1".to_string(), "256".to_string()];
+        instruction = read_instruction(instruction);
+        assert_eq!(instruction.binary_representation, "00111100000010010000000100000000");
+    }
+}

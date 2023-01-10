@@ -23,7 +23,7 @@ pub fn parser(mut file_string: String) -> Vec<Instruction> {
 }
 
 //read_instruction takes an instruction and builds the binary and int representation of the instruction
-fn read_instruction(mut instruction: Instruction) -> Instruction{
+pub fn read_instruction(mut instruction: Instruction) -> Instruction{
 
     //this match case is the heart of the parser and figures out which instruction type it is
     //then it can call the proper functions for that specific instruction
@@ -83,6 +83,13 @@ fn read_instruction(mut instruction: Instruction) -> Instruction{
             instruction.binary_representation.push_str("101011");
 
             read_operands(&mut instruction, vec![RegisterGp, MemoryAddress], vec![3, 1, 2]);
+        }
+        "lui" => {
+            instruction.binary_representation.push_str("001111");
+
+            instruction.binary_representation.push_str("00000");
+
+            read_operands(&mut instruction, vec![RegisterGp, Immediate], vec![1, 2]);
         }
 
         _ => {
