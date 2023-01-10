@@ -1,10 +1,7 @@
-use std::fs;
-use std::env;
-use crate::parser::parser_instruction_tokenization::*;
-use crate::parser::parser_instruction_tokenization::ErrorType::*;
-use crate::parser::parser_instruction_tokenization::OperandType::*;
+use crate::parser::parser_instruction_tokenization::instruction_tokenization::*;
+use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::*;
+use crate::parser::parser_instruction_tokenization::instruction_tokenization::OperandType::*;
 use crate::parser::parser_preprocessing::*;
-
 
 fn parser(mut file_string: String) -> Vec<Instruction> {
 
@@ -170,7 +167,7 @@ fn read_operands(instruction: &mut Instruction, expected_operands: Vec<OperandTy
 }
 
 //function takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors
-fn read_memory_address(orig_string: &str, token_number: i32)-> (String, String, Option<Vec<Error>>){
+pub(crate) fn read_memory_address(orig_string: &str, token_number: i32) -> (String, String, Option<Vec<Error>>){
 
     //the indices of the open and close parentheses are checked.
     //If either are missing or they are in the wrong order, an error is returned
@@ -225,7 +222,7 @@ fn read_memory_address(orig_string: &str, token_number: i32)-> (String, String, 
 }
 
 //this function takes the string representation of the binary of the instruction and converts it into an int
-fn convert_to_u32(binary_as_string: String) -> u32{
+pub(crate) fn convert_to_u32(binary_as_string: String) -> u32{
     let mut instruction_integer: u32 = 0;
 
     //converts instruction from string representation of binary to the unsigned 32 bit integer representation of it.
@@ -242,7 +239,7 @@ fn convert_to_u32(binary_as_string: String) -> u32{
 //read_register takes the string representation of a register and the token number for this operand on the instruction it came from
 //and returns the corresponding binary representation if there is not a valid match for the register,
 // an error is generated and returned
-fn read_register(register: &str, token_number: i32)-> (&str, Option<Error>) {
+pub(crate) fn read_register(register: &str, token_number: i32) -> (&str, Option<Error>) {
     return match register {
         "$zero" | "r0" => ("00000", None),//0
         "$at" | "r1" => ("00001", None),//1
@@ -294,7 +291,7 @@ fn read_register(register: &str, token_number: i32)-> (&str, Option<Error>) {
 //takes the string representation of a integer, the token number, and the number of bits in the instruction to represent the result
 //and translates that integer into a string representation of the binary value represented using num_bits
 //it also recognizes errors when a given value cannot be cast to int or if the int is too big to be represented with num_bits
-fn read_immediate(given_text: &str, token_number: i32, num_bits: u32) -> (String, Option<Error>){
+pub fn read_immediate(given_text: &str, token_number: i32, num_bits: u32) -> (String, Option<Error>){
     //attempts to cast the text into a large int
     let parse_results = given_text.parse:: <i128>();
 
@@ -337,149 +334,4 @@ fn read_immediate(given_text: &str, token_number: i32, num_bits: u32) -> (String
     }
 
     return (binary_representation.to_string(), None);
-}
-
-#[cfg(test)]
-mod all_tokenization_tests {
-
-    mod convert_to_u32_tests{
-        use crate::parser::parser::convert_to_u32;
-
-        #[test]
-        fn convert_to_u32_returns_correct_value_on_zeros(){
-            let result = convert_to_u32("00000".to_string());
-            assert_eq!(result, 0);
-        }
-
-        #[test]
-        fn convert_to_u32_returns_correct_value_on_32_bit_long_string(){
-            let result = convert_to_u32("11111111111111111111111111111111".to_string());
-            assert_eq!(result, 4294967295);
-        }
-
-        #[test]
-        fn convert_to_u32_returns_correct_value_for_an_actual_instruction(){
-            let result = convert_to_u32("10001101010010010000000000000100".to_string());
-            assert_eq!(result, 2370371588);
-        }
-    }
-
-    mod read_register_tests {
-        use crate::parser::parser::read_register;
-        use crate::parser::parser_instruction_tokenization::ErrorType::UnrecognizedRegister;
-
-        #[test]
-        fn read_register_returns_correct_binary_on_valid_register_name() {
-            let results = read_register("$t1", 1);
-            assert_eq!(results.0, "01001");
-        }
-
-        #[test]
-        fn read_register_returns_correct_binary_on_valid_register_number() {
-            let results = read_register("r12", 1);
-            assert_eq!(results.0, "01100");
-        }
-
-        #[test]
-        fn read_register_returns_error_option_on_unrecognized_register(){
-            let results = read_register("hello_world", 1);
-            assert_eq!(results.1.unwrap().error_name, UnrecognizedRegister);
-        }
-    }
-
-    mod immediate_tests {
-        use crate::parser::parser::*;
-
-        #[test]
-        fn read_immediate_returns_error_on_non_int_string() {
-            let results = read_immediate("Non_Int", 1, 16);
-            assert_eq!(results.1.unwrap().error_name, NonIntImmediate);
-        }
-
-        #[test]
-        fn read_immediate_returns_error_on_immediate_too_large() {
-            let results = read_immediate("300", 1, 8);
-            assert_eq!(results.1.unwrap().error_name, ImmediateOutOfBounds);
-        }
-
-        #[test]
-        fn read_immediate_returns_error_on_immediate_too_small() {
-            let results = read_immediate("-1000", 1, 8);
-            assert_eq!(results.1.unwrap().error_name, ImmediateOutOfBounds);
-        }
-
-        #[test]
-        fn read_immediate_returns_correct_positive_value() {
-            let results = read_immediate("255", 1, 16);
-            assert_eq!(results.0, "0000000011111111");
-        }
-
-        #[test]
-        fn read_immediate_returns_correct_negative_value() {
-            let results = read_immediate("-5", 1, 12);
-            assert_eq!(results.0, "111111111011")
-        }
-    }
-
-    mod memory_address_tests {
-        use crate::parser::parser::read_memory_address;
-        use crate::parser::parser_instruction_tokenization::ErrorType::{ImmediateOutOfBounds, InvalidMemorySyntax, NonIntImmediate, UnrecognizedRegister};
-
-        #[test]
-        fn missing_open_parenthesis_returns_error() {
-            let results = read_memory_address("4$t1)", 0);
-            assert_eq!(results.2.unwrap()[0].error_name, InvalidMemorySyntax);
-        }
-
-        #[test]
-        fn missing_close_parenthesis_returns_error() {
-            let results = read_memory_address("4($t1", 0);
-            assert_eq!(results.2.unwrap()[0].error_name, InvalidMemorySyntax);
-        }
-
-        #[test]
-        fn invalid_parentheses_order_returns_error() {
-            let results = read_memory_address("4)$t1(", 0);
-            assert_eq!(results.2.unwrap()[0].error_name, InvalidMemorySyntax);
-        }
-
-        #[test]
-        fn character_after_close_parenthesis_returns_error() {
-            let results = read_memory_address("4($t1)char", 0);
-            assert_eq!(results.2.unwrap()[0].error_name, InvalidMemorySyntax);
-        }
-
-        #[test]
-        fn non_int_offset_returns_error() {
-            let results = read_memory_address("characters($t1)", 0);
-            assert_eq!(results.2.unwrap()[0].error_name, NonIntImmediate);
-        }
-
-        #[test]
-        fn offset_over_16_bits_returns_error() {
-            let results = read_memory_address("9999999($t1)", 0);
-            assert_eq!(results.2.unwrap()[0].error_name, ImmediateOutOfBounds);
-        }
-
-        #[test]
-        fn base_not_valid_register_returns_error() {
-            let results = read_memory_address("0($wrong)", 0);
-            assert_eq!(results.2.unwrap()[0].error_name, UnrecognizedRegister);
-        }
-
-        #[test]
-        fn invalid_base_and_offset_returns_multiple_errors() {
-            let results = read_memory_address("sad($wrong)", 0).2.unwrap();
-            assert_eq!(results[0].error_name, NonIntImmediate);
-            assert_eq!(results[1].error_name, UnrecognizedRegister);
-        }
-
-        #[test]
-        fn memory_address_can_be_correctly_read() {
-            let results = read_memory_address("4($t1)", 0);
-            assert!(results.2.is_none());
-            assert_eq!(results.0, "0000000000000100");
-            assert_eq!(results.1, "01001");
-        }
-    }
 }
