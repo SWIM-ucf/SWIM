@@ -5,6 +5,8 @@ pub mod ui;
 
 use stylist::yew::*;
 use ui::editor::component::Editor;
+use ui::regview::component::Regview;
+use ui::console::component::Console;
 use yew::prelude::*;
 
 #[styled_component(App)]
@@ -13,6 +15,8 @@ fn app() -> Html {
         <div>
             <h1>{"Welcome to SWIM"}</h1>
             <Editor />
+            <Console/>
+            <Regview />
         </div>
     }
 }
