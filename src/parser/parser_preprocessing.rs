@@ -13,5 +13,5 @@ pub fn remove_extra_spaces(string: String) -> String {
         }
     }
 
-    return string_as_char_vec.into_iter().collect();
+    string_as_char_vec.into_iter().collect()
 }

@@ -1,7 +1,7 @@
 #[cfg(test)]
 
 mod convert_to_u32_tests {
-    use crate::parser::parser::convert_to_u32;
+    use crate::parser::parser_main::convert_to_u32;
 
     #[test]
     fn convert_to_u32_returns_correct_value_on_zeros() {
@@ -23,7 +23,7 @@ mod convert_to_u32_tests {
 }
 
 mod read_register_tests {
-    use crate::parser::parser::read_register;
+    use crate::parser::parser_main::read_register;
     use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::UnrecognizedRegister;
 
     #[test]
@@ -46,7 +46,7 @@ mod read_register_tests {
 }
 
 mod immediate_tests {
-    use crate::parser::parser::*;
+    use crate::parser::parser_main::*;
     use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::{
         ImmediateOutOfBounds, NonIntImmediate,
     };
@@ -83,7 +83,7 @@ mod immediate_tests {
 }
 
 mod memory_address_tests {
-    use crate::parser::parser::read_memory_address;
+    use crate::parser::parser_main::read_memory_address;
     use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::{
         ImmediateOutOfBounds, InvalidMemorySyntax, NonIntImmediate, UnrecognizedRegister,
     };

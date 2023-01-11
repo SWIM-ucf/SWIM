@@ -25,7 +25,7 @@ pub mod instruction_tokenization {
         }
     }
 
-    #[derive(Debug, PartialEq)]
+    #[derive(Debug, PartialEq, Eq)]
     pub enum ErrorType {
         UnrecognizedRegister,
         MissingComma,
@@ -48,14 +48,12 @@ pub mod instruction_tokenization {
     pub fn tokenize_instruction(line: &str) -> Instruction {
         //breaks up line into a vector delimited by space characters
         let mut contents: Vec<String> = Vec::new();
-        for token in line.split(" ") {
+        for token in line.split(' ') {
             contents.push(token.parse().unwrap());
         }
 
         //creates an instruction from the vector
-        let mut current_instruction = Instruction::default();
-        current_instruction.tokens = contents;
-        return current_instruction;
+        Instruction { tokens: contents, ..Default::default() }
     }
 
     //takes the string of the MIPS program after comments, extra spaces, and label names have been removed
@@ -65,7 +63,7 @@ pub mod instruction_tokenization {
         for line in file_string.lines() {
             instructions.push(tokenize_instruction(line));
         }
-        return instructions;
+        instructions
     }
 
     //this function takes an instruction as its argument and checks that every token within it except the first and the last (ie all but the last operand) ends with the ',' character
@@ -97,7 +95,7 @@ pub mod instruction_tokenization {
             }
         }
 
-        return instruction;
+        instruction
     }
 
     pub fn print_instruction_struct_contents(instruction: Instruction) {

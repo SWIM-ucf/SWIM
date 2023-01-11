@@ -15,7 +15,7 @@ pub fn parser(mut file_string: String) -> Vec<Instruction> {
         instruction_list.push(instruction);
     }
 
-    return instruction_list;
+    instruction_list
 }
 
 //read_instruction takes an instruction and builds the binary and int representation of the instruction
@@ -116,7 +116,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
     //the binary of the instruction is converted to u32 here as well
     instruction.int_representation = convert_to_u32(instruction.binary_representation.clone());
 
-    return instruction;
+    instruction
 }
 
 //this function takes an instruction whose operands it is supposed to read, the order of expected operand types and then
@@ -138,11 +138,11 @@ fn read_operands(
     //operands aren't represented in the binary in the order they're read so the vec<string> allows us to concatenate them in the proper order after they're all read.
     let mut string_representations: Vec<String> = Vec::new();
     //goes through once for each expected operand
-    for i in 0..expected_operands.len() {
+    for (i, operand_type) in expected_operands.iter().enumerate() {
         //match case calls the proper functions based on the expected operand type. The data returned from these functions is always
         //the binary of the read operand and the option for any errors encountered while reading the operand. If there were no errors,
         //the binary is pushed to the string representations vec. Otherwise, the errors are pushed to the instruction.errors vec.
-        match expected_operands[i] {
+        match operand_type {
             RegisterGp => {
                 let register_results = read_register(&*instruction.tokens[i + 1], i as i32);
 
@@ -190,7 +190,7 @@ fn read_operands(
         }
     }
 
-    return instruction;
+    instruction
 }
 
 //function takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors
@@ -200,8 +200,8 @@ pub(crate) fn read_memory_address(
 ) -> (String, String, Option<Vec<Error>>) {
     //the indices of the open and close parentheses are checked.
     //If either are missing or they are in the wrong order, an error is returned
-    let open_index = orig_string.find("(");
-    let close_index = orig_string.find(")");
+    let open_index = orig_string.find('(');
+    let close_index = orig_string.find(')');
     if close_index.is_none() || open_index.is_none() || close_index < open_index {
         return (
             "".to_string(),
@@ -254,11 +254,11 @@ pub(crate) fn read_memory_address(
     }
 
     //if the function reaches here and hasn't already returned, there aren't any errors
-    return (
+    (
         immediate_results.0,
         register_results.0.parse().unwrap(),
         None,
-    );
+    )
 }
 
 //this function takes the string representation of the binary of the instruction and converts it into an int
@@ -272,14 +272,14 @@ pub(crate) fn convert_to_u32(binary_as_string: String) -> u32 {
         instruction_integer += bit * exponential_multiplier;
     }
 
-    return instruction_integer;
+    instruction_integer
 }
 
 //read_register takes the string representation of a register and the token number for this operand on the instruction it came from
 //and returns the corresponding binary representation if there is not a valid match for the register,
 // an error is generated and returned
 pub(crate) fn read_register(register: &str, token_number: i32) -> (&str, Option<Error>) {
-    return match register {
+     match register {
         "$zero" | "r0" => ("00000", None), //0
         "$at" | "r1" => ("00001", None),   //1
 
@@ -327,7 +327,7 @@ pub(crate) fn read_register(register: &str, token_number: i32) -> (&str, Option<
                 token_number_giving_error: token_number as u8,
             }),
         ),
-    };
+    }
 }
 
 //takes the string representation of a integer, the token number, and the number of bits in the instruction to represent the result
@@ -355,7 +355,7 @@ pub fn read_immediate(
     let int_representation: i32 = parse_results.unwrap() as i32;
     //finds the max and min values of a signed integer with specified number of bits
     let max_value = i32::pow(2, num_bits);
-    let min_value = (max_value * -1) - 1;
+    let min_value = (-max_value) - 1;
     //if the parsed value is out of possible bounds, an error is returned to add to the instruction
     if int_representation > max_value || int_representation < min_value {
         return (
@@ -386,5 +386,5 @@ pub fn read_immediate(
         binary_representation = extra_zeroes;
     }
 
-    return (binary_representation.to_string(), None);
+    (binary_representation, None)
 }

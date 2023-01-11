@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod parser_main_function_tests {
-    use crate::parser::parser::*;
+    use crate::parser::parser_main::*;
 
     #[test]
     fn parser_takes_string_and_returns_vec_of_instructions() {
@@ -12,7 +12,7 @@ mod parser_main_function_tests {
 }
 
 mod read_instruction_tests {
-    use crate::parser::parser::*;
+    use crate::parser::parser_main::*;
     use crate::parser::parser_instruction_tokenization::instruction_tokenization::Instruction;
 
     #[test]
