@@ -2,6 +2,7 @@
 //! the datapath, control signals, registers, and memory.
 
 pub mod control_signals;
+pub mod coprocessor;
 pub mod datapath;
 pub mod instruction;
 pub mod memory;
