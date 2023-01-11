@@ -40,19 +40,6 @@ pub struct DatapathState {
     shamt: u32,
     funct: u32,
     imm: u32,
-}
-
-#[derive(Default)]
-pub struct MipsDatapath {
-    pub registers: Registers,
-    pub memory: Memory,
-
-    /// The currently loaded instruction. Initialized after the Instruction Fetch stage.
-    pub instruction: u32,
-    pub signals: ControlSignals,
-
-    pub instruction_enum: Instruction,
-    pub state: DatapathState,
 
     /// *Data line.* Data read from the register file based on the `rs`
     /// field of the instruction. Initialized after the Instruction
@@ -79,6 +66,19 @@ pub struct MipsDatapath {
     /// *Data line.* The data after the `MemToReg` multiplexer, but
     /// before the `DataWrite` multiplexer in the main processor.
     data_result: u64,
+}
+
+#[derive(Default)]
+pub struct MipsDatapath {
+    pub registers: Registers,
+    pub memory: Memory,
+
+    /// The currently loaded instruction. Initialized after the Instruction Fetch stage.
+    pub instruction: u32,
+    pub signals: ControlSignals,
+
+    pub instruction_enum: Instruction,
+    pub state: DatapathState,
 
     /// The currently-active stage in the datapath.
     current_stage: Stage,
@@ -387,13 +387,13 @@ impl MipsDatapath {
         let reg1 = self.state.rs as usize;
         let reg2 = self.state.rt as usize;
 
-        self.read_data_1 = self.registers.gpr[reg1];
-        self.read_data_2 = self.registers.gpr[reg2];
+        self.state.read_data_1 = self.registers.gpr[reg1];
+        self.state.read_data_2 = self.registers.gpr[reg2];
 
         // Truncate the variable data if a 32-bit word is requested.
         if let RegWidth::Word = self.signals.reg_width {
-            self.read_data_1 = self.registers.gpr[reg1] as u32 as u64;
-            self.read_data_2 = self.registers.gpr[reg2] as u32 as u64;
+            self.state.read_data_1 = self.registers.gpr[reg1] as u32 as u64;
+            self.state.read_data_2 = self.registers.gpr[reg2] as u32 as u64;
         }
     }
 
@@ -474,19 +474,19 @@ impl MipsDatapath {
 
         // Left shift the immediate value based on the ImmShift control signal.
         let alu_immediate = match self.signals.imm_shift {
-            ImmShift::Shift0 => self.sign_extend,
-            ImmShift::Shift16 => self.sign_extend << 16,
-            ImmShift::Shift32 => self.sign_extend << 32,
-            ImmShift::Shift48 => self.sign_extend << 48,
+            ImmShift::Shift0 => self.state.sign_extend,
+            ImmShift::Shift16 => self.state.sign_extend << 16,
+            ImmShift::Shift32 => self.state.sign_extend << 32,
+            ImmShift::Shift48 => self.state.sign_extend << 48,
         };
 
         // Specify the inputs for the operation. The first will always
         // be the first register, but the second may be either the
         // second register, the sign-extended immediate value, or the
         // zero-extended immediate value.
-        let mut input1 = self.read_data_1;
+        let mut input1 = self.state.read_data_1;
         let mut input2 = match self.signals.alu_src {
-            AluSrc::ReadRegister2 => self.read_data_2,
+            AluSrc::ReadRegister2 => self.state.read_data_2,
             AluSrc::SignExtendedImmediate => alu_immediate,
             AluSrc::ZeroExtendedImmediate => self.state.imm as u64,
         };
@@ -498,7 +498,7 @@ impl MipsDatapath {
         }
 
         // Set the result.
-        self.alu_result = match self.signals.alu_control {
+        self.state.alu_result = match self.signals.alu_control {
             AluControl::Addition => input1.wrapping_add(input2),
             AluControl::Subtraction => (input1 as i64).wrapping_sub(input2 as i64) as u64,
             AluControl::SetOnLessThanSigned => ((input1 as i64) < (input2 as i64)) as u64,
@@ -527,7 +527,7 @@ impl MipsDatapath {
 
         // Truncate and sign-extend the output if 32-bit operations are expected.
         if let RegWidth::Word = self.signals.reg_width {
-            self.alu_result = self.alu_result as i32 as i64 as u64;
+            self.state.alu_result = self.state.alu_result as i32 as i64 as u64;
         }
 
         // TODO: Set the zero bit.
@@ -539,12 +539,12 @@ impl MipsDatapath {
     /// read at the given address, bitwise 0 will be used in lieu of
     /// any data.
     fn memory_read(&mut self) {
-        let address = self.alu_result;
+        let address = self.state.alu_result;
 
         // Load memory, first choosing the correct load function by the
         // RegWidth control signal, then reading the result from this
         // memory access.
-        self.memory_data = match self.signals.reg_width {
+        self.state.memory_data = match self.signals.reg_width {
             RegWidth::Word => self.memory.load_word(address).unwrap_or(0) as u64,
             RegWidth::DoubleWord => self.memory.load_double_word(address).unwrap_or(0),
         };
@@ -554,10 +554,10 @@ impl MipsDatapath {
     /// [`Self::alu_result`]. The source of the data being written to
     /// memory is determined by [`MemWriteSrc`].
     fn memory_write(&mut self) {
-        let address = self.alu_result;
+        let address = self.state.alu_result;
 
         let write_data = match self.signals.mem_write_src {
-            MemWriteSrc::PrimaryUnit => self.read_data_2,
+            MemWriteSrc::PrimaryUnit => self.state.read_data_2,
             // Awaiting implementation of the floating-point unit.
             MemWriteSrc::FloatingPointUnit => todo!(),
         };
@@ -599,9 +599,9 @@ impl MipsDatapath {
 
         // Determine what data will be sent to the register: either
         // the result from the ALU, or data retrieved from memory.
-        self.data_result = match self.signals.mem_to_reg {
-            MemToReg::UseAlu => self.alu_result,
-            MemToReg::UseMemory => self.memory_data,
+        self.state.data_result = match self.signals.mem_to_reg {
+            MemToReg::UseAlu => self.state.alu_result,
+            MemToReg::UseMemory => self.state.memory_data,
         };
 
         // Abort if the RegWrite signal is not set.
@@ -624,11 +624,11 @@ impl MipsDatapath {
 
         // If a 32-bit word is requested, ensure data is truncated and sign-extended.
         if let RegWidth::Word = self.signals.reg_width {
-            self.data_result = self.data_result as i32 as u64;
+            self.state.data_result = self.state.data_result as i32 as u64;
         }
 
         // Write.
-        self.registers.gpr[destination] = self.data_result;
+        self.registers.gpr[destination] = self.state.data_result;
     }
 
     /// Update the program counter register. At the moment, this only
