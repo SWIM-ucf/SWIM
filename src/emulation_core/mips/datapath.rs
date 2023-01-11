@@ -238,14 +238,6 @@ impl MipsDatapath {
 
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
-        // TODO: Use an enum and structs rather than individual fields.
-        // self.opcode = (self.instruction >> 26) & 0b111111;
-        // self.rs = (self.instruction >> 21) & 0b11111;
-        // self.rt = (self.instruction >> 16) & 0b11111;
-        // self.rd = (self.instruction >> 11) & 0b11111;
-        // self.shamt = (self.instruction >> 6) & 0b11111;
-        // self.funct = self.instruction & 0b111111;
-        // self.imm = self.instruction & 0xFFFF;
         let op: u32 = self.instruction >> 26;
         match op {
             0 => self.instruction_enum = Instruction::RType(RType {
@@ -286,6 +278,52 @@ impl MipsDatapath {
                 addr: (self.instruction & 0x03FF_FFFF) as u32,
             })
 
+        }
+
+        match &self.instruction_enum {
+            Instruction::RType(r) => {
+                self.state.rs = r.rs as u32;
+                self.state.rt = r.rt as u32;
+            },
+            Instruction::IType(i) => {
+                self.state.rs = i.rs as u32;
+                self.state.rt = i.rt as u32;
+            },
+            Instruction::PlaceholderType(p) => {
+                self.state.rs = p.rs as u32;
+                self.state.rt = p.rt as u32;
+            },
+            _ => panic!("fixme"),
+        }
+
+        match &self.instruction_enum {
+            Instruction::RType(r) => {
+                self.state.shamt = r.shamt as u32;
+                self.state.funct = r.funct as u32;
+            }
+            _ => { // placholder for non-R-type
+                self.state.shamt = 0;
+                self.state.funct = 0;
+            },    
+        }
+
+        match &self.instruction_enum {
+            Instruction::RType(r) => {
+                self.state.rs = r.rs as u32;
+                self.state.rt = r.rt as u32;
+                self.state.rd = r.rd as u32;
+            },
+            Instruction::IType(i) => {
+                self.state.rs = i.rs as u32;
+                self.state.rt = i.rt as u32;
+                self.state.rd = 0; // Placeholder
+            },
+            Instruction::PlaceholderType(p) => {
+                self.state.rs = p.rs as u32;
+                self.state.rt = p.rt as u32;
+                self.state.rd = p.rd as u32;
+            },
+            _ => panic!("fixme"),
         }
     }
 
@@ -366,53 +404,18 @@ impl MipsDatapath {
     /// Read the registers as specified from the instruction and pass
     /// the data into the datapath.
     fn read_registers(&mut self) {
-
-        match &self.instruction_enum {
-            Instruction::RType(r) => {
-                self.state.rs = r.rs as u32;
-                self.state.rt = r.rt as u32;
-            },
-            Instruction::IType(i) => {
-                self.state.rs = i.rs as u32;
-                self.state.rt = i.rt as u32;
-            },
-            Instruction::PlaceholderType(p) => {
-                self.state.rs = p.rs as u32;
-                self.state.rt = p.rt as u32;
-            },
-            _ => panic!("fixme"),
-        }
-
-
-        let reg1 = self.state.rs as usize;
-        let reg2 = self.state.rt as usize;
-
-        self.state.read_data_1 = self.registers.gpr[reg1];
-        self.state.read_data_2 = self.registers.gpr[reg2];
+        self.state.read_data_1 = self.registers.gpr[self.state.rs as usize];
+        self.state.read_data_2 = self.registers.gpr[self.state.rt as usize];
 
         // Truncate the variable data if a 32-bit word is requested.
         if let RegWidth::Word = self.signals.reg_width {
-            self.state.read_data_1 = self.registers.gpr[reg1] as u32 as u64;
-            self.state.read_data_2 = self.registers.gpr[reg2] as u32 as u64;
+            self.state.read_data_1 = self.registers.gpr[self.state.rs as usize] as u64;
+            self.state.read_data_2 = self.registers.gpr[self.state.rt as usize] as u64;
         }
     }
 
     /// Set the ALU control signal based on the [`AluOp`] signal.
     fn set_alu_control(&mut self) {
-
-        match &self.instruction_enum {
-            Instruction::RType(r) => {
-                self.state.shamt = r.shamt as u32;
-                self.state.funct = r.funct as u32;
-            }
-            _ => { // placholder for non-R-type
-                self.state.shamt = 0;
-                self.state.funct = 0;
-            }, 
-            
-        }
-
-
         self.signals.alu_control = match self.signals.alu_op {
             AluOp::Addition => AluControl::Addition,
             AluOp::Subtraction => AluControl::Subtraction,
@@ -577,26 +580,6 @@ impl MipsDatapath {
     /// Write to a register. This will only write if the RegWrite
     /// control signal is set.
     fn register_write(&mut self) {
-        match &self.instruction_enum {
-            Instruction::RType(r) => {
-                self.state.rs = r.rs as u32;
-                self.state.rt = r.rt as u32;
-                self.state.rd = r.rd as u32;
-            },
-            Instruction::IType(i) => {
-                self.state.rs = i.rs as u32;
-                self.state.rt = i.rt as u32;
-                self.state.rd = 0; // Placeholder
-            },
-            Instruction::PlaceholderType(p) => {
-                self.state.rs = p.rs as u32;
-                self.state.rt = p.rt as u32;
-                self.state.rd = p.rd as u32;
-            },
-            _ => panic!("fixme"),
-        }
-
-
         // Determine what data will be sent to the register: either
         // the result from the ALU, or data retrieved from memory.
         self.state.data_result = match self.signals.mem_to_reg {
