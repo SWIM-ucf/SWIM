@@ -4,9 +4,8 @@ use yew::prelude::*;
 pub fn regview() -> Html {
     html! {
         <>
-            <div style="width: 300px; height: 500px; border: 1px solid black; background-color: lightgray;">
-            
-            </div>
+            <aside style="width: 300px; height: 500px; border: 1px solid black; background-color: lightgray;">
+            </aside>
         </>
     }
 }

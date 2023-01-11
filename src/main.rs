@@ -15,7 +15,7 @@ fn app() -> Html {
         <div>
             <h1>{"Welcome to SWIM"}</h1>
             <Editor />
-            <Console/>
+            <Console />
             <Regview />
         </div>
     }
