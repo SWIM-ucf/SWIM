@@ -338,7 +338,6 @@ impl MipsDatapath {
             // Or immediate (ori)
             // this code really needs to be moved somewhere else
             0b001101 => {
-                println!("beep");
                 self.signals.alu_op = AluOp::Or;
                 self.signals.alu_src = AluSrc::ZeroExtendedImmediate;
                 self.signals.branch = Branch::NoBranch;
