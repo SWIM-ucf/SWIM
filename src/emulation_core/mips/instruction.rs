@@ -18,7 +18,7 @@ pub mod instruction_types {
         pub op: u8,
         pub rs: u8,
         pub rt: u8,
-        pub immediate: u16,
+        pub immediate: u32,
     }
 
     #[derive(Debug, Default, Clone, Copy)]
