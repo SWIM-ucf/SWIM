@@ -31,6 +31,11 @@ use super::instruction::instruction_types::*;
 ///   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
 ///   `bnezalc`, `beqc`, and `bovc` instructions.
 
+
+// pub struct DatapathState {
+    
+// }
+
 #[derive(Default)]
 pub struct MipsDatapath {
     pub registers: Registers,
@@ -265,7 +270,7 @@ impl MipsDatapath {
                     op: ((self.instruction >> 26) & 0x3F) as u8,
                     rs: ((self.instruction >> 21) & 0x1F) as u8,
                     rt: ((self.instruction >> 16) & 0x1F) as u8,
-                    immediate: (self.instruction & 0xFFFF) as u32,
+                    immediate: (self.instruction & 0xFFFF) as u16,
                 });
                 if let Instruction::IType(i) = self.instruction_enum {
                     self.imm = i.immediate as u32;
@@ -294,16 +299,7 @@ impl MipsDatapath {
     /// Extend the sign of a 16-bit value to the other 48 bits of a
     /// 64-bit value.
     fn sign_extend(&mut self) {
-        // Is the value negative or positive? Check sign bit
-
-        // 0000 0000 0000 0000 1000 0000 0000 0000
-        // 0x00008000
-
-        self.sign_extend = if (self.imm & 0x00008000) >> 15 == 0 {
-            self.imm as u64
-        } else {
-            (self.imm as u64) | 0xFFFF_FFFF_FFFF_0000
-        }
+        self.imm = ((self.imm as i16) as i32) as u32;
     }
 
     fn set_itype_control_signals<'a>(&'a mut self, i: IType) {
