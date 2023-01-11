@@ -144,7 +144,7 @@ fn read_operands(
         //the binary is pushed to the string representations vec. Otherwise, the errors are pushed to the instruction.errors vec.
         match operand_type {
             RegisterGp => {
-                let register_results = read_register(&*instruction.tokens[i + 1], i as i32);
+                let register_results = read_register(&instruction.tokens[i + 1], i as i32);
 
                 match register_results.1 {
                     None => string_representations.push(register_results.0.to_string()),
@@ -152,7 +152,7 @@ fn read_operands(
                 }
             }
             Immediate => {
-                let immediate_results = read_immediate(&*instruction.tokens[i + 1], i as i32, 16);
+                let immediate_results = read_immediate(&instruction.tokens[i + 1], i as i32, 16);
 
                 match immediate_results.1 {
                     None => {
@@ -164,7 +164,7 @@ fn read_operands(
             MemoryAddress => {
                 //memory address works a bit differently because it really amounts to two operands: the offset and base
                 //meaning there are two values to push and the possibility of errors on both operands
-                let memory_results = read_memory_address(&*instruction.tokens[i + 1], i as i32);
+                let memory_results = read_memory_address(&instruction.tokens[i + 1], i as i32);
 
                 match memory_results.2 {
                     None => {
@@ -238,7 +238,7 @@ pub(crate) fn read_memory_address(
     //offset is an immediate while base is a register so the read functions for those operands
     //will confirm they are properly formatted
     let immediate_results = read_immediate(offset_str, token_number, 16);
-    let register_results = read_register(&*cleaned_base, token_number);
+    let register_results = read_register(&cleaned_base, token_number);
 
     //any errors found in the read_immediate or read_register functions are collected into a vec
     //if there were any errors, those are returned
@@ -382,7 +382,7 @@ pub fn read_immediate(
         while binary_representation.len() + extra_zeroes.len() < num_bits as usize {
             extra_zeroes.push('0');
         }
-        extra_zeroes.push_str(&*binary_representation);
+        extra_zeroes.push_str(&binary_representation);
         binary_representation = extra_zeroes;
     }
 

@@ -17,8 +17,10 @@ mod read_instruction_tests {
 
     #[test]
     fn read_instruction_read_lui() {
-        let mut instruction = Instruction::default();
-        instruction.tokens = vec!["lui".to_string(), "$t1".to_string(), "256".to_string()];
+        let mut instruction = Instruction {
+            tokens: vec!["lui".to_string(), "$t1".to_string(), "256".to_string()],
+            ..Default::default()
+        };
         instruction = read_instruction(instruction);
         assert_eq!(
             instruction.binary_representation,

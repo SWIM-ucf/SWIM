@@ -176,13 +176,15 @@ mod confirm_commas_tests {
 
     #[test]
     fn confirm_comma_generates_error_when_a_middle_token_is_missing_a_comma() {
-        let mut instruction = Instruction::default();
-        instruction.tokens = vec![
-            "add".to_string(),
-            "$t1,".to_string(),
-            "$t1".to_string(),
-            "$t1".to_string(),
-        ];
+        let mut instruction = Instruction {
+            tokens: vec![
+                "add".to_string(),
+                "$t1,".to_string(),
+                "$t1".to_string(),
+                "$t1".to_string(),
+            ],
+            ..Default::default()
+        };
         instruction = confirm_commas_in_instruction(instruction);
         assert_eq!(instruction.errors[0].error_name, MissingComma);
         assert_eq!(instruction.errors[0].token_number_giving_error, 2);
@@ -190,13 +192,15 @@ mod confirm_commas_tests {
 
     #[test]
     fn confirm_comma_can_generate_multiple_errors_if_multiple_commas_are_missing() {
-        let mut instruction = Instruction::default();
-        instruction.tokens = vec![
-            "add".to_string(),
-            "$t1".to_string(),
-            "$zero".to_string(),
-            "$t1".to_string(),
-        ];
+        let mut instruction = Instruction {
+            tokens: vec![
+                "add".to_string(),
+                "$t1".to_string(),
+                "$zero".to_string(),
+                "$t1".to_string(),
+            ],
+            ..Default::default()
+        };
         instruction = confirm_commas_in_instruction(instruction);
         assert_eq!(instruction.errors[0].error_name, MissingComma);
         assert_eq!(instruction.errors[0].token_number_giving_error, 1);
@@ -206,13 +210,15 @@ mod confirm_commas_tests {
 
     #[test]
     fn confirm_comma_does_not_generate_errors_given_proper_syntax() {
-        let mut instruction = Instruction::default();
-        instruction.tokens = vec![
-            "add".to_string(),
-            "$t1,".to_string(),
-            "$zero,".to_string(),
-            "$t1".to_string(),
-        ];
+        let mut instruction = Instruction {
+            tokens: vec![
+                "add".to_string(),
+                "$t1,".to_string(),
+                "$zero,".to_string(),
+                "$t1".to_string(),
+            ],
+            ..Default::default()
+        };
         instruction = confirm_commas_in_instruction(instruction);
         assert_eq!(instruction.errors.len(), 0);
     }
