@@ -110,7 +110,7 @@ impl Stage {
 
 /// Handle an otherwise irrecoverable error within the datapath. At
 /// present, this is the equivalent of `panic!()`.
-fn error(message: &str) {
+pub fn error(message: &str) {
     panic!("{}", message);
 }
 
