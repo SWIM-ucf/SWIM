@@ -12,8 +12,8 @@ mod parser_main_function_tests {
 }
 
 mod read_instruction_tests {
-    use crate::parser::parser_main::*;
     use crate::parser::parser_instruction_tokenization::instruction_tokenization::Instruction;
+    use crate::parser::parser_main::*;
 
     #[test]
     fn read_instruction_read_lui() {

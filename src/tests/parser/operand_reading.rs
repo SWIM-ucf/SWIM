@@ -23,8 +23,8 @@ mod convert_to_u32_tests {
 }
 
 mod read_register_tests {
-    use crate::parser::parser_main::read_register;
     use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::UnrecognizedRegister;
+    use crate::parser::parser_main::read_register;
 
     #[test]
     fn read_register_returns_correct_binary_on_valid_register_name() {
@@ -46,10 +46,10 @@ mod read_register_tests {
 }
 
 mod immediate_tests {
-    use crate::parser::parser_main::*;
     use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::{
         ImmediateOutOfBounds, NonIntImmediate,
     };
+    use crate::parser::parser_main::*;
 
     #[test]
     fn read_immediate_returns_error_on_non_int_string() {
@@ -83,10 +83,10 @@ mod immediate_tests {
 }
 
 mod memory_address_tests {
-    use crate::parser::parser_main::read_memory_address;
     use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::{
         ImmediateOutOfBounds, InvalidMemorySyntax, NonIntImmediate, UnrecognizedRegister,
     };
+    use crate::parser::parser_main::read_memory_address;
 
     #[test]
     fn missing_open_parenthesis_returns_error() {

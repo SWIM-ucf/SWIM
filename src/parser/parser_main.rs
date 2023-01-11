@@ -279,7 +279,7 @@ pub(crate) fn convert_to_u32(binary_as_string: String) -> u32 {
 //and returns the corresponding binary representation if there is not a valid match for the register,
 // an error is generated and returned
 pub(crate) fn read_register(register: &str, token_number: i32) -> (&str, Option<Error>) {
-     match register {
+    match register {
         "$zero" | "r0" => ("00000", None), //0
         "$at" | "r1" => ("00001", None),   //1
 

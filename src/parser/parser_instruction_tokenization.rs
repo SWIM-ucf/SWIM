@@ -53,7 +53,10 @@ pub mod instruction_tokenization {
         }
 
         //creates an instruction from the vector
-        Instruction { tokens: contents, ..Default::default() }
+        Instruction {
+            tokens: contents,
+            ..Default::default()
+        }
     }
 
     //takes the string of the MIPS program after comments, extra spaces, and label names have been removed
