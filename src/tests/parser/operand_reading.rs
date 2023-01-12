@@ -24,23 +24,24 @@ mod convert_to_u32_tests {
 
 mod read_register_tests {
     use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::UnrecognizedGPRegister;
-    use crate::parser::parser_main::read_gp_register;
+    use crate::parser::parser_instruction_tokenization::instruction_tokenization::RegisterType::GeneralPurpose;
+    use crate::parser::parser_main::read_register;
 
     #[test]
     fn read_register_returns_correct_binary_on_valid_register_name() {
-        let results = read_gp_register("$t1", 1);
+        let results = read_register("$t1", 1, GeneralPurpose);
         assert_eq!(results.0, "01001");
     }
 
     #[test]
     fn read_register_returns_correct_binary_on_valid_register_number() {
-        let results = read_gp_register("r12", 1);
+        let results = read_register("r12", 1, General_Purpose);
         assert_eq!(results.0, "01100");
     }
 
     #[test]
     fn read_register_returns_error_option_on_unrecognized_register() {
-        let results = read_gp_register("hello_world", 1);
+        let results = read_register("hello_world", 1, General_Purpose);
         assert_eq!(results.1.unwrap().error_name, UnrecognizedGPRegister);
     }
 }

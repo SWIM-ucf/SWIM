@@ -1,6 +1,7 @@
 use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::*;
 use crate::parser::parser_instruction_tokenization::instruction_tokenization::OperandType::*;
 use crate::parser::parser_instruction_tokenization::instruction_tokenization::*;
+use crate::parser::parser_instruction_tokenization::instruction_tokenization::RegisterType::GeneralPurpose;
 use crate::parser::parser_preprocessing::*;
 
 pub fn parser(mut file_string: String) -> Vec<Instruction> {
@@ -144,7 +145,7 @@ fn read_operands(
         //the binary is pushed to the string representations vec. Otherwise, the errors are pushed to the instruction.errors vec.
         match operand_type {
             RegisterGp => {
-                let register_results = read_gp_register(&instruction.tokens[i + 1], i as i32);
+                let register_results = read_register(&instruction.tokens[i + 1], i as i32, GeneralPurpose);
 
                 match register_results.1 {
                     None => string_representations.push(register_results.0.to_string()),
@@ -238,7 +239,7 @@ pub(crate) fn read_memory_address(
     //offset is an immediate while base is a register so the read functions for those operands
     //will confirm they are properly formatted
     let immediate_results = read_immediate(offset_str, token_number, 16);
-    let register_results = read_gp_register(&cleaned_base, token_number);
+    let register_results = read_register(&cleaned_base, token_number, GeneralPurpose);
 
     //any errors found in the read_immediate or read_register functions are collected into a vec
     //if there were any errors, those are returned
@@ -275,124 +276,127 @@ pub(crate) fn convert_to_u32(binary_as_string: String) -> u32 {
     instruction_integer
 }
 
-//read_register takes the string representation of a register and the token number for this operand on the instruction it came from
-//and returns the corresponding binary representation if there is not a valid match for the register,
-// an error is generated and returned
-pub(crate) fn read_gp_register(register: &str, token_number: i32) -> (&str, Option<Error>) {
-    match register {
-        "$zero" | "r0" => ("00000", None), //0
-        "$at" | "r1" => ("00001", None),   //1
+//read_register takes the string of the register name, the token number the register is from the corresponding instruction
+//and the expected register type. It calls the corresponding functions holding the match cases for the different register types.
+pub(crate) fn read_register(register: &str, token_number: i32, register_type: RegisterType) -> (&str, Option<Error>) {
 
-        "$v0" | "r2" => ("00010", None), //2
-        "$v1" | "r3" => ("00011", None), //3
-
-        "$a0" | "r4" => ("00100", None), //4
-        "$a1" | "r5" => ("00101", None), //5
-        "$a2" | "r6" => ("00110", None), //6
-        "$a3" | "r7" => ("00111", None), //7
-
-        "$t0" | "r8" => ("01000", None),  //8
-        "$t1" | "r9" => ("01001", None),  //9
-        "$t2" | "r10" => ("01010", None), //10
-        "$t3" | "r11" => ("01011", None), //11
-        "$t4" | "r12" => ("01100", None), //12
-        "$t5" | "r13" => ("01101", None), //13
-        "$t6" | "r14" => ("01110", None), //14
-        "$t7" | "r15" => ("01111", None), //15
-
-        "$s0" | "r16" => ("10000", None), //16
-        "$s1" | "r17" => ("10001", None), //17
-        "$s2" | "r18" => ("10010", None), //18
-        "$s3" | "r19" => ("10011", None), //19
-        "$s4" | "r20" => ("10100", None), //20
-        "$s5" | "r21" => ("10101", None), //21
-        "$s6" | "r22" => ("10110", None), //22
-        "$s7" | "r23" => ("10111", None), //23
-
-        "$t8" | "r24" => ("11000", None), //24
-        "$t9" | "r25" => ("11001", None), //25
-
-        "$k0" | "r26" => ("11010", None), //26
-        "$k1" | "r27" => ("11011", None), //27
-
-        "$gp" | "r28" => ("11100", None), //28
-        "$sp" | "r29" => ("11101", None), //29
-        "$fp" | "r30" => ("11110", None), //30
-        "$ra" | "r31" => ("11111", None), //31
-
-        &_ => {
-            if read_gp_register(register, token_number).1.is_none() {
-                (
-                    "",
-                    Some(Error {
-                        error_name: IncorrectRegisterType,
-                        token_number_giving_error: token_number as u8,
-                    }),
-                )
-            }
-            (
-                "",
-                Some(Error {
-                    error_name: UnrecognizedGPRegister,
-                    token_number_giving_error: token_number as u8,
-                }),
-            )
+    if register_type == GeneralPurpose {
+        let general_result = match_gp_register(register);
+        if general_result.is_some {
+            (general_result.unwrap(), None)
+        } else if match_fp_register(register).is_some(){
+            ("", Some(Error{
+                error_name: IncorrectRegisterType,
+                token_number_giving_error: token_number as u8
+            }))
+        } else {
+            ("", Some(Error{
+                error_name: UnrecognizedGPRegister,
+                token_number_giving_error: token_number as u8
+            }))
+        }
+    } else{
+        let floating_result = match_fp_register(register);
+        if floating_result.is_some() {
+            (floating_result.unwrap(), None)
+        } else if match_gp_register(register).is_some(){
+            ("", Some(Error{
+                error_name: IncorrectRegisterType,
+                token_number_giving_error: token_number as u8
+            }))
+        } else {
+            ("", Some(Error{
+                error_name: UnrecognizedFPRegister,
+                token_number_giving_error: token_number as u8
+            }))
         }
     }
 }
 
-pub fn read_fp_register(register: &str, token_number: i32) -> (&str, Option<Error>) {
-    match register {
-        "$f0" => ("00000", None),
-        "$f1" => ("00001", None),
-        "$f2" => ("00010", None),
-        "$f3" => ("00011", None),
-        "$f4" => ("00100", None),
-        "$f5" => ("00101", None),
-        "$f6" => ("00110", None),
-        "$f7" => ("00111", None),
-        "$f8" => ("01000", None),
-        "$f9" => ("01001", None),
-        "$f10" => ("01010", None),
-        "$f11" => ("01011", None),
-        "$f12" => ("01100", None),
-        "$f13" => ("01101", None),
-        "$f14" => ("01110", None),
-        "$f15" => ("01111", None),
-        "$f16" => ("10000", None),
-        "$f17" => ("10001", None),
-        "$f18" => ("10010", None),
-        "$f19" => ("10011", None),
-        "$f20" => ("10100", None),
-        "$f21" => ("10101", None),
-        "$f22" => ("10110", None),
-        "$f23" => ("10111", None),
-        "$f24" => ("11000", None),
-        "$f25" => ("11001", None),
-        "$f26" => ("11010", None),
-        "$f27" => ("11011", None),
-        "$f28" => ("11100", None),
-        "$f29" => ("11101", None),
-        "$f30" => ("11110", None),
-        "$f31" => ("11111", None),
-        &_ => {
-            if read_fp_register(register, token_number).1.is_none() {
-                (
-                    "",
-                    Some(Error {
-                        error_name: IncorrectRegisterType,
-                        token_number_giving_error: token_number as u8,
-                    }),
-                )
-            }
-            (
-                "",
-                Some(Error {
-                    error_name: UnrecognizedFPRegister,
-                    token_number_giving_error: token_number as u8,
-                }),
-            )
-        }
+//This function takes a register string as an argument and returns the string of the binary of the matching
+//general register or none if there is not one that matches.
+pub fn match_gp_register(register: &str) -> Option<&str>{
+    match register{
+        "$zero" | "r0" => Some("00000"), //0
+        "$at" | "r1" => Some("00001"),   //1
+
+        "$v0" | "r2" => Some("00010"), //2
+        "$v1" | "r3" => Some("00011"), //3
+
+        "$a0" | "r4" => Some("00100"), //4
+        "$a1" | "r5" => Some("00101"), //5
+        "$a2" | "r6" => Some("00110"), //6
+        "$a3" | "r7" => Some("00111"), //7
+
+        "$t0" | "r8" => Some("01000"),  //8
+        "$t1" | "r9" => Some("01001"),  //9
+        "$t2" | "r10" => Some("01010"), //10
+        "$t3" | "r11" => Some("01011"), //11
+        "$t4" | "r12" => Some("01100"), //12
+        "$t5" | "r13" => Some("01101"), //13
+        "$t6" | "r14" => Some("01110"), //14
+        "$t7" | "r15" => Some("01111"), //15
+
+        "$s0" | "r16" => Some("10000"), //16
+        "$s1" | "r17" => Some("10001"), //17
+        "$s2" | "r18" => Some("10010"), //18
+        "$s3" | "r19" => Some("10011"), //19
+        "$s4" | "r20" => Some("10100"), //20
+        "$s5" | "r21" => Some("10101"), //21
+        "$s6" | "r22" => Some("10110"), //22
+        "$s7" | "r23" => Some("10111"), //23
+
+        "$t8" | "r24" => Some("11000"), //24
+        "$t9" | "r25" => Some("11001"), //25
+
+        "$k0" | "r26" => Some("11010"), //26
+        "$k1" | "r27" => Some("11011"), //27
+
+        "$gp" | "r28" => Some("11100"), //28
+        "$sp" | "r29" => Some("11101"), //29
+        "$fp" | "r30" => Some("11110"), //30
+        "$ra" | "r31" => Some("11111"), //31
+        _ => None
+    }
+}
+
+//This function takes a register string as an argument and returns the string of the binary of the matching
+//floating point register or none if there is not one that matches.
+pub fn match_fp_register(register: &str) -> Option<&str>{
+    match register{
+        "$f0" => Some("00000"),
+        "$f1" => Some("00001"),
+        "$f2" => Some("00010"),
+        "$f3" => Some("00011"),
+        "$f4" => Some("00100"),
+        "$f5" => Some("00101"),
+        "$f6" => Some("00110"),
+        "$f7" => Some("00111"),
+        "$f8" => Some("01000"),
+        "$f9" => Some("01001"),
+        "$f10" => Some("01010"),
+        "$f11" => Some("01011"),
+        "$f12" => Some("01100"),
+        "$f13" => Some("01101"),
+        "$f14" => Some("01110"),
+        "$f15" => Some("01111"),
+        "$f16" => Some("10000"),
+        "$f17" => Some("10001"),
+        "$f18" => Some("10010"),
+        "$f19" => Some("10011"),
+        "$f20" => Some("10100"),
+        "$f21" => Some("10101"),
+        "$f22" => Some("10110"),
+        "$f23" => Some("10111"),
+        "$f24" => Some("11000"),
+        "$f25" => Some("11001"),
+        "$f26" => Some("11010"),
+        "$f27" => Some("11011"),
+        "$f28" => Some("11100"),
+        "$f29" => Some("11101"),
+        "$f30" => Some("11110"),
+        "$f31" => Some("11111"),
+        _ => None
     }
 }
 

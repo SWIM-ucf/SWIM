@@ -46,6 +46,12 @@ pub mod instruction_tokenization {
         //Label
     }
 
+    //This enum is just for the read_register_function to determine which register type it should expect
+    pub enum RegisterType {
+        GeneralPurpose,
+        FloatingPoint
+    }
+
     //takes the string representation of a line of MIPS code and breaks it up into tokens delimited by space characters
     pub fn tokenize_instruction(line: &str) -> Instruction {
         //breaks up line into a vector delimited by space characters
