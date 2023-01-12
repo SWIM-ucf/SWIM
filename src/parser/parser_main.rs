@@ -110,6 +110,71 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary_representation.push_str("00000");
 
             read_operands(&mut instruction, vec![RegisterGp, Immediate], vec![1, 2]);
+        }"andi" => {
+            instruction.binary_representation.push_str("001100");
+
+            read_operands(
+                &mut instruction,
+                vec![RegisterGp, RegisterGp, Immediate],
+                vec![1, 2, 3],
+            );
+        }
+        "dadd" => {
+            instruction.binary_representation.push_str("000000");
+
+            read_operands(
+                &mut instruction,
+                vec![RegisterGp, RegisterGp, RegisterGp],
+                vec![2, 3, 1],
+            );
+
+            instruction.binary_representation.push_str("00000");
+            instruction.binary_representation.push_str("101100");
+        }
+        "dsub" => {
+            instruction.binary_representation.push_str("000000");
+
+            read_operands(
+                &mut instruction,
+                vec![RegisterGp, RegisterGp, RegisterGp],
+                vec![2, 3, 1],
+            );
+
+            instruction.binary_representation.push_str("00000");
+            instruction.binary_representation.push_str("101110");
+        }
+        "dmul" => {}
+        "ddiv" => {
+            instruction.binary_representation.push_str("000000");
+
+            read_operands(&mut instruction, vec![RegisterGp, RegisterGp], vec![1, 2]);
+
+            instruction.binary_representation.push_str("0000000000");
+            instruction.binary_representation.push_str("011110");
+        }
+        "or" => {
+            instruction.binary_representation.push_str("000000");
+
+            read_operands(
+                &mut instruction,
+                vec![RegisterGp, RegisterGp, RegisterGp],
+                vec![3, 1, 2],
+            );
+
+            instruction.binary_representation.push_str("00000");
+            instruction.binary_representation.push_str("100101");
+        }
+        "and" => {
+            instruction.binary_representation.push_str("000000");
+
+            read_operands(
+                &mut instruction,
+                vec![RegisterGp, RegisterGp, RegisterGp],
+                vec![3, 1, 2],
+            );
+
+            instruction.binary_representation.push_str("00000");
+            instruction.binary_representation.push_str("100100");
         }
 
         _ => {}
@@ -285,6 +350,7 @@ pub(crate) fn read_register(
     register_type: RegisterType,
 ) -> (&str, Option<Error>) {
     if register_type == GeneralPurpose {
+        //this section is for matching general purpose registers
         let general_result = match_gp_register(register);
         if let Some(..) = general_result {
             (general_result.unwrap(), None)
@@ -306,6 +372,7 @@ pub(crate) fn read_register(
             )
         }
     } else {
+        //this section is for matching floating point registers
         let floating_result = match_fp_register(register);
         if let Some(..) = floating_result {
             (floating_result.unwrap(), None)

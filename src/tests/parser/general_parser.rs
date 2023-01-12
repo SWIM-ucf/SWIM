@@ -16,7 +16,7 @@ mod read_instruction_tests {
     use crate::parser::parser_main::*;
 
     #[test]
-    fn read_instruction_read_lui() {
+    fn read_instruction_reads_instruction() {
         let mut instruction = Instruction {
             tokens: vec!["lui".to_string(), "$t1".to_string(), "256".to_string()],
             ..Default::default()
