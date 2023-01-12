@@ -4,6 +4,9 @@ use super::control_signals::floating_point::*;
 use super::datapath::error;
 
 /// An implementation of a floating-point coprocessor for the MIPS64 ISA.
+///
+/// Different from the main processor, much of the functionality of the coprocessor
+/// is controlled remotely using its available API calls.
 #[derive(Default)]
 pub struct MipsFpCoprocessor {
     instruction: u32,
@@ -49,10 +52,14 @@ impl MipsFpCoprocessor {
         self.register_write();
     }
 
+    /// Set the internally-stored copy of the current instruction. This effectively
+    /// operates in lieu of any "instruction fetch" functionality since the coprocessor
+    /// does not fetch instructions.
     pub fn set_instruction(&mut self, instruction: u32) {
         self.instruction = instruction;
     }
 
+    /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
         self.op = (self.instruction >> 26) & 0b111111;
         self.fmt = (self.instruction >> 21) & 0b11111;
@@ -62,6 +69,8 @@ impl MipsFpCoprocessor {
         self.function = self.instruction & 0b111111;
     }
 
+    /// Set the [`FpuRegWidth`] control signal based on the `fmt` field in
+    /// the instruction.
     fn set_reg_width(&mut self) {
         self.signals.fpu_reg_width = match self.fmt {
             16 => FpuRegWidth::Word,
@@ -73,14 +82,20 @@ impl MipsFpCoprocessor {
         }
     }
 
+    /// Sets the data line between the main processor and the `Data` register. This
+    /// is then used if deciding data from the main processor should go into the `Data`
+    /// register.
     pub fn set_data_from_main_processor(&mut self, data: u64) {
         self.data_from_main_processor = data;
     }
 
-    pub fn set_main_memory_data(&mut self, data: u64) {
-        self.main_memory_data = data;
+    /// Gets the contents of the data line between the `Data` register and the multiplexer
+    /// in the main processor controlled by the [`DataWrite`] control signal.
+    pub fn get_main_memory_data(&mut self) -> u64 {
+        self.main_memory_data
     }
 
+    /// Defines the control signals to set when the coprocessor is not being used.
     fn set_noop_control_signals(&mut self) {
         self.signals.cc = Cc::Cc0;
         self.signals.cc_write = CcWrite::NoWrite;
@@ -93,6 +108,8 @@ impl MipsFpCoprocessor {
         self.signals.fpu_reg_write = FpuRegWrite::NoWrite;
     }
 
+    /// Set the control signals of the processor based on the instruction opcode and function
+    /// control signals.
     fn set_control_signals(&mut self) {
         match self.op {
             // COP1 (Coprocessor 1 instruction)
@@ -119,6 +136,8 @@ impl MipsFpCoprocessor {
         }
     }
 
+    /// Read the registers as specified from the instruction and pass
+    /// the data into the datapath.
     fn read_registers(&mut self) {
         let reg1 = self.fs as usize;
         let reg2 = self.ft as usize;
@@ -133,6 +152,7 @@ impl MipsFpCoprocessor {
         }
     }
 
+    /// Perform an ALU operation.
     fn alu(&mut self) {
         let mut input1 = self.read_data_1;
         let mut input2 = self.read_data_2;
@@ -152,6 +172,7 @@ impl MipsFpCoprocessor {
         }
     }
 
+    /// Perform a comparison.
     fn comparator(&mut self) {
         let mut input1 = self.read_data_1;
         let mut input2 = self.read_data_2;
@@ -168,6 +189,8 @@ impl MipsFpCoprocessor {
         }
     }
 
+    /// Write to the `Data` register. This register is used to transfer data between
+    /// the main processor and the coprocessor.
     fn write_data(&mut self) {
         if let DataWrite::NoWrite = self.signals.data_write {
             return;
@@ -181,10 +204,12 @@ impl MipsFpCoprocessor {
         self.condition_code = data as u64;
     }
 
+    /// Set the condition code (CC) register based on the result from the comparator.
     fn write_condition_code(&mut self) {
         self.condition_code = self.comparator_result;
     }
 
+    /// Write data to the floating-point register file.
     fn register_write(&mut self) {
         if let FpuRegWrite::NoWrite = self.signals.fpu_reg_write {
             return;

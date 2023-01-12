@@ -169,7 +169,7 @@ pub enum MemRead {
 /// register's new data will be.
 ///
 /// The decision can be completely overridden by the floating point
-/// unit's [`DataWrite`] control signal.
+/// unit's [`DataWrite`](floating_point::DataWrite) control signal.
 #[derive(Default)]
 pub enum MemToReg {
     #[default]
@@ -255,7 +255,7 @@ pub mod floating_point {
         pub fpu_reg_write: FpuRegWrite,
     }
 
-    /// Determines, given that CCWrite is set, which condition code register
+    /// Determines, given that [`CcWrite`] is set, which condition code register
     /// should be written to or read from for a given operation.
     ///
     /// For the sake of this project, it will usually be assumed that this will
@@ -299,7 +299,7 @@ pub mod floating_point {
     /// This acts as a toggle for the source of data to the main processing unit register
     /// file. Additionally, it acts as a toggle for a source to the floating-point unit
     /// register file (this could be overridden by the [`FpuMemToReg`] control signal).
-    /// For the latter two functions, it is imperative to unset the [`RegWrite`] and
+    /// For the latter two functions, it is imperative to unset the [`RegWrite`](super::RegWrite) and
     /// [`FpuRegWrite`] control signals in cases where registers should not be modified
     /// with unintended data.
     #[derive(Default)]
@@ -316,7 +316,7 @@ pub mod floating_point {
         /// - Source data to write to the main processing unit register file from the
         ///   floating-point unit. Specifically, this is the data stored in the `Data` register
         ///   in the FPU, likely from register `fs` from a given instruction. This data source
-        ///   overrides the decision given by the [`MemToReg`] control signal.
+        ///   overrides the decision given by the [`MemToReg`](super::MemToReg) control signal.
         /// - Source data to write to the floating-point register file from the `Data` register
         ///   in the FPU, likely from register `rt` from a given instruction.
         YesWrite = 1,
@@ -373,7 +373,7 @@ pub mod floating_point {
     /// contents of the condition code register.
     ///
     /// This directly overrides any branch decisions decided by the main processing unit.
-    /// The [`Branch`] control signal should not be set in addition to this signal.
+    /// The [`Branch`](super::Branch) control signal should not be set in addition to this signal.
     #[derive(Default)]
     pub enum FpuBranch {
         /// Do not consider branching.
