@@ -1,6 +1,3 @@
-
-
-
 pub mod instruction_types {
 
     #[derive(Debug, Default, Clone, Copy)]
@@ -12,7 +9,7 @@ pub mod instruction_types {
         pub shamt: u8,
         pub funct: u8,
     }
- 
+
     #[derive(Debug, Default, Clone, Copy)]
     pub struct IType {
         pub op: u8,
@@ -27,7 +24,6 @@ pub mod instruction_types {
         pub addr: u32,
     }
 
-
     #[derive(Debug, Default, Clone, Copy)]
     pub struct PlaceholderType {
         pub op: u8,
@@ -36,9 +32,9 @@ pub mod instruction_types {
         pub rd: u8,
         pub shamt: u8,
         pub funct: u8,
-        
+
         pub imm: u16,
-        
+
         // piece for J-Type
         pub addr: u32,
     }
@@ -56,6 +52,4 @@ pub mod instruction_types {
             return Instruction::RType(RType::default());
         }
     }
-
 }
-

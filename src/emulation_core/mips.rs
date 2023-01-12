@@ -3,6 +3,6 @@
 
 pub mod control_signals;
 pub mod datapath;
+pub mod instruction;
 pub mod memory;
 pub mod registers;
-pub mod instruction;

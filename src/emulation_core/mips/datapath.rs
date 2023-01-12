@@ -1,8 +1,8 @@
 //! Implementation of a MIPS64 datapath.
 
 use super::super::datapath::Datapath;
-use super::{control_signals::*, memory::Memory, registers::Registers};
 use super::instruction::instruction_types::*;
+use super::{control_signals::*, memory::Memory, registers::Registers};
 
 /// An implementation of a datapath for the MIPS64 ISA.
 ///
@@ -30,7 +30,6 @@ use super::instruction::instruction_types::*;
 /// - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
 ///   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
 ///   `bnezalc`, `beqc`, and `bovc` instructions.
-
 
 #[derive(Default)]
 pub struct DatapathState {
@@ -240,14 +239,16 @@ impl MipsDatapath {
     fn instruction_decode(&mut self) {
         let op: u32 = self.instruction >> 26;
         match op {
-            0 => self.instruction_enum = Instruction::RType(RType {
-                op: ((self.instruction >> 26) & 0x3F) as u8,
-                rs: ((self.instruction >> 21) & 0x1F) as u8,
-                rt: ((self.instruction >> 16) & 0x1F) as u8,
-                rd: ((self.instruction >> 11) & 0x1F) as u8,
-                shamt: ((self.instruction >> 6) & 0x1F) as u8,
-                funct: (self.instruction & 0x3F) as u8,
-            }),
+            0 => {
+                self.instruction_enum = Instruction::RType(RType {
+                    op: ((self.instruction >> 26) & 0x3F) as u8,
+                    rs: ((self.instruction >> 21) & 0x1F) as u8,
+                    rt: ((self.instruction >> 16) & 0x1F) as u8,
+                    rd: ((self.instruction >> 11) & 0x1F) as u8,
+                    shamt: ((self.instruction >> 6) & 0x1F) as u8,
+                    funct: (self.instruction & 0x3F) as u8,
+                })
+            }
 
             // ORI, feels kinda scummy to put this here
             0b001101 => {
@@ -260,39 +261,39 @@ impl MipsDatapath {
                 if let Instruction::IType(i) = self.instruction_enum {
                     self.state.imm = i.immediate as u32;
                 }
-            },
+            }
 
             // As far as I know, there is no distinct way differentiate an instruction outside
             // whether they are R-type or not...This sadly this means our code design will
             // end up less elegant than desired
-            _ => self.instruction_enum = Instruction::PlaceholderType(PlaceholderType {
+            _ => {
+                self.instruction_enum = Instruction::PlaceholderType(PlaceholderType {
+                    op: ((self.instruction >> 26) & 0x3F) as u8,
+                    rs: ((self.instruction >> 21) & 0x1F) as u8,
+                    rt: ((self.instruction >> 16) & 0x1F) as u8,
+                    rd: ((self.instruction >> 11) & 0x1F) as u8,
+                    shamt: ((self.instruction >> 6) & 0x1F) as u8,
+                    funct: (self.instruction & 0x3F) as u8,
 
-                op: ((self.instruction >> 26) & 0x3F) as u8,
-                rs: ((self.instruction >> 21) & 0x1F) as u8,
-                rt: ((self.instruction >> 16) & 0x1F) as u8,
-                rd: ((self.instruction >> 11) & 0x1F) as u8,
-                shamt: ((self.instruction >> 6) & 0x1F) as u8,
-                funct: (self.instruction & 0x3F) as u8,
-
-                imm: (self.instruction & 0xFF) as u16,
-                addr: (self.instruction & 0x03FF_FFFF) as u32,
-            })
-
+                    imm: (self.instruction & 0xFF) as u16,
+                    addr: (self.instruction & 0x03FF_FFFF) as u32,
+                })
+            }
         }
 
         match &self.instruction_enum {
             Instruction::RType(r) => {
                 self.state.rs = r.rs as u32;
                 self.state.rt = r.rt as u32;
-            },
+            }
             Instruction::IType(i) => {
                 self.state.rs = i.rs as u32;
                 self.state.rt = i.rt as u32;
-            },
+            }
             Instruction::PlaceholderType(p) => {
                 self.state.rs = p.rs as u32;
                 self.state.rt = p.rt as u32;
-            },
+            }
             _ => panic!("fixme"),
         }
 
@@ -301,10 +302,11 @@ impl MipsDatapath {
                 self.state.shamt = r.shamt as u32;
                 self.state.funct = r.funct as u32;
             }
-            _ => { // placholder for non-R-type
+            _ => {
+                // placholder for non-R-type
                 self.state.shamt = 0;
                 self.state.funct = 0;
-            },    
+            }
         }
 
         match &self.instruction_enum {
@@ -312,17 +314,17 @@ impl MipsDatapath {
                 self.state.rs = r.rs as u32;
                 self.state.rt = r.rt as u32;
                 self.state.rd = r.rd as u32;
-            },
+            }
             Instruction::IType(i) => {
                 self.state.rs = i.rs as u32;
                 self.state.rt = i.rt as u32;
                 self.state.rd = 0; // Placeholder
-            },
+            }
             Instruction::PlaceholderType(p) => {
                 self.state.rs = p.rs as u32;
                 self.state.rt = p.rt as u32;
                 self.state.rd = p.rd as u32;
-            },
+            }
             _ => panic!("fixme"),
         }
     }
@@ -350,18 +352,17 @@ impl MipsDatapath {
                 self.signals.reg_dst = RegDst::Reg2;
                 self.signals.reg_width = RegWidth::DoubleWord;
                 self.signals.reg_write = RegWrite::YesWrite;
-            },
-            _ => panic!("Unsupported itype instructions")
+            }
+            _ => panic!("Unsupported itype instructions"),
         }
     }
-
 
     /// Set the control signals for the datapath based on the
     /// instruction's opcode.
     fn set_control_signals(&mut self) {
         match self.instruction_enum {
             // R-type instructions (add, sub, mul, div, and, or, slt, sltu)
-            // This case may need to be changed up to then switch on the funct bits to 
+            // This case may need to be changed up to then switch on the funct bits to
             // further figure out control signals...although, NAAAA
             Instruction::RType(_) => {
                 // This is all placholder for now, kinda
@@ -380,7 +381,7 @@ impl MipsDatapath {
             }
             Instruction::IType(i) => {
                 self.set_itype_control_signals(i.clone());
-            },
+            }
             Instruction::JType(_) => panic!("JType instructions are not supported yet"),
             Instruction::PlaceholderType(_) => {
                 // These are placeholder signals, they are correct for some R-Types
@@ -396,7 +397,7 @@ impl MipsDatapath {
                 self.signals.reg_dst = RegDst::Reg3;
                 self.signals.reg_width = RegWidth::Word;
                 self.signals.reg_write = RegWrite::YesWrite;
-            },
+            }
         }
     }
 
