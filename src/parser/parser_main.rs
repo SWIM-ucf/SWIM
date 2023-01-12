@@ -1,7 +1,7 @@
 use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::*;
 use crate::parser::parser_instruction_tokenization::instruction_tokenization::OperandType::*;
-use crate::parser::parser_instruction_tokenization::instruction_tokenization::*;
 use crate::parser::parser_instruction_tokenization::instruction_tokenization::RegisterType::GeneralPurpose;
+use crate::parser::parser_instruction_tokenization::instruction_tokenization::*;
 use crate::parser::parser_preprocessing::*;
 
 pub fn parser(mut file_string: String) -> Vec<Instruction> {
@@ -145,7 +145,8 @@ fn read_operands(
         //the binary is pushed to the string representations vec. Otherwise, the errors are pushed to the instruction.errors vec.
         match operand_type {
             RegisterGp => {
-                let register_results = read_register(&instruction.tokens[i + 1], i as i32, GeneralPurpose);
+                let register_results =
+                    read_register(&instruction.tokens[i + 1], i as i32, GeneralPurpose);
 
                 match register_results.1 {
                     None => string_representations.push(register_results.0.to_string()),
@@ -278,45 +279,60 @@ pub(crate) fn convert_to_u32(binary_as_string: String) -> u32 {
 
 //read_register takes the string of the register name, the token number the register is from the corresponding instruction
 //and the expected register type. It calls the corresponding functions holding the match cases for the different register types.
-pub(crate) fn read_register(register: &str, token_number: i32, register_type: RegisterType) -> (&str, Option<Error>) {
-
+pub(crate) fn read_register(
+    register: &str,
+    token_number: i32,
+    register_type: RegisterType,
+) -> (&str, Option<Error>) {
     if register_type == GeneralPurpose {
         let general_result = match_gp_register(register);
-        if general_result.is_some {
+        if let Some(..) = general_result {
             (general_result.unwrap(), None)
-        } else if match_fp_register(register).is_some(){
-            ("", Some(Error{
-                error_name: IncorrectRegisterType,
-                token_number_giving_error: token_number as u8
-            }))
+        } else if match_fp_register(register).is_some() {
+            (
+                "",
+                Some(Error {
+                    error_name: IncorrectRegisterType,
+                    token_number_giving_error: token_number as u8,
+                }),
+            )
         } else {
-            ("", Some(Error{
-                error_name: UnrecognizedGPRegister,
-                token_number_giving_error: token_number as u8
-            }))
+            (
+                "",
+                Some(Error {
+                    error_name: UnrecognizedGPRegister,
+                    token_number_giving_error: token_number as u8,
+                }),
+            )
         }
-    } else{
+    } else {
         let floating_result = match_fp_register(register);
-        if floating_result.is_some() {
+        if let Some(..) = floating_result {
             (floating_result.unwrap(), None)
-        } else if match_gp_register(register).is_some(){
-            ("", Some(Error{
-                error_name: IncorrectRegisterType,
-                token_number_giving_error: token_number as u8
-            }))
+        } else if match_gp_register(register).is_some() {
+            (
+                "",
+                Some(Error {
+                    error_name: IncorrectRegisterType,
+                    token_number_giving_error: token_number as u8,
+                }),
+            )
         } else {
-            ("", Some(Error{
-                error_name: UnrecognizedFPRegister,
-                token_number_giving_error: token_number as u8
-            }))
+            (
+                "",
+                Some(Error {
+                    error_name: UnrecognizedFPRegister,
+                    token_number_giving_error: token_number as u8,
+                }),
+            )
         }
     }
 }
 
 //This function takes a register string as an argument and returns the string of the binary of the matching
 //general register or none if there is not one that matches.
-pub fn match_gp_register(register: &str) -> Option<&str>{
-    match register{
+pub fn match_gp_register(register: &str) -> Option<&str> {
+    match register {
         "$zero" | "r0" => Some("00000"), //0
         "$at" | "r1" => Some("00001"),   //1
 
@@ -356,14 +372,14 @@ pub fn match_gp_register(register: &str) -> Option<&str>{
         "$sp" | "r29" => Some("11101"), //29
         "$fp" | "r30" => Some("11110"), //30
         "$ra" | "r31" => Some("11111"), //31
-        _ => None
+        _ => None,
     }
 }
 
 //This function takes a register string as an argument and returns the string of the binary of the matching
 //floating point register or none if there is not one that matches.
-pub fn match_fp_register(register: &str) -> Option<&str>{
-    match register{
+pub fn match_fp_register(register: &str) -> Option<&str> {
+    match register {
         "$f0" => Some("00000"),
         "$f1" => Some("00001"),
         "$f2" => Some("00010"),
@@ -396,7 +412,7 @@ pub fn match_fp_register(register: &str) -> Option<&str>{
         "$f29" => Some("11101"),
         "$f30" => Some("11110"),
         "$f31" => Some("11111"),
-        _ => None
+        _ => None,
     }
 }
 

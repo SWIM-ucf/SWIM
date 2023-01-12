@@ -47,9 +47,10 @@ pub mod instruction_tokenization {
     }
 
     //This enum is just for the read_register_function to determine which register type it should expect
+    #[derive(PartialEq, Eq)]
     pub enum RegisterType {
         GeneralPurpose,
-        FloatingPoint
+        FloatingPoint,
     }
 
     //takes the string representation of a line of MIPS code and breaks it up into tokens delimited by space characters

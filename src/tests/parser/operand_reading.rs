@@ -23,8 +23,12 @@ mod convert_to_u32_tests {
 }
 
 mod read_register_tests {
-    use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::UnrecognizedGPRegister;
-    use crate::parser::parser_instruction_tokenization::instruction_tokenization::RegisterType::GeneralPurpose;
+    use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::{
+        IncorrectRegisterType, UnrecognizedGPRegister,
+    };
+    use crate::parser::parser_instruction_tokenization::instruction_tokenization::RegisterType::{
+        FloatingPoint, GeneralPurpose,
+    };
     use crate::parser::parser_main::read_register;
 
     #[test]
@@ -35,14 +39,26 @@ mod read_register_tests {
 
     #[test]
     fn read_register_returns_correct_binary_on_valid_register_number() {
-        let results = read_register("r12", 1, General_Purpose);
+        let results = read_register("r12", 1, GeneralPurpose);
         assert_eq!(results.0, "01100");
     }
 
     #[test]
     fn read_register_returns_error_option_on_unrecognized_register() {
-        let results = read_register("hello_world", 1, General_Purpose);
+        let results = read_register("hello_world", 1, GeneralPurpose);
         assert_eq!(results.1.unwrap().error_name, UnrecognizedGPRegister);
+    }
+
+    #[test]
+    fn read_register_returns_error_fp_when_needs_gp() {
+        let results = read_register("$t1", 1, FloatingPoint);
+        assert_eq!(results.1.unwrap().error_name, IncorrectRegisterType);
+    }
+
+    #[test]
+    fn read_register_returns_error_gp_when_needs_fp() {
+        let results = read_register("$f1", 1, GeneralPurpose);
+        assert_eq!(results.1.unwrap().error_name, IncorrectRegisterType);
     }
 }
 
