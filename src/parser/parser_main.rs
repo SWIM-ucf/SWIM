@@ -144,7 +144,7 @@ fn read_operands(
         //the binary is pushed to the string representations vec. Otherwise, the errors are pushed to the instruction.errors vec.
         match operand_type {
             RegisterGp => {
-                let register_results = read_register(&instruction.tokens[i + 1], i as i32);
+                let register_results = read_gp_register(&instruction.tokens[i + 1], i as i32);
 
                 match register_results.1 {
                     None => string_representations.push(register_results.0.to_string()),
@@ -238,7 +238,7 @@ pub(crate) fn read_memory_address(
     //offset is an immediate while base is a register so the read functions for those operands
     //will confirm they are properly formatted
     let immediate_results = read_immediate(offset_str, token_number, 16);
-    let register_results = read_register(&cleaned_base, token_number);
+    let register_results = read_gp_register(&cleaned_base, token_number);
 
     //any errors found in the read_immediate or read_register functions are collected into a vec
     //if there were any errors, those are returned
@@ -278,7 +278,7 @@ pub(crate) fn convert_to_u32(binary_as_string: String) -> u32 {
 //read_register takes the string representation of a register and the token number for this operand on the instruction it came from
 //and returns the corresponding binary representation if there is not a valid match for the register,
 // an error is generated and returned
-pub(crate) fn read_register(register: &str, token_number: i32) -> (&str, Option<Error>) {
+pub(crate) fn read_gp_register(register: &str, token_number: i32) -> (&str, Option<Error>) {
     match register {
         "$zero" | "r0" => ("00000", None), //0
         "$at" | "r1" => ("00001", None),   //1
@@ -320,13 +320,79 @@ pub(crate) fn read_register(register: &str, token_number: i32) -> (&str, Option<
         "$fp" | "r30" => ("11110", None), //30
         "$ra" | "r31" => ("11111", None), //31
 
-        &_ => (
-            "",
-            Some(Error {
-                error_name: UnrecognizedRegister,
-                token_number_giving_error: token_number as u8,
-            }),
-        ),
+        &_ => {
+            if read_gp_register(register, token_number).1.is_none() {
+                (
+                    "",
+                    Some(Error {
+                        error_name: IncorrectRegisterType,
+                        token_number_giving_error: token_number as u8,
+                    }),
+                )
+            }
+            (
+                "",
+                Some(Error {
+                    error_name: UnrecognizedGPRegister,
+                    token_number_giving_error: token_number as u8,
+                }),
+            )
+        }
+    }
+}
+
+pub fn read_fp_register(register: &str, token_number: i32) -> (&str, Option<Error>) {
+    match register {
+        "$f0" => ("00000", None),
+        "$f1" => ("00001", None),
+        "$f2" => ("00010", None),
+        "$f3" => ("00011", None),
+        "$f4" => ("00100", None),
+        "$f5" => ("00101", None),
+        "$f6" => ("00110", None),
+        "$f7" => ("00111", None),
+        "$f8" => ("01000", None),
+        "$f9" => ("01001", None),
+        "$f10" => ("01010", None),
+        "$f11" => ("01011", None),
+        "$f12" => ("01100", None),
+        "$f13" => ("01101", None),
+        "$f14" => ("01110", None),
+        "$f15" => ("01111", None),
+        "$f16" => ("10000", None),
+        "$f17" => ("10001", None),
+        "$f18" => ("10010", None),
+        "$f19" => ("10011", None),
+        "$f20" => ("10100", None),
+        "$f21" => ("10101", None),
+        "$f22" => ("10110", None),
+        "$f23" => ("10111", None),
+        "$f24" => ("11000", None),
+        "$f25" => ("11001", None),
+        "$f26" => ("11010", None),
+        "$f27" => ("11011", None),
+        "$f28" => ("11100", None),
+        "$f29" => ("11101", None),
+        "$f30" => ("11110", None),
+        "$f31" => ("11111", None),
+        &_ => {
+            if read_fp_register(register, token_number).1.is_none() {
+                (
+                    "",
+                    Some(Error {
+                        error_name: IncorrectRegisterType,
+                        token_number_giving_error: token_number as u8,
+                    }),
+                )
+            }
+            (
+                "",
+                Some(Error {
+                    error_name: UnrecognizedFPRegister,
+                    token_number_giving_error: token_number as u8,
+                }),
+            )
+        }
     }
 }
 

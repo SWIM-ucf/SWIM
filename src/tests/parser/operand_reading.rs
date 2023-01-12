@@ -23,25 +23,25 @@ mod convert_to_u32_tests {
 }
 
 mod read_register_tests {
-    use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::UnrecognizedRegister;
-    use crate::parser::parser_main::read_register;
+    use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::UnrecognizedGPRegister;
+    use crate::parser::parser_main::read_gp_register;
 
     #[test]
     fn read_register_returns_correct_binary_on_valid_register_name() {
-        let results = read_register("$t1", 1);
+        let results = read_gp_register("$t1", 1);
         assert_eq!(results.0, "01001");
     }
 
     #[test]
     fn read_register_returns_correct_binary_on_valid_register_number() {
-        let results = read_register("r12", 1);
+        let results = read_gp_register("r12", 1);
         assert_eq!(results.0, "01100");
     }
 
     #[test]
     fn read_register_returns_error_option_on_unrecognized_register() {
-        let results = read_register("hello_world", 1);
-        assert_eq!(results.1.unwrap().error_name, UnrecognizedRegister);
+        let results = read_gp_register("hello_world", 1);
+        assert_eq!(results.1.unwrap().error_name, UnrecognizedGPRegister);
     }
 }
 
@@ -84,7 +84,7 @@ mod immediate_tests {
 
 mod memory_address_tests {
     use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::{
-        ImmediateOutOfBounds, InvalidMemorySyntax, NonIntImmediate, UnrecognizedRegister,
+        ImmediateOutOfBounds, InvalidMemorySyntax, NonIntImmediate, UnrecognizedGPRegister,
     };
     use crate::parser::parser_main::read_memory_address;
 
@@ -127,14 +127,14 @@ mod memory_address_tests {
     #[test]
     fn base_not_valid_register_returns_error() {
         let results = read_memory_address("0($wrong)", 0);
-        assert_eq!(results.2.unwrap()[0].error_name, UnrecognizedRegister);
+        assert_eq!(results.2.unwrap()[0].error_name, UnrecognizedGPRegister);
     }
 
     #[test]
     fn invalid_base_and_offset_returns_multiple_errors() {
         let results = read_memory_address("sad($wrong)", 0).2.unwrap();
         assert_eq!(results[0].error_name, NonIntImmediate);
-        assert_eq!(results[1].error_name, UnrecognizedRegister);
+        assert_eq!(results[1].error_name, UnrecognizedGPRegister);
     }
 
     #[test]

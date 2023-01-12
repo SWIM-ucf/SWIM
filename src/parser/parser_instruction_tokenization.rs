@@ -27,7 +27,9 @@ pub mod instruction_tokenization {
 
     #[derive(Debug, PartialEq, Eq)]
     pub enum ErrorType {
-        UnrecognizedRegister,
+        UnrecognizedGPRegister,
+        UnrecognizedFPRegister,
+        IncorrectRegisterType,
         MissingComma,
         ImmediateOutOfBounds,
         NonIntImmediate,
