@@ -49,7 +49,7 @@ pub mod instruction_types {
 
     impl Default for Instruction {
         fn default() -> Self {
-            return Instruction::RType(RType::default());
+            Instruction::RType(RType::default())
         }
     }
 }

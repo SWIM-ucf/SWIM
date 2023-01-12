@@ -335,7 +335,7 @@ impl MipsDatapath {
         self.state.imm = ((self.state.imm as i16) as i32) as u32;
     }
 
-    fn set_itype_control_signals<'a>(&'a mut self, i: IType) {
+    fn set_itype_control_signals(&mut self, i: IType) {
         match i.op {
             // Or immediate (ori)
             // this code really needs to be moved somewhere else
@@ -380,7 +380,7 @@ impl MipsDatapath {
                 self.signals.reg_write = RegWrite::YesWrite;
             }
             Instruction::IType(i) => {
-                self.set_itype_control_signals(i.clone());
+                self.set_itype_control_signals(i);
             }
             Instruction::JType(_) => panic!("JType instructions are not supported yet"),
             Instruction::PlaceholderType(_) => {
