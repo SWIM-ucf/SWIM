@@ -1,5 +1,6 @@
 //! Implementation of a MIPS64 floating-point coprocessor.
 
+use super::constants::*;
 use super::control_signals::floating_point::*;
 use super::datapath::error;
 use super::instruction::Instruction;
@@ -87,9 +88,9 @@ impl MipsFpCoprocessor {
     /// Set the [`FpuRegWidth`] control signal based on the `fmt` field in
     /// the instruction.
     fn set_reg_width(&mut self) {
-        self.signals.fpu_reg_width = match self.state.fmt {
-            16 => FpuRegWidth::Word,
-            17 => FpuRegWidth::DoubleWord,
+        self.signals.fpu_reg_width = match self.state.fmt as u8 {
+            FMT_SINGLE => FpuRegWidth::Word,
+            FMT_DOUBLE => FpuRegWidth::DoubleWord,
             _ => {
                 error(format!("{} is an invalid fmt value", self.state.fmt).as_str());
                 FpuRegWidth::default()
@@ -136,10 +137,8 @@ impl MipsFpCoprocessor {
         match self.instruction {
             Instruction::FpuRType(r) => {
                 match r.op {
-                    // COP1 (Coprocessor 1 instruction)
-                    0b010001 => match r.function {
-                        // ADD
-                        0b000000 => {
+                    OPCODE_COP1 => match r.function {
+                        FUNCTION_ADD => {
                             self.signals.cc = Cc::Cc0;
                             self.signals.cc_write = CcWrite::NoWrite;
                             self.signals.data_src = DataSrc::FloatingPointUnit;
