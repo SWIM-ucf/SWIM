@@ -430,33 +430,28 @@ impl MipsDatapath {
                         ENC_DIV => AluControl::DivisionSigned,
                         _ => {
                             unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
-                            AluControl::Addition // Stub
                         }
                     },
                     FUNCT_SOP33 | FUNCT_SOP37 => match self.state.shamt as u8 {
                         ENC_DIVU => AluControl::DivisionUnsigned,
                         _ => {
                             unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
-                            AluControl::Addition // Stub
                         }
                     },
                     FUNCT_SOP30 | FUNCT_SOP34 => match self.state.shamt as u8 {
                         ENC_MUL => AluControl::MultiplicationSigned,
                         _ => {
                             unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
-                            AluControl::Addition // Stub
                         }
                     },
                     FUNCT_SOP31 | FUNCT_SOP35 => match self.state.shamt as u8 {
                         ENC_MULU => AluControl::MultiplicationUnsigned,
                         _ => {
                             unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
-                            AluControl::Addition // Stub
                         }
                     },
                     _ => {
                         unimplemented!("funct code `{}` is unsupported on ALU", self.state.funct);
-                        AluControl::Addition // Stub
                     }
                 }
             }
