@@ -6,7 +6,7 @@ use crate::parser::parser_preprocessing::*;
 
 pub fn parser(mut file_string: String) -> Vec<Instruction> {
     file_string = file_string.to_ascii_lowercase();
-    file_string = remove_extra_spaces(file_string);
+    file_string = remove_extra_spaces_and_lines(file_string);
 
     let init_instruction_list = create_vector_of_instructions(file_string);
     let mut instruction_list: Vec<Instruction> = vec![];
@@ -150,7 +150,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             read_operands(
                 &mut instruction,
                 vec![RegisterGp, RegisterGp, RegisterGp],
-                vec![3, 1, 2]
+                vec![3, 1, 2],
             );
 
             instruction.binary_representation.push_str("00010");
