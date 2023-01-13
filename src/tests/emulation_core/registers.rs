@@ -71,3 +71,36 @@ fn access_bad_register_by_string() {
 
     registers["not_a_real_register"] = 7;
 }
+
+#[test]
+#[should_panic]
+fn no_modify_zero_register_by_enum() {
+    let mut registers = Registers::default();
+
+    registers[RegisterType::Zero] = 5;
+}
+
+#[test]
+#[should_panic]
+fn no_modify_zero_register_by_string() {
+    let mut registers = Registers::default();
+
+    registers["zero"] = 90;
+}
+
+#[test]
+fn registers_into_iter() {
+    let mut registers = Registers {
+        pc: 500,
+        ..Default::default()
+    };
+    registers.gpr[1] = 19;
+    registers.gpr[2] = 45;
+
+    let mut iter = registers.into_iter();
+
+    assert_eq!(Some((RegisterType::Pc, 500)), iter.next());
+    assert_eq!(Some((RegisterType::Zero, 0)), iter.next());
+    assert_eq!(Some((RegisterType::At, 19)), iter.next());
+    assert_eq!(Some((RegisterType::V0, 45)), iter.next());
+}
