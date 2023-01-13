@@ -1,9 +1,49 @@
 //! Implementation of a MIPS64 datapath.
+//!
+//! It is assumed that while moving through stages, only one
+//! instruction will be active any any given point in time. Due to this,
+//! we consider the datapath to be a "pseudo-single-cycle datapath."
+//!
+//! For the most part, this datapath is an implementation of MIPS64 Version 6.
+//! (See below for exceptions.)
+//!
+//! # Differences Compared to MIPS64 Version 6
+//!
+//! It should be noted that this datapath chooses to diverge from the MIPS64
+//! version 6 specification for the sake of simplicity in a few places:
+//!
+//! - There is no exception handling, including that for integer overflow. (See
+//!   [`MipsDatapath::alu()`].)
+//! - 32-bit instructions are treated exclusively with 32 bits, and the upper 32
+//!   bits stored in a register are completely ignored in any of these cases. For
+//!   example, before an `add` instruction, it should be checked whether it is a
+//!   sign-extended 32-bit value stored in a 64-bit register. Instead, the upper
+//!   32 bits are ignored when being used for 32-bit instructions.
+//! - Instead of implementing the `cmp.condn.fmt` instructions, this datapath implements
+//!   the `c.cond.fmt` instructions from MIPS64 version 5.
+//! - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
+//!   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
+//!   `bnezalc`, `beqc`, and `bovc` instructions.
 
 use super::super::datapath::Datapath;
 use super::control_signals::{floating_point::*, *};
-use super::instruction::instruction_types::*;
+use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::Registers};
+
+/// An implementation of a datapath for the MIPS64 ISA.
+#[derive(Default)]
+pub struct MipsDatapath {
+    pub registers: Registers,
+    pub memory: Memory,
+    pub coprocessor: MipsFpCoprocessor,
+
+    pub instruction: Instruction,
+    pub signals: ControlSignals,
+    pub state: DatapathState,
+
+    /// The currently-active stage in the datapath.
+    current_stage: Stage,
+}
 
 #[derive(Default)]
 pub struct DatapathState {
@@ -46,47 +86,6 @@ pub struct DatapathState {
     /// *Data line.* The data after the `DataWrite` multiplexer in the main
     /// processor and the main processor register file.
     register_write_data: u64,
-}
-
-/// An implementation of a datapath for the MIPS64 ISA.
-///
-/// It is assumed that while moving through stages, only one
-/// instruction will be active any any given point in time. Due to this,
-/// we consider the datapath to be a "pseudo-single-cycle datapath."
-///
-/// For the most part, this datapath is an implementation of MIPS64 Version 6.
-/// (See below for exceptions.)
-///
-/// # Differences Compared to MIPS64 Version 6
-///
-/// It should be noted that this datapath chooses to diverge from the MIPS64
-/// version 6 specification for the sake of simplicity in a few places:
-///
-/// - There is no exception handling, including that for integer overflow. (See
-///   [`MipsDatapath::alu()`].)
-/// - 32-bit instructions are treated exclusively with 32 bits, and the upper 32
-///   bits stored in a register are completely ignored in any of these cases. For
-///   example, before an `add` instruction, it should be checked whether it is a
-///   sign-extended 32-bit value stored in a 64-bit register. Instead, the upper
-///   32 bits are ignored when being used for 32-bit instructions.
-/// - Instead of implementing the `cmp.condn.fmt` instructions, this datapath implements
-///   the `c.cond.fmt` instructions from MIPS64 version 5.
-/// - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
-///   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
-///   `bnezalc`, `beqc`, and `bovc` instructions.
-#[derive(Default)]
-pub struct MipsDatapath {
-    pub registers: Registers,
-    pub memory: Memory,
-    pub coprocessor: MipsFpCoprocessor,
-
-    pub instruction: Instruction,
-
-    pub signals: ControlSignals,
-    pub state: DatapathState,
-
-    /// The currently-active stage in the datapath.
-    current_stage: Stage,
 }
 
 /// The possible stages the datapath could be in during execution.
@@ -260,47 +259,7 @@ impl MipsDatapath {
 
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
-        // Based on the opcode, convert the instruction to a struct representation.
-        let op: u32 = self.state.instruction >> 26;
-        match op {
-            // R-type instructions (add, sub, mul, div, and, or, slt, sltu)
-            0 => {
-                self.instruction = Instruction::RType(RType {
-                    op: ((self.state.instruction >> 26) & 0x3F) as u8,
-                    rs: ((self.state.instruction >> 21) & 0x1F) as u8,
-                    rt: ((self.state.instruction >> 16) & 0x1F) as u8,
-                    rd: ((self.state.instruction >> 11) & 0x1F) as u8,
-                    shamt: ((self.state.instruction >> 6) & 0x1F) as u8,
-                    funct: (self.state.instruction & 0x3F) as u8,
-                })
-            }
-
-            // COP1 (coprocessor 1)
-            0b010001 => {
-                self.instruction = Instruction::FpuRType(FpuRType {
-                    op: ((self.state.instruction >> 26) & 0x3F) as u8,
-                    fmt: ((self.state.instruction >> 21) & 0x1F) as u8,
-                    ft: ((self.state.instruction >> 16) & 0x1F) as u8,
-                    fs: ((self.state.instruction >> 11) & 0x1F) as u8,
-                    fd: ((self.state.instruction >> 6) & 0x1F) as u8,
-                    function: (self.state.instruction & 0x3F) as u8,
-                })
-            }
-
-            // Or immediate (ori)
-            0b001101 => {
-                self.instruction = Instruction::IType(IType {
-                    op: ((self.state.instruction >> 26) & 0x3F) as u8,
-                    rs: ((self.state.instruction >> 21) & 0x1F) as u8,
-                    rt: ((self.state.instruction >> 16) & 0x1F) as u8,
-                    immediate: (self.state.instruction & 0xFFFF) as u16,
-                });
-                if let Instruction::IType(i) = self.instruction {
-                    self.state.imm = i.immediate as u32;
-                }
-            }
-            _ => todo!("Unsupported opcode"),
-        }
+        self.instruction = Instruction::from(self.state.instruction);
 
         // Set the data lines based on the contents of the instruction.
         // Some lines will hold uninitialized values as a result.
@@ -317,6 +276,7 @@ impl MipsDatapath {
                 self.state.rs = i.rs as u32;
                 self.state.rt = i.rt as u32;
                 self.state.rd = 0; // Placeholder
+                self.state.imm = i.immediate as u32;
             }
             // For instructions that exclusively use the FPU, these data lines
             // do not need to be used.
