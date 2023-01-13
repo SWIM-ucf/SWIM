@@ -285,47 +285,17 @@ impl MipsDatapath {
             Instruction::RType(r) => {
                 self.state.rs = r.rs as u32;
                 self.state.rt = r.rt as u32;
-            }
-            Instruction::IType(i) => {
-                self.state.rs = i.rs as u32;
-                self.state.rt = i.rt as u32;
-            }
-            Instruction::PlaceholderType(p) => {
-                self.state.rs = p.rs as u32;
-                self.state.rt = p.rt as u32;
-            }
-            _ => panic!("fixme"),
-        }
+                self.state.rd = r.rd as u32;
 
-        match &self.instruction_enum {
-            Instruction::RType(r) => {
                 self.state.shamt = r.shamt as u32;
                 self.state.funct = r.funct as u32;
-            }
-            _ => {
-                // placholder for non-R-type
-                self.state.shamt = 0;
-                self.state.funct = 0;
-            }
-        }
-
-        match &self.instruction_enum {
-            Instruction::RType(r) => {
-                self.state.rs = r.rs as u32;
-                self.state.rt = r.rt as u32;
-                self.state.rd = r.rd as u32;
             }
             Instruction::IType(i) => {
                 self.state.rs = i.rs as u32;
                 self.state.rt = i.rt as u32;
                 self.state.rd = 0; // Placeholder
             }
-            Instruction::PlaceholderType(p) => {
-                self.state.rs = p.rs as u32;
-                self.state.rt = p.rt as u32;
-                self.state.rd = p.rd as u32;
-            }
-            _ => panic!("fixme"),
+            _ => todo!("Fix unknown instruction type"),
         }
     }
 
