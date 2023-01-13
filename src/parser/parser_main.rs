@@ -6,7 +6,7 @@ use crate::parser::parser_preprocessing::*;
 
 pub fn parser(mut file_string: String) -> Vec<Instruction> {
     file_string = file_string.to_ascii_lowercase();
-    file_string = remove_extra_spaces_and_lines(file_string);
+    file_string = string_cleaning(file_string);
 
     let init_instruction_list = create_vector_of_instructions(file_string);
     let mut instruction_list: Vec<Instruction> = vec![];
