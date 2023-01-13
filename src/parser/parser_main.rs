@@ -397,7 +397,7 @@ fn read_operands(
         return instruction;
     }
     //operands aren't represented in the binary in the order they're read so the vec<string> allows us to concatenate them in the proper order after they're all read.
-    let mut string_representations: Vec<String> = Vec::new();
+    let mut binary_representation: Vec<u32> = Vec::new();
     //goes through once for each expected operand
     for (i, operand_type) in expected_operands.iter().enumerate() {
         //match case calls the proper functions based on the expected operand type. The data returned from these functions is always
@@ -409,7 +409,7 @@ fn read_operands(
                     read_register(&instruction.tokens[i + 1], i as i32, GeneralPurpose);
 
                 match register_results.1 {
-                    None => string_representations.push(register_results.0.to_string()),
+                    None => binary_representation.push(register_results.0),
                     Some(error) => instruction.errors.push(error),
                 }
             }
@@ -418,7 +418,7 @@ fn read_operands(
 
                 match immediate_results.1 {
                     None => {
-                        string_representations.push(immediate_results.0);
+                        binary_representation.push(immediate_results.0);
                     }
                     Some(error) => instruction.errors.push(error),
                 }
@@ -430,8 +430,8 @@ fn read_operands(
 
                 match memory_results.2 {
                     None => {
-                        string_representations.push(memory_results.0);
-                        string_representations.push(memory_results.1);
+                        binary_representation.push(memory_results.0);
+                        binary_representation.push(memory_results.1);
                     }
                     Some(..) => {
                         for error in memory_results.2.unwrap() {
@@ -445,7 +445,7 @@ fn read_operands(
                     read_register(&instruction.tokens[i + 1], i as i32, FloatingPoint);
 
                 match register_results.1 {
-                    None => string_representations.push(register_results.0.to_string()),
+                    None => binary_representation.push(register_results.0),
                     Some(error) => instruction.errors.push(error),
                 }
             } //Label => {}
@@ -453,10 +453,13 @@ fn read_operands(
     }
     //if no errors are on the list by this point, we can safely push the operands' binaries onto the instruction representation
     if instruction.errors.is_empty() {
-        for element in concat_order {
+        for (element, i) in concat_order.iter().enumerate() {
             instruction
-                .binary_representation
-                .push_str(string_representations.get(element as usize - 1).unwrap());
+                .int_representation
+                .push_str(binary_representation.get(element as usize - 1).unwrap());
+            match expected_operands[i]{
+                //todo based on the operand type we know what length the binary appending will be
+            }
         }
     }
 
