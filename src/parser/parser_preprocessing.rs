@@ -1,17 +1,17 @@
 //replaces any instance of multiple space characters in a row with a single space character
 pub fn remove_extra_spaces(string: String) -> String {
-    let mut string_as_char_vec: Vec<char> = string.chars().collect();
+    let mut new_string = String::new();
 
-    //if a character is a space and the character before it was a space as well, it removes the current character
-    for i in 1..string_as_char_vec.len() {
-        if i >= string_as_char_vec.len() {
-            break;
-        }
-
-        while string_as_char_vec[i] == ' ' && string_as_char_vec[i - 1] == ' ' {
-            string_as_char_vec.remove(i);
+    for c in string.chars() {
+        // If this character is a space, only add it to the
+        // resulting string if this is the first space.
+        // If it's not a space, just pass it along to the new string.
+        if c != ' ' || !new_string.ends_with(c) {
+            new_string.push(c);
         }
     }
 
-    string_as_char_vec.into_iter().collect()
+    new_string
 }
+
+

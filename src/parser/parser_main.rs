@@ -110,7 +110,8 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary_representation.push_str("00000");
 
             read_operands(&mut instruction, vec![RegisterGp, Immediate], vec![1, 2]);
-        }"andi" => {
+        }
+        "andi" => {
             instruction.binary_representation.push_str("001100");
 
             read_operands(
@@ -143,7 +144,18 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary_representation.push_str("00000");
             instruction.binary_representation.push_str("101110");
         }
-        "dmul" => {}
+        "dmul" => {
+            instruction.binary_representation.push_str("000000");
+
+            read_operands(
+                &mut instruction,
+                vec![RegisterGp, RegisterGp, RegisterGp],
+                vec![3, 1, 2]
+            );
+
+            instruction.binary_representation.push_str("00010");
+            instruction.binary_representation.push_str("011100");
+        }
         "ddiv" => {
             instruction.binary_representation.push_str("000000");
 
