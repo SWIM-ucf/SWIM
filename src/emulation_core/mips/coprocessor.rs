@@ -12,7 +12,7 @@ pub struct MipsFpCoprocessor {
     instruction: u32,
     pub signals: FpuControlSignals,
 
-    fpr: [u64; 32],
+    pub fpr: [u64; 32],
     condition_code: u64,
     data: u64,
 
@@ -161,22 +161,30 @@ impl MipsFpCoprocessor {
 
     /// Perform an ALU operation.
     fn alu(&mut self) {
-        let mut input1 = self.read_data_1;
-        let mut input2 = self.read_data_2;
+        let input1 = self.read_data_1;
+        let input2 = self.read_data_2;
+
+        let mut input1_f32 = 0f32;
+        let mut input2_f32 = 0f32;
+        let mut input1_f64 = 0f64;
+        let mut input2_f64 = 0f64;
 
         // Truncate the inputs if 32-bit operations are expected.
         if let FpuRegWidth::Word = self.signals.fpu_reg_width {
-            input1 = input1 as u32 as u64;
-            input2 = input2 as u32 as u64;
+            input1_f32 = f32::from_bits(input1 as u32);
+            input2_f32 = f32::from_bits(input2 as u32);
+        } else {
+            input1_f64 = f64::from_bits(input1);
+            input2_f64 = f64::from_bits(input2);
         }
 
         self.alu_result = match self.signals.fpu_alu_op {
             FpuAluOp::AdditionOrEqual => match self.signals.fpu_reg_width {
-                FpuRegWidth::Word => ((input1 as f32) + (input2 as f32)) as u64,
-                FpuRegWidth::DoubleWord => ((input1 as f64) + (input2 as f64)) as u64,
+                FpuRegWidth::Word => f32::to_bits(input1_f32 + input2_f32) as u64,
+                FpuRegWidth::DoubleWord => f64::to_bits(input1_f64 + input2_f64),
             },
             _ => todo!("Unimplemented operation"),
-        }
+        };
     }
 
     /// Perform a comparison.

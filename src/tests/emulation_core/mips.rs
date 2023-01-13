@@ -339,3 +339,33 @@ fn or_immediate_with_value() {
 
     assert_eq!(datapath.registers.gpr[16], 987658425); // $s0
 }
+
+pub mod coprocessor {
+    use crate::emulation_core::datapath::Datapath;
+    use crate::emulation_core::mips::datapath::MipsDatapath;
+
+    #[test]
+    pub fn add_float_single_precision() {
+        let mut datapath = MipsDatapath::default();
+
+        // add.s fd, fs, ft
+        // add.s $f2, $f1, $f0
+        // FPR[2] = FPR[1] + FPR[0]
+        //                       COP1   fmt   ft    fs    fd    function
+        //                              s     $f0   $f1   $f2   ADD
+        let instruction: u32 = 0b010001_10000_00000_00001_00010_000000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.coprocessor.fpr[0] = f32::to_bits(0.25f32) as u64;
+        datapath.coprocessor.fpr[1] = f32::to_bits(0.5f32) as u64;
+
+        datapath.execute_instruction();
+
+        // The result should be 0.75, represented in a 32-bit value as per the
+        // IEEE 754 single-precision floating-point specification.
+        assert_eq!(f32::from_bits(datapath.coprocessor.fpr[2] as u32), 0.75);
+    }
+}

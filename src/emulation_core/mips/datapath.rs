@@ -263,6 +263,7 @@ impl MipsDatapath {
         // Based on the opcode, convert the instruction to a struct representation.
         let op: u32 = self.state.instruction >> 26;
         match op {
+            // R-type instructions (add, sub, mul, div, and, or, slt, sltu)
             0 => {
                 self.instruction = Instruction::RType(RType {
                     op: ((self.state.instruction >> 26) & 0x3F) as u8,
@@ -274,6 +275,19 @@ impl MipsDatapath {
                 })
             }
 
+            // COP1 (coprocessor 1)
+            0b010001 => {
+                self.instruction = Instruction::FpuRType(FpuRType {
+                    op: ((self.state.instruction >> 26) & 0x3F) as u8,
+                    fmt: ((self.state.instruction >> 21) & 0x1F) as u8,
+                    ft: ((self.state.instruction >> 16) & 0x1F) as u8,
+                    fs: ((self.state.instruction >> 11) & 0x1F) as u8,
+                    fd: ((self.state.instruction >> 6) & 0x1F) as u8,
+                    function: (self.state.instruction & 0x3F) as u8,
+                })
+            }
+
+            // Or immediate (ori)
             0b001101 => {
                 self.instruction = Instruction::IType(IType {
                     op: ((self.state.instruction >> 26) & 0x3F) as u8,
@@ -341,7 +355,6 @@ impl MipsDatapath {
     /// instruction's opcode.
     fn set_control_signals(&mut self) {
         match self.instruction {
-            // R-type instructions (add, sub, mul, div, and, or, slt, sltu)
             Instruction::RType(_) => {
                 self.signals.alu_op = AluOp::UseFunctField;
                 self.signals.alu_src = AluSrc::ReadRegister2;
@@ -360,6 +373,16 @@ impl MipsDatapath {
                 self.set_itype_control_signals(i);
             }
             Instruction::JType(_) => todo!("JType instructions are not supported yet"),
+            Instruction::FpuRType(_) => {
+                self.signals = ControlSignals {
+                    branch: Branch::NoBranch,
+                    jump: Jump::NoJump,
+                    mem_read: MemRead::NoRead,
+                    mem_write: MemWrite::NoWrite,
+                    reg_write: RegWrite::NoWrite,
+                    ..Default::default()
+                };
+            }
             // _ => panic!("Unsupported instruction")
         }
     }
