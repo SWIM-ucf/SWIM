@@ -2,6 +2,7 @@
 
 use super::control_signals::floating_point::*;
 use super::datapath::error;
+use super::instruction::Instruction;
 
 /// An implementation of a floating-point coprocessor for the MIPS64 ISA.
 ///
@@ -9,13 +10,18 @@ use super::datapath::error;
 /// is controlled remotely using its available API calls.
 #[derive(Default)]
 pub struct MipsFpCoprocessor {
-    instruction: u32,
+    instruction: Instruction,
     pub signals: FpuControlSignals,
+    pub state: FpuState,
 
     pub fpr: [u64; 32],
     condition_code: u64,
     data: u64,
+}
 
+#[derive(Default)]
+pub struct FpuState {
+    instruction: u32,
     op: u32,
     fmt: u32,
     fs: u32,
@@ -55,28 +61,37 @@ impl MipsFpCoprocessor {
     /// Set the internally-stored copy of the current instruction. This effectively
     /// operates in lieu of any "instruction fetch" functionality since the coprocessor
     /// does not fetch instructions.
-    pub fn set_instruction(&mut self, instruction: u32) {
-        self.instruction = instruction;
+    pub fn set_instruction(&mut self, instruction_bits: u32) {
+        self.state.instruction = instruction_bits;
+        self.instruction = Instruction::from(self.state.instruction);
     }
 
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
-        self.op = (self.instruction >> 26) & 0b111111;
-        self.fmt = (self.instruction >> 21) & 0b11111;
-        self.fs = (self.instruction >> 11) & 0b11111;
-        self.ft = (self.instruction >> 16) & 0b11111;
-        self.fd = (self.instruction >> 6) & 0b11111;
-        self.function = self.instruction & 0b111111;
+        // Set the data lines based on the contents of the instruction.
+        // Some lines will hold uninitialized values as a result.
+        match self.instruction {
+            Instruction::FpuRType(r) => {
+                self.state.op = r.op as u32;
+                self.state.fmt = r.fmt as u32;
+                self.state.fs = r.fs as u32;
+                self.state.ft = r.ft as u32;
+                self.state.fd = r.fd as u32;
+                self.state.function = r.function as u32;
+            }
+            // These types do not use the floating-point unit so they can be ignored.
+            Instruction::RType(_) | Instruction::IType(_) | Instruction::JType(_) => (),
+        }
     }
 
     /// Set the [`FpuRegWidth`] control signal based on the `fmt` field in
     /// the instruction.
     fn set_reg_width(&mut self) {
-        self.signals.fpu_reg_width = match self.fmt {
+        self.signals.fpu_reg_width = match self.state.fmt {
             16 => FpuRegWidth::Word,
             17 => FpuRegWidth::DoubleWord,
             _ => {
-                error(format!("{} is an invalid fmt value", self.fmt).as_str());
+                error(format!("{} is an invalid fmt value", self.state.fmt).as_str());
                 FpuRegWidth::default()
             }
         }
@@ -86,7 +101,7 @@ impl MipsFpCoprocessor {
     /// is then used if deciding data from the main processor should go into the `Data`
     /// register.
     pub fn set_data_from_main_processor(&mut self, data: u64) {
-        self.data_from_main_processor = data;
+        self.state.data_from_main_processor = data;
     }
 
     /// Gets the contents of the data line between the `Data` register and the multiplexer
@@ -99,7 +114,7 @@ impl MipsFpCoprocessor {
     /// in the main processor and the multiplexer controlled by [`FpuMemToReg`] in the
     /// floating-point coprocessor.
     pub fn set_fp_register_data_from_main_processor(&mut self, data: u64) {
-        self.fp_register_data_from_main_processor = data;
+        self.state.fp_register_data_from_main_processor = data;
     }
 
     /// Defines the control signals to set when the coprocessor is not being used.
@@ -118,51 +133,56 @@ impl MipsFpCoprocessor {
     /// Set the control signals of the processor based on the instruction opcode and function
     /// control signals.
     fn set_control_signals(&mut self) {
-        match self.op {
-            // COP1 (Coprocessor 1 instruction)
-            0b010001 => match self.function {
-                // ADD
-                0b000000 => {
-                    self.signals.cc = Cc::Cc0;
-                    self.signals.cc_write = CcWrite::NoWrite;
-                    self.signals.data_src = DataSrc::FloatingPointUnit;
-                    self.signals.data_write = DataWrite::NoWrite;
-                    self.signals.fpu_alu_op = FpuAluOp::AdditionOrEqual;
-                    self.signals.fpu_branch = FpuBranch::NoBranch;
-                    self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
-                    self.signals.fpu_reg_dst = FpuRegDst::Reg2;
-                    self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
-                    self.set_reg_width();
+        match self.instruction {
+            Instruction::FpuRType(r) => {
+                match r.op {
+                    // COP1 (Coprocessor 1 instruction)
+                    0b010001 => match r.function {
+                        // ADD
+                        0b000000 => {
+                            self.signals.cc = Cc::Cc0;
+                            self.signals.cc_write = CcWrite::NoWrite;
+                            self.signals.data_src = DataSrc::FloatingPointUnit;
+                            self.signals.data_write = DataWrite::NoWrite;
+                            self.signals.fpu_alu_op = FpuAluOp::AdditionOrEqual;
+                            self.signals.fpu_branch = FpuBranch::NoBranch;
+                            self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
+                            self.signals.fpu_reg_dst = FpuRegDst::Reg2;
+                            self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
+                            self.set_reg_width();
+                        }
+                        // Unrecognized format code. Perform no operation.
+                        _ => self.set_noop_control_signals(),
+                    },
+                    // Unrecognized format code. Perform no operation.
+                    _ => todo!("Unsupported opcode {} for FPU R-type instruction", r.op),
                 }
-                // Unrecognized format code. Perform no operation.
-                _ => self.set_noop_control_signals(),
-            },
-            // Unrecognized opcode. This may be intended for the main processing unit.
-            // Perform no operation.
-            _ => self.set_noop_control_signals(),
+            }
+            // These types do not use the floating-point unit so they can be ignored.
+            Instruction::RType(_) | Instruction::IType(_) | Instruction::JType(_) => (),
         }
     }
 
     /// Read the registers as specified from the instruction and pass
     /// the data into the datapath.
     fn read_registers(&mut self) {
-        let reg1 = self.fs as usize;
-        let reg2 = self.ft as usize;
+        let reg1 = self.state.fs as usize;
+        let reg2 = self.state.ft as usize;
 
-        self.read_data_1 = self.fpr[reg1];
-        self.read_data_2 = self.fpr[reg2];
+        self.state.read_data_1 = self.fpr[reg1];
+        self.state.read_data_2 = self.fpr[reg2];
 
         // Truncate the variable data if a 32-bit word is requested.
         if let FpuRegWidth::Word = self.signals.fpu_reg_width {
-            self.read_data_1 = self.fpr[reg1] as u32 as u64;
-            self.read_data_2 = self.fpr[reg2] as u32 as u64;
+            self.state.read_data_1 = self.fpr[reg1] as u32 as u64;
+            self.state.read_data_2 = self.fpr[reg2] as u32 as u64;
         }
     }
 
     /// Perform an ALU operation.
     fn alu(&mut self) {
-        let input1 = self.read_data_1;
-        let input2 = self.read_data_2;
+        let input1 = self.state.read_data_1;
+        let input2 = self.state.read_data_2;
 
         let mut input1_f32 = 0f32;
         let mut input2_f32 = 0f32;
@@ -178,7 +198,7 @@ impl MipsFpCoprocessor {
             input2_f64 = f64::from_bits(input2);
         }
 
-        self.alu_result = match self.signals.fpu_alu_op {
+        self.state.alu_result = match self.signals.fpu_alu_op {
             FpuAluOp::AdditionOrEqual => match self.signals.fpu_reg_width {
                 FpuRegWidth::Word => f32::to_bits(input1_f32 + input2_f32) as u64,
                 FpuRegWidth::DoubleWord => f64::to_bits(input1_f64 + input2_f64),
@@ -189,8 +209,8 @@ impl MipsFpCoprocessor {
 
     /// Perform a comparison.
     fn comparator(&mut self) {
-        let mut input1 = self.read_data_1;
-        let mut input2 = self.read_data_2;
+        let mut input1 = self.state.read_data_1;
+        let mut input2 = self.state.read_data_2;
 
         // Truncate the inputs if 32-bit operations are expected.
         if let FpuRegWidth::Word = self.signals.fpu_reg_width {
@@ -198,7 +218,7 @@ impl MipsFpCoprocessor {
             input2 = input2 as u32 as u64;
         }
 
-        self.comparator_result = match self.signals.fpu_alu_op {
+        self.state.comparator_result = match self.signals.fpu_alu_op {
             FpuAluOp::AdditionOrEqual => (input1 == input2) as u64,
             _ => todo!("Unimplemented operation"),
         }
@@ -212,8 +232,8 @@ impl MipsFpCoprocessor {
         }
 
         let data = match self.signals.data_src {
-            DataSrc::FloatingPointUnit => self.read_data_1 as u32,
-            DataSrc::MainProcessorUnit => self.data_from_main_processor as u32,
+            DataSrc::FloatingPointUnit => self.state.read_data_1 as u32,
+            DataSrc::MainProcessorUnit => self.state.data_from_main_processor as u32,
         };
 
         self.condition_code = data as u64;
@@ -221,7 +241,7 @@ impl MipsFpCoprocessor {
 
     /// Set the condition code (CC) register based on the result from the comparator.
     fn write_condition_code(&mut self) {
-        self.condition_code = self.comparator_result;
+        self.condition_code = self.state.comparator_result;
     }
 
     /// Write data to the floating-point register file.
@@ -231,16 +251,16 @@ impl MipsFpCoprocessor {
         }
 
         let destination = match self.signals.fpu_reg_dst {
-            FpuRegDst::Reg1 => self.fs as usize,
-            FpuRegDst::Reg2 => self.fd as usize,
+            FpuRegDst::Reg1 => self.state.fs as usize,
+            FpuRegDst::Reg2 => self.state.fd as usize,
         };
 
         let register_data = match self.signals.fpu_mem_to_reg {
             FpuMemToReg::UseDataWrite => match self.signals.data_write {
-                DataWrite::NoWrite => self.alu_result,
+                DataWrite::NoWrite => self.state.alu_result,
                 DataWrite::YesWrite => self.data,
             },
-            FpuMemToReg::UseMemory => self.fp_register_data_from_main_processor,
+            FpuMemToReg::UseMemory => self.state.fp_register_data_from_main_processor,
         };
 
         self.fpr[destination] = register_data;
