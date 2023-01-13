@@ -464,8 +464,6 @@ impl MipsDatapath {
     /// does not handle integer overflow exceptions. Should this be implemented
     /// in the future, the ALU should be adjusted accordingly to address this.
     fn alu(&mut self) {
-        // TODO: Support alternating between 32-bit and 64-bit operations.
-
         // Left shift the immediate value based on the ImmShift control signal.
         let alu_immediate = match self.signals.imm_shift {
             ImmShift::Shift0 => self.state.sign_extend,
