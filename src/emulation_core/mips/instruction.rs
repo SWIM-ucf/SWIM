@@ -24,11 +24,22 @@ pub mod instruction_types {
         pub addr: u32,
     }
 
+    #[derive(Debug, Default, Clone, Copy)]
+    pub struct FpuRType {
+        pub op: u8,
+        pub fmt: u8,
+        pub ft: u8,
+        pub fs: u8,
+        pub fd: u8,
+        pub function: u8,
+    }
+
     #[derive(Debug)]
     pub enum Instruction {
         RType(RType),
         IType(IType),
         JType(JType),
+        FpuRType(FpuRType),
     }
 
     impl Default for Instruction {
