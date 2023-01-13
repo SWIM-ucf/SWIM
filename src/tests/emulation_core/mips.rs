@@ -340,6 +340,31 @@ fn or_immediate_with_value() {
     assert_eq!(datapath.registers.gpr[16], 987658425); // $s0
 }
 
+#[test]
+fn dadd_register_to_itself() {
+    let mut datapath = MipsDatapath::default();
+
+    // dadd rd, rs, rt
+    // dadd $v0, $t5, $t5
+    // GPR[2] <- GPR[13] + GPR[13]
+    //                      SPECIAL rs    rt    rd    0     DADD
+    //                              13    13    2
+    let instruction: u32 = 0b000000_01101_01101_00010_00000_101100;
+
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // Assume register $t5 contains 969,093,589,304, which is an integer
+    // that takes up 39 bits.
+    datapath.registers.gpr[13] = 969_093_589_304; // $t5
+
+    datapath.execute_instruction();
+
+    assert_eq!(datapath.registers.gpr[2], 1_938_187_178_608); // $v0
+}
+
 pub mod load_word {
     use super::*;
     #[test]
