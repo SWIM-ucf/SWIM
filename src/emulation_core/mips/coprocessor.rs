@@ -10,7 +10,7 @@ use super::datapath::error;
 #[derive(Default)]
 pub struct MipsFpCoprocessor {
     instruction: u32,
-    signals: FpuControlSignals,
+    pub signals: FpuControlSignals,
 
     fpr: [u64; 32],
     condition_code: u64,
@@ -24,7 +24,7 @@ pub struct MipsFpCoprocessor {
     function: u32,
 
     data_from_main_processor: u64,
-    main_memory_data: u64,
+    fp_register_data_from_main_processor: u64,
     read_data_1: u64,
     read_data_2: u64,
     alu_result: u64,
@@ -91,8 +91,15 @@ impl MipsFpCoprocessor {
 
     /// Gets the contents of the data line between the `Data` register and the multiplexer
     /// in the main processor controlled by the [`DataWrite`] control signal.
-    pub fn get_main_memory_data(&mut self) -> u64 {
-        self.main_memory_data
+    pub fn get_data_register(&mut self) -> u64 {
+        self.data as i32 as i64 as u64
+    }
+
+    /// Sets the data line between the multiplexer controlled by [`MemToReg`](super::control_signals::MemToReg)
+    /// in the main processor and the multiplexer controlled by [`FpuMemToReg`] in the
+    /// floating-point coprocessor.
+    pub fn set_fp_register_data_from_main_processor(&mut self, data: u64) {
+        self.fp_register_data_from_main_processor = data;
     }
 
     /// Defines the control signals to set when the coprocessor is not being used.
@@ -225,7 +232,7 @@ impl MipsFpCoprocessor {
                 DataWrite::NoWrite => self.alu_result,
                 DataWrite::YesWrite => self.data,
             },
-            FpuMemToReg::UseMemory => self.main_memory_data,
+            FpuMemToReg::UseMemory => self.fp_register_data_from_main_processor,
         };
 
         self.fpr[destination] = register_data;
