@@ -262,3 +262,25 @@ mod create_vector_of_instructions_tests {
         assert_eq!(instructions[2].tokens, vec!["lw", "r8,", "52($s0)"]);
     }
 }
+mod append_instruction_component_tests{
+    use crate::parser::parser_main::append_instruction_component;
+
+    #[test]
+    fn append_instruction_component_works(){
+        let result = append_instruction_component(15, 3, 2);
+        assert_eq!(result, 63);
+    }
+
+    #[test]
+    fn append_instruction_component_accepts_binary(){
+        let result = append_instruction_component(0b1111, 0b10, 2);
+        assert_eq!(result, 0b111110);
+        assert_eq!(result, 62);
+    }
+
+    #[test]
+    fn append_instruction_component_still_works_past_32_bits(){
+        let result = append_instruction_component(4294967295, 0b11, 2);
+        assert_eq!(result, 4294967295);
+    }
+}

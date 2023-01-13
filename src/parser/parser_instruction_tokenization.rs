@@ -8,6 +8,7 @@ pub mod instruction_tokenization {
         pub errors: Vec<Error>,
     }
 
+
     pub struct Error {
         pub error_name: ErrorType,
         pub token_number_giving_error: u8,

@@ -28,6 +28,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
     match &*instruction.tokens[0] {
         "add" => {
             instruction.binary_representation.push_str("000000");
+            instruction.int_representation = append_instruction_component(instruction.int_representation, 0b000000, 6);
 
             read_operands(
                 &mut instruction,
@@ -36,7 +37,11 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             );
 
             instruction.binary_representation.push_str("00000");
+            instruction.int_representation = append_instruction_component(instruction.int_representation, 0b00000, 5);
+
             instruction.binary_representation.push_str("100000");
+            instruction.int_representation = append_instruction_component(instruction.int_representation, 0b100000, 6);
+
         }
         "sub" => {
             instruction.binary_representation.push_str("00000");
@@ -357,8 +362,6 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             token_number_giving_error: 0,
         }),
     }
-    //the binary of the instruction is converted to u32 here as well
-    instruction.int_representation = convert_to_u32(instruction.binary_representation.clone());
 
     instruction
 }
@@ -740,4 +743,10 @@ pub fn read_immediate(
     }
 
     (binary_representation, None)
+}
+
+pub fn append_instruction_component(mut first: u32, second: u32, shift_amount: u8) -> u32{
+    first = first << shift_amount;
+    first = first | second;
+    first
 }
