@@ -318,6 +318,9 @@ impl MipsDatapath {
                 self.state.rt = i.rt as u32;
                 self.state.rd = 0; // Placeholder
             }
+            // For instructions that exclusively use the FPU, these data lines
+            // do not need to be used.
+            Instruction::FpuRType(_) => (),
             _ => todo!("Fix unknown instruction type"),
         }
     }
@@ -382,8 +385,7 @@ impl MipsDatapath {
                     reg_write: RegWrite::NoWrite,
                     ..Default::default()
                 };
-            }
-            // _ => panic!("Unsupported instruction")
+            } // _ => panic!("Unsupported instruction")
         }
     }
 
