@@ -29,6 +29,7 @@ pub mod instruction_tokenization {
     pub enum ErrorType {
         UnrecognizedGPRegister,
         UnrecognizedFPRegister,
+        UnrecognizedInstruction,
         IncorrectRegisterType,
         MissingComma,
         ImmediateOutOfBounds,
@@ -39,8 +40,8 @@ pub mod instruction_tokenization {
 
     //this enum is used for the fn read_operands to choose the types of operands expected for an instruction type
     pub enum OperandType {
-        RegisterGp,
-        //RegisterFp,
+        RegisterGP,
+        RegisterFP,
         Immediate,
         MemoryAddress,
         //Label

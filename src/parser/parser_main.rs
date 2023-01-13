@@ -1,6 +1,8 @@
 use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::*;
 use crate::parser::parser_instruction_tokenization::instruction_tokenization::OperandType::*;
-use crate::parser::parser_instruction_tokenization::instruction_tokenization::RegisterType::GeneralPurpose;
+use crate::parser::parser_instruction_tokenization::instruction_tokenization::RegisterType::{
+    FloatingPoint, GeneralPurpose,
+};
 use crate::parser::parser_instruction_tokenization::instruction_tokenization::*;
 use crate::parser::parser_preprocessing::*;
 
@@ -29,7 +31,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
 
             read_operands(
                 &mut instruction,
-                vec![RegisterGp, RegisterGp, RegisterGp],
+                vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![3, 1, 2],
             );
 
@@ -41,7 +43,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
 
             read_operands(
                 &mut instruction,
-                vec![RegisterGp, RegisterGp, RegisterGp],
+                vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![3, 1, 2],
             );
 
@@ -53,7 +55,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
 
             read_operands(
                 &mut instruction,
-                vec![RegisterGp, RegisterGp, RegisterGp],
+                vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![3, 1, 2],
             );
 
@@ -63,35 +65,17 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
         "div" => {
             instruction.binary_representation.push_str("00000");
 
-            read_operands(&mut instruction, vec![RegisterGp, RegisterGp], vec![1, 2]);
+            read_operands(&mut instruction, vec![RegisterGP, RegisterGP], vec![1, 2]);
 
             instruction.binary_representation.push_str("0000000000");
             instruction.binary_representation.push_str("011010");
-        }
-        "addi" => {
-            instruction.binary_representation.push_str("001000");
-
-            read_operands(
-                &mut instruction,
-                vec![RegisterGp, RegisterGp, Immediate],
-                vec![2, 1, 3],
-            );
-        }
-        "ori" => {
-            instruction.binary_representation.push_str("001101");
-
-            read_operands(
-                &mut instruction,
-                vec![RegisterGp, RegisterGp, Immediate],
-                vec![2, 1, 3],
-            );
         }
         "lw" => {
             instruction.binary_representation.push_str("100011");
 
             read_operands(
                 &mut instruction,
-                vec![RegisterGp, MemoryAddress],
+                vec![RegisterGP, MemoryAddress],
                 vec![3, 1, 2],
             );
         }
@@ -100,24 +84,41 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
 
             read_operands(
                 &mut instruction,
-                vec![RegisterGp, MemoryAddress],
+                vec![RegisterGP, MemoryAddress],
                 vec![3, 1, 2],
             );
         }
         "lui" => {
             instruction.binary_representation.push_str("001111");
-
             instruction.binary_representation.push_str("00000");
 
-            read_operands(&mut instruction, vec![RegisterGp, Immediate], vec![1, 2]);
+            read_operands(&mut instruction, vec![RegisterGP, Immediate], vec![1, 2]);
         }
         "andi" => {
             instruction.binary_representation.push_str("001100");
 
             read_operands(
                 &mut instruction,
-                vec![RegisterGp, RegisterGp, Immediate],
+                vec![RegisterGP, RegisterGP, Immediate],
                 vec![1, 2, 3],
+            );
+        }
+        "ori" => {
+            instruction.binary_representation.push_str("001101");
+
+            read_operands(
+                &mut instruction,
+                vec![RegisterGP, RegisterGP, Immediate],
+                vec![2, 1, 3],
+            );
+        }
+        "addi" => {
+            instruction.binary_representation.push_str("001000");
+
+            read_operands(
+                &mut instruction,
+                vec![RegisterGP, RegisterGP, Immediate],
+                vec![2, 1, 3],
             );
         }
         "dadd" => {
@@ -125,7 +126,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
 
             read_operands(
                 &mut instruction,
-                vec![RegisterGp, RegisterGp, RegisterGp],
+                vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![2, 3, 1],
             );
 
@@ -137,7 +138,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
 
             read_operands(
                 &mut instruction,
-                vec![RegisterGp, RegisterGp, RegisterGp],
+                vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![2, 3, 1],
             );
 
@@ -149,7 +150,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
 
             read_operands(
                 &mut instruction,
-                vec![RegisterGp, RegisterGp, RegisterGp],
+                vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![3, 1, 2],
             );
 
@@ -159,7 +160,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
         "ddiv" => {
             instruction.binary_representation.push_str("000000");
 
-            read_operands(&mut instruction, vec![RegisterGp, RegisterGp], vec![1, 2]);
+            read_operands(&mut instruction, vec![RegisterGP, RegisterGP], vec![1, 2]);
 
             instruction.binary_representation.push_str("0000000000");
             instruction.binary_representation.push_str("011110");
@@ -169,7 +170,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
 
             read_operands(
                 &mut instruction,
-                vec![RegisterGp, RegisterGp, RegisterGp],
+                vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![3, 1, 2],
             );
 
@@ -181,15 +182,135 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
 
             read_operands(
                 &mut instruction,
-                vec![RegisterGp, RegisterGp, RegisterGp],
+                vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![3, 1, 2],
             );
 
             instruction.binary_representation.push_str("00000");
             instruction.binary_representation.push_str("100100");
         }
+        "add.s" => {
+            instruction.binary_representation.push_str("010001");//cop1
+            instruction.binary_representation.push_str("10000");//fmt: s (16)
 
-        _ => {}
+            read_operands(
+                &mut instruction,
+                vec![RegisterFP, RegisterFP, RegisterFP],
+                vec![3, 2, 1],
+            );
+
+            instruction.binary_representation.push_str("000000");//add
+        }
+        "add.d" => {
+            instruction.binary_representation.push_str("010001");//cop1
+            instruction.binary_representation.push_str("10001");//fmt: d (17)
+
+            read_operands(
+                &mut instruction,
+                vec![RegisterFP, RegisterFP, RegisterFP],
+                vec![3, 2, 1],
+            );
+
+            instruction.binary_representation.push_str("000000");//add
+        }
+        "sub.s" => {
+            instruction.binary_representation.push_str("010001");//cop1
+            instruction.binary_representation.push_str("10000");//fmt: s (16)
+
+            read_operands(
+                &mut instruction,
+                vec![RegisterFP, RegisterFP, RegisterFP],
+                vec![3, 2, 1],
+            );
+
+            instruction.binary_representation.push_str("000001");//sub
+        }
+        "sub.d" => {
+            instruction.binary_representation.push_str("010001");//cop1
+            instruction.binary_representation.push_str("10001");//fmt: d (17)
+
+            read_operands(
+                &mut instruction,
+                vec![RegisterFP, RegisterFP, RegisterFP],
+                vec![3, 2, 1],
+            );
+
+            instruction.binary_representation.push_str("000001");//sub
+        }
+        "mul.s" => {
+            instruction.binary_representation.push_str("010001");//cop1
+            instruction.binary_representation.push_str("10000");//fmt: s (16)
+
+            read_operands(
+                &mut instruction,
+                vec![RegisterFP, RegisterFP, RegisterFP],
+                vec![3, 2, 1],
+            );
+
+            instruction.binary_representation.push_str("000010");//mul
+        }
+        "mul.d" => {
+            instruction.binary_representation.push_str("010001");//cop1
+            instruction.binary_representation.push_str("10001");//fmt: d (17)
+
+            read_operands(
+                &mut instruction,
+                vec![RegisterFP, RegisterFP, RegisterFP],
+                vec![3, 2, 1],
+            );
+
+            instruction.binary_representation.push_str("000010");//mul
+        }
+        "div.s" => {
+            instruction.binary_representation.push_str("010001");//cop1
+            instruction.binary_representation.push_str("10000");//fmt: s (16)
+
+            read_operands(
+                &mut instruction,
+                vec![RegisterFP, RegisterFP, RegisterFP],
+                vec![3, 2, 1],
+            );
+
+            instruction.binary_representation.push_str("000011");//div
+        }
+        "div.d" => {
+            instruction.binary_representation.push_str("010001");//cop1
+            instruction.binary_representation.push_str("10001");//fmt: d (17)
+
+            read_operands(
+                &mut instruction,
+                vec![RegisterFP, RegisterFP, RegisterFP],
+                vec![3, 2, 1],
+            );
+
+            instruction.binary_representation.push_str("000011");//div
+        }
+        "dahi" => {
+
+        }
+        "dati" => {
+
+        }
+        "daddiu" => {
+
+        }
+        "slt" => {
+
+        }
+        "sltu" => {
+
+        }
+        "swc1" => {
+
+        }
+        "lwc1" => {
+
+        }
+
+        _ => {instruction.errors.push(Error{
+            error_name: UnrecognizedInstruction,
+            token_number_giving_error: 0
+        })}
     }
     //the binary of the instruction is converted to u32 here as well
     instruction.int_representation = convert_to_u32(instruction.binary_representation.clone());
@@ -221,7 +342,7 @@ fn read_operands(
         //the binary of the read operand and the option for any errors encountered while reading the operand. If there were no errors,
         //the binary is pushed to the string representations vec. Otherwise, the errors are pushed to the instruction.errors vec.
         match operand_type {
-            RegisterGp => {
+            RegisterGP => {
                 let register_results =
                     read_register(&instruction.tokens[i + 1], i as i32, GeneralPurpose);
 
@@ -256,8 +377,16 @@ fn read_operands(
                         }
                     }
                 }
-            } //RegisterFP => {}
-              //Label => {}
+            }
+            RegisterFP => {
+                let register_results =
+                    read_register(&instruction.tokens[i + 1], i as i32, FloatingPoint);
+
+                match register_results.1 {
+                    None => string_representations.push(register_results.0.to_string()),
+                    Some(error) => instruction.errors.push(error),
+                }
+            } //Label => {}
         }
     }
     //if no errors are on the list by this point, we can safely push the operands' binaries onto the instruction representation
