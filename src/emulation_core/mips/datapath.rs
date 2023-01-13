@@ -278,7 +278,7 @@ impl MipsDatapath {
                 self.state.rt = i.rt as u32;
                 self.state.rd = 0; // Placeholder
             }
-            _ => todo!("Fix unknown instruction type")
+            _ => todo!("Fix unknown instruction type"),
         }
     }
 
