@@ -190,8 +190,8 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary_representation.push_str("100100");
         }
         "add.s" => {
-            instruction.binary_representation.push_str("010001");//cop1
-            instruction.binary_representation.push_str("10000");//fmt: s (16)
+            instruction.binary_representation.push_str("010001"); //cop1
+            instruction.binary_representation.push_str("10000"); //fmt: s (16)
 
             read_operands(
                 &mut instruction,
@@ -199,11 +199,11 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
                 vec![3, 2, 1],
             );
 
-            instruction.binary_representation.push_str("000000");//add
+            instruction.binary_representation.push_str("000000"); //add
         }
         "add.d" => {
-            instruction.binary_representation.push_str("010001");//cop1
-            instruction.binary_representation.push_str("10001");//fmt: d (17)
+            instruction.binary_representation.push_str("010001"); //cop1
+            instruction.binary_representation.push_str("10001"); //fmt: d (17)
 
             read_operands(
                 &mut instruction,
@@ -211,11 +211,11 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
                 vec![3, 2, 1],
             );
 
-            instruction.binary_representation.push_str("000000");//add
+            instruction.binary_representation.push_str("000000"); //add
         }
         "sub.s" => {
-            instruction.binary_representation.push_str("010001");//cop1
-            instruction.binary_representation.push_str("10000");//fmt: s (16)
+            instruction.binary_representation.push_str("010001"); //cop1
+            instruction.binary_representation.push_str("10000"); //fmt: s (16)
 
             read_operands(
                 &mut instruction,
@@ -223,11 +223,11 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
                 vec![3, 2, 1],
             );
 
-            instruction.binary_representation.push_str("000001");//sub
+            instruction.binary_representation.push_str("000001"); //sub
         }
         "sub.d" => {
-            instruction.binary_representation.push_str("010001");//cop1
-            instruction.binary_representation.push_str("10001");//fmt: d (17)
+            instruction.binary_representation.push_str("010001"); //cop1
+            instruction.binary_representation.push_str("10001"); //fmt: d (17)
 
             read_operands(
                 &mut instruction,
@@ -235,11 +235,11 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
                 vec![3, 2, 1],
             );
 
-            instruction.binary_representation.push_str("000001");//sub
+            instruction.binary_representation.push_str("000001"); //sub
         }
         "mul.s" => {
-            instruction.binary_representation.push_str("010001");//cop1
-            instruction.binary_representation.push_str("10000");//fmt: s (16)
+            instruction.binary_representation.push_str("010001"); //cop1
+            instruction.binary_representation.push_str("10000"); //fmt: s (16)
 
             read_operands(
                 &mut instruction,
@@ -247,11 +247,11 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
                 vec![3, 2, 1],
             );
 
-            instruction.binary_representation.push_str("000010");//mul
+            instruction.binary_representation.push_str("000010"); //mul
         }
         "mul.d" => {
-            instruction.binary_representation.push_str("010001");//cop1
-            instruction.binary_representation.push_str("10001");//fmt: d (17)
+            instruction.binary_representation.push_str("010001"); //cop1
+            instruction.binary_representation.push_str("10001"); //fmt: d (17)
 
             read_operands(
                 &mut instruction,
@@ -259,11 +259,11 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
                 vec![3, 2, 1],
             );
 
-            instruction.binary_representation.push_str("000010");//mul
+            instruction.binary_representation.push_str("000010"); //mul
         }
         "div.s" => {
-            instruction.binary_representation.push_str("010001");//cop1
-            instruction.binary_representation.push_str("10000");//fmt: s (16)
+            instruction.binary_representation.push_str("010001"); //cop1
+            instruction.binary_representation.push_str("10000"); //fmt: s (16)
 
             read_operands(
                 &mut instruction,
@@ -271,11 +271,11 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
                 vec![3, 2, 1],
             );
 
-            instruction.binary_representation.push_str("000011");//div
+            instruction.binary_representation.push_str("000011"); //div
         }
         "div.d" => {
-            instruction.binary_representation.push_str("010001");//cop1
-            instruction.binary_representation.push_str("10001");//fmt: d (17)
+            instruction.binary_representation.push_str("010001"); //cop1
+            instruction.binary_representation.push_str("10001"); //fmt: d (17)
 
             read_operands(
                 &mut instruction,
@@ -283,44 +283,103 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
                 vec![3, 2, 1],
             );
 
-            instruction.binary_representation.push_str("000011");//div
+            instruction.binary_representation.push_str("000011"); //div
         }
         "dahi" => {
+            instruction.binary_representation.push_str("000001"); //regimm
 
+            read_operands(&mut instruction, vec![RegisterGP, Immediate], vec![1, 2]);
+
+            instruction.binary_representation =
+                add_substring_in_middle_of_string(instruction.binary_representation, "00110", 11);
         }
         "dati" => {
+            instruction.binary_representation.push_str("000001"); //regimm
 
+            read_operands(&mut instruction, vec![RegisterGP, Immediate], vec![1, 2]);
+
+            instruction.binary_representation =
+                add_substring_in_middle_of_string(instruction.binary_representation, "11110", 11);
         }
         "daddiu" => {
+            instruction.binary_representation.push_str("011001"); //daddiu
 
+            read_operands(
+                &mut instruction,
+                vec![RegisterGP, RegisterGP, Immediate],
+                vec![2, 1, 3],
+            );
         }
         "slt" => {
+            instruction.binary_representation.push_str("000000"); //special
 
+            read_operands(
+                &mut instruction,
+                vec![RegisterGP, RegisterGP, RegisterGP],
+                vec![3, 1, 2],
+            );
+
+            instruction.binary_representation.push_str("00000"); //0
+            instruction.binary_representation.push_str("101010"); //slt
         }
         "sltu" => {
+            instruction.binary_representation.push_str("000000"); //special
 
+            read_operands(
+                &mut instruction,
+                vec![RegisterGP, RegisterGP, RegisterGP],
+                vec![3, 1, 2],
+            );
+
+            instruction.binary_representation.push_str("00000"); //0
+            instruction.binary_representation.push_str("101011"); //sltu
         }
         "swc1" => {
+            instruction.binary_representation.push_str("111001"); //swc1
 
+            read_operands(
+                &mut instruction,
+                vec![RegisterFP, MemoryAddress],
+                vec![3, 1, 2],
+            );
         }
         "lwc1" => {
+            instruction.binary_representation.push_str("110001"); //lwc1
 
+            read_operands(
+                &mut instruction,
+                vec![RegisterFP, MemoryAddress],
+                vec![3, 1, 2],
+            );
         }
-
-        _ => {instruction.errors.push(Error{
+        _ => instruction.errors.push(Error {
             error_name: UnrecognizedInstruction,
-            token_number_giving_error: 0
-        })}
+            token_number_giving_error: 0,
+        }),
     }
     //the binary of the instruction is converted to u32 here as well
     instruction.int_representation = convert_to_u32(instruction.binary_representation.clone());
 
     instruction
 }
+/// This function takes two strings and adds the second one into the middle of the first at a specified index.
+pub fn add_substring_in_middle_of_string(
+    wrapper_string: String,
+    middle_string: &str,
+    insertion_index: i32,
+) -> String {
+    let split_results = wrapper_string.split_at(insertion_index as usize);
+    let mut new_string = split_results.0.to_string();
 
-//this function takes an instruction whose operands it is supposed to read, the order of expected operand types and then
-//the order these operands should be concatenated onto the binary representation of the string
-//the function returns the instruction it was given with any errors and the binary of the operands added on
+    new_string.push_str(middle_string);
+    new_string.push_str(split_results.1);
+
+    new_string
+}
+
+///This function takes an instruction whose operands it is supposed to read, the order of expected operand types and then
+///the order these operands should be concatenated onto the binary representation of the string
+///the function returns the instruction it was given with any errors and the binary of the operands added on
 fn read_operands(
     instruction: &mut Instruction,
     expected_operands: Vec<OperandType>,

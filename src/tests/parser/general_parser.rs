@@ -28,3 +28,9 @@ mod read_instruction_tests {
         );
     }
 }
+use crate::parser::parser_main::add_substring_in_middle_of_string;
+#[test]
+fn add_substring_in_middle_of_string_pushes_string_to_correct_index() {
+    let result = add_substring_in_middle_of_string("frontBack".to_string(), "Middle", 5);
+    assert_eq!(result, "frontMiddleBack");
+}
