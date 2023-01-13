@@ -26,6 +26,7 @@
 //!   `bnezalc`, `beqc`, and `bovc` instructions.
 
 use super::super::datapath::Datapath;
+use super::constants::*;
 use super::control_signals::{floating_point::*, *};
 use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
@@ -293,7 +294,7 @@ impl MipsDatapath {
 
     /// Set rtype control signals. This function may have a Match statement added
     /// in the future for dealing with different special case rtype instructions.
-    fn set_rtype_control_signals(&mut self, _r: RType) {
+    fn set_rtype_control_signals(&mut self, r: RType) {
         self.signals.alu_op = AluOp::UseFunctField;
         self.signals.alu_src = AluSrc::ReadRegister2;
         self.signals.branch = Branch::NoBranch;
@@ -304,16 +305,21 @@ impl MipsDatapath {
         self.signals.mem_write = MemWrite::NoWrite;
         self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
         self.signals.reg_dst = RegDst::Reg3;
-        self.signals.reg_width = RegWidth::Word;
         self.signals.reg_write = RegWrite::YesWrite;
+
+        // The RegWidth signal might differ depending on the
+        // specific R-type instruction.
+        match reg_width_by_funct(r.funct) {
+            Some(width) => self.signals.reg_width = width,
+            None => error("Unsupported funct code"),
+        }
     }
 
     /// Set the control signals for the datapath, specifically in the
     /// case where the instruction is an I-type.
     fn set_itype_control_signals(&mut self, i: IType) {
         match i.op {
-            // Or immediate (ori)
-            0b001101 => {
+            OPCODE_ORI => {
                 self.signals.alu_op = AluOp::Or;
                 self.signals.alu_src = AluSrc::ZeroExtendedImmediate;
                 self.signals.branch = Branch::NoBranch;
@@ -328,8 +334,7 @@ impl MipsDatapath {
                 self.signals.reg_write = RegWrite::YesWrite;
             }
 
-            // Load Word (lw)
-            0b100011 => {
+            OPCODE_LW => {
                 self.signals.alu_op = AluOp::Addition;
                 self.signals.alu_src = AluSrc::SignExtendedImmediate; // may  be fishy
                 self.signals.branch = Branch::NoBranch;
@@ -344,8 +349,7 @@ impl MipsDatapath {
                 self.signals.reg_write = RegWrite::YesWrite;
             }
 
-            // Store Word (sw)
-            0b101011 => {
+            OPCODE_SW => {
                 self.signals.alu_op = AluOp::Addition;
                 self.signals.alu_src = AluSrc::SignExtendedImmediate; // may  be fishy
                 self.signals.branch = Branch::NoBranch;
@@ -411,36 +415,36 @@ impl MipsDatapath {
             AluOp::And => AluControl::And,
             AluOp::Or => AluControl::Or,
             AluOp::LeftShift16 => AluControl::LeftShift16,
-            AluOp::UseFunctField => match self.state.funct {
-                0b100000 => AluControl::Addition,
-                0b100010 => AluControl::Subtraction,
-                0b100100 => AluControl::And,
-                0b100101 => AluControl::Or,
-                0b101010 => AluControl::SetOnLessThanSigned,
-                0b101011 => AluControl::SetOnLessThanUnsigned,
-                0b011010 | 0b011110 => match self.state.shamt {
-                    0b00010 => AluControl::DivisionSigned,
+            AluOp::UseFunctField => match self.state.funct as u8 {
+                FUNCT_ADD => AluControl::Addition,
+                FUNCT_SUB => AluControl::Subtraction,
+                FUNCT_AND => AluControl::And,
+                FUNCT_OR => AluControl::Or,
+                FUNCT_SLT => AluControl::SetOnLessThanSigned,
+                FUNCT_SLTU => AluControl::SetOnLessThanUnsigned,
+                FUNCT_SOP32 | FUNCT_SOP36 => match self.state.shamt as u8 {
+                    ENC_DIV => AluControl::DivisionSigned,
                     _ => {
                         error("Unsupported funct");
                         AluControl::Addition // Stub
                     }
                 },
-                0b011011 | 0b011111 => match self.state.shamt {
-                    0b00010 => AluControl::DivisionUnsigned,
+                FUNCT_SOP33 | FUNCT_SOP37 => match self.state.shamt as u8 {
+                    ENC_DIVU => AluControl::DivisionUnsigned,
                     _ => {
                         error("Unsupported funct");
                         AluControl::Addition // Stub
                     }
                 },
-                0b011000 | 0b011100 => match self.state.shamt {
-                    0b00010 => AluControl::MultiplicationSigned,
+                FUNCT_SOP30 | FUNCT_SOP34 => match self.state.shamt as u8 {
+                    ENC_MUL => AluControl::MultiplicationSigned,
                     _ => {
                         error("Unsupported funct");
                         AluControl::Addition // Stub
                     }
                 },
-                0b011001 | 0b011101 => match self.state.shamt {
-                    0b00010 => AluControl::MultiplicationUnsigned,
+                FUNCT_SOP31 | FUNCT_SOP35 => match self.state.shamt as u8 {
+                    ENC_MULU => AluControl::MultiplicationUnsigned,
                     _ => {
                         error("Unsupported funct");
                         AluControl::Addition // Stub
