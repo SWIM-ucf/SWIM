@@ -1,6 +1,7 @@
 //! Implementation of a MIPS64 datapath.
 
 use super::super::datapath::Datapath;
+use super::instruction::instruction_types::*;
 use super::{control_signals::*, memory::Memory, registers::Registers};
 
 /// An implementation of a datapath for the MIPS64 ISA.
@@ -29,16 +30,9 @@ use super::{control_signals::*, memory::Memory, registers::Registers};
 /// - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
 ///   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
 ///   `bnezalc`, `beqc`, and `bovc` instructions.
+
 #[derive(Default)]
-pub struct MipsDatapath {
-    pub registers: Registers,
-    pub memory: Memory,
-
-    /// The currently loaded instruction. Initialized after the Instruction Fetch stage.
-    pub instruction: u32,
-    pub signals: ControlSignals,
-
-    opcode: u32,
+pub struct DatapathState {
     rs: u32,
     rt: u32,
     rd: u32,
@@ -71,6 +65,19 @@ pub struct MipsDatapath {
     /// *Data line.* The data after the `MemToReg` multiplexer, but
     /// before the `DataWrite` multiplexer in the main processor.
     data_result: u64,
+}
+
+#[derive(Default)]
+pub struct MipsDatapath {
+    pub registers: Registers,
+    pub memory: Memory,
+
+    /// The currently loaded instruction. Initialized after the Instruction Fetch stage.
+    pub instruction: u32,
+    pub signals: ControlSignals,
+
+    pub instruction_enum: Instruction,
+    pub state: DatapathState,
 
     /// The currently-active stage in the datapath.
     current_stage: Stage,
@@ -230,50 +237,59 @@ impl MipsDatapath {
 
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
-        // TODO: Use an enum and structs rather than individual fields.
-        self.opcode = (self.instruction >> 26) & 0b111111;
-        self.rs = (self.instruction >> 21) & 0b11111;
-        self.rt = (self.instruction >> 16) & 0b11111;
-        self.rd = (self.instruction >> 11) & 0b11111;
-        self.shamt = (self.instruction >> 6) & 0b11111;
-        self.funct = self.instruction & 0b111111;
-        self.imm = self.instruction & 0xFFFF;
+        let op: u32 = self.instruction >> 26;
+        match op {
+            0 => {
+                self.instruction_enum = Instruction::RType(RType {
+                    op: ((self.instruction >> 26) & 0x3F) as u8,
+                    rs: ((self.instruction >> 21) & 0x1F) as u8,
+                    rt: ((self.instruction >> 16) & 0x1F) as u8,
+                    rd: ((self.instruction >> 11) & 0x1F) as u8,
+                    shamt: ((self.instruction >> 6) & 0x1F) as u8,
+                    funct: (self.instruction & 0x3F) as u8,
+                })
+            }
+
+            0b001101 => {
+                self.instruction_enum = Instruction::IType(IType {
+                    op: ((self.instruction >> 26) & 0x3F) as u8,
+                    rs: ((self.instruction >> 21) & 0x1F) as u8,
+                    rt: ((self.instruction >> 16) & 0x1F) as u8,
+                    immediate: (self.instruction & 0xFFFF) as u16,
+                });
+                if let Instruction::IType(i) = self.instruction_enum {
+                    self.state.imm = i.immediate as u32;
+                }
+            }
+            _ => todo!("bla bla bla"),
+        }
+
+        match &self.instruction_enum {
+            Instruction::RType(r) => {
+                self.state.rs = r.rs as u32;
+                self.state.rt = r.rt as u32;
+                self.state.rd = r.rd as u32;
+
+                self.state.shamt = r.shamt as u32;
+                self.state.funct = r.funct as u32;
+            }
+            Instruction::IType(i) => {
+                self.state.rs = i.rs as u32;
+                self.state.rt = i.rt as u32;
+                self.state.rd = 0; // Placeholder
+            }
+            _ => todo!("Fix unknown instruction type"),
+        }
     }
 
     /// Extend the sign of a 16-bit value to the other 48 bits of a
     /// 64-bit value.
     fn sign_extend(&mut self) {
-        // Is the value negative or positive? Check sign bit
-
-        // 0000 0000 0000 0000 1000 0000 0000 0000
-        // 0x00008000
-
-        self.sign_extend = if (self.imm & 0x00008000) >> 15 == 0 {
-            self.imm as u64
-        } else {
-            (self.imm as u64) | 0xFFFF_FFFF_FFFF_0000
-        }
+        self.state.imm = ((self.state.imm as i16) as i32) as u32;
     }
 
-    /// Set the control signals for the datapath based on the
-    /// instruction's opcode.
-    fn set_control_signals(&mut self) {
-        match self.opcode {
-            // R-type instructions (add, sub, mul, div, and, or, slt, sltu)
-            0b000000 => {
-                self.signals.alu_op = AluOp::UseFunctField;
-                self.signals.alu_src = AluSrc::ReadRegister2;
-                self.signals.branch = Branch::NoBranch;
-                self.signals.imm_shift = ImmShift::Shift0;
-                self.signals.jump = Jump::NoJump;
-                self.signals.mem_read = MemRead::NoRead;
-                self.signals.mem_to_reg = MemToReg::UseAlu;
-                self.signals.mem_write = MemWrite::NoWrite;
-                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
-                self.signals.reg_dst = RegDst::Reg3;
-                self.signals.reg_width = RegWidth::Word;
-                self.signals.reg_write = RegWrite::YesWrite;
-            }
+    fn set_itype_control_signals(&mut self, i: IType) {
+        match i.op {
             // Or immediate (ori)
             0b001101 => {
                 self.signals.alu_op = AluOp::Or;
@@ -289,23 +305,50 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::DoubleWord;
                 self.signals.reg_write = RegWrite::YesWrite;
             }
-            _ => error("Instruction not supported."),
+            _ => panic!("Unsupported itype instructions"),
+        }
+    }
+
+    /// Set the control signals for the datapath based on the
+    /// instruction's opcode.
+    fn set_control_signals(&mut self) {
+        match self.instruction_enum {
+            // R-type instructions (add, sub, mul, div, and, or, slt, sltu)
+            // This case may need to be changed up to then switch on the funct bits to
+            // further figure out control signals...although, NAAAA
+            Instruction::RType(_) => {
+                // This is all placholder for now, kinda
+                self.signals.alu_op = AluOp::UseFunctField;
+                self.signals.alu_src = AluSrc::ReadRegister2;
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg3;
+                self.signals.reg_width = RegWidth::Word;
+                self.signals.reg_write = RegWrite::YesWrite;
+            }
+            Instruction::IType(i) => {
+                self.set_itype_control_signals(i);
+            }
+            Instruction::JType(_) => panic!("JType instructions are not supported yet"),
+            // _ => panic!("Un supported instruction")
         }
     }
 
     /// Read the registers as specified from the instruction and pass
     /// the data into the datapath.
     fn read_registers(&mut self) {
-        let reg1 = self.rs as usize;
-        let reg2 = self.rt as usize;
-
-        self.read_data_1 = self.registers.gpr[reg1];
-        self.read_data_2 = self.registers.gpr[reg2];
+        self.state.read_data_1 = self.registers.gpr[self.state.rs as usize];
+        self.state.read_data_2 = self.registers.gpr[self.state.rt as usize];
 
         // Truncate the variable data if a 32-bit word is requested.
         if let RegWidth::Word = self.signals.reg_width {
-            self.read_data_1 = self.registers.gpr[reg1] as u32 as u64;
-            self.read_data_2 = self.registers.gpr[reg2] as u32 as u64;
+            self.state.read_data_1 = self.registers.gpr[self.state.rs as usize];
+            self.state.read_data_2 = self.registers.gpr[self.state.rt as usize];
         }
     }
 
@@ -319,35 +362,35 @@ impl MipsDatapath {
             AluOp::And => AluControl::And,
             AluOp::Or => AluControl::Or,
             AluOp::LeftShift16 => AluControl::LeftShift16,
-            AluOp::UseFunctField => match self.funct {
+            AluOp::UseFunctField => match self.state.funct {
                 0b100000 => AluControl::Addition,
                 0b100010 => AluControl::Subtraction,
                 0b100100 => AluControl::And,
                 0b100101 => AluControl::Or,
                 0b101010 => AluControl::SetOnLessThanSigned,
                 0b101011 => AluControl::SetOnLessThanUnsigned,
-                0b011010 | 0b011110 => match self.shamt {
+                0b011010 | 0b011110 => match self.state.shamt {
                     0b00010 => AluControl::DivisionSigned,
                     _ => {
                         error("Unsupported funct");
                         AluControl::Addition // Stub
                     }
                 },
-                0b011011 | 0b011111 => match self.shamt {
+                0b011011 | 0b011111 => match self.state.shamt {
                     0b00010 => AluControl::DivisionUnsigned,
                     _ => {
                         error("Unsupported funct");
                         AluControl::Addition // Stub
                     }
                 },
-                0b011000 | 0b011100 => match self.shamt {
+                0b011000 | 0b011100 => match self.state.shamt {
                     0b00010 => AluControl::MultiplicationSigned,
                     _ => {
                         error("Unsupported funct");
                         AluControl::Addition // Stub
                     }
                 },
-                0b011001 | 0b011101 => match self.shamt {
+                0b011001 | 0b011101 => match self.state.shamt {
                     0b00010 => AluControl::MultiplicationUnsigned,
                     _ => {
                         error("Unsupported funct");
@@ -372,21 +415,21 @@ impl MipsDatapath {
 
         // Left shift the immediate value based on the ImmShift control signal.
         let alu_immediate = match self.signals.imm_shift {
-            ImmShift::Shift0 => self.sign_extend,
-            ImmShift::Shift16 => self.sign_extend << 16,
-            ImmShift::Shift32 => self.sign_extend << 32,
-            ImmShift::Shift48 => self.sign_extend << 48,
+            ImmShift::Shift0 => self.state.sign_extend,
+            ImmShift::Shift16 => self.state.sign_extend << 16,
+            ImmShift::Shift32 => self.state.sign_extend << 32,
+            ImmShift::Shift48 => self.state.sign_extend << 48,
         };
 
         // Specify the inputs for the operation. The first will always
         // be the first register, but the second may be either the
         // second register, the sign-extended immediate value, or the
         // zero-extended immediate value.
-        let mut input1 = self.read_data_1;
+        let mut input1 = self.state.read_data_1;
         let mut input2 = match self.signals.alu_src {
-            AluSrc::ReadRegister2 => self.read_data_2,
+            AluSrc::ReadRegister2 => self.state.read_data_2,
             AluSrc::SignExtendedImmediate => alu_immediate,
-            AluSrc::ZeroExtendedImmediate => self.imm as u64,
+            AluSrc::ZeroExtendedImmediate => self.state.imm as u64,
         };
 
         // Truncate the inputs if 32-bit operations are expected.
@@ -396,7 +439,7 @@ impl MipsDatapath {
         }
 
         // Set the result.
-        self.alu_result = match self.signals.alu_control {
+        self.state.alu_result = match self.signals.alu_control {
             AluControl::Addition => input1.wrapping_add(input2),
             AluControl::Subtraction => (input1 as i64).wrapping_sub(input2 as i64) as u64,
             AluControl::SetOnLessThanSigned => ((input1 as i64) < (input2 as i64)) as u64,
@@ -425,7 +468,7 @@ impl MipsDatapath {
 
         // Truncate and sign-extend the output if 32-bit operations are expected.
         if let RegWidth::Word = self.signals.reg_width {
-            self.alu_result = self.alu_result as i32 as i64 as u64;
+            self.state.alu_result = self.state.alu_result as i32 as i64 as u64;
         }
 
         // TODO: Set the zero bit.
@@ -437,12 +480,12 @@ impl MipsDatapath {
     /// read at the given address, bitwise 0 will be used in lieu of
     /// any data.
     fn memory_read(&mut self) {
-        let address = self.alu_result;
+        let address = self.state.alu_result;
 
         // Load memory, first choosing the correct load function by the
         // RegWidth control signal, then reading the result from this
         // memory access.
-        self.memory_data = match self.signals.reg_width {
+        self.state.memory_data = match self.signals.reg_width {
             RegWidth::Word => self.memory.load_word(address).unwrap_or(0) as u64,
             RegWidth::DoubleWord => self.memory.load_double_word(address).unwrap_or(0),
         };
@@ -452,10 +495,10 @@ impl MipsDatapath {
     /// [`Self::alu_result`]. The source of the data being written to
     /// memory is determined by [`MemWriteSrc`].
     fn memory_write(&mut self) {
-        let address = self.alu_result;
+        let address = self.state.alu_result;
 
         let write_data = match self.signals.mem_write_src {
-            MemWriteSrc::PrimaryUnit => self.read_data_2,
+            MemWriteSrc::PrimaryUnit => self.state.read_data_2,
             // Awaiting implementation of the floating-point unit.
             MemWriteSrc::FloatingPointUnit => todo!(),
         };
@@ -477,9 +520,9 @@ impl MipsDatapath {
     fn register_write(&mut self) {
         // Determine what data will be sent to the register: either
         // the result from the ALU, or data retrieved from memory.
-        self.data_result = match self.signals.mem_to_reg {
-            MemToReg::UseAlu => self.alu_result,
-            MemToReg::UseMemory => self.memory_data,
+        self.state.data_result = match self.signals.mem_to_reg {
+            MemToReg::UseAlu => self.state.alu_result,
+            MemToReg::UseMemory => self.state.memory_data,
         };
 
         // Abort if the RegWrite signal is not set.
@@ -490,9 +533,9 @@ impl MipsDatapath {
         // Determine the destination for the data to write. This is
         // determined by the RegDst control signal.
         let destination = match self.signals.reg_dst {
-            RegDst::Reg1 => self.rs as usize,
-            RegDst::Reg2 => self.rt as usize,
-            RegDst::Reg3 => self.rd as usize,
+            RegDst::Reg1 => self.state.rs as usize,
+            RegDst::Reg2 => self.state.rt as usize,
+            RegDst::Reg3 => self.state.rd as usize,
         };
 
         // If we are attempting to write to register $zero, stop.
@@ -502,11 +545,11 @@ impl MipsDatapath {
 
         // If a 32-bit word is requested, ensure data is truncated and sign-extended.
         if let RegWidth::Word = self.signals.reg_width {
-            self.data_result = self.data_result as i32 as u64;
+            self.state.data_result = self.state.data_result as i32 as u64;
         }
 
         // Write.
-        self.registers.gpr[destination] = self.data_result;
+        self.registers.gpr[destination] = self.state.data_result;
     }
 
     /// Update the program counter register. At the moment, this only
