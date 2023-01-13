@@ -100,7 +100,7 @@ impl From<u32> for Instruction {
                 rt: ((value >> 16) & 0x1F) as u8,
                 immediate: (value & 0xFFFF) as u16,
             }),
-            _ => todo!("Unsupported opcode"),
+            _ => unimplemented!("opcode `{}` not supported", op),
         }
     }
 }
