@@ -1,38 +1,15 @@
 //! Implementation of a MIPS64 datapath.
 
 use super::super::datapath::Datapath;
+use super::control_signals::{floating_point::*, *};
 use super::instruction::instruction_types::*;
-use super::{control_signals::*, memory::Memory, registers::Registers};
-
-/// An implementation of a datapath for the MIPS64 ISA.
-///
-/// It is assumed that while moving through stages, only one
-/// instruction will be active any any given point in time. Due to this,
-/// we consider the datapath to be a "pseudo-single-cycle datapath."
-///
-/// For the most part, this datapath is an implementation of MIPS64 Version 6.
-/// (See below for exceptions.)
-///
-/// # Differences Compared to MIPS64 Version 6
-///
-/// It should be noted that this datapath chooses to diverge from the MIPS64
-/// version 6 specification for the sake of simplicity in a few places:
-///
-/// - There is no exception handling, including that for integer overflow. (See
-///   [`MipsDatapath::alu()`].)
-/// - 32-bit instructions are treated exclusively with 32 bits, and the upper 32
-///   bits stored in a register are completely ignored in any of these cases. For
-///   example, before an `add` instruction, it should be checked whether it is a
-///   sign-extended 32-bit value stored in a 64-bit register. Instead, the upper
-///   32 bits are ignored when being used for 32-bit instructions.
-/// - Instead of implementing the `cmp.condn.fmt` instructions, this datapath implements
-///   the `c.cond.fmt` instructions from MIPS64 version 5.
-/// - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
-///   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
-///   `bnezalc`, `beqc`, and `bovc` instructions.
+use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::Registers};
 
 #[derive(Default)]
 pub struct DatapathState {
+    /// *Data line.* The currently loaded instruction. Initialized after the
+    /// Instruction Fetch stage.
+    instruction: u32,
     rs: u32,
     rt: u32,
     rd: u32,
@@ -65,18 +42,47 @@ pub struct DatapathState {
     /// *Data line.* The data after the `MemToReg` multiplexer, but
     /// before the `DataWrite` multiplexer in the main processor.
     data_result: u64,
+
+    /// *Data line.* The data after the `DataWrite` multiplexer in the main
+    /// processor and the main processor register file.
+    register_write_data: u64,
 }
 
+/// An implementation of a datapath for the MIPS64 ISA.
+///
+/// It is assumed that while moving through stages, only one
+/// instruction will be active any any given point in time. Due to this,
+/// we consider the datapath to be a "pseudo-single-cycle datapath."
+///
+/// For the most part, this datapath is an implementation of MIPS64 Version 6.
+/// (See below for exceptions.)
+///
+/// # Differences Compared to MIPS64 Version 6
+///
+/// It should be noted that this datapath chooses to diverge from the MIPS64
+/// version 6 specification for the sake of simplicity in a few places:
+///
+/// - There is no exception handling, including that for integer overflow. (See
+///   [`MipsDatapath::alu()`].)
+/// - 32-bit instructions are treated exclusively with 32 bits, and the upper 32
+///   bits stored in a register are completely ignored in any of these cases. For
+///   example, before an `add` instruction, it should be checked whether it is a
+///   sign-extended 32-bit value stored in a 64-bit register. Instead, the upper
+///   32 bits are ignored when being used for 32-bit instructions.
+/// - Instead of implementing the `cmp.condn.fmt` instructions, this datapath implements
+///   the `c.cond.fmt` instructions from MIPS64 version 5.
+/// - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
+///   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
+///   `bnezalc`, `beqc`, and `bovc` instructions.
 #[derive(Default)]
 pub struct MipsDatapath {
     pub registers: Registers,
     pub memory: Memory,
+    pub coprocessor: MipsFpCoprocessor,
 
-    /// The currently loaded instruction. Initialized after the Instruction Fetch stage.
-    pub instruction: u32,
+    pub instruction: Instruction,
+
     pub signals: ControlSignals,
-
-    pub instruction_enum: Instruction,
     pub state: DatapathState,
 
     /// The currently-active stage in the datapath.
@@ -180,6 +186,7 @@ impl MipsDatapath {
     /// into the datapath.
     fn stage_instruction_fetch(&mut self) {
         self.instruction_fetch();
+        self.coprocessor.set_instruction(self.state.instruction);
     }
 
     /// Stage 2 of 5: Instruction Decode (ID)
@@ -191,6 +198,9 @@ impl MipsDatapath {
         self.set_control_signals();
         self.read_registers();
         self.set_alu_control();
+        self.coprocessor.stage_instruction_decode();
+        self.coprocessor
+            .set_data_from_main_processor(self.state.read_data_2);
     }
 
     /// Stage 3 of 5: Execute (EX)
@@ -198,6 +208,7 @@ impl MipsDatapath {
     /// Execute the current instruction with some arithmetic operation.
     fn stage_execute(&mut self) {
         self.alu();
+        self.coprocessor.stage_execute();
     }
 
     /// Stage 4 of 5: Memory (MEM)
@@ -211,6 +222,15 @@ impl MipsDatapath {
         if let MemWrite::YesWrite = self.signals.mem_write {
             self.memory_write();
         }
+
+        // Determine what data will be sent to the registers: either
+        // the result from the ALU, or data retrieved from memory.
+        self.state.data_result = match self.signals.mem_to_reg {
+            MemToReg::UseAlu => self.state.alu_result,
+            MemToReg::UseMemory => self.state.memory_data,
+        };
+
+        self.coprocessor.stage_memory();
     }
 
     /// Stage 5 of 5: Writeback (WB)
@@ -218,15 +238,18 @@ impl MipsDatapath {
     /// Write the result of the instruction's operation to a register,
     /// if desired. Additionally, set the PC for the next instruction.
     fn stage_writeback(&mut self) {
+        self.coprocessor
+            .set_fp_register_data_from_main_processor(self.state.data_result);
         self.register_write();
         self.set_pc();
+        self.coprocessor.stage_writeback();
     }
 
     /// Load the raw binary instruction from memory and into the
     /// datapath. If there is an error with loading the word, assume
     /// the instruction to be bitwise zero and error.
     fn instruction_fetch(&mut self) {
-        self.instruction = match self.memory.load_word(self.registers.pc) {
+        self.state.instruction = match self.memory.load_word(self.registers.pc) {
             Ok(data) => data,
             Err(e) => {
                 error(e.as_str());
@@ -237,34 +260,37 @@ impl MipsDatapath {
 
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
-        let op: u32 = self.instruction >> 26;
+        // Based on the opcode, convert the instruction to a struct representation.
+        let op: u32 = self.state.instruction >> 26;
         match op {
             0 => {
-                self.instruction_enum = Instruction::RType(RType {
-                    op: ((self.instruction >> 26) & 0x3F) as u8,
-                    rs: ((self.instruction >> 21) & 0x1F) as u8,
-                    rt: ((self.instruction >> 16) & 0x1F) as u8,
-                    rd: ((self.instruction >> 11) & 0x1F) as u8,
-                    shamt: ((self.instruction >> 6) & 0x1F) as u8,
-                    funct: (self.instruction & 0x3F) as u8,
+                self.instruction = Instruction::RType(RType {
+                    op: ((self.state.instruction >> 26) & 0x3F) as u8,
+                    rs: ((self.state.instruction >> 21) & 0x1F) as u8,
+                    rt: ((self.state.instruction >> 16) & 0x1F) as u8,
+                    rd: ((self.state.instruction >> 11) & 0x1F) as u8,
+                    shamt: ((self.state.instruction >> 6) & 0x1F) as u8,
+                    funct: (self.state.instruction & 0x3F) as u8,
                 })
             }
 
             0b001101 => {
-                self.instruction_enum = Instruction::IType(IType {
-                    op: ((self.instruction >> 26) & 0x3F) as u8,
-                    rs: ((self.instruction >> 21) & 0x1F) as u8,
-                    rt: ((self.instruction >> 16) & 0x1F) as u8,
-                    immediate: (self.instruction & 0xFFFF) as u16,
+                self.instruction = Instruction::IType(IType {
+                    op: ((self.state.instruction >> 26) & 0x3F) as u8,
+                    rs: ((self.state.instruction >> 21) & 0x1F) as u8,
+                    rt: ((self.state.instruction >> 16) & 0x1F) as u8,
+                    immediate: (self.state.instruction & 0xFFFF) as u16,
                 });
-                if let Instruction::IType(i) = self.instruction_enum {
+                if let Instruction::IType(i) = self.instruction {
                     self.state.imm = i.immediate as u32;
                 }
             }
-            _ => todo!("bla bla bla"),
+            _ => todo!("Unsupported opcode"),
         }
 
-        match &self.instruction_enum {
+        // Set the data lines based on the contents of the instruction.
+        // Some lines will hold uninitialized values as a result.
+        match self.instruction {
             Instruction::RType(r) => {
                 self.state.rs = r.rs as u32;
                 self.state.rt = r.rt as u32;
@@ -288,6 +314,8 @@ impl MipsDatapath {
         self.state.imm = ((self.state.imm as i16) as i32) as u32;
     }
 
+    /// Set the control signals for the datapath, specifically in the
+    /// case where the instruction is an I-type.
     fn set_itype_control_signals(&mut self, i: IType) {
         match i.op {
             // Or immediate (ori)
@@ -312,12 +340,9 @@ impl MipsDatapath {
     /// Set the control signals for the datapath based on the
     /// instruction's opcode.
     fn set_control_signals(&mut self) {
-        match self.instruction_enum {
+        match self.instruction {
             // R-type instructions (add, sub, mul, div, and, or, slt, sltu)
-            // This case may need to be changed up to then switch on the funct bits to
-            // further figure out control signals...although, NAAAA
             Instruction::RType(_) => {
-                // This is all placholder for now, kinda
                 self.signals.alu_op = AluOp::UseFunctField;
                 self.signals.alu_src = AluSrc::ReadRegister2;
                 self.signals.branch = Branch::NoBranch;
@@ -334,8 +359,8 @@ impl MipsDatapath {
             Instruction::IType(i) => {
                 self.set_itype_control_signals(i);
             }
-            Instruction::JType(_) => panic!("JType instructions are not supported yet"),
-            // _ => panic!("Un supported instruction")
+            Instruction::JType(_) => todo!("JType instructions are not supported yet"),
+            // _ => panic!("Unsupported instruction")
         }
     }
 
@@ -525,6 +550,12 @@ impl MipsDatapath {
             MemToReg::UseMemory => self.state.memory_data,
         };
 
+        // Decide to retrieve data either from the main processor or the coprocessor.
+        self.state.register_write_data = match self.coprocessor.signals.data_write {
+            DataWrite::NoWrite => self.state.data_result,
+            DataWrite::YesWrite => self.coprocessor.get_data_register(),
+        };
+
         // Abort if the RegWrite signal is not set.
         if self.signals.reg_write == RegWrite::NoWrite {
             return;
@@ -549,7 +580,7 @@ impl MipsDatapath {
         }
 
         // Write.
-        self.registers.gpr[destination] = self.state.data_result;
+        self.registers.gpr[destination] = self.state.register_write_data;
     }
 
     /// Update the program counter register. At the moment, this only
