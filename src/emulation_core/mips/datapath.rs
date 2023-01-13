@@ -282,7 +282,7 @@ impl MipsDatapath {
             // For instructions that exclusively use the FPU, these data lines
             // do not need to be used.
             Instruction::FpuRType(_) => (),
-            _ => todo!("Fix unknown instruction type"),
+            _ => unimplemented!(),
         }
     }
 
@@ -311,7 +311,11 @@ impl MipsDatapath {
         // specific R-type instruction.
         match reg_width_by_funct(r.funct) {
             Some(width) => self.signals.reg_width = width,
-            None => error("Unsupported funct code"),
+            None => unimplemented!(
+                "funct code `{}` is unsupported for this opcode ({})",
+                r.funct,
+                r.op
+            ),
         }
     }
 
@@ -363,8 +367,7 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::Word;
                 self.signals.reg_write = RegWrite::NoWrite;
             }
-
-            _ => panic!("Unsupported itype instructions"),
+            _ => unimplemented!("I-type instruction with opcode `{}`", i.op),
         }
     }
 
@@ -415,46 +418,48 @@ impl MipsDatapath {
             AluOp::And => AluControl::And,
             AluOp::Or => AluControl::Or,
             AluOp::LeftShift16 => AluControl::LeftShift16,
-            AluOp::UseFunctField => match self.state.funct as u8 {
-                FUNCT_ADD | FUNCT_DADD => AluControl::Addition,
-                FUNCT_SUB => AluControl::Subtraction,
-                FUNCT_AND => AluControl::And,
-                FUNCT_OR => AluControl::Or,
-                FUNCT_SLT => AluControl::SetOnLessThanSigned,
-                FUNCT_SLTU => AluControl::SetOnLessThanUnsigned,
-                FUNCT_SOP32 | FUNCT_SOP36 => match self.state.shamt as u8 {
-                    ENC_DIV => AluControl::DivisionSigned,
+            AluOp::UseFunctField => {
+                match self.state.funct as u8 {
+                    FUNCT_ADD | FUNCT_DADD => AluControl::Addition,
+                    FUNCT_SUB => AluControl::Subtraction,
+                    FUNCT_AND => AluControl::And,
+                    FUNCT_OR => AluControl::Or,
+                    FUNCT_SLT => AluControl::SetOnLessThanSigned,
+                    FUNCT_SLTU => AluControl::SetOnLessThanUnsigned,
+                    FUNCT_SOP32 | FUNCT_SOP36 => match self.state.shamt as u8 {
+                        ENC_DIV => AluControl::DivisionSigned,
+                        _ => {
+                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                            AluControl::Addition // Stub
+                        }
+                    },
+                    FUNCT_SOP33 | FUNCT_SOP37 => match self.state.shamt as u8 {
+                        ENC_DIVU => AluControl::DivisionUnsigned,
+                        _ => {
+                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                            AluControl::Addition // Stub
+                        }
+                    },
+                    FUNCT_SOP30 | FUNCT_SOP34 => match self.state.shamt as u8 {
+                        ENC_MUL => AluControl::MultiplicationSigned,
+                        _ => {
+                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                            AluControl::Addition // Stub
+                        }
+                    },
+                    FUNCT_SOP31 | FUNCT_SOP35 => match self.state.shamt as u8 {
+                        ENC_MULU => AluControl::MultiplicationUnsigned,
+                        _ => {
+                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                            AluControl::Addition // Stub
+                        }
+                    },
                     _ => {
-                        error("Unsupported funct");
+                        unimplemented!("funct code `{}` is unsupported on ALU", self.state.funct);
                         AluControl::Addition // Stub
                     }
-                },
-                FUNCT_SOP33 | FUNCT_SOP37 => match self.state.shamt as u8 {
-                    ENC_DIVU => AluControl::DivisionUnsigned,
-                    _ => {
-                        error("Unsupported funct");
-                        AluControl::Addition // Stub
-                    }
-                },
-                FUNCT_SOP30 | FUNCT_SOP34 => match self.state.shamt as u8 {
-                    ENC_MUL => AluControl::MultiplicationSigned,
-                    _ => {
-                        error("Unsupported funct");
-                        AluControl::Addition // Stub
-                    }
-                },
-                FUNCT_SOP31 | FUNCT_SOP35 => match self.state.shamt as u8 {
-                    ENC_MULU => AluControl::MultiplicationUnsigned,
-                    _ => {
-                        error("Unsupported funct");
-                        AluControl::Addition // Stub
-                    }
-                },
-                _ => {
-                    error("Unsupported funct");
-                    AluControl::Addition // Stub
                 }
-            },
+            }
         };
     }
 
