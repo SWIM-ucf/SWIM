@@ -74,7 +74,7 @@ pub enum AluControl {
 /// will perform.
 #[derive(Default)]
 pub enum AluOp {
-    /// `000` (0) - Perform an addition. (Also used n cases where the ALU result does not matter.)
+    /// `000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
     #[default]
     Addition = 0,
 
