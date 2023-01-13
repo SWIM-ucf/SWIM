@@ -250,7 +250,6 @@ impl MipsDatapath {
                 })
             }
 
-            // ORI, feels kinda scummy to put this here
             0b001101 => {
                 self.instruction_enum = Instruction::IType(IType {
                     op: ((self.instruction >> 26) & 0x3F) as u8,
@@ -308,7 +307,6 @@ impl MipsDatapath {
     fn set_itype_control_signals(&mut self, i: IType) {
         match i.op {
             // Or immediate (ori)
-            // this code really needs to be moved somewhere else
             0b001101 => {
                 self.signals.alu_op = AluOp::Or;
                 self.signals.alu_src = AluSrc::ZeroExtendedImmediate;
