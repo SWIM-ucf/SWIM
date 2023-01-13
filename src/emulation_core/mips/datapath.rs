@@ -261,23 +261,7 @@ impl MipsDatapath {
                     self.state.imm = i.immediate as u32;
                 }
             }
-
-            // As far as I know, there is no distinct way differentiate an instruction outside
-            // whether they are R-type or not...This sadly this means our code design will
-            // end up less elegant than desired
-            _ => {
-                self.instruction_enum = Instruction::PlaceholderType(PlaceholderType {
-                    op: ((self.instruction >> 26) & 0x3F) as u8,
-                    rs: ((self.instruction >> 21) & 0x1F) as u8,
-                    rt: ((self.instruction >> 16) & 0x1F) as u8,
-                    rd: ((self.instruction >> 11) & 0x1F) as u8,
-                    shamt: ((self.instruction >> 6) & 0x1F) as u8,
-                    funct: (self.instruction & 0x3F) as u8,
-
-                    imm: (self.instruction & 0xFF) as u16,
-                    addr: (self.instruction & 0x03FF_FFFF) as u32,
-                })
-            }
+            _ => todo!("bla bla bla"),
         }
 
         match &self.instruction_enum {
@@ -294,7 +278,7 @@ impl MipsDatapath {
                 self.state.rt = i.rt as u32;
                 self.state.rd = 0; // Placeholder
             }
-            _ => todo!("Fix unknown instruction type"),
+            _ => todo!("Fix unknown instruction type")
         }
     }
 
@@ -351,21 +335,7 @@ impl MipsDatapath {
                 self.set_itype_control_signals(i);
             }
             Instruction::JType(_) => panic!("JType instructions are not supported yet"),
-            Instruction::PlaceholderType(_) => {
-                // These are placeholder signals, they are correct for some R-Types
-                self.signals.alu_op = AluOp::UseFunctField;
-                self.signals.alu_src = AluSrc::ReadRegister2;
-                self.signals.branch = Branch::NoBranch;
-                self.signals.imm_shift = ImmShift::Shift0;
-                self.signals.jump = Jump::NoJump;
-                self.signals.mem_read = MemRead::NoRead;
-                self.signals.mem_to_reg = MemToReg::UseAlu;
-                self.signals.mem_write = MemWrite::NoWrite;
-                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
-                self.signals.reg_dst = RegDst::Reg3;
-                self.signals.reg_width = RegWidth::Word;
-                self.signals.reg_write = RegWrite::YesWrite;
-            }
+            // _ => panic!("Un supported instruction")
         }
     }
 
@@ -377,8 +347,8 @@ impl MipsDatapath {
 
         // Truncate the variable data if a 32-bit word is requested.
         if let RegWidth::Word = self.signals.reg_width {
-            self.state.read_data_1 = self.registers.gpr[self.state.rs as usize] as u64;
-            self.state.read_data_2 = self.registers.gpr[self.state.rt as usize] as u64;
+            self.state.read_data_1 = self.registers.gpr[self.state.rs as usize];
+            self.state.read_data_2 = self.registers.gpr[self.state.rt as usize];
         }
     }
 
