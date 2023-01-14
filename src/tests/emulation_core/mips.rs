@@ -482,6 +482,66 @@ fn dmul_result_truncate() {
     assert_eq!(datapath.registers.gpr[18], 3_777_124_905_256_220_920); // $s2
 }
 
+#[test]
+fn ddiv_positive_result() {
+    let mut datapath = MipsDatapath::default();
+
+    // ddiv rd, rs, rt
+    // ddiv $s0, $s1, $s2
+    // ddiv 16, 17, 18
+    // GPR[rd] <- divide.signed(GPR[rs], GPR[rt])
+    //                      opcode  rs    rt    rd          funct
+    //                      SPECIAL $s1   $s2   $s0   DDIV  SOP36
+    //                              17    18    16
+    let instruction: u32 = 0b000000_10001_10010_10000_00010_011110;
+
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // Assume register $s1 contains a number larger than 32 bits,
+    // but smaller than 64 bits.
+    datapath.registers.gpr[17] = 1_284_064_531_192; // $s1
+    datapath.registers.gpr[18] = 7; // $s2
+
+    datapath.execute_instruction();
+
+    // While the actual result is 183,437,790,170.285714....
+    // the decimal portion is truncated.
+    assert_eq!(datapath.registers.gpr[16], 183_437_790_170); // $s0
+}
+
+#[test]
+fn ddiv_negative_result() {
+    let mut datapath = MipsDatapath::default();
+
+    // ddiv rd, rs, rt
+    // ddiv $a3, $a2, $a1
+    // ddiv 7, 6, 5
+    // GPR[rd] <- divide.signed(GPR[rs], GPR[rt])
+    //                      opcode  rs    rt    rd          funct
+    //                      SPECIAL $a2   $a1   $a3   DDIV  SOP36
+    //                              6     5     7
+    let instruction: u32 = 0b000000_00110_00101_00111_00010_011110;
+
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // Assume register $a2 contains a number larger than 32 bits,
+    // but smaller than 64 bits.
+    datapath.registers.gpr[6] = -6_245_352_518_120_328_878_i64 as u64; // $a2
+    datapath.registers.gpr[5] = 123; // $a1
+
+    datapath.execute_instruction();
+
+    // While the actual result is -50,775,223,724,555,519.333333....
+    // the decimal portion is truncated.
+    assert_eq!(datapath.registers.gpr[7] as i64, -50_775_223_724_555_519); // $a3
+}
+
 pub mod load_word {
     use super::*;
     #[test]
