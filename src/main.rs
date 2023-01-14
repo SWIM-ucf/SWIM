@@ -14,9 +14,9 @@ fn app() -> Html {
     html! {
         <div>
             <h1>{"Welcome to SWIM"}</h1>
-            <Editor />
-            <Console />
             <Regview />
+            <Editor /> 
+            <Console />
         </div>
     }
 }
