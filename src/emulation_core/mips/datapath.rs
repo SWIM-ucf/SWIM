@@ -46,6 +46,7 @@ pub struct MipsDatapath {
     current_stage: Stage,
 }
 
+/// A collection of all the data lines and wires in the datapath.
 #[derive(Default)]
 pub struct DatapathState {
     /// *Data line.* The currently loaded instruction. Initialized after the
@@ -526,7 +527,7 @@ impl MipsDatapath {
     }
 
     /// Read from memory based on the address provided by the ALU in
-    /// [`Self::alu_result`]. Returns the result to [`Self::memory_data`].
+    /// [`DatapathState::alu_result`]. Returns the result to [`DatapathState::memory_data`].
     /// Should the address be invalid or otherwise memory cannot be
     /// read at the given address, bitwise 0 will be used in lieu of
     /// any data.
@@ -543,7 +544,7 @@ impl MipsDatapath {
     }
 
     /// Write to memory based on the address provided by the ALU in
-    /// [`Self::alu_result`]. The source of the data being written to
+    /// [`DatapathState::alu_result`]. The source of the data being written to
     /// memory is determined by [`MemWriteSrc`].
     fn memory_write(&mut self) {
         let address = self.state.alu_result;
