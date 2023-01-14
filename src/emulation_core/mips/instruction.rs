@@ -1,3 +1,5 @@
+//! Abstract representation of an instruction.
+
 #[derive(Debug, Default, Clone, Copy)]
 pub struct RType {
     pub op: u8,
