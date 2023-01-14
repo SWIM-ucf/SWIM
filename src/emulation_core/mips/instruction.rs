@@ -57,7 +57,7 @@ impl From<u32> for Instruction {
         match op {
             // R-type instructions:
             // add, sub, mul, div
-            // dadd, dsub
+            // dadd, dsub, dmul
             OPCODE_SPECIAL => Instruction::RType(RType {
                 op: ((value >> 26) & 0x3F) as u8,
                 rs: ((value >> 21) & 0x1F) as u8,
