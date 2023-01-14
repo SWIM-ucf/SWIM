@@ -340,6 +340,23 @@ fn or_immediate_with_value() {
     assert_eq!(datapath.registers.gpr[16], 987658425); // $s0
 }
 
+#[test]
+fn lw_zero_offset_test() {
+    // for this test the lw instruction will load itself from
+    // memory
+    let mut datapath = MipsDatapath::default();
+
+
+    //                        lw     $t0   $s0      offset = 0
+    let instruction: u32 = 0b100011_01000_10000_0000000000000000;
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+    datapath.execute_instruction();
+    assert_eq!(datapath.registers.gpr[16], instruction as u64);
+}
+
 pub mod coprocessor {
     use crate::emulation_core::datapath::Datapath;
     use crate::emulation_core::mips::datapath::MipsDatapath;
