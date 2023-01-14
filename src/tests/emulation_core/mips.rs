@@ -394,6 +394,94 @@ fn dsub_registers_positive_result() {
     assert_eq!(datapath.registers.gpr[19], 4_669_680_037_183_490); // $s5
 }
 
+#[test]
+fn dmul_positive_result() {
+    let mut datapath = MipsDatapath::default();
+
+    // dmul rd, rs, rt
+    // dmul $a0, $t8, $t9
+    // dmul 4, 24, 25
+    // GPR[rd] <- lo_doubleword(multiply.signed(GPR[rs] * GPR[rt]))
+    //                      opcode  rs    rt    rd          funct
+    //                      SPECIAL $t8   $t9   $a0   DMUL  SOP34
+    //                              24    25    4
+    let instruction: u32 = 0b000000_11000_11001_00100_00010_011100;
+
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // Assume register $t8 contains a number larger than 32 bits,
+    // but smaller than 64 bits.
+    datapath.registers.gpr[24] = 5_861_036_283_017; // $t8
+    datapath.registers.gpr[25] = 5; // $t9
+
+    datapath.execute_instruction();
+
+    assert_eq!(datapath.registers.gpr[4], 29_305_181_415_085); // $a0
+}
+
+#[test]
+fn dmul_negative_result() {
+    let mut datapath = MipsDatapath::default();
+
+    // dmul rd, rs, rt
+    // dmul $s7, $t7, $t6
+    // dmul 23, 15, 14
+    // GPR[rd] <- lo_doubleword(multiply.signed(GPR[rs] * GPR[rt]))
+    //                      opcode  rs    rt    rd          funct
+    //                      SPECIAL $t7   $t6   $s7   DMUL  SOP34
+    //                              15    14    23
+    let instruction: u32 = 0b000000_01111_01110_10111_00010_011100;
+
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // Assume register $t7 contains a number larger than 32 bits,
+    // but smaller than 64 bits.
+    datapath.registers.gpr[15] = 363_251_152_978_005; // $t7
+    datapath.registers.gpr[14] = -19_i64 as u64; // $t6
+
+    datapath.execute_instruction();
+
+    assert_eq!(datapath.registers.gpr[23] as i64, -6_901_771_906_582_095); // $s7
+}
+
+#[test]
+fn dmul_result_truncate() {
+    let mut datapath = MipsDatapath::default();
+
+    // dmul rd, rs, rt
+    // dmul $s2, $s4, $s3
+    // dmul 18, 20, 19
+    // GPR[rd] <- lo_doubleword(multiply.signed(GPR[rs] * GPR[rt]))
+    //                      opcode  rs    rt    rd          funct
+    //                      SPECIAL $s4   $s3   $s2   DMUL  SOP34
+    //                              20    19    18
+    let instruction: u32 = 0b000000_10100_10011_10010_00010_011100;
+
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // Assume registers $s4 and $s3 contain numbers larger than 32 bits,
+    // but smaller than 64 bits.
+    datapath.registers.gpr[20] = 191_893_548_893_556_856; // $s4
+    datapath.registers.gpr[19] = 2_799_316_838_897; // $s3
+
+    datapath.execute_instruction();
+
+    // The result, 537,170,842,693,438,490,068,661,827,832, is too large for
+    // a 64-bit integer.
+    // (110 11000111 10110001 01001110 10000100 [00110100 01101011 00001011 00010110 11011010 00010011 11111000 11111000])
+    // The result should instead truncate to the lower 64 bits.
+    assert_eq!(datapath.registers.gpr[18], 3_777_124_905_256_220_920); // $s2
+}
+
 pub mod load_word {
     use super::*;
     #[test]
