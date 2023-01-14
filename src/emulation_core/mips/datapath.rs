@@ -403,8 +403,8 @@ impl MipsDatapath {
 
         // Truncate the variable data if a 32-bit word is requested.
         if let RegWidth::Word = self.signals.reg_width {
-            self.state.read_data_1 = self.registers.gpr[self.state.rs as usize];
-            self.state.read_data_2 = self.registers.gpr[self.state.rt as usize];
+            self.state.read_data_1 = self.state.read_data_1 as u32 as u64;
+            self.state.read_data_2 = self.state.read_data_2 as u32 as u64;
         }
     }
 
