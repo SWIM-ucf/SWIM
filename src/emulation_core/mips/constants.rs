@@ -8,6 +8,7 @@ pub const FUNCT_SLT: u8 = 0b101010;
 pub const FUNCT_SLTU: u8 = 0b101011;
 
 pub const FUNCT_DADD: u8 = 0b101100;
+pub const FUNCT_DSUB: u8 = 0b101110;
 
 /// Used for `MUL` and `MUH`.
 pub const FUNCT_SOP30: u8 = 0b011000;
@@ -65,7 +66,7 @@ pub fn reg_width_by_funct(funct: u8) -> Option<RegWidth> {
     match funct {
         FUNCT_ADD | FUNCT_SUB => Some(RegWidth::Word),
         FUNCT_AND | FUNCT_OR | FUNCT_SLT | FUNCT_SLTU => Some(RegWidth::DoubleWord),
-        FUNCT_DADD => Some(RegWidth::DoubleWord),
+        FUNCT_DADD | FUNCT_DSUB => Some(RegWidth::DoubleWord),
         FUNCT_SOP30 | FUNCT_SOP31 | FUNCT_SOP32 | FUNCT_SOP33 => Some(RegWidth::Word),
         FUNCT_SOP34 | FUNCT_SOP35 | FUNCT_SOP36 | FUNCT_SOP37 => Some(RegWidth::DoubleWord),
         _ => None,

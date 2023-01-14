@@ -421,7 +421,7 @@ impl MipsDatapath {
             AluOp::UseFunctField => {
                 match self.state.funct as u8 {
                     FUNCT_ADD | FUNCT_DADD => AluControl::Addition,
-                    FUNCT_SUB => AluControl::Subtraction,
+                    FUNCT_SUB | FUNCT_DSUB => AluControl::Subtraction,
                     FUNCT_AND => AluControl::And,
                     FUNCT_OR => AluControl::Or,
                     FUNCT_SLT => AluControl::SetOnLessThanSigned,
