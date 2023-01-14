@@ -28,12 +28,12 @@
 use super::super::datapath::Datapath;
 use super::control_signals::{floating_point::*, *};
 use super::instruction::*;
-use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::Registers};
+use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 
 /// An implementation of a datapath for the MIPS64 ISA.
 #[derive(Default)]
 pub struct MipsDatapath {
-    pub registers: Registers,
+    pub registers: GpRegisters,
     pub memory: Memory,
     pub coprocessor: MipsFpCoprocessor,
 
@@ -121,7 +121,7 @@ pub fn error(message: &str) {
 
 impl Datapath for MipsDatapath {
     type RegisterData = u64;
-    type RegisterEnum = super::registers::RegisterType;
+    type RegisterEnum = super::registers::GpRegisterType;
     type MemoryType = Memory;
 
     fn execute_instruction(&mut self) {
