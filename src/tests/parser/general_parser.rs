@@ -28,9 +28,19 @@ mod read_instruction_tests {
         );
     }
 }
-use crate::parser::parser_main::add_substring_in_middle_of_string;
+use crate::parser::parser_main:: place_binary_in_middle_of_another;
 #[test]
-fn add_substring_in_middle_of_string_pushes_string_to_correct_index() {
-    let result = add_substring_in_middle_of_string("frontBack".to_string(), "Middle", 5);
-    assert_eq!(result, "frontMiddleBack");
+fn place_binary_in_middle_of_another_works(){
+    let result = place_binary_in_middle_of_another(0b11, 0b0, 1, 1);
+    assert_eq!(result, 0b101);
+}
+#[test]
+fn place_binary_in_middle_of_another_works_2(){
+    let result = place_binary_in_middle_of_another(0b1001, 0b111, 3, 2);
+    assert_eq!(result, 0b1011101);
+}
+#[test]
+fn place_binary_in_middle_of_another_works_3(){
+    let result = place_binary_in_middle_of_another(0b10100101, 0b11011, 5, 4);
+    assert_eq!(result, 0b1010110110101);
 }
