@@ -365,6 +365,35 @@ fn dadd_register_to_itself() {
     assert_eq!(datapath.registers.gpr[2], 1_938_187_178_608); // $v0
 }
 
+#[test]
+fn dsub_registers_positive_result() {
+    let mut datapath = MipsDatapath::default();
+
+    // dsub rd, rs, rt
+    // dsub $s5, $s4, $s3
+    // GPR[rd] <- GPR[rs] - GPR[rt]
+    // GPR[$s5] <- GPR[$s4] - GPR[$s3]
+    // GPR[19] <- GPR[18] - GPR[17]
+    //                      SPECIAL rs    rt    rd    0     funct
+    //                              $s4   $s3   $s5         DSUB
+    //                              18    17    19
+    let instruction: u32 = 0b000000_10010_10001_10011_00000_101110;
+
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // Assume registers $s3 and $s4 contain numbers larger than 32 bits,
+    // but smaller than 64 bits.
+    datapath.registers.gpr[18] = 4_833_323_886_298_794; // $s4
+    datapath.registers.gpr[17] = 163_643_849_115_304; // $s3
+
+    datapath.execute_instruction();
+
+    assert_eq!(datapath.registers.gpr[19], 4_669_680_037_183_490); // $s5
+}
+
 pub mod load_word {
     use super::*;
     #[test]
