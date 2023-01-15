@@ -328,6 +328,23 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::DoubleWord;
                 self.signals.reg_write = RegWrite::YesWrite;
             }
+
+            // Load Word (lw)
+            0b100011 => {
+                self.signals.alu_op = AluOp::Addition;
+                self.signals.alu_src = AluSrc::SignExtendedImmediate; // may  be fishy
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::YesRead;
+                self.signals.mem_to_reg = MemToReg::UseMemory;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_width = RegWidth::Word;
+                self.signals.reg_write = RegWrite::YesWrite;
+            }
+
             _ => panic!("Unsupported itype instructions"),
         }
     }

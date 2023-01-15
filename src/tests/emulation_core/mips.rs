@@ -346,7 +346,6 @@ fn lw_zero_offset_test() {
     // memory
     let mut datapath = MipsDatapath::default();
 
-
     //                        lw     $t0   $s0      offset = 0
     let instruction: u32 = 0b100011_01000_10000_0000000000000000;
     datapath
