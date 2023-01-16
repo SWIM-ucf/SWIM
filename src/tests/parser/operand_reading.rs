@@ -1,23 +1,23 @@
 #[cfg(test)]
 
 mod convert_to_u32_tests {
-    use crate::parser::parser_main::convert_to_u32;
+    use crate::parser::parser_main::_convert_to_u32;
 
     #[test]
     fn convert_to_u32_returns_correct_value_on_zeros() {
-        let result = convert_to_u32("00000".to_string());
+        let result = _convert_to_u32("00000".to_string());
         assert_eq!(result, 0);
     }
 
     #[test]
     fn convert_to_u32_returns_correct_value_on_32_bit_long_string() {
-        let result = convert_to_u32("11111111111111111111111111111111".to_string());
+        let result = _convert_to_u32("11111111111111111111111111111111".to_string());
         assert_eq!(result, 4294967295);
     }
 
     #[test]
     fn convert_to_u32_returns_correct_value_for_an_actual_instruction() {
-        let result = convert_to_u32("10001101010010010000000000000100".to_string());
+        let result = _convert_to_u32("10001101010010010000000000000100".to_string());
         assert_eq!(result, 2370371588);
     }
 }
