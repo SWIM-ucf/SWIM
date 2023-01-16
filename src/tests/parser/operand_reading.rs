@@ -174,11 +174,12 @@ mod tokenize_instruction_tests {
                 "T2".to_string(),
                 "T2".to_string(),
             ],
+            instruction_number: 0,
             binary: 0,
             // instruction_number: 0,
             errors: vec![],
         };
-        let received_instruction = tokenize_instruction("ADD T1 T2 T2");
+        let received_instruction = create_instruction("ADD T1 T2 T2", 0);
         assert_eq!(received_instruction.tokens, correct_instruction.tokens);
     }
 }
