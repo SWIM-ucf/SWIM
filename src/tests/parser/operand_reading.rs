@@ -175,7 +175,7 @@ mod tokenize_instruction_tests {
                 "T2".to_string(),
                 "T2".to_string(),
             ],
-            int_representation: 0,
+            binary: 0,
             // instruction_number: 0,
             errors: vec![],
         };
@@ -262,24 +262,24 @@ mod create_vector_of_instructions_tests {
     }
 }
 mod append_instruction_component_tests {
-    use crate::parser::parser_main::append_instruction_component;
+    use crate::parser::parser_main::append_binary;
 
     #[test]
     fn append_instruction_component_works() {
-        let result = append_instruction_component(15, 3, 2);
+        let result = append_binary(15, 3, 2);
         assert_eq!(result, 63);
     }
 
     #[test]
     fn append_instruction_component_accepts_binary() {
-        let result = append_instruction_component(0b1111, 0b10, 2);
+        let result = append_binary(0b1111, 0b10, 2);
         assert_eq!(result, 0b111110);
         assert_eq!(result, 62);
     }
 
     #[test]
     fn append_instruction_component_still_works_past_32_bits() {
-        let result = append_instruction_component(4294967295, 0b11, 2);
+        let result = append_binary(4294967295, 0b11, 2);
         assert_eq!(result, 4294967295);
     }
 }
