@@ -288,7 +288,24 @@ impl MipsDatapath {
     /// Extend the sign of a 16-bit value to the other 48 bits of a
     /// 64-bit value.
     fn sign_extend(&mut self) {
-        self.state.imm = ((self.state.imm as i16) as i32) as u32;
+        self.state.sign_extend = ((self.state.imm as i16) as i64) as u64;
+    }
+
+    /// Set rtype control signals. This function may have a Match statement added
+    /// in the future for dealing with different special case rtype instructions.
+    fn set_rtype_control_signals(&mut self, _r: RType) {
+        self.signals.alu_op = AluOp::UseFunctField;
+        self.signals.alu_src = AluSrc::ReadRegister2;
+        self.signals.branch = Branch::NoBranch;
+        self.signals.imm_shift = ImmShift::Shift0;
+        self.signals.jump = Jump::NoJump;
+        self.signals.mem_read = MemRead::NoRead;
+        self.signals.mem_to_reg = MemToReg::UseAlu;
+        self.signals.mem_write = MemWrite::NoWrite;
+        self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+        self.signals.reg_dst = RegDst::Reg3;
+        self.signals.reg_width = RegWidth::Word;
+        self.signals.reg_write = RegWrite::YesWrite;
     }
 
     /// Set the control signals for the datapath, specifically in the
@@ -310,6 +327,39 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::DoubleWord;
                 self.signals.reg_write = RegWrite::YesWrite;
             }
+
+            // Load Word (lw)
+            0b100011 => {
+                self.signals.alu_op = AluOp::Addition;
+                self.signals.alu_src = AluSrc::SignExtendedImmediate; // may  be fishy
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::YesRead;
+                self.signals.mem_to_reg = MemToReg::UseMemory;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_width = RegWidth::Word;
+                self.signals.reg_write = RegWrite::YesWrite;
+            }
+
+            // Store Word (sw)
+            0b101011 => {
+                self.signals.alu_op = AluOp::Addition;
+                self.signals.alu_src = AluSrc::SignExtendedImmediate; // may  be fishy
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseMemory; // don't care
+                self.signals.mem_write = MemWrite::YesWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_width = RegWidth::Word;
+                self.signals.reg_write = RegWrite::NoWrite;
+            }
+
             _ => panic!("Unsupported itype instructions"),
         }
     }
@@ -318,19 +368,8 @@ impl MipsDatapath {
     /// instruction's opcode.
     fn set_control_signals(&mut self) {
         match self.instruction {
-            Instruction::RType(_) => {
-                self.signals.alu_op = AluOp::UseFunctField;
-                self.signals.alu_src = AluSrc::ReadRegister2;
-                self.signals.branch = Branch::NoBranch;
-                self.signals.imm_shift = ImmShift::Shift0;
-                self.signals.jump = Jump::NoJump;
-                self.signals.mem_read = MemRead::NoRead;
-                self.signals.mem_to_reg = MemToReg::UseAlu;
-                self.signals.mem_write = MemWrite::NoWrite;
-                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
-                self.signals.reg_dst = RegDst::Reg3;
-                self.signals.reg_width = RegWidth::Word;
-                self.signals.reg_write = RegWrite::YesWrite;
+            Instruction::RType(r) => {
+                self.set_rtype_control_signals(r);
             }
             Instruction::IType(i) => {
                 self.set_itype_control_signals(i);
