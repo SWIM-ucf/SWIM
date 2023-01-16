@@ -81,6 +81,14 @@ impl From<u32> for Instruction {
                 immediate: (value & 0xFFFF) as u16,
             }),
 
+            // Store Word (sw)
+            0b101011 => Instruction::IType(IType {
+                op: ((value >> 26) & 0x3F) as u8,
+                rs: ((value >> 21) & 0x1F) as u8,
+                rt: ((value >> 16) & 0x1F) as u8,
+                immediate: (value & 0xFFFF) as u16,
+            }),
+
             // Or immediate (ori)
             0b001101 => Instruction::IType(IType {
                 op: ((value >> 26) & 0x3F) as u8,
