@@ -347,7 +347,7 @@ pub mod load_word {
         // for this test the lw instruction will load itself from
         // memory
         let mut datapath = MipsDatapath::default();
-    
+
         //                        lw     $t0   $s0      offset = 0
         let instruction: u32 = 0b100011_01000_10000_0000000000000000;
         datapath
@@ -357,53 +357,141 @@ pub mod load_word {
         datapath.execute_instruction();
         assert_eq!(datapath.registers.gpr[16], instruction as u64);
     }
-    
+
     #[test]
     fn lw_offset_at_4_test() {
         // For this test the lw instruction will load 0x4 from memory
         // by using the offset address plus zero
         let mut datapath = MipsDatapath::default();
-    
+
         //                        lw     $t0   $s0      offset = 4
         let instruction: u32 = 0b100011_01000_10000_0000000000000100;
         datapath
             .memory
             .store_word(0, instruction)
             .expect("Failed to store instruction.");
-    
+
         // place data at address
         datapath
             .memory
             .store_word(0b100, 0x10000)
             .expect("failed to store test data");
-    
+
         datapath.registers.gpr[8] = 0;
         datapath.execute_instruction();
         assert_eq!(datapath.registers.gpr[16], 0x10000);
     }
-    
+
     #[test]
     fn lw_gpr_8_at_4_offset_at_0_test() {
         // for this test the lw instruction will load 0x4 from memory
         // by using (offset = 0) + (gpr[8] = 4)
         let mut datapath = MipsDatapath::default();
-    
+
         //                        lw     $t0   $s0      offset = 0
         let instruction: u32 = 0b100011_01000_10000_0000000000000000;
         datapath
             .memory
             .store_word(0, instruction)
             .expect("Failed to store instruction.");
-    
+
         // place data at address
         datapath
             .memory
             .store_word(0b100, 0x10000)
             .expect("failed to store test data");
-    
+
         datapath.registers.gpr[8] = 4;
         datapath.execute_instruction();
         assert_eq!(datapath.registers.gpr[16], 0x10000);
+    }
+}
+
+pub mod store_word {
+    use super::*;
+    #[test]
+    fn sw_zero_offset_test() {
+        let mut datapath = MipsDatapath::default();
+
+        //                        lw     $t0   $s0      offset = 0
+        let instruction: u32 = 0b101011_01000_10000_0000000000000000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+        datapath.execute_instruction();
+
+        let t = datapath
+            .memory
+            .load_word(0)
+            .expect("Could not load from memory");
+        assert_eq!(t, 0);
+    }
+
+    #[test]
+    fn sw_offset_at_4_test() {
+        let mut datapath = MipsDatapath::default();
+
+        //                        sw     $t0   $s0      offset = 4
+        let instruction: u32 = 0b101011_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[8] = 0;
+        datapath.registers.gpr[16] = 0xff;
+        datapath.execute_instruction();
+
+        let t = datapath
+            .memory
+            .load_word(4)
+            .expect("Could not load from memory");
+        assert_eq!(t, 0xff);
+    }
+
+    #[test]
+    fn lw_gpr_8_at_4_offset_at_4_test() {
+        let mut datapath = MipsDatapath::default();
+
+        //                        sw     $t0   $s0      offset = 4
+        let instruction: u32 = 0b101011_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[8] = 4;
+        datapath.registers.gpr[16] = 0xff;
+        datapath.execute_instruction();
+
+        let t = datapath
+            .memory
+            .load_word(8)
+            .expect("Could not load from memory");
+        assert_eq!(t, 0xff);
+    }
+
+    #[test]
+    fn lw_gpr_8_at_4_offset_at_neg_4_test() {
+        let mut datapath = MipsDatapath::default();
+
+        //                        sw     $t0   $s0      offset = -4
+        let instruction: u32 = 0b101011_01000_10000_1111111111111100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[8] = 12;
+        datapath.registers.gpr[16] = 0xff;
+        datapath.execute_instruction();
+
+        let t = datapath
+            .memory
+            .load_word(8)
+            .expect("Could not load from memory");
+        assert_eq!(t, 0xff);
     }
 }
 
@@ -430,7 +518,6 @@ fn lw_gpr_8_at_4_offset_at_4_test() {
     datapath.execute_instruction();
     assert_eq!(datapath.registers.gpr[16], 0x10000);
 }
-
 
 pub mod coprocessor {
     use crate::emulation_core::datapath::Datapath;
