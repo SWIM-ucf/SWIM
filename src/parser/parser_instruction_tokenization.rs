@@ -1,7 +1,7 @@
 pub mod instruction_tokenization {
     pub struct Instruction {
         pub tokens: Vec<String>,
-        pub int_representation: u32,
+        pub binary: u32,
         //instruction_number is not yet being tracked
         // pub instruction_number: u32,
         pub errors: Vec<Error>,
@@ -16,7 +16,7 @@ pub mod instruction_tokenization {
         fn default() -> Instruction {
             Instruction {
                 tokens: vec![],
-                int_representation: 0,
+                binary: 0,
                 //instruction_number: 0,
                 errors: vec![],
             }
@@ -116,11 +116,8 @@ pub mod instruction_tokenization {
         }
         println!();
 
-        println!(
-            "Binary representation: {:b}",
-            instruction.int_representation
-        );
-        println!("Int representation: {}", instruction.int_representation);
+        println!("Binary representation: {:b}", instruction.binary);
+        println!("Int representation: {}", instruction.binary);
 
         for error in &instruction.errors {
             println!(
