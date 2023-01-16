@@ -288,7 +288,7 @@ impl MipsDatapath {
     /// Extend the sign of a 16-bit value to the other 48 bits of a
     /// 64-bit value.
     fn sign_extend(&mut self) {
-        self.state.imm = ((self.state.imm as i16) as i32) as u32;
+        self.state.sign_extend = ((self.state.imm as i16) as i64) as u64;
     }
 
     /// Set rtype control signals. This function may have a Match statement added
@@ -472,6 +472,8 @@ impl MipsDatapath {
             input2 = input2 as i32 as u64;
         }
 
+        println!("Input 1: {input1}, Input 2: {input2}");
+
         // Set the result.
         self.state.alu_result = match self.signals.alu_control {
             AluControl::Addition => input1.wrapping_add(input2),
@@ -515,6 +517,8 @@ impl MipsDatapath {
     /// any data.
     fn memory_read(&mut self) {
         let address = self.state.alu_result;
+
+        println!("Alu result: {address}");
 
         // Load memory, first choosing the correct load function by the
         // RegWidth control signal, then reading the result from this
