@@ -411,20 +411,20 @@ pub mod load_word {
         // for this test the lw instruction will load 0x8 from memory
         // by adding the offset to gpr[8]
         let mut datapath = MipsDatapath::default();
-    
+
         //                        lw     $t0   $s0      offset = 0
         let instruction: u32 = 0b100011_01000_10000_0000000000000100;
         datapath
             .memory
             .store_word(0, instruction)
             .expect("Failed to store instruction.");
-    
+
         // place data at address
         datapath
             .memory
             .store_word(0b1000, 0x10000)
             .expect("failed to store test data");
-    
+
         datapath.registers.gpr[8] = 4;
         datapath.execute_instruction();
         assert_eq!(datapath.registers.gpr[16], 0x10000);
@@ -435,20 +435,20 @@ pub mod load_word {
         // for this test the lw instruction will load 0x8 from memory
         // by adding the offset to gpr[8]
         let mut datapath = MipsDatapath::default();
-    
+
         //                        lw     $t0   $s0      offset = 0
         let instruction: u32 = 0b100011_01000_10000_1111111111111100;
         datapath
             .memory
             .store_word(0, instruction)
             .expect("Failed to store instruction.");
-    
+
         // place data at address
         datapath
             .memory
             .store_word(0b1000, 0x10000)
             .expect("failed to store test data");
-    
+
         datapath.registers.gpr[8] = 12;
         datapath.execute_instruction();
         assert_eq!(datapath.registers.gpr[16], 0x10000);
