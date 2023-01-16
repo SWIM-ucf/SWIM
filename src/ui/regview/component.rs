@@ -5,7 +5,7 @@ pub fn regview() -> Html {
     html! {
         <>
             <div>
-                <table style="width: 19.2%; height: 734px; border: 1px solid black; background-color: white; float: right;" content="width=device-width; initial-scale=1.0">
+                <table style="width: 19.2%; height: 100vh; border: 1px solid black; background-color: white; float: right;" content="width=device-width; initial-scale=1.0">
                     <tr style="border: 1px solid black;">
                         <th style="border: 1px solid black;">{"GP"}</th>
                         <th style="border: 1px solid black;">{"FP"}</th>
