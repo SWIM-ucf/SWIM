@@ -294,7 +294,6 @@ impl MipsDatapath {
     /// Set rtype control signals. This function may have a Match statement added
     /// in the future for dealing with different special case rtype instructions.
     fn set_rtype_control_signals(&mut self, _r: RType) {
-
         self.signals.alu_op = AluOp::UseFunctField;
         self.signals.alu_src = AluSrc::ReadRegister2;
         self.signals.branch = Branch::NoBranch;
@@ -344,7 +343,7 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::Word;
                 self.signals.reg_write = RegWrite::YesWrite;
             }
-            
+
             // Store Word (sw)
             0b101011 => {
                 self.signals.alu_op = AluOp::Addition;
