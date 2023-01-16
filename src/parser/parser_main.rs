@@ -781,69 +781,41 @@ pub fn match_fp_register(register: &str) -> Option<u32> {
     }
 }
 
-//takes the string representation of a integer, the token number, and the number of bits in the instruction to represent the result
-//and translates that integer into a string representation of the binary value represented using num_bits
-//it also recognizes errors when a given value cannot be cast to int or if the int is too big to be represented with num_bits
-//todo This will need to be completely rewritten for the new way of handling instructions
-
-// pub fn read_immediate(
-//     given_text: &str,
-//     token_number: i32,
-//     num_bits: u32,
-// ) -> (String, Option<Error>) {
-//     //attempts to cast the text into a large int
-//     let parse_results = given_text.parse::<i128>();
-//
-//     //if there was an error typecasting, the function returns with an error to add to the instruction
-//     if parse_results.is_err() {
-//         return (
-//             "".to_string(),
-//             Some(Error {
-//                 error_name: NonIntImmediate,
-//                 token_number_giving_error: token_number as u8,
-//             }),
-//         );
-//     }
-//
-//     let int_representation: i32 = parse_results.unwrap() as i32;
-//     //finds the max and min values of a signed integer with specified number of bits
-//     let max_value = i32::pow(2, num_bits);
-//     let min_value = (-max_value) - 1;
-//     //if the parsed value is out of possible bounds, an error is returned to add to the instruction
-//     if int_representation > max_value || int_representation < min_value {
-//         return (
-//             "".to_string(),
-//             Some(Error {
-//                 error_name: ImmediateOutOfBounds,
-//                 token_number_giving_error: token_number as u8,
-//             }),
-//         );
-//     }
-//
-//     //formats the integer representation as a 32-bit binary
-//     let mut binary_representation = format!("{:b}", int_representation);
-//
-//     //removes any unnecessary leading 1s on a negative representation
-//     if int_representation < 0 && binary_representation.len() > num_bits as usize {
-//         let mut char_vec: Vec<char> = binary_representation.chars().collect();
-//         char_vec = char_vec[32 - num_bits as usize..32].to_owned();
-//         binary_representation = char_vec.into_iter().collect();
-//     }
-//     //adds extra leading 0s on a positive representation
-//     else if int_representation >= 0 && binary_representation.len() < num_bits as usize {
-//         let mut extra_zeroes = String::new();
-//         while binary_representation.len() + extra_zeroes.len() < num_bits as usize {
-//             extra_zeroes.push('0');
-//         }
-//         extra_zeroes.push_str(&binary_representation);
-//         binary_representation = extra_zeroes;
-//     }
-//
-//     (binary_representation, None)
-// }
-//todo the read_immediate function has to be completely rewritten
+///This function takes a string representation of an immediate value and the number of bits available to represent it
+/// and attempts to translate it to an actual integer. If the value cannot be cast to int or is too big to be represented
+/// by the available bits, an error is returned.
 pub fn read_immediate(given_text: &str, token_number: i32, num_bits: u32) -> (u32, Option<Error>) {
-    (0, None)
+        //attempts to cast the text into a large int
+     let parse_results = given_text.parse::<i32>();
+
+    //if there was an error typecasting, the function returns with an error to add to the instruction
+    if parse_results.is_err() {
+        return (
+            0,
+            Some(Error {
+                error_name: NonIntImmediate,
+                token_number_giving_error: token_number as u8,
+            }),
+        );
+    }
+
+    let int_representation: i32 = parse_results.unwrap();
+
+    //finds the max and min values of a signed integer with specified number of bits
+    let max_value = i32::pow(2, num_bits);
+    let min_value = (-max_value) - 1;
+    //if the parsed value is out of possible bounds, an error is returned to add to the instruction
+    if int_representation > max_value || int_representation < min_value {
+        return (
+            0,
+            Some(Error {
+                error_name: ImmediateOutOfBounds,
+                token_number_giving_error: token_number as u8,
+            }),
+        );
+    }
+
+    (int_representation as u32, None)
 }
 
 pub fn append_instruction_component(mut first: u32, second: u32, shift_amount: u8) -> u32 {
