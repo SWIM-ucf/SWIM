@@ -21,7 +21,6 @@ mod convert_to_u32_tests {
         assert_eq!(result, 2370371588);
     }
 }
-
 mod read_register_tests {
     use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::{
         IncorrectRegisterType, UnrecognizedGPRegister,
