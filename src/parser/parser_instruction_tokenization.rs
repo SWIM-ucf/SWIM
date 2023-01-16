@@ -42,7 +42,7 @@ pub mod instruction_tokenization {
     }
 
     //takes the string representation of a line of MIPS code and breaks it up into tokens delimited by space characters
-    pub fn create_instruction(line: &str, instruction_number: usize) -> Instruction {
+    pub fn create_instruction(line: &str, _instruction_number: usize) -> Instruction {
         //breaks up line into a vector delimited by space characters
         let mut contents: Vec<String> = Vec::new();
 
