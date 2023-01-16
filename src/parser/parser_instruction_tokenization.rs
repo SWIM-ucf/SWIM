@@ -3,8 +3,7 @@ pub mod instruction_tokenization {
     pub struct Instruction {
         pub tokens: Vec<String>,
         pub binary: u32,
-        //instruction_number is not yet being tracked
-        // pub instruction_number: u32,
+        pub instruction_number: u32,
         pub errors: Vec<Error>,
     }
 
@@ -43,9 +42,10 @@ pub mod instruction_tokenization {
     }
 
     //takes the string representation of a line of MIPS code and breaks it up into tokens delimited by space characters
-    pub fn tokenize_instruction(line: &str) -> Instruction {
+    pub fn create_instruction(line: &str, instruction_number: usize) -> Instruction {
         //breaks up line into a vector delimited by space characters
         let mut contents: Vec<String> = Vec::new();
+
         for token in line.split(' ') {
             contents.push(token.parse().unwrap());
         }
@@ -61,8 +61,9 @@ pub mod instruction_tokenization {
     //and turns each line into an Instruction and returns the vec of these Instructions with the contents as tokens
     pub fn create_vector_of_instructions(file_string: String) -> Vec<Instruction> {
         let mut instructions: Vec<Instruction> = Vec::new();
-        for line in file_string.lines() {
-            instructions.push(tokenize_instruction(line));
+        for (i, line) in file_string.lines().enumerate() {
+            let instruction = create_instruction(line, i);
+            instructions.push(instruction);
         }
         instructions
     }

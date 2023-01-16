@@ -6,8 +6,10 @@ use crate::parser::parser_instruction_tokenization::instruction_tokenization::Re
 use crate::parser::parser_instruction_tokenization::instruction_tokenization::*;
 use crate::parser::parser_preprocessing::*;
 
+///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
+/// program and builds the binary of the instructions while cataloging any errors that are found.
 pub fn parser(mut file_string: String) -> Vec<Instruction> {
-    file_string = file_string.to_ascii_lowercase();
+    file_string = file_string.to_lowercase();
     file_string = string_cleaning(file_string);
 
     let init_instruction_list = create_vector_of_instructions(file_string);
@@ -21,7 +23,8 @@ pub fn parser(mut file_string: String) -> Vec<Instruction> {
     instruction_list
 }
 
-//read_instruction takes an instruction and builds the binary and int representation of the instruction
+///This function takes an instruction with nothing filled in about it besides the tokens and the instruction number
+/// and builds the binary by calling the proper functions based on a match case for the first token (the instruction name)
 pub fn read_instruction(mut instruction: Instruction) -> Instruction {
     //this match case is the heart of the parser and figures out which instruction type it is
     //then it can call the proper functions for that specific instruction
@@ -489,7 +492,7 @@ fn read_operands(
     instruction
 }
 
-//function takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors
+///This function takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors
 pub(crate) fn read_memory_address(
     orig_string: &str,
     token_number: i32,
@@ -567,8 +570,8 @@ pub(crate) fn _convert_to_u32(binary_as_string: String) -> u32 {
     instruction_integer
 }
 
-//read_register takes the string of the register name, the token number the register is from the corresponding instruction
-//and the expected register type. It calls the corresponding functions holding the match cases for the different register types.
+///read_register takes the string of the register name, the token number the register is from the corresponding instruction
+///and the expected register type. It calls the corresponding functions holding the match cases for the different register types.
 pub(crate) fn read_register(
     register: &str,
     token_number: i32,
@@ -621,8 +624,8 @@ pub(crate) fn read_register(
     }
 }
 
-//This function takes a register string as an argument and returns the string of the binary of the matching
-//general register or none if there is not one that matches.
+///This function takes a register string as an argument and returns the string of the binary of the matching
+///general register or none if there is not one that matches.
 pub fn match_gp_register(register: &str) -> Option<u32> {
     match register {
         "$zero" | "r0" => Some(0b00000), //0
@@ -668,8 +671,8 @@ pub fn match_gp_register(register: &str) -> Option<u32> {
     }
 }
 
-//This function takes a register string as an argument and returns the string of the binary of the matching
-//floating point register or none if there is not one that matches.
+///This function takes a register string as an argument and returns the string of the binary of the matching
+///floating point register or none if there is not one that matches.
 pub fn match_fp_register(register: &str) -> Option<u32> {
     match register {
         "$f0" => Some(0b00000),
@@ -745,6 +748,8 @@ pub fn read_immediate(given_text: &str, token_number: i32, num_bits: u32) -> (u3
     (int_representation as u32, None)
 }
 
+///Append binary takes two numbers, shifts the first by a specified amount and then bitwise ors the
+/// two numbers together effectively appending the second onto the first.
 pub fn append_binary(mut first: u32, second: u32, shift_amount: u8) -> u32 {
     first <<= shift_amount;
     first |= second;
