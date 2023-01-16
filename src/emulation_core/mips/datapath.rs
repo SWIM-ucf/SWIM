@@ -487,8 +487,6 @@ impl MipsDatapath {
             input2 = input2 as i32 as u64;
         }
 
-        println!("Input 1: {input1}, Input 2: {input2}");
-
         // Set the result.
         self.state.alu_result = match self.signals.alu_control {
             AluControl::Addition => input1.wrapping_add(input2),
@@ -532,8 +530,6 @@ impl MipsDatapath {
     /// any data.
     fn memory_read(&mut self) {
         let address = self.state.alu_result;
-
-        println!("Alu result: {address}");
 
         // Load memory, first choosing the correct load function by the
         // RegWidth control signal, then reading the result from this
