@@ -95,7 +95,7 @@ mod immediate_tests {
     #[test]
     fn read_immediate_returns_correct_negative_value() {
         let results = read_immediate("-5", 1, 12);
-        assert_eq!(results.0, 0b111111111011)
+        assert_eq!(results.0, 0b11111111111111111111111111111011)
     }
 }
 
