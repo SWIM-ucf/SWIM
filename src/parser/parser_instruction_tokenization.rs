@@ -13,7 +13,6 @@ pub mod instruction_tokenization {
         pub token_number_giving_error: u8,
     }
 
-
     #[derive(Debug, PartialEq, Eq)]
     pub enum ErrorType {
         UnrecognizedGPRegister,
