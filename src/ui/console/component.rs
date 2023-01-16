@@ -4,7 +4,7 @@ use yew::prelude::*;
 pub fn console() -> Html {
     html! {
         <>
-            <div style="width: 1534px; height: 200px; border: 1px solid black; background-color: white;">
+            <div style="width: 80.6%; height: 200px; border: 1px solid black; background-color: white;">
             
             </div>
         </>

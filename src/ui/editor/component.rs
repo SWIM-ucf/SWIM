@@ -11,7 +11,7 @@ pub fn editor() -> Html {
             classes={css!(
                 r#"
                 height: 80vh;
-                width: 80vw;
+                width: 80.8%;
                 "#
             )}
             options={get_options()}
