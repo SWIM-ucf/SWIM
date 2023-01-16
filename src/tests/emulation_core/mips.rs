@@ -356,6 +356,79 @@ fn lw_zero_offset_test() {
     assert_eq!(datapath.registers.gpr[16], instruction as u64);
 }
 
+#[test]
+fn lw_offset_at_4_test() {
+    // For this test the lw instruction will load 0x4 from memory
+    // by using the offset address plus zero
+    let mut datapath = MipsDatapath::default();
+
+    //                        lw     $t0   $s0      offset = 4
+    let instruction: u32 = 0b100011_01000_10000_0000000000000100;
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // place data at address
+    datapath
+        .memory
+        .store_word(0b100, 0x10000)
+        .expect("failed to store test data");
+
+    datapath.registers.gpr[8] = 0;
+    datapath.execute_instruction();
+    assert_eq!(datapath.registers.gpr[16], 0x10000);
+}
+
+#[test]
+fn lw_gpr_8_at_4_offset_at_0_test() {
+    // for this test the lw instruction will load 0x4 from memory
+    // by using (offset = 0) + (gpr[8] = 4)
+    let mut datapath = MipsDatapath::default();
+
+    //                        lw     $t0   $s0      offset = 0
+    let instruction: u32 = 0b100011_01000_10000_0000000000000000;
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // place data at address
+    datapath
+        .memory
+        .store_word(0b100, 0x10000)
+        .expect("failed to store test data");
+
+    datapath.registers.gpr[8] = 4;
+    datapath.execute_instruction();
+    assert_eq!(datapath.registers.gpr[16], 0x10000);
+}
+
+#[test]
+fn lw_gpr_8_at_4_offset_at_4_test() {
+    // for this test the lw instruction will load 0x8 from memory
+    // by adding the offset to gpr[8]
+    let mut datapath = MipsDatapath::default();
+
+    //                        lw     $t0   $s0      offset = 0
+    let instruction: u32 = 0b100011_01000_10000_0000000000000100;
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // place data at address
+    datapath
+        .memory
+        .store_word(0b1000, 0x10000)
+        .expect("failed to store test data");
+
+    datapath.registers.gpr[8] = 4;
+    datapath.execute_instruction();
+    assert_eq!(datapath.registers.gpr[16], 0x10000);
+}
+
+
 pub mod coprocessor {
     use crate::emulation_core::datapath::Datapath;
     use crate::emulation_core::mips::datapath::MipsDatapath;
