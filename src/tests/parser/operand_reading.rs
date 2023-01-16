@@ -175,7 +175,6 @@ mod tokenize_instruction_tests {
                 "T2".to_string(),
                 "T2".to_string(),
             ],
-            binary_representation: String::new(),
             int_representation: 0,
             // instruction_number: 0,
             errors: vec![],
