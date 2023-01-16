@@ -1,4 +1,5 @@
 pub mod instruction_tokenization {
+    #[derive(Default)]
     pub struct Instruction {
         pub tokens: Vec<String>,
         pub binary: u32,
@@ -12,16 +13,6 @@ pub mod instruction_tokenization {
         pub token_number_giving_error: u8,
     }
 
-    impl Default for Instruction {
-        fn default() -> Instruction {
-            Instruction {
-                tokens: vec![],
-                binary: 0,
-                //instruction_number: 0,
-                errors: vec![],
-            }
-        }
-    }
 
     #[derive(Debug, PartialEq, Eq)]
     pub enum ErrorType {

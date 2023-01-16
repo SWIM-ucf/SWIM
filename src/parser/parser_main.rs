@@ -378,7 +378,6 @@ pub fn place_binary_in_middle_of_another(
     middle_length: usize,
     index_from_right: usize,
 ) -> u32 {
-
     //Step 1: Remove End Bits from Wrapper to make New Binary
     //Step 2: Move New Binary Left By length of Middle
     //Step 3: Or with Middle
@@ -389,12 +388,12 @@ pub fn place_binary_in_middle_of_another(
     //Step 8: Return New Binary
     let end_length = index_from_right + 1;
     let mut new_binary = wrapper >> end_length;
-    new_binary = new_binary << middle_length;
-    new_binary = new_binary | middle;
-    new_binary = new_binary << end_length;
-    let mut end = wrapper << 32 -end_length;
-    end = end >> 32 - end_length;
-    new_binary = new_binary | end;
+    new_binary <<= middle_length;
+    new_binary |= middle;
+    new_binary <<= end_length;
+    let mut end = wrapper << (32 - end_length);
+    end >>= 32 - end_length;
+    new_binary |= end;
     new_binary
 }
 
@@ -555,7 +554,7 @@ pub(crate) fn read_memory_address(
 }
 
 //this function takes the string representation of the binary of the instruction and converts it into an int
-pub(crate) fn convert_to_u32(binary_as_string: String) -> u32 {
+pub(crate) fn _convert_to_u32(binary_as_string: String) -> u32 {
     let mut instruction_integer: u32 = 0;
 
     //converts instruction from string representation of binary to the unsigned 32 bit integer representation of it.
@@ -747,7 +746,7 @@ pub fn read_immediate(given_text: &str, token_number: i32, num_bits: u32) -> (u3
 }
 
 pub fn append_binary(mut first: u32, second: u32, shift_amount: u8) -> u32 {
-    first = first << shift_amount;
-    first = first | second;
+    first <<= shift_amount;
+    first |= second;
     first
 }

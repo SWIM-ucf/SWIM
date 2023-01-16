@@ -476,7 +476,7 @@ fn place_binary_in_middle_of_another_works_3() {
 }
 
 #[test]
-fn place_binary_works_dahi(){
+fn place_binary_works_dahi() {
     let result = place_binary_in_middle_of_another(0b000001010011010101010101010, 0b00110, 5, 15);
     assert_eq!(result, 0b00000101001001101010101010101010);
 }
