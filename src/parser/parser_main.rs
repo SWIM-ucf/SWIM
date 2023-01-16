@@ -92,7 +92,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             read_operands(
                 &mut instruction,
                 vec![RegisterGP, MemoryAddress],
-                vec![3, 1, 2],
+                vec![2, 3, 1],
             );
         }
         "sw" => {
@@ -102,7 +102,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             read_operands(
                 &mut instruction,
                 vec![RegisterGP, MemoryAddress],
-                vec![3, 1, 2],
+                vec![2, 3, 1],
             );
         }
         "lui" => {
@@ -120,7 +120,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             read_operands(
                 &mut instruction,
                 vec![RegisterGP, RegisterGP, Immediate],
-                vec![1, 2, 3],
+                vec![2, 1, 3],
             );
         }
         "ori" => {
@@ -150,7 +150,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             read_operands(
                 &mut instruction,
                 vec![RegisterGP, RegisterGP, RegisterGP],
-                vec![2, 3, 1],
+                vec![3, 1, 2],
             );
 
             instruction.int_representation =
@@ -166,7 +166,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             read_operands(
                 &mut instruction,
                 vec![RegisterGP, RegisterGP, RegisterGP],
-                vec![2, 3, 1],
+                vec![3, 1, 2],
             );
 
             instruction.int_representation =
@@ -431,7 +431,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             read_operands(
                 &mut instruction,
                 vec![RegisterFP, MemoryAddress],
-                vec![3, 1, 2],
+                vec![2, 3, 1],
             );
         }
         "lwc1" => {
@@ -441,7 +441,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             read_operands(
                 &mut instruction,
                 vec![RegisterFP, MemoryAddress],
-                vec![3, 1, 2],
+                vec![2, 3, 1],
             );
         }
         _ => instruction.errors.push(Error {
@@ -550,12 +550,15 @@ fn read_operands(
     }
     //if no errors are on the list by this point, we can safely push the operands' binaries onto the instruction representation
     if instruction.errors.is_empty() {
-        for (element, i) in concat_order.iter().enumerate() {
-            instruction.int_representation = append_instruction_component(
-                instruction.int_representation,
-                binary_representation[element as usize - 1],
-                bit_lengths[*i as usize] as u8,
-            );
+        // for (i, element) in concat_order.iter().enumerate() {
+        //     instruction.int_representation = append_instruction_component(
+        //         instruction.int_representation,
+        //         binary_representation[element - 1],
+        //         bit_lengths[*i as usize] as u8,
+        //     );
+        // }
+        for element in concat_order{
+            instruction.int_representation = append_instruction_component(instruction.int_representation, binary_representation[element as usize - 1], bit_lengths[element as usize - 1])
         }
     }
 
