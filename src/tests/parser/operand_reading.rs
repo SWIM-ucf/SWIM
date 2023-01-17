@@ -1,27 +1,26 @@
 #[cfg(test)]
 
 mod convert_to_u32_tests {
-    use crate::parser::parser_main::convert_to_u32;
+    use crate::parser::parser_main::_convert_to_u32;
 
     #[test]
     fn convert_to_u32_returns_correct_value_on_zeros() {
-        let result = convert_to_u32("00000".to_string());
+        let result = _convert_to_u32("00000".to_string());
         assert_eq!(result, 0);
     }
 
     #[test]
     fn convert_to_u32_returns_correct_value_on_32_bit_long_string() {
-        let result = convert_to_u32("11111111111111111111111111111111".to_string());
+        let result = _convert_to_u32("11111111111111111111111111111111".to_string());
         assert_eq!(result, 4294967295);
     }
 
     #[test]
     fn convert_to_u32_returns_correct_value_for_an_actual_instruction() {
-        let result = convert_to_u32("10001101010010010000000000000100".to_string());
+        let result = _convert_to_u32("10001101010010010000000000000100".to_string());
         assert_eq!(result, 2370371588);
     }
 }
-
 mod read_register_tests {
     use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::{
         IncorrectRegisterType, UnrecognizedGPRegister,
@@ -34,13 +33,13 @@ mod read_register_tests {
     #[test]
     fn read_register_returns_correct_binary_on_valid_register_name() {
         let results = read_register("$t1", 1, GeneralPurpose);
-        assert_eq!(results.0, "01001");
+        assert_eq!(results.0, 0b01001);
     }
 
     #[test]
     fn read_register_returns_correct_binary_on_valid_register_number() {
         let results = read_register("r12", 1, GeneralPurpose);
-        assert_eq!(results.0, "01100");
+        assert_eq!(results.0, 0b01100);
     }
 
     #[test]
@@ -89,13 +88,13 @@ mod immediate_tests {
     #[test]
     fn read_immediate_returns_correct_positive_value() {
         let results = read_immediate("255", 1, 16);
-        assert_eq!(results.0, "0000000011111111");
+        assert_eq!(results.0, 0b0000000011111111);
     }
 
     #[test]
     fn read_immediate_returns_correct_negative_value() {
         let results = read_immediate("-5", 1, 12);
-        assert_eq!(results.0, "111111111011")
+        assert_eq!(results.0, 0b11111111111111111111111111111011)
     }
 }
 
@@ -158,8 +157,8 @@ mod memory_address_tests {
     fn memory_address_can_be_correctly_read() {
         let results = read_memory_address("4($t1)", 0);
         assert!(results.2.is_none());
-        assert_eq!(results.0, "0000000000000100");
-        assert_eq!(results.1, "01001");
+        assert_eq!(results.0, 0b0000000000000100);
+        assert_eq!(results.1, 0b01001);
     }
 }
 
@@ -175,12 +174,12 @@ mod tokenize_instruction_tests {
                 "T2".to_string(),
                 "T2".to_string(),
             ],
-            binary_representation: String::new(),
-            int_representation: 0,
+            instruction_number: 0,
+            binary: 0,
             // instruction_number: 0,
             errors: vec![],
         };
-        let received_instruction = tokenize_instruction("ADD T1 T2 T2");
+        let received_instruction = create_instruction("ADD T1 T2 T2", 0);
         assert_eq!(received_instruction.tokens, correct_instruction.tokens);
     }
 }
@@ -260,5 +259,27 @@ mod create_vector_of_instructions_tests {
         assert_eq!(instructions[0].tokens, vec!["add", "$t1,", "$t2,", "$zero"]);
         assert_eq!(instructions[1].tokens, vec!["sub", "$t2,", "$t2,", "$t2"]);
         assert_eq!(instructions[2].tokens, vec!["lw", "r8,", "52($s0)"]);
+    }
+}
+mod append_instruction_component_tests {
+    use crate::parser::parser_main::append_binary;
+
+    #[test]
+    fn append_instruction_component_works() {
+        let result = append_binary(15, 3, 2);
+        assert_eq!(result, 63);
+    }
+
+    #[test]
+    fn append_instruction_component_accepts_binary() {
+        let result = append_binary(0b1111, 0b10, 2);
+        assert_eq!(result, 0b111110);
+        assert_eq!(result, 62);
+    }
+
+    #[test]
+    fn append_instruction_component_still_works_past_32_bits() {
+        let result = append_binary(4294967295, 0b11, 2);
+        assert_eq!(result, 4294967295);
     }
 }

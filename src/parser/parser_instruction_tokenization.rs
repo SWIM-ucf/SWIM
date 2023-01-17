@@ -1,28 +1,15 @@
 pub mod instruction_tokenization {
+    #[derive(Default)]
     pub struct Instruction {
         pub tokens: Vec<String>,
-        pub binary_representation: String,
-        pub int_representation: u32,
-        //instruction_number is not yet being tracked
-        // pub instruction_number: u32,
+        pub binary: u32,
+        pub instruction_number: u32,
         pub errors: Vec<Error>,
     }
 
     pub struct Error {
         pub error_name: ErrorType,
         pub token_number_giving_error: u8,
-    }
-
-    impl Default for Instruction {
-        fn default() -> Instruction {
-            Instruction {
-                tokens: vec![],
-                binary_representation: "".to_string(),
-                int_representation: 0,
-                //instruction_number: 0,
-                errors: vec![],
-            }
-        }
     }
 
     #[derive(Debug, PartialEq, Eq)]
@@ -55,9 +42,10 @@ pub mod instruction_tokenization {
     }
 
     //takes the string representation of a line of MIPS code and breaks it up into tokens delimited by space characters
-    pub fn tokenize_instruction(line: &str) -> Instruction {
+    pub fn create_instruction(line: &str, _instruction_number: usize) -> Instruction {
         //breaks up line into a vector delimited by space characters
         let mut contents: Vec<String> = Vec::new();
+
         for token in line.split(' ') {
             contents.push(token.parse().unwrap());
         }
@@ -73,8 +61,9 @@ pub mod instruction_tokenization {
     //and turns each line into an Instruction and returns the vec of these Instructions with the contents as tokens
     pub fn create_vector_of_instructions(file_string: String) -> Vec<Instruction> {
         let mut instructions: Vec<Instruction> = Vec::new();
-        for line in file_string.lines() {
-            instructions.push(tokenize_instruction(line));
+        for (i, line) in file_string.lines().enumerate() {
+            let instruction = create_instruction(line, i);
+            instructions.push(instruction);
         }
         instructions
     }
@@ -111,20 +100,17 @@ pub mod instruction_tokenization {
         instruction
     }
 
-    pub fn print_instruction_struct_contents(instruction: Instruction) {
+    pub fn print_instruction_struct_contents(instruction: &Instruction) {
         print!("Tokens:");
-        for token in instruction.tokens {
+        for token in instruction.tokens.clone() {
             print!(" {}", token);
         }
         println!();
 
-        println!(
-            "Binary representation: {}",
-            instruction.binary_representation
-        );
-        println!("Int representation: {}", instruction.int_representation);
+        println!("Binary representation: {:b}", instruction.binary);
+        println!("Int representation: {}", instruction.binary);
 
-        for error in instruction.errors {
+        for error in &instruction.errors {
             println!(
                 "Error: {:?} on token number {}",
                 error.error_name, error.token_number_giving_error
