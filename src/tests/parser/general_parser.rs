@@ -11,7 +11,7 @@ mod parser_main_function_tests {
         let length = results.len();
 
         for i in 0..length {
-            print_instruction_struct_contents(&results.get(i).unwrap());
+            print_instruction_struct_contents(results.get(i).unwrap());
         }
         assert_eq!(results[0].binary, 0b10001101001010010000001000000000);
         assert_eq!(results[1].binary, 0b00000010110010100100100000100000);
