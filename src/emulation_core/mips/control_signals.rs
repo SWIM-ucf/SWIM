@@ -1,7 +1,7 @@
 //! Internal datapath control signals.
 
 /// Full collection of control signals.
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub struct ControlSignals {
     pub alu_control: AluControl,
     pub alu_op: AluOp,
@@ -27,7 +27,7 @@ pub struct ControlSignals {
 /// ALUControl. The leading bit of the signal determines the size of
 /// the input and output data within the datapath. See [`RegWidth`] for
 /// more details.
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub enum AluControl {
     /// `_0000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
     #[default]
@@ -72,7 +72,7 @@ pub enum AluControl {
 /// This is on a higher abstraction than the output of this control
 /// unit, which more specifically determines what operation the ALU
 /// will perform.
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub enum AluOp {
     /// `000` (0) - Perform an addition. (Also used n cases where the ALU result does not matter.)
     #[default]
@@ -111,7 +111,7 @@ pub enum AluOp {
 ///
 /// The first input is always the data read from the register `rs` (or
 /// called `base` in some contexts.)
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub enum AluSrc {
     /// Use the data from the from the second source register `rt`.
     #[default]
@@ -127,7 +127,7 @@ pub enum AluSrc {
 /// Determines if the datapath should consider branching.
 ///
 /// Exact choice of branching or not branching relies on the result from the ALU.
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub enum Branch {
     /// Do not consider branching.
     #[default]
@@ -138,7 +138,7 @@ pub enum Branch {
 }
 
 /// Determines the amount of bits to left-shift the immediate value before being passed to the ALU.
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub enum ImmShift {
     #[default]
     Shift0 = 0,
@@ -148,7 +148,7 @@ pub enum ImmShift {
 }
 
 /// Determines if the datapath should jump. This is an unconditional branch.
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub enum Jump {
     #[default]
     NoJump = 0,
@@ -158,7 +158,7 @@ pub enum Jump {
 /// Determines if memory should be read.
 ///
 /// This should not be set in combination with [`MemWrite`].
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub enum MemRead {
     #[default]
     NoRead = 0,
@@ -170,7 +170,7 @@ pub enum MemRead {
 ///
 /// The decision can be completely overridden by the floating point
 /// unit's [`DataWrite`] control signal.
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub enum MemToReg {
     #[default]
     UseAlu = 0,
@@ -180,7 +180,7 @@ pub enum MemToReg {
 /// Determines if memory should be written to.
 ///
 /// This should not be set in combination with the [`MemRead`] control signal.
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub enum MemWrite {
     #[default]
     NoWrite = 0,
@@ -193,7 +193,7 @@ pub enum MemWrite {
 /// Compared to the general-purpose datapath introduced by Hennessy and
 /// Patterson, this is a new control signal created to incorporate the
 /// floating-point unit.
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub enum MemWriteSrc {
     /// Source the write data from the main processing unit. Specifically, this means the data read from the register `rt` from a given instruction.
     #[default]
@@ -205,7 +205,7 @@ pub enum MemWriteSrc {
 
 /// Determines, given that [`RegWrite`] is set, which destination
 /// register to write to, which largely depends on the instruction format.
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub enum RegDst {
     /// Use register `rs`.
     Reg1 = 0,
@@ -222,7 +222,7 @@ pub enum RegDst {
 /// and the ALU. While all buses carrying information are 64 bits wide,
 /// some bits of the bus may be ignored in the case of this control
 /// signal.
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub enum RegWidth {
     /// Use words (32 bits).
     Word = 0,

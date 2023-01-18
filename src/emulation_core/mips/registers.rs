@@ -4,7 +4,7 @@ use std::ops::{Index, IndexMut};
 use std::str::FromStr;
 use strum_macros::EnumString;
 
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub struct Registers {
     pub pc: u64,
     pub gpr: [u64; 32],

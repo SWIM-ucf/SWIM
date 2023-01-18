@@ -29,7 +29,7 @@ use super::{control_signals::*, memory::Memory, registers::Registers};
 /// - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
 ///   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
 ///   `bnezalc`, `beqc`, and `bovc` instructions.
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub struct MipsDatapath {
     pub registers: Registers,
     pub memory: Memory,
