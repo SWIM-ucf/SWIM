@@ -171,6 +171,16 @@ impl Datapath for MipsDatapath {
 }
 
 impl MipsDatapath {
+    /// Load a vector of 32-bit instructions into memory. If the process fails,
+    /// from a lack of space or otherwise, an Err is returned.
+    pub fn load_instructions(&mut self, instructions: Vec<u32>) -> Result<(), String> {
+        for (i, data) in instructions.iter().enumerate() {
+            self.memory.store_word((i as u64) + 4, *data)?
+        }
+
+        Ok(())
+    }
+
     /// Finish the current instruction within the datapath. If the
     /// current stage is the first stage, do nothing as there is
     /// nothing to finish, only to start. (Use [`execute_instruction()`][MipsDatapath::execute_instruction()]
