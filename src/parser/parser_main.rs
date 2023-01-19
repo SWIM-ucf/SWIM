@@ -10,25 +10,14 @@ use crate::parser::parser_preprocessing::*;
 /// program and builds the binary of the instructions while cataloging any errors that are found.
 pub fn parser(mut file_string: String) -> Vec<Instruction> {
     file_string = file_string.to_lowercase();
-    let second_file_string = file_string.clone();
-    file_string = string_cleaning(file_string);
 
-    let init_instruction_list = create_vector_of_instructions(file_string);
+    let lines = tokenize_instructions(file_string);
+    let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
+    convert_pseudo_instruction_into_real_instruction(&mut instruction_list);
+    confirm_operand_commas(&mut instruction_list);
 
-    let lines = tokenize_instructions(second_file_string);
-    let mut new_instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
-    new_instruction_list = convert_pseudo_instruction_into_real_instruction(new_instruction_list);
-    confirm_operand_commas(&mut new_instruction_list);
-
-    for mut instruction in new_instruction_list{
-        read_instruction(instruction);
-    }
-
-    let mut instruction_list: Vec<Instruction> = vec![];
-    for mut instruction in init_instruction_list {
-        instruction = confirm_commas_in_instruction(instruction);
-        instruction = read_instruction(instruction);
-        instruction_list.push(instruction);
+    for i in 0..instruction_list.len() {
+        read_instruction(&mut instruction_list[i]);
     }
 
     instruction_list
@@ -36,15 +25,15 @@ pub fn parser(mut file_string: String) -> Vec<Instruction> {
 
 ///This function takes an instruction with nothing filled in about it besides the tokens and the instruction number
 /// and builds the binary by calling the proper functions based on a match case for the first token (the instruction name)
-pub fn read_instruction(mut instruction: Instruction) -> Instruction {
+pub fn read_instruction(instruction: &mut Instruction) {
     //this match case is the heart of the parser and figures out which instruction type it is
     //then it can call the proper functions for that specific instruction
-    match &*instruction.tokens[0] {
+    match &*instruction.operator.token_name {
         "add" => {
             instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![2, 3, 1],
             );
@@ -56,7 +45,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![2, 3, 1],
             );
@@ -68,7 +57,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b011100, 6);
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![2, 3, 1],
             );
@@ -79,7 +68,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
         "div" => {
             instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
-            read_operands(&mut instruction, vec![RegisterGP, RegisterGP], vec![1, 2]);
+            read_operands(instruction, vec![RegisterGP, RegisterGP], vec![1, 2]);
 
             instruction.binary = append_binary(instruction.binary, 0b0000000000, 10);
             instruction.binary = append_binary(instruction.binary, 0b011010, 6);
@@ -87,32 +76,24 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
         "lw" => {
             instruction.binary = append_binary(instruction.binary, 0b100011, 6);
 
-            read_operands(
-                &mut instruction,
-                vec![RegisterGP, MemoryAddress],
-                vec![3, 1, 2],
-            );
+            read_operands(instruction, vec![RegisterGP, MemoryAddress], vec![3, 1, 2]);
         }
         "sw" => {
             instruction.binary = append_binary(instruction.binary, 0b101011, 6);
 
-            read_operands(
-                &mut instruction,
-                vec![RegisterGP, MemoryAddress],
-                vec![3, 1, 2],
-            );
+            read_operands(instruction, vec![RegisterGP, MemoryAddress], vec![3, 1, 2]);
         }
         "lui" => {
             instruction.binary = append_binary(instruction.binary, 0b001111, 6);
             instruction.binary = append_binary(instruction.binary, 0b00000, 5);
 
-            read_operands(&mut instruction, vec![RegisterGP, Immediate], vec![1, 2]);
+            read_operands(instruction, vec![RegisterGP, Immediate], vec![1, 2]);
         }
         "andi" => {
             instruction.binary = append_binary(instruction.binary, 0b001100, 6);
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterGP, RegisterGP, Immediate],
                 vec![2, 1, 3],
             );
@@ -121,7 +102,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b001101, 6);
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterGP, RegisterGP, Immediate],
                 vec![2, 1, 3],
             );
@@ -130,7 +111,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b001000, 6);
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterGP, RegisterGP, Immediate],
                 vec![2, 1, 3],
             );
@@ -139,7 +120,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![2, 3, 1],
             );
@@ -151,7 +132,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![2, 3, 1],
             );
@@ -163,7 +144,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![2, 3, 1],
             );
@@ -174,7 +155,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
         "ddiv" => {
             instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
-            read_operands(&mut instruction, vec![RegisterGP, RegisterGP], vec![1, 2]);
+            read_operands(instruction, vec![RegisterGP, RegisterGP], vec![1, 2]);
 
             instruction.binary = append_binary(instruction.binary, 0b0000000000, 10);
             instruction.binary = append_binary(instruction.binary, 0b011110, 6);
@@ -183,7 +164,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![2, 3, 1],
             );
@@ -195,7 +176,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![2, 3, 1],
             );
@@ -208,7 +189,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b10000, 5); //fmt: s (16)
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterFP, RegisterFP, RegisterFP],
                 vec![3, 2, 1],
             );
@@ -221,7 +202,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b10001, 5); //fmt: d (17)
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterFP, RegisterFP, RegisterFP],
                 vec![3, 2, 1],
             );
@@ -234,7 +215,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b10000, 5); //fmt: s (16)
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterFP, RegisterFP, RegisterFP],
                 vec![3, 2, 1],
             );
@@ -247,7 +228,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b10001, 5); //fmt: d (17)
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterFP, RegisterFP, RegisterFP],
                 vec![3, 2, 1],
             );
@@ -259,7 +240,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b10000, 5); //fmt: s (16)
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterFP, RegisterFP, RegisterFP],
                 vec![3, 2, 1],
             );
@@ -272,7 +253,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b10001, 5); //fmt: d (17)
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterFP, RegisterFP, RegisterFP],
                 vec![3, 2, 1],
             );
@@ -285,7 +266,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b10000, 5); //fmt: s (16)
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterFP, RegisterFP, RegisterFP],
                 vec![3, 2, 1],
             );
@@ -298,7 +279,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b10001, 5); //fmt: d (17)
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterFP, RegisterFP, RegisterFP],
                 vec![3, 2, 1],
             );
@@ -309,7 +290,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
         "dahi" => {
             instruction.binary = append_binary(instruction.binary, 0b000001, 6); //regimm
 
-            read_operands(&mut instruction, vec![RegisterGP, Immediate], vec![1, 2]);
+            read_operands(instruction, vec![RegisterGP, Immediate], vec![1, 2]);
 
             instruction.binary =
                 place_binary_in_middle_of_another(instruction.binary, 0b00110, 5, 15);
@@ -317,7 +298,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
         "dati" => {
             instruction.binary = append_binary(instruction.binary, 0b000001, 6); //regimm
 
-            read_operands(&mut instruction, vec![RegisterGP, Immediate], vec![1, 2]);
+            read_operands(instruction, vec![RegisterGP, Immediate], vec![1, 2]);
 
             instruction.binary =
                 place_binary_in_middle_of_another(instruction.binary, 0b11110, 5, 15);
@@ -326,7 +307,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b011001, 6); //daddiu
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterGP, RegisterGP, Immediate],
                 vec![2, 1, 3],
             );
@@ -335,7 +316,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![2, 3, 1],
             );
@@ -348,7 +329,7 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
             instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
 
             read_operands(
-                &mut instruction,
+                instruction,
                 vec![RegisterGP, RegisterGP, RegisterGP],
                 vec![2, 3, 1],
             );
@@ -360,28 +341,18 @@ pub fn read_instruction(mut instruction: Instruction) -> Instruction {
         "swc1" => {
             instruction.binary = append_binary(instruction.binary, 0b111001, 6); //swc1
 
-            read_operands(
-                &mut instruction,
-                vec![RegisterFP, MemoryAddress],
-                vec![3, 1, 2],
-            );
+            read_operands(instruction, vec![RegisterFP, MemoryAddress], vec![3, 1, 2]);
         }
         "lwc1" => {
             instruction.binary = append_binary(instruction.binary, 0b110001, 6); //lwc1
 
-            read_operands(
-                &mut instruction,
-                vec![RegisterFP, MemoryAddress],
-                vec![3, 1, 2],
-            );
+            read_operands(instruction, vec![RegisterFP, MemoryAddress], vec![3, 1, 2]);
         }
         _ => instruction.errors.push(Error {
             error_name: UnrecognizedInstruction,
             token_number_giving_error: 0,
         }),
     }
-
-    instruction
 }
 ///This function takes two numbers and inserts the binary of the second at a given index in the binary of the first.
 ///All binary values at and past the insertion index of the original string will be moved to the end of the resultant string.
@@ -419,8 +390,8 @@ fn read_operands(
     expected_operands: Vec<OperandType>,
     concat_order: Vec<usize>,
 ) -> &mut Instruction {
-    //the number of tokens associated with the instruction should be the number of operands plus 1 for the instruction name. If not, there's an error.
-    if instruction.tokens.len() != expected_operands.len() + 1 {
+    //if the number of operands in the instruction does not match the expected number, there is an error
+    if instruction.operands.len() != expected_operands.len() {
         instruction.errors.push(Error {
             error_name: IncorrectNumberOfOperands,
             token_number_giving_error: 0,
@@ -438,8 +409,11 @@ fn read_operands(
         match operand_type {
             RegisterGP => {
                 bit_lengths.push(5);
-                let register_results =
-                    read_register(&instruction.tokens[i + 1], i as i32, GeneralPurpose);
+                let register_results = read_register(
+                    &instruction.operands[i].token_name,
+                    i as i32,
+                    GeneralPurpose,
+                );
 
                 match register_results.1 {
                     None => binary_representation.push(register_results.0),
@@ -448,7 +422,8 @@ fn read_operands(
             }
             Immediate => {
                 bit_lengths.push(16);
-                let immediate_results = read_immediate(&instruction.tokens[i + 1], i as i32, 16);
+                let immediate_results =
+                    read_immediate(&instruction.operands[i].token_name, i as i32, 16);
 
                 match immediate_results.1 {
                     None => {
@@ -462,7 +437,8 @@ fn read_operands(
                 bit_lengths.push(5);
                 //memory address works a bit differently because it really amounts to two operands: the offset and base
                 //meaning there are two values to push and the possibility of errors on both operands
-                let memory_results = read_memory_address(&instruction.tokens[i + 1], i as i32);
+                let memory_results =
+                    read_memory_address(&instruction.operands[i].token_name, i as i32);
 
                 match memory_results.2 {
                     None => {
@@ -480,7 +456,7 @@ fn read_operands(
             RegisterFP => {
                 bit_lengths.push(5);
                 let register_results =
-                    read_register(&instruction.tokens[i + 1], i as i32, FloatingPoint);
+                    read_register(&instruction.operands[i].token_name, i as i32, FloatingPoint);
 
                 match register_results.1 {
                     None => binary_representation.push(register_results.0),
