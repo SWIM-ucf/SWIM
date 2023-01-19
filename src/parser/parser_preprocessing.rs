@@ -1,3 +1,4 @@
+use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::{LabelAssignmentError, MissingComma};
 use crate::parser::parser_instruction_tokenization::instruction_tokenization::TokenType::Unknown;
 use crate::parser::parser_instruction_tokenization::instruction_tokenization::{
     Error, ErrorType, Instruction, Line, Token,
@@ -50,7 +51,104 @@ pub fn string_cleaning(string: String) -> String {
     new_string
 }
 
-pub fn convert_pseudo_instruction_into_real_instruction() {}
+///This function takes the vector of lines created by tokenize instructions and turns them into instructions
+///assigning labels, operators, operands, and line numbers
+pub fn build_instruction_list_from_lines(mut lines: Vec<Line>) -> Vec<Instruction> {
+    let mut instruction_list: Vec<Instruction> = Vec::new();
+    let mut instruction = Instruction::default();
+
+    let mut i = 0;
+    //goes through each line of the line vector and builds instructions as it goes
+    while i < lines.len() {
+        let mut operand_iterator = 1;
+
+        if lines[i].tokens[0].token_name.ends_with(':') {
+            //if the instruction already has a label at this point, that means that the user wrote a label on a line on its
+            //own and then wrote another label on the next line without ever finishing the first
+            if instruction.label.is_some() {
+                instruction.errors.push(Error {
+                    error_name: LabelAssignmentError,
+                    token_number_giving_error: 0,
+                })
+                //if the above error doesn't occur, we can push the label to the instruction struct.
+            } else {
+                lines[i].tokens[0].token_name.pop();
+                instruction.label = Some((lines[i].tokens[0].clone(), lines[i].line_number));
+            }
+
+            if lines[i].tokens.len() == 1 {
+                //if the only token on the last line of the program is a label, the user never finished assigning a value to the label
+                if i == (lines.len() - 1) {
+                    instruction.errors.push(Error {
+                        error_name: LabelAssignmentError,
+                        token_number_giving_error: 0,
+                    });
+                    instruction_list.push(instruction.clone());
+                }
+
+                i = i + 1;
+                continue;
+            }
+            //since token[0] was a label, the operator will be token[1] and operands start at token[2]
+            instruction.operator = lines[i].tokens[1].clone();
+            operand_iterator = 2;
+        } else {
+            instruction.operator = lines[i].tokens[0].clone();
+        }
+        //push all operands to the instruction operand vec
+        while operand_iterator < lines[i].tokens.len() {
+            instruction
+                .operands
+                .push(lines[i].tokens[operand_iterator].clone());
+            operand_iterator += 1;
+        }
+        instruction.line_number = lines[i].line_number as u32;
+
+        //push completed instruction to the instruction vec
+        instruction_list.push(instruction.clone());
+        instruction = Instruction::default();
+
+        i = i + 1;
+    }
+
+    return instruction_list;
+}
+
+///This function goes through all but the last operands of each instruction checking that they end in a comma.
+/// If they do, the comma is removed. If they don't a missing comma error is generated.
+pub fn confirm_operand_commas( instructions: &mut Vec<Instruction>) {
+    for instruction in instructions{
+        for i in 0..(instruction.operands.len() - 1) {
+            if instruction.operands[i].token_name.ends_with(','){
+                instruction.operands[i].token_name.pop();
+            }else{
+                instruction.errors.push(Error{ error_name: MissingComma, token_number_giving_error: i as u8 })
+            }
+        }
+    }
+}
+
+//TODO Add more pseudo instructions. Especially ones that are converted into more than a single instruction to make sure this method works
+pub fn convert_pseudo_instruction_into_real_instruction(
+    instruction_list: Vec<Instruction>,
+) -> Vec<Instruction> {
+    for (_i, mut instruction) in instruction_list.into_iter().enumerate().clone() {
+        match &*instruction.operator.token_name {
+            "li" => {
+                instruction.operator.token_name = "ori".to_string();
+
+                instruction.operands.push(Token {
+                    token_name: "$zero".to_string(),
+                    starting_column: 0,
+                    token_type: Default::default(),
+                });
+            }
+
+            _ => {}
+        }
+    }
+    return Vec::new();
+}
 
 ///Create_vector_of_instructions takes the string of the MIPS program after comments, extra spaces, and label names have been removed
 ///and turns each line into an Instruction and returns the vec of these Instructions with the contents as tokens
@@ -112,7 +210,7 @@ pub fn confirm_commas_in_instruction(mut instruction: Instruction) -> Instructio
         } else {
             //if the last char of the token is not ',', an error is pushed to the list
             instruction.errors.push(Error {
-                error_name: ErrorType::MissingComma,
+                error_name: MissingComma,
                 token_number_giving_error: i as u8,
             })
         }

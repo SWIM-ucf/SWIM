@@ -1,10 +1,9 @@
-use crate::parser::parser_instruction_tokenization::instruction_tokenization::TokenType::Unknown;
-use crate::parser::parser_instruction_tokenization::instruction_tokenization::{
-    print_instruction_struct_contents, Instruction, Line, Token, TokenType,
-};
+use crate::parser::parser_instruction_tokenization::instruction_tokenization::TokenType::{Unknown};
+use crate::parser::parser_instruction_tokenization::instruction_tokenization::{Error, Instruction, Line, Token};
+use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::{LabelAssignmentError, MissingComma};
 #[cfg(test)]
 use crate::parser::parser_preprocessing::string_cleaning;
-use crate::parser::parser_preprocessing::tokenize_instructions;
+use crate::parser::parser_preprocessing::{build_instruction_list_from_lines, confirm_operand_commas, tokenize_instructions};
 
 #[test]
 fn string_cleaning_removes_instances_of_double_spaces() {
@@ -73,7 +72,7 @@ fn string_cleaning_removes_spaces_and_new_lines_at_end_of_string() {
 }
 
 #[test]
-fn tokenize_instructions_works() {
+fn tokenize_instructions_works_basic_version() {
     let result = tokenize_instructions("This line\nThis second line\nHere's a third!".to_string());
 
     let i_0_t_0 = Token {
@@ -176,4 +175,161 @@ fn tokenize_instructions_ignores_comments() {
 
     let correct_result = vec![line_0, line_2, line_3];
     assert_eq!(results, correct_result);
+}
+
+#[test]
+fn build_instruction_list_from_lines_works_basic_version() {
+    let lines =
+        tokenize_instructions("add $t1, $t2, $t3\nlw $t1, 400($t1)\naddi $t1, 100".to_string());
+    let result = build_instruction_list_from_lines(lines.clone());
+
+    let instruction_0 = Instruction {
+        operator: lines[0].tokens[0].clone(),
+        operands: vec![
+            lines[0].tokens[1].clone(),
+            lines[0].tokens[2].clone(),
+            lines[0].tokens[3].clone(),
+        ],
+        line_number: 0,
+        ..Default::default()
+    };
+
+    let instruction_1 = Instruction {
+        operator: lines[1].tokens[0].clone(),
+        operands: vec![lines[1].tokens[1].clone(), lines[1].tokens[2].clone()],
+        line_number: 1,
+        ..Default::default()
+    };
+
+    let instruction_2 = Instruction {
+        operator: lines[2].tokens[0].clone(),
+        operands: vec![lines[2].tokens[1].clone(), lines[2].tokens[2].clone()],
+        line_number: 2,
+        ..Default::default()
+    };
+
+    let correct_result = vec![instruction_0, instruction_1, instruction_2];
+
+    assert_eq!(result, correct_result);
+}
+
+#[test]
+fn build_instruction_list_from_lines_works_on_line_label() {
+    let lines = tokenize_instructions(
+        "add $t1, $t2, $t3\nLoad_from_memory: lw $t1, 400($t1)\naddi $t1, 100".to_string(),
+    );
+    let result = build_instruction_list_from_lines(lines.clone());
+
+    let instruction_0 = Instruction {
+        operator: lines[0].tokens[0].clone(),
+        operands: vec![
+            lines[0].tokens[1].clone(),
+            lines[0].tokens[2].clone(),
+            lines[0].tokens[3].clone(),
+        ],
+        instruction_number: 0,
+        ..Default::default()
+    };
+
+    let token = Token {
+        token_name: "Load_from_memory".to_string(),
+        starting_column: 0,
+        token_type: Default::default(),
+    };
+    let instruction_1 = Instruction {
+        operator: lines[1].tokens[1].clone(),
+        operands: vec![lines[1].tokens[2].clone(), lines[1].tokens[3].clone()],
+        line_number: 1,
+        label: Some((token, 1)),
+        ..Default::default()
+    };
+
+    let instruction_2 = Instruction {
+        operator: lines[2].tokens[0].clone(),
+        operands: vec![lines[2].tokens[1].clone(), lines[2].tokens[2].clone()],
+        line_number: 2,
+        ..Default::default()
+    };
+
+    let correct_result = vec![instruction_0, instruction_1, instruction_2];
+
+    assert_eq!(correct_result, result);
+}
+
+#[test]
+fn build_instruction_list_from_lines_works_off_line_label() {
+    let lines = tokenize_instructions(
+        "add $t1, $t2, $t3\nLoad_from_memory:\nlw $t1, 400($t1)\naddi $t1, 100".to_string(),
+    );
+    let result = build_instruction_list_from_lines(lines.clone());
+
+    let instruction_0 = Instruction {
+        operator: lines[0].tokens[0].clone(),
+        operands: vec![
+            lines[0].tokens[1].clone(),
+            lines[0].tokens[2].clone(),
+            lines[0].tokens[3].clone(),
+        ],
+        instruction_number: 0,
+        ..Default::default()
+    };
+
+    let token = Token {
+        token_name: "Load_from_memory".to_string(),
+        starting_column: 0,
+        token_type: Default::default(),
+    };
+    let instruction_1 = Instruction {
+        operator: lines[2].tokens[0].clone(),
+        operands: vec![lines[2].tokens[1].clone(), lines[2].tokens[2].clone()],
+        line_number: 2,
+        label: Some((token, 1)),
+        ..Default::default()
+    };
+
+    let instruction_2 = Instruction {
+        operator: lines[3].tokens[0].clone(),
+        operands: vec![lines[3].tokens[1].clone(), lines[3].tokens[2].clone()],
+        line_number: 3,
+        ..Default::default()
+    };
+
+    let correct_result = vec![instruction_0, instruction_1, instruction_2];
+
+    assert_eq!(correct_result, result);
+}
+
+#[test]
+fn build_instruction_list_generates_error_on_double_label(){
+    let lines = tokenize_instructions("lw $t1, 400($zero)\nLabel1:\nLabel2: add $t1, $t2, $t3\n".to_string());
+    let result = build_instruction_list_from_lines(lines);
+    assert_eq!(result[1].errors[0].error_name, LabelAssignmentError);
+}
+
+#[test]
+fn build_instruction_list_generates_error_on_label_on_last_line(){
+    let lines = tokenize_instructions("lw $t1, 400($zero)\nadd $t1, $t2, $t3\nlabel:\n".to_string());
+    let result = build_instruction_list_from_lines(lines);
+    assert_eq!(result[2].errors[0].error_name, LabelAssignmentError);
+}
+
+#[test]
+fn confirm_operand_commas_removes_properly_placed_commas(){
+    let lines = tokenize_instructions("Add $t1, $t2, $t3\nlw $t1, 400($t2)".to_string());
+    let mut result = build_instruction_list_from_lines(lines);
+    confirm_operand_commas(&mut result);
+
+    let correct_lines = tokenize_instructions("Add $t1  $t2  $t3\nlw $t1  400($t2)".to_string());
+    let correct_result = build_instruction_list_from_lines(correct_lines);
+
+    assert_eq!(correct_result, result);
+}
+
+#[test]
+fn confirm_operand_commas_generates_error_on_missing_commas(){
+    let lines = tokenize_instructions("Add $t1, $t2, $t3\nlw $t1 400($t2)".to_string());
+    let mut result = build_instruction_list_from_lines(lines);
+    confirm_operand_commas(&mut result);
+    let correct_error = Error{ error_name: MissingComma, token_number_giving_error: 0 };
+    assert_eq!(correct_error, result[1].errors[0]);
 }

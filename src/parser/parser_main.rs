@@ -5,7 +5,6 @@ use crate::parser::parser_instruction_tokenization::instruction_tokenization::Re
 };
 use crate::parser::parser_instruction_tokenization::instruction_tokenization::*;
 use crate::parser::parser_preprocessing::*;
-use std::collections::HashMap;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
@@ -16,10 +15,14 @@ pub fn parser(mut file_string: String) -> Vec<Instruction> {
 
     let init_instruction_list = create_vector_of_instructions(file_string);
 
-    let _labels: HashMap<String, i32> = HashMap::new();
-
     let lines = tokenize_instructions(second_file_string);
-    let new_instruction_list: Vec<Instruction> = build_instruction_list_from_lines();
+    let mut new_instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
+    new_instruction_list = convert_pseudo_instruction_into_real_instruction(new_instruction_list);
+    confirm_operand_commas(&mut new_instruction_list);
+
+    for mut instruction in new_instruction_list{
+        read_instruction(instruction);
+    }
 
     let mut instruction_list: Vec<Instruction> = vec![];
     for mut instruction in init_instruction_list {
@@ -29,37 +32,6 @@ pub fn parser(mut file_string: String) -> Vec<Instruction> {
     }
 
     instruction_list
-}
-
-pub fn create_instruction_from_line(line: Line)-> Instruction{
-    let mut instruction = Instruction{
-       ..Default::default()
-    };
-
-    if line.tokens[0].token_name.ends_with(':'){
-        instruction.label = Some(line.tokens[0].clone());
-
-        instruction.line_number = line.line_number as u32;
-
-        //if statement just handles cases where a label is on the line on its own and what it is referencing is the next
-        //line with text
-        if instruction.tokens.len() > 1 {
-            instruction.operator = line.tokens[1].clone();
-            let iterator = 2;
-            while iterator < line.tokens.len(){
-                instruction.operands.push(line.tokens[iterator].clone());
-            }
-        }
-
-    } else{
-        instruction.operator = line.tokens[0].clone();
-        let iterator = 1;
-        while iterator < line.tokens.len(){
-            instruction.operands.push(line.tokens[iterator].clone());
-        }
-    }
-
-    return instruction;
 }
 
 ///This function takes an instruction with nothing filled in about it besides the tokens and the instruction number
