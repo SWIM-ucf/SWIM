@@ -773,4 +773,29 @@ pub mod coprocessor {
         // IEEE 754 single-precision floating-point specification.
         assert_eq!(f32::from_bits(datapath.coprocessor.fpr[2] as u32), 0.75);
     }
+
+    #[test]
+    pub fn add_float_double_precision() {
+        let mut datapath = MipsDatapath::default();
+
+        // add.d fd, fs, ft
+        // add.d $f2, $f1, $f0
+        // FPR[2] = FPR[1] + FPR[0]
+        //                       COP1   fmt   ft    fs    fd    function
+        //                              d     $f0   $f1   $f2   ADD
+        let instruction: u32 = 0b010001_10001_00000_00001_00010_000000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.coprocessor.fpr[0] = f64::to_bits(123.125);
+        datapath.coprocessor.fpr[1] = f64::to_bits(0.5);
+
+        datapath.execute_instruction();
+
+        // The result should be 123.625, represented in a 64-bit value as per the
+        // IEEE 754 double-precision floating-point specification.
+        assert_eq!(f64::from_bits(datapath.coprocessor.fpr[2]), 123.625);
+    }
 }
