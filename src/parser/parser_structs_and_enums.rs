@@ -26,8 +26,6 @@ pub mod instruction_tokenization {
         pub tokens: Vec<Token>,
     }
 
-    //TODO restructure label generation to operate with the new way Instruction tokens are handled
-    //this will likely mean getting rid of token_number_giving_error and replacing it with an option for operand number
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct Error {
         pub error_name: ErrorType,
@@ -58,6 +56,7 @@ pub mod instruction_tokenization {
         InvalidMemorySyntax,
         IncorrectNumberOfOperands,
         LabelAssignmentError,
+        LabelNotFound,
     }
 
     //this enum is used for the fn read_operands to choose the types of operands expected for an instruction type
@@ -66,7 +65,7 @@ pub mod instruction_tokenization {
         RegisterFP,
         Immediate,
         MemoryAddress,
-        //Label
+        Label,
     }
 
     //This enum is just for the read_register_function to determine which register type it should expect
@@ -87,9 +86,11 @@ pub mod instruction_tokenization {
 
         for error in &instruction.errors {
             print!("{:?}", error);
-            if error.operand_number.is_some(){
+            if error.operand_number.is_some() {
                 print!(" on operand {}.\n", error.operand_number.unwrap());
-            }else { print!("\n") }
+            } else {
+                print!("\n")
+            }
         }
         println!();
     }

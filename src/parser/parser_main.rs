@@ -1,359 +1,430 @@
-use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::*;
-use crate::parser::parser_instruction_tokenization::instruction_tokenization::OperandType::*;
-use crate::parser::parser_instruction_tokenization::instruction_tokenization::RegisterType::{
+use crate::parser::parser_preprocessing::*;
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::*;
+use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::*;
+use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
     FloatingPoint, GeneralPurpose,
 };
-use crate::parser::parser_instruction_tokenization::instruction_tokenization::*;
-use crate::parser::parser_preprocessing::*;
+use crate::parser::parser_structs_and_enums::instruction_tokenization::*;
+use std::collections::HashMap;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
 pub fn parser(mut file_string: String) -> Vec<Instruction> {
-
     file_string = file_string.to_lowercase();
-    let lines = tokenize_instructions(file_string);
 
+    let lines = tokenize_instructions(file_string);
     let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
     confirm_operand_commas(&mut instruction_list);
-    convert_pseudo_instruction_into_real_instruction(&mut instruction_list);
+    expand_pseudo_instruction(&mut instruction_list);
+    assign_instruction_numbers(&mut instruction_list);
 
+    let labels: HashMap<String, u32> = create_label_map(instruction_list.clone());
 
-    for i in 0..instruction_list.len() {
-        read_instruction(&mut instruction_list[i]);
-    }
+    read_instructions(&mut instruction_list, labels);
 
     instruction_list
 }
 
 ///This function takes an instruction with nothing filled in about it besides the tokens and the instruction number
 /// and builds the binary by calling the proper functions based on a match case for the first token (the instruction name)
-pub fn read_instruction(instruction: &mut Instruction) {
-    //this match case is the heart of the parser and figures out which instruction type it is
-    //then it can call the proper functions for that specific instruction
-    match &*instruction.operator.token_name {
-        "add" => {
-            instruction.binary = append_binary(instruction.binary, 0b000000, 6);
+pub fn read_instructions(instruction_list: &mut Vec<Instruction>, labels: HashMap<String, u32>) {
+    for i in 0..instruction_list.len() {
+        //this match case is the heart of the parser and figures out which instruction type it is
+        //then it can call the proper functions for that specific instruction
+        match &*instruction_list[i].operator.token_name {
+            "add" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000000, 6);
 
-            read_operands(
-                instruction,
-                vec![RegisterGP, RegisterGP, RegisterGP],
-                vec![2, 3, 1],
-            );
+                read_operands(
+                    &mut &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
 
-            instruction.binary = append_binary(instruction.binary, 0b00000, 5);
-            instruction.binary = append_binary(instruction.binary, 0b100000, 6);
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b00000, 5);
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b100000, 6);
+            }
+            "sub" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000000, 6);
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b00000, 5);
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b100010, 6);
+            }
+            "mul" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b011100, 6);
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b00000, 5);
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000010, 6);
+            }
+            "div" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000000, 6);
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP],
+                    vec![1, 2],
+                    None,
+                );
+
+                instruction_list[i].binary =
+                    append_binary(instruction_list[i].binary, 0b0000000000, 10);
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b011010, 6);
+            }
+            "lw" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b100011, 6);
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, MemoryAddress],
+                    vec![3, 1, 2],
+                    None,
+                );
+            }
+            "sw" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b101011, 6);
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, MemoryAddress],
+                    vec![3, 1, 2],
+                    None,
+                );
+            }
+            "lui" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b001111, 6);
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b00000, 5);
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, Immediate],
+                    vec![1, 2],
+                    None,
+                );
+            }
+            "andi" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b001100, 6);
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP, Immediate],
+                    vec![2, 1, 3],
+                    None,
+                );
+            }
+            "ori" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b001101, 6);
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP, Immediate],
+                    vec![2, 1, 3],
+                    None,
+                );
+            }
+            "addi" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b001000, 6);
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP, Immediate],
+                    vec![2, 1, 3],
+                    None,
+                );
+            }
+            "dadd" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000000, 6);
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b00000, 5);
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b101100, 6);
+            }
+            "dsub" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000000, 6);
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b00000, 5);
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b101110, 6);
+            }
+            "dmul" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000000, 6);
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b00010, 5);
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b011100, 6);
+            }
+            "ddiv" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000000, 6);
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP],
+                    vec![1, 2],
+                    None,
+                );
+
+                instruction_list[i].binary =
+                    append_binary(instruction_list[i].binary, 0b0000000000, 10);
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b011110, 6);
+            }
+            "or" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000000, 6);
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b00000, 5);
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b100101, 6);
+            }
+            "and" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000000, 6);
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b00000, 5);
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b100100, 6);
+            }
+            "add.s" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b010001, 6); //cop1
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b10000, 5); //fmt: s (16)
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterFP, RegisterFP, RegisterFP],
+                    vec![3, 2, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000000, 6);
+                //add
+            }
+            "add.d" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b010001, 6); //cop1
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b10001, 5); //fmt: d (17)
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterFP, RegisterFP, RegisterFP],
+                    vec![3, 2, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000000, 6);
+                //add
+            }
+            "sub.s" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b010001, 6); //cop1
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b10000, 5); //fmt: s (16)
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterFP, RegisterFP, RegisterFP],
+                    vec![3, 2, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000001, 6);
+                //sub
+            }
+            "sub.d" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b010001, 6); //cop1
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b10001, 5); //fmt: d (17)
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterFP, RegisterFP, RegisterFP],
+                    vec![3, 2, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000001, 6);
+            }
+            "mul.s" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b010001, 6); //cop1
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b10000, 5); //fmt: s (16)
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterFP, RegisterFP, RegisterFP],
+                    vec![3, 2, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000010, 6);
+                //mul
+            }
+            "mul.d" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b010001, 6); //cop1
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b10001, 5); //fmt: d (17)
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterFP, RegisterFP, RegisterFP],
+                    vec![3, 2, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000010, 6);
+                //mul
+            }
+            "div.s" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b010001, 6); //cop1
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b10000, 5); //fmt: s (16)
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterFP, RegisterFP, RegisterFP],
+                    vec![3, 2, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000011, 6);
+                //div
+            }
+            "div.d" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b010001, 6); //cop1
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b10001, 5); //fmt: d (17)
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterFP, RegisterFP, RegisterFP],
+                    vec![3, 2, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000011, 6);
+                //div
+            }
+            "dahi" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000001, 6); //regimm
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, Immediate],
+                    vec![1, 2],
+                    None,
+                );
+
+                instruction_list[i].binary =
+                    place_binary_in_middle_of_another(instruction_list[i].binary, 0b00110, 5, 15);
+            }
+            "dati" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000001, 6); //regimm
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, Immediate],
+                    vec![1, 2],
+                    None,
+                );
+
+                instruction_list[i].binary =
+                    place_binary_in_middle_of_another(instruction_list[i].binary, 0b11110, 5, 15);
+            }
+            "daddiu" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b011001, 6); //daddiu
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP, Immediate],
+                    vec![2, 1, 3],
+                    None,
+                );
+            }
+            "slt" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000000, 6); //special
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b00000, 5); //0
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b101010, 6);
+                //slt
+            }
+            "sltu" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b000000, 6); //special
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b00000, 5); //0
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b101011, 6);
+                //sltu
+            }
+            "swc1" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b111001, 6); //swc1
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterFP, MemoryAddress],
+                    vec![3, 1, 2],
+                    None,
+                );
+            }
+            "lwc1" => {
+                instruction_list[i].binary = append_binary(instruction_list[i].binary, 0b110001, 6); //lwc1
+
+                read_operands(
+                    &mut instruction_list[i],
+                    vec![RegisterFP, MemoryAddress],
+                    vec![3, 1, 2],
+                    None,
+                );
+            }
+            _ => instruction_list[i].errors.push(Error {
+                error_name: UnrecognizedInstruction,
+                operand_number: None,
+            }),
         }
-        "sub" => {
-            instruction.binary = append_binary(instruction.binary, 0b000000, 6);
-
-            read_operands(
-                instruction,
-                vec![RegisterGP, RegisterGP, RegisterGP],
-                vec![2, 3, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b00000, 5);
-            instruction.binary = append_binary(instruction.binary, 0b100010, 6);
-        }
-        "mul" => {
-            instruction.binary = append_binary(instruction.binary, 0b011100, 6);
-
-            read_operands(
-                instruction,
-                vec![RegisterGP, RegisterGP, RegisterGP],
-                vec![2, 3, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b00000, 5);
-            instruction.binary = append_binary(instruction.binary, 0b000010, 6);
-        }
-        "div" => {
-            instruction.binary = append_binary(instruction.binary, 0b000000, 6);
-
-            read_operands(instruction, vec![RegisterGP, RegisterGP], vec![1, 2]);
-
-            instruction.binary = append_binary(instruction.binary, 0b0000000000, 10);
-            instruction.binary = append_binary(instruction.binary, 0b011010, 6);
-        }
-        "lw" => {
-            instruction.binary = append_binary(instruction.binary, 0b100011, 6);
-
-            read_operands(instruction, vec![RegisterGP, MemoryAddress], vec![3, 1, 2]);
-        }
-        "sw" => {
-            instruction.binary = append_binary(instruction.binary, 0b101011, 6);
-
-            read_operands(instruction, vec![RegisterGP, MemoryAddress], vec![3, 1, 2]);
-        }
-        "lui" => {
-            instruction.binary = append_binary(instruction.binary, 0b001111, 6);
-            instruction.binary = append_binary(instruction.binary, 0b00000, 5);
-
-            read_operands(instruction, vec![RegisterGP, Immediate], vec![1, 2]);
-        }
-        "andi" => {
-            instruction.binary = append_binary(instruction.binary, 0b001100, 6);
-
-            read_operands(
-                instruction,
-                vec![RegisterGP, RegisterGP, Immediate],
-                vec![2, 1, 3],
-            );
-        }
-        "ori" => {
-            instruction.binary = append_binary(instruction.binary, 0b001101, 6);
-
-            read_operands(
-                instruction,
-                vec![RegisterGP, RegisterGP, Immediate],
-                vec![2, 1, 3],
-            );
-        }
-        "addi" => {
-            instruction.binary = append_binary(instruction.binary, 0b001000, 6);
-
-            read_operands(
-                instruction,
-                vec![RegisterGP, RegisterGP, Immediate],
-                vec![2, 1, 3],
-            );
-        }
-        "dadd" => {
-            instruction.binary = append_binary(instruction.binary, 0b000000, 6);
-
-            read_operands(
-                instruction,
-                vec![RegisterGP, RegisterGP, RegisterGP],
-                vec![2, 3, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b00000, 5);
-            instruction.binary = append_binary(instruction.binary, 0b101100, 6);
-        }
-        "dsub" => {
-            instruction.binary = append_binary(instruction.binary, 0b000000, 6);
-
-            read_operands(
-                instruction,
-                vec![RegisterGP, RegisterGP, RegisterGP],
-                vec![2, 3, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b00000, 5);
-            instruction.binary = append_binary(instruction.binary, 0b101110, 6);
-        }
-        "dmul" => {
-            instruction.binary = append_binary(instruction.binary, 0b000000, 6);
-
-            read_operands(
-                instruction,
-                vec![RegisterGP, RegisterGP, RegisterGP],
-                vec![2, 3, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b00010, 5);
-            instruction.binary = append_binary(instruction.binary, 0b011100, 6);
-        }
-        "ddiv" => {
-            instruction.binary = append_binary(instruction.binary, 0b000000, 6);
-
-            read_operands(instruction, vec![RegisterGP, RegisterGP], vec![1, 2]);
-
-            instruction.binary = append_binary(instruction.binary, 0b0000000000, 10);
-            instruction.binary = append_binary(instruction.binary, 0b011110, 6);
-        }
-        "or" => {
-            instruction.binary = append_binary(instruction.binary, 0b000000, 6);
-
-            read_operands(
-                instruction,
-                vec![RegisterGP, RegisterGP, RegisterGP],
-                vec![2, 3, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b00000, 5);
-            instruction.binary = append_binary(instruction.binary, 0b100101, 6);
-        }
-        "and" => {
-            instruction.binary = append_binary(instruction.binary, 0b000000, 6);
-
-            read_operands(
-                instruction,
-                vec![RegisterGP, RegisterGP, RegisterGP],
-                vec![2, 3, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b00000, 5);
-            instruction.binary = append_binary(instruction.binary, 0b100100, 6);
-        }
-        "add.s" => {
-            instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
-            instruction.binary = append_binary(instruction.binary, 0b10000, 5); //fmt: s (16)
-
-            read_operands(
-                instruction,
-                vec![RegisterFP, RegisterFP, RegisterFP],
-                vec![3, 2, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b000000, 6);
-            //add
-        }
-        "add.d" => {
-            instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
-            instruction.binary = append_binary(instruction.binary, 0b10001, 5); //fmt: d (17)
-
-            read_operands(
-                instruction,
-                vec![RegisterFP, RegisterFP, RegisterFP],
-                vec![3, 2, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b000000, 6);
-            //add
-        }
-        "sub.s" => {
-            instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
-            instruction.binary = append_binary(instruction.binary, 0b10000, 5); //fmt: s (16)
-
-            read_operands(
-                instruction,
-                vec![RegisterFP, RegisterFP, RegisterFP],
-                vec![3, 2, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b000001, 6);
-            //sub
-        }
-        "sub.d" => {
-            instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
-            instruction.binary = append_binary(instruction.binary, 0b10001, 5); //fmt: d (17)
-
-            read_operands(
-                instruction,
-                vec![RegisterFP, RegisterFP, RegisterFP],
-                vec![3, 2, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b000001, 6);
-        }
-        "mul.s" => {
-            instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
-            instruction.binary = append_binary(instruction.binary, 0b10000, 5); //fmt: s (16)
-
-            read_operands(
-                instruction,
-                vec![RegisterFP, RegisterFP, RegisterFP],
-                vec![3, 2, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b000010, 6);
-            //mul
-        }
-        "mul.d" => {
-            instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
-            instruction.binary = append_binary(instruction.binary, 0b10001, 5); //fmt: d (17)
-
-            read_operands(
-                instruction,
-                vec![RegisterFP, RegisterFP, RegisterFP],
-                vec![3, 2, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b000010, 6);
-            //mul
-        }
-        "div.s" => {
-            instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
-            instruction.binary = append_binary(instruction.binary, 0b10000, 5); //fmt: s (16)
-
-            read_operands(
-                instruction,
-                vec![RegisterFP, RegisterFP, RegisterFP],
-                vec![3, 2, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b000011, 6);
-            //div
-        }
-        "div.d" => {
-            instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
-            instruction.binary = append_binary(instruction.binary, 0b10001, 5); //fmt: d (17)
-
-            read_operands(
-                instruction,
-                vec![RegisterFP, RegisterFP, RegisterFP],
-                vec![3, 2, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b000011, 6);
-            //div
-        }
-        "dahi" => {
-            instruction.binary = append_binary(instruction.binary, 0b000001, 6); //regimm
-
-            read_operands(instruction, vec![RegisterGP, Immediate], vec![1, 2]);
-
-            instruction.binary =
-                place_binary_in_middle_of_another(instruction.binary, 0b00110, 5, 15);
-        }
-        "dati" => {
-            instruction.binary = append_binary(instruction.binary, 0b000001, 6); //regimm
-
-            read_operands(instruction, vec![RegisterGP, Immediate], vec![1, 2]);
-
-            instruction.binary =
-                place_binary_in_middle_of_another(instruction.binary, 0b11110, 5, 15);
-        }
-        "daddiu" => {
-            instruction.binary = append_binary(instruction.binary, 0b011001, 6); //daddiu
-
-            read_operands(
-                instruction,
-                vec![RegisterGP, RegisterGP, Immediate],
-                vec![2, 1, 3],
-            );
-        }
-        "slt" => {
-            instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
-
-            read_operands(
-                instruction,
-                vec![RegisterGP, RegisterGP, RegisterGP],
-                vec![2, 3, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
-            instruction.binary = append_binary(instruction.binary, 0b101010, 6);
-            //slt
-        }
-        "sltu" => {
-            instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
-
-            read_operands(
-                instruction,
-                vec![RegisterGP, RegisterGP, RegisterGP],
-                vec![2, 3, 1],
-            );
-
-            instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
-            instruction.binary = append_binary(instruction.binary, 0b101011, 6);
-            //sltu
-        }
-        "swc1" => {
-            instruction.binary = append_binary(instruction.binary, 0b111001, 6); //swc1
-
-            read_operands(instruction, vec![RegisterFP, MemoryAddress], vec![3, 1, 2]);
-        }
-        "lwc1" => {
-            instruction.binary = append_binary(instruction.binary, 0b110001, 6); //lwc1
-
-            read_operands(instruction, vec![RegisterFP, MemoryAddress], vec![3, 1, 2]);
-        }
-        _ => instruction.errors.push(Error {
-            error_name: UnrecognizedInstruction,
-            operand_number: None,
-        }),
     }
 }
 ///This function takes two numbers and inserts the binary of the second at a given index in the binary of the first.
@@ -391,6 +462,7 @@ fn read_operands(
     instruction: &mut Instruction,
     expected_operands: Vec<OperandType>,
     concat_order: Vec<usize>,
+    labels: Option<HashMap<String, u32>>,
 ) -> &mut Instruction {
     //if the number of operands in the instruction does not match the expected number, there is an error
     if instruction.operands.len() != expected_operands.len() {
@@ -464,7 +536,16 @@ fn read_operands(
                     None => binary_representation.push(register_results.0),
                     Some(error) => instruction.errors.push(error),
                 }
-            } //Label => {}
+            }
+            Label => {
+                bit_lengths.push(26);
+                let label_results = read_label(
+                    &instruction.operands[i].token_name,
+                    i as i32,
+                    labels.clone().unwrap(),
+                );
+                binary_representation.push(label_results.0);
+            }
         }
     }
     //if no errors are on the list by this point, we can safely push the operands' binaries onto the instruction representation
@@ -481,10 +562,29 @@ fn read_operands(
     instruction
 }
 
-///This function takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors
-pub(crate) fn read_memory_address(
+///Takes a string and returns the address of the matching label in memory. If there is no match, an error is returned
+pub fn read_label(
     orig_string: &str,
-    token_number: i32,
+    operand_number: i32,
+    labels: HashMap<String, u32>,
+) -> (u32, Option<Error>) {
+    let result = labels.get(orig_string);
+    if result.is_none() {
+        return (
+            0,
+            Some(Error {
+                error_name: LabelNotFound,
+                operand_number: Some(operand_number as u8),
+            }),
+        );
+    }
+    (result.unwrap().clone(), None)
+}
+
+///This function takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors
+pub fn read_memory_address(
+    orig_string: &str,
+    operand_number: i32,
 ) -> (u32, u32, Option<Vec<Error>>) {
     //the indices of the open and close parentheses are checked.
     //If either are missing or they are in the wrong order, an error is returned
@@ -496,7 +596,7 @@ pub(crate) fn read_memory_address(
             0,
             Some(vec![Error {
                 error_name: InvalidMemorySyntax,
-                operand_number: Some(token_number as u8)
+                operand_number: Some(operand_number as u8),
             }]),
         );
     }
@@ -513,7 +613,7 @@ pub(crate) fn read_memory_address(
             0,
             Some(vec![Error {
                 error_name: InvalidMemorySyntax,
-                operand_number: Some(token_number as u8),
+                operand_number: Some(operand_number as u8),
             }]),
         );
     }
@@ -525,8 +625,8 @@ pub(crate) fn read_memory_address(
 
     //offset is an immediate while base is a register so the read functions for those operands
     //will confirm they are properly formatted
-    let immediate_results = read_immediate(offset_str, token_number, 16);
-    let register_results = read_register(&cleaned_base, token_number, GeneralPurpose);
+    let immediate_results = read_immediate(offset_str, operand_number, 16);
+    let register_results = read_register(&cleaned_base, operand_number, GeneralPurpose);
 
     //any errors found in the read_immediate or read_register functions are collected into a vec
     //if there were any errors, those are returned
@@ -563,7 +663,7 @@ pub(crate) fn _convert_to_u32(binary_as_string: String) -> u32 {
 ///and the expected register type. It calls the corresponding functions holding the match cases for the different register types.
 pub(crate) fn read_register(
     register: &str,
-    token_number: i32,
+    operand_number: i32,
     register_type: RegisterType,
 ) -> (u32, Option<Error>) {
     if register_type == GeneralPurpose {
@@ -576,7 +676,7 @@ pub(crate) fn read_register(
                 0,
                 Some(Error {
                     error_name: IncorrectRegisterType,
-                    operand_number: Some(token_number as u8),
+                    operand_number: Some(operand_number as u8),
                 }),
             )
         } else {
@@ -584,7 +684,7 @@ pub(crate) fn read_register(
                 0,
                 Some(Error {
                     error_name: UnrecognizedGPRegister,
-                    operand_number: Some(token_number as u8),
+                    operand_number: Some(operand_number as u8),
                 }),
             )
         }
@@ -598,7 +698,7 @@ pub(crate) fn read_register(
                 0,
                 Some(Error {
                     error_name: IncorrectRegisterType,
-                    operand_number: Some(token_number as u8),
+                    operand_number: Some(operand_number as u8),
                 }),
             )
         } else {
@@ -606,7 +706,7 @@ pub(crate) fn read_register(
                 0,
                 Some(Error {
                     error_name: UnrecognizedFPRegister,
-                    operand_number: Some(token_number as u8),
+                    operand_number: Some(operand_number as u8),
                 }),
             )
         }
@@ -703,7 +803,11 @@ pub fn match_fp_register(register: &str) -> Option<u32> {
 ///This function takes a string representation of an immediate value and the number of bits available to represent it
 /// and attempts to translate it to an actual integer. If the value cannot be cast to int or is too big to be represented
 /// by the available bits, an error is returned.
-pub fn read_immediate(given_text: &str, token_number: i32, num_bits: u32) -> (u32, Option<Error>) {
+pub fn read_immediate(
+    given_text: &str,
+    operand_number: i32,
+    num_bits: u32,
+) -> (u32, Option<Error>) {
     //attempts to cast the text into a large int
     let parse_results = given_text.parse::<i32>();
 
@@ -713,7 +817,7 @@ pub fn read_immediate(given_text: &str, token_number: i32, num_bits: u32) -> (u3
             0,
             Some(Error {
                 error_name: NonIntImmediate,
-                operand_number: Some(token_number as u8),
+                operand_number: Some(operand_number as u8),
             }),
         );
     }
@@ -729,7 +833,7 @@ pub fn read_immediate(given_text: &str, token_number: i32, num_bits: u32) -> (u3
             0,
             Some(Error {
                 error_name: ImmediateOutOfBounds,
-                operand_number: Some(token_number as u8),
+                operand_number: Some(operand_number as u8),
             }),
         );
     }

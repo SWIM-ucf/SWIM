@@ -1,10 +1,54 @@
-use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::{
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     LabelAssignmentError, MissingComma,
 };
-use crate::parser::parser_instruction_tokenization::instruction_tokenization::TokenType::Unknown;
-use crate::parser::parser_instruction_tokenization::instruction_tokenization::{
+use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Unknown;
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{
     Error, Instruction, Line, Token,
 };
+use std::collections::HashMap;
+
+///This function takes the initial string of the program given by the editor and turns it into a vector of Line,
+/// a struct that holds tokens and the original line number
+pub fn tokenize_instructions(program: String) -> Vec<Line> {
+    let mut line_vec: Vec<Line> = Vec::new();
+    let mut token: Token = Token {
+        token_name: "".to_string(),
+        starting_column: 0,
+        token_type: Unknown,
+    };
+
+    for (i, line_of_program) in program.lines().enumerate() {
+        let mut line_of_tokens = Line {
+            line_number: i as i32,
+
+            tokens: vec![],
+        };
+
+        for (j, char) in line_of_program.chars().enumerate() {
+            if char == '#' {
+                break;
+            };
+            if char != ' ' {
+                if token.token_name.is_empty() {
+                    token.starting_column = j as i32;
+                }
+                token.token_name.push(char);
+            } else if !token.token_name.is_empty() {
+                line_of_tokens.tokens.push(token.clone());
+                token.token_name = "".to_string();
+            }
+        }
+        if !token.token_name.is_empty() {
+            line_of_tokens.tokens.push(token.clone());
+            token.token_name = "".to_string();
+        }
+        if !line_of_tokens.tokens.is_empty() {
+            line_vec.push(line_of_tokens.clone());
+        }
+    }
+
+    line_vec
+}
 
 ///This function takes the vector of lines created by tokenize instructions and turns them into instructions
 ///assigning labels, operators, operands, and line numbers
@@ -87,8 +131,8 @@ pub fn confirm_operand_commas(instructions: &mut Vec<Instruction>) {
 }
 
 //TODO Add more pseudo instructions. Especially ones that are converted into more than a single instruction to make sure this method works
-pub fn convert_pseudo_instruction_into_real_instruction(instruction_list: &mut Vec<Instruction>) {
-    for (_i, mut instruction) in instruction_list.clone().into_iter().enumerate(){
+pub fn expand_pseudo_instruction(instruction_list: &mut Vec<Instruction>) {
+    for (_i, mut instruction) in instruction_list.clone().into_iter().enumerate() {
         match &*instruction.operator.token_name {
             "li" => {
                 instruction.operator.token_name = "ori".to_string();
@@ -105,45 +149,27 @@ pub fn convert_pseudo_instruction_into_real_instruction(instruction_list: &mut V
     }
 }
 
-///This function takes the initial string of the program given by the editor and turns it into a vector of Line,
-/// a struct that holds tokens and the original line number
-pub fn tokenize_instructions(program: String) -> Vec<Line> {
-    let mut line_vec: Vec<Line> = Vec::new();
-    let mut token: Token = Token {
-        token_name: "".to_string(),
-        starting_column: 0,
-        token_type: Unknown,
-    };
+///This function assigns the instruction number to each instruction
+pub fn assign_instruction_numbers(instruction_list: &mut Vec<Instruction>) {
+    for i in 0..instruction_list.len() {
+        instruction_list[i].instruction_number = i as u32;
+    }
+}
 
-    for (i, line_of_program) in program.lines().enumerate() {
-        let mut line_of_tokens = Line {
-            line_number: i as i32,
+///Create_label_map builds a hashmap of addresses for labels in memory
+pub fn create_label_map(instruction_list: Vec<Instruction>) -> HashMap<String, u32> {
+    let mut labels: HashMap<String, u32> = HashMap::new();
 
-            tokens: vec![],
-        };
-
-        for (j, char) in line_of_program.chars().enumerate() {
-            if char == '#' {
-                break;
-            };
-            if char != ' ' {
-                if token.token_name.is_empty() {
-                    token.starting_column = j as i32;
-                }
-                token.token_name.push(char);
-            } else if !token.token_name.is_empty() {
-                line_of_tokens.tokens.push(token.clone());
-                token.token_name = "".to_string();
-            }
-        }
-        if !token.token_name.is_empty() {
-            line_of_tokens.tokens.push(token.clone());
-            token.token_name = "".to_string();
-        }
-        if !line_of_tokens.tokens.is_empty() {
-            line_vec.push(line_of_tokens.clone());
+    for i in 0..instruction_list.len() {
+        if instruction_list[i].label.is_some() {
+            labels.insert(
+                instruction_list[i].clone().label.unwrap().0.token_name,
+                (instruction_list[i].clone().label.unwrap().1 * 4) as u32,
+            );
         }
     }
 
-    line_vec
+    //When support for labelled data is added, a for loop going through that vec right here will put it all after instructions in memory
+
+    labels
 }

@@ -1,13 +1,13 @@
-use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::{
-    LabelAssignmentError, MissingComma,
-};
-use crate::parser::parser_instruction_tokenization::instruction_tokenization::TokenType::Unknown;
-use crate::parser::parser_instruction_tokenization::instruction_tokenization::{
-    Error, Instruction, Line, Token,
-};
 #[cfg(test)]
 use crate::parser::parser_preprocessing::{
     build_instruction_list_from_lines, confirm_operand_commas, tokenize_instructions,
+};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
+    LabelAssignmentError, MissingComma,
+};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Unknown;
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{
+    Error, Instruction, Line, Token,
 };
 
 #[test]
