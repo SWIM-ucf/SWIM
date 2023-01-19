@@ -23,7 +23,7 @@ pub fn build_instruction_list_from_lines(mut lines: Vec<Line>) -> Vec<Instructio
             if instruction.label.is_some() {
                 instruction.errors.push(Error {
                     error_name: LabelAssignmentError,
-                    token_number_giving_error: 0,
+                    operand_number: None,
                 })
                 //if the above error doesn't occur, we can push the label to the instruction struct.
             } else {
@@ -36,7 +36,7 @@ pub fn build_instruction_list_from_lines(mut lines: Vec<Line>) -> Vec<Instructio
                 if i == (lines.len() - 1) {
                     instruction.errors.push(Error {
                         error_name: LabelAssignmentError,
-                        token_number_giving_error: 0,
+                        operand_number: None,
                     });
                     instruction_list.push(instruction.clone());
                 }
@@ -79,7 +79,7 @@ pub fn confirm_operand_commas(instructions: &mut Vec<Instruction>) {
             } else {
                 instruction.errors.push(Error {
                     error_name: MissingComma,
-                    token_number_giving_error: i as u8,
+                    operand_number: Some(i as u8),
                 })
             }
         }

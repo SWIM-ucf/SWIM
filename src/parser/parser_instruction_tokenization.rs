@@ -31,7 +31,7 @@ pub mod instruction_tokenization {
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct Error {
         pub error_name: ErrorType,
-        pub token_number_giving_error: u8,
+        pub operand_number: Option<u8>,
     }
 
     #[derive(Default, Debug, PartialEq, Eq, Clone)]
@@ -86,10 +86,11 @@ pub mod instruction_tokenization {
         println!("Int representation: {}", instruction.binary);
 
         for error in &instruction.errors {
-            println!(
-                "Error: {:?} on token number {}",
-                error.error_name, error.token_number_giving_error
-            );
+            print!("{:?}", error);
+            if error.operand_number.is_some(){
+                println!(" on operand {}.", error.operand_number.unwrap());
+            }
+
         }
         println!();
     }

@@ -9,12 +9,14 @@ use crate::parser::parser_preprocessing::*;
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
 pub fn parser(mut file_string: String) -> Vec<Instruction> {
-    file_string = file_string.to_lowercase();
 
+    file_string = file_string.to_lowercase();
     let lines = tokenize_instructions(file_string);
+
     let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
-    convert_pseudo_instruction_into_real_instruction(&mut instruction_list);
     confirm_operand_commas(&mut instruction_list);
+    convert_pseudo_instruction_into_real_instruction(&mut instruction_list);
+
 
     for i in 0..instruction_list.len() {
         read_instruction(&mut instruction_list[i]);
@@ -350,7 +352,7 @@ pub fn read_instruction(instruction: &mut Instruction) {
         }
         _ => instruction.errors.push(Error {
             error_name: UnrecognizedInstruction,
-            token_number_giving_error: 0,
+            operand_number: None,
         }),
     }
 }
@@ -394,7 +396,7 @@ fn read_operands(
     if instruction.operands.len() != expected_operands.len() {
         instruction.errors.push(Error {
             error_name: IncorrectNumberOfOperands,
-            token_number_giving_error: 0,
+            operand_number: None,
         });
         return instruction;
     }
@@ -494,7 +496,7 @@ pub(crate) fn read_memory_address(
             0,
             Some(vec![Error {
                 error_name: InvalidMemorySyntax,
-                token_number_giving_error: token_number as u8,
+                operand_number: Some(token_number as u8)
             }]),
         );
     }
@@ -511,7 +513,7 @@ pub(crate) fn read_memory_address(
             0,
             Some(vec![Error {
                 error_name: InvalidMemorySyntax,
-                token_number_giving_error: token_number as u8,
+                operand_number: Some(token_number as u8),
             }]),
         );
     }
@@ -574,7 +576,7 @@ pub(crate) fn read_register(
                 0,
                 Some(Error {
                     error_name: IncorrectRegisterType,
-                    token_number_giving_error: token_number as u8,
+                    operand_number: Some(token_number as u8),
                 }),
             )
         } else {
@@ -582,7 +584,7 @@ pub(crate) fn read_register(
                 0,
                 Some(Error {
                     error_name: UnrecognizedGPRegister,
-                    token_number_giving_error: token_number as u8,
+                    operand_number: Some(token_number as u8),
                 }),
             )
         }
@@ -596,7 +598,7 @@ pub(crate) fn read_register(
                 0,
                 Some(Error {
                     error_name: IncorrectRegisterType,
-                    token_number_giving_error: token_number as u8,
+                    operand_number: Some(token_number as u8),
                 }),
             )
         } else {
@@ -604,7 +606,7 @@ pub(crate) fn read_register(
                 0,
                 Some(Error {
                     error_name: UnrecognizedFPRegister,
-                    token_number_giving_error: token_number as u8,
+                    operand_number: Some(token_number as u8),
                 }),
             )
         }
@@ -711,7 +713,7 @@ pub fn read_immediate(given_text: &str, token_number: i32, num_bits: u32) -> (u3
             0,
             Some(Error {
                 error_name: NonIntImmediate,
-                token_number_giving_error: token_number as u8,
+                operand_number: Some(token_number as u8),
             }),
         );
     }
@@ -727,7 +729,7 @@ pub fn read_immediate(given_text: &str, token_number: i32, num_bits: u32) -> (u3
             0,
             Some(Error {
                 error_name: ImmediateOutOfBounds,
-                token_number_giving_error: token_number as u8,
+                operand_number: Some(token_number as u8),
             }),
         );
     }

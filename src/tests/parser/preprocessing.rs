@@ -274,7 +274,7 @@ fn confirm_operand_commas_generates_error_on_missing_commas() {
     confirm_operand_commas(&mut result);
     let correct_error = Error {
         error_name: MissingComma,
-        token_number_giving_error: 0,
+        operand_number: Some(0),
     };
     assert_eq!(correct_error, result[1].errors[0]);
 }
