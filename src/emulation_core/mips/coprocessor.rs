@@ -131,7 +131,7 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_alu_op = FpuAluOp::AdditionOrEqual;
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
-                            self.signals.fpu_reg_dst = FpuRegDst::Reg2;
+                            self.signals.fpu_reg_dst = FpuRegDst::Reg3;
                             self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
                             self.set_reg_width();
                         }
@@ -235,8 +235,9 @@ impl MipsFpCoprocessor {
         }
 
         let destination = match self.signals.fpu_reg_dst {
-            FpuRegDst::Reg1 => self.state.fs as usize,
-            FpuRegDst::Reg2 => self.state.fd as usize,
+            FpuRegDst::Reg1 => self.state.ft as usize,
+            FpuRegDst::Reg2 => self.state.fs as usize,
+            FpuRegDst::Reg3 => self.state.fd as usize,
         };
 
         let register_data = match self.signals.fpu_mem_to_reg {

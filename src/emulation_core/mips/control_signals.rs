@@ -402,12 +402,15 @@ pub mod floating_point {
     /// to, which largely depends on the instruction format.
     #[derive(Default)]
     pub enum FpuRegDst {
-        /// Use register `fs`.
+        /// Use register `ft`.
         Reg1 = 0,
+
+        /// Use register `fs`.
+        Reg2 = 1,
 
         /// Use register `fd`.
         #[default]
-        Reg2 = 1,
+        Reg3 = 2,
     }
 
     /// Determines the amount of data to be sent or received from registers and the ALU.
