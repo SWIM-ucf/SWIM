@@ -8,7 +8,7 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterT
 ///This function takes an instruction whose operands it is supposed to read, the order of expected operand types and then
 ///the order these operands should be concatenated onto the binary representation of the string
 ///the function returns the instruction it was given with any errors and the binary of the operands added on
-fn read_operands(
+pub fn read_operands(
     instruction: &mut Instruction,
     expected_operands: Vec<OperandType>,
     concat_order: Vec<usize>,
@@ -125,7 +125,7 @@ pub fn read_label(
             }),
         );
     }
-    (result.unwrap().clone(), None)
+    (*result.unwrap(), None)
 }
 
 ///This function takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors

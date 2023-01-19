@@ -87,9 +87,9 @@ pub mod instruction_tokenization {
         for error in &instruction.errors {
             print!("{:?}", error);
             if error.operand_number.is_some() {
-                print!(" on operand {}.\n", error.operand_number.unwrap());
+                println!(" on operand {}.", error.operand_number.unwrap());
             } else {
-                print!("\n")
+                println!();
             }
         }
         println!();

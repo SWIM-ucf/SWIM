@@ -85,7 +85,7 @@ pub fn build_instruction_list_from_lines(mut lines: Vec<Line>) -> Vec<Instructio
                     instruction_list.push(instruction.clone());
                 }
 
-                i = i + 1;
+                i += 1;
                 continue;
             }
             //since token[0] was a label, the operator will be token[1] and operands start at token[2]
@@ -107,10 +107,10 @@ pub fn build_instruction_list_from_lines(mut lines: Vec<Line>) -> Vec<Instructio
         instruction_list.push(instruction.clone());
         instruction = Instruction::default();
 
-        i = i + 1;
+        i += 1;
     }
 
-    return instruction_list;
+    instruction_list
 }
 
 ///This function goes through all but the last operands of each instruction checking that they end in a comma.
@@ -131,8 +131,8 @@ pub fn confirm_operand_commas(instructions: &mut Vec<Instruction>) {
 }
 
 //TODO Add more pseudo instructions. Especially ones that are converted into more than a single instruction to make sure this method works
-pub fn expand_pseudo_instruction(instruction_list: &mut Vec<Instruction>) {
-    for (_i, mut instruction) in instruction_list.clone().into_iter().enumerate() {
+pub fn expand_pseudo_instruction(instruction_list: &mut [Instruction]) {
+    for (_i, mut instruction) in instruction_list.iter_mut().enumerate() {
         match &*instruction.operator.token_name {
             "li" => {
                 instruction.operator.token_name = "ori".to_string();
@@ -143,16 +143,18 @@ pub fn expand_pseudo_instruction(instruction_list: &mut Vec<Instruction>) {
                     token_type: Default::default(),
                 });
             }
+            "other" =>{
 
+            }
             _ => {}
         }
     }
 }
 
 ///This function assigns the instruction number to each instruction
-pub fn assign_instruction_numbers(instruction_list: &mut Vec<Instruction>) {
-    for i in 0..instruction_list.len() {
-        instruction_list[i].instruction_number = i as u32;
+pub fn assign_instruction_numbers(instruction_list: &mut [Instruction]) {
+    for (i, instruction) in instruction_list.iter_mut().enumerate() {
+        instruction.instruction_number = i as u32;
     }
 }
 
@@ -160,11 +162,11 @@ pub fn assign_instruction_numbers(instruction_list: &mut Vec<Instruction>) {
 pub fn create_label_map(instruction_list: Vec<Instruction>) -> HashMap<String, u32> {
     let mut labels: HashMap<String, u32> = HashMap::new();
 
-    for i in 0..instruction_list.len() {
-        if instruction_list[i].label.is_some() {
+    for instruction in &instruction_list {
+        if instruction.label.is_some() {
             labels.insert(
-                instruction_list[i].clone().label.unwrap().0.token_name,
-                (instruction_list[i].clone().label.unwrap().1 * 4) as u32,
+                instruction.clone().label.unwrap().0.token_name,
+                (instruction.clone().label.unwrap().1 * 4) as u32,
             );
         }
     }
