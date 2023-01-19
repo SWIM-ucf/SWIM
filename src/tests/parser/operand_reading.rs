@@ -1,6 +1,7 @@
 #[cfg(test)]
 
 mod convert_to_u32_tests {
+    use crate::parser::operand_reading::_convert_to_u32;
     use crate::parser::parser_main::_convert_to_u32;
 
     #[test]
@@ -22,6 +23,7 @@ mod convert_to_u32_tests {
     }
 }
 mod read_register_tests {
+    use crate::parser::operand_reading::read_register;
     use crate::parser::parser_main::read_register;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
         IncorrectRegisterType, UnrecognizedGPRegister,
@@ -62,6 +64,7 @@ mod read_register_tests {
 }
 
 mod immediate_tests {
+    use crate::parser::operand_reading::read_immediate;
     use crate::parser::parser_main::*;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
         ImmediateOutOfBounds, NonIntImmediate,
@@ -99,6 +102,7 @@ mod immediate_tests {
 }
 
 mod memory_address_tests {
+    use crate::parser::operand_reading::read_memory_address;
     use crate::parser::parser_main::read_memory_address;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
         ImmediateOutOfBounds, InvalidMemorySyntax, NonIntImmediate, UnrecognizedGPRegister,
