@@ -1,5 +1,7 @@
 //! Abstract representation of an instruction.
 
+use super::constants::*;
+
 #[derive(Debug, Default, Clone, Copy)]
 pub struct RType {
     pub op: u8,
@@ -51,10 +53,12 @@ impl Default for Instruction {
 impl From<u32> for Instruction {
     /// Based on the opcode, convert a binary instruction into a struct representation.
     fn from(value: u32) -> Self {
-        let op: u32 = value >> 26;
+        let op = (value >> 26) as u8;
         match op {
-            // R-type instructions (add, sub, mul, div, and, or, slt, sltu)
-            0 => Instruction::RType(RType {
+            // R-type instructions:
+            // add, sub, mul, div
+            // dadd, dsub, dmul, ddiv
+            OPCODE_SPECIAL => Instruction::RType(RType {
                 op: ((value >> 26) & 0x3F) as u8,
                 rs: ((value >> 21) & 0x1F) as u8,
                 rt: ((value >> 16) & 0x1F) as u8,
@@ -64,7 +68,7 @@ impl From<u32> for Instruction {
             }),
 
             // COP1 (coprocessor 1)
-            0b010001 => Instruction::FpuRType(FpuRType {
+            OPCODE_COP1 => Instruction::FpuRType(FpuRType {
                 op: ((value >> 26) & 0x3F) as u8,
                 fmt: ((value >> 21) & 0x1F) as u8,
                 ft: ((value >> 16) & 0x1F) as u8,
@@ -74,7 +78,7 @@ impl From<u32> for Instruction {
             }),
 
             // Load Word (lw)
-            0b100011 => Instruction::IType(IType {
+            OPCODE_LW => Instruction::IType(IType {
                 op: ((value >> 26) & 0x3F) as u8,
                 rs: ((value >> 21) & 0x1F) as u8,
                 rt: ((value >> 16) & 0x1F) as u8,
@@ -82,7 +86,7 @@ impl From<u32> for Instruction {
             }),
 
             // Store Word (sw)
-            0b101011 => Instruction::IType(IType {
+            OPCODE_SW => Instruction::IType(IType {
                 op: ((value >> 26) & 0x3F) as u8,
                 rs: ((value >> 21) & 0x1F) as u8,
                 rt: ((value >> 16) & 0x1F) as u8,
@@ -90,13 +94,13 @@ impl From<u32> for Instruction {
             }),
 
             // Or immediate (ori)
-            0b001101 => Instruction::IType(IType {
+            OPCODE_ORI => Instruction::IType(IType {
                 op: ((value >> 26) & 0x3F) as u8,
                 rs: ((value >> 21) & 0x1F) as u8,
                 rt: ((value >> 16) & 0x1F) as u8,
                 immediate: (value & 0xFFFF) as u16,
             }),
-            _ => todo!("Unsupported opcode"),
+            _ => unimplemented!("opcode `{}` not supported", op),
         }
     }
 }

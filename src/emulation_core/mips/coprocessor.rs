@@ -1,7 +1,7 @@
 //! Implementation of a MIPS64 floating-point coprocessor.
 
+use super::constants::*;
 use super::control_signals::floating_point::*;
-use super::datapath::error;
 use super::instruction::Instruction;
 
 /// An implementation of a floating-point coprocessor for the MIPS64 ISA.
@@ -87,12 +87,11 @@ impl MipsFpCoprocessor {
     /// Set the [`FpuRegWidth`] control signal based on the `fmt` field in
     /// the instruction.
     fn set_reg_width(&mut self) {
-        self.signals.fpu_reg_width = match self.state.fmt {
-            16 => FpuRegWidth::Word,
-            17 => FpuRegWidth::DoubleWord,
+        self.signals.fpu_reg_width = match self.state.fmt as u8 {
+            FMT_SINGLE => FpuRegWidth::Word,
+            FMT_DOUBLE => FpuRegWidth::DoubleWord,
             _ => {
-                error(format!("{} is an invalid fmt value", self.state.fmt).as_str());
-                FpuRegWidth::default()
+                unimplemented!("`{}` is an invalid fmt value", self.state.fmt);
             }
         }
     }
@@ -117,29 +116,14 @@ impl MipsFpCoprocessor {
         self.state.fp_register_data_from_main_processor = data;
     }
 
-    /// Defines the control signals to set when the coprocessor is not being used.
-    fn set_noop_control_signals(&mut self) {
-        self.signals.cc = Cc::Cc0;
-        self.signals.cc_write = CcWrite::NoWrite;
-        self.signals.data_src = DataSrc::FloatingPointUnit;
-        self.signals.data_write = DataWrite::NoWrite;
-        self.signals.fpu_alu_op = FpuAluOp::AdditionOrEqual;
-        self.signals.fpu_branch = FpuBranch::NoBranch;
-        self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
-        self.signals.fpu_reg_dst = FpuRegDst::Reg2;
-        self.signals.fpu_reg_write = FpuRegWrite::NoWrite;
-    }
-
     /// Set the control signals of the processor based on the instruction opcode and function
     /// control signals.
     fn set_control_signals(&mut self) {
         match self.instruction {
             Instruction::FpuRType(r) => {
                 match r.op {
-                    // COP1 (Coprocessor 1 instruction)
-                    0b010001 => match r.function {
-                        // ADD
-                        0b000000 => {
+                    OPCODE_COP1 => match r.function {
+                        FUNCTION_ADD => {
                             self.signals.cc = Cc::Cc0;
                             self.signals.cc_write = CcWrite::NoWrite;
                             self.signals.data_src = DataSrc::FloatingPointUnit;
@@ -152,10 +136,10 @@ impl MipsFpCoprocessor {
                             self.set_reg_width();
                         }
                         // Unrecognized format code. Perform no operation.
-                        _ => self.set_noop_control_signals(),
+                        _ => unimplemented!("COP1 instruction with function code `{}`", r.function),
                     },
-                    // Unrecognized format code. Perform no operation.
-                    _ => todo!("Unsupported opcode {} for FPU R-type instruction", r.op),
+                    // Unrecognized opcode. Perform no operation.
+                    _ => unimplemented!("Unsupported opcode `{}` for FPU R-type instruction", r.op),
                 }
             }
             // These types do not use the floating-point unit so they can be ignored.
@@ -203,7 +187,7 @@ impl MipsFpCoprocessor {
                 FpuRegWidth::Word => f32::to_bits(input1_f32 + input2_f32) as u64,
                 FpuRegWidth::DoubleWord => f64::to_bits(input1_f64 + input2_f64),
             },
-            _ => todo!("Unimplemented operation"),
+            _ => unimplemented!(),
         };
     }
 
@@ -220,7 +204,7 @@ impl MipsFpCoprocessor {
 
         self.state.comparator_result = match self.signals.fpu_alu_op {
             FpuAluOp::AdditionOrEqual => (input1 == input2) as u64,
-            _ => todo!("Unimplemented operation"),
+            _ => unimplemented!(),
         }
     }
 

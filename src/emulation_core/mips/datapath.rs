@@ -26,6 +26,7 @@
 //!   `bnezalc`, `beqc`, and `bovc` instructions.
 
 use super::super::datapath::Datapath;
+use super::constants::*;
 use super::control_signals::{floating_point::*, *};
 use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
@@ -45,6 +46,7 @@ pub struct MipsDatapath {
     current_stage: Stage,
 }
 
+/// A collection of all the data lines and wires in the datapath.
 #[derive(Default)]
 pub struct DatapathState {
     /// *Data line.* The currently loaded instruction. Initialized after the
@@ -169,6 +171,16 @@ impl Datapath for MipsDatapath {
 }
 
 impl MipsDatapath {
+    /// Load a vector of 32-bit instructions into memory. If the process fails,
+    /// from a lack of space or otherwise, an Err is returned.
+    pub fn load_instructions(&mut self, instructions: Vec<u32>) -> Result<(), String> {
+        for (i, data) in instructions.iter().enumerate() {
+            self.memory.store_word((i as u64) + 4, *data)?
+        }
+
+        Ok(())
+    }
+
     /// Finish the current instruction within the datapath. If the
     /// current stage is the first stage, do nothing as there is
     /// nothing to finish, only to start. (Use [`execute_instruction()`][MipsDatapath::execute_instruction()]
@@ -281,7 +293,7 @@ impl MipsDatapath {
             // For instructions that exclusively use the FPU, these data lines
             // do not need to be used.
             Instruction::FpuRType(_) => (),
-            _ => todo!("Fix unknown instruction type"),
+            _ => unimplemented!(),
         }
     }
 
@@ -293,7 +305,7 @@ impl MipsDatapath {
 
     /// Set rtype control signals. This function may have a Match statement added
     /// in the future for dealing with different special case rtype instructions.
-    fn set_rtype_control_signals(&mut self, _r: RType) {
+    fn set_rtype_control_signals(&mut self, r: RType) {
         self.signals.alu_op = AluOp::UseFunctField;
         self.signals.alu_src = AluSrc::ReadRegister2;
         self.signals.branch = Branch::NoBranch;
@@ -304,16 +316,25 @@ impl MipsDatapath {
         self.signals.mem_write = MemWrite::NoWrite;
         self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
         self.signals.reg_dst = RegDst::Reg3;
-        self.signals.reg_width = RegWidth::Word;
         self.signals.reg_write = RegWrite::YesWrite;
+
+        // The RegWidth signal might differ depending on the
+        // specific R-type instruction.
+        match reg_width_by_funct(r.funct) {
+            Some(width) => self.signals.reg_width = width,
+            None => unimplemented!(
+                "funct code `{}` is unsupported for this opcode ({})",
+                r.funct,
+                r.op
+            ),
+        }
     }
 
     /// Set the control signals for the datapath, specifically in the
     /// case where the instruction is an I-type.
     fn set_itype_control_signals(&mut self, i: IType) {
         match i.op {
-            // Or immediate (ori)
-            0b001101 => {
+            OPCODE_ORI => {
                 self.signals.alu_op = AluOp::Or;
                 self.signals.alu_src = AluSrc::ZeroExtendedImmediate;
                 self.signals.branch = Branch::NoBranch;
@@ -328,8 +349,7 @@ impl MipsDatapath {
                 self.signals.reg_write = RegWrite::YesWrite;
             }
 
-            // Load Word (lw)
-            0b100011 => {
+            OPCODE_LW => {
                 self.signals.alu_op = AluOp::Addition;
                 self.signals.alu_src = AluSrc::SignExtendedImmediate; // may  be fishy
                 self.signals.branch = Branch::NoBranch;
@@ -344,8 +364,7 @@ impl MipsDatapath {
                 self.signals.reg_write = RegWrite::YesWrite;
             }
 
-            // Store Word (sw)
-            0b101011 => {
+            OPCODE_SW => {
                 self.signals.alu_op = AluOp::Addition;
                 self.signals.alu_src = AluSrc::SignExtendedImmediate; // may  be fishy
                 self.signals.branch = Branch::NoBranch;
@@ -359,8 +378,7 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::Word;
                 self.signals.reg_write = RegWrite::NoWrite;
             }
-
-            _ => panic!("Unsupported itype instructions"),
+            _ => unimplemented!("I-type instruction with opcode `{}`", i.op),
         }
     }
 
@@ -396,8 +414,8 @@ impl MipsDatapath {
 
         // Truncate the variable data if a 32-bit word is requested.
         if let RegWidth::Word = self.signals.reg_width {
-            self.state.read_data_1 = self.registers.gpr[self.state.rs as usize];
-            self.state.read_data_2 = self.registers.gpr[self.state.rt as usize];
+            self.state.read_data_1 = self.state.read_data_1 as u32 as u64;
+            self.state.read_data_2 = self.state.read_data_2 as u32 as u64;
         }
     }
 
@@ -411,46 +429,43 @@ impl MipsDatapath {
             AluOp::And => AluControl::And,
             AluOp::Or => AluControl::Or,
             AluOp::LeftShift16 => AluControl::LeftShift16,
-            AluOp::UseFunctField => match self.state.funct {
-                0b100000 => AluControl::Addition,
-                0b100010 => AluControl::Subtraction,
-                0b100100 => AluControl::And,
-                0b100101 => AluControl::Or,
-                0b101010 => AluControl::SetOnLessThanSigned,
-                0b101011 => AluControl::SetOnLessThanUnsigned,
-                0b011010 | 0b011110 => match self.state.shamt {
-                    0b00010 => AluControl::DivisionSigned,
+            AluOp::UseFunctField => {
+                match self.state.funct as u8 {
+                    FUNCT_ADD | FUNCT_DADD => AluControl::Addition,
+                    FUNCT_SUB | FUNCT_DSUB => AluControl::Subtraction,
+                    FUNCT_AND => AluControl::And,
+                    FUNCT_OR => AluControl::Or,
+                    FUNCT_SLT => AluControl::SetOnLessThanSigned,
+                    FUNCT_SLTU => AluControl::SetOnLessThanUnsigned,
+                    FUNCT_SOP32 | FUNCT_SOP36 => match self.state.shamt as u8 {
+                        ENC_DIV => AluControl::DivisionSigned,
+                        _ => {
+                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                        }
+                    },
+                    FUNCT_SOP33 | FUNCT_SOP37 => match self.state.shamt as u8 {
+                        ENC_DIVU => AluControl::DivisionUnsigned,
+                        _ => {
+                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                        }
+                    },
+                    FUNCT_SOP30 | FUNCT_SOP34 => match self.state.shamt as u8 {
+                        ENC_MUL => AluControl::MultiplicationSigned,
+                        _ => {
+                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                        }
+                    },
+                    FUNCT_SOP31 | FUNCT_SOP35 => match self.state.shamt as u8 {
+                        ENC_MULU => AluControl::MultiplicationUnsigned,
+                        _ => {
+                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                        }
+                    },
                     _ => {
-                        error("Unsupported funct");
-                        AluControl::Addition // Stub
+                        unimplemented!("funct code `{}` is unsupported on ALU", self.state.funct);
                     }
-                },
-                0b011011 | 0b011111 => match self.state.shamt {
-                    0b00010 => AluControl::DivisionUnsigned,
-                    _ => {
-                        error("Unsupported funct");
-                        AluControl::Addition // Stub
-                    }
-                },
-                0b011000 | 0b011100 => match self.state.shamt {
-                    0b00010 => AluControl::MultiplicationSigned,
-                    _ => {
-                        error("Unsupported funct");
-                        AluControl::Addition // Stub
-                    }
-                },
-                0b011001 | 0b011101 => match self.state.shamt {
-                    0b00010 => AluControl::MultiplicationUnsigned,
-                    _ => {
-                        error("Unsupported funct");
-                        AluControl::Addition // Stub
-                    }
-                },
-                _ => {
-                    error("Unsupported funct");
-                    AluControl::Addition // Stub
                 }
-            },
+            }
         };
     }
 
@@ -460,8 +475,6 @@ impl MipsDatapath {
     /// does not handle integer overflow exceptions. Should this be implemented
     /// in the future, the ALU should be adjusted accordingly to address this.
     fn alu(&mut self) {
-        // TODO: Support alternating between 32-bit and 64-bit operations.
-
         // Left shift the immediate value based on the ImmShift control signal.
         let alu_immediate = match self.signals.imm_shift {
             ImmShift::Shift0 => self.state.sign_extend,
@@ -524,7 +537,7 @@ impl MipsDatapath {
     }
 
     /// Read from memory based on the address provided by the ALU in
-    /// [`Self::alu_result`]. Returns the result to [`Self::memory_data`].
+    /// [`DatapathState::alu_result`]. Returns the result to [`DatapathState::memory_data`].
     /// Should the address be invalid or otherwise memory cannot be
     /// read at the given address, bitwise 0 will be used in lieu of
     /// any data.
@@ -541,7 +554,7 @@ impl MipsDatapath {
     }
 
     /// Write to memory based on the address provided by the ALU in
-    /// [`Self::alu_result`]. The source of the data being written to
+    /// [`DatapathState::alu_result`]. The source of the data being written to
     /// memory is determined by [`MemWriteSrc`].
     fn memory_write(&mut self) {
         let address = self.state.alu_result;

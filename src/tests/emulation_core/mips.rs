@@ -340,6 +340,208 @@ fn or_immediate_with_value() {
     assert_eq!(datapath.registers.gpr[16], 987658425); // $s0
 }
 
+#[test]
+fn dadd_register_to_itself() {
+    let mut datapath = MipsDatapath::default();
+
+    // dadd rd, rs, rt
+    // dadd $v0, $t5, $t5
+    // GPR[2] <- GPR[13] + GPR[13]
+    //                      SPECIAL rs    rt    rd    0     DADD
+    //                              13    13    2
+    let instruction: u32 = 0b000000_01101_01101_00010_00000_101100;
+
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // Assume register $t5 contains 969,093,589,304, which is an integer
+    // that takes up 39 bits.
+    datapath.registers.gpr[13] = 969_093_589_304; // $t5
+
+    datapath.execute_instruction();
+
+    assert_eq!(datapath.registers.gpr[2], 1_938_187_178_608); // $v0
+}
+
+#[test]
+fn dsub_registers_positive_result() {
+    let mut datapath = MipsDatapath::default();
+
+    // dsub rd, rs, rt
+    // dsub $s5, $s4, $s3
+    // GPR[rd] <- GPR[rs] - GPR[rt]
+    // GPR[$s5] <- GPR[$s4] - GPR[$s3]
+    // GPR[19] <- GPR[18] - GPR[17]
+    //                      SPECIAL rs    rt    rd    0     funct
+    //                              $s4   $s3   $s5         DSUB
+    //                              18    17    19
+    let instruction: u32 = 0b000000_10010_10001_10011_00000_101110;
+
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // Assume registers $s3 and $s4 contain numbers larger than 32 bits,
+    // but smaller than 64 bits.
+    datapath.registers.gpr[18] = 4_833_323_886_298_794; // $s4
+    datapath.registers.gpr[17] = 163_643_849_115_304; // $s3
+
+    datapath.execute_instruction();
+
+    assert_eq!(datapath.registers.gpr[19], 4_669_680_037_183_490); // $s5
+}
+
+#[test]
+fn dmul_positive_result() {
+    let mut datapath = MipsDatapath::default();
+
+    // dmul rd, rs, rt
+    // dmul $a0, $t8, $t9
+    // dmul 4, 24, 25
+    // GPR[rd] <- lo_doubleword(multiply.signed(GPR[rs] * GPR[rt]))
+    //                      opcode  rs    rt    rd          funct
+    //                      SPECIAL $t8   $t9   $a0   DMUL  SOP34
+    //                              24    25    4
+    let instruction: u32 = 0b000000_11000_11001_00100_00010_011100;
+
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // Assume register $t8 contains a number larger than 32 bits,
+    // but smaller than 64 bits.
+    datapath.registers.gpr[24] = 5_861_036_283_017; // $t8
+    datapath.registers.gpr[25] = 5; // $t9
+
+    datapath.execute_instruction();
+
+    assert_eq!(datapath.registers.gpr[4], 29_305_181_415_085); // $a0
+}
+
+#[test]
+fn dmul_negative_result() {
+    let mut datapath = MipsDatapath::default();
+
+    // dmul rd, rs, rt
+    // dmul $s7, $t7, $t6
+    // dmul 23, 15, 14
+    // GPR[rd] <- lo_doubleword(multiply.signed(GPR[rs] * GPR[rt]))
+    //                      opcode  rs    rt    rd          funct
+    //                      SPECIAL $t7   $t6   $s7   DMUL  SOP34
+    //                              15    14    23
+    let instruction: u32 = 0b000000_01111_01110_10111_00010_011100;
+
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // Assume register $t7 contains a number larger than 32 bits,
+    // but smaller than 64 bits.
+    datapath.registers.gpr[15] = 363_251_152_978_005; // $t7
+    datapath.registers.gpr[14] = -19_i64 as u64; // $t6
+
+    datapath.execute_instruction();
+
+    assert_eq!(datapath.registers.gpr[23] as i64, -6_901_771_906_582_095); // $s7
+}
+
+#[test]
+fn dmul_result_truncate() {
+    let mut datapath = MipsDatapath::default();
+
+    // dmul rd, rs, rt
+    // dmul $s2, $s4, $s3
+    // dmul 18, 20, 19
+    // GPR[rd] <- lo_doubleword(multiply.signed(GPR[rs] * GPR[rt]))
+    //                      opcode  rs    rt    rd          funct
+    //                      SPECIAL $s4   $s3   $s2   DMUL  SOP34
+    //                              20    19    18
+    let instruction: u32 = 0b000000_10100_10011_10010_00010_011100;
+
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // Assume registers $s4 and $s3 contain numbers larger than 32 bits,
+    // but smaller than 64 bits.
+    datapath.registers.gpr[20] = 191_893_548_893_556_856; // $s4
+    datapath.registers.gpr[19] = 2_799_316_838_897; // $s3
+
+    datapath.execute_instruction();
+
+    // The result, 537,170,842,693,438,490,068,661,827,832, is too large for
+    // a 64-bit integer.
+    // (110 11000111 10110001 01001110 10000100 [00110100 01101011 00001011 00010110 11011010 00010011 11111000 11111000])
+    // The result should instead truncate to the lower 64 bits.
+    assert_eq!(datapath.registers.gpr[18], 3_777_124_905_256_220_920); // $s2
+}
+
+#[test]
+fn ddiv_positive_result() {
+    let mut datapath = MipsDatapath::default();
+
+    // ddiv rd, rs, rt
+    // ddiv $s0, $s1, $s2
+    // ddiv 16, 17, 18
+    // GPR[rd] <- divide.signed(GPR[rs], GPR[rt])
+    //                      opcode  rs    rt    rd          funct
+    //                      SPECIAL $s1   $s2   $s0   DDIV  SOP36
+    //                              17    18    16
+    let instruction: u32 = 0b000000_10001_10010_10000_00010_011110;
+
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // Assume register $s1 contains a number larger than 32 bits,
+    // but smaller than 64 bits.
+    datapath.registers.gpr[17] = 1_284_064_531_192; // $s1
+    datapath.registers.gpr[18] = 7; // $s2
+
+    datapath.execute_instruction();
+
+    // While the actual result is 183,437,790,170.285714....
+    // the decimal portion is truncated.
+    assert_eq!(datapath.registers.gpr[16], 183_437_790_170); // $s0
+}
+
+#[test]
+fn ddiv_negative_result() {
+    let mut datapath = MipsDatapath::default();
+
+    // ddiv rd, rs, rt
+    // ddiv $a3, $a2, $a1
+    // ddiv 7, 6, 5
+    // GPR[rd] <- divide.signed(GPR[rs], GPR[rt])
+    //                      opcode  rs    rt    rd          funct
+    //                      SPECIAL $a2   $a1   $a3   DDIV  SOP36
+    //                              6     5     7
+    let instruction: u32 = 0b000000_00110_00101_00111_00010_011110;
+
+    datapath
+        .memory
+        .store_word(0, instruction)
+        .expect("Failed to store instruction.");
+
+    // Assume register $a2 contains a number larger than 32 bits,
+    // but smaller than 64 bits.
+    datapath.registers.gpr[6] = -6_245_352_518_120_328_878_i64 as u64; // $a2
+    datapath.registers.gpr[5] = 123; // $a1
+
+    datapath.execute_instruction();
+
+    // While the actual result is -50,775,223,724,555,519.333333....
+    // the decimal portion is truncated.
+    assert_eq!(datapath.registers.gpr[7] as i64, -50_775_223_724_555_519); // $a3
+}
+
 pub mod load_word {
     use super::*;
     #[test]
