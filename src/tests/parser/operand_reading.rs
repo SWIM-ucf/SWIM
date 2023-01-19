@@ -164,9 +164,10 @@ mod memory_address_tests {
 
 mod tokenize_instruction_tests {
     use crate::parser::parser_instruction_tokenization::instruction_tokenization::*;
+    use crate::parser::parser_preprocessing::create_instruction;
 
     #[test]
-    fn tokenize_instruction_returns_struct_with_tokens() {
+    fn create_instruction_returns_struct_with_tokens() {
         let correct_instruction = Instruction {
             tokens: vec![
                 "ADD".to_string(),
@@ -174,10 +175,7 @@ mod tokenize_instruction_tests {
                 "T2".to_string(),
                 "T2".to_string(),
             ],
-            instruction_number: 0,
-            binary: 0,
-            // instruction_number: 0,
-            errors: vec![],
+            ..Default::default()
         };
         let received_instruction = create_instruction("ADD T1 T2 T2", 0);
         assert_eq!(received_instruction.tokens, correct_instruction.tokens);
@@ -186,9 +184,8 @@ mod tokenize_instruction_tests {
 
 mod confirm_commas_tests {
     use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::MissingComma;
-    use crate::parser::parser_instruction_tokenization::instruction_tokenization::{
-        confirm_commas_in_instruction, Instruction,
-    };
+    use crate::parser::parser_instruction_tokenization::instruction_tokenization::Instruction;
+    use crate::parser::parser_preprocessing::confirm_commas_in_instruction;
 
     #[test]
     fn confirm_comma_generates_error_when_a_middle_token_is_missing_a_comma() {
@@ -241,21 +238,19 @@ mod confirm_commas_tests {
 }
 
 mod create_vector_of_instructions_tests {
-    use crate::parser::parser_instruction_tokenization::instruction_tokenization::{
-        create_vector_of_instructions, Instruction,
-    };
+    use crate::parser::parser_preprocessing::create_vector_of_instructions;
 
     #[test]
     fn create_vector_of_instructions_builds_the_correct_number_of_instructions() {
         let original_string = "add $t1, $t2, $zero\nsub $t2, $t2, $t2\nlw r8, 52($s0)".to_string();
-        let instructions: Vec<Instruction> = create_vector_of_instructions(original_string);
+        let instructions = create_vector_of_instructions(original_string);
         assert_eq!(instructions.len(), 3);
     }
 
     #[test]
     fn create_vector_of_instructions_separates_instructions_at_correct_spot() {
         let original_string = "add $t1, $t2, $zero\nsub $t2, $t2, $t2\nlw r8, 52($s0)".to_string();
-        let instructions: Vec<Instruction> = create_vector_of_instructions(original_string);
+        let instructions = create_vector_of_instructions(original_string);
         assert_eq!(instructions[0].tokens, vec!["add", "$t1,", "$t2,", "$zero"]);
         assert_eq!(instructions[1].tokens, vec!["sub", "$t2,", "$t2,", "$t2"]);
         assert_eq!(instructions[2].tokens, vec!["lw", "r8,", "52($s0)"]);
