@@ -63,7 +63,6 @@ mod read_register_tests {
 
 mod immediate_tests {
     use crate::parser::operand_reading::read_immediate;
-    use crate::parser::parser_main::*;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
         ImmediateOutOfBounds, NonIntImmediate,
     };
@@ -184,4 +183,3 @@ mod append_instruction_component_tests {
         assert_eq!(result, 4294967295);
     }
 }
-

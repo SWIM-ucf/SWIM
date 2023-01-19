@@ -8,14 +8,14 @@ mod parser_main_function_tests {
         let results =
             parser("lw $t1, 512($t1)\nadd $t1, $s6, $t2\naddi $t1, $t2, 43690".to_string());
 
-        let length = results.len();
+        let length = results.0.len();
 
         for i in 0..length {
-            print_instruction_struct_contents(results.get(i).unwrap());
+            print_instruction_struct_contents(results.0.get(i).unwrap());
         }
-        assert_eq!(results[0].binary, 0b10001101001010010000001000000000);
-        assert_eq!(results[1].binary, 0b00000010110010100100100000100000);
-        assert_eq!(results[2].binary, 0b00100001010010011010101010101010);
+        assert_eq!(results.0[0].binary, 0b10001101001010010000001000000000);
+        assert_eq!(results.0[1].binary, 0b00000010110010100100100000100000);
+        assert_eq!(results.0[2].binary, 0b00100001010010011010101010101010);
     }
 }
 

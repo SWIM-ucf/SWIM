@@ -1,9 +1,18 @@
-use std::collections::HashMap;
 use crate::parser::parser_main::append_binary;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{Error, Instruction, OperandType, RegisterType};
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{ImmediateOutOfBounds, IncorrectNumberOfOperands, IncorrectRegisterType, InvalidMemorySyntax, LabelNotFound, NonIntImmediate, UnrecognizedFPRegister, UnrecognizedGPRegister};
-use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::{Immediate, Label, MemoryAddress, RegisterFP, RegisterGP};
-use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{FloatingPoint, GeneralPurpose};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
+    ImmediateOutOfBounds, IncorrectNumberOfOperands, IncorrectRegisterType, InvalidMemorySyntax,
+    LabelNotFound, NonIntImmediate, UnrecognizedFPRegister, UnrecognizedGPRegister,
+};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::{
+    Immediate, Label, MemoryAddress, RegisterFP, RegisterGP,
+};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
+    FloatingPoint, GeneralPurpose,
+};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{
+    Error, Instruction, OperandType, RegisterType,
+};
+use std::collections::HashMap;
 
 ///This function takes an instruction whose operands it is supposed to read, the order of expected operand types and then
 ///the order these operands should be concatenated onto the binary representation of the string
@@ -40,7 +49,7 @@ pub fn read_operands(
                 );
 
                 binary_representation.push(register_results.0);
-                if register_results.1.is_some(){
+                if register_results.1.is_some() {
                     instruction.errors.push(register_results.1.unwrap());
                 }
             }
@@ -50,10 +59,9 @@ pub fn read_operands(
                     read_immediate(&instruction.operands[i].token_name, i as i32, 16);
 
                 binary_representation.push(immediate_results.0);
-                if immediate_results.1.is_some(){
+                if immediate_results.1.is_some() {
                     instruction.errors.push(immediate_results.1.unwrap());
                 }
-
             }
             MemoryAddress => {
                 bit_lengths.push(16);
@@ -65,8 +73,8 @@ pub fn read_operands(
 
                 binary_representation.push(memory_results.0);
                 binary_representation.push(memory_results.1);
-                if memory_results.2.is_some(){
-                    for error in memory_results.2.unwrap(){
+                if memory_results.2.is_some() {
+                    for error in memory_results.2.unwrap() {
                         instruction.errors.push(error);
                     }
                 }
@@ -77,7 +85,7 @@ pub fn read_operands(
                     read_register(&instruction.operands[i].token_name, i as i32, FloatingPoint);
 
                 binary_representation.push(register_results.0);
-                if register_results.1.is_some(){
+                if register_results.1.is_some() {
                     instruction.errors.push(register_results.1.unwrap());
                 }
             }
@@ -90,7 +98,7 @@ pub fn read_operands(
                 );
 
                 binary_representation.push(label_results.0);
-                if label_results.1.is_some(){
+                if label_results.1.is_some() {
                     instruction.errors.push(label_results.1.unwrap());
                 }
             }
@@ -104,7 +112,6 @@ pub fn read_operands(
             bit_lengths[element - 1],
         );
     }
-
 
     instruction
 }
@@ -127,6 +134,8 @@ pub fn read_label(
     }
     (*result.unwrap(), None)
 }
+
+pub fn calculate_label_offset() {}
 
 ///This function takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors
 pub fn read_memory_address(

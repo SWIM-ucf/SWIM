@@ -1,13 +1,13 @@
+use crate::parser::operand_reading::read_operands;
 use crate::parser::parser_preprocessing::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::*;
 use std::collections::HashMap;
-use crate::parser::operand_reading::read_operands;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
-pub fn parser(mut file_string: String) -> Vec<Instruction> {
+pub fn parser(mut file_string: String) -> (Vec<Instruction>, Vec<u32>) {
     file_string = file_string.to_lowercase();
 
     let lines = tokenize_instructions(file_string);
@@ -20,12 +20,15 @@ pub fn parser(mut file_string: String) -> Vec<Instruction> {
 
     read_instructions(&mut instruction_list, labels);
 
-    instruction_list
+    (
+        instruction_list.clone(),
+        create_binary_vec(instruction_list.clone()),
+    )
 }
 
 ///This function takes an instruction with nothing filled in about it besides the tokens and the instruction number
 /// and builds the binary by calling the proper functions based on a match case for the first token (the instruction name)
-pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<String, u32>) {
+pub fn read_instructions(instruction_list: &mut [Instruction], _labels: HashMap<String, u32>) {
     for mut instruction in &mut instruction_list.iter_mut() {
         //this match case is the heart of the parser and figures out which instruction type it is
         //then it can call the proper functions for that specific instruction
@@ -72,15 +75,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
             "div" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
-                read_operands(
-                    instruction,
-                    vec![RegisterGP, RegisterGP],
-                    vec![1, 2],
-                    None,
-                );
+                read_operands(instruction, vec![RegisterGP, RegisterGP], vec![1, 2], None);
 
-                instruction.binary =
-                    append_binary(instruction.binary, 0b0000000000, 10);
+                instruction.binary = append_binary(instruction.binary, 0b0000000000, 10);
                 instruction.binary = append_binary(instruction.binary, 0b011010, 6);
             }
             "lw" => {
@@ -107,12 +104,7 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                 instruction.binary = append_binary(instruction.binary, 0b001111, 6);
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5);
 
-                read_operands(
-                    instruction,
-                    vec![RegisterGP, Immediate],
-                    vec![1, 2],
-                    None,
-                );
+                read_operands(instruction, vec![RegisterGP, Immediate], vec![1, 2], None);
             }
             "andi" => {
                 instruction.binary = append_binary(instruction.binary, 0b001100, 6);
@@ -186,15 +178,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
             "ddiv" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
-                read_operands(
-                    instruction,
-                    vec![RegisterGP, RegisterGP],
-                    vec![1, 2],
-                    None,
-                );
+                read_operands(instruction, vec![RegisterGP, RegisterGP], vec![1, 2], None);
 
-                instruction.binary =
-                    append_binary(instruction.binary, 0b0000000000, 10);
+                instruction.binary = append_binary(instruction.binary, 0b0000000000, 10);
                 instruction.binary = append_binary(instruction.binary, 0b011110, 6);
             }
             "or" => {
@@ -337,12 +323,7 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
             "dahi" => {
                 instruction.binary = append_binary(instruction.binary, 0b000001, 6); //regimm
 
-                read_operands(
-                    instruction,
-                    vec![RegisterGP, Immediate],
-                    vec![1, 2],
-                    None,
-                );
+                read_operands(instruction, vec![RegisterGP, Immediate], vec![1, 2], None);
 
                 instruction.binary =
                     place_binary_in_middle_of_another(instruction.binary, 0b00110, 5, 15);
@@ -350,12 +331,7 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
             "dati" => {
                 instruction.binary = append_binary(instruction.binary, 0b000001, 6); //regimm
 
-                read_operands(
-                    instruction,
-                    vec![RegisterGP, Immediate],
-                    vec![1, 2],
-                    None,
-                );
+                read_operands(instruction, vec![RegisterGP, Immediate], vec![1, 2], None);
 
                 instruction.binary =
                     place_binary_in_middle_of_another(instruction.binary, 0b11110, 5, 15);
@@ -459,4 +435,13 @@ pub fn append_binary(mut first: u32, second: u32, shift_amount: u8) -> u32 {
     first <<= shift_amount;
     first |= second;
     first
+}
+
+///Creates a vector of u32 from the data found in the parser / assembler to put into memory.
+pub fn create_binary_vec(instructions: Vec<Instruction>) -> Vec<u32> {
+    let mut binary: Vec<u32> = Vec::new();
+    for instruction in instructions {
+        binary.push(instruction.binary);
+    }
+    binary
 }

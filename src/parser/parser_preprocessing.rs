@@ -143,9 +143,7 @@ pub fn expand_pseudo_instruction(instruction_list: &mut [Instruction]) {
                     token_type: Default::default(),
                 });
             }
-            "other" =>{
-
-            }
+            "other" => {}
             _ => {}
         }
     }
