@@ -1,7 +1,7 @@
 #[cfg(test)]
 
 mod convert_to_u32_tests {
-    use crate::parser::parser_main::_convert_to_u32;
+    use crate::parser::operand_reading::_convert_to_u32;
 
     #[test]
     fn convert_to_u32_returns_correct_value_on_zeros() {
@@ -22,13 +22,13 @@ mod convert_to_u32_tests {
     }
 }
 mod read_register_tests {
-    use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::{
+    use crate::parser::operand_reading::read_register;
+    use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
         IncorrectRegisterType, UnrecognizedGPRegister,
     };
-    use crate::parser::parser_instruction_tokenization::instruction_tokenization::RegisterType::{
+    use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
         FloatingPoint, GeneralPurpose,
     };
-    use crate::parser::parser_main::read_register;
 
     #[test]
     fn read_register_returns_correct_binary_on_valid_register_name() {
@@ -62,10 +62,10 @@ mod read_register_tests {
 }
 
 mod immediate_tests {
-    use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::{
+    use crate::parser::operand_reading::read_immediate;
+    use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
         ImmediateOutOfBounds, NonIntImmediate,
     };
-    use crate::parser::parser_main::*;
 
     #[test]
     fn read_immediate_returns_error_on_non_int_string() {
@@ -99,10 +99,10 @@ mod immediate_tests {
 }
 
 mod memory_address_tests {
-    use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::{
+    use crate::parser::operand_reading::read_memory_address;
+    use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
         ImmediateOutOfBounds, InvalidMemorySyntax, NonIntImmediate, UnrecognizedGPRegister,
     };
-    use crate::parser::parser_main::read_memory_address;
 
     #[test]
     fn missing_open_parenthesis_returns_error() {
@@ -159,106 +159,6 @@ mod memory_address_tests {
         assert!(results.2.is_none());
         assert_eq!(results.0, 0b0000000000000100);
         assert_eq!(results.1, 0b01001);
-    }
-}
-
-mod tokenize_instruction_tests {
-    use crate::parser::parser_instruction_tokenization::instruction_tokenization::*;
-
-    #[test]
-    fn tokenize_instruction_returns_struct_with_tokens() {
-        let correct_instruction = Instruction {
-            tokens: vec![
-                "ADD".to_string(),
-                "T1".to_string(),
-                "T2".to_string(),
-                "T2".to_string(),
-            ],
-            instruction_number: 0,
-            binary: 0,
-            // instruction_number: 0,
-            errors: vec![],
-        };
-        let received_instruction = create_instruction("ADD T1 T2 T2", 0);
-        assert_eq!(received_instruction.tokens, correct_instruction.tokens);
-    }
-}
-
-mod confirm_commas_tests {
-    use crate::parser::parser_instruction_tokenization::instruction_tokenization::ErrorType::MissingComma;
-    use crate::parser::parser_instruction_tokenization::instruction_tokenization::{
-        confirm_commas_in_instruction, Instruction,
-    };
-
-    #[test]
-    fn confirm_comma_generates_error_when_a_middle_token_is_missing_a_comma() {
-        let mut instruction = Instruction {
-            tokens: vec![
-                "add".to_string(),
-                "$t1,".to_string(),
-                "$t1".to_string(),
-                "$t1".to_string(),
-            ],
-            ..Default::default()
-        };
-        instruction = confirm_commas_in_instruction(instruction);
-        assert_eq!(instruction.errors[0].error_name, MissingComma);
-        assert_eq!(instruction.errors[0].token_number_giving_error, 2);
-    }
-
-    #[test]
-    fn confirm_comma_can_generate_multiple_errors_if_multiple_commas_are_missing() {
-        let mut instruction = Instruction {
-            tokens: vec![
-                "add".to_string(),
-                "$t1".to_string(),
-                "$zero".to_string(),
-                "$t1".to_string(),
-            ],
-            ..Default::default()
-        };
-        instruction = confirm_commas_in_instruction(instruction);
-        assert_eq!(instruction.errors[0].error_name, MissingComma);
-        assert_eq!(instruction.errors[0].token_number_giving_error, 1);
-        assert_eq!(instruction.errors[1].error_name, MissingComma);
-        assert_eq!(instruction.errors[1].token_number_giving_error, 2);
-    }
-
-    #[test]
-    fn confirm_comma_does_not_generate_errors_given_proper_syntax() {
-        let mut instruction = Instruction {
-            tokens: vec![
-                "add".to_string(),
-                "$t1,".to_string(),
-                "$zero,".to_string(),
-                "$t1".to_string(),
-            ],
-            ..Default::default()
-        };
-        instruction = confirm_commas_in_instruction(instruction);
-        assert_eq!(instruction.errors.len(), 0);
-    }
-}
-
-mod create_vector_of_instructions_tests {
-    use crate::parser::parser_instruction_tokenization::instruction_tokenization::{
-        create_vector_of_instructions, Instruction,
-    };
-
-    #[test]
-    fn create_vector_of_instructions_builds_the_correct_number_of_instructions() {
-        let original_string = "add $t1, $t2, $zero\nsub $t2, $t2, $t2\nlw r8, 52($s0)".to_string();
-        let instructions: Vec<Instruction> = create_vector_of_instructions(original_string);
-        assert_eq!(instructions.len(), 3);
-    }
-
-    #[test]
-    fn create_vector_of_instructions_separates_instructions_at_correct_spot() {
-        let original_string = "add $t1, $t2, $zero\nsub $t2, $t2, $t2\nlw r8, 52($s0)".to_string();
-        let instructions: Vec<Instruction> = create_vector_of_instructions(original_string);
-        assert_eq!(instructions[0].tokens, vec!["add", "$t1,", "$t2,", "$zero"]);
-        assert_eq!(instructions[1].tokens, vec!["sub", "$t2,", "$t2,", "$t2"]);
-        assert_eq!(instructions[2].tokens, vec!["lw", "r8,", "52($s0)"]);
     }
 }
 mod append_instruction_component_tests {
