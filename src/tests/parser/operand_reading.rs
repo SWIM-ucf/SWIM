@@ -179,7 +179,80 @@ mod append_instruction_component_tests {
 
     #[test]
     fn append_instruction_component_still_works_past_32_bits() {
-        let result = append_binary(4294967295, 0b11, 2);
-        assert_eq!(result, 4294967295);
+        let result = append_binary(4294967295, 0b00, 2);
+        assert_eq!(result, 4294967292);
+    }
+}
+
+mod read_label_absolute_tests{
+    use std::collections::HashMap;
+    use crate::parser::operand_reading::read_label_absolute;
+    use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::LabelNotFound;
+    use crate::parser::parser_structs_and_enums::instruction_tokenization::Instruction;
+    use crate::parser::preprocessing::{assign_instruction_numbers, build_instruction_list_from_lines, confirm_operand_commas, create_label_map, expand_pseudo_instruction, tokenize_instructions};
+
+    #[test]
+    fn read_label_absolute_returns_address_of_instruction(){
+        let lines = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
+        confirm_operand_commas(&mut instruction_list);
+        expand_pseudo_instruction(&mut instruction_list);
+        assign_instruction_numbers(&mut instruction_list);
+        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
+
+        let results = read_label_absolute(&*"load_from_memory", 2, labels);
+
+        assert!(results.1.is_none());
+        assert_eq!(results.0, 1);
+    }
+
+    #[test]
+    fn read_label_absolute_returns_error_if_label_cannot_be_found(){
+        let lines = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsave_to_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
+        confirm_operand_commas(&mut instruction_list);
+        expand_pseudo_instruction(&mut instruction_list);
+        assign_instruction_numbers(&mut instruction_list);
+        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
+
+        let results = read_label_absolute(&*"label_not_found:", 2, labels);
+
+        assert_eq!(results.1.unwrap().error_name, LabelNotFound);
+    }
+}
+
+mod read_label_relative_tests{
+    use std::collections::HashMap;
+    use crate::parser::operand_reading::read_label_relative;
+    use crate::parser::parser_structs_and_enums::instruction_tokenization::Instruction;
+    use crate::parser::preprocessing::{assign_instruction_numbers, build_instruction_list_from_lines, confirm_operand_commas, create_label_map, expand_pseudo_instruction, tokenize_instructions};
+
+    #[test]
+    fn read_label_relative_returns_correct_value_for_instruction_above_current(){
+        let lines = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
+        confirm_operand_commas(&mut instruction_list);
+        expand_pseudo_instruction(&mut instruction_list);
+        assign_instruction_numbers(&mut instruction_list);
+        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
+
+        let result = read_label_relative(&*"load_from_memory", 0, 4, labels);
+
+        let correct = -4;
+        assert_eq!(result.0, correct as u32);
+    }
+
+    #[test]
+    fn read_label_relative_returns_correct_value_for_instruction_below_current(){
+        let lines = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
+        confirm_operand_commas(&mut instruction_list);
+        expand_pseudo_instruction(&mut instruction_list);
+        assign_instruction_numbers(&mut instruction_list);
+        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
+
+        let result = read_label_relative(&*"store_in_memory", 0, 1, labels);
+
+        assert_eq!(result.0, 1);
     }
 }

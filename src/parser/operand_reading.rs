@@ -149,8 +149,8 @@ pub fn read_label_relative(
         );
     }
 
-    let  offset = result.unwrap() - (current_instruction_number + 4);
-    (offset, None)
+    let offset = *result.unwrap() as i32 - (current_instruction_number as i32 + 1);
+    (offset as u32, None)
 }
 
 ///Takes a string and returns the address of the matching label in memory. If there is no match, an error is returned
