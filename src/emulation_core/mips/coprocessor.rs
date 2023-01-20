@@ -147,6 +147,18 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
                             self.set_reg_width();
                         }
+                        FUNCTION_MUL => {
+                            self.signals.cc = Cc::Cc0;
+                            self.signals.cc_write = CcWrite::NoWrite;
+                            self.signals.data_src = DataSrc::FloatingPointUnit;
+                            self.signals.data_write = DataWrite::NoWrite;
+                            self.signals.fpu_alu_op = FpuAluOp::MultiplicationOrSlt;
+                            self.signals.fpu_branch = FpuBranch::NoBranch;
+                            self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
+                            self.signals.fpu_reg_dst = FpuRegDst::Reg3;
+                            self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
+                            self.set_reg_width();
+                        }
                         // Unrecognized format code. Perform no operation.
                         _ => unimplemented!("COP1 instruction with function code `{}`", r.function),
                     },
@@ -203,6 +215,10 @@ impl MipsFpCoprocessor {
                 FpuRegWidth::Word => f32::to_bits(input1_f32 - input2_f32) as u64,
                 FpuRegWidth::DoubleWord => f64::to_bits(input1_f64 - input2_f64),
             },
+            FpuAluOp::MultiplicationOrSlt => match self.signals.fpu_reg_width {
+                FpuRegWidth::Word => f32::to_bits(input1_f32 * input2_f32) as u64,
+                FpuRegWidth::DoubleWord => f64::to_bits(input1_f64 * input2_f64),
+            },
             _ => unimplemented!(),
         };
     }
@@ -221,6 +237,7 @@ impl MipsFpCoprocessor {
         self.state.comparator_result = match self.signals.fpu_alu_op {
             FpuAluOp::AdditionOrEqual => (input1 == input2) as u64,
             FpuAluOp::Subtraction => 0, // No operation
+            FpuAluOp::MultiplicationOrSlt => (input1 < input2) as u64,
             _ => unimplemented!(),
         }
     }
