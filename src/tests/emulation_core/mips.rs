@@ -894,4 +894,55 @@ pub mod coprocessor {
 
         assert_eq!(f64::from_bits(datapath.coprocessor.fpr[4]), -1425.59375);
     }
+
+    #[test]
+    pub fn div_float_single_precision() {
+        let mut datapath = MipsDatapath::default();
+
+        // div.s fd, fs, ft
+        // div.s $f15, $f16, $f17
+        // FPR[fd] = FPR[fs] / FPR[ft]
+        // FPR[15] = FPR[16] / FPR[17]
+        //                       COP1   fmt   ft    fs    fd    function
+        //                              s     $f17  $f16  $f15  DIV
+        let instruction: u32 = 0b010001_10000_10001_10000_01111_000011;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.coprocessor.fpr[16] = f32::to_bits(901f32) as u64;
+        datapath.coprocessor.fpr[17] = f32::to_bits(2f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(
+            f32::from_bits(datapath.coprocessor.fpr[15] as u32),
+            450.5f32
+        );
+    }
+
+    #[test]
+    pub fn div_float_double_precision() {
+        let mut datapath = MipsDatapath::default();
+
+        // div.d fd, fs, ft
+        // div.d $f1, $f10, $f20
+        // FPR[fd] = FPR[fs] / FPR[ft]
+        // FPR[1] = FPR[10] / FPR[20]
+        //                       COP1   fmt   ft    fs    fd    function
+        //                              d     $f20  $f10  $f1   DIV
+        let instruction: u32 = 0b010001_10001_10100_01010_00001_000011;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.coprocessor.fpr[10] = f64::to_bits(95405.375);
+        datapath.coprocessor.fpr[20] = f64::to_bits(2.0);
+
+        datapath.execute_instruction();
+
+        assert_eq!(f64::from_bits(datapath.coprocessor.fpr[1]), 47702.6875);
+    }
 }
