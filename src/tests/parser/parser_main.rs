@@ -332,6 +332,47 @@ mod read_instructions_tests {
 
         assert_eq!(instruction.binary, 0b11000101010010011010101010101010);
     }
+
+    #[test]
+    fn read_instructions_mtc1() {
+        let line = tokenize_instructions("mtc1 $t1 $f22".to_string());
+        let mut instructions = build_instruction_list_from_lines(line);
+        read_instructions(&mut instructions, Default::default());
+        let instruction = instructions[0].clone();
+
+        assert_eq!(instruction.binary, 0b01000100100010011011000000000000);
+    }
+
+    #[test]
+    fn read_instructions_dmtc1() {
+        let line = tokenize_instructions("dmtc1 $t1 $f22".to_string());
+        let mut instructions = build_instruction_list_from_lines(line);
+        read_instructions(&mut instructions, Default::default());
+        let instruction = instructions[0].clone();
+
+        assert_eq!(instruction.binary, 0b01000100101010011011000000000000);
+    }
+
+    #[test]
+    fn read_instructions_mfc1() {
+        let line = tokenize_instructions("mfc1 $t1 $f22".to_string());
+        let mut instructions = build_instruction_list_from_lines(line);
+        read_instructions(&mut instructions, Default::default());
+        let instruction = instructions[0].clone();
+
+        assert_eq!(instruction.binary, 0b01000100000010011011000000000000);
+    }
+
+    #[test]
+    fn read_instructions_dmfc1() {
+        let line = tokenize_instructions("dmfc1 $t1 $f22".to_string());
+        let mut instructions = build_instruction_list_from_lines(line);
+        read_instructions(&mut instructions, Default::default());
+        let instruction = instructions[0].clone();
+
+        assert_eq!(instruction.binary, 0b01000100001010011011000000000000);
+    }
+
 }
 use crate::parser::parser_main::place_binary_in_middle_of_another;
 #[test]
