@@ -68,7 +68,7 @@ impl From<u32> for Instruction {
             }),
 
             // COP1 (coprocessor 1)
-            // add.fmt, sub.fmt, mul.fmt
+            // add.fmt, sub.fmt, mul.fmt, div.fmt
             OPCODE_COP1 => Instruction::FpuRType(FpuRType {
                 op: ((value >> 26) & 0x3F) as u8,
                 fmt: ((value >> 21) & 0x1F) as u8,
