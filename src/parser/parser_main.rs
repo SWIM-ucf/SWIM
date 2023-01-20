@@ -1,8 +1,8 @@
 use crate::parser::operand_reading::read_operands;
-use crate::parser::parser_preprocessing::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::*;
+use crate::parser::preprocessing::*;
 use std::collections::HashMap;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
@@ -16,7 +16,7 @@ pub fn parser(mut file_string: String) -> (Vec<Instruction>, Vec<u32>) {
     expand_pseudo_instruction(&mut instruction_list);
     assign_instruction_numbers(&mut instruction_list);
 
-    let labels: HashMap<String, u32> = create_label_map(instruction_list.clone());
+    let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
 
     read_instructions(&mut instruction_list, labels);
 
@@ -26,8 +26,7 @@ pub fn parser(mut file_string: String) -> (Vec<Instruction>, Vec<u32>) {
     )
 }
 
-///This function takes an instruction with nothing filled in about it besides the tokens and the instruction number
-/// and builds the binary by calling the proper functions based on a match case for the first token (the instruction name)
+///Takes the vector of instructions and assembles the binary for them.
 pub fn read_instructions(instruction_list: &mut [Instruction], _labels: HashMap<String, u32>) {
     for mut instruction in &mut instruction_list.iter_mut() {
         //this match case is the heart of the parser and figures out which instruction type it is

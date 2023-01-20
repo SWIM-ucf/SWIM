@@ -4,7 +4,7 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType
     LabelNotFound, NonIntImmediate, UnrecognizedFPRegister, UnrecognizedGPRegister,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::{
-    Immediate, Label, MemoryAddress, RegisterFP, RegisterGP,
+    Immediate, LabelAbsolute, LabelRelative, MemoryAddress, RegisterFP, RegisterGP,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
     FloatingPoint, GeneralPurpose,
@@ -89,17 +89,31 @@ pub fn read_operands(
                     instruction.errors.push(register_results.1.unwrap());
                 }
             }
-            Label => {
+            LabelAbsolute => {
                 bit_lengths.push(26);
-                let label_results = read_label(
+                let label_absolute_results = read_label_absolute(
                     &instruction.operands[i].token_name,
                     i as i32,
                     labels.clone().unwrap(),
                 );
 
-                binary_representation.push(label_results.0);
-                if label_results.1.is_some() {
-                    instruction.errors.push(label_results.1.unwrap());
+                binary_representation.push(label_absolute_results.0);
+                if label_absolute_results.1.is_some() {
+                    instruction.errors.push(label_absolute_results.1.unwrap());
+                }
+            }
+
+            LabelRelative => {
+                bit_lengths.push(16);
+                let label_relative_results = read_label_relative(
+                    &instruction.operands[i].token_name,
+                    i as i32,
+                    instruction.instruction_number.clone(),
+                    labels.clone().unwrap(),
+                );
+                binary_representation.push(label_relative_results.0);
+                if label_relative_results.1.is_some() {
+                    instruction.errors.push(label_relative_results.1.unwrap());
                 }
             }
         }
@@ -116,13 +130,36 @@ pub fn read_operands(
     instruction
 }
 
+///Returns distance to an address of a labeled instruction relative to the instruction after the current instruction.
+pub fn read_label_relative(
+    given_label: &str,
+    operand_number: i32,
+    current_instruction_number: u32,
+    labels: HashMap<String, u32>,
+) -> (u32, Option<Error>) {
+    let result = labels.get(given_label);
+
+    if result.is_none() {
+        return (
+            0,
+            Some(Error {
+                error_name: LabelNotFound,
+                operand_number: Some(operand_number as u8),
+            }),
+        );
+    }
+
+    let  offset = result.unwrap() - (current_instruction_number + 4);
+    (offset, None)
+}
+
 ///Takes a string and returns the address of the matching label in memory. If there is no match, an error is returned
-pub fn read_label(
-    orig_string: &str,
+pub fn read_label_absolute(
+    given_label: &str,
     operand_number: i32,
     labels: HashMap<String, u32>,
 ) -> (u32, Option<Error>) {
-    let result = labels.get(orig_string);
+    let result = labels.get(given_label);
     if result.is_none() {
         return (
             0,
@@ -134,8 +171,6 @@ pub fn read_label(
     }
     (*result.unwrap(), None)
 }
-
-pub fn calculate_label_offset() {}
 
 ///This function takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors
 pub fn read_memory_address(

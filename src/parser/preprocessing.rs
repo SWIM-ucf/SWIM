@@ -1,5 +1,5 @@
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
-    LabelAssignmentError, MissingComma,
+    LabelAssignmentError, LabelMultipleDefinition, MissingComma,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Unknown;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
@@ -157,15 +157,24 @@ pub fn assign_instruction_numbers(instruction_list: &mut [Instruction]) {
 }
 
 ///Create_label_map builds a hashmap of addresses for labels in memory
-pub fn create_label_map(instruction_list: Vec<Instruction>) -> HashMap<String, u32> {
+pub fn create_label_map(instruction_list: &mut Vec<Instruction>) -> HashMap<String, u32> {
     let mut labels: HashMap<String, u32> = HashMap::new();
 
-    for instruction in &instruction_list {
+    for instruction in instruction_list {
         if instruction.label.is_some() {
-            labels.insert(
-                instruction.clone().label.unwrap().0.token_name,
-                (instruction.clone().label.unwrap().1 * 4) as u32,
-            );
+            //if the given label name is already used, an error is generated
+            if labels.contains_key(&*instruction.label.clone().unwrap().0.token_name) {
+                instruction.errors.push(Error {
+                    error_name: LabelMultipleDefinition,
+                    operand_number: None,
+                });
+                //otherwise, it is inserted
+            } else {
+                labels.insert(
+                    instruction.clone().label.unwrap().0.token_name,
+                    instruction.clone().label.unwrap().1 as u32,
+                );
+            }
         }
     }
 

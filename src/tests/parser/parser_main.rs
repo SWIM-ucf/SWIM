@@ -21,9 +21,7 @@ mod parser_main_function_tests {
 
 mod read_instructions_tests {
     use crate::parser::parser_main::*;
-    use crate::parser::parser_preprocessing::{
-        build_instruction_list_from_lines, tokenize_instructions,
-    };
+    use crate::parser::preprocessing::{build_instruction_list_from_lines, tokenize_instructions};
 
     #[test]
     fn read_instructions_add() {
