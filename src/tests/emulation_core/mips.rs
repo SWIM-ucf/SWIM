@@ -798,4 +798,52 @@ pub mod coprocessor {
         // IEEE 754 double-precision floating-point specification.
         assert_eq!(f64::from_bits(datapath.coprocessor.fpr[2]), 123.625);
     }
+
+    #[test]
+    pub fn sub_float_single_precision() {
+        let mut datapath = MipsDatapath::default();
+
+        // sub.s fd, fs, ft
+        // sub.s $f2, $f1, $f0
+        // FPR[fd] = FPR[fs] - FPR[ft]
+        // FPR[2] = FPR[1] - FPR[0]
+        //                       COP1   fmt   ft    fs    fd    function
+        //                              s     $f0   $f1   $f2   SUB
+        let instruction: u32 = 0b010001_10000_00000_00001_00010_000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.coprocessor.fpr[0] = f32::to_bits(5.625f32) as u64;
+        datapath.coprocessor.fpr[1] = f32::to_bits(3.125f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(f32::from_bits(datapath.coprocessor.fpr[2] as u32), -2.5);
+    }
+
+    #[test]
+    pub fn sub_float_double_precision() {
+        let mut datapath = MipsDatapath::default();
+
+        // sub.d fd, fs, ft
+        // sub.d $f2, $f1, $f0
+        // FPR[fd] = FPR[fs] - FPR[ft]
+        // FPR[2] = FPR[1] - FPR[0]
+        //                       COP1   fmt   ft    fs    fd    function
+        //                              d     $f0   $f1   $f2   SUB
+        let instruction: u32 = 0b010001_10001_00000_00001_00010_000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.coprocessor.fpr[0] = f64::to_bits(438.125);
+        datapath.coprocessor.fpr[1] = f64::to_bits(98765.5);
+
+        datapath.execute_instruction();
+
+        assert_eq!(f64::from_bits(datapath.coprocessor.fpr[2]), 98327.375);
+    }
 }
