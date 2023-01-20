@@ -9,7 +9,9 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandTy
 use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
     FloatingPoint, GeneralPurpose,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{Error, Instruction, OperandType, RegisterType, TokenType};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{
+    Error, Instruction, OperandType, RegisterType, TokenType,
+};
 use std::collections::HashMap;
 
 ///This function takes an instruction whose operands it is supposed to read, the order of expected operand types and then
@@ -35,7 +37,9 @@ pub fn read_operands(
     //goes through once for each expected operand
     for (i, operand_type) in expected_operands.iter().enumerate() {
         //break if there are no more operands to read. Should only occur if IncorrectNumberOfOperands occurs above
-        if i >= instruction.operands.len(){break};
+        if i >= instruction.operands.len() {
+            break;
+        };
 
         //match case calls the proper functions based on the expected operand type. The data returned from these functions is always
         //the binary of the read operand and the option for any errors encountered while reading the operand. If there were no errors,

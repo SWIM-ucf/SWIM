@@ -1,14 +1,20 @@
-use std::collections::HashMap;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{LabelAssignmentError, LabelMultipleDefinition, MissingComma};
-use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{Label, Operator, Unknown};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
+    LabelAssignmentError, LabelMultipleDefinition, MissingComma,
+};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
+    Label, Operator, Unknown,
+};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
     Error, Instruction, Line, Token,
+};
+use crate::parser::preprocessing::{
+    assign_instruction_numbers, create_label_map, expand_pseudo_instruction,
 };
 #[cfg(test)]
 use crate::parser::preprocessing::{
     build_instruction_list_from_lines, confirm_operand_commas, tokenize_instructions,
 };
-use crate::parser::preprocessing::{assign_instruction_numbers, create_label_map, expand_pseudo_instruction};
+use std::collections::HashMap;
 
 #[test]
 fn tokenize_instructions_works_basic_version() {
@@ -242,7 +248,6 @@ fn build_instruction_list_from_lines_works_off_line_label() {
     };
     instruction_2.operator.token_type = Operator;
 
-
     let correct_result = vec![instruction_0, instruction_1, instruction_2];
 
     assert_eq!(correct_result, result);
@@ -290,7 +295,7 @@ fn confirm_operand_commas_generates_error_on_missing_commas() {
 }
 
 #[test]
-fn create_label_map_generates_map_on_no_errors(){
+fn create_label_map_generates_map_on_no_errors() {
     let lines = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
     let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
     confirm_operand_commas(&mut instruction_list);
@@ -307,7 +312,7 @@ fn create_label_map_generates_map_on_no_errors(){
 }
 
 #[test]
-fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name(){
+fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name() {
     let lines = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string());
     let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
     confirm_operand_commas(&mut instruction_list);
@@ -320,5 +325,8 @@ fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name(){
     correct_map.insert("load_from_memory".to_string(), 1);
 
     assert_eq!(results, correct_map);
-    assert_eq!(instruction_list[3].errors[0].error_name, LabelMultipleDefinition);
+    assert_eq!(
+        instruction_list[3].errors[0].error_name,
+        LabelMultipleDefinition
+    );
 }

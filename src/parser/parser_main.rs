@@ -27,7 +27,7 @@ pub fn parser(mut file_string: String) -> (Vec<Instruction>, Vec<u32>) {
 }
 
 ///Takes the vector of instructions and assembles the binary for them.
-pub fn read_instructions(instruction_list: &mut [Instruction], _labels: HashMap<String, u32>) {
+pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<String, u32>) {
     for mut instruction in &mut instruction_list.iter_mut() {
         //this match case is the heart of the parser and figures out which instruction type it is
         //then it can call the proper functions for that specific instruction
@@ -397,53 +397,67 @@ pub fn read_instructions(instruction_list: &mut [Instruction], _labels: HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
                 instruction.binary = append_binary(instruction.binary, 0b00100, 5); //mt
 
-                read_operands(
-                    instruction,
-                    vec![RegisterGP, RegisterFP],
-                    vec![1, 2],
-                    None,
-                    );
+                read_operands(instruction, vec![RegisterGP, RegisterFP], vec![1, 2], None);
 
-                instruction.binary = append_binary(instruction.binary, 0b00000000000, 11); //0
+                instruction.binary = append_binary(instruction.binary, 0b00000000000, 11);
+                //0
             }
             "dmtc1" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
                 instruction.binary = append_binary(instruction.binary, 0b00101, 5); //dmt
 
-                read_operands(
-                    instruction,
-                    vec![RegisterGP, RegisterFP],
-                    vec![1, 2],
-                    None,
-                );
+                read_operands(instruction, vec![RegisterGP, RegisterFP], vec![1, 2], None);
 
-                instruction.binary = append_binary(instruction.binary, 0b00000000000, 11); //0
+                instruction.binary = append_binary(instruction.binary, 0b00000000000, 11);
+                //0
             }
             "mfc1" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5); //mf
 
-                read_operands(
-                    instruction,
-                    vec![RegisterGP, RegisterFP],
-                    vec![1, 2],
-                    None,
-                );
+                read_operands(instruction, vec![RegisterGP, RegisterFP], vec![1, 2], None);
 
-                instruction.binary = append_binary(instruction.binary, 0b00000000000, 11); //0
+                instruction.binary = append_binary(instruction.binary, 0b00000000000, 11);
+                //0
             }
-            "dmfc1" =>{
+            "dmfc1" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
                 instruction.binary = append_binary(instruction.binary, 0b00001, 5); //dmf
 
+                read_operands(instruction, vec![RegisterGP, RegisterFP], vec![1, 2], None);
+
+                instruction.binary = append_binary(instruction.binary, 0b00000000000, 11);
+                //0
+            }
+            "j" => {
+                instruction.binary = append_binary(instruction.binary, 0b000010, 6); //j
+
                 read_operands(
                     instruction,
-                    vec![RegisterGP, RegisterFP],
-                    vec![1, 2],
-                    None,
+                    vec![LabelAbsolute],
+                    vec![1],
+                    Some(labels.clone()),
                 );
+            }
+            "beq" => {
+                instruction.binary = append_binary(instruction.binary, 0b000100, 6); //beq
 
-                instruction.binary = append_binary(instruction.binary, 0b00000000000, 11); //0
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, LabelRelative],
+                    vec![1, 2, 3],
+                    Some(labels.clone()),
+                );
+            }
+            "bne" => {
+                instruction.binary = append_binary(instruction.binary, 0b000101, 6); //bne
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, LabelRelative],
+                    vec![1, 2, 3],
+                    Some(labels.clone()),
+                );
             }
 
             _ => instruction.errors.push(Error {
@@ -483,7 +497,9 @@ pub fn place_binary_in_middle_of_another(
 
 ///Append binary takes two numbers, shifts the first by a specified amount and then bitwise ors the
 /// two numbers together effectively appending the second onto the first.
-pub fn append_binary(mut first: u32, second: u32, shift_amount: u8) -> u32 {
+pub fn append_binary(mut first: u32, mut second: u32, shift_amount: u8) -> u32 {
+    second <<= 32 - shift_amount;
+    second >>= 32 - shift_amount;
     first <<= shift_amount;
     first |= second;
     first

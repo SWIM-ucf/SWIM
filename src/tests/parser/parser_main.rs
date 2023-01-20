@@ -22,6 +22,7 @@ mod parser_main_function_tests {
 mod read_instructions_tests {
     use crate::parser::parser_main::*;
     use crate::parser::preprocessing::{build_instruction_list_from_lines, tokenize_instructions};
+    use crate::tests::parser::parser_main::helper_functions::simulate_parser;
 
     #[test]
     fn read_instructions_add() {
@@ -373,6 +374,32 @@ mod read_instructions_tests {
         assert_eq!(instruction.binary, 0b01000100001010011011000000000000);
     }
 
+
+    #[test]
+    fn read_instructions_j() {
+        let file_string = "Add $t1, $t2, $t3\nAddress: add $t1, #t2, $t3\nlw $t1, 400($t2)\nj Address".to_string();
+        let instruction_list =  simulate_parser(file_string);
+
+        assert_eq!(instruction_list[3].binary, 0b00001000000000000000000000000001)
+    }
+
+    #[test]
+    fn read_instructions_beq() {
+        let file_string = "Add $t1, $t2, $t3\nAddress: add $t1, #t2, $t3\nlw $t1, 400($t2)\nbeq $t1, $t2, address".to_string();
+        let instruction_list =  simulate_parser(file_string);
+
+        assert_eq!(instruction_list[3].binary, 0b00010001001010101111111111111101)
+    }
+
+    #[test]
+    fn read_instructions_bne() {
+        let file_string = "Add $t1, $t2, $t3\nAddress: add $t1, #t2, $t3\nlw $t1, 400($t2)\nbne $t1, $t2, address".to_string();
+        let instruction_list =  simulate_parser(file_string);
+
+        assert_eq!(instruction_list[3].binary, 0b00010101001010101111111111111101)
+    }
+
+
 }
 use crate::parser::parser_main::place_binary_in_middle_of_another;
 #[test]
@@ -395,4 +422,27 @@ fn place_binary_in_middle_of_another_works_3() {
 fn place_binary_works_dahi() {
     let result = place_binary_in_middle_of_another(0b000001010011010101010101010, 0b00110, 5, 15);
     assert_eq!(result, 0b00000101001001101010101010101010);
+}
+
+mod helper_functions{
+    use std::collections::HashMap;
+    use crate::parser::parser_main::read_instructions;
+    use crate::parser::parser_structs_and_enums::instruction_tokenization::Instruction;
+    use crate::parser::preprocessing::{assign_instruction_numbers, build_instruction_list_from_lines, confirm_operand_commas, create_label_map, expand_pseudo_instruction, tokenize_instructions};
+
+     pub fn simulate_parser(mut file_string: String) -> Vec<Instruction>{
+        file_string = file_string.to_lowercase();
+
+        let lines = tokenize_instructions(file_string);
+        let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
+        confirm_operand_commas(&mut instruction_list);
+        expand_pseudo_instruction(&mut instruction_list);
+        assign_instruction_numbers(&mut instruction_list);
+
+        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
+
+        read_instructions(&mut instruction_list, labels);
+
+        instruction_list
+    }
 }

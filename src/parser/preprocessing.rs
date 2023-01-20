@@ -1,7 +1,9 @@
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     LabelAssignmentError, LabelMultipleDefinition, MissingComma,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{Label, Operator, Unknown};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
+    Label, Operator, Unknown,
+};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
     Error, Instruction, Line, Token,
 };
