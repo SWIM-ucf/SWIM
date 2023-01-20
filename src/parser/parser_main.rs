@@ -393,6 +393,19 @@ pub fn read_instructions(instruction_list: &mut [Instruction], _labels: HashMap<
                     None,
                 );
             }
+            "mtc1" => {
+                instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
+                instruction.binary = append_binary(instruction.binary, 0b00101, 5); //dmt
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterFP],
+                    vec![1, 2],
+                    None,
+                    );
+
+                instruction.binary = append_binary(instruction.binary, 0b00000000000, 11); //0
+            }
             _ => instruction.errors.push(Error {
                 error_name: UnrecognizedInstruction,
                 operand_number: None,

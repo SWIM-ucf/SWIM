@@ -1,7 +1,7 @@
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     LabelAssignmentError, LabelMultipleDefinition, MissingComma,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Unknown;
+use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{Label, Operator, Unknown};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
     Error, Instruction, Line, Token,
 };
@@ -72,6 +72,7 @@ pub fn build_instruction_list_from_lines(mut lines: Vec<Line>) -> Vec<Instructio
                 //if the above error doesn't occur, we can push the label to the instruction struct.
             } else {
                 lines[i].tokens[0].token_name.pop();
+                lines[i].tokens[0].token_type = Label;
                 instruction.label = Some((lines[i].tokens[0].clone(), lines[i].line_number));
             }
 
@@ -89,9 +90,11 @@ pub fn build_instruction_list_from_lines(mut lines: Vec<Line>) -> Vec<Instructio
                 continue;
             }
             //since token[0] was a label, the operator will be token[1] and operands start at token[2]
+            lines[i].tokens[1].token_type = Operator;
             instruction.operator = lines[i].tokens[1].clone();
             operand_iterator = 2;
         } else {
+            lines[i].tokens[0].token_type = Operator;
             instruction.operator = lines[i].tokens[0].clone();
         }
         //push all operands to the instruction operand vec
@@ -143,7 +146,7 @@ pub fn expand_pseudo_instruction(instruction_list: &mut [Instruction]) {
                     token_type: Default::default(),
                 });
             }
-            "other" => {}
+            "temp_text_to_appease_Clippy_until_more_are_added" => {}
             _ => {}
         }
     }

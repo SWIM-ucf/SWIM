@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{LabelAssignmentError, LabelMultipleDefinition, MissingComma};
-use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Unknown;
+use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{Label, Operator, Unknown};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
     Error, Instruction, Line, Token,
 };
@@ -122,7 +122,7 @@ fn build_instruction_list_from_lines_works_basic_version() {
         tokenize_instructions("add $t1, $t2, $t3\nlw $t1, 400($t1)\naddi $t1, 100".to_string());
     let result = build_instruction_list_from_lines(lines.clone());
 
-    let instruction_0 = Instruction {
+    let mut instruction_0 = Instruction {
         operator: lines[0].tokens[0].clone(),
         operands: vec![
             lines[0].tokens[1].clone(),
@@ -132,20 +132,23 @@ fn build_instruction_list_from_lines_works_basic_version() {
         line_number: 0,
         ..Default::default()
     };
+    instruction_0.operator.token_type = Operator;
 
-    let instruction_1 = Instruction {
+    let mut instruction_1 = Instruction {
         operator: lines[1].tokens[0].clone(),
         operands: vec![lines[1].tokens[1].clone(), lines[1].tokens[2].clone()],
         line_number: 1,
         ..Default::default()
     };
+    instruction_1.operator.token_type = Operator;
 
-    let instruction_2 = Instruction {
+    let mut instruction_2 = Instruction {
         operator: lines[2].tokens[0].clone(),
         operands: vec![lines[2].tokens[1].clone(), lines[2].tokens[2].clone()],
         line_number: 2,
         ..Default::default()
     };
+    instruction_2.operator.token_type = Operator;
 
     let correct_result = vec![instruction_0, instruction_1, instruction_2];
 
@@ -159,7 +162,7 @@ fn build_instruction_list_from_lines_works_on_line_label() {
     );
     let result = build_instruction_list_from_lines(lines.clone());
 
-    let instruction_0 = Instruction {
+    let mut instruction_0 = Instruction {
         operator: lines[0].tokens[0].clone(),
         operands: vec![
             lines[0].tokens[1].clone(),
@@ -169,26 +172,29 @@ fn build_instruction_list_from_lines_works_on_line_label() {
         instruction_number: 0,
         ..Default::default()
     };
+    instruction_0.operator.token_type = Operator;
 
     let token = Token {
         token_name: "Load_from_memory".to_string(),
         starting_column: 0,
-        token_type: Default::default(),
+        token_type: Label,
     };
-    let instruction_1 = Instruction {
+    let mut instruction_1 = Instruction {
         operator: lines[1].tokens[1].clone(),
         operands: vec![lines[1].tokens[2].clone(), lines[1].tokens[3].clone()],
         line_number: 1,
         label: Some((token, 1)),
         ..Default::default()
     };
+    instruction_1.operator.token_type = Operator;
 
-    let instruction_2 = Instruction {
+    let mut instruction_2 = Instruction {
         operator: lines[2].tokens[0].clone(),
         operands: vec![lines[2].tokens[1].clone(), lines[2].tokens[2].clone()],
         line_number: 2,
         ..Default::default()
     };
+    instruction_2.operator.token_type = Operator;
 
     let correct_result = vec![instruction_0, instruction_1, instruction_2];
 
@@ -202,7 +208,7 @@ fn build_instruction_list_from_lines_works_off_line_label() {
     );
     let result = build_instruction_list_from_lines(lines.clone());
 
-    let instruction_0 = Instruction {
+    let mut instruction_0 = Instruction {
         operator: lines[0].tokens[0].clone(),
         operands: vec![
             lines[0].tokens[1].clone(),
@@ -212,26 +218,30 @@ fn build_instruction_list_from_lines_works_off_line_label() {
         instruction_number: 0,
         ..Default::default()
     };
+    instruction_0.operator.token_type = Operator;
 
     let token = Token {
         token_name: "Load_from_memory".to_string(),
         starting_column: 0,
-        token_type: Default::default(),
+        token_type: Label,
     };
-    let instruction_1 = Instruction {
+    let mut instruction_1 = Instruction {
         operator: lines[2].tokens[0].clone(),
         operands: vec![lines[2].tokens[1].clone(), lines[2].tokens[2].clone()],
         line_number: 2,
         label: Some((token, 1)),
         ..Default::default()
     };
+    instruction_1.operator.token_type = Operator;
 
-    let instruction_2 = Instruction {
+    let mut instruction_2 = Instruction {
         operator: lines[3].tokens[0].clone(),
         operands: vec![lines[3].tokens[1].clone(), lines[3].tokens[2].clone()],
         line_number: 3,
         ..Default::default()
     };
+    instruction_2.operator.token_type = Operator;
+
 
     let correct_result = vec![instruction_0, instruction_1, instruction_2];
 

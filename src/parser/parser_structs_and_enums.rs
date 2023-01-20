@@ -37,6 +37,7 @@ pub mod instruction_tokenization {
         #[default]
         Unknown,
         Label,
+        LabelOperand,
         Immediate,
         MemoryAddress,
         RegisterFP,

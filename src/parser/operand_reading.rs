@@ -9,14 +9,12 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandTy
 use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
     FloatingPoint, GeneralPurpose,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Error, Instruction, OperandType, RegisterType,
-};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{Error, Instruction, OperandType, RegisterType, TokenType};
 use std::collections::HashMap;
 
 ///This function takes an instruction whose operands it is supposed to read, the order of expected operand types and then
 ///the order these operands should be concatenated onto the binary representation of the string
-///the function returns the instruction it was given with any errors and the binary of the operands added on
+///the function returns the instruction it was given with any errors and the binary of the operands added on.
 pub fn read_operands(
     instruction: &mut Instruction,
     expected_operands: Vec<OperandType>,
@@ -36,12 +34,17 @@ pub fn read_operands(
     let mut bit_lengths: Vec<u8> = Vec::new();
     //goes through once for each expected operand
     for (i, operand_type) in expected_operands.iter().enumerate() {
+        //break if there are no more operands to read. Should only occur if IncorrectNumberOfOperands occurs above
+        if i >= instruction.operands.len(){break};
+
         //match case calls the proper functions based on the expected operand type. The data returned from these functions is always
         //the binary of the read operand and the option for any errors encountered while reading the operand. If there were no errors,
         //the binary is pushed to the string representations vec. Otherwise, the errors are pushed to the instruction.errors vec.
         match operand_type {
             RegisterGP => {
+                instruction.operands[i].token_type = TokenType::RegisterGP;
                 bit_lengths.push(5);
+
                 let register_results = read_register(
                     &instruction.operands[i].token_name,
                     i as i32,
@@ -54,7 +57,9 @@ pub fn read_operands(
                 }
             }
             Immediate => {
+                instruction.operands[i].token_type = TokenType::Immediate;
                 bit_lengths.push(16);
+
                 let immediate_results =
                     read_immediate(&instruction.operands[i].token_name, i as i32, 16);
 
@@ -64,6 +69,8 @@ pub fn read_operands(
                 }
             }
             MemoryAddress => {
+                instruction.operands[i].token_type = TokenType::MemoryAddress;
+
                 bit_lengths.push(16);
                 bit_lengths.push(5);
                 //memory address works a bit differently because it really amounts to two operands: the offset and base
@@ -80,6 +87,8 @@ pub fn read_operands(
                 }
             }
             RegisterFP => {
+                instruction.operands[i].token_type = TokenType::RegisterFP;
+
                 bit_lengths.push(5);
                 let register_results =
                     read_register(&instruction.operands[i].token_name, i as i32, FloatingPoint);
@@ -90,6 +99,8 @@ pub fn read_operands(
                 }
             }
             LabelAbsolute => {
+                instruction.operands[i].token_type = TokenType::LabelOperand;
+
                 bit_lengths.push(26);
                 let label_absolute_results = read_label_absolute(
                     &instruction.operands[i].token_name,
@@ -102,8 +113,9 @@ pub fn read_operands(
                     instruction.errors.push(label_absolute_results.1.unwrap());
                 }
             }
-
             LabelRelative => {
+                instruction.operands[i].token_type = TokenType::LabelOperand;
+
                 bit_lengths.push(16);
                 let label_relative_results = read_label_relative(
                     &instruction.operands[i].token_name,
