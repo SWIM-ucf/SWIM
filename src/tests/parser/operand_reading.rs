@@ -184,7 +184,7 @@ mod append_instruction_component_tests {
     }
 
     #[test]
-    fn append_binary_works_with_negative_numbers(){
+    fn append_binary_works_with_negative_numbers() {
         let negative = -3;
         let result = append_binary(0b1111, negative as u32, 4);
         assert_eq!(result, 0b11111101);
