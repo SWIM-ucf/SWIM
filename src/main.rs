@@ -13,7 +13,7 @@ use yew::prelude::*;
 fn app() -> Html {
     html! {
         <div>
-            <h1>{"Welcome to SWIM"}</h1>
+            <h1></h1>
             <Regview />
             <Editor /> 
             <Console />
