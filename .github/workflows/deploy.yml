@@ -53,12 +53,6 @@ jobs:
         mkdir ./dist/docs
         cp -r ./target/doc ./dist
 
-    - name: Upload files
-      uses: actions/upload-artifact@v3
-      with:
-        name: output
-        path: ${{ github.workspace }}/dist/
-
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
