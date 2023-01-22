@@ -1,8 +1,8 @@
 use crate::parser::operand_reading::read_operands;
-use crate::parser::parser_preprocessing::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::*;
+use crate::parser::preprocessing::*;
 use std::collections::HashMap;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
@@ -16,7 +16,7 @@ pub fn parser(mut file_string: String) -> (Vec<Instruction>, Vec<u32>) {
     expand_pseudo_instruction(&mut instruction_list);
     assign_instruction_numbers(&mut instruction_list);
 
-    let labels: HashMap<String, u32> = create_label_map(instruction_list.clone());
+    let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
 
     read_instructions(&mut instruction_list, labels);
 
@@ -26,9 +26,8 @@ pub fn parser(mut file_string: String) -> (Vec<Instruction>, Vec<u32>) {
     )
 }
 
-///This function takes an instruction with nothing filled in about it besides the tokens and the instruction number
-/// and builds the binary by calling the proper functions based on a match case for the first token (the instruction name)
-pub fn read_instructions(instruction_list: &mut [Instruction], _labels: HashMap<String, u32>) {
+///Takes the vector of instructions and assembles the binary for them.
+pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<String, u32>) {
     for mut instruction in &mut instruction_list.iter_mut() {
         //this match case is the heart of the parser and figures out which instruction type it is
         //then it can call the proper functions for that specific instruction
@@ -394,6 +393,223 @@ pub fn read_instructions(instruction_list: &mut [Instruction], _labels: HashMap<
                     None,
                 );
             }
+            "mtc1" => {
+                instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
+                instruction.binary = append_binary(instruction.binary, 0b00100, 5); //mt
+
+                read_operands(instruction, vec![RegisterGP, RegisterFP], vec![1, 2], None);
+
+                instruction.binary = append_binary(instruction.binary, 0b00000000000, 11);
+                //0
+            }
+            "dmtc1" => {
+                instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
+                instruction.binary = append_binary(instruction.binary, 0b00101, 5); //dmt
+
+                read_operands(instruction, vec![RegisterGP, RegisterFP], vec![1, 2], None);
+
+                instruction.binary = append_binary(instruction.binary, 0b00000000000, 11);
+                //0
+            }
+            "mfc1" => {
+                instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //mf
+
+                read_operands(instruction, vec![RegisterGP, RegisterFP], vec![1, 2], None);
+
+                instruction.binary = append_binary(instruction.binary, 0b00000000000, 11);
+                //0
+            }
+            "dmfc1" => {
+                instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
+                instruction.binary = append_binary(instruction.binary, 0b00001, 5); //dmf
+
+                read_operands(instruction, vec![RegisterGP, RegisterFP], vec![1, 2], None);
+
+                instruction.binary = append_binary(instruction.binary, 0b00000000000, 11);
+                //0
+            }
+            "j" => {
+                instruction.binary = append_binary(instruction.binary, 0b000010, 6); //j
+
+                read_operands(
+                    instruction,
+                    vec![LabelAbsolute],
+                    vec![1],
+                    Some(labels.clone()),
+                );
+            }
+            "beq" => {
+                instruction.binary = append_binary(instruction.binary, 0b000100, 6); //beq
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, LabelRelative],
+                    vec![1, 2, 3],
+                    Some(labels.clone()),
+                );
+            }
+            "bne" => {
+                instruction.binary = append_binary(instruction.binary, 0b000101, 6); //bne
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, LabelRelative],
+                    vec![1, 2, 3],
+                    Some(labels.clone()),
+                );
+            }
+            "c.eq.s" => {
+                instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
+                instruction.binary = append_binary(instruction.binary, 0b10000, 5); //fmt: s
+
+                read_operands(
+                    instruction,
+                    vec![RegisterFP, RegisterFP],
+                    vec![2, 1],
+                    Some(labels.clone()),
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
+                instruction.binary = append_binary(instruction.binary, 0b1010, 4);
+                //EQ
+            }
+            "c.eq.d" => {
+                instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
+                instruction.binary = append_binary(instruction.binary, 0b10001, 5); //fmt: d
+
+                read_operands(
+                    instruction,
+                    vec![RegisterFP, RegisterFP],
+                    vec![2, 1],
+                    Some(labels.clone()),
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
+                instruction.binary = append_binary(instruction.binary, 0b1010, 4);
+                //EQ
+            }
+            "c.lt.s" => {
+                instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
+                instruction.binary = append_binary(instruction.binary, 0b10000, 5); //fmt: s
+
+                read_operands(
+                    instruction,
+                    vec![RegisterFP, RegisterFP],
+                    vec![2, 1],
+                    Some(labels.clone()),
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
+                instruction.binary = append_binary(instruction.binary, 0b1100, 4);
+                //lt
+            }
+            "c.lt.d" => {
+                instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
+                instruction.binary = append_binary(instruction.binary, 0b10001, 5); //fmt: d
+
+                read_operands(
+                    instruction,
+                    vec![RegisterFP, RegisterFP],
+                    vec![2, 1],
+                    Some(labels.clone()),
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
+                instruction.binary = append_binary(instruction.binary, 0b1100, 4);
+                //lt
+            }
+            "c.le.s" => {
+                instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
+                instruction.binary = append_binary(instruction.binary, 0b10000, 5); //fmt: s
+
+                read_operands(
+                    instruction,
+                    vec![RegisterFP, RegisterFP],
+                    vec![2, 1],
+                    Some(labels.clone()),
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
+                instruction.binary = append_binary(instruction.binary, 0b1110, 4);
+                //le
+            }
+            "c.le.d" => {
+                instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
+                instruction.binary = append_binary(instruction.binary, 0b10001, 5); //fmt: d
+
+                read_operands(
+                    instruction,
+                    vec![RegisterFP, RegisterFP],
+                    vec![2, 1],
+                    Some(labels.clone()),
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
+                instruction.binary = append_binary(instruction.binary, 0b1110, 4);
+                //le
+            }
+            "c.ngt.s" => {
+                instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
+                instruction.binary = append_binary(instruction.binary, 0b10000, 5); //fmt: s
+
+                read_operands(
+                    instruction,
+                    vec![RegisterFP, RegisterFP],
+                    vec![2, 1],
+                    Some(labels.clone()),
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
+                instruction.binary = append_binary(instruction.binary, 0b1111, 4);
+                //ngt
+            }
+            "c.ngt.d" => {
+                instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
+                instruction.binary = append_binary(instruction.binary, 0b10001, 5); //fmt: d
+
+                read_operands(
+                    instruction,
+                    vec![RegisterFP, RegisterFP],
+                    vec![2, 1],
+                    Some(labels.clone()),
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
+                instruction.binary = append_binary(instruction.binary, 0b1111, 4);
+                //ngt
+            }
+            "c.nge.s" => {
+                instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
+                instruction.binary = append_binary(instruction.binary, 0b10000, 5); //fmt: s
+
+                read_operands(
+                    instruction,
+                    vec![RegisterFP, RegisterFP],
+                    vec![2, 1],
+                    Some(labels.clone()),
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
+                instruction.binary = append_binary(instruction.binary, 0b1101, 4);
+                //nge
+            }
+            "c.nge.d" => {
+                instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
+                instruction.binary = append_binary(instruction.binary, 0b10001, 5); //fmt: d
+
+                read_operands(
+                    instruction,
+                    vec![RegisterFP, RegisterFP],
+                    vec![2, 1],
+                    Some(labels.clone()),
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
+                instruction.binary = append_binary(instruction.binary, 0b1101, 4);
+                //nge
+            }
+
             _ => instruction.errors.push(Error {
                 error_name: UnrecognizedInstruction,
                 operand_number: None,
@@ -431,7 +647,9 @@ pub fn place_binary_in_middle_of_another(
 
 ///Append binary takes two numbers, shifts the first by a specified amount and then bitwise ors the
 /// two numbers together effectively appending the second onto the first.
-pub fn append_binary(mut first: u32, second: u32, shift_amount: u8) -> u32 {
+pub fn append_binary(mut first: u32, mut second: u32, shift_amount: u8) -> u32 {
+    second <<= 32 - shift_amount;
+    second >>= 32 - shift_amount;
     first <<= shift_amount;
     first |= second;
     first

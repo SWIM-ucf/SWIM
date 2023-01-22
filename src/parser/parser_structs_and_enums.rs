@@ -37,6 +37,7 @@ pub mod instruction_tokenization {
         #[default]
         Unknown,
         Label,
+        LabelOperand,
         Immediate,
         MemoryAddress,
         RegisterFP,
@@ -56,6 +57,7 @@ pub mod instruction_tokenization {
         InvalidMemorySyntax,
         IncorrectNumberOfOperands,
         LabelAssignmentError,
+        LabelMultipleDefinition,
         LabelNotFound,
     }
 
@@ -65,7 +67,8 @@ pub mod instruction_tokenization {
         RegisterFP,
         Immediate,
         MemoryAddress,
-        Label,
+        LabelAbsolute,
+        LabelRelative,
     }
 
     //This enum is just for the read_register_function to determine which register type it should expect

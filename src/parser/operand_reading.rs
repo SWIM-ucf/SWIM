@@ -4,19 +4,19 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType
     LabelNotFound, NonIntImmediate, UnrecognizedFPRegister, UnrecognizedGPRegister,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::{
-    Immediate, Label, MemoryAddress, RegisterFP, RegisterGP,
+    Immediate, LabelAbsolute, LabelRelative, MemoryAddress, RegisterFP, RegisterGP,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
     FloatingPoint, GeneralPurpose,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Error, Instruction, OperandType, RegisterType,
+    Error, Instruction, OperandType, RegisterType, TokenType,
 };
 use std::collections::HashMap;
 
 ///This function takes an instruction whose operands it is supposed to read, the order of expected operand types and then
 ///the order these operands should be concatenated onto the binary representation of the string
-///the function returns the instruction it was given with any errors and the binary of the operands added on
+///the function returns the instruction it was given with any errors and the binary of the operands added on.
 pub fn read_operands(
     instruction: &mut Instruction,
     expected_operands: Vec<OperandType>,
@@ -36,12 +36,19 @@ pub fn read_operands(
     let mut bit_lengths: Vec<u8> = Vec::new();
     //goes through once for each expected operand
     for (i, operand_type) in expected_operands.iter().enumerate() {
+        //break if there are no more operands to read. Should only occur if IncorrectNumberOfOperands occurs above
+        if i >= instruction.operands.len() {
+            break;
+        };
+
         //match case calls the proper functions based on the expected operand type. The data returned from these functions is always
         //the binary of the read operand and the option for any errors encountered while reading the operand. If there were no errors,
         //the binary is pushed to the string representations vec. Otherwise, the errors are pushed to the instruction.errors vec.
         match operand_type {
             RegisterGP => {
+                instruction.operands[i].token_type = TokenType::RegisterGP;
                 bit_lengths.push(5);
+
                 let register_results = read_register(
                     &instruction.operands[i].token_name,
                     i as i32,
@@ -54,7 +61,9 @@ pub fn read_operands(
                 }
             }
             Immediate => {
+                instruction.operands[i].token_type = TokenType::Immediate;
                 bit_lengths.push(16);
+
                 let immediate_results =
                     read_immediate(&instruction.operands[i].token_name, i as i32, 16);
 
@@ -64,6 +73,8 @@ pub fn read_operands(
                 }
             }
             MemoryAddress => {
+                instruction.operands[i].token_type = TokenType::MemoryAddress;
+
                 bit_lengths.push(16);
                 bit_lengths.push(5);
                 //memory address works a bit differently because it really amounts to two operands: the offset and base
@@ -80,6 +91,8 @@ pub fn read_operands(
                 }
             }
             RegisterFP => {
+                instruction.operands[i].token_type = TokenType::RegisterFP;
+
                 bit_lengths.push(5);
                 let register_results =
                     read_register(&instruction.operands[i].token_name, i as i32, FloatingPoint);
@@ -89,17 +102,34 @@ pub fn read_operands(
                     instruction.errors.push(register_results.1.unwrap());
                 }
             }
-            Label => {
+            LabelAbsolute => {
+                instruction.operands[i].token_type = TokenType::LabelOperand;
+
                 bit_lengths.push(26);
-                let label_results = read_label(
+                let label_absolute_results = read_label_absolute(
                     &instruction.operands[i].token_name,
                     i as i32,
                     labels.clone().unwrap(),
                 );
 
-                binary_representation.push(label_results.0);
-                if label_results.1.is_some() {
-                    instruction.errors.push(label_results.1.unwrap());
+                binary_representation.push(label_absolute_results.0);
+                if label_absolute_results.1.is_some() {
+                    instruction.errors.push(label_absolute_results.1.unwrap());
+                }
+            }
+            LabelRelative => {
+                instruction.operands[i].token_type = TokenType::LabelOperand;
+
+                bit_lengths.push(16);
+                let label_relative_results = read_label_relative(
+                    &instruction.operands[i].token_name,
+                    i as i32,
+                    instruction.instruction_number,
+                    labels.clone().unwrap(),
+                );
+                binary_representation.push(label_relative_results.0);
+                if label_relative_results.1.is_some() {
+                    instruction.errors.push(label_relative_results.1.unwrap());
                 }
             }
         }
@@ -116,13 +146,36 @@ pub fn read_operands(
     instruction
 }
 
+///Returns distance to an address of a labeled instruction relative to the instruction after the current instruction.
+pub fn read_label_relative(
+    given_label: &str,
+    operand_number: i32,
+    current_instruction_number: u32,
+    labels: HashMap<String, u32>,
+) -> (u32, Option<Error>) {
+    let result = labels.get(given_label);
+
+    if result.is_none() {
+        return (
+            0,
+            Some(Error {
+                error_name: LabelNotFound,
+                operand_number: Some(operand_number as u8),
+            }),
+        );
+    }
+
+    let offset = *result.unwrap() as i32 - (current_instruction_number as i32 + 1);
+    (offset as u32, None)
+}
+
 ///Takes a string and returns the address of the matching label in memory. If there is no match, an error is returned
-pub fn read_label(
-    orig_string: &str,
+pub fn read_label_absolute(
+    given_label: &str,
     operand_number: i32,
     labels: HashMap<String, u32>,
 ) -> (u32, Option<Error>) {
-    let result = labels.get(orig_string);
+    let result = labels.get(given_label);
     if result.is_none() {
         return (
             0,
@@ -134,8 +187,6 @@ pub fn read_label(
     }
     (*result.unwrap(), None)
 }
-
-pub fn calculate_label_offset() {}
 
 ///This function takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors
 pub fn read_memory_address(
