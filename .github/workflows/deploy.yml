@@ -8,6 +8,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  # Specify the primary crate of the project.
+  RUST_PRIMARY_CRATE: swim
+
 jobs:
   check:
     uses: ./.github/workflows/check.yml
@@ -38,6 +42,16 @@ jobs:
 
     - name: Build
       run: trunk build --release --public-url /${{ github.event.repository.name }}
+    
+    - name: Create documentation
+      run: cargo doc --release
+
+    - name: Merge documentation
+      run: |
+        rm -rf ./dist/docs
+        echo "<meta http-equiv=\"refresh\" content=\"0; url=$RUST_PRIMARY_CRATE\">" > ./target/doc/index.html
+        mkdir ./dist/docs
+        cp -r ./target/doc ./dist
 
     - name: Upload files
       uses: actions/upload-artifact@v3
