@@ -994,4 +994,91 @@ pub mod coprocessor {
 
         assert_eq!(f64::from_bits(datapath.coprocessor.fpr[1]), 47702.6875);
     }
+
+    #[test]
+    pub fn swc1_basic_store_no_offset() {
+        let mut datapath = MipsDatapath::default();
+
+        // swc1 ft, offset(base)
+        // swc1 $f3, 0($s1)
+        // memory[GPR[base] + offset] <- FPR[ft]
+        // memory[GPR[17] + 0] <- FPR[3]
+        //                       SWC1   base  ft    offset
+        //                              $s1   $f3   0
+        let instruction: u32 = 0b111001_10001_00011_0000000000000000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[17] = 1028; // $s1
+        datapath.coprocessor.fpr[3] = f32::to_bits(1.0625f32) as u64;
+
+        datapath.execute_instruction();
+
+        // The single-precision float 1.0625 should be stored at address 1028.
+        assert_eq!(
+            f32::from_bits(datapath.memory.load_word(1028).unwrap()),
+            1.0625f32
+        );
+    }
+
+    #[test]
+    pub fn swc1_basic_store_with_offset() {
+        let mut datapath = MipsDatapath::default();
+
+        // swc1 ft, offset(base)
+        // swc1 $f5, 32($s0)
+        // memory[GPR[base] + offset] <- FPR[ft]
+        // memory[GPR[16] + 32] <- FPR[5]
+        //                       SWC1   base  ft    offset
+        //                              $s0   $f5   32
+        let instruction: u32 = 0b111001_10000_00101_0000000000100000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[16] = 2000; // $s0
+        datapath.coprocessor.fpr[5] = f32::to_bits(3.5f32) as u64;
+
+        datapath.execute_instruction();
+
+        // The single-precision float 3.5 should be stored at address 2032.
+        assert_eq!(
+            f32::from_bits(datapath.memory.load_word(2032).unwrap()),
+            3.5f32
+        );
+    }
+
+    #[test]
+    pub fn swc1_basic_store_64_bit_cutoff() {
+        // This test ensures that if there is 64-bit data in a floating-point
+        // register, only the bottom 32 bits are stored in memory with this
+        // instruction.
+
+        let mut datapath = MipsDatapath::default();
+
+        // swc1 ft, offset(base)
+        // swc1 $f0, 0($s2)
+        // memory[GPR[base] + offset] <- FPR[ft]
+        // memory[GPR[18] + 0] <- FPR[0]
+        //                       SWC1   base  ft    offset
+        //                              $s2   $f0   0
+        let instruction: u32 = 0b111001_10010_00000_0000000000000000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[18] = 1000; // $s2
+        datapath.coprocessor.fpr[0] = f64::to_bits(9853114.625);
+
+        datapath.execute_instruction();
+
+        // The double-precision float 9853114.625 is represented in hexadecimal as
+        // 4162 CB17 5400 0000. When storing the 32-bit word, the bottom 32 bits
+        // should be stored, in this case meaning 5400 0000 in hexadecimal.
+        assert_eq!(datapath.memory.load_word(1000).unwrap(), 0x5400_0000);
+    }
 }
