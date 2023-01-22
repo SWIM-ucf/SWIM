@@ -40,6 +40,7 @@ pub const OPCODE_ORI: u8 = 0b001101;
 pub const OPCODE_COP1: u8 = 0b010001;
 pub const OPCODE_LW: u8 = 0b100011;
 pub const OPCODE_SW: u8 = 0b101011;
+pub const OPCODE_SWC1: u8 = 0b111001;
 
 // "ENC" is short for encoding. There is no formal name for this field
 // in the MIPS64 specification, other than the "shamt"/"sa" field that it
