@@ -54,6 +54,9 @@ pub const ENC_DDIV: u8 = 0b00010;
 pub const ENC_DDIVU: u8 = 0b00010;
 
 pub const FUNCTION_ADD: u8 = 0b000000;
+pub const FUNCTION_SUB: u8 = 0b000001;
+pub const FUNCTION_MUL: u8 = 0b000010;
+pub const FUNCTION_DIV: u8 = 0b000011;
 
 pub const FMT_SINGLE: u8 = 16;
 pub const FMT_DOUBLE: u8 = 17;
