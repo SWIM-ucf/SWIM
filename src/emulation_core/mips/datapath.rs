@@ -561,8 +561,7 @@ impl MipsDatapath {
 
         let write_data = match self.signals.mem_write_src {
             MemWriteSrc::PrimaryUnit => self.state.read_data_2,
-            // Awaiting implementation of the floating-point unit.
-            MemWriteSrc::FloatingPointUnit => todo!(),
+            MemWriteSrc::FloatingPointUnit => self.coprocessor.get_fp_register_to_memory(),
         };
 
         // Choose the correct store function based on the RegWidth
