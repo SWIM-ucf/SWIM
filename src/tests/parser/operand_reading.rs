@@ -210,7 +210,7 @@ mod read_label_absolute_tests {
         assign_instruction_numbers(&mut instruction_list);
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
 
-        let results = read_label_absolute(&*"load_from_memory", 2, labels);
+        let results = read_label_absolute("load_from_memory", 2, labels);
 
         assert!(results.1.is_none());
         assert_eq!(results.0, 1);
@@ -225,7 +225,7 @@ mod read_label_absolute_tests {
         assign_instruction_numbers(&mut instruction_list);
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
 
-        let results = read_label_absolute(&*"label_not_found:", 2, labels);
+        let results = read_label_absolute("label_not_found:", 2, labels);
 
         assert_eq!(results.1.unwrap().error_name, LabelNotFound);
     }
@@ -249,7 +249,7 @@ mod read_label_relative_tests {
         assign_instruction_numbers(&mut instruction_list);
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
 
-        let result = read_label_relative(&*"load_from_memory", 0, 4, labels);
+        let result = read_label_relative("load_from_memory", 0, 4, labels);
 
         let correct = -4;
         assert_eq!(result.0, correct as u32);
@@ -264,7 +264,7 @@ mod read_label_relative_tests {
         assign_instruction_numbers(&mut instruction_list);
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
 
-        let result = read_label_relative(&*"store_in_memory", 0, 1, labels);
+        let result = read_label_relative("store_in_memory", 0, 1, labels);
 
         assert_eq!(result.0, 1);
     }
