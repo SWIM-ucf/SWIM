@@ -20,358 +20,425 @@ mod parser_main_function_tests {
 }
 
 mod read_instructions_tests {
-    use crate::parser::parser_main::*;
-    use crate::parser::preprocessing::{build_instruction_list_from_lines, tokenize_instructions};
     use crate::tests::parser::parser_main::helper_functions::simulate_parser;
 
     #[test]
     fn read_instructions_add() {
-        let line = tokenize_instructions("add $t1 $s6 $t2".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "add $t1, $s6, $t2".to_string();
 
-        assert_eq!(instruction.binary, 0b00000010110010100100100000100000);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000010110010100100100000100000
+        );
     }
 
     #[test]
     fn read_instructions_sub() {
-        let line = tokenize_instructions("sub $t1 $s6 $t2".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "sub $t1, $s6, $t2".to_string();
 
-        assert_eq!(instruction.binary, 0b00000010110010100100100000100010);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000010110010100100100000100010
+        );
     }
 
     #[test]
     fn read_instructions_mul() {
-        let line = tokenize_instructions("mul $t1 $s6 $t2".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "mul $t1, $s6, $t2".to_string();
 
-        assert_eq!(instruction.binary, 0b01110010110010100100100000000010);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01110010110010100100100000000010
+        );
     }
 
     #[test]
     fn read_instructions_div() {
-        let line = tokenize_instructions("div $t1 $s6".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "div $t1, $s6".to_string();
 
-        assert_eq!(instruction.binary, 0b00000001001101100000000000011010);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001001101100000000000011010
+        );
     }
 
     #[test]
     fn read_instructions_lw() {
-        let line = tokenize_instructions("lw $t1 512($t1)".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "lw $t1, 512($t1)".to_string();
 
-        assert_eq!(instruction.binary, 0b10001101001010010000001000000000);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b10001101001010010000001000000000
+        );
     }
 
     #[test]
     fn read_instructions_sw() {
-        let line = tokenize_instructions("sw $t1 512($t1)".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "sw $t1, 512($t1)".to_string();
 
-        assert_eq!(instruction.binary, 0b10101101001010010000001000000000);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b10101101001010010000001000000000
+        );
     }
 
     #[test]
     fn read_instructions_lui() {
-        let line = tokenize_instructions("lui $t1 43690".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "lui $t1, 43690".to_string();
 
-        assert_eq!(instruction.binary, 0b00111100000010011010101010101010);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00111100000010011010101010101010
+        );
     }
 
     #[test]
     fn read_instructions_addi() {
-        let line = tokenize_instructions("addi $t1 $t2 43690".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "addi $t1, $t2, 43690".to_string();
 
-        assert_eq!(instruction.binary, 0b00100001010010011010101010101010);
+        let instruction_list = simulate_parser(file_string);
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00100001010010011010101010101010
+        );
     }
 
     #[test]
     fn read_instructions_and() {
-        let line = tokenize_instructions("and $t1 $s6 $t2".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "and $t1, $s6, $t2".to_string();
 
-        assert_eq!(instruction.binary, 0b00000010110010100100100000100100);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000010110010100100100000100100
+        );
     }
 
     #[test]
     fn read_instructions_or() {
-        let line = tokenize_instructions("or $t1 $s6 $t2".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "or $t1, $s6, $t2".to_string();
 
-        assert_eq!(instruction.binary, 0b00000010110010100100100000100101);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000010110010100100100000100101
+        );
     }
 
     #[test]
     fn read_instructions_ori() {
-        let line = tokenize_instructions("ori $t1 $t2 43690".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "ori $t1, $t2, 43690".to_string();
 
-        assert_eq!(instruction.binary, 0b00110101010010011010101010101010);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00110101010010011010101010101010
+        );
     }
 
     #[test]
     fn read_instructions_andi() {
-        let line = tokenize_instructions("andi $t1 $t2 43690".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "andi $t1, $t2, 43690".to_string();
 
-        assert_eq!(instruction.binary, 0b00110001010010011010101010101010);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00110001010010011010101010101010
+        );
     }
 
     #[test]
     fn read_instructions_dadd() {
-        let line = tokenize_instructions("dadd $t1 $t2 $s6".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "dadd $t1, $t2, $s6".to_string();
 
-        assert_eq!(instruction.binary, 0b00000001010101100100100000101100);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001010101100100100000101100
+        );
     }
 
     #[test]
     fn read_instructions_dsub() {
-        let line = tokenize_instructions("dsub $t1 $t2 $s6".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "dsub $t1, $t2, $s6".to_string();
 
-        assert_eq!(instruction.binary, 0b00000001010101100100100000101110);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001010101100100100000101110
+        );
     }
 
     #[test]
     fn read_instructions_dmul() {
-        let line = tokenize_instructions("dmul $t1 $t2 $s6".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "dmul $t1, $t2, $s6".to_string();
 
-        assert_eq!(instruction.binary, 0b00000001010101100100100010011100);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001010101100100100010011100
+        );
     }
 
     #[test]
     fn read_instructions_ddiv() {
-        let line = tokenize_instructions("ddiv $t1 $t2".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "ddiv $t1, $t2".to_string();
 
-        assert_eq!(instruction.binary, 0b00000001001010100000000000011110);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001001010100000000000011110
+        );
     }
 
     #[test]
     fn read_instructions_add_s() {
-        let line = tokenize_instructions("add.s $f9 $f10 $f22".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "add.s $f9, $f10, $f22".to_string();
 
-        assert_eq!(instruction.binary, 0b01000110000101100101001001000000);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110000101100101001001000000
+        );
     }
 
     #[test]
     fn read_instructions_add_d() {
-        let line = tokenize_instructions("add.d $f9 $f10 $f22".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "add.d $f9, $f10, $f22".to_string();
 
-        assert_eq!(instruction.binary, 0b01000110001101100101001001000000);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110001101100101001001000000
+        );
     }
 
     #[test]
     fn read_instructions_sub_s() {
-        let line = tokenize_instructions("sub.s $f9 $f10 $f22".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "sub.s $f9, $f10, $f22".to_string();
 
-        assert_eq!(instruction.binary, 0b01000110000101100101001001000001);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110000101100101001001000001
+        );
     }
 
     #[test]
     fn read_instructions_sub_d() {
-        let line = tokenize_instructions("sub.d $f9 $f10 $f22".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "sub.d $f9, $f10, $f22".to_string();
 
-        assert_eq!(instruction.binary, 0b01000110001101100101001001000001);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110001101100101001001000001
+        );
     }
 
     #[test]
     fn read_instructions_mul_s() {
-        let line = tokenize_instructions("mul.s $f9 $f10 $f22".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "mul.s $f9, $f10, $f22".to_string();
 
-        assert_eq!(instruction.binary, 0b01000110000101100101001001000010);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110000101100101001001000010
+        );
     }
 
     #[test]
     fn read_instructions_mul_d() {
-        let line = tokenize_instructions("mul.d $f9 $f10 $f22".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "mul.d $f9, $f10, $f22".to_string();
 
-        assert_eq!(instruction.binary, 0b01000110001101100101001001000010);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110001101100101001001000010
+        );
     }
 
     #[test]
     fn read_instructions_div_s() {
-        let line = tokenize_instructions("div.s $f9 $f10 $f22".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "div.s $f9, $f10, $f22".to_string();
 
-        assert_eq!(instruction.binary, 0b01000110000101100101001001000011);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110000101100101001001000011
+        );
     }
 
     #[test]
     fn read_instructions_div_d() {
-        let line = tokenize_instructions("div.d $f9 $f10 $f22".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "div.d $f9, $f10, $f22".to_string();
 
-        assert_eq!(instruction.binary, 0b01000110001101100101001001000011);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110001101100101001001000011
+        );
     }
 
     #[test]
     fn read_instructions_dahi() {
-        let line = tokenize_instructions("dahi $t1 43690".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "dahi $t1, 43690".to_string();
 
-        assert_eq!(instruction.binary, 0b00000101001001101010101010101010);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000101001001101010101010101010
+        );
     }
 
     #[test]
     fn read_instructions_dati() {
-        let line = tokenize_instructions("dati $t1 43690".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "dati $t1, 43690".to_string();
 
-        assert_eq!(instruction.binary, 0b00000101001111101010101010101010);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000101001111101010101010101010
+        );
     }
 
     #[test]
     fn read_instructions_daddiu() {
-        let line = tokenize_instructions("daddiu $t1 $t2 43690".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "daddiu $t1, $t2, 43690".to_string();
 
-        assert_eq!(instruction.binary, 0b01100101010010011010101010101010);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01100101010010011010101010101010
+        );
     }
 
     #[test]
     fn read_instructions_slt() {
-        let line = tokenize_instructions("slt $t1 $t2 $s6".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "slt $t1, $t2, $s6".to_string();
 
-        assert_eq!(instruction.binary, 0b00000001010101100100100000101010);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001010101100100100000101010
+        );
     }
 
     #[test]
     fn read_instructions_sltu() {
-        let line = tokenize_instructions("sltu $t1 $t2 $s6".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "sltu $t1, $t2, $s6".to_string();
 
-        assert_eq!(instruction.binary, 0b00000001010101100100100000101011);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001010101100100100000101011
+        );
     }
 
     #[test]
     fn read_instructions_swc1() {
-        let line = tokenize_instructions("swc1 $f9 43690($t2)".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "swc1 $f9, 43690($t2)".to_string();
 
-        assert_eq!(instruction.binary, 0b11100101010010011010101010101010);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b11100101010010011010101010101010
+        );
     }
 
     #[test]
     fn read_instructions_lwc1() {
-        let line = tokenize_instructions("lwc1 $f9 43690($t2)".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "lwc1 $f9, 43690($t2)".to_string();
 
-        assert_eq!(instruction.binary, 0b11000101010010011010101010101010);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b11000101010010011010101010101010
+        );
     }
 
     #[test]
     fn read_instructions_mtc1() {
-        let line = tokenize_instructions("mtc1 $t1 $f22".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "mtc1 $t1, $f22".to_string();
 
-        assert_eq!(instruction.binary, 0b01000100100010011011000000000000);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000100100010011011000000000000
+        );
     }
 
     #[test]
     fn read_instructions_dmtc1() {
-        let line = tokenize_instructions("dmtc1 $t1 $f22".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "dmtc1 $t1, $f22".to_string();
 
-        assert_eq!(instruction.binary, 0b01000100101010011011000000000000);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000100101010011011000000000000
+        );
     }
 
     #[test]
     fn read_instructions_mfc1() {
-        let line = tokenize_instructions("mfc1 $t1 $f22".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "mfc1 $t1, $f22".to_string();
 
-        assert_eq!(instruction.binary, 0b01000100000010011011000000000000);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000100000010011011000000000000
+        );
     }
 
     #[test]
     fn read_instructions_dmfc1() {
-        let line = tokenize_instructions("dmfc1 $t1 $f22".to_string());
-        let mut instructions = build_instruction_list_from_lines(line);
-        read_instructions(&mut instructions, Default::default());
-        let instruction = instructions[0].clone();
+        let file_string = "dmfc1 $t1, $f22".to_string();
 
-        assert_eq!(instruction.binary, 0b01000100001010011011000000000000);
+        let instruction_list = simulate_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000100001010011011000000000000
+        );
     }
 
     #[test]
@@ -379,6 +446,7 @@ mod read_instructions_tests {
         let file_string =
             "Add $t1, $t2, $t3\nAddress: add $t1, #t2, $t3\nlw $t1, 400($t2)\nj Address"
                 .to_string();
+
         let instruction_list = simulate_parser(file_string);
 
         assert_eq!(
