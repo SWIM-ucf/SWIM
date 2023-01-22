@@ -1,0 +1,256 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/web-sys-0.3.60/src/features/gen_ShadowRoot.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gen_ShadowRoot.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../web_sys/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+</pre><pre class="rust"><code><span class="attribute">#![allow(unused_imports)]
+</span><span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span>wasm_bindgen::prelude::<span class="kw-2">*</span>;
+<span class="attribute">#[wasm_bindgen]
+</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    # [wasm_bindgen (extends = DocumentFragment , extends = Node , extends = EventTarget , extends = :: js_sys :: Object , js_name = ShadowRoot , typescript_type = <span class="string">&quot;ShadowRoot&quot;</span>)]
+    <span class="attribute">#[derive(Debug, Clone, PartialEq, Eq)]
+    #[doc = <span class="string">&quot;The `ShadowRoot` class.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot)&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `ShadowRoot`*&quot;</span>]
+    </span><span class="kw">pub type </span>ShadowRoot;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;ShadowRootMode&quot;</span>)]
+    </span># [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;ShadowRoot&quot; </span>, js_name = mode)]
+    <span class="attribute">#[doc = <span class="string">&quot;Getter for the `mode` field of this object.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/mode)&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `ShadowRoot`, `ShadowRootMode`*&quot;</span>]
+    </span><span class="kw">pub fn </span>mode(this: <span class="kw-2">&amp;</span>ShadowRoot) -&gt; ShadowRootMode;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;Element&quot;</span>)]
+    </span># [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;ShadowRoot&quot; </span>, js_name = host)]
+    <span class="attribute">#[doc = <span class="string">&quot;Getter for the `host` field of this object.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/host)&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `Element`, `ShadowRoot`*&quot;</span>]
+    </span><span class="kw">pub fn </span>host(this: <span class="kw-2">&amp;</span>ShadowRoot) -&gt; Element;
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;ShadowRoot&quot; </span>, js_name = innerHTML)]
+    <span class="attribute">#[doc = <span class="string">&quot;Getter for the `innerHTML` field of this object.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/innerHTML)&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `ShadowRoot`*&quot;</span>]
+    </span><span class="kw">pub fn </span>inner_html(this: <span class="kw-2">&amp;</span>ShadowRoot) -&gt; String;
+    # [wasm_bindgen (structural , method , setter , js_class = <span class="string">&quot;ShadowRoot&quot; </span>, js_name = innerHTML)]
+    <span class="attribute">#[doc = <span class="string">&quot;Setter for the `innerHTML` field of this object.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/innerHTML)&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `ShadowRoot`*&quot;</span>]
+    </span><span class="kw">pub fn </span>set_inner_html(this: <span class="kw-2">&amp;</span>ShadowRoot, value: <span class="kw-2">&amp;</span>str);
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;Element&quot;</span>)]
+    </span># [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;ShadowRoot&quot; </span>, js_name = activeElement)]
+    <span class="attribute">#[doc = <span class="string">&quot;Getter for the `activeElement` field of this object.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/activeElement)&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `Element`, `ShadowRoot`*&quot;</span>]
+    </span><span class="kw">pub fn </span>active_element(this: <span class="kw-2">&amp;</span>ShadowRoot) -&gt; <span class="prelude-ty">Option</span>&lt;Element&gt;;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;StyleSheetList&quot;</span>)]
+    </span># [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;ShadowRoot&quot; </span>, js_name = styleSheets)]
+    <span class="attribute">#[doc = <span class="string">&quot;Getter for the `styleSheets` field of this object.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/styleSheets)&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `ShadowRoot`, `StyleSheetList`*&quot;</span>]
+    </span><span class="kw">pub fn </span>style_sheets(this: <span class="kw-2">&amp;</span>ShadowRoot) -&gt; StyleSheetList;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;Element&quot;</span>)]
+    </span># [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;ShadowRoot&quot; </span>, js_name = pointerLockElement)]
+    <span class="attribute">#[doc = <span class="string">&quot;Getter for the `pointerLockElement` field of this object.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/pointerLockElement)&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `Element`, `ShadowRoot`*&quot;</span>]
+    </span><span class="kw">pub fn </span>pointer_lock_element(this: <span class="kw-2">&amp;</span>ShadowRoot) -&gt; <span class="prelude-ty">Option</span>&lt;Element&gt;;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;Element&quot;</span>)]
+    </span># [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;ShadowRoot&quot; </span>, js_name = fullscreenElement)]
+    <span class="attribute">#[doc = <span class="string">&quot;Getter for the `fullscreenElement` field of this object.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/fullscreenElement)&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `Element`, `ShadowRoot`*&quot;</span>]
+    </span><span class="kw">pub fn </span>fullscreen_element(this: <span class="kw-2">&amp;</span>ShadowRoot) -&gt; <span class="prelude-ty">Option</span>&lt;Element&gt;;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;Element&quot;</span>)]
+    </span># [wasm_bindgen (method , structural , js_class = <span class="string">&quot;ShadowRoot&quot; </span>, js_name = getElementById)]
+    <span class="attribute">#[doc = <span class="string">&quot;The `getElementById()` method.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/getElementById)&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `Element`, `ShadowRoot`*&quot;</span>]
+    </span><span class="kw">pub fn </span>get_element_by_id(this: <span class="kw-2">&amp;</span>ShadowRoot, element_id: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Element&gt;;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;HtmlCollection&quot;</span>)]
+    </span># [wasm_bindgen (method , structural , js_class = <span class="string">&quot;ShadowRoot&quot; </span>, js_name = getElementsByClassName)]
+    <span class="attribute">#[doc = <span class="string">&quot;The `getElementsByClassName()` method.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/getElementsByClassName)&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `HtmlCollection`, `ShadowRoot`*&quot;</span>]
+    </span><span class="kw">pub fn </span>get_elements_by_class_name(this: <span class="kw-2">&amp;</span>ShadowRoot, class_names: <span class="kw-2">&amp;</span>str) -&gt; HtmlCollection;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;HtmlCollection&quot;</span>)]
+    </span># [wasm_bindgen (method , structural , js_class = <span class="string">&quot;ShadowRoot&quot; </span>, js_name = getElementsByTagName)]
+    <span class="attribute">#[doc = <span class="string">&quot;The `getElementsByTagName()` method.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/getElementsByTagName)&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `HtmlCollection`, `ShadowRoot`*&quot;</span>]
+    </span><span class="kw">pub fn </span>get_elements_by_tag_name(this: <span class="kw-2">&amp;</span>ShadowRoot, local_name: <span class="kw-2">&amp;</span>str) -&gt; HtmlCollection;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;HtmlCollection&quot;</span>)]
+    </span># [wasm_bindgen (method , structural , js_class = <span class="string">&quot;ShadowRoot&quot; </span>, js_name = getElementsByTagNameNS)]
+    <span class="attribute">#[doc = <span class="string">&quot;The `getElementsByTagNameNS()` method.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/getElementsByTagNameNS)&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `HtmlCollection`, `ShadowRoot`*&quot;</span>]
+    </span><span class="kw">pub fn </span>get_elements_by_tag_name_ns(
+        this: <span class="kw-2">&amp;</span>ShadowRoot,
+        namespace: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+        local_name: <span class="kw-2">&amp;</span>str,
+    ) -&gt; HtmlCollection;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;Element&quot;</span>)]
+    </span># [wasm_bindgen (method , structural , js_class = <span class="string">&quot;ShadowRoot&quot; </span>, js_name = elementFromPoint)]
+    <span class="attribute">#[doc = <span class="string">&quot;The `elementFromPoint()` method.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/elementFromPoint)&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `Element`, `ShadowRoot`*&quot;</span>]
+    </span><span class="kw">pub fn </span>element_from_point(this: <span class="kw-2">&amp;</span>ShadowRoot, x: f32, y: f32) -&gt; <span class="prelude-ty">Option</span>&lt;Element&gt;;
+    # [wasm_bindgen (method , structural , js_class = <span class="string">&quot;ShadowRoot&quot; </span>, js_name = elementsFromPoint)]
+    <span class="attribute">#[doc = <span class="string">&quot;The `elementsFromPoint()` method.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/elementsFromPoint)&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `ShadowRoot`*&quot;</span>]
+    </span><span class="kw">pub fn </span>elements_from_point(this: <span class="kw-2">&amp;</span>ShadowRoot, x: f32, y: f32) -&gt; ::js_sys::Array;
+}
+</code></pre></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="web_sys" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

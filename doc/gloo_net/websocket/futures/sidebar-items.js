@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["WebSocket","Wrapper around browser’s WebSocket API."]]};

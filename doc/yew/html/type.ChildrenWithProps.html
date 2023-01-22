@@ -1,0 +1,33 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A type used for accepting children elements in Component::Properties and accessing their props."><meta name="keywords" content="rust, rustlang, rust-lang, ChildrenWithProps"><title>ChildrenWithProps in yew::html - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc type"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../yew/index.html"><div class="logo-container"><img src="https://yew.rs/img/logo.png" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../yew/index.html"><div class="logo-container">
+                    <img src="https://yew.rs/img/logo.png" alt="logo"></div></a><h2 class="location"><a href="#">ChildrenWithProps</a></h2><div class="sidebar-elems"><h2><a href="index.html">In yew::html</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Type Definition <a href="../index.html">yew</a>::<wbr><a href="index.html">html</a>::<wbr><a class="type" href="#">ChildrenWithProps</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../../src/yew/html/component/children.rs.html#150">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="item-decl"><pre class="rust typedef"><code>pub type ChildrenWithProps&lt;CHILD&gt; = <a class="struct" href="struct.ChildrenRenderer.html" title="struct yew::html::ChildrenRenderer">ChildrenRenderer</a>&lt;<a class="struct" href="../virtual_dom/struct.VChild.html" title="struct yew::virtual_dom::VChild">VChild</a>&lt;CHILD&gt;&gt;;</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A type used for accepting children elements in Component::Properties and accessing their props.</p>
+<h2 id="example"><a href="#example">Example</a></h2>
+<p><strong><code>model.rs</code></strong></p>
+<p>In this example, the <code>List</code> component can wrap <code>ListItem</code> components.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">html! </span>{
+  &lt;List&gt;
+    &lt;ListItem value=<span class="string">&quot;a&quot; </span>/&gt;
+    &lt;ListItem value=<span class="string">&quot;b&quot; </span>/&gt;
+    &lt;ListItem value=<span class="string">&quot;c&quot; </span>/&gt;
+  &lt;/List&gt;
+}</code></pre></div>
+<p><strong><code>list.rs</code></strong></p>
+<p>The <code>List</code> component must define a <code>children</code> property in order to wrap the list items. The
+<code>children</code> property can be used to filter, mutate, and render the items.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[derive(Clone, Properties, PartialEq)]
+</span><span class="kw">struct </span>ListProps {
+    children: ChildrenWithProps&lt;ListItem&gt;,
+}
+
+<span class="kw">impl </span>Component <span class="kw">for </span>List {
+        <span class="macro">html!</span>{{
+            <span class="kw">for </span>ctx.props().children.iter().map(|<span class="kw-2">mut </span>item| {
+                <span class="kw">let </span><span class="kw-2">mut </span>props = Rc::make_mut(<span class="kw-2">&amp;mut </span>item.props);
+                props.value = <span class="macro">format!</span>(<span class="string">&quot;item-{}&quot;</span>, props.value);
+                item
+            })
+        }}
+    }
+}</code></pre></div>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="yew" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

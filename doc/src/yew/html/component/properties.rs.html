@@ -1,0 +1,241 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/yew-0.20.0/src/html/component/properties.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>properties.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../yew/index.html">
+                        <img src="https://yew.rs/img/logo.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Component properties module
+
+</span><span class="kw">pub use </span>yew_macro::Properties;
+
+<span class="doccomment">/// Trait for building properties for a component
+</span><span class="kw">pub trait </span>Properties: PartialEq {
+    <span class="doccomment">/// Builder that will be used to construct properties
+    </span><span class="kw">type </span>Builder;
+
+    <span class="doccomment">/// Entrypoint for building properties
+    </span><span class="kw">fn </span>builder() -&gt; <span class="self">Self</span>::Builder;
+}
+
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">mod </span>__macro {
+    <span class="doccomment">/// A marker trait to ensure that the builder has received a specific required prop.
+    /// For each required impl in a property, we generate:
+    /// - a struct with the name of the prop, which takes the place of `P`.
+    /// - a token wrapper, `HasP&lt;TokenTail&gt;`, that records that the build state represented includes
+    ///   the state in `TokenTail` + `P`. Such tokens are returned from the setter on the builder,
+    ///   to verify the build state.
+    /// - An `impl&lt;T&gt; HasP&lt;T&gt;: HasProp&lt;P, _&gt;` saying that a state represented by a token of
+    ///   `HasP&lt;_&gt;` indeed verifies P has been set.
+    /// - An `impl&lt;Q&gt; HasP&lt;Tail&gt;: HasProp&lt;Q, _&gt; where Tail: HasProp&lt;Q&gt;` saying that any props set
+    ///   previously (represented by the tail) is still set after P has been set.
+    /// - ^ the two impls would be overlapping, where it not for the `How` argument, which resolves
+    ///   the conflict.
+    </span><span class="kw">pub trait </span>HasProp&lt;P, How&gt; {}
+
+    <span class="doccomment">/// A marker trait to ensure that the builder has received all required props.
+    /// For each struct deriving [`Properties`], an impl is generated, requiring `HasProp&lt;p&gt;` for
+    /// all properties marked as required as a bound on the impl.
+    ///
+    /// [`Properties`]: super::Properties
+    </span><span class="kw">pub trait </span>HasAllProps&lt;P, How&gt; {}
+
+    <span class="doccomment">/// Trait finishing the builder and verifying all props were set.
+    /// The structure can be a bit surprising, and is related to how the proc macro reports errors
+    /// - why have a prepare_build method? This captures the argument types, but now `How`, and
+    ///   returns an internal type with a method that can be called without further qualification.
+    ///   We need the additional types, to avoid collision with property names in the Builder. We
+    ///   want to avoid qualification to persuade rust not to report the `finish_build` method name.
+    /// - why have a AllPropsFor trait? We want the trait to be on the Token, not on a type
+    ///   associated or derived from it, so that it shows up in errors directly instead of through
+    ///   convoluted traces.
+    </span><span class="kw">pub trait </span>Buildable&lt;Token&gt; {
+        <span class="doccomment">/// Property type being built
+        </span><span class="kw">type </span>Output;
+        <span class="doccomment">/// Instead of `Token` directly, a wrapped token type is checked for trait impls in macro
+        /// code. This avoids problems related to blanket impls.
+        </span><span class="kw">type </span>WrappedToken;
+        <span class="doccomment">/// This method &quot;captures&quot; the builder and token type, but does not verify yet.
+        </span><span class="kw">fn </span>prepare_build(builder: <span class="self">Self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Token) -&gt; PreBuild&lt;Token, <span class="self">Self</span>&gt;
+        <span class="kw">where
+            </span><span class="self">Self</span>: Sized,
+        {
+            PreBuild {
+                builder,
+                _token: std::marker::PhantomData,
+            }
+        }
+        <span class="doccomment">/// Build the props from self. Expected to panic if not all props where set.
+        </span><span class="kw">fn </span>build(this: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output;
+    }
+    <span class="doccomment">/// Helper alias for a Builder, also capturing the prop Token recording the provided props.
+    </span><span class="attribute">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>PreBuild&lt;Token, B&gt; {
+        _token: std::marker::PhantomData&lt;Token&gt;,
+        builder: B,
+    }
+
+    <span class="kw">impl</span>&lt;Token, B: Buildable&lt;Token&gt;&gt; PreBuild&lt;Token, B&gt; {
+        <span class="doccomment">/// This is the method that introduces the actual bound verifying all props where set.
+        </span><span class="kw">pub fn </span>build&lt;How&gt;(<span class="self">self</span>) -&gt; B::Output
+        <span class="kw">where
+            </span>Token: AllPropsFor&lt;B, How&gt;,
+        {
+            B::build(<span class="self">self</span>.builder)
+        }
+    }
+
+    <span class="doccomment">/// Trait to specify the requirement for Self to be a valid token signaling all props have been
+    /// provided to the builder.
+    </span><span class="kw">pub trait </span>AllPropsFor&lt;Builder, How&gt; {}
+
+    <span class="kw">impl</span>&lt;Token, Builder: Buildable&lt;Token&gt;, How&gt; AllPropsFor&lt;Builder, How&gt; <span class="kw">for </span>Token <span class="kw">where
+        </span>Builder::WrappedToken: HasAllProps&lt;Builder::Output, How&gt;
+    {
+    }
+
+    <span class="doccomment">/// Dummy struct targeted by assertions that all props were set
+    </span><span class="attribute">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>AssertAllProps;
+
+    <span class="doccomment">/// Builder for when a component has no properties
+    </span><span class="attribute">#[derive(Debug, PartialEq, Eq)]
+    </span><span class="kw">pub struct </span>EmptyBuilder;
+
+    <span class="kw">impl </span><span class="kw">super</span>::Properties <span class="kw">for </span>() {
+        <span class="kw">type </span>Builder = EmptyBuilder;
+
+        <span class="kw">fn </span>builder() -&gt; <span class="self">Self</span>::Builder {
+            EmptyBuilder
+        }
+    }
+
+    <span class="kw">impl</span>&lt;T&gt; Buildable&lt;T&gt; <span class="kw">for </span>EmptyBuilder {
+        <span class="kw">type </span>Output = ();
+        <span class="kw">type </span>WrappedToken = ();
+
+        <span class="doccomment">/// Build empty properties
+        </span><span class="kw">fn </span>build(<span class="kw">_</span>: <span class="self">Self</span>) {}
+    }
+
+    <span class="kw">impl</span>&lt;T&gt; HasAllProps&lt;(), T&gt; <span class="kw">for </span>T {}
+}
+
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub use </span>__macro::{AllPropsFor, AssertAllProps, Buildable, HasAllProps, HasProp};
+</code></pre></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="yew" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"trait":[["JsValueSerdeExt","Extension trait to provide conversion between `JsValue` and [`serde`]."]]};

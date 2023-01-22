@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"attr":[["function_component",""],["hook",""]],"derive":[["Properties",""]],"macro":[["classes",""],["html",""],["html_nested",""],["props",""],["use_prepared_state_with_closure",""],["use_prepared_state_without_closure",""],["use_transitive_state_with_closure",""],["use_transitive_state_without_closure",""]]};

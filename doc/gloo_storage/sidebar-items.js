@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":[["errors","All the errors."]],"struct":[["LocalStorage","Provides API to deal with `localStorage`"],["SessionStorage","Provides API to deal with `sessionStorage`"]],"trait":[["Storage","Trait which provides implementations for managing storage in the browser."]],"type":[["Result","`gloo-storage`’s `Result`"]]};

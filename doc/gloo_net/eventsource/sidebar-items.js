@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["EventSourceError","Error returned by the EventSource"],["State","The state of the EventSource."]],"mod":[["futures","A wrapper around the `EventSource` API using the Futures API to be used with async rust."]]};

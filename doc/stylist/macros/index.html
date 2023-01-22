@@ -1,0 +1,128 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This module contains runtime support for the macros and documents their usage."><meta name="keywords" content="rust, rustlang, rust-lang, macros"><title>stylist::macros - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../stylist/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../stylist/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"><a href="#">Module macros</a></h2><div class="sidebar-elems"></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Module <a href="../index.html">stylist</a>::<wbr><a class="mod" href="#">macros</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../../src/stylist/macros.rs.html#1-175">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This module contains runtime support for the macros and documents their usage.</p>
+<p>There are two syntaxes available: <a href="#string-literal">string literal</a> and <a href="#inline">inline</a>.</p>
+<h2 id="string-literal"><a href="#string-literal">String Literal</a></h2>
+<p>This syntax is simliar to the <a href="https://doc.rust-lang.org/1.66.1/alloc/macro.format.html" title="format!"><code>format!</code></a> macro from the standard library.</p>
+<p>The first argument of this syntax is a string literal followed by an argument list. This macro
+will replace <code>${arg}</code> with the argument in the argument list when creating the AST.</p>
+<p>This syntax supports interpolation on values of style attributes, selectors, <code>@supports</code> and
+<code>@media</code> rules.</p>
+<p>Interpolated strings are denoted with <code>${ident}</code> and any type that implements <a href="https://doc.rust-lang.org/1.66.1/core/fmt/trait.Display.html"><code>Display</code></a> can be
+used as value. Only named argument are supported at this moment.</p>
+<p>If you do need to print a <code>${</code> sequence, you may use <code>$${</code> to escape to a <code>${</code>.</p>
+<h4 id="example"><a href="#example">Example</a></h4><div class="example-wrap"><pre class="language-css"><code>content: &quot;$${}&quot;;
+</code></pre></div>
+<p>Will be turned into:</p>
+<div class="example-wrap"><pre class="language-css"><code>content: &quot;${}&quot;;
+</code></pre></div><h4 id="note"><a href="#note">Note:</a></h4>
+<p><code>$${</code> escape can only present where <code>${</code> is valid in the css stylesheet.</p>
+<h3 id="example-1"><a href="#example-1">Example</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stylist::{css, Style};
+<span class="kw">use </span>yew::prelude::<span class="kw-2">*</span>;
+
+<span class="kw">let </span>s = <span class="macro">css!</span>(
+    <span class="string">r#&quot;
+        color: ${color};
+
+        span, ${sel_div} {
+            background-color: blue;
+        }
+
+        @media screen and ${breakpoint} {
+            display: flex;
+        }
+    &quot;#</span>,
+    color = <span class="string">&quot;red&quot;</span>,
+    sel_div = <span class="string">&quot;div.selected&quot;</span>,
+    breakpoint = <span class="string">&quot;(max-width: 500px)&quot;</span>,
+);
+
+<span class="kw">let </span>style = Style::new(s).expect(<span class="string">&quot;Failed to create style&quot;</span>);
+
+<span class="comment">// Example Output:
+// .stylist-fIEWv6EP {
+//     color: red;
+// }
+// stylist-fIEWv6EP span, .stylist-fIEWv6EP div.selected {
+//     background-color: blue;
+// }
+// @media screen and (max-width: 500px) {
+//     .stylist-fIEWv6EP {
+//         display: flex;
+//     }
+// }
+</span><span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, style.get_style_str());</code></pre></div>
+<h2 id="inline"><a href="#inline">Inline</a></h2>
+<p>You may also directly inline a stylesheet in the macro.</p>
+<p>Like in string interpolation syntax, interpolated values are allowed in most places through the
+<code>${expr}</code> syntax. In distinction, the braces contain a rust expression of any type implementing
+<a href="https://doc.rust-lang.org/1.66.1/core/fmt/trait.Display.html"><code>Display</code></a> will be evaluated in the surrounding context.</p>
+<h3 id="known-limitations"><a href="#known-limitations">Known Limitations</a></h3><h4 id="dimensions"><a href="#dimensions">Dimensions</a></h4>
+<p>Due to the tokenizer of the Rust complier, there are some quirks with literals. For example,
+<code>4em</code> would be tokenized as a floating point literal with a missing exponent and a suffix of
+<code>m</code>. To work around this issue, use string interpolation as in <code>${&quot;4em&quot;}</code>. Similarly, some color
+hash-tokens like <code>#44444e</code> as misinterpreted, use the same workaround here: <code>${&quot;#44444e&quot;}</code>.</p>
+<h4 id="descendant-selectors"><a href="#descendant-selectors">Descendant Selectors</a></h4>
+<p>The stable Rust tokenizer also currently offers no way to inspect whitespace between tokens, as
+tracked in <a href="https://github.com/rust-lang/rust/issues/54725">the Span inspection API issue</a>. This means that, e.g. the two
+selectors <code>.class-a.class-b</code> and <code>.class-a .class-b</code> can not be differentiated. <strong>The macro errs
+on side of the former input without any spaces.</strong> If you meant to write the latter, use
+<code>.class-a *.class-b</code>.</p>
+<p>To be more specific, a space is inserted between two tokens <code>L R</code> iff (regardless of the space
+being present in the macro input):</p>
+<ul>
+<li><code>L</code> is either a closing bracket <code>)}]</code>, an identifier <code>red</code>, a literal string <code>&quot;\e600&quot;</code> or
+number <code>3px</code>, or the ‘*’ character.</li>
+<li><code>R</code> is either an identifier, a literal string or number, the ‘*’ or ‘#’ character.
+Spacing around interpolation is ignored regardless.</li>
+</ul>
+<p>Be aware that the above is subject to change once the Span API is stabilized. To avoid future
+rewriting, use spacing in your source code that follows the same rules. Refer to the associated <a href="https://github.com/futursolo/stylist-rs/issues/41">bug report</a>
+to discuss this limitation and offer additional suggestions</p>
+<h4 id="identifier-edition-2021"><a href="#identifier-edition-2021">Identifier (Edition 2021)</a></h4>
+<p>In Rust edition 2021, you cannot have an identifier before <code>#</code>.
+In other words, a selector like <code>.class#id</code> will no longer compile in Rust edition 2021 (See:
+<a href="https://doc.rust-lang.org/edition-guide/rust-2021/reserving-syntax.html">Reserving Syntax</a> in Rust
+2021 Edition Guide).</p>
+<p>Stylist previously treats them as if there is a descendant selector in between (<code>.class#id</code> is
+interpreted as <code>.class #id</code>).</p>
+<h3 id="note-1"><a href="#note-1">Note</a></h3>
+<p>This syntax provides more precise error locations and advanced diagnostics information.</p>
+<h3 id="example-2"><a href="#example-2">Example</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>stylist::{Style, css};
+<span class="kw">use </span>yew::prelude::<span class="kw-2">*</span>;
+
+<span class="kw">let </span>max_width_cuttoff = <span class="string">&quot;500px&quot;</span>;
+<span class="kw">let </span>primary_color = <span class="string">&quot;red&quot;</span>;
+<span class="kw">let </span>s = <span class="macro">css!</span>(
+    color: ${primary_color};
+
+    span, ${<span class="string">&quot;div.selected&quot;</span>} {
+        background-color: blue;
+    }
+
+    @media screen and (max-width: ${max_width_cuttoff}) {
+        display: flex;
+    }
+);
+
+<span class="kw">let </span>style = Style::new(s).expect(<span class="string">&quot;Failed to create style&quot;</span>);
+
+<span class="comment">// Example Output:
+// .stylist-fIEWv6EP {
+//     color: red;
+// }
+// stylist-fIEWv6EP span, .stylist-fIEWv6EP div.selected {
+//     background-color: blue;
+// }
+// @media screen and (max-width: 500px) {
+//     .stylist-fIEWv6EP {
+//         display: flex;
+//     }
+// }
+</span><span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, style.get_style_str());</code></pre></div>
+<h3 id="security-notice"><a href="#security-notice">Security Notice</a></h3>
+<p>Stylist currently does not check or escape the content of interpolated strings. It is possible
+to pass invalid strings that would result in an invalid stylesheet. In debug mode, if feature
+<code>parser</code> is enabled, Stylist will attempt to parse the stylesheet again after interpolated
+strings are substituted with its actual value to check if the final stylesheet is valid.</p>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="stylist" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

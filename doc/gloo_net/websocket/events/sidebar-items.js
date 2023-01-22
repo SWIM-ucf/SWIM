@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["CloseEvent","Data emitted by `onclose` event"]]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["JsError","Wrapper type around [`js_sys::Error`]"],["NotJsError","The [`JsValue`] is not a JavaScript’s `Error`."]]};

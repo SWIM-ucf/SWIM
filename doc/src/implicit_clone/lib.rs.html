@@ -1,0 +1,242 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/implicit-clone-0.3.5/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../implicit_clone/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+</pre><pre class="rust"><code><span class="attribute">#![warn(missing_debug_implementations, missing_docs, unreachable_pub)]
+#![allow(clippy::unnecessary_lazy_evaluations)]
+#![doc(test(
+    no_crate_inject,
+    attr(deny(warnings, rust_2018_idioms), allow(dead_code, unused_variables))
+))]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+</span><span class="doccomment">//! # ImplicitClone
+//!
+//! A library that introduces the marker trait [`ImplicitClone`](crate::ImplicitClone) which allows
+//! reproducing the behavior of the trait [`Copy`][std::marker::Copy] but calls the
+//! [`Clone`][std::clone::Clone] implementation instead and must be implemented in the host
+//! library.
+//!
+//! The idea is that you must implement this trait on types that are cheap to clone
+//! ([`std::rc::Rc`][std::rc::Rc] and [`std::sync::Arc`][std::sync::Arc] types are
+//! automatically implemented). Then the host library must use the trait
+//! [`ImplicitClone`](crate::ImplicitClone) to allow their users to pass objects that will be
+//! cloned automatically.
+//!
+//! This crate is in the category `rust-patterns` but this is actually a Rust anti-pattern. In Rust
+//! the user should always handle borrowing and ownership by themselves. Nevertheless, this pattern
+//! is sometimes desirable. For example, UI frameworks that rely on propagating properties from
+//! ancestors to children will always need to use Rc&#39;ed types to allow every child component to
+//! update. This is the case in React-like framework like Yew.
+//!
+//! This crates also provide a few convenient immutable types for handling cheap-to-clone string,
+//! array and maps which you can find in the modules [`sync`](crate::sync) and
+//! [`unsync`](crate::unsync). Those types implement [`ImplicitClone`](crate::ImplicitClone) and
+//! hold only types that implement [`ImplicitClone`](crate::ImplicitClone) as well. **One big
+//! particularity: iterating on these types yields clones of the items and not references.** This
+//! can be particularly handy when using a React-like framework.
+//!
+//! [std::marker::Copy]: https://doc.rust-lang.org/std/marker/trait.Copy.html
+//! [std::clone::Clone]: https://doc.rust-lang.org/std/clone/trait.Clone.html
+//! [std::rc::Rc]: https://doc.rust-lang.org/std/rc/struct.Rc.html
+//! [std::sync::Arc]: https://doc.rust-lang.org/std/sync/struct.Arc.html
+
+/// Thread-safe version of immutable types.
+</span><span class="kw">pub mod </span>sync;
+<span class="doccomment">/// Single-threaded version of immutable types.
+</span><span class="kw">pub mod </span>unsync;
+
+<span class="doccomment">/// Marker trait for types that can be cloned implicitly.
+///
+/// Behaves exactly like [`Copy`] but calls the [`Clone`] implementation instead and must be
+/// implemented in the host library.
+</span><span class="kw">pub trait </span>ImplicitClone: Clone {}
+
+<span class="kw">impl</span>&lt;T: ImplicitClone&gt; ImplicitClone <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;T&gt; {}
+
+<span class="macro">macro_rules! </span>impl_implicit_clone {
+    ($(<span class="macro-nonterminal">$ty</span>:ty),+ $(,)<span class="question-mark">?</span>) =&gt; {
+        $(<span class="kw">impl </span>ImplicitClone <span class="kw">for </span><span class="macro-nonterminal">$ty </span>{})*
+    };
+}
+
+<span class="attribute">#[rustfmt::skip]
+</span><span class="macro">impl_implicit_clone!</span>(
+    u8, u16, u32, u64, u128,
+    i8, i16, i32, i64, i128,
+    f32, f64,
+    bool,
+    usize, isize,
+    <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    (),
+);
+
+<span class="macro">macro_rules! </span>impl_implicit_clone_for_tuple {
+    ($(<span class="macro-nonterminal">$param</span>:ident),+) =&gt; {
+        <span class="kw">impl</span>&lt;$(<span class="macro-nonterminal">$param</span>: ImplicitClone),+&gt; ImplicitClone <span class="kw">for </span>($(<span class="macro-nonterminal">$param</span>),+) {}
+    };
+}
+
+<span class="macro">impl_implicit_clone_for_tuple!</span>(T1, T2);
+<span class="macro">impl_implicit_clone_for_tuple!</span>(T1, T2, T3);
+<span class="macro">impl_implicit_clone_for_tuple!</span>(T1, T2, T3, T4);
+<span class="macro">impl_implicit_clone_for_tuple!</span>(T1, T2, T3, T4, T5);
+<span class="macro">impl_implicit_clone_for_tuple!</span>(T1, T2, T3, T4, T5, T6);
+<span class="macro">impl_implicit_clone_for_tuple!</span>(T1, T2, T3, T4, T5, T6, T7);
+<span class="macro">impl_implicit_clone_for_tuple!</span>(T1, T2, T3, T4, T5, T6, T7, T8);
+<span class="macro">impl_implicit_clone_for_tuple!</span>(T1, T2, T3, T4, T5, T6, T7, T8, T9);
+<span class="macro">impl_implicit_clone_for_tuple!</span>(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10);
+<span class="macro">impl_implicit_clone_for_tuple!</span>(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11);
+<span class="macro">impl_implicit_clone_for_tuple!</span>(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12);
+
+<span class="doccomment">/// A macro to help deconstructs maps inspired by JS.
+///
+/// This macro is an experiment and may change or be entirely deleted before the 1.0 release.
+///
+/// # Usage
+///
+/// ```rust
+/// use implicit_clone::unsync::*;
+/// use implicit_clone::imap_deconstruct;
+///
+/// let my_imap = [(IString::from(&quot;foo&quot;), 1), (IString::from(&quot;bar&quot;), 2)]
+///     .into_iter()
+///     .collect::&lt;IMap&lt;IString, u32&gt;&gt;();
+/// imap_deconstruct!(
+///     let { foo, bar, baz } = my_imap;
+///     let { foobarbaz } = my_imap;
+/// );
+/// assert_eq!(foo, Some(1));
+/// assert_eq!(bar, Some(2));
+/// assert_eq!(baz, None);
+/// assert_eq!(foobarbaz, None);
+/// ```
+</span><span class="attribute">#[cfg(feature = <span class="string">&quot;map&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;map&quot;</span>)))]
+#[macro_export]
+</span><span class="macro">macro_rules! </span>imap_deconstruct {
+    ($(<span class="kw">let </span>{ $(<span class="macro-nonterminal">$key</span>:ident),+ $(,)<span class="question-mark">? </span>} = <span class="macro-nonterminal">$map</span>:expr;)<span class="kw-2">*</span>) =&gt; {
+        $(
+        $(
+            <span class="kw">let </span><span class="macro-nonterminal">$key </span>= <span class="macro-nonterminal">$map</span>.get_static_str(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$key</span>));
+        )*
+        )*
+    };
+}
+</code></pre></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="implicit_clone" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

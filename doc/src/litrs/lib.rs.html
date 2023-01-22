@@ -1,0 +1,578 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/litrs-0.2.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../litrs/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Parsing and inspecting Rust literal tokens.
+//!
+//! This library offers functionality to parse Rust literals, i.e. tokens in the
+//! Rust programming language that represent fixed values. The grammar for
+//! those is defined [here][ref].
+//!
+//! This kind of functionality already exists in the crate `syn`. However, as
+//! you oftentimes don&#39;t need (nor want) the full power of `syn`, `litrs` was
+//! built. This crate also offers a bit more flexibility compared to `syn`
+//! (only regarding literals, of course).
+//!
+//! ---
+//!
+//! The main types of this library are [`Literal`], representing any kind of
+//! literal, and `*Lit`, like [`StringLit`] or [`FloatLit`], representing a
+//! specific kind of literal.
+//!
+//! There are different ways to obtain such a literal type:
+//!
+//! - **`parse`**: parses a `&amp;str` or `String` and returns `Result&lt;_,
+//!     ParseError&gt;`. For example: [`Literal::parse`] and
+//!     [`IntegerLit::parse`].
+//!
+//! - **`From&lt;proc_macro::Literal&gt; for Literal`**: turns a `Literal` value from
+//!     the `proc_macro` crate into a `Literal` from this crate.
+//!
+//! - **`TryFrom&lt;proc_macro::Literal&gt; for *Lit`**: tries to turn a
+//!     `proc_macro::Literal` into a specific literal type of this crate. If
+//!     the input is a literal of a different kind, `Err(InvalidToken)` is
+//!     returned.
+//!
+//! - **`TryFrom&lt;proc_macro::TokenTree&gt;`**: attempts to turn a token tree into a
+//!     literal type of this crate. An error is returned if the token tree is
+//!     not a literal, or if you are trying to turn it into a specific kind of
+//!     literal and the token tree is a different kind of literal.
+//!
+//! All of the `From` and `TryFrom` conversions also work for reference to
+//! `proc_macro` types. Additionally, if the crate feature `proc-macro2` is
+//! enabled (which it is by default), all these `From` and `TryFrom` impls also
+//! exist for the corresponding `proc_macro2` types.
+//!
+//! **Note**: `true` and `false` are `Ident`s when passed to your proc macro.
+//! The `TryFrom&lt;TokenTree&gt;` impls check for those two special idents and
+//! return a `BoolLit` appropriately. For that reason, there is also no
+//! `TryFrom&lt;proc_macro::Literal&gt;` impl for `BoolLit`. The `proc_macro::Literal`
+//! simply cannot represent bool literals.
+//!
+//!
+//! # Examples
+//!
+//! In a proc-macro:
+//!
+//! ```ignore
+//! use std::convert::TryFrom;
+//! use proc_macro::TokenStream;
+//! use litrs::FloatLit;
+//!
+//! #[proc_macro]
+//! pub fn foo(input: TokenStream) -&gt; TokenStream {
+//!      let mut input = input.into_iter().collect::&lt;Vec&lt;_&gt;&gt;();
+//!      if input.len() != 1 {
+//!          // Please do proper error handling in your real code!
+//!          panic!(&quot;expected exactly one token as input&quot;);
+//!      }
+//!      let token = input.remove(0);
+//!
+//!      match FloatLit::try_from(token) {
+//!          Ok(float_lit) =&gt; { /* do something */ }
+//!          Err(e) =&gt; return e.to_compile_error(),
+//!      }
+//!
+//!      // Dummy output
+//!      TokenStream::new()
+//! }
+//! ```
+//!
+//! Parsing from string:
+//!
+//! ```
+//! use litrs::{FloatLit, Literal};
+//!
+//! // Parse a specific kind of literal (float in this case):
+//! let float_lit = FloatLit::parse(&quot;3.14f32&quot;);
+//! assert!(float_lit.is_ok());
+//! assert_eq!(float_lit.unwrap().type_suffix(), Some(litrs::FloatType::F32));
+//! assert!(FloatLit::parse(&quot;&#39;c&#39;&quot;).is_err());
+//!
+//! // Parse any kind of literal. After parsing, you can inspect the literal
+//! // and decide what to do in each case.
+//! let lit = Literal::parse(&quot;0xff80&quot;).expect(&quot;failed to parse literal&quot;);
+//! match lit {
+//!     Literal::Integer(lit) =&gt; { /* ... */ }
+//!     Literal::Float(lit) =&gt; { /* ... */ }
+//!     Literal::Bool(lit) =&gt; { /* ... */ }
+//!     Literal::Char(lit) =&gt; { /* ... */ }
+//!     Literal::String(lit) =&gt; { /* ... */ }
+//!     Literal::Byte(lit) =&gt; { /* ... */ }
+//!     Literal::ByteString(lit) =&gt; { /* ... */ }
+//! }
+//! ```
+//!
+//!
+//!
+//! # Crate features
+//!
+//! - `proc-macro2` (**default**): adds the dependency `proc_macro2`, a bunch of
+//!   `From` and `TryFrom` impls, and [`InvalidToken::to_compile_error2`].
+//!
+//!
+//! [ref]: https://doc.rust-lang.org/reference/tokens.html#literals
+//!
+
+</span><span class="attribute">#![deny(missing_debug_implementations)]
+
+</span><span class="kw">extern crate </span>proc_macro;
+
+<span class="attribute">#[cfg(test)]
+#[macro_use]
+</span><span class="kw">mod </span>test_util;
+
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests;
+
+<span class="kw">mod </span>bool;
+<span class="kw">mod </span>byte;
+<span class="kw">mod </span>bytestr;
+<span class="kw">mod </span>char;
+<span class="kw">mod </span>err;
+<span class="kw">mod </span>escape;
+<span class="kw">mod </span>float;
+<span class="kw">mod </span>impls;
+<span class="kw">mod </span>integer;
+<span class="kw">mod </span>parse;
+<span class="kw">mod </span>string;
+
+
+<span class="kw">use </span>std::{borrow::{Borrow, Cow}, fmt, ops::{Deref, Range}};
+
+<span class="kw">pub use </span><span class="self">self</span>::{
+    bool::BoolLit,
+    byte::ByteLit,
+    bytestr::ByteStringLit,
+    char::CharLit,
+    err::{InvalidToken, ParseError},
+    float::{FloatLit, FloatType},
+    integer::{FromIntegerLiteral, IntegerLit, IntegerBase, IntegerType},
+    string::StringLit,
+};
+
+
+<span class="comment">// ==============================================================================================
+// ===== `Literal` and type defs
+// ==============================================================================================
+
+</span><span class="doccomment">/// A literal which owns the underlying buffer.
+</span><span class="kw">pub type </span>OwnedLiteral = Literal&lt;String&gt;;
+
+<span class="doccomment">/// A literal whose underlying buffer is borrowed.
+</span><span class="kw">pub type </span>SharedLiteral&lt;<span class="lifetime">&#39;a</span>&gt; = Literal&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;;
+
+<span class="doccomment">/// A literal. This is the main type of this library.
+///
+/// This type is generic over the underlying buffer `B`, which can be `&amp;str` or
+/// `String`. There are two useful type aliases: [`OwnedLiteral`] and
+/// [`SharedLiteral`].
+///
+/// To create this type, you have to either call [`Literal::parse`] with an
+/// input string or use the `From&lt;_&gt;` impls of this type. The impls are only
+/// available of the corresponding crate features are enabled (they are enabled
+/// by default).
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>Literal&lt;B: Buffer&gt; {
+    Bool(BoolLit),
+    Integer(IntegerLit&lt;B&gt;),
+    Float(FloatLit&lt;B&gt;),
+    Char(CharLit&lt;B&gt;),
+    String(StringLit&lt;B&gt;),
+    Byte(ByteLit&lt;B&gt;),
+    ByteString(ByteStringLit&lt;B&gt;),
+}
+
+<span class="kw">impl </span>Literal&lt;<span class="kw-2">&amp;</span>str&gt; {
+    <span class="doccomment">/// Makes a copy of the underlying buffer and returns the owned version of
+    /// `Self`.
+    </span><span class="kw">pub fn </span>into_owned(<span class="self">self</span>) -&gt; OwnedLiteral {
+        <span class="kw">match </span><span class="self">self </span>{
+            Literal::Bool(l) =&gt; Literal::Bool(l.to_owned()),
+            Literal::Integer(l) =&gt; Literal::Integer(l.to_owned()),
+            Literal::Float(l) =&gt; Literal::Float(l.to_owned()),
+            Literal::Char(l) =&gt; Literal::Char(l.to_owned()),
+            Literal::String(l) =&gt; Literal::String(l.into_owned()),
+            Literal::Byte(l) =&gt; Literal::Byte(l.to_owned()),
+            Literal::ByteString(l) =&gt; Literal::ByteString(l.into_owned()),
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;B: Buffer&gt; fmt::Display <span class="kw">for </span>Literal&lt;B&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            Literal::Bool(l) =&gt; l.fmt(f),
+            Literal::Integer(l) =&gt; l.fmt(f),
+            Literal::Float(l) =&gt; l.fmt(f),
+            Literal::Char(l) =&gt; l.fmt(f),
+            Literal::String(l) =&gt; l.fmt(f),
+            Literal::Byte(l) =&gt; l.fmt(f),
+            Literal::ByteString(l) =&gt; l.fmt(f),
+        }
+    }
+}
+
+
+<span class="comment">// ==============================================================================================
+// ===== Buffer
+// ==============================================================================================
+
+</span><span class="doccomment">/// A shared or owned string buffer. Implemented for `String` and `&amp;str`. *Implementation detail*.
+///
+/// This is trait is implementation detail of this library, cannot be
+/// implemented in other crates and is not subject to semantic versioning.
+/// `litrs` only gurantees that this trait is implemented for `String` and
+/// `for&lt;&#39;a&gt; &amp;&#39;a str`.
+</span><span class="kw">pub trait </span>Buffer: sealed::Sealed + Deref&lt;Target = str&gt; {
+    <span class="doccomment">/// This is `Cow&lt;&#39;static, str&gt;` for `String`, and `Cow&lt;&#39;a, str&gt;` for `&amp;&#39;a str`.
+    </span><span class="kw">type </span>Cow: From&lt;String&gt; + AsRef&lt;str&gt; + Borrow&lt;str&gt; + Deref&lt;Target = str&gt;;
+
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>into_cow(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Cow;
+
+    <span class="doccomment">/// This is `Cow&lt;&#39;static, [u8]&gt;` for `String`, and `Cow&lt;&#39;a, [u8]&gt;` for `&amp;&#39;a str`.
+    </span><span class="kw">type </span>ByteCow: From&lt;Vec&lt;u8&gt;&gt; + AsRef&lt;[u8]&gt; + Borrow&lt;[u8]&gt; + Deref&lt;Target = [u8]&gt;;
+
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>into_byte_cow(<span class="self">self</span>) -&gt; <span class="self">Self</span>::ByteCow;
+
+    <span class="doccomment">/// Cuts away some characters at the beginning and some at the end. Given
+    /// range has to be in bounds.
+    </span><span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>cut(<span class="self">self</span>, range: Range&lt;usize&gt;) -&gt; <span class="self">Self</span>;
+}
+
+<span class="kw">mod </span>sealed {
+    <span class="kw">pub trait </span>Sealed {}
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; sealed::Sealed <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {}
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Buffer <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>cut(<span class="self">self</span>, range: Range&lt;usize&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw-2">&amp;</span><span class="self">self</span>[range]
+    }
+
+    <span class="kw">type </span>Cow = Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;;
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>into_cow(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Cow {
+        <span class="self">self</span>.into()
+    }
+    <span class="kw">type </span>ByteCow = Cow&lt;<span class="lifetime">&#39;a</span>, [u8]&gt;;
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>into_byte_cow(<span class="self">self</span>) -&gt; <span class="self">Self</span>::ByteCow {
+        <span class="self">self</span>.as_bytes().into()
+    }
+}
+
+<span class="kw">impl </span>sealed::Sealed <span class="kw">for </span>String {}
+<span class="kw">impl </span>Buffer <span class="kw">for </span>String {
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>cut(<span class="kw-2">mut </span><span class="self">self</span>, range: Range&lt;usize&gt;) -&gt; <span class="self">Self </span>{
+        <span class="comment">// This is not the most efficient way, but it works. First we cut the
+        // end, then the beginning. Note that `drain` also removes the range if
+        // the iterator is not consumed.
+        </span><span class="self">self</span>.truncate(range.end);
+        <span class="self">self</span>.drain(..range.start);
+        <span class="self">self
+    </span>}
+
+    <span class="kw">type </span>Cow = Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;;
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>into_cow(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Cow {
+        <span class="self">self</span>.into()
+    }
+
+    <span class="kw">type </span>ByteCow = Cow&lt;<span class="lifetime">&#39;static</span>, [u8]&gt;;
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>into_byte_cow(<span class="self">self</span>) -&gt; <span class="self">Self</span>::ByteCow {
+        <span class="self">self</span>.into_bytes().into()
+    }
+}
+</code></pre></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="litrs" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

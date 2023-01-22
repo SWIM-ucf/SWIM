@@ -1,0 +1,97 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Parsing and inspecting Rust literal tokens."><meta name="keywords" content="rust, rustlang, rust-lang, litrs"><title>litrs - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../normalize.css"><link rel="stylesheet" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../ayu.css" disabled><link rel="stylesheet" href="../dark.css" disabled><link rel="stylesheet" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="../crates.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../litrs/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../litrs/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><h2 class="location"><a href="#">Crate litrs</a></h2><div class="sidebar-elems"><ul class="block"><li class="version">Version 0.2.3</li><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></section></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Crate <a class="mod" href="#">litrs</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/litrs/lib.rs.html#1-288">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Parsing and inspecting Rust literal tokens.</p>
+<p>This library offers functionality to parse Rust literals, i.e. tokens in the
+Rust programming language that represent fixed values. The grammar for
+those is defined <a href="https://doc.rust-lang.org/reference/tokens.html#literals">here</a>.</p>
+<p>This kind of functionality already exists in the crate <code>syn</code>. However, as
+you oftentimes don’t need (nor want) the full power of <code>syn</code>, <code>litrs</code> was
+built. This crate also offers a bit more flexibility compared to <code>syn</code>
+(only regarding literals, of course).</p>
+<hr />
+<p>The main types of this library are <a href="enum.Literal.html" title="Literal"><code>Literal</code></a>, representing any kind of
+literal, and <code>*Lit</code>, like <a href="struct.StringLit.html" title="StringLit"><code>StringLit</code></a> or <a href="struct.FloatLit.html" title="FloatLit"><code>FloatLit</code></a>, representing a
+specific kind of literal.</p>
+<p>There are different ways to obtain such a literal type:</p>
+<ul>
+<li>
+<p><strong><code>parse</code></strong>: parses a <code>&amp;str</code> or <code>String</code> and returns <code>Result&lt;_, ParseError&gt;</code>. For example: <a href="enum.Literal.html#method.parse" title="Literal::parse"><code>Literal::parse</code></a> and
+<a href="struct.IntegerLit.html#method.parse" title="IntegerLit::parse"><code>IntegerLit::parse</code></a>.</p>
+</li>
+<li>
+<p><strong><code>From&lt;proc_macro::Literal&gt; for Literal</code></strong>: turns a <code>Literal</code> value from
+the <code>proc_macro</code> crate into a <code>Literal</code> from this crate.</p>
+</li>
+<li>
+<p><strong><code>TryFrom&lt;proc_macro::Literal&gt; for *Lit</code></strong>: tries to turn a
+<code>proc_macro::Literal</code> into a specific literal type of this crate. If
+the input is a literal of a different kind, <code>Err(InvalidToken)</code> is
+returned.</p>
+</li>
+<li>
+<p><strong><code>TryFrom&lt;proc_macro::TokenTree&gt;</code></strong>: attempts to turn a token tree into a
+literal type of this crate. An error is returned if the token tree is
+not a literal, or if you are trying to turn it into a specific kind of
+literal and the token tree is a different kind of literal.</p>
+</li>
+</ul>
+<p>All of the <code>From</code> and <code>TryFrom</code> conversions also work for reference to
+<code>proc_macro</code> types. Additionally, if the crate feature <code>proc-macro2</code> is
+enabled (which it is by default), all these <code>From</code> and <code>TryFrom</code> impls also
+exist for the corresponding <code>proc_macro2</code> types.</p>
+<p><strong>Note</strong>: <code>true</code> and <code>false</code> are <code>Ident</code>s when passed to your proc macro.
+The <code>TryFrom&lt;TokenTree&gt;</code> impls check for those two special idents and
+return a <code>BoolLit</code> appropriately. For that reason, there is also no
+<code>TryFrom&lt;proc_macro::Literal&gt;</code> impl for <code>BoolLit</code>. The <code>proc_macro::Literal</code>
+simply cannot represent bool literals.</p>
+<h2 id="examples"><a href="#examples">Examples</a></h2>
+<p>In a proc-macro:</p>
+
+<div class="example-wrap ignore"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::convert::TryFrom;
+<span class="kw">use </span>proc_macro::TokenStream;
+<span class="kw">use </span>litrs::FloatLit;
+
+<span class="attribute">#[proc_macro]
+</span><span class="kw">pub fn </span>foo(input: TokenStream) -&gt; TokenStream {
+     <span class="kw">let </span><span class="kw-2">mut </span>input = input.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+     <span class="kw">if </span>input.len() != <span class="number">1 </span>{
+         <span class="comment">// Please do proper error handling in your real code!
+         </span><span class="macro">panic!</span>(<span class="string">&quot;expected exactly one token as input&quot;</span>);
+     }
+     <span class="kw">let </span>token = input.remove(<span class="number">0</span>);
+
+     <span class="kw">match </span>FloatLit::try_from(token) {
+         <span class="prelude-val">Ok</span>(float_lit) =&gt; { <span class="comment">/* do something */ </span>}
+         <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span>e.to_compile_error(),
+     }
+
+     <span class="comment">// Dummy output
+     </span>TokenStream::new()
+}</code></pre></div>
+<p>Parsing from string:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>litrs::{FloatLit, Literal};
+
+<span class="comment">// Parse a specific kind of literal (float in this case):
+</span><span class="kw">let </span>float_lit = FloatLit::parse(<span class="string">&quot;3.14f32&quot;</span>);
+<span class="macro">assert!</span>(float_lit.is_ok());
+<span class="macro">assert_eq!</span>(float_lit.unwrap().type_suffix(), <span class="prelude-val">Some</span>(litrs::FloatType::F32));
+<span class="macro">assert!</span>(FloatLit::parse(<span class="string">&quot;&#39;c&#39;&quot;</span>).is_err());
+
+<span class="comment">// Parse any kind of literal. After parsing, you can inspect the literal
+// and decide what to do in each case.
+</span><span class="kw">let </span>lit = Literal::parse(<span class="string">&quot;0xff80&quot;</span>).expect(<span class="string">&quot;failed to parse literal&quot;</span>);
+<span class="kw">match </span>lit {
+    Literal::Integer(lit) =&gt; { <span class="comment">/* ... */ </span>}
+    Literal::Float(lit) =&gt; { <span class="comment">/* ... */ </span>}
+    Literal::Bool(lit) =&gt; { <span class="comment">/* ... */ </span>}
+    Literal::Char(lit) =&gt; { <span class="comment">/* ... */ </span>}
+    Literal::String(lit) =&gt; { <span class="comment">/* ... */ </span>}
+    Literal::Byte(lit) =&gt; { <span class="comment">/* ... */ </span>}
+    Literal::ByteString(lit) =&gt; { <span class="comment">/* ... */ </span>}
+}</code></pre></div>
+<h2 id="crate-features"><a href="#crate-features">Crate features</a></h2>
+<ul>
+<li><code>proc-macro2</code> (<strong>default</strong>): adds the dependency <code>proc_macro2</code>, a bunch of
+<code>From</code> and <code>TryFrom</code> impls, and <a href="struct.InvalidToken.html#method.to_compile_error2" title="InvalidToken::to_compile_error2"><code>InvalidToken::to_compile_error2</code></a>.</li>
+</ul>
+</div></details><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2><div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ByteLit.html" title="litrs::ByteLit struct">ByteLit</a></div><div class="item-right docblock-short">A (single) byte literal, e.g. <code>b'k'</code> or <code>b'!'</code>.</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ByteStringLit.html" title="litrs::ByteStringLit struct">ByteStringLit</a></div><div class="item-right docblock-short">A byte string or raw byte string literal, e.g. <code>b&quot;hello&quot;</code> or <code>br#&quot;abc&quot;def&quot;#</code>.</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.CharLit.html" title="litrs::CharLit struct">CharLit</a></div><div class="item-right docblock-short">A character literal, e.g. <code>'g'</code> or <code>'🦊'</code>.</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.FloatLit.html" title="litrs::FloatLit struct">FloatLit</a></div><div class="item-right docblock-short">A floating point literal, e.g. <code>3.14</code>, <code>8.</code>, <code>135e12</code>, <code>27f32</code> or <code>1.956e2f64</code>.</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.IntegerLit.html" title="litrs::IntegerLit struct">IntegerLit</a></div><div class="item-right docblock-short">An integer literal, e.g. <code>27</code>, <code>0x7F</code>, <code>0b101010u8</code> or <code>5_000_000i64</code>.</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.InvalidToken.html" title="litrs::InvalidToken struct">InvalidToken</a></div><div class="item-right docblock-short">An error signaling that a different kind of token was expected. Returned by
+the various <code>TryFrom</code> impls.</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ParseError.html" title="litrs::ParseError struct">ParseError</a></div><div class="item-right docblock-short">Errors during parsing.</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.StringLit.html" title="litrs::StringLit struct">StringLit</a></div><div class="item-right docblock-short">A string or raw string literal, e.g. <code>&quot;foo&quot;</code>, <code>&quot;Grüße&quot;</code> or <code>r#&quot;a🦊c&quot;d🦀f&quot;#</code>.</div></div></div><h2 id="enums" class="small-section-header"><a href="#enums">Enums</a></h2><div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.BoolLit.html" title="litrs::BoolLit enum">BoolLit</a></div><div class="item-right docblock-short">A bool literal: <code>true</code> or <code>false</code>. Also see <a href="https://doc.rust-lang.org/reference/tokens.html#boolean-literals">the reference</a>.</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.FloatType.html" title="litrs::FloatType enum">FloatType</a></div><div class="item-right docblock-short">All possible float type suffixes.</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.IntegerBase.html" title="litrs::IntegerBase enum">IntegerBase</a></div><div class="item-right docblock-short">The bases in which an integer can be specified.</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.IntegerType.html" title="litrs::IntegerType enum">IntegerType</a></div><div class="item-right docblock-short">All possible integer type suffixes.</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.Literal.html" title="litrs::Literal enum">Literal</a></div><div class="item-right docblock-short">A literal. This is the main type of this library.</div></div></div><h2 id="traits" class="small-section-header"><a href="#traits">Traits</a></h2><div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Buffer.html" title="litrs::Buffer trait">Buffer</a></div><div class="item-right docblock-short">A shared or owned string buffer. Implemented for <code>String</code> and <code>&amp;str</code>. <em>Implementation detail</em>.</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.FromIntegerLiteral.html" title="litrs::FromIntegerLiteral trait">FromIntegerLiteral</a></div><div class="item-right docblock-short">Integer literal types. <em>Implementation detail</em>.</div></div></div><h2 id="types" class="small-section-header"><a href="#types">Type Definitions</a></h2><div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="type" href="type.OwnedLiteral.html" title="litrs::OwnedLiteral type">OwnedLiteral</a></div><div class="item-right docblock-short">A literal which owns the underlying buffer.</div></div><div class="item-row"><div class="item-left module-item"><a class="type" href="type.SharedLiteral.html" title="litrs::SharedLiteral type">SharedLiteral</a></div><div class="item-right docblock-short">A literal whose underlying buffer is borrowed.</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="litrs" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

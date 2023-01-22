@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["alert","Calls the alert function."],["confirm","Calls the confirm function."],["prompt","Calls the `prompt` function."]]};

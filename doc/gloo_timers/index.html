@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Working with timers on the Web: `setTimeout` and `setInterval`."><meta name="keywords" content="rust, rustlang, rust-lang, gloo_timers"><title>gloo_timers - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../normalize.css"><link rel="stylesheet" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../ayu.css" disabled><link rel="stylesheet" href="../dark.css" disabled><link rel="stylesheet" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="../crates.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../gloo_timers/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../gloo_timers/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><h2 class="location"><a href="#">Crate gloo_timers</a></h2><div class="sidebar-elems"><ul class="block"><li class="version">Version 0.2.4</li><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#modules">Modules</a></li></ul></section></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Crate <a class="mod" href="#">gloo_timers</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/gloo_timers/lib.rs.html#1-66">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Working with timers on the Web: <code>setTimeout</code> and <code>setInterval</code>.</p>
+<p>These APIs come in two flavors:</p>
+<ol>
+<li>a callback style (that more directly mimics the JavaScript APIs), and</li>
+<li>a <code>Future</code>s and <code>Stream</code>s API.</li>
+</ol>
+<h3 id="timeouts"><a href="#timeouts">Timeouts</a></h3>
+<p>Timeouts fire once after a period of time (measured in milliseconds).</p>
+<h4 id="timeouts-with-a-callback-function"><a href="#timeouts-with-a-callback-function">Timeouts with a Callback Function</a></h4>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>gloo_timers::callback::Timeout;
+
+<span class="kw">let </span>timeout = Timeout::new(<span class="number">1_000</span>, <span class="kw">move </span>|| {
+    <span class="comment">// Do something after the one second timeout is up!
+</span>});
+
+<span class="comment">// Since we don&#39;t plan on cancelling the timeout, call `forget`.
+</span>timeout.forget();</code></pre></div>
+<h4 id="timeouts-as-futures"><a href="#timeouts-as-futures">Timeouts as <code>Future</code>s</a></h4>
+<p>With the <code>futures</code> feature enabled, a <code>future</code> module containing futures-based
+timers is exposed.</p>
+
+<div class="example-wrap ignore"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code><span class="kw">use </span>gloo_timers::future::TimeoutFuture;
+<span class="kw">use </span>wasm_bindgen_futures::spawn_local;
+
+<span class="comment">// Spawn the `timeout` future on the local thread. If we just dropped it, then
+// the timeout would be cancelled with `clearTimeout`.
+</span>spawn_local(<span class="kw">async </span>{
+    TimeoutFuture::new(<span class="number">1_000</span>).<span class="kw">await</span>;
+    <span class="comment">// Do something here after the one second timeout is up!
+</span>});</code></pre></div>
+<h3 id="intervals"><a href="#intervals">Intervals</a></h3>
+<p>Intervals fire repeatedly every <em>n</em> milliseconds.</p>
+<h4 id="intervals-with-a-callback-function"><a href="#intervals-with-a-callback-function">Intervals with a Callback Function</a></h4>
+<p>TODO</p>
+<h4 id="intervals-as-streams"><a href="#intervals-as-streams">Intervals as <code>Stream</code>s</a></h4>
+<p>TODO</p>
+</div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2><div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="callback/index.html" title="gloo_timers::callback mod">callback</a></div><div class="item-right docblock-short">Callback-style timer APIs.</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="gloo_timers" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

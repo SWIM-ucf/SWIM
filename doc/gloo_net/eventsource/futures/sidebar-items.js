@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["EventSource","Wrapper around browser’s EventSource API. Dropping this will close the underlying event source."],["EventSourceSubscription","Wrapper around browser’s EventSource API."]]};

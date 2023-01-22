@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["Message","Message sent to and received from WebSocket."],["State","The state of the websocket."],["WebSocketError","Error returned by WebSocket"]],"mod":[["events","WebSocket Events"],["futures","The wrapper around `WebSocket` API using the Futures API to be used in async rust"]]};

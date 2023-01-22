@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["StyleId","The Unique Identifier of a Style."],["StyleManager","A struct to customise behaviour of `Style`."],["StyleManagerBuilder","A builder for [`StyleManager`]."]]};

@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This hook is used for obtaining a mutable reference to a stateful value. Its state persists across renders."><meta name="keywords" content="rust, rustlang, rust-lang, use_mut_ref"><title>use_mut_ref in yew::functional - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../yew/index.html"><div class="logo-container"><img src="https://yew.rs/img/logo.png" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../yew/index.html"><div class="logo-container">
+                    <img src="https://yew.rs/img/logo.png" alt="logo"></div></a><div class="sidebar-elems"><h2><a href="index.html">In yew::functional</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Function <a href="../index.html">yew</a>::<wbr><a href="index.html">functional</a>::<wbr><a class="fn" href="#">use_mut_ref</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../../src/yew/functional/hooks/use_ref.rs.html#67-72">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="item-decl"><pre class="rust fn"><code>pub fn use_mut_ref&lt;T:&nbsp;'static, F&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;init_fn: F<br>) -&gt; impl <a class="trait" href="trait.Hook.html" title="trait yew::functional::Hook">Hook</a>&lt;Output = <a class="struct" href="https://doc.rust-lang.org/1.66.1/alloc/rc/struct.Rc.html" title="struct alloc::rc::Rc">Rc</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.66.1/core/cell/struct.RefCell.html" title="struct core::cell::RefCell">RefCell</a>&lt;T&gt;&gt;&gt;<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/1.66.1/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>() -&gt; T,</span></code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This hook is used for obtaining a mutable reference to a stateful value.
+Its state persists across renders.</p>
+<p>It is important to note that you do not get notified of state changes.
+If you need the component to be re-rendered on state change, consider using
+<a href="fn.use_state.html"><code>use_state</code></a>.</p>
+<h2 id="example"><a href="#example">Example</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::cell::RefCell;
+<span class="kw">use </span>std::ops::{Deref, DerefMut};
+<span class="kw">use </span>std::rc::Rc;
+
+<span class="kw">use </span>web_sys::HtmlInputElement;
+<span class="kw">use </span>yew::prelude::<span class="kw-2">*</span>;
+
+<span class="attribute">#[function_component(UseRef)]
+</span><span class="kw">fn </span>ref_hook() -&gt; Html {
+    <span class="kw">let </span>message = use_state(|| <span class="string">&quot;&quot;</span>.to_string());
+    <span class="kw">let </span>message_count = use_mut_ref(|| <span class="number">0</span>);
+
+    <span class="kw">let </span>onclick = Callback::from(<span class="kw">move </span>|e| {
+        <span class="kw">let </span>window = gloo::utils::window();
+
+        <span class="kw">if </span><span class="kw-2">*</span>message_count.borrow_mut() &gt; <span class="number">3 </span>{
+            window.alert_with_message(<span class="string">&quot;Message limit reached&quot;</span>);
+        } <span class="kw">else </span>{
+            <span class="kw-2">*</span>message_count.borrow_mut() += <span class="number">1</span>;
+            window.alert_with_message(<span class="string">&quot;Message sent&quot;</span>);
+        }
+    });
+
+    <span class="kw">let </span>onchange = {
+        <span class="kw">let </span>message = message.clone();
+        Callback::from(<span class="kw">move </span>|e: Event| {
+            <span class="kw">let </span>input: HtmlInputElement = e.target_unchecked_into();
+            message.set(input.value())
+        })
+    };
+
+    <span class="macro">html! </span>{
+        &lt;div&gt;
+            &lt;input {onchange} value={(<span class="kw-2">*</span>message).clone()} /&gt;
+            &lt;button {onclick}&gt;{ <span class="string">&quot;Send&quot; </span>}&lt;/button&gt;
+        &lt;/div&gt;
+    }
+}</code></pre></div>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="yew" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>
