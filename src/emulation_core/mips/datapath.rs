@@ -290,9 +290,13 @@ impl MipsDatapath {
                 self.state.rd = 0; // Placeholder
                 self.state.imm = i.immediate as u32;
             }
-            // For instructions that exclusively use the FPU, these data lines
+            // R-type FPU instructions exclusively use the FPU, so these data lines
             // do not need to be used.
             Instruction::FpuRType(_) => (),
+            Instruction::FpuIType(i) => {
+                self.state.rs = i.base as u32;
+                self.state.imm = i.offset as u32;
+            }
             _ => unimplemented!(),
         }
     }
@@ -382,6 +386,14 @@ impl MipsDatapath {
         }
     }
 
+    /// Set the control signals for the datapath, specifically in the
+    /// case where the instruction is an FPU I-type.
+    fn set_fpu_itype_control_signals(&mut self, i: FpuIType) {
+        match i.op {
+            _ => unimplemented!("FPU I-type instruction with opcode `{}`", i.op),
+        }
+    }
+
     /// Set the control signals for the datapath based on the
     /// instruction's opcode.
     fn set_control_signals(&mut self) {
@@ -402,7 +414,10 @@ impl MipsDatapath {
                     reg_write: RegWrite::NoWrite,
                     ..Default::default()
                 };
-            } // _ => panic!("Unsupported instruction")
+            }
+            Instruction::FpuIType(i) => {
+                self.set_fpu_itype_control_signals(i);
+            }
         }
     }
 

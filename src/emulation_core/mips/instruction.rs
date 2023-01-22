@@ -36,12 +36,21 @@ pub struct FpuRType {
     pub function: u8,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct FpuIType {
+    pub op: u8,
+    pub base: u8,
+    pub ft: u8,
+    pub offset: u16,
+}
+
 #[derive(Debug, PartialEq)]
 pub enum Instruction {
     RType(RType),
     IType(IType),
     JType(JType),
     FpuRType(FpuRType),
+    FpuIType(FpuIType),
 }
 
 impl Default for Instruction {
