@@ -405,6 +405,21 @@ impl MipsDatapath {
     /// case where the instruction is an FPU I-type.
     fn set_fpu_itype_control_signals(&mut self, i: FpuIType) {
         match i.op {
+            OPCODE_SWC1 => {
+                self.signals = ControlSignals {
+                    alu_op: AluOp::Addition,
+                    alu_src: AluSrc::SignExtendedImmediate,
+                    branch: Branch::NoBranch,
+                    imm_shift: ImmShift::Shift0,
+                    jump: Jump::NoJump,
+                    mem_read: MemRead::NoRead,
+                    mem_write: MemWrite::YesWrite,
+                    mem_write_src: MemWriteSrc::FloatingPointUnit,
+                    reg_width: RegWidth::Word,
+                    reg_write: RegWrite::NoWrite,
+                    ..Default::default()
+                }
+            }
             _ => unimplemented!("FPU I-type instruction with opcode `{}`", i.op),
         }
     }
