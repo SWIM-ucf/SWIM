@@ -470,7 +470,7 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                     Some(labels.clone()),
                 );
 
-                instruction.binary = append_binary(instruction.binary, 0b000, 3); //cc = 000
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1010, 4);
                 //EQ
             }
@@ -485,7 +485,7 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                     Some(labels.clone()),
                 );
 
-                instruction.binary = append_binary(instruction.binary, 0b000, 3); //cc = 000
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1010, 4);
                 //EQ
             }
@@ -500,7 +500,7 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                     Some(labels.clone()),
                 );
 
-                instruction.binary = append_binary(instruction.binary, 0b000, 3); //cc = 000
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1100, 4);
                 //lt
             }
@@ -515,7 +515,7 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                     Some(labels.clone()),
                 );
 
-                instruction.binary = append_binary(instruction.binary, 0b000, 3); //cc = 000
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1100, 4);
                 //lt
             }
@@ -530,7 +530,7 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                     Some(labels.clone()),
                 );
 
-                instruction.binary = append_binary(instruction.binary, 0b000, 3); //cc = 000
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1110, 4);
                 //le
             }
@@ -545,7 +545,7 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                     Some(labels.clone()),
                 );
 
-                instruction.binary = append_binary(instruction.binary, 0b000, 3); //cc = 000
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1110, 4);
                 //le
             }
@@ -560,7 +560,7 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                     Some(labels.clone()),
                 );
 
-                instruction.binary = append_binary(instruction.binary, 0b000, 3); //cc = 000
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1111, 4);
                 //ngt
             }
@@ -575,7 +575,7 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                     Some(labels.clone()),
                 );
 
-                instruction.binary = append_binary(instruction.binary, 0b000, 3); //cc = 000
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1111, 4);
                 //ngt
             }
@@ -590,7 +590,7 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                     Some(labels.clone()),
                 );
 
-                instruction.binary = append_binary(instruction.binary, 0b000, 3); //cc = 000
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1101, 4);
                 //nge
             }
@@ -605,7 +605,7 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                     Some(labels.clone()),
                 );
 
-                instruction.binary = append_binary(instruction.binary, 0b000, 3); //cc = 000
+                instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1101, 4);
                 //nge
             }

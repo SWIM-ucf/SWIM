@@ -124,7 +124,7 @@ pub fn read_operands(
                 let label_relative_results = read_label_relative(
                     &instruction.operands[i].token_name,
                     i as i32,
-                    instruction.instruction_number.clone(),
+                    instruction.instruction_number,
                     labels.clone().unwrap(),
                 );
                 binary_representation.push(label_relative_results.0);

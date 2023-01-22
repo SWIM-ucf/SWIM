@@ -476,6 +476,106 @@ mod read_instructions_tests {
             0b00010101001010101111111111111101
         )
     }
+
+    #[test]
+    fn read_instructions_c_eq_s() {
+        let instruction_list = simulate_parser("c.eq.s $f9, $f22".to_string());
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110000101100100100000111010
+        )
+    }
+
+    #[test]
+    fn read_instructions_c_eq_d() {
+        let instruction_list = simulate_parser("c.eq.d $f9, $f22".to_string());
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110001101100100100000111010
+        )
+    }
+
+    #[test]
+    fn read_instructions_c_lt_s() {
+        let instruction_list = simulate_parser("c.lt.s $f9, $f22".to_string());
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110000101100100100000111100
+        )
+    }
+
+    #[test]
+    fn read_instructions_c_lt_d() {
+        let instruction_list = simulate_parser("c.lt.d $f9, $f22".to_string());
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110001101100100100000111100
+        )
+    }
+
+    #[test]
+    fn read_instructions_c_le_s() {
+        let instruction_list = simulate_parser("c.le.s $f9, $f22".to_string());
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110000101100100100000111110
+        )
+    }
+
+    #[test]
+    fn read_instructions_c_le_d() {
+        let instruction_list = simulate_parser("c.le.d $f9, $f22".to_string());
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110001101100100100000111110
+        )
+    }
+
+    #[test]
+    fn read_instructions_c_ngt_s() {
+        let instruction_list = simulate_parser("c.ngt.s $f9, $f22".to_string());
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110000101100100100000111111
+        )
+    }
+
+    #[test]
+    fn read_instructions_c_ngt_d() {
+        let instruction_list = simulate_parser("c.ngt.d $f9, $f22".to_string());
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110001101100100100000111111
+        )
+    }
+
+    #[test]
+    fn read_instructions_c_nge_s() {
+        let instruction_list = simulate_parser("c.nge.s $f9, $f22".to_string());
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110000101100100100000111101
+        )
+    }
+
+    #[test]
+    fn read_instructions_c_nge_d() {
+        let instruction_list = simulate_parser("c.nge.d $f9, $f22".to_string());
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01000110001101100100100000111101
+        )
+    }
 }
 use crate::parser::parser_main::place_binary_in_middle_of_another;
 #[test]
