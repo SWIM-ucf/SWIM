@@ -205,7 +205,9 @@ impl MipsFpCoprocessor {
                 _ => unimplemented!("Unsupported opcode `{}` for FPU I-type instruction", i.op),
             },
             // These types do not use the floating-point unit so they can be ignored.
-            Instruction::RType(_) | Instruction::IType(_) | Instruction::JType(_) => (),
+            Instruction::RType(_) | Instruction::IType(_) | Instruction::JType(_) => {
+                self.signals = FpuControlSignals::default()
+            }
         }
     }
 
