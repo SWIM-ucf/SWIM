@@ -111,8 +111,8 @@ impl From<u32> for Instruction {
                 immediate: (value & 0xFFFF) as u16,
             }),
 
-            // Store word to Coprocessor 1
-            OPCODE_SWC1 => Instruction::FpuIType(FpuIType {
+            // Store/load word to Coprocessor 1
+            OPCODE_SWC1 | OPCODE_LWC1 => Instruction::FpuIType(FpuIType {
                 op: ((value >> 26) & 0x3F) as u8,
                 base: ((value >> 21) & 0x1F) as u8,
                 ft: ((value >> 16) & 0x1F) as u8,
