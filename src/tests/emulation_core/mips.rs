@@ -4,125 +4,128 @@ use crate::emulation_core::datapath::Datapath;
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::emulation_core::mips::registers::GpRegisterType;
 
-#[test]
-fn add_register_to_itself() {
-    let mut datapath = MipsDatapath::default();
+pub mod add {
+    use super::*;
+    #[test]
+    fn add_register_to_itself() {
+        let mut datapath = MipsDatapath::default();
 
-    // $t1 = $t1 + $t1
-    //                       R-type  t1    t1    t1  (shamt)  ADD
-    let instruction: u32 = 0b000000_01001_01001_01001_00000_100000;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // $t1 = $t1 + $t1
+        //                       R-type  t1    t1    t1  (shamt)  ADD
+        let instruction: u32 = 0b000000_01001_01001_01001_00000_100000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    // Assume the register $t1 has the value 5.
-    datapath.registers[GpRegisterType::T1] = 5;
+        // Assume the register $t1 has the value 5.
+        datapath.registers[GpRegisterType::T1] = 5;
 
-    datapath.execute_instruction();
+        datapath.execute_instruction();
 
-    // After the operation is finished, the register should be 10.
-    assert_eq!(datapath.registers[GpRegisterType::T1], 10);
-}
+        // After the operation is finished, the register should be 10.
+        assert_eq!(datapath.registers[GpRegisterType::T1], 10);
+    }
 
-#[test]
-fn add_register_to_another() {
-    let mut datapath = MipsDatapath::default();
+    #[test]
+    fn add_register_to_another() {
+        let mut datapath = MipsDatapath::default();
 
-    // $s2 = $s0 + $s1
-    //                       R-type  s0    s1    s2  (shamt)  ADD
-    let instruction: u32 = 0b000000_10000_10001_10010_00000_100000;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // $s2 = $s0 + $s1
+        //                       R-type  s0    s1    s2  (shamt)  ADD
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_100000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    datapath.registers.gpr[16] = 15; // $s0
-    datapath.registers.gpr[17] = 40; // $s1
+        datapath.registers.gpr[16] = 15; // $s0
+        datapath.registers.gpr[17] = 40; // $s1
 
-    datapath.execute_instruction();
+        datapath.execute_instruction();
 
-    // Register $s2 should contain 55.
-    let result = datapath.registers.gpr[18] as u32;
-    assert_eq!(result, 55);
-}
+        // Register $s2 should contain 55.
+        let result = datapath.registers.gpr[18] as u32;
+        assert_eq!(result, 55);
+    }
 
-#[test]
-// This test attempts to write to register $zero. The datapath should
-// not overwrite this register, and remain with a value of 0.
-fn add_to_register_zero() {
-    let mut datapath = MipsDatapath::default();
+    #[test]
+    // This test attempts to write to register $zero. The datapath should
+    // not overwrite this register, and remain with a value of 0.
+    fn add_to_register_zero() {
+        let mut datapath = MipsDatapath::default();
 
-    // $zero = $t3 + $t3
-    //                       R-type  t3    t3    zero (shamt) ADD
-    let instruction: u32 = 0b000000_01011_01011_00000_00000_100000;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // $zero = $t3 + $t3
+        //                       R-type  t3    t3    zero (shamt) ADD
+        let instruction: u32 = 0b000000_01011_01011_00000_00000_100000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    datapath.registers.gpr[11] = 1234; // $t3
+        datapath.registers.gpr[11] = 1234; // $t3
 
-    datapath.execute_instruction();
+        datapath.execute_instruction();
 
-    // $zero should still contain 0.
-    assert_eq!(datapath.registers.gpr[0], 0);
-}
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers.gpr[0], 0);
+    }
 
-#[test]
-// NOTE: This test falls under our initial project design that there are no
-// handled exceptions. Therefore, we would expect to see an updated value in
-// register T1, rather than having the register unmodified per the MIPS64v6
-// specification.
-fn add_32_bit_with_overflow() {
-    let mut datapath = MipsDatapath::default();
+    #[test]
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register T1, rather than having the register unmodified per the MIPS64v6
+    // specification.
+    fn add_32_bit_with_overflow() {
+        let mut datapath = MipsDatapath::default();
 
-    // $t1 = $t4 + $t4
-    //                       R-type  t4    t4    t1 (shamt) ADD
-    let instruction: u32 = 0b000000_01100_01100_01001_00000_100000;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // $t1 = $t4 + $t4
+        //                       R-type  t4    t4    t1 (shamt) ADD
+        let instruction: u32 = 0b000000_01100_01100_01001_00000_100000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    // Assume register $t4 contains 2,454,267,026, a 32-bit integer.
-    datapath.registers.gpr[12] = 0b10010010_01001001_00100100_10010010;
+        // Assume register $t4 contains 2,454,267,026, a 32-bit integer.
+        datapath.registers.gpr[12] = 0b10010010_01001001_00100100_10010010;
 
-    datapath.execute_instruction();
+        datapath.execute_instruction();
 
-    // Disregarding overflow, register $t4 would contain 4,908,534,052, or
-    // 1_00100100_10010010_01001001_00100100 in binary. The result
-    // should be truncated. Thus, we should expect the register to
-    // contain 613,566,756, or 00100100_10010010_01001001_00100100 in binary.
-    assert_eq!(datapath.registers.gpr[9], 613566756);
-}
+        // Disregarding overflow, register $t4 would contain 4,908,534,052, or
+        // 1_00100100_10010010_01001001_00100100 in binary. The result
+        // should be truncated. Thus, we should expect the register to
+        // contain 613,566,756, or 00100100_10010010_01001001_00100100 in binary.
+        assert_eq!(datapath.registers.gpr[9], 613566756);
+    }
 
-#[test]
-// NOTE: This test falls under our initial project design that there are no
-// handled exceptions. Therefore, we would expect to see an updated value in
-// register T1, rather than having the register unmodified per the MIPS64v6
-// specification.
-fn add_32_bit_with_overflow_sign_extend() {
-    let mut datapath = MipsDatapath::default();
+    #[test]
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register T1, rather than having the register unmodified per the MIPS64v6
+    // specification.
+    fn add_32_bit_with_overflow_sign_extend() {
+        let mut datapath = MipsDatapath::default();
 
-    // $t1 = $t4 + $t4
-    //                       R-type  t4    t4    t1 (shamt) ADD
-    let instruction: u32 = 0b000000_01100_01100_01001_00000_100000;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // $t1 = $t4 + $t4
+        //                       R-type  t4    t4    t1 (shamt) ADD
+        let instruction: u32 = 0b000000_01100_01100_01001_00000_100000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    // Assume register $t4 contains 3,528,008,850, a 32-bit integer.
-    datapath.registers.gpr[12] = 0b11010010_01001001_00100100_10010010;
+        // Assume register $t4 contains 3,528,008,850, a 32-bit integer.
+        datapath.registers.gpr[12] = 0b11010010_01001001_00100100_10010010;
 
-    datapath.execute_instruction();
+        datapath.execute_instruction();
 
-    // Disregarding overflow, register $t4 would contain 7,056,017,700, or
-    // 1_10100100_10010010_01001001_00100100 in binary. The result
-    // should be truncated. Thus, we should expect the register to
-    // contain 2,761,050,404, or 10100100_10010010_01001001_00100100 in binary.
-    assert_eq!(datapath.registers.gpr[9] as u32, 2761050404);
+        // Disregarding overflow, register $t4 would contain 7,056,017,700, or
+        // 1_10100100_10010010_01001001_00100100 in binary. The result
+        // should be truncated. Thus, we should expect the register to
+        // contain 2,761,050,404, or 10100100_10010010_01001001_00100100 in binary.
+        assert_eq!(datapath.registers.gpr[9] as u32, 2761050404);
+    }
 }
 
 #[test]
