@@ -340,7 +340,7 @@ pub mod and {
         datapath.execute_instruction();
 
         // Register $s2 should contain 55.
-        let result = datapath.registers.gpr[18] as u64;
+        let result = datapath.registers.gpr[18];
         assert_eq!(result, 0x0220);
     }
 
@@ -362,7 +362,7 @@ pub mod and {
         datapath.execute_instruction();
 
         // Register $s2 should contain 55.
-        let result = datapath.registers.gpr[18] as u64;
+        let result = datapath.registers.gpr[18];
         assert_eq!(result, 0x02200220);
     }
 
@@ -384,7 +384,7 @@ pub mod and {
         datapath.execute_instruction();
 
         // Register $s2 should contain 55.
-        let result = datapath.registers.gpr[18] as u64;
+        let result = datapath.registers.gpr[18];
         assert_eq!(result, 0x0220022002200220);
     }
 
