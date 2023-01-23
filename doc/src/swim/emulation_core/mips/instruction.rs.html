@@ -89,22 +89,6 @@
 <span id="89">89</span>
 <span id="90">90</span>
 <span id="91">91</span>
-<span id="92">92</span>
-<span id="93">93</span>
-<span id="94">94</span>
-<span id="95">95</span>
-<span id="96">96</span>
-<span id="97">97</span>
-<span id="98">98</span>
-<span id="99">99</span>
-<span id="100">100</span>
-<span id="101">101</span>
-<span id="102">102</span>
-<span id="103">103</span>
-<span id="104">104</span>
-<span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Abstract representation of an instruction.
 
 </span><span class="kw">use </span><span class="kw">super</span>::constants::<span class="kw-2">*</span>;
@@ -185,24 +169,8 @@
                 function: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
             }),
 
-            <span class="comment">// Load Word (lw)
-            </span>OPCODE_LW =&gt; Instruction::IType(IType {
-                op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
-                rs: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                rt: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                immediate: (value &amp; <span class="number">0xFFFF</span>) <span class="kw">as </span>u16,
-            }),
-
-            <span class="comment">// Store Word (sw)
-            </span>OPCODE_SW =&gt; Instruction::IType(IType {
-                op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
-                rs: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                rt: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                immediate: (value &amp; <span class="number">0xFFFF</span>) <span class="kw">as </span>u16,
-            }),
-
-            <span class="comment">// Or immediate (ori)
-            </span>OPCODE_ORI =&gt; Instruction::IType(IType {
+            <span class="comment">// I-Type instructions:
+            </span>OPCODE_LW | OPCODE_SW | OPCODE_ORI | OPCODE_ANDI =&gt; Instruction::IType(IType {
                 op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                 rs: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                 rt: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,

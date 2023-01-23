@@ -75,6 +75,7 @@
 <span id="75">75</span>
 <span id="76">76</span>
 <span id="77">77</span>
+<span id="78">78</span>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::control_signals::RegWidth;
 
 <span class="kw">pub const </span>FUNCT_ADD: u8 = <span class="number">0b100000</span>;
@@ -114,6 +115,7 @@
 <span class="doccomment">/// Used for many R-type instructions, like `ADD`, `SUB`, `MUL`, and `DIV`.
 </span><span class="kw">pub const </span>OPCODE_SPECIAL: u8 = <span class="number">0b000000</span>;
 <span class="kw">pub const </span>OPCODE_ORI: u8 = <span class="number">0b001101</span>;
+<span class="kw">pub const </span>OPCODE_ANDI: u8 = <span class="number">0b001100</span>;
 <span class="kw">pub const </span>OPCODE_COP1: u8 = <span class="number">0b010001</span>;
 <span class="kw">pub const </span>OPCODE_LW: u8 = <span class="number">0b100011</span>;
 <span class="kw">pub const </span>OPCODE_SW: u8 = <span class="number">0b101011</span>;
