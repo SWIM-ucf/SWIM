@@ -2,6 +2,7 @@
 
 pub const CAPACITY_BYTES: usize = 4 * 1024; // 4 KB
 
+#[derive(PartialEq)]
 pub struct Memory {
     pub memory: Vec<u8>,
 }
@@ -20,12 +21,16 @@ impl Memory {
     /// the address.
     fn check_valid_address(&self, address: usize) -> Result<(), String> {
         if address % 4 != 0 {
-            return Err(String::from("Address is not byte-aligned"));
+            Err(format!("Address `{}` is not word-aligned", address))
         } else if address > self.memory.len() {
-            return Err(String::from("Address out of bounds of memory"));
+            Err(format!(
+                "Address `{}` out of bounds of memory of size {}",
+                address,
+                self.memory.len()
+            ))
+        } else {
+            Ok(())
         }
-
-        Ok(())
     }
 
     // A word is 32 bits.
