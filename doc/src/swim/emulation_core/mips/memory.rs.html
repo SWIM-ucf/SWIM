@@ -95,10 +95,12 @@
 <span id="95">95</span>
 <span id="96">96</span>
 <span id="97">97</span>
+<span id="98">98</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Data and instruction memory implementation and API.
 
 </span><span class="kw">pub const </span>CAPACITY_BYTES: usize = <span class="number">4 </span>* <span class="number">1024</span>; <span class="comment">// 4 KB
 
+</span><span class="attribute">#[derive(PartialEq)]
 </span><span class="kw">pub struct </span>Memory {
     <span class="kw">pub </span>memory: Vec&lt;u8&gt;,
 }

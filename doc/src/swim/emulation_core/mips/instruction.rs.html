@@ -109,7 +109,7 @@
 
 </span><span class="kw">use </span><span class="kw">super</span>::constants::<span class="kw-2">*</span>;
 
-<span class="attribute">#[derive(Debug, Default, Clone, Copy)]
+<span class="attribute">#[derive(Clone, Copy, Debug, Default, PartialEq)]
 </span><span class="kw">pub struct </span>RType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>rs: u8,
@@ -119,7 +119,7 @@
     <span class="kw">pub </span>funct: u8,
 }
 
-<span class="attribute">#[derive(Debug, Default, Clone, Copy)]
+<span class="attribute">#[derive(Clone, Copy, Debug, Default, PartialEq)]
 </span><span class="kw">pub struct </span>IType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>rs: u8,
@@ -127,13 +127,13 @@
     <span class="kw">pub </span>immediate: u16,
 }
 
-<span class="attribute">#[derive(Debug, Default, Clone, Copy)]
+<span class="attribute">#[derive(Clone, Copy, Debug, Default, PartialEq)]
 </span><span class="kw">pub struct </span>JType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>addr: u32,
 }
 
-<span class="attribute">#[derive(Debug, Default, Clone, Copy)]
+<span class="attribute">#[derive(Clone, Copy, Debug, Default, PartialEq)]
 </span><span class="kw">pub struct </span>FpuRType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>fmt: u8,
@@ -143,7 +143,7 @@
     <span class="kw">pub </span>function: u8,
 }
 
-<span class="attribute">#[derive(Debug)]
+<span class="attribute">#[derive(Debug, PartialEq)]
 </span><span class="kw">pub enum </span>Instruction {
     RType(RType),
     IType(IType),

@@ -661,7 +661,7 @@
 <span class="kw">use super</span>::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 
 <span class="doccomment">/// An implementation of a datapath for the MIPS64 ISA.
-</span><span class="attribute">#[derive(Default)]
+</span><span class="attribute">#[derive(Default, PartialEq)]
 </span><span class="kw">pub struct </span>MipsDatapath {
     <span class="kw">pub </span>registers: GpRegisters,
     <span class="kw">pub </span>memory: Memory,
@@ -676,7 +676,7 @@
 }
 
 <span class="doccomment">/// A collection of all the data lines and wires in the datapath.
-</span><span class="attribute">#[derive(Default)]
+</span><span class="attribute">#[derive(Default, PartialEq)]
 </span><span class="kw">pub struct </span>DatapathState {
     <span class="doccomment">/// *Data line.* The currently loaded instruction. Initialized after the
     /// Instruction Fetch stage.

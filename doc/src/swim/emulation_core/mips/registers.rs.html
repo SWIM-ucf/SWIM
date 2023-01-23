@@ -206,7 +206,7 @@
 <span class="kw">use </span>strum_macros::{Display, EnumIter, EnumString};
 
 <span class="doccomment">/// Collection of general-purpose registers used by the datapath.
-</span><span class="attribute">#[derive(Clone, Copy, Default)]
+</span><span class="attribute">#[derive(Clone, Copy, Default, PartialEq)]
 </span><span class="kw">pub struct </span>GpRegisters {
     <span class="kw">pub </span>pc: u64,
     <span class="kw">pub </span>gpr: [u64; <span class="number">32</span>],

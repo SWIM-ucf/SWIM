@@ -324,7 +324,7 @@
 ///
 /// Different from the main processor, much of the functionality of the coprocessor
 /// is controlled remotely using its available API calls.
-</span><span class="attribute">#[derive(Default)]
+</span><span class="attribute">#[derive(Default, PartialEq)]
 </span><span class="kw">pub struct </span>MipsFpCoprocessor {
     instruction: Instruction,
     <span class="kw">pub </span>signals: FpuControlSignals,
@@ -335,7 +335,7 @@
     data: u64,
 }
 
-<span class="attribute">#[derive(Default)]
+<span class="attribute">#[derive(Default, PartialEq)]
 </span><span class="kw">pub struct </span>FpuState {
     instruction: u32,
     op: u32,
