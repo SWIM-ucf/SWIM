@@ -170,6 +170,9 @@ pub enum MemRead {
 ///
 /// The decision can be completely overridden by the floating point
 /// unit's [`DataWrite`](floating_point::DataWrite) control signal.
+///
+/// This control signal also applies to what data is sent to the
+/// floating-point unit to be stored in its registers.
 #[derive(Default, PartialEq)]
 pub enum MemToReg {
     #[default]
