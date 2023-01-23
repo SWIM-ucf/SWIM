@@ -1081,4 +1081,70 @@ pub mod coprocessor {
         // should be stored, in this case meaning 5400 0000 in hexadecimal.
         assert_eq!(datapath.memory.load_word(1000).unwrap(), 0x5400_0000);
     }
+
+    #[test]
+    fn lwc1_basic_load_no_offset() {
+        let mut datapath = MipsDatapath::default();
+
+        // lwc1 ft, offset(base)
+        // lwc1 $f10, 0($t0)
+        // FPR[ft] <- memory[GPR[base] + offset]
+        // FPR[10] <- memory[GPR[8] + 0]
+        //                       LWC1   base  ft    offset
+        //                              $t0   $f10  0
+        let instruction: u32 = 0b110001_01000_01010_0000000000000000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[8] = 500; // $t0
+
+        // Data is put into memory this way (rather than using load_word()) to
+        // demonstrate no reliance on API calls.
+        let data = f32::to_bits(413.125f32).to_be_bytes();
+        for (i, byte) in data.iter().enumerate() {
+            datapath.memory.memory[500 + i] = *byte;
+        }
+
+        datapath.execute_instruction();
+
+        assert_eq!(
+            f32::from_bits(datapath.coprocessor.fpr[10] as u32),
+            413.125f32
+        );
+    }
+
+    #[test]
+    fn lwc1_basic_load_with_offset() {
+        let mut datapath = MipsDatapath::default();
+
+        // lwc1 ft, offset(base)
+        // lwc1 $f11, 200($t1)
+        // FPR[ft] <- memory[GPR[base] + offset]
+        // FPR[11] <- memory[GPR[9] + 200]
+        //                       LWC1   base  ft    offset
+        //                              $t1   $f11  200
+        let instruction: u32 = 0b110001_01001_01011_0000000011001000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[9] = 1000; // $t1
+
+        // Data is put into memory this way (rather than using load_word()) to
+        // demonstrate no reliance on API calls.
+        let data = f32::to_bits(6.1875f32).to_be_bytes();
+        for (i, byte) in data.iter().enumerate() {
+            datapath.memory.memory[1200 + i] = *byte;
+        }
+
+        datapath.execute_instruction();
+
+        assert_eq!(
+            f32::from_bits(datapath.coprocessor.fpr[11] as u32),
+            6.1875f32
+        );
+    }
 }
