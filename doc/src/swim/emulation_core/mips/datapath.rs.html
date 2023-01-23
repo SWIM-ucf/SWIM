@@ -642,6 +642,50 @@
 <span id="642">642</span>
 <span id="643">643</span>
 <span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of a MIPS64 datapath.
 //!
 //! It is assumed that while moving through stages, only one
@@ -934,9 +978,13 @@
                 <span class="self">self</span>.state.rd = <span class="number">0</span>; <span class="comment">// Placeholder
                 </span><span class="self">self</span>.state.imm = i.immediate <span class="kw">as </span>u32;
             }
-            <span class="comment">// For instructions that exclusively use the FPU, these data lines
+            <span class="comment">// R-type FPU instructions exclusively use the FPU, so these data lines
             // do not need to be used.
             </span>Instruction::FpuRType(<span class="kw">_</span>) =&gt; (),
+            Instruction::FpuIType(i) =&gt; {
+                <span class="self">self</span>.state.rs = i.base <span class="kw">as </span>u32;
+                <span class="self">self</span>.state.imm = i.offset <span class="kw">as </span>u32;
+            }
             <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(),
         }
     }
@@ -1041,6 +1089,44 @@
         }
     }
 
+    <span class="doccomment">/// Set the control signals for the datapath, specifically in the
+    /// case where the instruction is an FPU I-type.
+    </span><span class="kw">fn </span>set_fpu_itype_control_signals(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: FpuIType) {
+        <span class="kw">match </span>i.op {
+            OPCODE_SWC1 =&gt; {
+                <span class="self">self</span>.signals = ControlSignals {
+                    alu_op: AluOp::Addition,
+                    alu_src: AluSrc::SignExtendedImmediate,
+                    branch: Branch::NoBranch,
+                    imm_shift: ImmShift::Shift0,
+                    jump: Jump::NoJump,
+                    mem_read: MemRead::NoRead,
+                    mem_write: MemWrite::YesWrite,
+                    mem_write_src: MemWriteSrc::FloatingPointUnit,
+                    reg_width: RegWidth::Word,
+                    reg_write: RegWrite::NoWrite,
+                    ..Default::default()
+                }
+            }
+            OPCODE_LWC1 =&gt; {
+                <span class="self">self</span>.signals = ControlSignals {
+                    alu_op: AluOp::Addition,
+                    alu_src: AluSrc::SignExtendedImmediate,
+                    branch: Branch::NoBranch,
+                    imm_shift: ImmShift::Shift0,
+                    jump: Jump::NoJump,
+                    mem_read: MemRead::YesRead,
+                    mem_to_reg: MemToReg::UseMemory,
+                    mem_write: MemWrite::NoWrite,
+                    reg_width: RegWidth::Word,
+                    reg_write: RegWrite::NoWrite,
+                    ..Default::default()
+                }
+            }
+            <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;FPU I-type instruction with opcode `{}`&quot;</span>, i.op),
+        }
+    }
+
     <span class="doccomment">/// Set the control signals for the datapath based on the
     /// instruction&#39;s opcode.
     </span><span class="kw">fn </span>set_control_signals(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
@@ -1061,8 +1147,11 @@
                     reg_write: RegWrite::NoWrite,
                     ..Default::default()
                 };
-            } <span class="comment">// _ =&gt; panic!(&quot;Unsupported instruction&quot;)
-        </span>}
+            }
+            Instruction::FpuIType(i) =&gt; {
+                <span class="self">self</span>.set_fpu_itype_control_signals(i);
+            }
+        }
     }
 
     <span class="doccomment">/// Read the registers as specified from the instruction and pass
@@ -1220,8 +1309,7 @@
 
         <span class="kw">let </span>write_data = <span class="kw">match </span><span class="self">self</span>.signals.mem_write_src {
             MemWriteSrc::PrimaryUnit =&gt; <span class="self">self</span>.state.read_data_2,
-            <span class="comment">// Awaiting implementation of the floating-point unit.
-            </span>MemWriteSrc::FloatingPointUnit =&gt; <span class="macro">todo!</span>(),
+            MemWriteSrc::FloatingPointUnit =&gt; <span class="self">self</span>.coprocessor.get_fp_register_to_memory(),
         };
 
         <span class="comment">// Choose the correct store function based on the RegWidth

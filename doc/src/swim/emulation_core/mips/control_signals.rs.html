@@ -438,6 +438,9 @@
 <span id="438">438</span>
 <span id="439">439</span>
 <span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Internal datapath control signals.
 
 /// Full collection of control signals.
@@ -610,6 +613,9 @@
 ///
 /// The decision can be completely overridden by the floating point
 /// unit&#39;s [`DataWrite`](floating_point::DataWrite) control signal.
+///
+/// This control signal also applies to what data is sent to the
+/// floating-point unit to be stored in its registers.
 </span><span class="attribute">#[derive(Default, PartialEq)]
 </span><span class="kw">pub enum </span>MemToReg {
     <span class="attribute">#[default]

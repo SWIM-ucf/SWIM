@@ -314,6 +314,52 @@
 <span id="314">314</span>
 <span id="315">315</span>
 <span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of a MIPS64 floating-point coprocessor.
 
 </span><span class="kw">use </span><span class="kw">super</span>::constants::<span class="kw-2">*</span>;
@@ -349,6 +395,9 @@
     fp_register_data_from_main_processor: u64,
     read_data_1: u64,
     read_data_2: u64,
+    <span class="doccomment">/// Data line that goes from `Read Data 2` to the multiplexer in the main processor
+    /// controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
+    </span>fp_register_to_memory: u64,
     alu_result: u64,
     comparator_result: u64,
 }
@@ -364,6 +413,7 @@
         <span class="self">self</span>.alu();
         <span class="self">self</span>.comparator();
         <span class="self">self</span>.write_condition_code();
+        <span class="self">self</span>.write_fp_register_to_memory();
     }
 
     <span class="kw">pub fn </span>stage_memory(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
@@ -394,6 +444,9 @@
                 <span class="self">self</span>.state.ft = r.ft <span class="kw">as </span>u32;
                 <span class="self">self</span>.state.fd = r.fd <span class="kw">as </span>u32;
                 <span class="self">self</span>.state.function = r.function <span class="kw">as </span>u32;
+            }
+            Instruction::FpuIType(i) =&gt; {
+                <span class="self">self</span>.state.ft = i.ft <span class="kw">as </span>u32;
             }
             <span class="comment">// These types do not use the floating-point unit so they can be ignored.
             </span>Instruction::RType(<span class="kw">_</span>) | Instruction::IType(<span class="kw">_</span>) | Instruction::JType(<span class="kw">_</span>) =&gt; (),
@@ -430,6 +483,12 @@
     /// floating-point coprocessor.
     </span><span class="kw">pub fn </span>set_fp_register_data_from_main_processor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: u64) {
         <span class="self">self</span>.state.fp_register_data_from_main_processor = data;
+    }
+
+    <span class="doccomment">/// Gets the contents of the data line that goes from `Read Data 2` to the multiplexer
+    /// in the main processor controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
+    </span><span class="kw">pub fn </span>get_fp_register_to_memory(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.state.fp_register_to_memory
     }
 
     <span class="doccomment">/// Set the control signals of the processor based on the instruction opcode and function
@@ -494,8 +553,35 @@
                     </span><span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;Unsupported opcode `{}` for FPU R-type instruction&quot;</span>, r.op),
                 }
             }
+            Instruction::FpuIType(i) =&gt; <span class="kw">match </span>i.op {
+                OPCODE_SWC1 =&gt; {
+                    <span class="self">self</span>.signals = FpuControlSignals {
+                        cc_write: CcWrite::NoWrite,
+                        data_write: DataWrite::NoWrite,
+                        fpu_branch: FpuBranch::NoBranch,
+                        fpu_reg_width: FpuRegWidth::Word,
+                        fpu_reg_write: FpuRegWrite::NoWrite,
+                        ..Default::default()
+                    }
+                }
+                OPCODE_LWC1 =&gt; {
+                    <span class="self">self</span>.signals = FpuControlSignals {
+                        cc_write: CcWrite::NoWrite,
+                        data_write: DataWrite::NoWrite,
+                        fpu_branch: FpuBranch::NoBranch,
+                        fpu_mem_to_reg: FpuMemToReg::UseMemory,
+                        fpu_reg_dst: FpuRegDst::Reg1,
+                        fpu_reg_width: FpuRegWidth::Word,
+                        fpu_reg_write: FpuRegWrite::YesWrite,
+                        ..Default::default()
+                    }
+                }
+                <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;Unsupported opcode `{}` for FPU I-type instruction&quot;</span>, i.op),
+            },
             <span class="comment">// These types do not use the floating-point unit so they can be ignored.
-            </span>Instruction::RType(<span class="kw">_</span>) | Instruction::IType(<span class="kw">_</span>) | Instruction::JType(<span class="kw">_</span>) =&gt; (),
+            </span>Instruction::RType(<span class="kw">_</span>) | Instruction::IType(<span class="kw">_</span>) | Instruction::JType(<span class="kw">_</span>) =&gt; {
+                <span class="self">self</span>.signals = FpuControlSignals::default()
+            }
         }
     }
 
@@ -605,6 +691,12 @@
     <span class="doccomment">/// Set the condition code (CC) register based on the result from the comparator.
     </span><span class="kw">fn </span>write_condition_code(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.condition_code = <span class="self">self</span>.state.comparator_result;
+    }
+
+    <span class="doccomment">/// Set the data line that goes from `Read Data 2` to the multiplexer in the main processor
+    /// controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
+    </span><span class="kw">fn </span>write_fp_register_to_memory(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.state.fp_register_to_memory = <span class="self">self</span>.state.read_data_2;
     }
 
     <span class="doccomment">/// Write data to the floating-point register file.

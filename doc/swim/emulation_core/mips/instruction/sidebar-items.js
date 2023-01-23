@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Instruction",""]],"struct":[["FpuRType",""],["IType",""],["JType",""],["RType",""]]};
+window.SIDEBAR_ITEMS = {"enum":[["Instruction",""]],"struct":[["FpuIType",""],["FpuRType",""],["IType",""],["JType",""],["RType",""]]};
