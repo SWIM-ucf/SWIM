@@ -175,7 +175,7 @@ impl MipsDatapath {
     /// from a lack of space or otherwise, an Err is returned.
     pub fn load_instructions(&mut self, instructions: Vec<u32>) -> Result<(), String> {
         for (i, data) in instructions.iter().enumerate() {
-            self.memory.store_word((i as u64) + 4, *data)?
+            self.memory.store_word((i as u64) * 4, *data)?
         }
 
         Ok(())
