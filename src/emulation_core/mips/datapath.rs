@@ -420,6 +420,21 @@ impl MipsDatapath {
                     ..Default::default()
                 }
             }
+            OPCODE_LWC1 => {
+                self.signals = ControlSignals {
+                    alu_op: AluOp::Addition,
+                    alu_src: AluSrc::SignExtendedImmediate,
+                    branch: Branch::NoBranch,
+                    imm_shift: ImmShift::Shift0,
+                    jump: Jump::NoJump,
+                    mem_read: MemRead::YesRead,
+                    mem_to_reg: MemToReg::UseMemory,
+                    mem_write: MemWrite::NoWrite,
+                    reg_width: RegWidth::Word,
+                    reg_write: RegWrite::NoWrite,
+                    ..Default::default()
+                }
+            }
             _ => unimplemented!("FPU I-type instruction with opcode `{}`", i.op),
         }
     }

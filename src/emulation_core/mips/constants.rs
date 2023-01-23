@@ -41,6 +41,7 @@ pub const OPCODE_ANDI: u8 = 0b001100;
 pub const OPCODE_COP1: u8 = 0b010001;
 pub const OPCODE_LW: u8 = 0b100011;
 pub const OPCODE_SW: u8 = 0b101011;
+pub const OPCODE_LWC1: u8 = 0b110001;
 pub const OPCODE_SWC1: u8 = 0b111001;
 
 // "ENC" is short for encoding. There is no formal name for this field

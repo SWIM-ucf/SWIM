@@ -202,6 +202,18 @@ impl MipsFpCoprocessor {
                         ..Default::default()
                     }
                 }
+                OPCODE_LWC1 => {
+                    self.signals = FpuControlSignals {
+                        cc_write: CcWrite::NoWrite,
+                        data_write: DataWrite::NoWrite,
+                        fpu_branch: FpuBranch::NoBranch,
+                        fpu_mem_to_reg: FpuMemToReg::UseMemory,
+                        fpu_reg_dst: FpuRegDst::Reg1,
+                        fpu_reg_width: FpuRegWidth::Word,
+                        fpu_reg_write: FpuRegWrite::YesWrite,
+                        ..Default::default()
+                    }
+                }
                 _ => unimplemented!("Unsupported opcode `{}` for FPU I-type instruction", i.op),
             },
             // These types do not use the floating-point unit so they can be ignored.
