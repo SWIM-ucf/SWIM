@@ -37,6 +37,7 @@ pub const FUNCT_SOP37: u8 = 0b011111;
 /// Used for many R-type instructions, like `ADD`, `SUB`, `MUL`, and `DIV`.
 pub const OPCODE_SPECIAL: u8 = 0b000000;
 pub const OPCODE_ORI: u8 = 0b001101;
+pub const OPCODE_ANDI: u8 = 0b001100;
 pub const OPCODE_COP1: u8 = 0b010001;
 pub const OPCODE_LW: u8 = 0b100011;
 pub const OPCODE_SW: u8 = 0b101011;

@@ -297,47 +297,96 @@ fn div_negative_result() {
     assert_eq!(datapath.registers.gpr[20] as i64, -4); // $s5
 }
 
-#[test]
-fn or_immediate_with_zero() {
-    let mut datapath = MipsDatapath::default();
+pub mod and {
+    use super::*;
+    #[test]
+    fn and_immediate_with_zero() {
+        let mut datapath = MipsDatapath::default();
 
-    // $s0 = $zero | 12345
-    //                       ori    $zero  $s0   12345
-    let instruction: u32 = 0b001101_00000_10000_0011000000111001;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // $s0 = $zero & 12345
+        //                       andi    $zero  $s0   12345
+        let instruction: u32 = 0b001100_00000_10000_0011000000111001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    datapath.execute_instruction();
+        datapath.execute_instruction();
 
-    assert_eq!(datapath.registers.gpr[16], 12345); // $s0
+        assert_eq!(datapath.registers.gpr[16], 0); // $s0
+    }
+
+    #[test]
+    fn andi_immediate_with_value() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 & 12345
+        //                       andi     $t0   $s0   12345
+        let instruction: u32 = 0b001100_01000_10000_0011000000111001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        // In binary: 00111010 11011110 01101000 10110001
+        datapath.registers.gpr[8] = 987654321; // $t0
+
+        datapath.execute_instruction();
+
+        // The result should be as follows:
+        //         $t0:  00111010 11011110 01101000 10110001
+        // AND  12,345:                    00110000 00111001
+        // =================================================
+        // 987,658,425:  00000000 00000000 00100000 00110001
+
+        assert_eq!(datapath.registers.gpr[16], 0x2031); // $s0
+    }
 }
 
-#[test]
-fn or_immediate_with_value() {
-    let mut datapath = MipsDatapath::default();
+pub mod or {
+    use super::*;
+    #[test]
+    fn or_immediate_with_zero() {
+        let mut datapath = MipsDatapath::default();
 
-    // $s0 = $t0 | 12345
-    //                       ori     $t0   $s0   12345
-    let instruction: u32 = 0b001101_01000_10000_0011000000111001;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // $s0 = $zero | 12345
+        //                       ori    $zero  $s0   12345
+        let instruction: u32 = 0b001101_00000_10000_0011000000111001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    // In binary: 00111010 11011110 01101000 10110001
-    datapath.registers.gpr[8] = 987654321; // $t0
+        datapath.execute_instruction();
 
-    datapath.execute_instruction();
+        assert_eq!(datapath.registers.gpr[16], 12345); // $s0
+    }
 
-    // The result should be as follows:
-    //         $t0:  00111010 11011110 01101000 10110001
-    // OR   12,345:                    00110000 00111001
-    // =================================================
-    // 987,658,425:  00111010 11011110 01111000 10111001
+    #[test]
+    fn or_immediate_with_value() {
+        let mut datapath = MipsDatapath::default();
 
-    assert_eq!(datapath.registers.gpr[16], 987658425); // $s0
+        // $s0 = $t0 | 12345
+        //                       ori     $t0   $s0   12345
+        let instruction: u32 = 0b001101_01000_10000_0011000000111001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        // In binary: 00111010 11011110 01101000 10110001
+        datapath.registers.gpr[8] = 987654321; // $t0
+
+        datapath.execute_instruction();
+
+        // The result should be as follows:
+        //         $t0:  00111010 11011110 01101000 10110001
+        // OR   12,345:                    00110000 00111001
+        // =================================================
+        // 987,658,425:  00111010 11011110 01111000 10111001
+
+        assert_eq!(datapath.registers.gpr[16], 987658425); // $s0
+    }
 }
 
 #[test]

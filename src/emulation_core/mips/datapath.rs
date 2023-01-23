@@ -382,6 +382,21 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::Word;
                 self.signals.reg_write = RegWrite::NoWrite;
             }
+
+            OPCODE_ANDI => {
+                self.signals.alu_op = AluOp::And;
+                self.signals.alu_src = AluSrc::ZeroExtendedImmediate;
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_width = RegWidth::DoubleWord;
+                self.signals.reg_write = RegWrite::YesWrite;
+            }
             _ => unimplemented!("I-type instruction with opcode `{}`", i.op),
         }
     }
