@@ -300,7 +300,6 @@ fn div_negative_result() {
     assert_eq!(datapath.registers.gpr[20] as i64, -4); // $s5
 }
 
-
 pub mod and {
     use super::*;
 
@@ -388,7 +387,6 @@ pub mod and {
         let result = datapath.registers.gpr[18] as u64;
         assert_eq!(result, 0x0220022002200220);
     }
-
 
     #[test]
     // This test attempts to write to register $zero. The datapath should
