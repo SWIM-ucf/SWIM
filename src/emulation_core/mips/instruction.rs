@@ -78,24 +78,8 @@ impl From<u32> for Instruction {
                 function: (value & 0x3F) as u8,
             }),
 
-            // Load Word (lw)
-            OPCODE_LW => Instruction::IType(IType {
-                op: ((value >> 26) & 0x3F) as u8,
-                rs: ((value >> 21) & 0x1F) as u8,
-                rt: ((value >> 16) & 0x1F) as u8,
-                immediate: (value & 0xFFFF) as u16,
-            }),
-
-            // Store Word (sw)
-            OPCODE_SW => Instruction::IType(IType {
-                op: ((value >> 26) & 0x3F) as u8,
-                rs: ((value >> 21) & 0x1F) as u8,
-                rt: ((value >> 16) & 0x1F) as u8,
-                immediate: (value & 0xFFFF) as u16,
-            }),
-
-            // Or immediate (ori)
-            OPCODE_ORI => Instruction::IType(IType {
+            // I-Type instructions:
+            OPCODE_LW | OPCODE_SW | OPCODE_ORI | OPCODE_ANDI => Instruction::IType(IType {
                 op: ((value >> 26) & 0x3F) as u8,
                 rs: ((value >> 21) & 0x1F) as u8,
                 rt: ((value >> 16) & 0x1F) as u8,
