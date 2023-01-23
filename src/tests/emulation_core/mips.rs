@@ -300,7 +300,120 @@ fn div_negative_result() {
     assert_eq!(datapath.registers.gpr[20] as i64, -4); // $s5
 }
 
+
 pub mod and {
+    use super::*;
+
+    #[test]
+    fn and_register_to_itself() {
+        let mut datapath = MipsDatapath::default();
+
+        // $t1 = $t1 & $t1
+        //                       R-type  t1    t1    t1  (shamt)  AND
+        let instruction: u32 = 0b000000_01001_01001_01001_00000_100100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        // Assume the register $t1 has the value 5.
+        datapath.registers[GpRegisterType::T1] = 0x5;
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers[GpRegisterType::T1], 0x5);
+    }
+
+    #[test]
+    fn and_register_to_another16() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 & $s1
+        //                       R-type  s0    s1    s2  (shamt)  AND
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_100100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[16] = 0x1234; // $s0
+        datapath.registers.gpr[17] = 0x4321; // $s1
+
+        datapath.execute_instruction();
+
+        // Register $s2 should contain 55.
+        let result = datapath.registers.gpr[18] as u64;
+        assert_eq!(result, 0x0220);
+    }
+
+    #[test]
+    fn and_register_to_another32() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 & $s1
+        //                       R-type  s0    s1    s2  (shamt)  AND
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_100100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[16] = 0x12341234; // $s0
+        datapath.registers.gpr[17] = 0x43214321; // $s1
+
+        datapath.execute_instruction();
+
+        // Register $s2 should contain 55.
+        let result = datapath.registers.gpr[18] as u64;
+        assert_eq!(result, 0x02200220);
+    }
+
+    #[test]
+    fn and_register_to_another64() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 & $s1
+        //                       R-type  s0    s1    s2  (shamt)  AND
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_100100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[16] = 0x1234123412341234; // $s0
+        datapath.registers.gpr[17] = 0x4321432143214321; // $s1
+
+        datapath.execute_instruction();
+
+        // Register $s2 should contain 55.
+        let result = datapath.registers.gpr[18] as u64;
+        assert_eq!(result, 0x0220022002200220);
+    }
+
+
+    #[test]
+    // This test attempts to write to register $zero. The datapath should
+    // not overwrite this register, and remain with a value of 0.
+    fn and_to_register_zero() {
+        let mut datapath = MipsDatapath::default();
+
+        // $zero = $t3 & $t3
+        //                       R-type  t3    t3    zero (shamt) AND
+        let instruction: u32 = 0b000000_01011_01011_00000_00000_100100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[11] = 1234; // $t3
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers.gpr[0], 0);
+    }
+}
+
+pub mod andi {
     use super::*;
     #[test]
     fn and_immediate_with_zero() {
