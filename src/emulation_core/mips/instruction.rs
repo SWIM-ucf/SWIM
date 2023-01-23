@@ -2,7 +2,7 @@
 
 use super::constants::*;
 
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct RType {
     pub op: u8,
     pub rs: u8,
@@ -12,7 +12,7 @@ pub struct RType {
     pub funct: u8,
 }
 
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct IType {
     pub op: u8,
     pub rs: u8,
@@ -20,13 +20,13 @@ pub struct IType {
     pub immediate: u16,
 }
 
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct JType {
     pub op: u8,
     pub addr: u32,
 }
 
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct FpuRType {
     pub op: u8,
     pub fmt: u8,
@@ -36,7 +36,7 @@ pub struct FpuRType {
     pub function: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Instruction {
     RType(RType),
     IType(IType),

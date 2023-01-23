@@ -6,7 +6,7 @@ use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
 
 /// Collection of general-purpose registers used by the datapath.
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Default, PartialEq)]
 pub struct GpRegisters {
     pub pc: u64,
     pub gpr: [u64; 32],

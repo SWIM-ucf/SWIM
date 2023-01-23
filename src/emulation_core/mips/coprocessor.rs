@@ -8,7 +8,7 @@ use super::instruction::Instruction;
 ///
 /// Different from the main processor, much of the functionality of the coprocessor
 /// is controlled remotely using its available API calls.
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub struct MipsFpCoprocessor {
     instruction: Instruction,
     pub signals: FpuControlSignals,
@@ -19,7 +19,7 @@ pub struct MipsFpCoprocessor {
     data: u64,
 }
 
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub struct FpuState {
     instruction: u32,
     op: u32,
