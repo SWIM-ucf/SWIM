@@ -15,6 +15,18 @@ impl Default for Memory {
     }
 }
 
+impl ToString for Memory {
+    fn to_string(&self) -> String {
+        let mut output = String::new();
+
+        for byte in self.memory.iter() {
+            output.push_str(&format!("{:x}", byte));
+        }
+
+        output
+    }
+}
+
 impl Memory {
     /// Determines if an address is valid in a given instance of Memory.
     /// If invalid, returns an instance of Err describing the problem with
