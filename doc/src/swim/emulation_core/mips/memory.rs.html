@@ -96,6 +96,18 @@
 <span id="96">96</span>
 <span id="97">97</span>
 <span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Data and instruction memory implementation and API.
 
 </span><span class="kw">pub const </span>CAPACITY_BYTES: usize = <span class="number">4 </span>* <span class="number">1024</span>; <span class="comment">// 4 KB
@@ -110,6 +122,18 @@
         <span class="self">Self </span>{
             memory: <span class="macro">vec!</span>[<span class="number">0</span>; CAPACITY_BYTES],
         }
+    }
+}
+
+<span class="kw">impl </span>ToString <span class="kw">for </span>Memory {
+    <span class="kw">fn </span>to_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="kw">let </span><span class="kw-2">mut </span>output = String::new();
+
+        <span class="kw">for </span>byte <span class="kw">in </span><span class="self">self</span>.memory.iter() {
+            output.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{:x}&quot;</span>, byte));
+        }
+
+        output
     }
 }
 
