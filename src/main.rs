@@ -3,41 +3,39 @@ pub mod parser;
 #[cfg(test)]
 pub mod tests;
 
-use std::{rc::Rc, cell::RefCell};
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
 use gloo::console::log;
-use parser::parser_main::parser;
 use monaco::{
-    api::{TextModel},
+    api::TextModel,
     sys::editor::{IEditorMinimapOptions, IStandaloneEditorConstructionOptions},
-    yew::CodeEditor
+    yew::CodeEditor,
 };
+use parser::parser_main::parser;
+use std::{cell::RefCell, rc::Rc};
 use stylist::css;
 use wasm_bindgen::JsValue;
 use yew::prelude::*;
 
-
 #[function_component(App)]
 fn app() -> Html {
-    
     // This contains the binary representation of "ori $s0, $zero, 12345", which
     // stores 12345 in register $s0.
     let default_code = String::from("ori $s0, $zero, 12345\n");
     let language = String::from("mips");
-    
+
     // This is the initial text model with default text contents. The
     // use_state_eq hook is created so that the component can be updated
     // when the text model changes.
-    let text_model = 
+    let text_model =
         use_state_eq(|| TextModel::create(&default_code, Some(&language), None).unwrap());
-    
-    // TODO: Output will be stored in two ways, the first would be the parser's 
-    // messages via logs and the registers will be stored 
+
+    // TODO: Output will be stored in two ways, the first would be the parser's
+    // messages via logs and the registers will be stored
     // in a custom-built register viewer.
 
-    // Since we want the Datapath to be independent from all the 
-    // events within the app, we will create it when the app loads. This is also done 
+    // Since we want the Datapath to be independent from all the
+    // events within the app, we will create it when the app loads. This is also done
     // since the scope will be open across all events involved with it. To achieve this,
     // we use interior mutability to have the reference to the Datapath immutable, but
     // the ability to access and change its contents be mutable.
@@ -48,7 +46,7 @@ fn app() -> Html {
         let text_model = text_model.clone();
         let datapath = Rc::clone(&datapath);
         use_callback(
-            move |_, text_model|{
+            move |_, text_model| {
                 let mut datapath = (*datapath).borrow_mut();
 
                 // parses through the code to assemble the binary
@@ -63,7 +61,8 @@ fn app() -> Html {
                 // load the binary into the datapath's memory
                 (*datapath).load_instructions(assembled);
                 log!((*datapath).memory.to_string());
-            }, text_model
+            },
+            text_model,
         )
     };
 
@@ -71,15 +70,15 @@ fn app() -> Html {
     let on_execute_clicked = {
         let datapath = Rc::clone(&datapath);
         use_callback(
-            move |_, _|{
+            move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
                 (*datapath).execute_instruction();
                 log!(JsValue::from_str(&datapath.registers.to_string()));
-            }, ()
+            },
+            (),
         )
     };
-    
-    
+
     html! {
         <div>
             <h1>{"Welcome to SWIM"}</h1>
@@ -113,7 +112,7 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 
 #[function_component]
 pub fn SwimEditor(props: &SwimEditorProps) -> Html {
-    html!{
+    html! {
         <CodeEditor classes={css!(r#"height: 80vh; width: 80vw;"#)} options={get_options()} model={props.text_model.clone()} />
     }
 }
