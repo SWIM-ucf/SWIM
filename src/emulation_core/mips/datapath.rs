@@ -636,18 +636,15 @@ impl MipsDatapath {
                     let sum = i1.overflowing_add(i2);
                     if sum.1 {
                         // read_data_2 is the value already in the output register
-                        self.state.read_data_2
-                    } else {
-                        sum.0 as u64
+                        self.signals.overflow_write_block = OverflowWriteBlock::YesBlock;
                     }
+                    sum.0 as u64
                 } else {
                     let sum = input1.overflowing_add(input2);
                     if sum.1 {
-                        // read_data_2 is the value already in the output register
-                        self.state.read_data_2
-                    } else {
-                        sum.0
+                        self.signals.overflow_write_block = OverflowWriteBlock::YesBlock;
                     }
+                    sum.0
                 }
             }
             AluControl::Subtraction => (input1 as i64).wrapping_sub(input2 as i64) as u64,
@@ -740,7 +737,9 @@ impl MipsDatapath {
         };
 
         // Abort if the RegWrite signal is not set.
-        if self.signals.reg_write == RegWrite::NoWrite {
+        if self.signals.reg_write == RegWrite::NoWrite
+            || self.signals.overflow_write_block == OverflowWriteBlock::YesBlock
+        {
             return;
         }
 

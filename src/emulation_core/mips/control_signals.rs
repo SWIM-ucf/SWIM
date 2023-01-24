@@ -16,6 +16,7 @@ pub struct ControlSignals {
     pub reg_dst: RegDst,
     pub reg_width: RegWidth,
     pub reg_write: RegWrite,
+    pub overflow_write_block: OverflowWriteBlock,
 }
 
 /// The output of the ALU control unit that directly controls the ALU.
@@ -245,6 +246,13 @@ pub enum RegWrite {
     #[default]
     NoWrite = 0,
     YesWrite = 1,
+}
+
+#[derive(Default, Eq, PartialEq)]
+pub enum OverflowWriteBlock {
+    #[default]
+    NoBlock = 0,
+    YesBlock = 1,
 }
 
 pub mod floating_point {
