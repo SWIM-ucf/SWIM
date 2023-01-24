@@ -52,6 +52,25 @@ pub enum GpRegisterType {
     Ra,
 }
 
+impl ToString for GpRegisters {
+    fn to_string(&self) -> String {
+        let mut output = String::new();
+
+        output.push_str(&format!("PC = {}\n", self.pc));
+
+        let gpr_registers = self
+            .gpr
+            .iter()
+            .enumerate()
+            .map(|(i, inst)| format!("gpr[{}] = {}", i, inst))
+            .collect::<Vec<String>>()
+            .join("\n");
+        output.push_str(&gpr_registers);
+
+        output
+    }
+}
+
 impl Index<&str> for GpRegisters {
     type Output = u64;
 
