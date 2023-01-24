@@ -21,23 +21,225 @@
 <span id="21">21</span>
 <span id="22">22</span>
 <span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attribute">#[cfg(test)]
 </span><span class="kw">pub mod </span>tests;
-<span class="kw">pub mod </span>ui;
 
-<span class="kw">use </span>stylist::yew::<span class="kw-2">*</span>;
-<span class="kw">use </span>ui::editor::component::Editor;
+<span class="kw">use </span>emulation_core::datapath::Datapath;
+<span class="kw">use </span>emulation_core::mips::datapath::MipsDatapath;
+<span class="kw">use </span>gloo::console::log;
+<span class="kw">use </span>monaco::{
+    api::TextModel,
+    sys::editor::{IEditorMinimapOptions, IStandaloneEditorConstructionOptions},
+    yew::CodeEditor,
+};
+<span class="kw">use </span>parser::parser_main::parser;
+<span class="kw">use </span>std::{cell::RefCell, rc::Rc};
+<span class="kw">use </span>stylist::css;
+<span class="kw">use </span>wasm_bindgen::JsValue;
 <span class="kw">use </span>yew::prelude::<span class="kw-2">*</span>;
 
-<span class="attribute">#[styled_component(App)]
+<span class="attribute">#[function_component(App)]
 </span><span class="kw">fn </span>app() -&gt; Html {
+    <span class="comment">// This contains the binary representation of &quot;ori $s0, $zero, 12345&quot;, which
+    // stores 12345 in register $s0.
+    </span><span class="kw">let </span>default_code = String::from(<span class="string">&quot;ori $s0, $zero, 12345\n&quot;</span>);
+    <span class="kw">let </span>language = String::from(<span class="string">&quot;mips&quot;</span>);
+
+    <span class="comment">// This is the initial text model with default text contents. The
+    // use_state_eq hook is created so that the component can be updated
+    // when the text model changes.
+    </span><span class="kw">let </span>text_model =
+        use_state_eq(|| TextModel::create(<span class="kw-2">&amp;</span>default_code, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>language), <span class="prelude-val">None</span>).unwrap());
+
+    <span class="comment">// TODO: Output will be stored in two ways, the first would be the parser&#39;s
+    // messages via logs and the registers will be stored
+    // in a custom-built register viewer.
+
+    // Since we want the Datapath to be independent from all the
+    // events within the app, we will create it when the app loads. This is also done
+    // since the scope will be open across all events involved with it. To achieve this,
+    // we use interior mutability to have the reference to the Datapath immutable, but
+    // the ability to access and change its contents be mutable.
+    </span><span class="kw">let </span>datapath = Rc::new(RefCell::new(MipsDatapath::default()));
+
+    <span class="comment">// This is where we take the code and run it through the emulation core
+    </span><span class="kw">let </span>on_load_clicked = {
+        <span class="kw">let </span>text_model = text_model.clone();
+        <span class="kw">let </span>datapath = Rc::clone(<span class="kw-2">&amp;</span>datapath);
+        use_callback(
+            <span class="kw">move </span>|<span class="kw">_</span>, text_model| {
+                <span class="kw">let </span><span class="kw-2">mut </span>datapath = (<span class="kw-2">*</span>datapath).borrow_mut();
+
+                <span class="comment">// parses through the code to assemble the binary
+                </span><span class="kw">let </span>(<span class="kw">_</span>, assembled) = parser(text_model.get_value());
+
+                <span class="comment">// Log initial state of registers in console. (Should all be zero.)
+                // NOTE: We are planning on creating a function that makes viewing
+                // register data easier. For now, this is manually accessing register data
+                // and formatting them all into strings.
+                </span><span class="macro">log!</span>(JsValue::from_str(<span class="kw-2">&amp;</span>datapath.registers.to_string()));
+
+                <span class="comment">// load the binary into the datapath&#39;s memory
+                </span>(<span class="kw-2">*</span>datapath)
+                    .load_instructions(assembled)
+                    .expect(<span class="string">&quot;Memory could not be loaded&quot;</span>);
+                <span class="macro">log!</span>(datapath.memory.to_string());
+            },
+            text_model,
+        )
+    };
+
+    <span class="comment">// This is where the code will get executed.
+    </span><span class="kw">let </span>on_execute_clicked = {
+        <span class="kw">let </span>datapath = Rc::clone(<span class="kw-2">&amp;</span>datapath);
+        use_callback(
+            <span class="kw">move </span>|<span class="kw">_</span>, <span class="kw">_</span>| {
+                <span class="kw">let </span><span class="kw-2">mut </span>datapath = (<span class="kw-2">*</span>datapath).borrow_mut();
+                (<span class="kw-2">*</span>datapath).execute_instruction();
+                <span class="macro">log!</span>(JsValue::from_str(<span class="kw-2">&amp;</span>datapath.registers.to_string()));
+            },
+            (),
+        )
+    };
+
     <span class="macro">html! </span>{
         &lt;div&gt;
             &lt;h1&gt;{<span class="string">&quot;Welcome to SWIM&quot;</span>}&lt;/h1&gt;
-            &lt;Editor /&gt;
+            &lt;button onclick={on_load_clicked}&gt;{ <span class="string">&quot;Assemble&quot; </span>}&lt;/button&gt;
+            &lt;button onclick={on_execute_clicked}&gt; { <span class="string">&quot;Execute&quot; </span>}&lt;/button&gt;
+            &lt;SwimEditor text_model={(<span class="kw-2">*</span>text_model).clone()} /&gt;
         &lt;/div&gt;
+    }
+}
+
+<span class="comment">/**********************  Editor Component **********************/
+
+</span><span class="attribute">#[derive(PartialEq, Properties)]
+</span><span class="kw">pub struct </span>SwimEditorProps {
+    text_model: TextModel,
+}
+
+<span class="kw">fn </span>get_options() -&gt; IStandaloneEditorConstructionOptions {
+    <span class="kw">let </span>options = IStandaloneEditorConstructionOptions::default();
+    options.set_theme(<span class="string">&quot;vs-dark&quot;</span>.into());
+    options.set_language(<span class="string">&quot;mips&quot;</span>.into());
+    options.set_scroll_beyond_last_line(<span class="bool-val">false</span>.into());
+    options.set_automatic_layout(<span class="bool-val">true</span>.into());
+
+    <span class="kw">let </span>minimap = IEditorMinimapOptions::default();
+    minimap.set_enabled(<span class="bool-val">false</span>.into());
+    options.set_minimap(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>minimap));
+
+    options
+}
+
+<span class="attribute">#[function_component]
+</span><span class="kw">pub fn </span>SwimEditor(props: <span class="kw-2">&amp;</span>SwimEditorProps) -&gt; Html {
+    <span class="macro">html! </span>{
+        &lt;CodeEditor classes={<span class="macro">css!</span>(<span class="string">r#&quot;height: 80vh; width: 80vw;&quot;#</span>)} options={get_options()} model={props.text_model.clone()} /&gt;
     }
 }
 

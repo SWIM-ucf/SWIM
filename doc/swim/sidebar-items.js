@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["main",""]],"mod":[["emulation_core","The emulation core for the project."],["parser","The parser for the project."],["ui","User interface using Yew, organized into components."]],"struct":[["App",""]]};
+window.SIDEBAR_ITEMS = {"fn":[["get_options",""],["main",""]],"mod":[["emulation_core","The emulation core for the project."],["parser","The parser for the project."]],"struct":[["App",""],["SwimEditor",""],["SwimEditorProps",""]]};
