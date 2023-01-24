@@ -40,6 +40,15 @@ fi
 echo "Build check passed."
 
 
+# Check documentation
+echo "Checking documentation..."
+if ! cargo doc --no-deps
+then
+	echo "Documentation failed to create. See above for details."
+	exit 1
+fi
+echo "Documentation created successfully."
+
 # Check tests
 echo "Checking tests..."
 if ! cargo test
