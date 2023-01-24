@@ -59,6 +59,7 @@ pub mod instruction_tokenization {
         LabelAssignmentError,
         LabelMultipleDefinition,
         LabelNotFound,
+        JALRRDRegisterZero,
     }
 
     //this enum is used for the fn read_operands to choose the types of operands expected for an instruction type
