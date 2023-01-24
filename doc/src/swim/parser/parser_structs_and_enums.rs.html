@@ -98,6 +98,7 @@
 <span id="98">98</span>
 <span id="99">99</span>
 <span id="100">100</span>
+<span id="101">101</span>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>instruction_tokenization {
     <span class="kw">use </span>std::default::Default;
 
@@ -159,6 +160,7 @@
         LabelAssignmentError,
         LabelMultipleDefinition,
         LabelNotFound,
+        JALRRDRegisterZero,
     }
 
     <span class="comment">//this enum is used for the fn read_operands to choose the types of operands expected for an instruction type

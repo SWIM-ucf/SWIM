@@ -187,6 +187,15 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     LabelAssignmentError, LabelMultipleDefinition, MissingComma,
 };
@@ -224,6 +233,15 @@
                     token.starting_column = j <span class="kw">as </span>i32;
                 }
                 token.token_name.push(char);
+                <span class="kw">if </span>char == <span class="string">&#39;,&#39; </span>{
+                    <span class="kw">if </span>token.token_name.len() == <span class="number">1 </span>{
+                        <span class="kw">let </span>length = line_of_tokens.tokens.len();
+                        line_of_tokens.tokens[length - <span class="number">1</span>].token_name.push(char);
+                    } <span class="kw">else </span>{
+                        line_of_tokens.tokens.push(token.clone());
+                    }
+                    token.token_name = <span class="string">&quot;&quot;</span>.to_string();
+                }
             } <span class="kw">else if </span>!token.token_name.is_empty() {
                 line_of_tokens.tokens.push(token.clone());
                 token.token_name = <span class="string">&quot;&quot;</span>.to_string();
