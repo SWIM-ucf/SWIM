@@ -88,12 +88,14 @@ impl From<u32> for Instruction {
             }),
 
             // I-Type instructions:
-            OPCODE_LW | OPCODE_SW | OPCODE_ORI | OPCODE_ANDI | OPCODE_LUI => Instruction::IType(IType {
-                op: ((value >> 26) & 0x3F) as u8,
-                rs: ((value >> 21) & 0x1F) as u8,
-                rt: ((value >> 16) & 0x1F) as u8,
-                immediate: (value & 0xFFFF) as u16,
-            }),
+            OPCODE_LW | OPCODE_SW | OPCODE_ORI | OPCODE_ANDI | OPCODE_LUI => {
+                Instruction::IType(IType {
+                    op: ((value >> 26) & 0x3F) as u8,
+                    rs: ((value >> 21) & 0x1F) as u8,
+                    rt: ((value >> 16) & 0x1F) as u8,
+                    immediate: (value & 0xFFFF) as u16,
+                })
+            }
 
             // Store/load word to Coprocessor 1
             OPCODE_SWC1 | OPCODE_LWC1 => Instruction::FpuIType(FpuIType {

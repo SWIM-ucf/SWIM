@@ -834,7 +834,7 @@ pub mod load_upper_imm {
             .store_word(0, instruction)
             .expect("Failed to store instruction.");
         datapath.execute_instruction();
-        
+
         let t = datapath.registers[GpRegisterType::S0];
         assert_eq!(t, 0x2aaa_0000);
     }
@@ -850,7 +850,7 @@ pub mod load_upper_imm {
             .store_word(0, instruction)
             .expect("Failed to store instruction.");
         datapath.execute_instruction();
-        
+
         let t = datapath.registers[GpRegisterType::S0];
         assert_eq!(t, 0xffff_ffff_aaaa_0000);
     }
