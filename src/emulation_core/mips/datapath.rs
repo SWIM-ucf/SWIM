@@ -397,6 +397,44 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::DoubleWord;
                 self.signals.reg_write = RegWrite::YesWrite;
             }
+
+            // The difference between ADDI and ADDIU is on whether
+            // and exception is thrown on overflow. Our emu does
+            // not impliment exceptions for now...
+            OPCODE_ADDI | OPCODE_ADDIU => {
+                self.signals.alu_op = AluOp::Addition;
+                self.signals.alu_src = AluSrc::SignExtendedImmediate;
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_width = RegWidth::Word;
+                self.signals.reg_write = RegWrite::YesWrite;
+            }
+
+            // The difference between DADDI and DADDIU is on whether
+            // and exception is thrown on overflow. Our emu does
+            // not impliment exceptions for now...
+            OPCODE_DADDI | OPCODE_DADDIU => {
+                self.signals.alu_op = AluOp::Addition;
+                self.signals.alu_src = AluSrc::SignExtendedImmediate;
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_width = RegWidth::DoubleWord;
+                self.signals.reg_write = RegWrite::YesWrite;
+            }
+
+
             _ => unimplemented!("I-type instruction with opcode `{}`", i.op),
         }
     }
