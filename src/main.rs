@@ -59,8 +59,8 @@ fn app() -> Html {
                 log!(JsValue::from_str(&datapath.registers.to_string()));
 
                 // load the binary into the datapath's memory
-                (*datapath).load_instructions(assembled);
-                log!((*datapath).memory.to_string());
+                (*datapath).load_instructions(assembled).expect("Memory could not be loaded");
+                log!(datapath.memory.to_string());
             },
             text_model,
         )
