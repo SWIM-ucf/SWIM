@@ -530,7 +530,7 @@ pub mod addi_addiu {
 
         assert_eq!(datapath.registers[GpRegisterType::S0], 0xffffffffffffffff);
     }
-    
+
     #[test]
     fn addiu_simple_test() {
         let mut datapath = MipsDatapath::default();
@@ -660,7 +660,7 @@ pub mod daddi_and_daddiu {
 
         assert_eq!(datapath.registers[GpRegisterType::S0], 0xffffffffffffffff);
     }
-    
+
     #[test]
     fn daddiu_simple_test() {
         let mut datapath = MipsDatapath::default();
