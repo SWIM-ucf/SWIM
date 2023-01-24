@@ -65,6 +65,8 @@ pub enum AluControl {
 
     /// `_1011` (11) - Perform unsigned integer division. (Returns the integer quotient.)
     DivisionUnsigned = 11,
+
+    AddWithNoWriteOnOverFlow = 12,
 }
 
 /// This determines the operation sent to the ALU control unit.
@@ -105,6 +107,8 @@ pub enum AluOp {
     /// field alone does not provide the full description of those
     /// instructions.)
     UseFunctField = 7,
+
+    AddWithNoWriteOnOverFlow = 8,
 }
 
 /// Determines the second source of the ALU.
