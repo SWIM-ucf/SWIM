@@ -35,6 +35,10 @@ pub fn tokenize_instructions(program: String) -> Vec<Line> {
                     token.starting_column = j as i32;
                 }
                 token.token_name.push(char);
+                if char == ',' {
+                    line_of_tokens.tokens.push(token.clone());
+                    token.token_name = "".to_string();
+                }
             } else if !token.token_name.is_empty() {
                 line_of_tokens.tokens.push(token.clone());
                 token.token_name = "".to_string();
