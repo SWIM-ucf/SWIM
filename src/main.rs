@@ -1,14 +1,12 @@
 pub mod emulation_core;
 pub mod parser;
+pub mod ui;
 #[cfg(test)]
 pub mod tests;
 
-<<<<<<< HEAD
 use stylist::yew::*;
-use ui::editor::component::Editor;
 use ui::regview::component::Regview;
 use ui::console::component::Console;
-=======
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
 use gloo::console::log;
@@ -21,8 +19,8 @@ use parser::parser_main::parser;
 use std::{cell::RefCell, rc::Rc};
 use stylist::css;
 use wasm_bindgen::JsValue;
->>>>>>> main
 use yew::prelude::*;
+use yew::{html, Html, Properties, Callback};
 
 #[function_component(App)]
 fn app() -> Html {
@@ -90,17 +88,12 @@ fn app() -> Html {
 
     html! {
         <div>
-<<<<<<< HEAD
-            <h1></h1>
-            <Regview />
-            <Editor /> 
-            <Console />
-=======
             <h1>{"Welcome to SWIM"}</h1>
             <button onclick={on_load_clicked}>{ "Assemble" }</button>
             <button onclick={on_execute_clicked}> { "Execute" }</button>
+            <Regview />
             <SwimEditor text_model={(*text_model).clone()} />
->>>>>>> main
+            <Console />
         </div>
     }
 }
