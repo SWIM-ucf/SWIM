@@ -686,6 +686,21 @@
 <span id="686">686</span>
 <span id="687">687</span>
 <span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of a MIPS64 datapath.
 //!
 //! It is assumed that while moving through stages, only one
@@ -1038,6 +1053,21 @@
                 <span class="self">self</span>.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
                 <span class="self">self</span>.signals.reg_dst = RegDst::Reg2;
                 <span class="self">self</span>.signals.reg_width = RegWidth::DoubleWord;
+                <span class="self">self</span>.signals.reg_write = RegWrite::YesWrite;
+            }
+
+            OPCODE_LUI =&gt; {
+                <span class="self">self</span>.signals.alu_op = AluOp::LeftShift16;
+                <span class="self">self</span>.signals.alu_src = AluSrc::SignExtendedImmediate; <span class="comment">// may  be fishy
+                </span><span class="self">self</span>.signals.branch = Branch::NoBranch;
+                <span class="self">self</span>.signals.imm_shift = ImmShift::Shift0;
+                <span class="self">self</span>.signals.jump = Jump::NoJump;
+                <span class="self">self</span>.signals.mem_read = MemRead::NoRead;
+                <span class="self">self</span>.signals.mem_to_reg = MemToReg::UseAlu;
+                <span class="self">self</span>.signals.mem_write = MemWrite::NoWrite;
+                <span class="self">self</span>.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                <span class="self">self</span>.signals.reg_dst = RegDst::Reg2;
+                <span class="self">self</span>.signals.reg_width = RegWidth::Word;
                 <span class="self">self</span>.signals.reg_write = RegWrite::YesWrite;
             }
 

@@ -78,6 +78,8 @@
 <span id="78">78</span>
 <span id="79">79</span>
 <span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::control_signals::RegWidth;
 
 <span class="kw">pub const </span>FUNCT_ADD: u8 = <span class="number">0b100000</span>;
@@ -119,6 +121,8 @@
 <span class="kw">pub const </span>OPCODE_ORI: u8 = <span class="number">0b001101</span>;
 <span class="kw">pub const </span>OPCODE_ANDI: u8 = <span class="number">0b001100</span>;
 <span class="kw">pub const </span>OPCODE_COP1: u8 = <span class="number">0b010001</span>;
+<span class="kw">pub const </span>OPCODE_LUI: u8 = <span class="number">0b001111</span>;
+<span class="kw">pub const </span>OPCODE_AUI: u8 = OPCODE_LUI;
 <span class="kw">pub const </span>OPCODE_LW: u8 = <span class="number">0b100011</span>;
 <span class="kw">pub const </span>OPCODE_SW: u8 = <span class="number">0b101011</span>;
 <span class="kw">pub const </span>OPCODE_LWC1: u8 = <span class="number">0b110001</span>;
