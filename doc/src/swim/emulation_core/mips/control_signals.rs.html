@@ -441,6 +441,18 @@
 <span id="441">441</span>
 <span id="442">442</span>
 <span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Internal datapath control signals.
 
 /// Full collection of control signals.
@@ -459,6 +471,7 @@
     <span class="kw">pub </span>reg_dst: RegDst,
     <span class="kw">pub </span>reg_width: RegWidth,
     <span class="kw">pub </span>reg_write: RegWrite,
+    <span class="kw">pub </span>overflow_write_block: OverflowWriteBlock,
 }
 
 <span class="doccomment">/// The output of the ALU control unit that directly controls the ALU.
@@ -508,6 +521,8 @@
 
     <span class="doccomment">/// `_1011` (11) - Perform unsigned integer division. (Returns the integer quotient.)
     </span>DivisionUnsigned = <span class="number">11</span>,
+
+    AddWithNoWriteOnOverFlow = <span class="number">12</span>,
 }
 
 <span class="doccomment">/// This determines the operation sent to the ALU control unit.
@@ -548,6 +563,8 @@
     /// field alone does not provide the full description of those
     /// instructions.)
     </span>UseFunctField = <span class="number">7</span>,
+
+    AddWithNoWriteOnOverFlow = <span class="number">8</span>,
 }
 
 <span class="doccomment">/// Determines the second source of the ALU.
@@ -684,6 +701,13 @@
     <span class="attribute">#[default]
     </span>NoWrite = <span class="number">0</span>,
     YesWrite = <span class="number">1</span>,
+}
+
+<span class="attribute">#[derive(Default, Eq, PartialEq)]
+</span><span class="kw">pub enum </span>OverflowWriteBlock {
+    <span class="attribute">#[default]
+    </span>NoBlock = <span class="number">0</span>,
+    YesBlock = <span class="number">1</span>,
 }
 
 <span class="kw">pub mod </span>floating_point {

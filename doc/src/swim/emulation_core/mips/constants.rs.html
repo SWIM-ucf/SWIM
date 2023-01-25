@@ -80,6 +80,13 @@
 <span id="80">80</span>
 <span id="81">81</span>
 <span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::control_signals::RegWidth;
 
 <span class="kw">pub const </span>FUNCT_ADD: u8 = <span class="number">0b100000</span>;
@@ -118,8 +125,15 @@
 
 <span class="doccomment">/// Used for many R-type instructions, like `ADD`, `SUB`, `MUL`, and `DIV`.
 </span><span class="kw">pub const </span>OPCODE_SPECIAL: u8 = <span class="number">0b000000</span>;
+
 <span class="kw">pub const </span>OPCODE_ORI: u8 = <span class="number">0b001101</span>;
 <span class="kw">pub const </span>OPCODE_ANDI: u8 = <span class="number">0b001100</span>;
+
+<span class="kw">pub const </span>OPCODE_ADDI: u8 = <span class="number">0b001000</span>;
+<span class="kw">pub const </span>OPCODE_ADDIU: u8 = <span class="number">0b001001</span>;
+<span class="kw">pub const </span>OPCODE_DADDI: u8 = <span class="number">0b011000</span>;
+<span class="kw">pub const </span>OPCODE_DADDIU: u8 = <span class="number">0b011001</span>;
+
 <span class="kw">pub const </span>OPCODE_COP1: u8 = <span class="number">0b010001</span>;
 <span class="kw">pub const </span>OPCODE_LUI: u8 = <span class="number">0b001111</span>;
 <span class="kw">pub const </span>OPCODE_AUI: u8 = OPCODE_LUI;
