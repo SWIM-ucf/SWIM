@@ -36,12 +36,21 @@ pub struct FpuRType {
     pub function: u8,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct FpuIType {
+    pub op: u8,
+    pub base: u8,
+    pub ft: u8,
+    pub offset: u16,
+}
+
 #[derive(Debug, PartialEq)]
 pub enum Instruction {
     RType(RType),
     IType(IType),
     JType(JType),
     FpuRType(FpuRType),
+    FpuIType(FpuIType),
 }
 
 impl Default for Instruction {
@@ -78,28 +87,21 @@ impl From<u32> for Instruction {
                 function: (value & 0x3F) as u8,
             }),
 
-            // Load Word (lw)
-            OPCODE_LW => Instruction::IType(IType {
+            // I-Type instructions:
+            OPCODE_ADDI | OPCODE_ADDIU | OPCODE_DADDI | OPCODE_DADDIU | OPCODE_LW | OPCODE_SW
+            | OPCODE_LUI | OPCODE_ORI | OPCODE_ANDI => Instruction::IType(IType {
                 op: ((value >> 26) & 0x3F) as u8,
                 rs: ((value >> 21) & 0x1F) as u8,
                 rt: ((value >> 16) & 0x1F) as u8,
                 immediate: (value & 0xFFFF) as u16,
             }),
 
-            // Store Word (sw)
-            OPCODE_SW => Instruction::IType(IType {
+            // Store/load word to Coprocessor 1
+            OPCODE_SWC1 | OPCODE_LWC1 => Instruction::FpuIType(FpuIType {
                 op: ((value >> 26) & 0x3F) as u8,
-                rs: ((value >> 21) & 0x1F) as u8,
-                rt: ((value >> 16) & 0x1F) as u8,
-                immediate: (value & 0xFFFF) as u16,
-            }),
-
-            // Or immediate (ori)
-            OPCODE_ORI => Instruction::IType(IType {
-                op: ((value >> 26) & 0x3F) as u8,
-                rs: ((value >> 21) & 0x1F) as u8,
-                rt: ((value >> 16) & 0x1F) as u8,
-                immediate: (value & 0xFFFF) as u16,
+                base: ((value >> 21) & 0x1F) as u8,
+                ft: ((value >> 16) & 0x1F) as u8,
+                offset: (value & 0xFFFF) as u16,
             }),
             _ => unimplemented!("opcode `{}` not supported", op),
         }

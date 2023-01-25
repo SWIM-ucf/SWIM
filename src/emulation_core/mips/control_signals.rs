@@ -16,6 +16,7 @@ pub struct ControlSignals {
     pub reg_dst: RegDst,
     pub reg_width: RegWidth,
     pub reg_write: RegWrite,
+    pub overflow_write_block: OverflowWriteBlock,
 }
 
 /// The output of the ALU control unit that directly controls the ALU.
@@ -65,6 +66,8 @@ pub enum AluControl {
 
     /// `_1011` (11) - Perform unsigned integer division. (Returns the integer quotient.)
     DivisionUnsigned = 11,
+
+    AddWithNoWriteOnOverFlow = 12,
 }
 
 /// This determines the operation sent to the ALU control unit.
@@ -105,6 +108,8 @@ pub enum AluOp {
     /// field alone does not provide the full description of those
     /// instructions.)
     UseFunctField = 7,
+
+    AddWithNoWriteOnOverFlow = 8,
 }
 
 /// Determines the second source of the ALU.
@@ -170,6 +175,9 @@ pub enum MemRead {
 ///
 /// The decision can be completely overridden by the floating point
 /// unit's [`DataWrite`](floating_point::DataWrite) control signal.
+///
+/// This control signal also applies to what data is sent to the
+/// floating-point unit to be stored in its registers.
 #[derive(Default, PartialEq)]
 pub enum MemToReg {
     #[default]
@@ -238,6 +246,13 @@ pub enum RegWrite {
     #[default]
     NoWrite = 0,
     YesWrite = 1,
+}
+
+#[derive(Default, Eq, PartialEq)]
+pub enum OverflowWriteBlock {
+    #[default]
+    NoBlock = 0,
+    YesBlock = 1,
 }
 
 pub mod floating_point {

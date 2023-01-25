@@ -33,6 +33,9 @@ pub struct FpuState {
     fp_register_data_from_main_processor: u64,
     read_data_1: u64,
     read_data_2: u64,
+    /// Data line that goes from `Read Data 2` to the multiplexer in the main processor
+    /// controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
+    fp_register_to_memory: u64,
     alu_result: u64,
     comparator_result: u64,
 }
@@ -48,6 +51,7 @@ impl MipsFpCoprocessor {
         self.alu();
         self.comparator();
         self.write_condition_code();
+        self.write_fp_register_to_memory();
     }
 
     pub fn stage_memory(&mut self) {
@@ -78,6 +82,9 @@ impl MipsFpCoprocessor {
                 self.state.ft = r.ft as u32;
                 self.state.fd = r.fd as u32;
                 self.state.function = r.function as u32;
+            }
+            Instruction::FpuIType(i) => {
+                self.state.ft = i.ft as u32;
             }
             // These types do not use the floating-point unit so they can be ignored.
             Instruction::RType(_) | Instruction::IType(_) | Instruction::JType(_) => (),
@@ -114,6 +121,12 @@ impl MipsFpCoprocessor {
     /// floating-point coprocessor.
     pub fn set_fp_register_data_from_main_processor(&mut self, data: u64) {
         self.state.fp_register_data_from_main_processor = data;
+    }
+
+    /// Gets the contents of the data line that goes from `Read Data 2` to the multiplexer
+    /// in the main processor controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
+    pub fn get_fp_register_to_memory(&mut self) -> u64 {
+        self.state.fp_register_to_memory
     }
 
     /// Set the control signals of the processor based on the instruction opcode and function
@@ -178,8 +191,35 @@ impl MipsFpCoprocessor {
                     _ => unimplemented!("Unsupported opcode `{}` for FPU R-type instruction", r.op),
                 }
             }
+            Instruction::FpuIType(i) => match i.op {
+                OPCODE_SWC1 => {
+                    self.signals = FpuControlSignals {
+                        cc_write: CcWrite::NoWrite,
+                        data_write: DataWrite::NoWrite,
+                        fpu_branch: FpuBranch::NoBranch,
+                        fpu_reg_width: FpuRegWidth::Word,
+                        fpu_reg_write: FpuRegWrite::NoWrite,
+                        ..Default::default()
+                    }
+                }
+                OPCODE_LWC1 => {
+                    self.signals = FpuControlSignals {
+                        cc_write: CcWrite::NoWrite,
+                        data_write: DataWrite::NoWrite,
+                        fpu_branch: FpuBranch::NoBranch,
+                        fpu_mem_to_reg: FpuMemToReg::UseMemory,
+                        fpu_reg_dst: FpuRegDst::Reg1,
+                        fpu_reg_width: FpuRegWidth::Word,
+                        fpu_reg_write: FpuRegWrite::YesWrite,
+                        ..Default::default()
+                    }
+                }
+                _ => unimplemented!("Unsupported opcode `{}` for FPU I-type instruction", i.op),
+            },
             // These types do not use the floating-point unit so they can be ignored.
-            Instruction::RType(_) | Instruction::IType(_) | Instruction::JType(_) => (),
+            Instruction::RType(_) | Instruction::IType(_) | Instruction::JType(_) => {
+                self.signals = FpuControlSignals::default()
+            }
         }
     }
 
@@ -289,6 +329,12 @@ impl MipsFpCoprocessor {
     /// Set the condition code (CC) register based on the result from the comparator.
     fn write_condition_code(&mut self) {
         self.condition_code = self.state.comparator_result;
+    }
+
+    /// Set the data line that goes from `Read Data 2` to the multiplexer in the main processor
+    /// controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
+    fn write_fp_register_to_memory(&mut self) {
+        self.state.fp_register_to_memory = self.state.read_data_2;
     }
 
     /// Write data to the floating-point register file.

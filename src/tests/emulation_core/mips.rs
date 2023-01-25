@@ -4,125 +4,128 @@ use crate::emulation_core::datapath::Datapath;
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::emulation_core::mips::registers::GpRegisterType;
 
-#[test]
-fn add_register_to_itself() {
-    let mut datapath = MipsDatapath::default();
+pub mod add {
+    use super::*;
+    #[test]
+    fn add_register_to_itself() {
+        let mut datapath = MipsDatapath::default();
 
-    // $t1 = $t1 + $t1
-    //                       R-type  t1    t1    t1  (shamt)  ADD
-    let instruction: u32 = 0b000000_01001_01001_01001_00000_100000;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // $t1 = $t1 + $t1
+        //                       R-type  t1    t1    t1  (shamt)  ADD
+        let instruction: u32 = 0b000000_01001_01001_01001_00000_100000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    // Assume the register $t1 has the value 5.
-    datapath.registers[GpRegisterType::T1] = 5;
+        // Assume the register $t1 has the value 5.
+        datapath.registers[GpRegisterType::T1] = 5;
 
-    datapath.execute_instruction();
+        datapath.execute_instruction();
 
-    // After the operation is finished, the register should be 10.
-    assert_eq!(datapath.registers[GpRegisterType::T1], 10);
-}
+        // After the operation is finished, the register should be 10.
+        assert_eq!(datapath.registers[GpRegisterType::T1], 10);
+    }
 
-#[test]
-fn add_register_to_another() {
-    let mut datapath = MipsDatapath::default();
+    #[test]
+    fn add_register_to_another() {
+        let mut datapath = MipsDatapath::default();
 
-    // $s2 = $s0 + $s1
-    //                       R-type  s0    s1    s2  (shamt)  ADD
-    let instruction: u32 = 0b000000_10000_10001_10010_00000_100000;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // $s2 = $s0 + $s1
+        //                       R-type  s0    s1    s2  (shamt)  ADD
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_100000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    datapath.registers.gpr[16] = 15; // $s0
-    datapath.registers.gpr[17] = 40; // $s1
+        datapath.registers.gpr[16] = 15; // $s0
+        datapath.registers.gpr[17] = 40; // $s1
 
-    datapath.execute_instruction();
+        datapath.execute_instruction();
 
-    // Register $s2 should contain 55.
-    let result = datapath.registers.gpr[18] as u32;
-    assert_eq!(result, 55);
-}
+        // Register $s2 should contain 55.
+        let result = datapath.registers.gpr[18] as u32;
+        assert_eq!(result, 55);
+    }
 
-#[test]
-// This test attempts to write to register $zero. The datapath should
-// not overwrite this register, and remain with a value of 0.
-fn add_to_register_zero() {
-    let mut datapath = MipsDatapath::default();
+    #[test]
+    // This test attempts to write to register $zero. The datapath should
+    // not overwrite this register, and remain with a value of 0.
+    fn add_to_register_zero() {
+        let mut datapath = MipsDatapath::default();
 
-    // $zero = $t3 + $t3
-    //                       R-type  t3    t3    zero (shamt) ADD
-    let instruction: u32 = 0b000000_01011_01011_00000_00000_100000;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // $zero = $t3 + $t3
+        //                       R-type  t3    t3    zero (shamt) ADD
+        let instruction: u32 = 0b000000_01011_01011_00000_00000_100000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    datapath.registers.gpr[11] = 1234; // $t3
+        datapath.registers.gpr[11] = 1234; // $t3
 
-    datapath.execute_instruction();
+        datapath.execute_instruction();
 
-    // $zero should still contain 0.
-    assert_eq!(datapath.registers.gpr[0], 0);
-}
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers.gpr[0], 0);
+    }
 
-#[test]
-// NOTE: This test falls under our initial project design that there are no
-// handled exceptions. Therefore, we would expect to see an updated value in
-// register T1, rather than having the register unmodified per the MIPS64v6
-// specification.
-fn add_32_bit_with_overflow() {
-    let mut datapath = MipsDatapath::default();
+    #[test]
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register T1, rather than having the register unmodified per the MIPS64v6
+    // specification.
+    fn add_32_bit_with_overflow() {
+        let mut datapath = MipsDatapath::default();
 
-    // $t1 = $t4 + $t4
-    //                       R-type  t4    t4    t1 (shamt) ADD
-    let instruction: u32 = 0b000000_01100_01100_01001_00000_100000;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // $t1 = $t4 + $t4
+        //                       R-type  t4    t4    t1 (shamt) ADD
+        let instruction: u32 = 0b000000_01100_01100_01001_00000_100000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    // Assume register $t4 contains 2,454,267,026, a 32-bit integer.
-    datapath.registers.gpr[12] = 0b10010010_01001001_00100100_10010010;
+        // Assume register $t4 contains 2,454,267,026, a 32-bit integer.
+        datapath.registers.gpr[12] = 0b10010010_01001001_00100100_10010010;
 
-    datapath.execute_instruction();
+        datapath.execute_instruction();
 
-    // Disregarding overflow, register $t4 would contain 4,908,534,052, or
-    // 1_00100100_10010010_01001001_00100100 in binary. The result
-    // should be truncated. Thus, we should expect the register to
-    // contain 613,566,756, or 00100100_10010010_01001001_00100100 in binary.
-    assert_eq!(datapath.registers.gpr[9], 613566756);
-}
+        // Disregarding overflow, register $t4 would contain 4,908,534,052, or
+        // 1_00100100_10010010_01001001_00100100 in binary. The result
+        // should be truncated. Thus, we should expect the register to
+        // contain 613,566,756, or 00100100_10010010_01001001_00100100 in binary.
+        assert_eq!(datapath.registers.gpr[9], 613566756);
+    }
 
-#[test]
-// NOTE: This test falls under our initial project design that there are no
-// handled exceptions. Therefore, we would expect to see an updated value in
-// register T1, rather than having the register unmodified per the MIPS64v6
-// specification.
-fn add_32_bit_with_overflow_sign_extend() {
-    let mut datapath = MipsDatapath::default();
+    #[test]
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register T1, rather than having the register unmodified per the MIPS64v6
+    // specification.
+    fn add_32_bit_with_overflow_sign_extend() {
+        let mut datapath = MipsDatapath::default();
 
-    // $t1 = $t4 + $t4
-    //                       R-type  t4    t4    t1 (shamt) ADD
-    let instruction: u32 = 0b000000_01100_01100_01001_00000_100000;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // $t1 = $t4 + $t4
+        //                       R-type  t4    t4    t1 (shamt) ADD
+        let instruction: u32 = 0b000000_01100_01100_01001_00000_100000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    // Assume register $t4 contains 3,528,008,850, a 32-bit integer.
-    datapath.registers.gpr[12] = 0b11010010_01001001_00100100_10010010;
+        // Assume register $t4 contains 3,528,008,850, a 32-bit integer.
+        datapath.registers.gpr[12] = 0b11010010_01001001_00100100_10010010;
 
-    datapath.execute_instruction();
+        datapath.execute_instruction();
 
-    // Disregarding overflow, register $t4 would contain 7,056,017,700, or
-    // 1_10100100_10010010_01001001_00100100 in binary. The result
-    // should be truncated. Thus, we should expect the register to
-    // contain 2,761,050,404, or 10100100_10010010_01001001_00100100 in binary.
-    assert_eq!(datapath.registers.gpr[9] as u32, 2761050404);
+        // Disregarding overflow, register $t4 would contain 7,056,017,700, or
+        // 1_10100100_10010010_01001001_00100100 in binary. The result
+        // should be truncated. Thus, we should expect the register to
+        // contain 2,761,050,404, or 10100100_10010010_01001001_00100100 in binary.
+        assert_eq!(datapath.registers.gpr[9] as u32, 2761050404);
+    }
 }
 
 #[test]
@@ -297,47 +300,467 @@ fn div_negative_result() {
     assert_eq!(datapath.registers.gpr[20] as i64, -4); // $s5
 }
 
-#[test]
-fn or_immediate_with_zero() {
-    let mut datapath = MipsDatapath::default();
+pub mod and {
+    use super::*;
 
-    // $s0 = $zero | 12345
-    //                       ori    $zero  $s0   12345
-    let instruction: u32 = 0b001101_00000_10000_0011000000111001;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+    #[test]
+    fn and_register_to_itself() {
+        let mut datapath = MipsDatapath::default();
 
-    datapath.execute_instruction();
+        // $t1 = $t1 & $t1
+        //                       R-type  t1    t1    t1  (shamt)  AND
+        let instruction: u32 = 0b000000_01001_01001_01001_00000_100100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    assert_eq!(datapath.registers.gpr[16], 12345); // $s0
+        // Assume the register $t1 has the value 5.
+        datapath.registers[GpRegisterType::T1] = 0x5;
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers[GpRegisterType::T1], 0x5);
+    }
+
+    #[test]
+    fn and_register_to_another16() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 & $s1
+        //                       R-type  s0    s1    s2  (shamt)  AND
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_100100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[16] = 0x1234; // $s0
+        datapath.registers.gpr[17] = 0x4321; // $s1
+
+        datapath.execute_instruction();
+
+        // Register $s2 should contain 55.
+        let result = datapath.registers.gpr[18];
+        assert_eq!(result, 0x0220);
+    }
+
+    #[test]
+    fn and_register_to_another32() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 & $s1
+        //                       R-type  s0    s1    s2  (shamt)  AND
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_100100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[16] = 0x12341234; // $s0
+        datapath.registers.gpr[17] = 0x43214321; // $s1
+
+        datapath.execute_instruction();
+
+        // Register $s2 should contain 55.
+        let result = datapath.registers.gpr[18];
+        assert_eq!(result, 0x02200220);
+    }
+
+    #[test]
+    fn and_register_to_another64() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 & $s1
+        //                       R-type  s0    s1    s2  (shamt)  AND
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_100100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[16] = 0x1234123412341234; // $s0
+        datapath.registers.gpr[17] = 0x4321432143214321; // $s1
+
+        datapath.execute_instruction();
+
+        // Register $s2 should contain 55.
+        let result = datapath.registers.gpr[18];
+        assert_eq!(result, 0x0220022002200220);
+    }
+
+    #[test]
+    // This test attempts to write to register $zero. The datapath should
+    // not overwrite this register, and remain with a value of 0.
+    fn and_to_register_zero() {
+        let mut datapath = MipsDatapath::default();
+
+        // $zero = $t3 & $t3
+        //                       R-type  t3    t3    zero (shamt) AND
+        let instruction: u32 = 0b000000_01011_01011_00000_00000_100100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[11] = 1234; // $t3
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers.gpr[0], 0);
+    }
 }
 
-#[test]
-fn or_immediate_with_value() {
-    let mut datapath = MipsDatapath::default();
+pub mod andi {
+    use super::*;
+    #[test]
+    fn and_immediate_with_zero() {
+        let mut datapath = MipsDatapath::default();
 
-    // $s0 = $t0 | 12345
-    //                       ori     $t0   $s0   12345
-    let instruction: u32 = 0b001101_01000_10000_0011000000111001;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // $s0 = $zero & 12345
+        //                       andi    $zero  $s0   12345
+        let instruction: u32 = 0b001100_00000_10000_0011000000111001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    // In binary: 00111010 11011110 01101000 10110001
-    datapath.registers.gpr[8] = 987654321; // $t0
+        datapath.execute_instruction();
 
-    datapath.execute_instruction();
+        assert_eq!(datapath.registers.gpr[16], 0); // $s0
+    }
 
-    // The result should be as follows:
-    //         $t0:  00111010 11011110 01101000 10110001
-    // OR   12,345:                    00110000 00111001
-    // =================================================
-    // 987,658,425:  00111010 11011110 01111000 10111001
+    #[test]
+    fn andi_immediate_with_value() {
+        let mut datapath = MipsDatapath::default();
 
-    assert_eq!(datapath.registers.gpr[16], 987658425); // $s0
+        // $s0 = $t0 & 12345
+        //                       andi     $t0   $s0   12345
+        let instruction: u32 = 0b001100_01000_10000_0011000000111001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        // In binary: 00111010 11011110 01101000 10110001
+        datapath.registers.gpr[8] = 987654321; // $t0
+
+        datapath.execute_instruction();
+
+        // The result should be as follows:
+        //         $t0:  00111010 11011110 01101000 10110001
+        // AND  12,345:                    00110000 00111001
+        // =================================================
+        // 987,658,425:  00000000 00000000 00100000 00110001
+
+        assert_eq!(datapath.registers.gpr[16], 0x2031); // $s0
+    }
+}
+
+pub mod addi_addiu {
+    use super::*;
+    #[test]
+    fn addi_simple_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       addi    $t0   $s0          4
+        let instruction: u32 = 0b001000_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 1;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 5);
+    }
+
+    #[test]
+    fn addi_overflow_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       addi    $t0   $s0          1
+        let instruction: u32 = 0b001000_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xffffffff;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        // if there is an overflow, $s0 should not change.
+        // For the addiu instruction, $s0 would change on overflow, it would become 3.
+        assert_eq!(datapath.registers[GpRegisterType::S0], 123);
+    }
+
+    #[test]
+    fn addi_sign_extend_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       addi    $t0   $s0          1
+        let instruction: u32 = 0b001000_01000_10000_0000000000000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xfffffff1;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 0xfffffffffffffff2);
+    }
+
+    #[test]
+    fn addi_sign_extend_test2() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       addi    $t0   $s0          1
+        let instruction: u32 = 0b001000_01000_10000_0000000000000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xfffffffe;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 0xffffffffffffffff);
+    }
+
+    #[test]
+    fn addiu_simple_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       addiu    $t0   $s0          4
+        let instruction: u32 = 0b001001_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 1;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 5);
+    }
+
+    #[test]
+    fn addiu_overflow_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       addiu    $t0   $s0          1
+        let instruction: u32 = 0b001001_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xffffffff;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        // if there is an overflow, $s0 should not change.
+        // For the addiu instruction, $s0 would change on overflow, it would become 3.
+        assert_eq!(datapath.registers[GpRegisterType::S0], 3);
+    }
+
+    #[test]
+    fn addiu_sign_extend_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       addi    $t0   $s0          1
+        let instruction: u32 = 0b001000_01000_10000_0000000000000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xfffffff1;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 0xfffffffffffffff2);
+    }
+}
+
+pub mod daddi_and_daddiu {
+    use super::*;
+    #[test]
+    fn daddi_simple_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       daddi    $t0   $s0          4
+        let instruction: u32 = 0b011000_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 1;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 5);
+    }
+
+    #[test]
+    fn daddi_overflow_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       daddi    $t0   $s0          1
+        let instruction: u32 = 0b011000_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xffffffffffffffff;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        // if there is an overflow, $s0 should not change.
+        // For the addiu instruction, $s0 would change on overflow, it would become 3.
+        assert_eq!(datapath.registers[GpRegisterType::S0], 123);
+    }
+
+    #[test]
+    fn daddi_sign_extend_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       daddi    $t0   $s0          1
+        let instruction: u32 = 0b011000_01000_10000_0000000000000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xfffffffffffffff1;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 0xfffffffffffffff2);
+    }
+
+    #[test]
+    fn daddi_sign_extend_test2() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       daddi    $t0   $s0          1
+        let instruction: u32 = 0b011000_01000_10000_0000000000000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xfffffffffffffffe;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 0xffffffffffffffff);
+    }
+
+    #[test]
+    fn daddiu_simple_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       daddiu    $t0   $s0          4
+        let instruction: u32 = 0b011001_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 1;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 5);
+    }
+
+    #[test]
+    fn daddiu_overflow_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       daddiu    $t0   $s0          1
+        let instruction: u32 = 0b011001_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xffffffffffffffff;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        // if there is an overflow, $s0 should not change.
+        // For the addiu instruction, $s0 would change on overflow, it would become 3.
+        assert_eq!(datapath.registers[GpRegisterType::S0], 3);
+    }
+
+    #[test]
+    fn daddiu_sign_extend_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       daddiu    $t0   $s0          1
+        let instruction: u32 = 0b011001_01000_10000_0000000000000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xfffffffffffffff1;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 0xfffffffffffffff2);
+    }
+}
+
+pub mod ori {
+    use super::*;
+    #[test]
+    fn or_immediate_with_zero() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $zero | 12345
+        //                       ori    $zero  $s0   12345
+        let instruction: u32 = 0b001101_00000_10000_0011000000111001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[16], 12345); // $s0
+    }
+
+    #[test]
+    fn or_immediate_with_value() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 | 12345
+        //                       ori     $t0   $s0   12345
+        let instruction: u32 = 0b001101_01000_10000_0011000000111001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        // In binary: 00111010 11011110 01101000 10110001
+        datapath.registers.gpr[8] = 987654321; // $t0
+
+        datapath.execute_instruction();
+
+        // The result should be as follows:
+        //         $t0:  00111010 11011110 01101000 10110001
+        // OR   12,345:                    00110000 00111001
+        // =================================================
+        // 987,658,425:  00111010 11011110 01111000 10111001
+
+        assert_eq!(datapath.registers.gpr[16], 987658425); // $s0
+    }
 }
 
 #[test]
@@ -657,6 +1080,41 @@ pub mod load_word {
     }
 }
 
+pub mod load_upper_imm {
+    use super::*;
+
+    #[test]
+    fn basic_load_upper_imm_test() {
+        let mut datapath = MipsDatapath::default();
+
+        //                        lui    $t0   $s0      offset = 42
+        let instruction: u32 = 0b001111_01000_10000_0010101010101010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+        datapath.execute_instruction();
+
+        let t = datapath.registers[GpRegisterType::S0];
+        assert_eq!(t, 0x2aaa_0000);
+    }
+
+    #[test]
+    fn sign_extend_load_upper_imm_test() {
+        let mut datapath = MipsDatapath::default();
+
+        //                        lui    $t0   $s0      offset = 42
+        let instruction: u32 = 0b001111_01000_10000_1010101010101010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+        datapath.execute_instruction();
+
+        let t = datapath.registers[GpRegisterType::S0];
+        assert_eq!(t, 0xffff_ffff_aaaa_0000);
+    }
+}
 pub mod store_word {
     use super::*;
     #[test]
@@ -944,5 +1402,158 @@ pub mod coprocessor {
         datapath.execute_instruction();
 
         assert_eq!(f64::from_bits(datapath.coprocessor.fpr[1]), 47702.6875);
+    }
+
+    #[test]
+    pub fn swc1_basic_store_no_offset() {
+        let mut datapath = MipsDatapath::default();
+
+        // swc1 ft, offset(base)
+        // swc1 $f3, 0($s1)
+        // memory[GPR[base] + offset] <- FPR[ft]
+        // memory[GPR[17] + 0] <- FPR[3]
+        //                       SWC1   base  ft    offset
+        //                              $s1   $f3   0
+        let instruction: u32 = 0b111001_10001_00011_0000000000000000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[17] = 1028; // $s1
+        datapath.coprocessor.fpr[3] = f32::to_bits(1.0625f32) as u64;
+
+        datapath.execute_instruction();
+
+        // The single-precision float 1.0625 should be stored at address 1028.
+        assert_eq!(
+            f32::from_bits(datapath.memory.load_word(1028).unwrap()),
+            1.0625f32
+        );
+    }
+
+    #[test]
+    pub fn swc1_basic_store_with_offset() {
+        let mut datapath = MipsDatapath::default();
+
+        // swc1 ft, offset(base)
+        // swc1 $f5, 32($s0)
+        // memory[GPR[base] + offset] <- FPR[ft]
+        // memory[GPR[16] + 32] <- FPR[5]
+        //                       SWC1   base  ft    offset
+        //                              $s0   $f5   32
+        let instruction: u32 = 0b111001_10000_00101_0000000000100000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[16] = 2000; // $s0
+        datapath.coprocessor.fpr[5] = f32::to_bits(3.5f32) as u64;
+
+        datapath.execute_instruction();
+
+        // The single-precision float 3.5 should be stored at address 2032.
+        assert_eq!(
+            f32::from_bits(datapath.memory.load_word(2032).unwrap()),
+            3.5f32
+        );
+    }
+
+    #[test]
+    pub fn swc1_basic_store_64_bit_cutoff() {
+        // This test ensures that if there is 64-bit data in a floating-point
+        // register, only the bottom 32 bits are stored in memory with this
+        // instruction.
+
+        let mut datapath = MipsDatapath::default();
+
+        // swc1 ft, offset(base)
+        // swc1 $f0, 0($s2)
+        // memory[GPR[base] + offset] <- FPR[ft]
+        // memory[GPR[18] + 0] <- FPR[0]
+        //                       SWC1   base  ft    offset
+        //                              $s2   $f0   0
+        let instruction: u32 = 0b111001_10010_00000_0000000000000000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[18] = 1000; // $s2
+        datapath.coprocessor.fpr[0] = f64::to_bits(9853114.625);
+
+        datapath.execute_instruction();
+
+        // The double-precision float 9853114.625 is represented in hexadecimal as
+        // 4162 CB17 5400 0000. When storing the 32-bit word, the bottom 32 bits
+        // should be stored, in this case meaning 5400 0000 in hexadecimal.
+        assert_eq!(datapath.memory.load_word(1000).unwrap(), 0x5400_0000);
+    }
+
+    #[test]
+    fn lwc1_basic_load_no_offset() {
+        let mut datapath = MipsDatapath::default();
+
+        // lwc1 ft, offset(base)
+        // lwc1 $f10, 0($t0)
+        // FPR[ft] <- memory[GPR[base] + offset]
+        // FPR[10] <- memory[GPR[8] + 0]
+        //                       LWC1   base  ft    offset
+        //                              $t0   $f10  0
+        let instruction: u32 = 0b110001_01000_01010_0000000000000000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[8] = 500; // $t0
+
+        // Data is put into memory this way (rather than using load_word()) to
+        // demonstrate no reliance on API calls.
+        let data = f32::to_bits(413.125f32).to_be_bytes();
+        for (i, byte) in data.iter().enumerate() {
+            datapath.memory.memory[500 + i] = *byte;
+        }
+
+        datapath.execute_instruction();
+
+        assert_eq!(
+            f32::from_bits(datapath.coprocessor.fpr[10] as u32),
+            413.125f32
+        );
+    }
+
+    #[test]
+    fn lwc1_basic_load_with_offset() {
+        let mut datapath = MipsDatapath::default();
+
+        // lwc1 ft, offset(base)
+        // lwc1 $f11, 200($t1)
+        // FPR[ft] <- memory[GPR[base] + offset]
+        // FPR[11] <- memory[GPR[9] + 200]
+        //                       LWC1   base  ft    offset
+        //                              $t1   $f11  200
+        let instruction: u32 = 0b110001_01001_01011_0000000011001000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[9] = 1000; // $t1
+
+        // Data is put into memory this way (rather than using load_word()) to
+        // demonstrate no reliance on API calls.
+        let data = f32::to_bits(6.1875f32).to_be_bytes();
+        for (i, byte) in data.iter().enumerate() {
+            datapath.memory.memory[1200 + i] = *byte;
+        }
+
+        datapath.execute_instruction();
+
+        assert_eq!(
+            f32::from_bits(datapath.coprocessor.fpr[11] as u32),
+            6.1875f32
+        );
     }
 }

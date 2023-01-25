@@ -81,6 +81,100 @@ fn tokenize_instructions_works_basic_version() {
 }
 
 #[test]
+fn tokenize_instruction_handles_no_spaces_between_commas() {
+    let result = tokenize_instructions("add $t1, $t2, $t3\nsub $s1,$s2,$s3\n".to_string());
+
+    let i_0_t_0 = Token {
+        token_name: "add".to_string(),
+        starting_column: 0,
+        token_type: Unknown,
+    };
+    let i_0_t_1 = Token {
+        token_name: "$t1,".to_string(),
+        starting_column: 4,
+        token_type: Unknown,
+    };
+
+    let i_0_t_2 = Token {
+        token_name: "$t2,".to_string(),
+        starting_column: 9,
+        token_type: Unknown,
+    };
+    let i_0_t_3 = Token {
+        token_name: "$t3".to_string(),
+        starting_column: 14,
+        token_type: Unknown,
+    };
+    let i_1_t_0 = Token {
+        token_name: "sub".to_string(),
+        starting_column: 0,
+        token_type: Unknown,
+    };
+    let i_1_t_1 = Token {
+        token_name: "$s1,".to_string(),
+        starting_column: 4,
+        token_type: Unknown,
+    };
+
+    let i_1_t_2 = Token {
+        token_name: "$s2,".to_string(),
+        starting_column: 8,
+        token_type: Unknown,
+    };
+    let i_1_t_3 = Token {
+        token_name: "$s3".to_string(),
+        starting_column: 12,
+        token_type: Unknown,
+    };
+
+    let line_0 = Line {
+        line_number: 0,
+        tokens: vec![i_0_t_0, i_0_t_1, i_0_t_2, i_0_t_3],
+    };
+
+    let line_1 = Line {
+        line_number: 1,
+        tokens: vec![i_1_t_0, i_1_t_1, i_1_t_2, i_1_t_3],
+    };
+
+    let correct_result = vec![line_0, line_1];
+    assert_eq!(result, correct_result);
+}
+
+#[test]
+fn tokenize_instruction_handles_comma_after_space() {
+    let result = tokenize_instructions("add $t1 , $t2, $t3\n".to_string());
+
+    let i_0_t_0 = Token {
+        token_name: "add".to_string(),
+        starting_column: 0,
+        token_type: Unknown,
+    };
+    let i_0_t_1 = Token {
+        token_name: "$t1,".to_string(),
+        starting_column: 4,
+        token_type: Unknown,
+    };
+    let i_0_t_2 = Token {
+        token_name: "$t2,".to_string(),
+        starting_column: 10,
+        token_type: Unknown,
+    };
+    let i_0_t_3 = Token {
+        token_name: "$t3".to_string(),
+        starting_column: 15,
+        token_type: Unknown,
+    };
+    let line_0 = Line {
+        line_number: 0,
+        tokens: vec![i_0_t_0, i_0_t_1, i_0_t_2, i_0_t_3],
+    };
+
+    let correct_result = vec![line_0];
+    assert_eq!(result, correct_result);
+}
+
+#[test]
 fn tokenize_instructions_ignores_comments() {
     let results = tokenize_instructions(
         "This Line\n#this line is a comment\nbut_this_isn't\nthis#has a comment in the middle\n"
