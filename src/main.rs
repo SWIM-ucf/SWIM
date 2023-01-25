@@ -22,6 +22,11 @@ use wasm_bindgen::JsValue;
 use yew::prelude::*;
 use yew::{html, Html, Properties, Callback};
 
+#[derive(Properties, PartialEq)]
+pub struct Consoleprops {
+    pub parsermsg: String,
+}
+
 #[function_component(App)]
 fn app() -> Html {
     // This contains the binary representation of "ori $s0, $zero, 12345", which
@@ -86,6 +91,7 @@ fn app() -> Html {
         )
     };
 
+    let on_error_clicked = Callback::from(move |_| {});
     html! {
         <div>
             <h1>{"Welcome to SWIM"}</h1>
@@ -93,7 +99,8 @@ fn app() -> Html {
             <button onclick={on_execute_clicked}> { "Execute" }</button>
             <Regview />
             <SwimEditor text_model={(*text_model).clone()} />
-            <Console />
+            <button onclick={on_error_clicked}>{ "Click" }</button>
+            <Console parsermsg={"helo"}/>
         </div>
     }
 }
