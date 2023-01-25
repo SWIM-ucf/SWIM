@@ -412,6 +412,70 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::DoubleWord;
                 self.signals.reg_write = RegWrite::YesWrite;
             }
+
+            // The difference between ADDI and ADDIU is on whether
+            // and exception is thrown on overflow, and on whether
+            // to write on overflow, Our emu does not impliment
+            // exceptions for now...
+            OPCODE_ADDI => {
+                self.signals.alu_op = AluOp::AddWithNoWriteOnOverFlow;
+                self.signals.alu_src = AluSrc::SignExtendedImmediate;
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_width = RegWidth::Word;
+                self.signals.reg_write = RegWrite::YesWrite;
+            }
+            OPCODE_ADDIU => {
+                self.signals.alu_op = AluOp::Addition;
+                self.signals.alu_src = AluSrc::SignExtendedImmediate;
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_width = RegWidth::Word;
+                self.signals.reg_write = RegWrite::YesWrite;
+            }
+
+            OPCODE_DADDI => {
+                self.signals.alu_op = AluOp::AddWithNoWriteOnOverFlow;
+                self.signals.alu_src = AluSrc::SignExtendedImmediate;
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_width = RegWidth::DoubleWord;
+                self.signals.reg_write = RegWrite::YesWrite;
+            }
+
+            OPCODE_DADDIU => {
+                self.signals.alu_op = AluOp::Addition;
+                self.signals.alu_src = AluSrc::SignExtendedImmediate;
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_width = RegWidth::DoubleWord;
+                self.signals.reg_write = RegWrite::YesWrite;
+            }
+
             _ => unimplemented!("I-type instruction with opcode `{}`", i.op),
         }
     }
@@ -498,6 +562,7 @@ impl MipsDatapath {
     fn set_alu_control(&mut self) {
         self.signals.alu_control = match self.signals.alu_op {
             AluOp::Addition => AluControl::Addition,
+            AluOp::AddWithNoWriteOnOverFlow => AluControl::AddWithNoWriteOnOverFlow,
             AluOp::Subtraction => AluControl::Subtraction,
             AluOp::SetOnLessThanSigned => AluControl::SetOnLessThanSigned,
             AluOp::SetOnLessThanUnsigned => AluControl::SetOnLessThanUnsigned,
@@ -578,6 +643,25 @@ impl MipsDatapath {
         // Set the result.
         self.state.alu_result = match self.signals.alu_control {
             AluControl::Addition => input1.wrapping_add(input2),
+            AluControl::AddWithNoWriteOnOverFlow => {
+                // Ugly hack to make addi and daddi work correctly
+                if let RegWidth::Word = self.signals.reg_width {
+                    let i1 = input1 as u32;
+                    let i2 = input2 as u32;
+                    let sum = i1.overflowing_add(i2);
+                    if sum.1 {
+                        // read_data_2 is the value already in the output register
+                        self.signals.overflow_write_block = OverflowWriteBlock::YesBlock;
+                    }
+                    sum.0 as u64
+                } else {
+                    let sum = input1.overflowing_add(input2);
+                    if sum.1 {
+                        self.signals.overflow_write_block = OverflowWriteBlock::YesBlock;
+                    }
+                    sum.0
+                }
+            }
             AluControl::Subtraction => (input1 as i64).wrapping_sub(input2 as i64) as u64,
             AluControl::SetOnLessThanSigned => ((input1 as i64) < (input2 as i64)) as u64,
             AluControl::SetOnLessThanUnsigned => (input1 < input2) as u64,
@@ -668,7 +752,9 @@ impl MipsDatapath {
         };
 
         // Abort if the RegWrite signal is not set.
-        if self.signals.reg_write == RegWrite::NoWrite {
+        if self.signals.reg_write == RegWrite::NoWrite
+            || self.signals.overflow_write_block == OverflowWriteBlock::YesBlock
+        {
             return;
         }
 

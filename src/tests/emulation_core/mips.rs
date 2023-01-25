@@ -457,7 +457,267 @@ pub mod andi {
     }
 }
 
-pub mod or {
+pub mod addi_addiu {
+    use super::*;
+    #[test]
+    fn addi_simple_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       addi    $t0   $s0          4
+        let instruction: u32 = 0b001000_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 1;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 5);
+    }
+
+    #[test]
+    fn addi_overflow_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       addi    $t0   $s0          1
+        let instruction: u32 = 0b001000_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xffffffff;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        // if there is an overflow, $s0 should not change.
+        // For the addiu instruction, $s0 would change on overflow, it would become 3.
+        assert_eq!(datapath.registers[GpRegisterType::S0], 123);
+    }
+
+    #[test]
+    fn addi_sign_extend_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       addi    $t0   $s0          1
+        let instruction: u32 = 0b001000_01000_10000_0000000000000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xfffffff1;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 0xfffffffffffffff2);
+    }
+
+    #[test]
+    fn addi_sign_extend_test2() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       addi    $t0   $s0          1
+        let instruction: u32 = 0b001000_01000_10000_0000000000000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xfffffffe;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 0xffffffffffffffff);
+    }
+
+    #[test]
+    fn addiu_simple_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       addiu    $t0   $s0          4
+        let instruction: u32 = 0b001001_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 1;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 5);
+    }
+
+    #[test]
+    fn addiu_overflow_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       addiu    $t0   $s0          1
+        let instruction: u32 = 0b001001_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xffffffff;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        // if there is an overflow, $s0 should not change.
+        // For the addiu instruction, $s0 would change on overflow, it would become 3.
+        assert_eq!(datapath.registers[GpRegisterType::S0], 3);
+    }
+
+    #[test]
+    fn addiu_sign_extend_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       addi    $t0   $s0          1
+        let instruction: u32 = 0b001000_01000_10000_0000000000000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xfffffff1;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 0xfffffffffffffff2);
+    }
+}
+
+pub mod daddi_and_daddiu {
+    use super::*;
+    #[test]
+    fn daddi_simple_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       daddi    $t0   $s0          4
+        let instruction: u32 = 0b011000_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 1;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 5);
+    }
+
+    #[test]
+    fn daddi_overflow_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       daddi    $t0   $s0          1
+        let instruction: u32 = 0b011000_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xffffffffffffffff;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        // if there is an overflow, $s0 should not change.
+        // For the addiu instruction, $s0 would change on overflow, it would become 3.
+        assert_eq!(datapath.registers[GpRegisterType::S0], 123);
+    }
+
+    #[test]
+    fn daddi_sign_extend_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       daddi    $t0   $s0          1
+        let instruction: u32 = 0b011000_01000_10000_0000000000000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xfffffffffffffff1;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 0xfffffffffffffff2);
+    }
+
+    #[test]
+    fn daddi_sign_extend_test2() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       daddi    $t0   $s0          1
+        let instruction: u32 = 0b011000_01000_10000_0000000000000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xfffffffffffffffe;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 0xffffffffffffffff);
+    }
+
+    #[test]
+    fn daddiu_simple_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       daddiu    $t0   $s0          4
+        let instruction: u32 = 0b011001_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 1;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 5);
+    }
+
+    #[test]
+    fn daddiu_overflow_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       daddiu    $t0   $s0          1
+        let instruction: u32 = 0b011001_01000_10000_0000000000000100;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xffffffffffffffff;
+        datapath.registers[GpRegisterType::S0] = 123;
+        datapath.execute_instruction();
+
+        // if there is an overflow, $s0 should not change.
+        // For the addiu instruction, $s0 would change on overflow, it would become 3.
+        assert_eq!(datapath.registers[GpRegisterType::S0], 3);
+    }
+
+    #[test]
+    fn daddiu_sign_extend_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        //                       daddiu    $t0   $s0          1
+        let instruction: u32 = 0b011001_01000_10000_0000000000000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store addi");
+        datapath.registers[GpRegisterType::T0] = 0xfffffffffffffff1;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[GpRegisterType::S0], 0xfffffffffffffff2);
+    }
+}
+
+pub mod ori {
     use super::*;
     #[test]
     fn or_immediate_with_zero() {
