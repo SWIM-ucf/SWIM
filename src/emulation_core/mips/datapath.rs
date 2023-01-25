@@ -476,6 +476,21 @@ impl MipsDatapath {
                 self.signals.reg_write = RegWrite::YesWrite;
             }
 
+            OPCODE_J => {
+                self.signals.alu_op = AluOp::Addition;
+                self.signals.alu_src = AluSrc::ReadRegister2;
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::YesJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_width = RegWidth::DoubleWord;
+                self.signals.reg_write = RegWrite::NoWrite;
+            }
+
             _ => unimplemented!("I-type instruction with opcode `{}`", i.op),
         }
     }
@@ -784,6 +799,10 @@ impl MipsDatapath {
     /// increments the PC by 4 and does not support branching or
     /// jumping.
     fn set_pc(&mut self) {
-        self.registers.pc += 4;
+        let tpc = self.registers.pc += 4;
+        if let Jump::YesJump = self.signals.jump {
+            !unimplemented!();
+        }
+
     }
 }
