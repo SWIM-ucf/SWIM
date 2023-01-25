@@ -45,4 +45,7 @@ pub trait Datapath {
 
     /// Retrieve all memory as-is.
     fn get_memory(&self) -> &Self::MemoryType;
+
+    /// Restore the datapath to its default state.
+    fn reset(&mut self);
 }

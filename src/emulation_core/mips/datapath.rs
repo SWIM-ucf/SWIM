@@ -168,6 +168,10 @@ impl Datapath for MipsDatapath {
     fn get_memory(&self) -> &Self::MemoryType {
         &self.memory
     }
+
+    fn reset(&mut self) {
+        std::mem::take(self);
+    }
 }
 
 impl MipsDatapath {
