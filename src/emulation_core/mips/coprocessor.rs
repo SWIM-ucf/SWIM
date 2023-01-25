@@ -91,18 +91,6 @@ impl MipsFpCoprocessor {
         }
     }
 
-    /// Set the [`FpuRegWidth`] control signal based on the `fmt` field in
-    /// the instruction.
-    fn set_reg_width(&mut self) {
-        self.signals.fpu_reg_width = match self.state.fmt as u8 {
-            FMT_SINGLE => FpuRegWidth::Word,
-            FMT_DOUBLE => FpuRegWidth::DoubleWord,
-            _ => {
-                unimplemented!("`{}` is an invalid fmt value", self.state.fmt);
-            }
-        }
-    }
-
     /// Sets the data line between the main processor and the `Data` register. This
     /// is then used if deciding data from the main processor should go into the `Data`
     /// register.
@@ -145,8 +133,8 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             self.signals.fpu_reg_dst = FpuRegDst::Reg3;
+                            self.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
                             self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
-                            self.set_reg_width();
                         }
                         FUNCTION_SUB => {
                             self.signals.cc = Cc::Cc0;
@@ -157,8 +145,8 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             self.signals.fpu_reg_dst = FpuRegDst::Reg3;
+                            self.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
                             self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
-                            self.set_reg_width();
                         }
                         FUNCTION_MUL => {
                             self.signals.cc = Cc::Cc0;
@@ -169,8 +157,8 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             self.signals.fpu_reg_dst = FpuRegDst::Reg3;
+                            self.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
                             self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
-                            self.set_reg_width();
                         }
                         FUNCTION_DIV => {
                             self.signals.cc = Cc::Cc0;
@@ -181,8 +169,8 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             self.signals.fpu_reg_dst = FpuRegDst::Reg3;
+                            self.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
                             self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
-                            self.set_reg_width();
                         }
                         // Unrecognized format code. Perform no operation.
                         _ => unimplemented!("COP1 instruction with function code `{}`", r.function),

@@ -256,6 +256,8 @@ pub enum OverflowWriteBlock {
 }
 
 pub mod floating_point {
+    use super::super::constants::*;
+
     #[derive(Default, PartialEq)]
     pub struct FpuControlSignals {
         pub cc: Cc,
@@ -440,6 +442,20 @@ pub mod floating_point {
         /// Use doublewords (64 bits). Equivalent to a double-precision floating-point value.
         #[default]
         DoubleWord = 1,
+    }
+
+    impl FpuRegWidth {
+        /// Get the corresponding [`FpuRegWidth`] control signal based on
+        /// the `fmt` field in an instruction.
+        pub fn from_fmt(fmt: u8) -> Self {
+            match fmt {
+                FMT_SINGLE => Self::Word,
+                FMT_DOUBLE => Self::DoubleWord,
+                _ => {
+                    unimplemented!("`{}` is an invalid fmt value", fmt);
+                }
+            }
+        }
     }
 
     /// Determines if the floating-point register file should be written to.
