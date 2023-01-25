@@ -1080,6 +1080,41 @@ pub mod load_word {
     }
 }
 
+pub mod load_upper_imm {
+    use super::*;
+
+    #[test]
+    fn basic_load_upper_imm_test() {
+        let mut datapath = MipsDatapath::default();
+
+        //                        lui    $t0   $s0      offset = 42
+        let instruction: u32 = 0b001111_01000_10000_0010101010101010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+        datapath.execute_instruction();
+
+        let t = datapath.registers[GpRegisterType::S0];
+        assert_eq!(t, 0x2aaa_0000);
+    }
+
+    #[test]
+    fn sign_extend_load_upper_imm_test() {
+        let mut datapath = MipsDatapath::default();
+
+        //                        lui    $t0   $s0      offset = 42
+        let instruction: u32 = 0b001111_01000_10000_1010101010101010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+        datapath.execute_instruction();
+
+        let t = datapath.registers[GpRegisterType::S0];
+        assert_eq!(t, 0xffff_ffff_aaaa_0000);
+    }
+}
 pub mod store_word {
     use super::*;
     #[test]

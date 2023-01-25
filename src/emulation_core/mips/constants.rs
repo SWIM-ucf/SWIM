@@ -46,6 +46,8 @@ pub const OPCODE_DADDI: u8 = 0b011000;
 pub const OPCODE_DADDIU: u8 = 0b011001;
 
 pub const OPCODE_COP1: u8 = 0b010001;
+pub const OPCODE_LUI: u8 = 0b001111;
+pub const OPCODE_AUI: u8 = OPCODE_LUI;
 pub const OPCODE_LW: u8 = 0b100011;
 pub const OPCODE_SW: u8 = 0b101011;
 pub const OPCODE_LWC1: u8 = 0b110001;
