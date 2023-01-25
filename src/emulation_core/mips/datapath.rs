@@ -573,7 +573,8 @@ impl MipsDatapath {
                 self.set_itype_control_signals(i);
             }
             Instruction::JType(_) => todo!("JType instructions are not supported yet"),
-            Instruction::FpuRType(_) => {
+            // Main processor does nothing.
+            Instruction::FpuRType(_) | Instruction::FpuCompareType(_) => {
                 self.signals = ControlSignals {
                     branch: Branch::NoBranch,
                     jump: Jump::NoJump,

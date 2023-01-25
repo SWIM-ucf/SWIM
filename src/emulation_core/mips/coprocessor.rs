@@ -86,6 +86,13 @@ impl MipsFpCoprocessor {
             Instruction::FpuIType(i) => {
                 self.state.ft = i.ft as u32;
             }
+            Instruction::FpuCompareType(c) => {
+                self.state.op = c.op as u32;
+                self.state.fmt = c.fmt as u32;
+                self.state.ft = c.ft as u32;
+                self.state.fs = c.fs as u32;
+                self.state.function = c.function as u32;
+            }
             // These types do not use the floating-point unit so they can be ignored.
             Instruction::RType(_) | Instruction::IType(_) | Instruction::JType(_) => (),
         }
@@ -204,6 +211,18 @@ impl MipsFpCoprocessor {
                 }
                 _ => unimplemented!("Unsupported opcode `{}` for FPU I-type instruction", i.op),
             },
+            Instruction::FpuCompareType(c) => {
+                self.signals = FpuControlSignals {
+                    cc: Cc::Cc0,
+                    cc_write: CcWrite::YesWrite,
+                    data_write: DataWrite::NoWrite,
+                    fpu_alu_op: FpuAluOp::from_function(c.function),
+                    fpu_branch: FpuBranch::NoBranch,
+                    fpu_reg_width: FpuRegWidth::from_fmt(c.fmt),
+                    fpu_reg_write: FpuRegWrite::NoWrite,
+                    ..Default::default()
+                }
+            }
             // These types do not use the floating-point unit so they can be ignored.
             Instruction::RType(_) | Instruction::IType(_) | Instruction::JType(_) => {
                 self.signals = FpuControlSignals::default()
