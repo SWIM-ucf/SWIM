@@ -1,12 +1,9 @@
 pub mod emulation_core;
 pub mod parser;
-pub mod ui;
 #[cfg(test)]
 pub mod tests;
+pub mod ui;
 
-use stylist::yew::*;
-use ui::regview::component::Regview;
-use ui::console::component::Console;
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
 use gloo::console::log;
@@ -18,9 +15,12 @@ use monaco::{
 use parser::parser_main::parser;
 use std::{cell::RefCell, rc::Rc};
 use stylist::css;
+use stylist::yew::*;
+use ui::console::component::Console;
+use ui::regview::component::Regview;
 use wasm_bindgen::JsValue;
 use yew::prelude::*;
-use yew::{html, Html, Properties, Callback};
+use yew::{html, Callback, Html, Properties};
 
 #[derive(Properties, PartialEq)]
 pub struct Consoleprops {
@@ -39,6 +39,8 @@ fn app() -> Html {
     // when the text model changes.
     let text_model =
         use_state_eq(|| TextModel::create(&default_code, Some(&language), None).unwrap());
+
+    let parser_text_output = use_state_eq(String::new);
 
     // TODO: Output will be stored in two ways, the first would be the parser's
     // messages via logs and the registers will be stored
@@ -91,16 +93,39 @@ fn app() -> Html {
         )
     };
 
-    let on_error_clicked = Callback::from(move |_| {});
+    let on_reset_clicked = {
+        let datapath = Rc::clone(&datapath);
+        use_callback(
+            move |_, _| {
+                let mut datapath = (*datapath).borrow_mut();
+                (*datapath).reset();
+                log!(JsValue::from_str(&datapath.registers.to_string()));
+            },
+            (),
+        )
+    };
+
+    let on_error_clicked = {
+        let parser_text_output = parser_text_output.clone();
+        use_callback(
+            move |_, _| {
+                parser_text_output.set("Arial".to_string());
+            },
+            (),
+        )
+    };
+
     html! {
         <div>
             <h1>{"Welcome to SWIM"}</h1>
             <button onclick={on_load_clicked}>{ "Assemble" }</button>
             <button onclick={on_execute_clicked}> { "Execute" }</button>
-            <Regview />
+            <button onclick={on_reset_clicked}>{ "Reset" }</button>
+            // Pass in register data from emu core
+            <Regview gp={(*datapath).borrow().registers.clone()}/>
             <SwimEditor text_model={(*text_model).clone()} />
             <button onclick={on_error_clicked}>{ "Click" }</button>
-            <Console parsermsg={"helo"}/>
+            <Console parsermsg={(*parser_text_output).clone()}/>
         </div>
     }
 }
