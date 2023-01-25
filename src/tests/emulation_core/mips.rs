@@ -4,6 +4,37 @@ use crate::emulation_core::datapath::Datapath;
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::emulation_core::mips::registers::GpRegisterType;
 
+pub mod api {
+    use super::*;
+    use crate::parser::parser_main::parser;
+
+    #[test]
+    fn reset_datapath() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // Add instruction into emulation core memory.
+        let instruction = String::from("ori $s0, $zero, 5");
+        let (_, instruction_bits) = parser(instruction);
+        datapath.load_instructions(instruction_bits)?;
+
+        datapath.execute_instruction();
+
+        // Datapath should now have some data in it.
+        assert_ne!(datapath.memory.memory[0], 0);
+        assert_ne!(datapath.registers.gpr[16], 0); // $s0
+        assert_ne!(datapath.registers.pc, 0);
+
+        datapath.reset();
+
+        // After resetting, these values should all be back to bitwise zero.
+        assert_eq!(datapath.memory.memory[0], 0);
+        assert_eq!(datapath.registers.gpr[16], 0); // $s0
+        assert_eq!(datapath.registers.pc, 0);
+
+        Ok(())
+    }
+}
+
 pub mod add {
     use super::*;
     #[test]
