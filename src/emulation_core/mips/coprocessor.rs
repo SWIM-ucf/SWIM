@@ -15,7 +15,7 @@ pub struct MipsFpCoprocessor {
     pub state: FpuState,
 
     pub fpr: [u64; 32],
-    condition_code: u64,
+    pub condition_code: u64,
     data: u64,
 }
 
