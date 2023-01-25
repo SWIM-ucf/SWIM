@@ -300,20 +300,28 @@ impl MipsFpCoprocessor {
 
     /// Perform a comparison.
     fn comparator(&mut self) {
-        let mut input1 = self.state.read_data_1;
-        let mut input2 = self.state.read_data_2;
+        let input1 = self.state.read_data_1;
+        let input2 = self.state.read_data_2;
 
-        // Truncate the inputs if 32-bit operations are expected.
-        if let FpuRegWidth::Word = self.signals.fpu_reg_width {
-            input1 = input1 as u32 as u64;
-            input2 = input2 as u32 as u64;
-        }
+        let input1_f32 = f32::from_bits(input1 as u32);
+        let input2_f32 = f32::from_bits(input2 as u32);
+        let input1_f64 = f64::from_bits(input1);
+        let input2_f64 = f64::from_bits(input2);
 
         self.state.comparator_result = match self.signals.fpu_alu_op {
-            FpuAluOp::AdditionOrEqual => (input1 == input2) as u64,
+            FpuAluOp::AdditionOrEqual => match self.signals.fpu_reg_width {
+                FpuRegWidth::Word => (input1_f32 == input2_f32) as u64,
+                FpuRegWidth::DoubleWord => (input1_f64 == input2_f64) as u64,
+            },
+            FpuAluOp::MultiplicationOrSlt => match self.signals.fpu_reg_width {
+                FpuRegWidth::Word => (input1_f32 < input2_f32) as u64,
+                FpuRegWidth::DoubleWord => (input1_f64 < input2_f64) as u64,
+            },
+            FpuAluOp::DivisionOrSle => match self.signals.fpu_reg_width {
+                FpuRegWidth::Word => (input1_f32 <= input2_f32) as u64,
+                FpuRegWidth::DoubleWord => (input1_f64 <= input2_f64) as u64,
+            },
             FpuAluOp::Subtraction => 0, // No operation
-            FpuAluOp::MultiplicationOrSlt => (input1 < input2) as u64,
-            FpuAluOp::DivisionOrSle => (input1 <= input2) as u64,
             _ => unimplemented!(),
         }
     }
