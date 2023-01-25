@@ -386,6 +386,20 @@ pub mod floating_point {
         Snge = 7,
     }
 
+    impl FpuAluOp {
+        /// Get the corresponding control signal given a function code.
+        pub fn from_function(function: u8) -> Self {
+            match function {
+                FUNCTION_C_EQ => Self::AdditionOrEqual,
+                FUNCTION_C_LT => Self::MultiplicationOrSlt,
+                FUNCTION_C_NGE => Self::Snge,
+                FUNCTION_C_LE => Self::DivisionOrSle,
+                FUNCTION_C_NGT => Self::Sngt,
+                _ => panic!("Unsupported function code `{function}`"),
+            }
+        }
+    }
+
     /// Determines if the floating-point unit should consider branching, based on the
     /// contents of the condition code register.
     ///
