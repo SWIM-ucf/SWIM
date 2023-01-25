@@ -88,15 +88,33 @@ impl From<u32> for Instruction {
             }),
 
             // COP1 (coprocessor 1)
-            // add.fmt, sub.fmt, mul.fmt, div.fmt
-            OPCODE_COP1 => Instruction::FpuRType(FpuRType {
-                op: ((value >> 26) & 0x3F) as u8,
-                fmt: ((value >> 21) & 0x1F) as u8,
-                ft: ((value >> 16) & 0x1F) as u8,
-                fs: ((value >> 11) & 0x1F) as u8,
-                fd: ((value >> 6) & 0x1F) as u8,
-                function: (value & 0x3F) as u8,
-            }),
+            OPCODE_COP1 => {
+                let function = (value & 0x3F) as u8;
+                match function {
+                    // add.fmt, sub.fmt, mul.fmt, div.fmt
+                    FUNCTION_ADD | FUNCTION_SUB | FUNCTION_MUL | FUNCTION_DIV => {
+                        Instruction::FpuRType(FpuRType {
+                            op: ((value >> 26) & 0x3F) as u8,
+                            fmt: ((value >> 21) & 0x1F) as u8,
+                            ft: ((value >> 16) & 0x1F) as u8,
+                            fs: ((value >> 11) & 0x1F) as u8,
+                            fd: ((value >> 6) & 0x1F) as u8,
+                            function: (value & 0x3F) as u8,
+                        })
+                    }
+                    // Comparison instructions
+                    FUNCTION_C_EQ | FUNCTION_C_LT | FUNCTION_C_NGE | FUNCTION_C_LE
+                    | FUNCTION_C_NGT => Instruction::FpuCompareType(FpuCompareType {
+                        op: ((value >> 26) & 0x3F) as u8,
+                        fmt: ((value >> 21) & 0x1F) as u8,
+                        ft: ((value >> 16) & 0x1F) as u8,
+                        fs: ((value >> 11) & 0x1F) as u8,
+                        cc: ((value >> 8) & 0x7) as u8,
+                        function: (value & 0x3F) as u8,
+                    }),
+                    _ => unimplemented!("function `{}` not supported for opcode {}", function, op),
+                }
+            }
 
             // I-Type instructions:
             OPCODE_ADDI | OPCODE_ADDIU | OPCODE_DADDI | OPCODE_DADDIU | OPCODE_LW | OPCODE_SW
