@@ -82,7 +82,7 @@ pub const FUNCTION_DIV: u8 = 0b000011;
 // function field with 11.
 pub const FUNCTION_C_EQ: u8 = 0b110010;
 pub const FUNCTION_C_LT: u8 = 0b111100;
-pub const FUNCTION_C_NGE: u8 = 0b11101;
+pub const FUNCTION_C_NGE: u8 = 0b111101;
 pub const FUNCTION_C_LE: u8 = 0b111110;
 pub const FUNCTION_C_NGT: u8 = 0b111111;
 
