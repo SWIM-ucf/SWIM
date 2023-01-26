@@ -20,7 +20,7 @@ impl ToString for Memory {
         let mut output = String::new();
 
         for byte in self.memory.iter() {
-            output.push_str(&format!("{:x}", byte));
+            output.push_str(&format!("{byte:x}"));
         }
 
         output
@@ -33,7 +33,7 @@ impl Memory {
     /// the address.
     fn check_valid_address(&self, address: usize) -> Result<(), String> {
         if address % 4 != 0 {
-            Err(format!("Address `{}` is not word-aligned", address))
+            Err(format!("Address `{address}` is not word-aligned"))
         } else if address > self.memory.len() {
             Err(format!(
                 "Address `{}` out of bounds of memory of size {}",

@@ -89,7 +89,7 @@ pub mod instruction_tokenization {
         println!("Int representation: {}", instruction.binary);
 
         for error in &instruction.errors {
-            print!("{:?}", error);
+            print!("{error:?}");
             if error.operand_number.is_some() {
                 println!(" on operand {}.", error.operand_number.unwrap());
             } else {
