@@ -62,7 +62,7 @@ impl ToString for GpRegisters {
             .gpr
             .iter()
             .enumerate()
-            .map(|(i, inst)| format!("gpr[{}] = {}", i, inst))
+            .map(|(i, inst)| format!("gpr[{i}] = {inst}"))
             .collect::<Vec<String>>()
             .join("\n");
         output.push_str(&gpr_registers);
@@ -79,7 +79,7 @@ impl Index<&str> for GpRegisters {
     fn index(&self, index: &str) -> &Self::Output {
         match GpRegisterType::from_str(index) {
             Ok(register) => &self[register],
-            _ => panic!("{} is not a valid register", index),
+            _ => panic!("{index} is not a valid register"),
         }
     }
 }
@@ -90,7 +90,7 @@ impl IndexMut<&str> for GpRegisters {
     fn index_mut(&mut self, index: &str) -> &mut Self::Output {
         match GpRegisterType::from_str(index) {
             Ok(register) => &mut self[register],
-            _ => panic!("{} is not a valid register", index),
+            _ => panic!("{index} is not a valid register"),
         }
     }
 }
