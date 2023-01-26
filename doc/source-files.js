@@ -1,8 +1,9 @@
 var sourcesIndex = JSON.parse('{\
 "anymap2":["",[],["any.rs","lib.rs","raw.rs"]],\
-"bincode":["",[["config",[],["endian.rs","int.rs","legacy.rs","limit.rs","mod.rs","trailing.rs"]],["de",[],["mod.rs","read.rs"]],["ser",[],["mod.rs"]]],["byteorder.rs","error.rs","internal.rs","lib.rs"]],\
+"bincode":["",[["de",[],["mod.rs","read.rs"]],["ser",[],["mod.rs"]]],["config.rs","error.rs","internal.rs","lib.rs"]],\
 "boolinator":["",[],["lib.rs"]],\
 "bumpalo":["",[],["alloc.rs","lib.rs"]],\
+"byteorder":["",[],["io.rs","lib.rs"]],\
 "cfg_if":["",[],["lib.rs"]],\
 "console_error_panic_hook":["",[],["lib.rs"]],\
 "either":["",[],["lib.rs"]],\
@@ -72,7 +73,7 @@ var sourcesIndex = JSON.parse('{\
 "stylist":["",[["yew",[["hooks",[],["mod.rs"]]],["global.rs","mod.rs","provider.rs"]]],["ast.rs","global_style.rs","lib.rs","macros.rs","manager.rs","registry.rs","style.rs","style_src.rs","utils.rs"]],\
 "stylist_core":["",[["ast",[],["block.rs","context.rs","mod.rs","rule.rs","rule_block_content.rs","scope_content.rs","selector.rs","sheet.rs","str_frag.rs","style_attr.rs","to_style_str.rs"]]],["bow.rs","error.rs","lib.rs","parser.rs"]],\
 "stylist_macros":["",[["inline",[["component_value",[],["function_token.rs","interpolated_expression.rs","mod.rs","preserved_token.rs","simple_block.rs","stream.rs"]],["parse",[],["attribute.rs","block.rs","mod.rs","qualifier.rs","root.rs","rule.rs","scope.rs","scope_content.rs"]]],["css_ident.rs","mod.rs"]],["literal",[],["argument.rs","fstring.rs","mod.rs","to_output_with_args.rs"]],["output",[],["block.rs","context.rs","cow_str.rs","maybe_static.rs","mod.rs","rule.rs","rule_block_content.rs","scope_content.rs","selector.rs","sheet.rs","str_frag.rs","style_attr.rs"]]],["css.rs","global_style.rs","lib.rs","sheet.rs","spacing_iterator.rs","style.rs","styled_component.rs","styled_component_impl.rs","use_style.rs"]],\
-"swim":["",[["emulation_core",[["mips",[],["constants.rs","control_signals.rs","coprocessor.rs","datapath.rs","instruction.rs","memory.rs","registers.rs"]]],["datapath.rs","mips.rs"]],["parser",[],["operand_reading.rs","parser_main.rs","parser_structs_and_enums.rs","preprocessing.rs"]]],["emulation_core.rs","main.rs","parser.rs"]],\
+"swim":["",[["emulation_core",[["mips",[],["constants.rs","control_signals.rs","coprocessor.rs","datapath.rs","instruction.rs","memory.rs","registers.rs"]]],["datapath.rs","mips.rs"]],["parser",[],["operand_reading.rs","parser_main.rs","parser_structs_and_enums.rs","preprocessing.rs"]],["ui",[["console",[],["component.rs","mod.rs"]],["regview",[],["component.rs","mod.rs"]]]]],["emulation_core.rs","main.rs","parser.rs","ui.rs"]],\
 "syn":["",[["gen",[],["clone.rs","debug.rs","eq.rs","gen_helper.rs","hash.rs","visit.rs","visit_mut.rs"]]],["attr.rs","await.rs","bigint.rs","buffer.rs","custom_keyword.rs","custom_punctuation.rs","data.rs","derive.rs","discouraged.rs","error.rs","export.rs","expr.rs","ext.rs","file.rs","generics.rs","group.rs","ident.rs","item.rs","lib.rs","lifetime.rs","lit.rs","lookahead.rs","mac.rs","macros.rs","op.rs","parse.rs","parse_macro_input.rs","parse_quote.rs","pat.rs","path.rs","print.rs","punctuated.rs","reserved.rs","sealed.rs","span.rs","spanned.rs","stmt.rs","thread.rs","token.rs","tt.rs","ty.rs","verbatim.rs","whitespace.rs"]],\
 "thiserror":["",[],["aserror.rs","display.rs","lib.rs"]],\
 "thiserror_impl":["",[],["ast.rs","attr.rs","expand.rs","fmt.rs","generics.rs","lib.rs","prop.rs","valid.rs"]],\
