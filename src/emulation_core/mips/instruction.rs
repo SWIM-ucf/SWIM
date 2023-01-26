@@ -88,7 +88,8 @@ impl From<u32> for Instruction {
             }),
 
             // I-Type instructions:
-            OPCODE_LW | OPCODE_SW | OPCODE_ORI | OPCODE_ANDI => Instruction::IType(IType {
+            OPCODE_ADDI | OPCODE_ADDIU | OPCODE_DADDI | OPCODE_DADDIU | OPCODE_LW | OPCODE_SW
+            | OPCODE_LUI | OPCODE_ORI | OPCODE_ANDI => Instruction::IType(IType {
                 op: ((value >> 26) & 0x3F) as u8,
                 rs: ((value >> 21) & 0x1F) as u8,
                 rt: ((value >> 16) & 0x1F) as u8,
