@@ -15,12 +15,12 @@ use monaco::{
 use parser::parser_main::parser;
 use std::{cell::RefCell, rc::Rc};
 use stylist::css;
-use stylist::yew::*;
+//use stylist::yew::*;
 use ui::console::component::Console;
 use ui::regview::component::Regview;
 use wasm_bindgen::JsValue;
 use yew::prelude::*;
-use yew::{html, Callback, Html, Properties};
+use yew::{html, Html, Properties};
 
 #[derive(Properties, PartialEq)]
 pub struct Consoleprops {
