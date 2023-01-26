@@ -7,6 +7,8 @@ pub mod ui;
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
 use gloo::console::log;
+use gloo::file::File;
+use gloo::file::callbacks::FileReader;
 use monaco::{
     api::TextModel,
     sys::editor::{IEditorMinimapOptions, IStandaloneEditorConstructionOptions},
@@ -154,9 +156,11 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 #[function_component]
 pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     html! {
-        <CodeEditor classes={css!(r#"height: 80vh; width: 80vw;"#)} options={get_options()} model={props.text_model.clone()} />
+        <CodeEditor classes={css!(r#"height: 70vh; width: 79vw;"#)} options={get_options()} model={props.text_model.clone()} />
     }
 }
+
+/**********************  Load a File **********************/
 
 fn main() {
     yew::Renderer::<App>::new().render();
