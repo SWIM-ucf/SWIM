@@ -122,7 +122,7 @@ fn app() -> Html {
             <button onclick={on_execute_clicked}> { "Execute" }</button>
             <button onclick={on_reset_clicked}>{ "Reset" }</button>
             // Pass in register data from emu core
-            <Regview gp={(*datapath).borrow().registers.clone()}/>
+            <Regview gp={(*datapath).borrow().registers}/>
             <SwimEditor text_model={(*text_model).clone()} />
             <button onclick={on_error_clicked}>{ "Click" }</button>
             <Console parsermsg={(*parser_text_output).clone()}/>

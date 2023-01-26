@@ -8,7 +8,7 @@ pub struct Regviewprops {
 }
 
 //Convert register to html through iterator
-pub fn genRegHtml(gp: GpRegisters) -> Html {
+pub fn gen_reg_html(gp: GpRegisters) -> Html {
     gp.into_iter()
         .map(|(register, data)| {
             html! {
@@ -34,7 +34,7 @@ pub fn regview(props: &Regviewprops) -> Html {
                         <th style="border: 1px solid black;">{"Register Name"}</th>
                         <th style="border: 1px solid black;">{"Data"}</th>
                     </tr>
-                    {genRegHtml(props.gp)}
+                    {gen_reg_html(props.gp)}
                 </table>
             </div>
         </>
