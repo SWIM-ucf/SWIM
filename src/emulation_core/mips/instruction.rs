@@ -102,7 +102,8 @@ impl From<u32> for Instruction {
                             function: (value & 0x3F) as u8,
                         })
                     }
-                    // Comparison instructions
+                    // Comparison instructions:
+                    // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt
                     FUNCTION_C_EQ | FUNCTION_C_LT | FUNCTION_C_NGE | FUNCTION_C_LE
                     | FUNCTION_C_NGT => Instruction::FpuCompareType(FpuCompareType {
                         op: ((value >> 26) & 0x3F) as u8,

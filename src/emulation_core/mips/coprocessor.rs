@@ -294,6 +294,8 @@ impl MipsFpCoprocessor {
                     }
                 }
             },
+            // No operation.
+            FpuAluOp::Sngt => 0,
             _ => unimplemented!(),
         };
     }
@@ -320,6 +322,10 @@ impl MipsFpCoprocessor {
             FpuAluOp::DivisionOrSle => match self.signals.fpu_reg_width {
                 FpuRegWidth::Word => (input1_f32 <= input2_f32) as u64,
                 FpuRegWidth::DoubleWord => (input1_f64 <= input2_f64) as u64,
+            },
+            FpuAluOp::Sngt => match self.signals.fpu_reg_width {
+                FpuRegWidth::Word => !input1_f32.gt(&input2_f32) as u64,
+                FpuRegWidth::DoubleWord => !input1_f64.gt(&input2_f64) as u64,
             },
             FpuAluOp::Subtraction => 0, // No operation
             _ => unimplemented!(),
