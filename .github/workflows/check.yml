@@ -7,7 +7,6 @@ on:
   workflow_call:
 
 env:
-  PROJECT_RUST_VERSION: 1.67
   PROJECT_TRUNK_VERSION: 'v0.16.0'
 
 jobs:
@@ -20,9 +19,6 @@ jobs:
 
     - name: Install Rust
       uses: actions-rs/toolchain@v1
-      with:
-          toolchain: ${{ env.PROJECT_RUST_VERSION }}
-          override: true
 
     - uses: Swatinem/rust-cache@v2
 
