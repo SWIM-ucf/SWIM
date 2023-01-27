@@ -9,6 +9,7 @@ on:
   workflow_dispatch:
 
 env:
+  PROJECT_TRUNK_VERSION: 'v0.16.0'
   # Specify the primary crate of the project.
   RUST_PRIMARY_CRATE: swim
 
@@ -24,21 +25,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-          toolchain: stable
-          override: true
-
     - uses: Swatinem/rust-cache@v2
+
+    - name: Install Rust
+      run: rustup show
 
     - name: Install trunk
       uses: jetli/trunk-action@v0.1.0
       with:
-        version: 'latest'
-
-    - name: Set up build WASM target
-      run: rustup target add wasm32-unknown-unknown
+        version: ${{ env.PROJECT_TRUNK_VERSION }}
 
     - name: Build
       run: trunk build --release --public-url /${{ github.event.repository.name }}
