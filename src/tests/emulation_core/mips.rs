@@ -1861,8 +1861,8 @@ pub mod coprocessor {
         let instruction: u32 = 0b010001_10000_00001_00000_000_00_111110;
         datapath.memory.store_word(0, instruction)?;
 
-        datapath.coprocessor.fpr[0] = f32::to_bits(171.93729f32) as u64;
-        datapath.coprocessor.fpr[1] = f32::to_bits(9930.82914f32) as u64;
+        datapath.coprocessor.fpr[0] = f32::to_bits(171.937f32) as u64;
+        datapath.coprocessor.fpr[1] = f32::to_bits(9930.829f32) as u64;
 
         datapath.execute_instruction();
 
@@ -1907,8 +1907,8 @@ pub mod coprocessor {
         let instruction: u32 = 0b010001_10000_00101_00100_000_00_111110;
         datapath.memory.store_word(0, instruction)?;
 
-        datapath.coprocessor.fpr[4] = f32::to_bits(5742.0069f32) as u64;
-        datapath.coprocessor.fpr[5] = f32::to_bits(1336.56833f32) as u64;
+        datapath.coprocessor.fpr[4] = f32::to_bits(5742.006f32) as u64;
+        datapath.coprocessor.fpr[5] = f32::to_bits(1336.568f32) as u64;
 
         datapath.execute_instruction();
 
