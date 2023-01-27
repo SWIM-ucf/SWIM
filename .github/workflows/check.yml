@@ -32,12 +32,16 @@ jobs:
 
     - name: Run clippy
       run: cargo clippy --no-deps --tests -- --deny warnings
+      if: success() || failure()
 
     - name: Build
       run: trunk build
+      if: success() || failure()
     
     - name: Check documentation
       run: cargo doc --no-deps
+      if: success() || failure()
 
     - name: Run tests
       run: cargo test
+      if: success() || failure()
