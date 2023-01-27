@@ -377,7 +377,7 @@ pub mod floating_point {
 
         /// `_110` (6):
         /// - Comparator: Set if not greater than.
-        Sngt = 6,
+        Sngt = 6,     
 
         /// `_111` (7):
         /// - Comparator: Set if not greater than or equal.
