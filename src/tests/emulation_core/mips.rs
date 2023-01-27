@@ -1847,4 +1847,142 @@ pub mod coprocessor {
 
         Ok(())
     }
+
+    #[test]
+    fn c_le_s_should_be_true_less() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.le.s fs, ft
+        // c.le.s $f0, $f1
+        // CC[0] <- FPR[fs] <= FPR[ft]
+        // CC[0] <- FPR[0] <= FPR[1]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              s     $f1   $f0   0        LE
+        let instruction: u32 = 0b010001_10000_00001_00000_000_00_111110;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[0] = f32::to_bits(171.93729f32) as u64;
+        datapath.coprocessor.fpr[1] = f32::to_bits(9930.82914f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_le_s_should_be_true_equal() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.le.s fs, ft
+        // c.le.s $f2, $f3
+        // CC[0] <- FPR[fs] <= FPR[ft]
+        // CC[0] <- FPR[2] <= FPR[3]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              s     $f3   $f2   0        LE
+        let instruction: u32 = 0b010001_10000_00011_00010_000_00_111110;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[2] = f32::to_bits(6.5f32) as u64;
+        datapath.coprocessor.fpr[3] = f32::to_bits(6.5f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_le_s_should_be_false() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.le.s fs, ft
+        // c.le.s $f4, $f5
+        // CC[0] <- FPR[fs] <= FPR[ft]
+        // CC[0] <- FPR[4] <= FPR[5]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              s     $f5   $f4   0        LE
+        let instruction: u32 = 0b010001_10000_00101_00100_000_00_111110;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[4] = f32::to_bits(5742.0069f32) as u64;
+        datapath.coprocessor.fpr[5] = f32::to_bits(1336.56833f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_le_d_should_be_true_less() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.le.d fs, ft
+        // c.le.d $f6, $f7
+        // CC[0] <- FPR[fs] <= FPR[ft]
+        // CC[0] <- FPR[6] <= FPR[7]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              d     $f7   $f6   0        LE
+        let instruction: u32 = 0b010001_10001_00111_00110_000_00_111110;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[6] = f64::to_bits(3483.70216);
+        datapath.coprocessor.fpr[7] = f64::to_bits(7201.56625);
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_le_d_should_be_true_equal() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.le.d fs, ft
+        // c.le.d $f8, $f9
+        // CC[0] <- FPR[fs] <= FPR[ft]
+        // CC[0] <- FPR[8] <= FPR[9]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              d     $f9   $f8   0        LE
+        let instruction: u32 = 0b010001_10001_01001_01000_000_00_111110;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[8] = f64::to_bits(77.4009);
+        datapath.coprocessor.fpr[9] = f64::to_bits(77.4009);
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_le_d_should_be_false() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.le.d fs, ft
+        // c.le.d $f10, $f11
+        // CC[0] <- FPR[fs] <= FPR[ft]
+        // CC[0] <- FPR[10] <= FPR[11]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              d     $f11  $f10  0        LE
+        let instruction: u32 = 0b010001_10001_01011_01010_000_00_111110;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[10] = f64::to_bits(9190.43309);
+        datapath.coprocessor.fpr[11] = f64::to_bits(2869.57622);
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 0);
+
+        Ok(())
+    }
 }
