@@ -44,6 +44,32 @@ pub struct FpuIType {
     pub offset: u16,
 }
 
+/// Register-Immediate FPU Instruction
+///
+/// Used for instructions that transfer data between the main processor
+/// and the floating-point coprocessor.
+///
+/// ```text
+/// 31           26   25       21   20       16   15       11   10                    0
+/// ┌───────────────┬─────────────┬─────────────┬─────────────┬─────────────────────────┐
+/// │ opcode = COP1 │     sub     │     rt      │     fs      │            0            │
+/// │    010001     │             │             │             │                         │
+/// └───────────────┴─────────────┴─────────────┴─────────────┴─────────────────────────┘
+///         6              5             5             5                   11
+/// ```
+///
+/// - opcode: COP1 (`010001`)
+/// - sub: Operation subcode field for COP1 register immediate-mode instructions.
+/// - rt: CPU register - can be either source or destination.
+/// - fs: FPU register - can be either source or destination.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct FpuRegImmType {
+    pub op: u8,
+    pub sub: u8,
+    pub rt: u8,
+    pub fs: u8,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct FpuCompareType {
     pub op: u8,
@@ -61,6 +87,7 @@ pub enum Instruction {
     JType(JType),
     FpuRType(FpuRType),
     FpuIType(FpuIType),
+    FpuRegImmType(FpuRegImmType),
     FpuCompareType(FpuCompareType),
 }
 

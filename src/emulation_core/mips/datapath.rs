@@ -405,6 +405,12 @@ impl MipsDatapath {
                 self.state.rd = 0; // Placeholder
                 self.state.imm = i.immediate as u32;
             }
+            Instruction::FpuRegImmType(i) => {
+                self.state.rs = 0; // Not applicable wire
+                self.state.rt = i.rt as u32;
+                self.state.rd = 0; // Not applicable
+                self.state.imm = 0; // Not applicable
+            }
             // R-type and comparison FPU instructions exclusively use the
             // FPU, so these data lines do not need to be used.
             Instruction::FpuRType(_) | Instruction::FpuCompareType(_) => (),
@@ -737,6 +743,17 @@ impl MipsDatapath {
             _ => unimplemented!("J-type instruction with opcode `{}`", j.op),
         };
     }
+    
+    /// Set the control signals for the datapath, specifically in the
+    /// case where the instruction is an FPU register-immediate type.
+    fn set_fpu_reg_imm_control_signals(&mut self, i: FpuRegImmType) {
+        match i.sub {
+            _ => unimplemented!(
+                "FPU register-immediate instruction with sub code `{}`",
+                i.sub
+            ),
+        }
+    }
 
     /// Set the control signals for the datapath based on the
     /// instruction's opcode.
@@ -751,6 +768,10 @@ impl MipsDatapath {
             Instruction::JType(j) => {
                 self.set_jtype_control_signals(j);
             }
+            Instruction::FpuRegImmType(i) => {
+                self.set_fpu_reg_imm_control_signals(i);
+            }
+            // Main processor does nothing.
             Instruction::FpuRType(_) | Instruction::FpuCompareType(_) => {
                 self.signals = ControlSignals {
                     branch: Branch::NoBranch,

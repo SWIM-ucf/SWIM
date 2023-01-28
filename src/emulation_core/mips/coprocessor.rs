@@ -86,6 +86,13 @@ impl MipsFpCoprocessor {
             Instruction::FpuIType(i) => {
                 self.state.ft = i.ft as u32;
             }
+            Instruction::FpuRegImmType(i) => {
+                self.state.op = i.op as u32;
+                self.state.fmt = 0; // Not applicable
+                self.state.fs = i.fs as u32;
+                self.state.ft = 0; // Not applicable
+                self.state.fd = 0; // Not applicable
+            }
             Instruction::FpuCompareType(c) => {
                 self.state.op = c.op as u32;
                 self.state.fmt = c.fmt as u32;
@@ -210,6 +217,12 @@ impl MipsFpCoprocessor {
                     }
                 }
                 _ => unimplemented!("Unsupported opcode `{}` for FPU I-type instruction", i.op),
+            },
+            Instruction::FpuRegImmType(i) => match i.sub {
+                _ => unimplemented!(
+                    "Unsupported sub code `{}` for FPU register-immediate instruction",
+                    i.sub
+                ),
             },
             Instruction::FpuCompareType(c) => {
                 self.signals = FpuControlSignals {
