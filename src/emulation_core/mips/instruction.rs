@@ -116,31 +116,46 @@ impl From<u32> for Instruction {
 
             // COP1 (coprocessor 1)
             OPCODE_COP1 => {
-                let function = (value & 0x3F) as u8;
-                match function {
-                    // add.fmt, sub.fmt, mul.fmt, div.fmt
-                    FUNCTION_ADD | FUNCTION_SUB | FUNCTION_MUL | FUNCTION_DIV => {
-                        Instruction::FpuRType(FpuRType {
-                            op: ((value >> 26) & 0x3F) as u8,
-                            fmt: ((value >> 21) & 0x1F) as u8,
-                            ft: ((value >> 16) & 0x1F) as u8,
-                            fs: ((value >> 11) & 0x1F) as u8,
-                            fd: ((value >> 6) & 0x1F) as u8,
-                            function: (value & 0x3F) as u8,
-                        })
+                // First break down the instruction by its `fmt` or `rs` field.
+                // Also called `sub` (operation subcode) field.
+                let sub = ((value >> 21) & 0x1F) as u8;
+
+                match sub {
+                    // If it is the "s" or "d" fmts, use the `function` field.
+                    FMT_SINGLE | FMT_DOUBLE => {
+                        let function = (value & 0x3F) as u8;
+                        match function {
+                            // add.fmt, sub.fmt, mul.fmt, div.fmt
+                            FUNCTION_ADD | FUNCTION_SUB | FUNCTION_MUL | FUNCTION_DIV => {
+                                Instruction::FpuRType(FpuRType {
+                                    op: ((value >> 26) & 0x3F) as u8,
+                                    fmt: ((value >> 21) & 0x1F) as u8,
+                                    ft: ((value >> 16) & 0x1F) as u8,
+                                    fs: ((value >> 11) & 0x1F) as u8,
+                                    fd: ((value >> 6) & 0x1F) as u8,
+                                    function: (value & 0x3F) as u8,
+                                })
+                            }
+                            // Comparison instructions:
+                            // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
+                            FUNCTION_C_EQ | FUNCTION_C_LT | FUNCTION_C_NGE | FUNCTION_C_LE
+                            | FUNCTION_C_NGT => Instruction::FpuCompareType(FpuCompareType {
+                                op: ((value >> 26) & 0x3F) as u8,
+                                fmt: ((value >> 21) & 0x1F) as u8,
+                                ft: ((value >> 16) & 0x1F) as u8,
+                                fs: ((value >> 11) & 0x1F) as u8,
+                                cc: ((value >> 8) & 0x7) as u8,
+                                function: (value & 0x3F) as u8,
+                            }),
+                            _ => unimplemented!(
+                                "function `{}` not supported for opcode {}",
+                                function,
+                                op
+                            ),
+                        }
                     }
-                    // Comparison instructions:
-                    // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
-                    FUNCTION_C_EQ | FUNCTION_C_LT | FUNCTION_C_NGE | FUNCTION_C_LE
-                    | FUNCTION_C_NGT => Instruction::FpuCompareType(FpuCompareType {
-                        op: ((value >> 26) & 0x3F) as u8,
-                        fmt: ((value >> 21) & 0x1F) as u8,
-                        ft: ((value >> 16) & 0x1F) as u8,
-                        fs: ((value >> 11) & 0x1F) as u8,
-                        cc: ((value >> 8) & 0x7) as u8,
-                        function: (value & 0x3F) as u8,
-                    }),
-                    _ => unimplemented!("function `{}` not supported for opcode {}", function, op),
+
+                    _ => unimplemented!("sub code `{}` not supported for opcode {}", sub, op),
                 }
             }
 
