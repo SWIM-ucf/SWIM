@@ -2243,6 +2243,28 @@ pub mod coprocessor {
 
         Ok(())
     }
+
+    #[test]
+    fn dmtc1_basic_move() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // dmtc1 rt, fs
+        // dmtc1 $t0, $f30
+        // FPR[fs] <- GPR[rt]
+        // FPR[30] <- GPR[8]
+        //                       COP1   sub   rt    fs    0
+        //                              DMT   $t0   $f30
+        let instruction: u32 = 0b010001_00101_01000_11110_00000000000;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.registers.gpr[8] = 0xDEAD_BEEF_FEED_DEED;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.fpr[30], 0xDEAD_BEEF_FEED_DEED);
+
+        Ok(())
+    }
 }
 
 pub mod jump_tests {
