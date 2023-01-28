@@ -748,6 +748,18 @@ impl MipsDatapath {
     /// case where the instruction is an FPU register-immediate type.
     fn set_fpu_reg_imm_control_signals(&mut self, i: FpuRegImmType) {
         match i.sub {
+            SUB_MT => {
+                self.signals = ControlSignals {
+                    branch: Branch::NoBranch,
+                    jump: Jump::NoJump,
+                    mem_read: MemRead::NoRead,
+                    mem_write: MemWrite::NoWrite,
+                    reg_width: RegWidth::Word,
+                    reg_write: RegWrite::NoWrite,
+                    overflow_write_block: OverflowWriteBlock::NoBlock,
+                    ..Default::default()
+                }
+            }
             _ => unimplemented!(
                 "FPU register-immediate instruction with sub code `{}`",
                 i.sub

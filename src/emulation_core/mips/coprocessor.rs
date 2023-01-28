@@ -219,6 +219,18 @@ impl MipsFpCoprocessor {
                 _ => unimplemented!("Unsupported opcode `{}` for FPU I-type instruction", i.op),
             },
             Instruction::FpuRegImmType(i) => match i.sub {
+                SUB_MT => {
+                    self.signals = FpuControlSignals {
+                        data_src: DataSrc::MainProcessorUnit,
+                        data_write: DataWrite::YesWrite,
+                        fpu_branch: FpuBranch::NoBranch,
+                        fpu_mem_to_reg: FpuMemToReg::UseDataWrite,
+                        fpu_reg_dst: FpuRegDst::Reg2,
+                        fpu_reg_width: FpuRegWidth::Word,
+                        fpu_reg_write: FpuRegWrite::YesWrite,
+                        ..Default::default()
+                    }
+                }
                 _ => unimplemented!(
                     "Unsupported sub code `{}` for FPU register-immediate instruction",
                     i.sub
