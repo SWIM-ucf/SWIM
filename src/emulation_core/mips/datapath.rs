@@ -760,6 +760,18 @@ impl MipsDatapath {
                     ..Default::default()
                 }
             }
+            SUB_DMT => {
+                self.signals = ControlSignals {
+                    branch: Branch::NoBranch,
+                    jump: Jump::NoJump,
+                    mem_read: MemRead::NoRead,
+                    mem_write: MemWrite::NoWrite,
+                    reg_width: RegWidth::DoubleWord,
+                    reg_write: RegWrite::NoWrite,
+                    overflow_write_block: OverflowWriteBlock::NoBlock,
+                    ..Default::default()
+                }
+            }
             _ => unimplemented!(
                 "FPU register-immediate instruction with sub code `{}`",
                 i.sub
