@@ -90,6 +90,16 @@ pub const FUNCTION_C_NGE: u8 = 0b111101;
 pub const FUNCTION_C_LE: u8 = 0b111110;
 pub const FUNCTION_C_NGT: u8 = 0b111111;
 
+// "SUB" is short for operation subcode. Bits 25..21 of some instructions.
+/// Move word from floating point.
+pub const SUB_MF: u8 = 0b00000;
+/// Move word to floating point.
+pub const SUB_MT: u8 = 0b00100;
+/// Doubleword move from floating point.
+pub const SUB_DMF: u8 = 0b00001;
+/// Doubleword move to floating point.
+pub const SUB_DMT: u8 = 0b00101;
+
 pub const FMT_SINGLE: u8 = 16;
 pub const FMT_DOUBLE: u8 = 17;
 
