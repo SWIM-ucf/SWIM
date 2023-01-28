@@ -348,7 +348,7 @@ impl MipsFpCoprocessor {
             DataSrc::MainProcessorUnit => self.state.data_from_main_processor as u32,
         };
 
-        self.condition_code = data as u64;
+        self.data = data as u64;
     }
 
     /// Set the condition code (CC) register based on the result from the comparator.
