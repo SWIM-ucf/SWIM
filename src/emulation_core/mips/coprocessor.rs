@@ -368,12 +368,10 @@ impl MipsFpCoprocessor {
             return;
         }
 
-        let data = match self.signals.data_src {
-            DataSrc::FloatingPointUnit => self.state.read_data_1 as u32,
-            DataSrc::MainProcessorUnit => self.state.data_from_main_processor as u32,
+        self.data = match self.signals.data_src {
+            DataSrc::FloatingPointUnit => self.state.read_data_1,
+            DataSrc::MainProcessorUnit => self.state.data_from_main_processor,
         };
-
-        self.data = data as u64;
     }
 
     /// Set the condition code (CC) register based on the result from the comparator.
