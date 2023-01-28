@@ -2221,6 +2221,28 @@ pub mod coprocessor {
 
         Ok(())
     }
+
+    #[test]
+    fn mtc1_truncate() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // mtc1 rt, fs
+        // mtc1 $s1, $f1
+        // FPR[fs] <- GPR[rt]
+        // FPR[1] <- GPR[17]
+        //                       COP1   sub   rt    fs    0
+        //                              MT    $s1   $f1
+        let instruction: u32 = 0b010001_00100_10001_00001_00000000000;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.registers.gpr[17] = 0x1234_5678_ABCD_BEEF;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.fpr[1], 0xABCD_BEEF);
+
+        Ok(())
+    }
 }
 
 pub mod jump_tests {
