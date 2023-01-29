@@ -13,17 +13,16 @@ use monaco::{
     yew::CodeEditor,
 };
 use parser::parser_main::parser;
-use wasm_bindgen_futures::spawn_local;
-use web_sys::HtmlInputElement;
 use std::{cell::RefCell, rc::Rc};
 use stylist::css;
+use wasm_bindgen_futures::spawn_local;
+use web_sys::HtmlInputElement;
 //use stylist::yew::*;
 use ui::console::component::Console;
 use ui::regview::component::Regview;
-use wasm_bindgen::{JsValue, JsCast};
+use wasm_bindgen::{JsCast, JsValue};
 use yew::prelude::*;
 use yew::{html, Html, Properties};
-
 
 #[function_component(App)]
 fn app() -> Html {
@@ -35,8 +34,11 @@ fn app() -> Html {
     // This is the initial text model with default text contents. The
     // use_state_eq hook is created so that the component can be updated
     // when the text model changes.
-    let text_model =
-        use_state_eq(|| Rc::new(RefCell::new(TextModel::create(&code, Some(&language), None).unwrap())));
+    let text_model = use_state_eq(|| {
+        Rc::new(RefCell::new(
+            TextModel::create(&code, Some(&language), None).unwrap(),
+        ))
+    });
 
     // TODO: Output will be stored in two ways, the first would be the parser's
     // messages via logs and the registers will be stored
@@ -78,7 +80,7 @@ fn app() -> Html {
         )
     };
 
-    // This is where the code will get executed. If you execute further 
+    // This is where the code will get executed. If you execute further
     // than when the code ends, the program crashes.
     let on_execute_clicked = {
         let datapath = Rc::clone(&datapath);
@@ -107,7 +109,6 @@ fn app() -> Html {
         )
     };
 
-
     // This is where the parser will output its error messages to the user.
     // Currently, it is tied to a button with placeholder text. The goal is to have
     // this action take place when the Text Model changes and output the messages provided
@@ -124,11 +125,11 @@ fn app() -> Html {
 
     // This is where we will have the user prompted to load in a file
     let upload_clicked_callback = use_callback(
-            move |e: MouseEvent, _| {
-                e.stop_propagation();
-                on_upload_file_clicked();
-            },
-        ()
+        move |e: MouseEvent, _| {
+            e.stop_propagation();
+            on_upload_file_clicked();
+        },
+        (),
     );
 
     // This is the callback to get the file's contents and load it onto the Editor
@@ -141,7 +142,7 @@ fn app() -> Html {
                 // gloo making the code readable and easy to implement
                 let filelist = FileList::from(input.files().unwrap());
                 let file = filelist.first().unwrap();
-                let contents = gloo::file::futures::read_as_text(&file);
+                let contents = gloo::file::futures::read_as_text(file);
                 spawn_local(async move {
                     let contents = contents.await;
 
@@ -149,10 +150,10 @@ fn app() -> Html {
 
                     text_model.set_value(&contents);
                 })
-            }, ()
+            },
+            (),
         )
     };
-
 
     html! {
         <div>
@@ -214,22 +215,20 @@ pub fn on_upload_file_clicked() {
     let document = window.document().expect("window should have a document");
 
     let file_input_elem = document
-        .get_element_by_id("file_input").expect("File input element with id \"file_input\" should exist.");
+        .get_element_by_id("file_input")
+        .expect("File input element with id \"file_input\" should exist.");
 
-    let file_input_elem = file_input_elem.dyn_into::<HtmlInputElement>()
+    let file_input_elem = file_input_elem
+        .dyn_into::<HtmlInputElement>()
         .expect("Element should be an HtmlInputElement");
-    
-    let file_input_elem = file_input_elem.clone();
 
     // log!(JsValue::from("Before click"));
-    // workaround for https://github.com/yewstack/yew/pull/3037 since it's not in 0.20 
+    // workaround for https://github.com/yewstack/yew/pull/3037 since it's not in 0.20
     spawn_local(async move {
         file_input_elem.click();
     });
     // log!(JsValue::from("After click"));
 }
-
-
 
 fn main() {
     yew::Renderer::<App>::new().render();
