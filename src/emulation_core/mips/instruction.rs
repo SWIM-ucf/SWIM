@@ -157,7 +157,8 @@ impl From<u32> for Instruction {
 
                     // Move word to coprocessor 1 (mtc1)
                     // Move doubleword to coprocessor 1 (dmtc1)
-                    SUB_MT | SUB_DMT => Instruction::FpuRegImmType(FpuRegImmType {
+                    // Move word from coprocessor 1 (mfc1)
+                    SUB_MT | SUB_DMT | SUB_MF => Instruction::FpuRegImmType(FpuRegImmType {
                         op: ((value >> 26) & 0x3F) as u8,
                         sub: ((value >> 21) & 0x1F) as u8,
                         rt: ((value >> 16) & 0x1F) as u8,
