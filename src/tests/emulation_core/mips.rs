@@ -2265,6 +2265,72 @@ pub mod coprocessor {
 
         Ok(())
     }
+
+    #[test]
+    fn mfc1_basic_move() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // mfc1 rt, fs
+        // mfc1 $s5, $f18
+        // GPR[rt] <- FPR[fs]
+        // GPR[21] <- FPR[18]
+        //                       COP1   sub   rt    fs    0
+        //                              MF    $s5   $f18
+        let instruction: u32 = 0b010001_00000_10101_10010_00000000000;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[18] = 123;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[21], 123);
+
+        Ok(())
+    }
+
+    #[test]
+    fn mfc1_truncate() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // mfc1 rt, fs
+        // mfc1 $s6, $f19
+        // GPR[rt] <- FPR[fs]
+        // GPR[22] <- FPR[19]
+        //                       COP1   sub   rt    fs    0
+        //                              MF    $s6   $f19
+        let instruction: u32 = 0b010001_00000_10110_10011_00000000000;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[19] = 0xABBA_BABB_3ABA_4444;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[22], 0x3ABA_4444);
+
+        Ok(())
+    }
+
+    #[test]
+    fn mfc1_sign_extend() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // mfc1 rt, fs
+        // mfc1 $s7, $f20
+        // GPR[rt] <- FPR[fs]
+        // GPR[23] <- FPR[20]
+        //                       COP1   sub   rt    fs    0
+        //                              MF    $s7   $f20
+        let instruction: u32 = 0b010001_00000_10111_10100_00000000000;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[20] = 0xBADA_BEEF_BADA_B00E;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[23], 0xFFFF_FFFF_BADA_B00E);
+
+        Ok(())
+    }
 }
 
 pub mod jump_tests {
