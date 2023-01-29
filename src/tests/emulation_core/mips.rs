@@ -1020,6 +1020,28 @@ pub mod dahi_dati {
 
         Ok(())
     }
+
+    #[test]
+    fn dati_basic_add() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // dati rs, immediate
+        // dati $a1, 1
+        // GPR[rs] <- GPR[rs] + sign_extend(immediate << 48)
+        // GPR[5] <- GPR[5] + sign_extend(1 << 48)
+        //                       op     rs    rt     immediate
+        //                       REGIMM $a1   DATI   1
+        let instruction: u32 = 0b000001_00101_11110_0000000000000001;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.registers.gpr[5] = 0xABCD; // $a1
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[5], 0x0001_0000_0000_ABCD);
+
+        Ok(())
+    }
 }
 
 pub mod load_word {
