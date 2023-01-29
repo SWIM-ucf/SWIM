@@ -27,3 +27,41 @@ add $s1, $s0, $s0"#,
 
     Ok(())
 }
+
+#[test]
+// Loading a 64-bit constant with only a 16-bit immediate field.
+// This involves the use of 4 separate instructions to put each
+// piece of the value into a register.
+fn load_64_bit_constant() -> Result<(), String> {
+    let mut datapath = MipsDatapath::default();
+
+    // The goal is to load the value 0xABCD 8765 CCCC EEEE
+    // into register R1.
+    let instructions = String::from(
+        r#"lui r1, 52428
+ori r1, r1, 61166
+dahi r1, 34662
+dati r1, 43982"#,
+    );
+
+    // Sample tracing:
+    //    Instruction    |     Register R1     |     Notes
+    // ------------------+---------------------+-----------------------------
+    // lui r1, 52428     | FFFF FFFF CCCC 0000 | 52428 == 0xCCCC. C == 1100, so the value is sign-extended.
+    // ori r1, r1, 61166 | FFFF FFFF CCCC EEEE | 61166 == 0xEEEE.
+    // dahi r1, 34662    | FFFF 8765 CCCC EEEE | 34662 == 0x8766. FFFF + 8766 = 8765.
+    // dati r1, 43982    | ABCD 8765 CCCC EEEE | 43982 == 0xABCE. FFFF + ABCE = ABCD.
+
+    // Parse instructions and load into emulation core memory.
+    let (_, instruction_bits) = parser(instructions);
+    datapath.load_instructions(instruction_bits)?;
+
+    // Execute 4 instructions.
+    for _ in 0..4 {
+        datapath.execute_instruction();
+    }
+
+    assert_eq!(datapath.registers.gpr[1], 0xABCD_8765_CCCC_EEEE);
+
+    Ok(())
+}
