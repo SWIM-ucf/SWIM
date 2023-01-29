@@ -259,6 +259,17 @@ impl MipsFpCoprocessor {
                         ..Default::default()
                     }
                 }
+                SUB_DMF => {
+                    self.signals = FpuControlSignals {
+                        cc_write: CcWrite::NoWrite,
+                        data_src: DataSrc::FloatingPointUnit,
+                        data_write: DataWrite::YesWrite,
+                        fpu_branch: FpuBranch::NoBranch,
+                        fpu_reg_width: FpuRegWidth::DoubleWord,
+                        fpu_reg_write: FpuRegWrite::NoWrite,
+                        ..Default::default()
+                    }
+                }
                 _ => unimplemented!(
                     "Unsupported sub code `{}` for FPU register-immediate instruction",
                     i.sub
