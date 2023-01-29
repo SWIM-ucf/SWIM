@@ -115,7 +115,10 @@ impl MipsFpCoprocessor {
     /// Gets the contents of the data line between the `Data` register and the multiplexer
     /// in the main processor controlled by the [`DataWrite`] control signal.
     pub fn get_data_register(&mut self) -> u64 {
-        self.data as i32 as i64 as u64
+        match self.signals.fpu_reg_width {
+            FpuRegWidth::Word => self.data as i32 as i64 as u64,
+            FpuRegWidth::DoubleWord => self.data,
+        }
     }
 
     /// Sets the data line between the multiplexer controlled by [`MemToReg`](super::control_signals::MemToReg)
