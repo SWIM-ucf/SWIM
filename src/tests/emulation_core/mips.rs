@@ -996,6 +996,32 @@ fn ddiv_negative_result() {
     assert_eq!(datapath.registers.gpr[7] as i64, -50_775_223_724_555_519); // $a3
 }
 
+pub mod dahi_dati {
+    use super::*;
+
+    #[test]
+    fn dahi_basic_add() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // dahi rs, immediate
+        // dahi $a0, 1
+        // GPR[rs] <- GPR[rs] + sign_extend(immediate << 32)
+        // GPR[4] <- GPR[4] + sign_extend(1 << 32)
+        //                       op     rs    rt     immediate
+        //                       REGIMM $a0   DAHI   1
+        let instruction: u32 = 0b000001_00100_00110_0000000000000001;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.registers.gpr[4] = 0xABCD; // $a0
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[4], 0x0000_0001_0000_ABCD);
+
+        Ok(())
+    }
+}
+
 pub mod load_word {
     use super::*;
     #[test]
