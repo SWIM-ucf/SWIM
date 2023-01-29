@@ -224,6 +224,7 @@ impl MipsFpCoprocessor {
             Instruction::FpuRegImmType(i) => match i.sub {
                 SUB_MT => {
                     self.signals = FpuControlSignals {
+                        cc_write: CcWrite::NoWrite,
                         data_src: DataSrc::MainProcessorUnit,
                         data_write: DataWrite::YesWrite,
                         fpu_branch: FpuBranch::NoBranch,
@@ -236,6 +237,7 @@ impl MipsFpCoprocessor {
                 }
                 SUB_DMT => {
                     self.signals = FpuControlSignals {
+                        cc_write: CcWrite::NoWrite,
                         data_src: DataSrc::MainProcessorUnit,
                         data_write: DataWrite::YesWrite,
                         fpu_branch: FpuBranch::NoBranch,
