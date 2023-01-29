@@ -342,6 +342,12 @@ impl MipsDatapath {
     /// case where the instruction is an I-type.
     fn set_itype_control_signals(&mut self, i: IType) {
         match i.op {
+            // Register-immediate instructions are further defined
+            // by the "rt" field.
+            OPCODE_REGIMM => match i.rt {
+                _ => unimplemented!("rt field value `{}` for I-type opcode {}", i.rt, i.op),
+            },
+
             OPCODE_ORI => {
                 self.signals.alu_op = AluOp::Or;
                 self.signals.alu_src = AluSrc::ZeroExtendedImmediate;
