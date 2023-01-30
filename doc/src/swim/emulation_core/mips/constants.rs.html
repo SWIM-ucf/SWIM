@@ -87,6 +87,14 @@
 <a href="#87" id="87">87</a>
 <a href="#88" id="88">88</a>
 <a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::control_signals::RegWidth;
 
 <span class="kw">pub const </span>FUNCT_ADD: u8 = <span class="number">0b100000</span>;
@@ -125,6 +133,8 @@
 
 <span class="doccomment">/// Used for many R-type instructions, like `ADD`, `SUB`, `MUL`, and `DIV`.
 </span><span class="kw">pub const </span>OPCODE_SPECIAL: u8 = <span class="number">0b000000</span>;
+<span class="doccomment">/// Used for register-immediate instructions, like `DAHI` and `DATI`.
+</span><span class="kw">pub const </span>OPCODE_REGIMM: u8 = <span class="number">0b000001</span>;
 
 <span class="kw">pub const </span>OPCODE_ORI: u8 = <span class="number">0b001101</span>;
 <span class="kw">pub const </span>OPCODE_ANDI: u8 = <span class="number">0b001100</span>;
@@ -153,6 +163,12 @@
 <span class="kw">pub const </span>ENC_DMULU: u8 = <span class="number">0b00010</span>;
 <span class="kw">pub const </span>ENC_DDIV: u8 = <span class="number">0b00010</span>;
 <span class="kw">pub const </span>ENC_DDIVU: u8 = <span class="number">0b00010</span>;
+
+<span class="comment">// &quot;RMSUB&quot; is short for register immediate subcode. There is no formal name
+// for this field in the MIPS64 specification, other than the &quot;rt&quot; field that
+// it replaces, so this was chosen as a mnemonic for this project.
+</span><span class="kw">pub const </span>RMSUB_DAHI: u8 = <span class="number">0b00110</span>;
+<span class="kw">pub const </span>RMSUB_DATI: u8 = <span class="number">0b11110</span>;
 
 <span class="kw">pub const </span>FUNCTION_ADD: u8 = <span class="number">0b000000</span>;
 <span class="kw">pub const </span>FUNCTION_SUB: u8 = <span class="number">0b000001</span>;

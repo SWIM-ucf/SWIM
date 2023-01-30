@@ -198,7 +198,7 @@
 
             <span class="comment">// I-Type instructions:
             </span>OPCODE_ADDI | OPCODE_ADDIU | OPCODE_DADDI | OPCODE_DADDIU | OPCODE_LW | OPCODE_SW
-            | OPCODE_LUI | OPCODE_ORI | OPCODE_ANDI =&gt; Instruction::IType(IType {
+            | OPCODE_LUI | OPCODE_ORI | OPCODE_ANDI | OPCODE_REGIMM =&gt; Instruction::IType(IType {
                 op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                 rs: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                 rt: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
