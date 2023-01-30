@@ -100,13 +100,13 @@ pub struct DatapathState {
     /// *Jump address line.* The line the will carry the combination of
     /// the high 4 bits and pc, and the lower_26_for_jump_line bits shifted
     /// left by 2.
-    jump_address: u32,
+    jump_address: u64,
 
     // *PC + 4 line.* Yeah, just PC + 4
-    pc_plus_4: u32,
+    pc_plus_4: u64,
 
     // *New PC line.* In the WB stage this line is written to registers.pc
-    new_pc: u32,
+    new_pc: u64,
 }
 
 /// The possible stages the datapath could be in during execution.
@@ -222,7 +222,6 @@ impl MipsDatapath {
         self.instruction_fetch();
 
         // Upper part of datapath, PC calculation
-        self.grab_lower_26_of_op();
         self.pc_plus_4();
 
         self.coprocessor.set_instruction(self.state.instruction);
@@ -311,14 +310,14 @@ impl MipsDatapath {
             }
         }
     }
-    
+
     fn pc_plus_4(&mut self) {
         self.state.pc_plus_4 += 4;
     }
 
-    fn grab_lower_26_of_op(&mut self) {
-        self.state.lower_26 = self.state.instruction & 0x03ffffff;
-    }
+    //    fn grab_lower_26_of_op(&mut self) {
+    //         self.state.lower_26 = self.state.instruction & 0x03ffffff;
+    //    }
 
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
@@ -348,17 +347,21 @@ impl MipsDatapath {
                 self.state.rs = i.base as u32;
                 self.state.imm = i.offset as u32;
             }
-            _ => unimplemented!(),
+            Instruction::JType(i) => {
+                // self.state.lower_26 = self.state.instruction & 0x03ffffff;
+                self.state.lower_26 = i.addr;
+            } // _ => unimplemented!(),
         }
     }
-    
+
     fn shift_lower_26_left_by_2(&mut self) {
         self.state.lower_26_shifted_left_by_2 = self.state.lower_26 << 2;
     }
 
     fn construct_jump_address(&mut self) {
-        self.state.jump_address = (self.state.pc_plus_4 & 0xf0000000) | self.state.lower_26_shifted_left_by_2;
-    } 
+        self.state.jump_address = (self.state.pc_plus_4 & 0xffff_ffff_f000_0000)
+            | self.state.lower_26_shifted_left_by_2 as u64;
+    }
 
     /// Extend the sign of a 16-bit value to the other 48 bits of a
     /// 64-bit value.
@@ -535,21 +538,6 @@ impl MipsDatapath {
                 self.signals.reg_write = RegWrite::YesWrite;
             }
 
-            OPCODE_J => {
-                self.signals.alu_op = AluOp::Addition;
-                self.signals.alu_src = AluSrc::ReadRegister2;
-                self.signals.branch = Branch::NoBranch;
-                self.signals.imm_shift = ImmShift::Shift0;
-                self.signals.jump = Jump::YesJump;
-                self.signals.mem_read = MemRead::NoRead;
-                self.signals.mem_to_reg = MemToReg::UseAlu;
-                self.signals.mem_write = MemWrite::NoWrite;
-                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
-                self.signals.reg_dst = RegDst::Reg2;
-                self.signals.reg_width = RegWidth::DoubleWord;
-                self.signals.reg_write = RegWrite::NoWrite;
-            }
-
             _ => unimplemented!("I-type instruction with opcode `{}`", i.op),
         }
     }
@@ -592,6 +580,26 @@ impl MipsDatapath {
         }
     }
 
+    fn set_jtype_control_signals(&mut self, j: JType) {
+        match j.op {
+            OPCODE_J => {
+                self.signals.alu_op = AluOp::Addition;
+                self.signals.alu_src = AluSrc::ReadRegister2;
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::YesJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_width = RegWidth::DoubleWord;
+                self.signals.reg_write = RegWrite::NoWrite;
+            }
+            _ => unimplemented!("J-type instruction with opcode `{}`", j.op),
+        };
+    }
+
     /// Set the control signals for the datapath based on the
     /// instruction's opcode.
     fn set_control_signals(&mut self) {
@@ -602,7 +610,9 @@ impl MipsDatapath {
             Instruction::IType(i) => {
                 self.set_itype_control_signals(i);
             }
-            Instruction::JType(_) => todo!("JType instructions are not supported yet"),
+            Instruction::JType(j) => {
+                self.set_jtype_control_signals(j);
+            }
             Instruction::FpuRType(_) => {
                 self.signals = ControlSignals {
                     branch: Branch::NoBranch,
@@ -682,7 +692,6 @@ impl MipsDatapath {
             }
         };
     }
-
 
     /// Perform an ALU operation.
     ///
@@ -858,13 +867,9 @@ impl MipsDatapath {
     /// Update the program counter register. At the moment, this only
     /// increments the PC by 4 and does not support branching or
     /// jumping.
+    ///
+    /// This function is called from the WB stage
     fn set_pc(&mut self) {
-
-        self.registers.pc = self.state.new_pc as u64; // really need to fix this, should support 64bit
-        if let Jump::YesJump = self.signals.jump {
-            !unimplemented!();
-
-        }
-
+        self.registers.pc = self.state.new_pc; // really need to fix this, should support 64bit
     }
 }
