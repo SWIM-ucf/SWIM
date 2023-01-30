@@ -1,6 +1,7 @@
 //! Data and instruction memory implementation and API.
 
-pub const CAPACITY_BYTES: usize = 4 * 1024; // 4 KB
+// pub const CAPACITY_BYTES: usize = 2^12; // 4KB
+pub const CAPACITY_BYTES: usize = 64 * 1024; // 64 KB
 
 #[derive(PartialEq)]
 pub struct Memory {
