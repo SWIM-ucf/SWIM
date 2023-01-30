@@ -217,7 +217,11 @@ impl MipsDatapath {
     /// into the datapath.
     fn stage_instruction_fetch(&mut self) {
         self.instruction_fetch();
-        self.state.lower_26 = self.state.instruction & 0x03ffffff;
+
+        // Upper part of datapath, PC calculation
+        self.grab_lower_26_of_op();
+        self.pc_plus_4();
+
         self.coprocessor.set_instruction(self.state.instruction);
     }
 
@@ -232,7 +236,6 @@ impl MipsDatapath {
         self.set_alu_control();
 
         // Upper part of datapath, PC calculation
-        self.pc_plus_4();
         self.shift_lower_26_left_by_2();
         self.construct_jump_address();
 
@@ -295,6 +298,14 @@ impl MipsDatapath {
             }
         }
     }
+    
+    fn pc_plus_4(&mut self) {
+        self.state.pc_plus_4 += 4;
+    }
+
+    fn grab_lower_26_of_op(&mut self) {
+        self.state.lower_26 = self.state.instruction & 0x03ffffff;
+    }
 
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
@@ -327,6 +338,14 @@ impl MipsDatapath {
             _ => unimplemented!(),
         }
     }
+    
+    fn shift_lower_26_left_by_2(&mut self) {
+        self.state.lower_26_shifted_left_by_2 = self.state.lower_26 << 2;
+    }
+
+    fn construct_jump_address(&mut self) {
+        self.state.jump_address = (self.state.pc_plus_4 & 0xf0000000) | self.state.lower_26_shifted_left_by_2;
+    } 
 
     /// Extend the sign of a 16-bit value to the other 48 bits of a
     /// 64-bit value.
@@ -651,17 +670,6 @@ impl MipsDatapath {
         };
     }
 
-    fn pc_plus_4(&mut self) {
-        self.state.pc_plus_4 += 4;
-    }
-
-    fn shift_lower_26_left_by_2(&mut self) {
-        self.state.lower_26_shifted_left_by_2 = self.state.lower_26 << 2;
-    }
-
-    fn construct_jump_address(&mut self) {
-        self.state.jump_address = (self.state.pc_plus_4 & 0xf0000000) | self.state.lower_26_shifted_left_by_2;
-    } 
 
     /// Perform an ALU operation.
     ///
