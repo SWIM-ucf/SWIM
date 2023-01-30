@@ -28,6 +28,7 @@
 use super::super::datapath::Datapath;
 use super::constants::*;
 use super::control_signals::{floating_point::*, *};
+use super::datapath_signals::*;
 use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 
@@ -40,6 +41,7 @@ pub struct MipsDatapath {
 
     pub instruction: Instruction,
     pub signals: ControlSignals,
+    pub datapath_signals: DatapathSignals,
     pub state: DatapathState,
 
     /// The currently-active stage in the datapath.
@@ -817,7 +819,10 @@ impl MipsDatapath {
             self.state.alu_result = self.state.alu_result as i32 as i64 as u64;
         }
 
-        // TODO: Set the zero bit.
+        // Set the zero bit/signal.
+        if self.state.alu_result == 0 {
+            self.datapath_signals.alu_z = AluZ::YesZero;
+        }
     }
 
     /// Read from memory based on the address provided by the ALU in
