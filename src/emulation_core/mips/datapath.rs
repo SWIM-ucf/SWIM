@@ -1011,6 +1011,6 @@ impl MipsDatapath {
     ///
     /// This function is called from the WB stage
     fn set_pc(&mut self) {
-        self.registers.pc = self.state.new_pc; // really need to fix this, should support 64bit
+        self.registers.pc = self.state.new_pc;
     }
 }

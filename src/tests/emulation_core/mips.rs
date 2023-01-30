@@ -1685,7 +1685,7 @@ pub mod coprocessor {
             assert_eq!(datapath.registers.pc, 0x0fff_fffc);
         }
     }
-
+    
     pub mod beq_tests {
         use super::*;
         #[test]
