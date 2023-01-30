@@ -36,6 +36,8 @@ pub const FUNCT_SOP37: u8 = 0b011111;
 
 /// Used for many R-type instructions, like `ADD`, `SUB`, `MUL`, and `DIV`.
 pub const OPCODE_SPECIAL: u8 = 0b000000;
+/// Used for register-immediate instructions, like `DAHI` and `DATI`.
+pub const OPCODE_REGIMM: u8 = 0b000001;
 
 pub const OPCODE_ORI: u8 = 0b001101;
 pub const OPCODE_ANDI: u8 = 0b001100;
@@ -65,6 +67,12 @@ pub const ENC_DMUL: u8 = 0b00010;
 pub const ENC_DMULU: u8 = 0b00010;
 pub const ENC_DDIV: u8 = 0b00010;
 pub const ENC_DDIVU: u8 = 0b00010;
+
+// "RMSUB" is short for register immediate subcode. There is no formal name
+// for this field in the MIPS64 specification, other than the "rt" field that
+// it replaces, so this was chosen as a mnemonic for this project.
+pub const RMSUB_DAHI: u8 = 0b00110;
+pub const RMSUB_DATI: u8 = 0b11110;
 
 pub const FUNCTION_ADD: u8 = 0b000000;
 pub const FUNCTION_SUB: u8 = 0b000001;
