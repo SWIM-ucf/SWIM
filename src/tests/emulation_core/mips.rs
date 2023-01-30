@@ -1595,7 +1595,7 @@ pub mod coprocessor {
         fn jump_test_basic() {
             let mut datapath = MipsDatapath::default();
 
-            //                        J     
+            //                        J
             let instruction: u32 = 0b000010_00_00000000_00000000_00000010;
             datapath
                 .memory
@@ -1604,6 +1604,37 @@ pub mod coprocessor {
             datapath.execute_instruction();
 
             assert_eq!(datapath.registers.pc, 8);
+        }
+
+        #[test]
+        fn jump_test_mid() {
+            let mut datapath = MipsDatapath::default();
+
+            //                        J
+            let instruction: u32 = 0x0800_0fff;
+            datapath
+                .memory
+                .store_word(0, instruction)
+                .expect("Failed to store instruction.");
+            datapath.execute_instruction();
+
+            assert_eq!(datapath.registers.pc, 0x3ffc);
+        }
+
+        #[test]
+        fn jump_test_hard() {
+            // Jump to address 0xfff_fffc
+            let mut datapath = MipsDatapath::default();
+
+            //                        J             low_26
+            let instruction: u32 = 0x0800_0000 | 0x03ff_ffff;
+            datapath
+                .memory
+                .store_word(0, instruction)
+                .expect("Failed to store instruction.");
+            datapath.execute_instruction();
+
+            assert_eq!(datapath.registers.pc, 0x0fff_fffc);
         }
     }
 }

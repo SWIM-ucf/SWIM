@@ -103,7 +103,7 @@ impl From<u32> for Instruction {
                 ft: ((value >> 16) & 0x1F) as u8,
                 offset: (value & 0xFFFF) as u16,
             }),
-            
+
             OPCODE_J => Instruction::JType(JType {
                 op: ((value >> 26) & 0x3F) as u8,
                 addr: value & 0x03ffffff,

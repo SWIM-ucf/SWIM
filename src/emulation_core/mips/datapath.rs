@@ -580,6 +580,7 @@ impl MipsDatapath {
         }
     }
 
+    /// Set control signals for J-Type instructions
     fn set_jtype_control_signals(&mut self, j: JType) {
         match j.op {
             OPCODE_J => {
