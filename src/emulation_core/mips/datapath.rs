@@ -342,6 +342,46 @@ impl MipsDatapath {
     /// case where the instruction is an I-type.
     fn set_itype_control_signals(&mut self, i: IType) {
         match i.op {
+            // Register-immediate instructions are further defined
+            // by the "rt" field.
+            OPCODE_REGIMM => match i.rt {
+                RMSUB_DAHI => {
+                    self.signals = ControlSignals {
+                        alu_op: AluOp::Addition,
+                        alu_src: AluSrc::SignExtendedImmediate,
+                        branch: Branch::NoBranch,
+                        imm_shift: ImmShift::Shift32,
+                        jump: Jump::NoJump,
+                        mem_read: MemRead::NoRead,
+                        mem_to_reg: MemToReg::UseAlu,
+                        mem_write: MemWrite::NoWrite,
+                        reg_dst: RegDst::Reg1,
+                        reg_width: RegWidth::DoubleWord,
+                        reg_write: RegWrite::YesWrite,
+                        overflow_write_block: OverflowWriteBlock::NoBlock,
+                        ..Default::default()
+                    }
+                }
+                RMSUB_DATI => {
+                    self.signals = ControlSignals {
+                        alu_op: AluOp::Addition,
+                        alu_src: AluSrc::SignExtendedImmediate,
+                        branch: Branch::NoBranch,
+                        imm_shift: ImmShift::Shift48,
+                        jump: Jump::NoJump,
+                        mem_read: MemRead::NoRead,
+                        mem_to_reg: MemToReg::UseAlu,
+                        mem_write: MemWrite::NoWrite,
+                        reg_dst: RegDst::Reg1,
+                        reg_width: RegWidth::DoubleWord,
+                        reg_write: RegWrite::YesWrite,
+                        overflow_write_block: OverflowWriteBlock::NoBlock,
+                        ..Default::default()
+                    }
+                }
+                _ => unimplemented!("rt field value `{}` for I-type opcode {}", i.rt, i.op),
+            },
+
             OPCODE_ORI => {
                 self.signals.alu_op = AluOp::Or;
                 self.signals.alu_src = AluSrc::ZeroExtendedImmediate;

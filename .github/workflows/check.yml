@@ -6,6 +6,9 @@ on:
   # Allow these checks to be called by other workflows
   workflow_call:
 
+env:
+  PROJECT_TRUNK_VERSION: 'v0.16.0'
+
 jobs:
   check:
     name: Check
@@ -14,33 +17,31 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-          toolchain: stable
-          override: true
-
     - uses: Swatinem/rust-cache@v2
+
+    - name: Install Rust
+      run: rustup show
 
     - name: Install trunk
       uses: jetli/trunk-action@v0.1.0
       with:
-        version: 'latest'
-
-    - name: Set up build WASM target
-      run: rustup target add wasm32-unknown-unknown
+        version: ${{ env.PROJECT_TRUNK_VERSION }}
 
     - name: Run cargo fmt
       run: cargo fmt -- --check
 
     - name: Run clippy
       run: cargo clippy --no-deps --tests -- --deny warnings
+      if: success() || failure()
 
     - name: Build
       run: trunk build
+      if: success() || failure()
     
     - name: Check documentation
       run: cargo doc --no-deps
+      if: success() || failure()
 
     - name: Run tests
       run: cargo test
+      if: success() || failure()
