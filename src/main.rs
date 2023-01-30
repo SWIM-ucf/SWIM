@@ -50,7 +50,7 @@ fn app() -> Html {
     // since the scope will be open across all events involved with it. To achieve this,
     // we use interior mutability to have the reference to the Datapath immutable, but
     // the ability to access and change its contents be mutable.
-    let datapath = use_state_eq(|| {Rc::new(RefCell::new(MipsDatapath::default()))});
+    let datapath = use_state_eq(|| Rc::new(RefCell::new(MipsDatapath::default())));
 
     // This is where we take the code and run it through the emulation core
     let on_load_clicked = {
