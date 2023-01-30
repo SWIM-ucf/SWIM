@@ -108,9 +108,11 @@
 <a href="#108" id="108">108</a>
 <a href="#109" id="109">109</a>
 <a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Data and instruction memory implementation and API.
 
-</span><span class="kw">pub const </span>CAPACITY_BYTES: usize = <span class="number">4 </span>* <span class="number">1024</span>; <span class="comment">// 4 KB
+</span><span class="comment">// pub const CAPACITY_BYTES: usize = 2^12; // 4KB
+</span><span class="kw">pub const </span>CAPACITY_BYTES: usize = <span class="number">64 </span>* <span class="number">1024</span>; <span class="comment">// 64 KB
 
 </span><span class="attr">#[derive(PartialEq)]
 </span><span class="kw">pub struct </span>Memory {
