@@ -59,7 +59,6 @@ pub const OPCODE_J: u8 = 0b000010;
 pub const OPCODE_BEQ: u8 = 0b000100;
 pub const OPCODE_BNE: u8 = 0b000101;
 
-
 // "ENC" is short for encoding. There is no formal name for this field
 // in the MIPS64 specification, other than the "shamt"/"sa" field that it
 // replaces, so this was chosen as the mnemonic for this project.
