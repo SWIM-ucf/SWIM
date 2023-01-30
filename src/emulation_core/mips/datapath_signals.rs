@@ -33,7 +33,7 @@ pub enum CpuBranch {
     YesBranch = 1,
 }
 
-// For not this signal sits in constrol_signals.rs
+// For now this signal sits in constrol_signals.rs
 //pub enum FpuBranch {
 //     // FPU has not signaled for a branch
 //     #[default]
