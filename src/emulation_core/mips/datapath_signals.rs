@@ -21,7 +21,7 @@ pub enum AluZ {
 }
 
 /// CPU branch signal
-/// 
+///
 /// This signal is set in the EX stage
 #[derive(Default, PartialEq)]
 pub enum CpuBranch {
@@ -38,13 +38,13 @@ pub enum CpuBranch {
 //     // FPU has not signaled for a branch
 //     #[default]
 //     NoBranch = 0,
-//     
+//
 //     // FPU wants a branch
 //     YesBranch = 1,
 //}
 
 /// General branch signal
-/// 
+///
 /// This signal is set in the MEM stage.
 /// GeneralBranch = CpuBranch | FpuBranch
 #[derive(Default, PartialEq)]
@@ -53,4 +53,3 @@ pub enum GeneralBranch {
     NoBranch = 0,
     YesBranch = 1,
 }
-

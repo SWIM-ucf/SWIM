@@ -270,15 +270,30 @@ impl MipsDatapath {
 
     // if Branch::YesBranch && AluZ::YesZero
     fn calc_cpu_branch_signal(&mut self) {
-        // I know this code looks truely garbage, please fix it
-        let mut tmp: bool = false;
+        // Yes I know this code looks truely garbage, please fix it
+        // Rust does not allow the obvious clean option...
+        let mut yes_branch: bool = false;
         if let Branch::YesBranch = self.signals.branch {
-            tmp = true;
+            yes_branch = true;
         }
+
+        let mut beq: bool = false;
+        if let BranchType::OnEqual = self.signals.branch_type {
+            beq = true;
+        }
+
+        let mut bne: bool = false;
+        if let BranchType::OnNotEqual = self.signals.branch_type {
+            bne = true;
+        }
+
+        let mut z: bool = false;
         if let AluZ::YesZero = self.datapath_signals.alu_z {
-            if tmp {
-                self.datapath_signals.cpu_branch = CpuBranch::YesBranch;
-            }
+            z = true;
+        }
+
+        if (yes_branch & z & beq) | (yes_branch & !z & bne) {
+            self.datapath_signals.cpu_branch = CpuBranch::YesBranch;
         }
     }
 
@@ -625,6 +640,38 @@ impl MipsDatapath {
                 self.signals.reg_dst = RegDst::Reg2;
                 self.signals.reg_width = RegWidth::DoubleWord;
                 self.signals.reg_write = RegWrite::YesWrite;
+            }
+
+            OPCODE_BEQ => {
+                self.signals.alu_op = AluOp::Subtraction;
+                self.signals.alu_src = AluSrc::ReadRegister2;
+                self.signals.branch = Branch::YesBranch;
+                self.signals.branch_type = BranchType::OnEqual;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu; // don't care
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit; // don't care
+                self.signals.reg_dst = RegDst::Reg2; // don't care
+                self.signals.reg_width = RegWidth::DoubleWord;
+                self.signals.reg_write = RegWrite::NoWrite;
+            }
+
+            OPCODE_BNE => {
+                self.signals.alu_op = AluOp::Subtraction;
+                self.signals.alu_src = AluSrc::ReadRegister2;
+                self.signals.branch = Branch::YesBranch;
+                self.signals.branch_type = BranchType::OnNotEqual;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu; // don't care
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit; // don't care
+                self.signals.reg_dst = RegDst::Reg2; // don't care
+                self.signals.reg_width = RegWidth::DoubleWord;
+                self.signals.reg_write = RegWrite::NoWrite;
             }
 
             _ => unimplemented!("I-type instruction with opcode `{}`", i.op),
