@@ -88,6 +88,22 @@ pub struct DatapathState {
     /// *Data line.* The data after the `DataWrite` multiplexer in the main
     /// processor and the main processor register file.
     register_write_data: u64,
+
+    /// *Jump 26 bit line.* The low 26 bits of the instruction reserved
+    /// for possible use by the J instruction
+    lower_26: u32,
+
+    /// *Lower 26 << 2 line.* This line carries the low 28 bits for the
+    /// jump address
+    lower_26_shifted_left_by_2: u32,
+
+    /// *Jump address line.* The line the will carry the combination of
+    /// the high 4 bits and pc, and the lower_26_for_jump_line bits shifted
+    /// left by 2.
+    jump_address: u32,
+
+    // *PC + 4 line.* Yeah, just PC + 4
+    pc_plus_4: u32,
 }
 
 /// The possible stages the datapath could be in during execution.
@@ -201,6 +217,7 @@ impl MipsDatapath {
     /// into the datapath.
     fn stage_instruction_fetch(&mut self) {
         self.instruction_fetch();
+        self.state.lower_26 = self.state.instruction & 0x03ffffff;
         self.coprocessor.set_instruction(self.state.instruction);
     }
 
@@ -213,6 +230,12 @@ impl MipsDatapath {
         self.set_control_signals();
         self.read_registers();
         self.set_alu_control();
+
+        // Upper part of datapath, PC calculation
+        self.pc_plus_4();
+        self.shift_lower_26_left_by_2();
+        self.construct_jump_address();
+
         self.coprocessor.stage_instruction_decode();
         self.coprocessor
             .set_data_from_main_processor(self.state.read_data_2);
@@ -628,6 +651,18 @@ impl MipsDatapath {
         };
     }
 
+    fn pc_plus_4(&mut self) {
+        self.state.pc_plus_4 += 4;
+    }
+
+    fn shift_lower_26_left_by_2(&mut self) {
+        self.state.lower_26_shifted_left_by_2 = self.state.lower_26 << 2;
+    }
+
+    fn construct_jump_address(&mut self) {
+        self.state.jump_address = (self.state.pc_plus_4 & 0xf0000000) | self.state.lower_26_shifted_left_by_2;
+    } 
+
     /// Perform an ALU operation.
     ///
     /// **Implementation Note:** Unlike the MIPS64 specification, this ALU
@@ -806,6 +841,7 @@ impl MipsDatapath {
         let tpc = self.registers.pc += 4;
         if let Jump::YesJump = self.signals.jump {
             !unimplemented!();
+
         }
 
     }
