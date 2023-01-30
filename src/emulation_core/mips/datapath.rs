@@ -104,6 +104,9 @@ pub struct DatapathState {
 
     // *PC + 4 line.* Yeah, just PC + 4
     pc_plus_4: u32,
+
+    // *New PC line.* In the WB stage this line is written to registers.pc
+    new_pc: u32,
 }
 
 /// The possible stages the datapath could be in during execution.
@@ -271,7 +274,17 @@ impl MipsDatapath {
             MemToReg::UseMemory => self.state.memory_data,
         };
 
+        // PC calculation stuff from upper part of datapath
+        self.set_new_pc();
+
         self.coprocessor.stage_memory();
+    }
+
+    fn set_new_pc(&mut self) {
+        self.state.new_pc = match self.signals.jump {
+            Jump::NoJump => self.state.pc_plus_4,
+            Jump::YesJump => self.state.jump_address,
+        };
     }
 
     /// Stage 5 of 5: Writeback (WB)
@@ -846,7 +859,8 @@ impl MipsDatapath {
     /// increments the PC by 4 and does not support branching or
     /// jumping.
     fn set_pc(&mut self) {
-        let tpc = self.registers.pc += 4;
+
+        self.registers.pc = self.state.new_pc as u64; // really need to fix this, should support 64bit
         if let Jump::YesJump = self.signals.jump {
             !unimplemented!();
 
