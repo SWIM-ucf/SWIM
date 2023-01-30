@@ -265,7 +265,8 @@ impl MipsDatapath {
     }
 
     fn calc_relative_pc_branch(&mut self) {
-        self.state.relative_pc_branch = (self.state.sign_extend << 2).wrapping_add(self.state.pc_plus_4);
+        self.state.relative_pc_branch =
+            (self.state.sign_extend << 2).wrapping_add(self.state.pc_plus_4);
     }
 
     // if Branch::YesBranch && AluZ::YesZero
@@ -376,7 +377,7 @@ impl MipsDatapath {
     }
 
     fn pc_plus_4(&mut self) {
-        self.state.pc_plus_4 += 4;
+        self.state.pc_plus_4 = self.registers.pc + 4;
     }
 
     //    fn grab_lower_26_of_op(&mut self) {

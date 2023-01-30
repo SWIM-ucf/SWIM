@@ -1685,7 +1685,7 @@ pub mod coprocessor {
             assert_eq!(datapath.registers.pc, 0x0fff_fffc);
         }
     }
-    
+
     pub mod beq_tests {
         use super::*;
         #[test]
@@ -1702,7 +1702,7 @@ pub mod coprocessor {
 
             assert_eq!(datapath.registers.pc, 8);
         }
-        
+
         #[test]
         fn beq_test_basic_register_are_not_equal() {
             let mut datapath = MipsDatapath::default();
@@ -1720,11 +1720,11 @@ pub mod coprocessor {
 
             assert_eq!(datapath.registers.pc, 4);
         }
-        
+
         #[test]
         fn beq_test_basic_branch_backwards() {
             let mut datapath = MipsDatapath::default();
-            
+
             datapath.registers.gpr[0b01000] = 1234;
             datapath.registers.gpr[0b10000] = 1234;
 
@@ -1743,7 +1743,6 @@ pub mod coprocessor {
                 .memory
                 .store_word(16, instruction)
                 .expect("Failed to store instruction.");
-
 
             datapath.execute_instruction();
             assert_eq!(datapath.registers.pc, 16);
