@@ -822,7 +822,7 @@ fn dadd_register_to_itself() {
 #[test]
 fn dsub_registers_positive_result() {
     let mut datapath = MipsDatapath::default();
-
+    assert_eq!(datapath.registers.pc, 0);
     // dsub rd, rs, rt
     // dsub $s5, $s4, $s3
     // GPR[rd] <- GPR[rs] - GPR[rt]
@@ -844,6 +844,7 @@ fn dsub_registers_positive_result() {
     datapath.registers.gpr[17] = 163_643_849_115_304; // $s3
 
     datapath.execute_instruction();
+    assert_eq!(datapath.registers.pc, 4);
 
     assert_eq!(datapath.registers.gpr[19], 4_669_680_037_183_490); // $s5
 }
@@ -1634,5 +1635,54 @@ pub mod coprocessor {
             f32::from_bits(datapath.coprocessor.fpr[11] as u32),
             6.1875f32
         );
+    }
+
+    pub mod jump_tests {
+        use super::*;
+        #[test]
+        fn jump_test_basic() {
+            let mut datapath = MipsDatapath::default();
+
+            //                        J
+            let instruction: u32 = 0b000010_00_00000000_00000000_00000010;
+            datapath
+                .memory
+                .store_word(0, instruction)
+                .expect("Failed to store instruction.");
+            datapath.execute_instruction();
+
+            assert_eq!(datapath.registers.pc, 8);
+        }
+
+        #[test]
+        fn jump_test_mid() {
+            let mut datapath = MipsDatapath::default();
+
+            //                        J
+            let instruction: u32 = 0x0800_0fff;
+            datapath
+                .memory
+                .store_word(0, instruction)
+                .expect("Failed to store instruction.");
+            datapath.execute_instruction();
+
+            assert_eq!(datapath.registers.pc, 0x3ffc);
+        }
+
+        #[test]
+        fn jump_test_hard() {
+            // Jump to address 0xfff_fffc
+            let mut datapath = MipsDatapath::default();
+
+            //                        J             low_26
+            let instruction: u32 = 0x0800_0000 | 0x03ff_ffff;
+            datapath
+                .memory
+                .store_word(0, instruction)
+                .expect("Failed to store instruction.");
+            datapath.execute_instruction();
+
+            assert_eq!(datapath.registers.pc, 0x0fff_fffc);
+        }
     }
 }
