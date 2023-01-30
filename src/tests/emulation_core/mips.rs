@@ -1588,4 +1588,22 @@ pub mod coprocessor {
             6.1875f32
         );
     }
+
+    pub mod jump_tests {
+        use super::*;
+        #[test]
+        fn jump_test_basic() {
+            let mut datapath = MipsDatapath::default();
+
+            //                        J     
+            let instruction: u32 = 0b000010_00_00000000_00000000_00000010;
+            datapath
+                .memory
+                .store_word(0, instruction)
+                .expect("Failed to store instruction.");
+            datapath.execute_instruction();
+
+            assert_eq!(datapath.registers.pc, 8);
+        }
+    }
 }
