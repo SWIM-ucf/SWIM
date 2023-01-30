@@ -1685,4 +1685,73 @@ pub mod coprocessor {
             assert_eq!(datapath.registers.pc, 0x0fff_fffc);
         }
     }
+    
+    pub mod beq_tests {
+        use super::*;
+        #[test]
+        fn beq_test_basic_registers_are_equal() {
+            let mut datapath = MipsDatapath::default();
+
+            //                        beq
+            let instruction: u32 = 0b000100_01000_10000_0000000000000001;
+            datapath
+                .memory
+                .store_word(0, instruction)
+                .expect("Failed to store instruction.");
+            datapath.execute_instruction();
+
+            assert_eq!(datapath.registers.pc, 8);
+        }
+        
+        #[test]
+        fn beq_test_basic_register_are_not_equal() {
+            let mut datapath = MipsDatapath::default();
+
+            //                        beq
+            let instruction: u32 = 0b000100_01000_10000_0000000000000001;
+            datapath
+                .memory
+                .store_word(0, instruction)
+                .expect("Failed to store instruction.");
+
+            datapath.registers.gpr[0b01000] = 1234;
+            datapath.registers.gpr[0b10000] = 4321;
+            datapath.execute_instruction();
+
+            assert_eq!(datapath.registers.pc, 4);
+        }
+        
+        #[test]
+        fn beq_test_basic_branch_backwards() {
+            let mut datapath = MipsDatapath::default();
+            
+            datapath.registers.gpr[0b01000] = 1234;
+            datapath.registers.gpr[0b10000] = 1234;
+
+            //                        beq                +2(branch by +8)
+            let instruction: u32 = 0b000100_01000_10000_0000000000000011;
+            datapath
+                .memory
+                .store_word(0, instruction)
+                .expect("Failed to store instruction.");
+            //                        beq               -2 (branch by -8)
+            // let instruction: u32 = 0b000100_01000_10000_1111111111111110;
+
+            //                         beq                  (branch by 0)
+            let instruction: u32 = 0b000100_01000_10000_0000000000000000;
+            datapath
+                .memory
+                .store_word(16, instruction)
+                .expect("Failed to store instruction.");
+
+
+            datapath.execute_instruction();
+            assert_eq!(datapath.registers.pc, 16);
+            assert_eq!(datapath.registers.gpr[0b01000], 1234);
+            assert_eq!(datapath.registers.gpr[0b10000], 1234);
+
+            datapath.execute_instruction();
+            assert_eq!(datapath.registers.pc, 20);
+        }
+    }
 }
