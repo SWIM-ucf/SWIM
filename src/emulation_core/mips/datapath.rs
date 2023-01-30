@@ -28,6 +28,7 @@
 use super::super::datapath::Datapath;
 use super::constants::*;
 use super::control_signals::{floating_point::*, *};
+use super::datapath_signals::*;
 use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 
@@ -40,6 +41,7 @@ pub struct MipsDatapath {
 
     pub instruction: Instruction,
     pub signals: ControlSignals,
+    pub datapath_signals: DatapathSignals,
     pub state: DatapathState,
 
     /// The currently-active stage in the datapath.
@@ -102,11 +104,17 @@ pub struct DatapathState {
     /// left by 2.
     jump_address: u64,
 
-    // *PC + 4 line.* Yeah, just PC + 4
+    /// *PC + 4 line.* Yeah, just PC + 4
     pc_plus_4: u64,
 
-    // *New PC line.* In the WB stage this line is written to registers.pc
+    /// *New PC line.* In the WB stage this line is written to registers.pc
     new_pc: u64,
+
+    /// *Relative PC branch address line
+    relative_pc_branch: u64,
+
+    /// bla bla bal
+    mem_mux1_to_mem_mux2: u64,
 }
 
 /// The possible stages the datapath could be in during execution.
@@ -251,7 +259,43 @@ impl MipsDatapath {
     /// Execute the current instruction with some arithmetic operation.
     fn stage_execute(&mut self) {
         self.alu();
+        self.calc_relative_pc_branch();
+        self.calc_cpu_branch_signal();
         self.coprocessor.stage_execute();
+    }
+
+    fn calc_relative_pc_branch(&mut self) {
+        self.state.relative_pc_branch =
+            (self.state.sign_extend << 2).wrapping_add(self.state.pc_plus_4);
+    }
+
+    // if Branch::YesBranch && AluZ::YesZero
+    fn calc_cpu_branch_signal(&mut self) {
+        // Yes I know this code looks truely garbage, please fix it
+        // Rust does not allow the obvious clean option...
+        let mut yes_branch: bool = false;
+        if let Branch::YesBranch = self.signals.branch {
+            yes_branch = true;
+        }
+
+        let mut beq: bool = false;
+        if let BranchType::OnEqual = self.signals.branch_type {
+            beq = true;
+        }
+
+        let mut bne: bool = false;
+        if let BranchType::OnNotEqual = self.signals.branch_type {
+            bne = true;
+        }
+
+        let mut z: bool = false;
+        if let AluZ::YesZero = self.datapath_signals.alu_z {
+            z = true;
+        }
+
+        if (yes_branch & z & beq) | (yes_branch & !z & bne) {
+            self.datapath_signals.cpu_branch = CpuBranch::YesBranch;
+        }
     }
 
     /// Stage 4 of 5: Memory (MEM)
@@ -274,14 +318,35 @@ impl MipsDatapath {
         };
 
         // PC calculation stuff from upper part of datapath
-        self.set_new_pc();
+        self.calc_general_branch_signal();
+        self.pick_pc_plus_4_or_relative_branch_addr_mux1();
+        self.set_new_pc_mux2();
 
         self.coprocessor.stage_memory();
     }
 
-    fn set_new_pc(&mut self) {
+    fn calc_general_branch_signal(&mut self) {
+        if let CpuBranch::YesBranch = self.datapath_signals.cpu_branch {
+            self.datapath_signals.general_branch = GeneralBranch::YesBranch;
+            return;
+        }
+
+        if let FpuBranch::YesBranch = self.coprocessor.signals.fpu_branch {
+            self.datapath_signals.general_branch = GeneralBranch::YesBranch;
+        }
+    }
+
+    fn pick_pc_plus_4_or_relative_branch_addr_mux1(&mut self) {
+        if let GeneralBranch::YesBranch = self.datapath_signals.general_branch {
+            self.state.mem_mux1_to_mem_mux2 = self.state.relative_pc_branch;
+        } else {
+            self.state.mem_mux1_to_mem_mux2 = self.state.pc_plus_4;
+        }
+    }
+
+    fn set_new_pc_mux2(&mut self) {
         self.state.new_pc = match self.signals.jump {
-            Jump::NoJump => self.state.pc_plus_4,
+            Jump::NoJump => self.state.mem_mux1_to_mem_mux2,
             Jump::YesJump => self.state.jump_address,
         };
     }
@@ -312,7 +377,7 @@ impl MipsDatapath {
     }
 
     fn pc_plus_4(&mut self) {
-        self.state.pc_plus_4 += 4;
+        self.state.pc_plus_4 = self.registers.pc + 4;
     }
 
     //    fn grab_lower_26_of_op(&mut self) {
@@ -578,6 +643,38 @@ impl MipsDatapath {
                 self.signals.reg_write = RegWrite::YesWrite;
             }
 
+            OPCODE_BEQ => {
+                self.signals.alu_op = AluOp::Subtraction;
+                self.signals.alu_src = AluSrc::ReadRegister2;
+                self.signals.branch = Branch::YesBranch;
+                self.signals.branch_type = BranchType::OnEqual;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu; // don't care
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit; // don't care
+                self.signals.reg_dst = RegDst::Reg2; // don't care
+                self.signals.reg_width = RegWidth::DoubleWord;
+                self.signals.reg_write = RegWrite::NoWrite;
+            }
+
+            OPCODE_BNE => {
+                self.signals.alu_op = AluOp::Subtraction;
+                self.signals.alu_src = AluSrc::ReadRegister2;
+                self.signals.branch = Branch::YesBranch;
+                self.signals.branch_type = BranchType::OnNotEqual;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::NoJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu; // don't care
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit; // don't care
+                self.signals.reg_dst = RegDst::Reg2; // don't care
+                self.signals.reg_width = RegWidth::DoubleWord;
+                self.signals.reg_write = RegWrite::NoWrite;
+            }
+
             _ => unimplemented!("I-type instruction with opcode `{}`", i.op),
         }
     }
@@ -817,7 +914,10 @@ impl MipsDatapath {
             self.state.alu_result = self.state.alu_result as i32 as i64 as u64;
         }
 
-        // TODO: Set the zero bit.
+        // Set the zero bit/signal.
+        if self.state.alu_result == 0 {
+            self.datapath_signals.alu_z = AluZ::YesZero;
+        }
     }
 
     /// Read from memory based on the address provided by the ALU in
