@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["AluZ","The Z like comming off the main ALU"],["CpuBranch","CPU branch signal"],["GeneralBranch","General branch signal"]],"struct":[["DatapathSignals",""]]};

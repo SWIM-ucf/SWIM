@@ -96,6 +96,9 @@
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::control_signals::RegWidth;
 
 <span class="kw">pub const </span>FUNCT_ADD: u8 = <span class="number">0b100000</span>;
@@ -153,6 +156,9 @@
 <span class="kw">pub const </span>OPCODE_LWC1: u8 = <span class="number">0b110001</span>;
 <span class="kw">pub const </span>OPCODE_SWC1: u8 = <span class="number">0b111001</span>;
 <span class="kw">pub const </span>OPCODE_J: u8 = <span class="number">0b000010</span>;
+
+<span class="kw">pub const </span>OPCODE_BEQ: u8 = <span class="number">0b000100</span>;
+<span class="kw">pub const </span>OPCODE_BNE: u8 = <span class="number">0b000101</span>;
 
 <span class="comment">// &quot;ENC&quot; is short for encoding. There is no formal name for this field
 // in the MIPS64 specification, other than the &quot;shamt&quot;/&quot;sa&quot; field that it
