@@ -50,12 +50,13 @@ fn app() -> Html {
     // since the scope will be open across all events involved with it. To achieve this,
     // we use interior mutability to have the reference to the Datapath immutable, but
     // the ability to access and change its contents be mutable.
-    let datapath = Rc::new(RefCell::new(MipsDatapath::default()));
+    let datapath = use_state_eq(|| {Rc::new(RefCell::new(MipsDatapath::default()))});
 
     // This is where we take the code and run it through the emulation core
     let on_load_clicked = {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
+        let trigger = use_force_update();
         use_callback(
             move |_, text_model| {
                 let mut datapath = (*datapath).borrow_mut();
@@ -75,6 +76,7 @@ fn app() -> Html {
                     .load_instructions(assembled)
                     .expect("Memory could not be loaded");
                 log!(datapath.memory.to_string());
+                trigger.force_update();
             },
             text_model,
         )
@@ -84,11 +86,13 @@ fn app() -> Html {
     // than when the code ends, the program crashes.
     let on_execute_clicked = {
         let datapath = Rc::clone(&datapath);
+        let trigger = use_force_update();
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
                 (*datapath).execute_instruction();
                 log!(JsValue::from_str(&datapath.registers.to_string()));
+                trigger.force_update();
             },
             (),
         )
@@ -99,11 +103,13 @@ fn app() -> Html {
     // crash.
     let on_reset_clicked = {
         let datapath = Rc::clone(&datapath);
+        let trigger = use_force_update();
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
                 (*datapath).reset();
                 log!(JsValue::from_str(&datapath.registers.to_string()));
+                trigger.force_update();
             },
             (),
         )
