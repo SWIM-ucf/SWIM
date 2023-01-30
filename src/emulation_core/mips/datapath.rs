@@ -104,11 +104,17 @@ pub struct DatapathState {
     /// left by 2.
     jump_address: u64,
 
-    // *PC + 4 line.* Yeah, just PC + 4
+    /// *PC + 4 line.* Yeah, just PC + 4
     pc_plus_4: u64,
 
-    // *New PC line.* In the WB stage this line is written to registers.pc
+    /// *New PC line.* In the WB stage this line is written to registers.pc
     new_pc: u64,
+
+    /// *Relative PC branch address line
+    relative_pc_branch: u64,
+
+    /// bla bla bal
+    mem_mux1_to_mem_mux2: u64,
 }
 
 /// The possible stages the datapath could be in during execution.
@@ -253,7 +259,27 @@ impl MipsDatapath {
     /// Execute the current instruction with some arithmetic operation.
     fn stage_execute(&mut self) {
         self.alu();
+        self.calc_relative_pc_branch();
+        self.calc_cpu_branch_signal();
         self.coprocessor.stage_execute();
+    }
+
+    fn calc_relative_pc_branch(&mut self) {
+        self.state.relative_pc_branch = self.state.sign_extend.wrapping_add(self.state.pc_plus_4);
+    }
+
+    // if Branch::YesBranch && AluZ::YesZero
+    fn calc_cpu_branch_signal(&mut self) {
+        // I know this code looks truely garbage, please fix it
+        let mut tmp: bool = false;
+        if let Branch::YesBranch = self.signals.branch {
+            tmp = true;
+        }
+        if let AluZ::YesZero = self.datapath_signals.alu_z {
+            if tmp {
+                self.datapath_signals.cpu_branch = CpuBranch::YesBranch;
+            }
+        }
     }
 
     /// Stage 4 of 5: Memory (MEM)
@@ -276,14 +302,35 @@ impl MipsDatapath {
         };
 
         // PC calculation stuff from upper part of datapath
-        self.set_new_pc();
+        self.calc_general_branch_signal();
+        self.pick_pc_plus_4_or_relative_branch_addr_mux1();
+        self.set_new_pc_mux2();
 
         self.coprocessor.stage_memory();
     }
 
-    fn set_new_pc(&mut self) {
+    fn calc_general_branch_signal(&mut self) {
+        if let CpuBranch::YesBranch = self.datapath_signals.cpu_branch {
+            self.datapath_signals.general_branch = GeneralBranch::YesBranch;
+            return;
+        }
+
+        if let FpuBranch::YesBranch = self.coprocessor.signals.fpu_branch {
+            self.datapath_signals.general_branch = GeneralBranch::YesBranch;
+        }
+    }
+
+    fn pick_pc_plus_4_or_relative_branch_addr_mux1(&mut self) {
+        if let GeneralBranch::YesBranch = self.datapath_signals.general_branch {
+            self.state.mem_mux1_to_mem_mux2 = self.state.relative_pc_branch;
+        } else {
+            self.state.mem_mux1_to_mem_mux2 = self.state.pc_plus_4;
+        }
+    }
+
+    fn set_new_pc_mux2(&mut self) {
         self.state.new_pc = match self.signals.jump {
-            Jump::NoJump => self.state.pc_plus_4,
+            Jump::NoJump => self.state.mem_mux1_to_mem_mux2,
             Jump::YesJump => self.state.jump_address,
         };
     }
