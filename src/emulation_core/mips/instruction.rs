@@ -44,6 +44,16 @@ pub struct FpuIType {
     pub offset: u16,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct FpuCompareType {
+    pub op: u8,
+    pub fmt: u8,
+    pub ft: u8,
+    pub fs: u8,
+    pub cc: u8,
+    pub function: u8,
+}
+
 #[derive(Debug, PartialEq)]
 pub enum Instruction {
     RType(RType),
@@ -51,6 +61,7 @@ pub enum Instruction {
     JType(JType),
     FpuRType(FpuRType),
     FpuIType(FpuIType),
+    FpuCompareType(FpuCompareType),
 }
 
 impl Default for Instruction {
@@ -77,24 +88,45 @@ impl From<u32> for Instruction {
             }),
 
             // COP1 (coprocessor 1)
-            // add.fmt, sub.fmt, mul.fmt, div.fmt
-            OPCODE_COP1 => Instruction::FpuRType(FpuRType {
-                op: ((value >> 26) & 0x3F) as u8,
-                fmt: ((value >> 21) & 0x1F) as u8,
-                ft: ((value >> 16) & 0x1F) as u8,
-                fs: ((value >> 11) & 0x1F) as u8,
-                fd: ((value >> 6) & 0x1F) as u8,
-                function: (value & 0x3F) as u8,
-            }),
+            OPCODE_COP1 => {
+                let function = (value & 0x3F) as u8;
+                match function {
+                    // add.fmt, sub.fmt, mul.fmt, div.fmt
+                    FUNCTION_ADD | FUNCTION_SUB | FUNCTION_MUL | FUNCTION_DIV => {
+                        Instruction::FpuRType(FpuRType {
+                            op: ((value >> 26) & 0x3F) as u8,
+                            fmt: ((value >> 21) & 0x1F) as u8,
+                            ft: ((value >> 16) & 0x1F) as u8,
+                            fs: ((value >> 11) & 0x1F) as u8,
+                            fd: ((value >> 6) & 0x1F) as u8,
+                            function: (value & 0x3F) as u8,
+                        })
+                    }
+                    // Comparison instructions:
+                    // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
+                    FUNCTION_C_EQ | FUNCTION_C_LT | FUNCTION_C_NGE | FUNCTION_C_LE
+                    | FUNCTION_C_NGT => Instruction::FpuCompareType(FpuCompareType {
+                        op: ((value >> 26) & 0x3F) as u8,
+                        fmt: ((value >> 21) & 0x1F) as u8,
+                        ft: ((value >> 16) & 0x1F) as u8,
+                        fs: ((value >> 11) & 0x1F) as u8,
+                        cc: ((value >> 8) & 0x7) as u8,
+                        function: (value & 0x3F) as u8,
+                    }),
+                    _ => unimplemented!("function `{}` not supported for opcode {}", function, op),
+                }
+            }
 
             // I-Type instructions:
             OPCODE_ADDI | OPCODE_ADDIU | OPCODE_DADDI | OPCODE_DADDIU | OPCODE_LW | OPCODE_SW
-            | OPCODE_LUI | OPCODE_ORI | OPCODE_ANDI | OPCODE_REGIMM => Instruction::IType(IType {
-                op: ((value >> 26) & 0x3F) as u8,
-                rs: ((value >> 21) & 0x1F) as u8,
-                rt: ((value >> 16) & 0x1F) as u8,
-                immediate: (value & 0xFFFF) as u16,
-            }),
+            | OPCODE_LUI | OPCODE_ORI | OPCODE_ANDI | OPCODE_REGIMM | OPCODE_BEQ | OPCODE_BNE => {
+                Instruction::IType(IType {
+                    op: ((value >> 26) & 0x3F) as u8,
+                    rs: ((value >> 21) & 0x1F) as u8,
+                    rt: ((value >> 16) & 0x1F) as u8,
+                    immediate: (value & 0xFFFF) as u16,
+                })
+            }
 
             // Store/load word to Coprocessor 1
             OPCODE_SWC1 | OPCODE_LWC1 => Instruction::FpuIType(FpuIType {
@@ -102,6 +134,11 @@ impl From<u32> for Instruction {
                 base: ((value >> 21) & 0x1F) as u8,
                 ft: ((value >> 16) & 0x1F) as u8,
                 offset: (value & 0xFFFF) as u16,
+            }),
+
+            OPCODE_J => Instruction::JType(JType {
+                op: ((value >> 26) & 0x3F) as u8,
+                addr: value & 0x03ffffff,
             }),
             _ => unimplemented!("opcode `{}` not supported", op),
         }

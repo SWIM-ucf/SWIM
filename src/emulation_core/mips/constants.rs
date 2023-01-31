@@ -54,6 +54,10 @@ pub const OPCODE_LW: u8 = 0b100011;
 pub const OPCODE_SW: u8 = 0b101011;
 pub const OPCODE_LWC1: u8 = 0b110001;
 pub const OPCODE_SWC1: u8 = 0b111001;
+pub const OPCODE_J: u8 = 0b000010;
+
+pub const OPCODE_BEQ: u8 = 0b000100;
+pub const OPCODE_BNE: u8 = 0b000101;
 
 // "ENC" is short for encoding. There is no formal name for this field
 // in the MIPS64 specification, other than the "shamt"/"sa" field that it
@@ -77,6 +81,14 @@ pub const FUNCTION_ADD: u8 = 0b000000;
 pub const FUNCTION_SUB: u8 = 0b000001;
 pub const FUNCTION_MUL: u8 = 0b000010;
 pub const FUNCTION_DIV: u8 = 0b000011;
+
+// All floating-point c.cond.fmt instructions begin the
+// function field with 11.
+pub const FUNCTION_C_EQ: u8 = 0b110010;
+pub const FUNCTION_C_LT: u8 = 0b111100;
+pub const FUNCTION_C_NGE: u8 = 0b111101;
+pub const FUNCTION_C_LE: u8 = 0b111110;
+pub const FUNCTION_C_NGT: u8 = 0b111111;
 
 pub const FMT_SINGLE: u8 = 16;
 pub const FMT_DOUBLE: u8 = 17;

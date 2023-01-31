@@ -7,6 +7,7 @@ pub struct ControlSignals {
     pub alu_op: AluOp,
     pub alu_src: AluSrc,
     pub branch: Branch,
+    pub branch_type: BranchType,
     pub imm_shift: ImmShift,
     pub jump: Jump,
     pub mem_read: MemRead,
@@ -142,6 +143,14 @@ pub enum Branch {
     YesBranch = 1,
 }
 
+/// For deciding to branch on AluZ == YesZero or AluZ == NotZero
+#[derive(Default, PartialEq)]
+pub enum BranchType {
+    #[default]
+    OnEqual = 0,
+    OnNotEqual = 1,
+}
+
 /// Determines the amount of bits to left-shift the immediate value before being passed to the ALU.
 #[derive(Default, PartialEq)]
 pub enum ImmShift {
@@ -256,6 +265,8 @@ pub enum OverflowWriteBlock {
 }
 
 pub mod floating_point {
+    use super::super::constants::*;
+
     #[derive(Default, PartialEq)]
     pub struct FpuControlSignals {
         pub cc: Cc,
@@ -384,6 +395,20 @@ pub mod floating_point {
         Snge = 7,
     }
 
+    impl FpuAluOp {
+        /// Get the corresponding control signal given a function code.
+        pub fn from_function(function: u8) -> Self {
+            match function {
+                FUNCTION_C_EQ => Self::AdditionOrEqual,
+                FUNCTION_C_LT => Self::MultiplicationOrSlt,
+                FUNCTION_C_NGE => Self::Snge,
+                FUNCTION_C_LE => Self::DivisionOrSle,
+                FUNCTION_C_NGT => Self::Sngt,
+                _ => panic!("Unsupported function code `{function}`"),
+            }
+        }
+    }
+
     /// Determines if the floating-point unit should consider branching, based on the
     /// contents of the condition code register.
     ///
@@ -440,6 +465,20 @@ pub mod floating_point {
         /// Use doublewords (64 bits). Equivalent to a double-precision floating-point value.
         #[default]
         DoubleWord = 1,
+    }
+
+    impl FpuRegWidth {
+        /// Get the corresponding [`FpuRegWidth`] control signal based on
+        /// the `fmt` field in an instruction.
+        pub fn from_fmt(fmt: u8) -> Self {
+            match fmt {
+                FMT_SINGLE => Self::Word,
+                FMT_DOUBLE => Self::DoubleWord,
+                _ => {
+                    unimplemented!("`{}` is an invalid fmt value", fmt);
+                }
+            }
+        }
     }
 
     /// Determines if the floating-point register file should be written to.

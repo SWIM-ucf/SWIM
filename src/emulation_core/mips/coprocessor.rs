@@ -15,7 +15,7 @@ pub struct MipsFpCoprocessor {
     pub state: FpuState,
 
     pub fpr: [u64; 32],
-    condition_code: u64,
+    pub condition_code: u64,
     data: u64,
 }
 
@@ -86,20 +86,15 @@ impl MipsFpCoprocessor {
             Instruction::FpuIType(i) => {
                 self.state.ft = i.ft as u32;
             }
+            Instruction::FpuCompareType(c) => {
+                self.state.op = c.op as u32;
+                self.state.fmt = c.fmt as u32;
+                self.state.ft = c.ft as u32;
+                self.state.fs = c.fs as u32;
+                self.state.function = c.function as u32;
+            }
             // These types do not use the floating-point unit so they can be ignored.
             Instruction::RType(_) | Instruction::IType(_) | Instruction::JType(_) => (),
-        }
-    }
-
-    /// Set the [`FpuRegWidth`] control signal based on the `fmt` field in
-    /// the instruction.
-    fn set_reg_width(&mut self) {
-        self.signals.fpu_reg_width = match self.state.fmt as u8 {
-            FMT_SINGLE => FpuRegWidth::Word,
-            FMT_DOUBLE => FpuRegWidth::DoubleWord,
-            _ => {
-                unimplemented!("`{}` is an invalid fmt value", self.state.fmt);
-            }
         }
     }
 
@@ -145,8 +140,8 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             self.signals.fpu_reg_dst = FpuRegDst::Reg3;
+                            self.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
                             self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
-                            self.set_reg_width();
                         }
                         FUNCTION_SUB => {
                             self.signals.cc = Cc::Cc0;
@@ -157,8 +152,8 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             self.signals.fpu_reg_dst = FpuRegDst::Reg3;
+                            self.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
                             self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
-                            self.set_reg_width();
                         }
                         FUNCTION_MUL => {
                             self.signals.cc = Cc::Cc0;
@@ -169,8 +164,8 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             self.signals.fpu_reg_dst = FpuRegDst::Reg3;
+                            self.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
                             self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
-                            self.set_reg_width();
                         }
                         FUNCTION_DIV => {
                             self.signals.cc = Cc::Cc0;
@@ -181,8 +176,8 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             self.signals.fpu_reg_dst = FpuRegDst::Reg3;
+                            self.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
                             self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
-                            self.set_reg_width();
                         }
                         // Unrecognized format code. Perform no operation.
                         _ => unimplemented!("COP1 instruction with function code `{}`", r.function),
@@ -216,6 +211,18 @@ impl MipsFpCoprocessor {
                 }
                 _ => unimplemented!("Unsupported opcode `{}` for FPU I-type instruction", i.op),
             },
+            Instruction::FpuCompareType(c) => {
+                self.signals = FpuControlSignals {
+                    cc: Cc::Cc0,
+                    cc_write: CcWrite::YesWrite,
+                    data_write: DataWrite::NoWrite,
+                    fpu_alu_op: FpuAluOp::from_function(c.function),
+                    fpu_branch: FpuBranch::NoBranch,
+                    fpu_reg_width: FpuRegWidth::from_fmt(c.fmt),
+                    fpu_reg_write: FpuRegWrite::NoWrite,
+                    ..Default::default()
+                }
+            }
             // These types do not use the floating-point unit so they can be ignored.
             Instruction::RType(_) | Instruction::IType(_) | Instruction::JType(_) => {
                 self.signals = FpuControlSignals::default()
@@ -287,26 +294,44 @@ impl MipsFpCoprocessor {
                     }
                 }
             },
+            // No operation.
+            FpuAluOp::Sngt | FpuAluOp::Snge => 0,
             _ => unimplemented!(),
         };
     }
 
     /// Perform a comparison.
     fn comparator(&mut self) {
-        let mut input1 = self.state.read_data_1;
-        let mut input2 = self.state.read_data_2;
+        let input1 = self.state.read_data_1;
+        let input2 = self.state.read_data_2;
 
-        // Truncate the inputs if 32-bit operations are expected.
-        if let FpuRegWidth::Word = self.signals.fpu_reg_width {
-            input1 = input1 as u32 as u64;
-            input2 = input2 as u32 as u64;
-        }
+        let input1_f32 = f32::from_bits(input1 as u32);
+        let input2_f32 = f32::from_bits(input2 as u32);
+        let input1_f64 = f64::from_bits(input1);
+        let input2_f64 = f64::from_bits(input2);
 
         self.state.comparator_result = match self.signals.fpu_alu_op {
-            FpuAluOp::AdditionOrEqual => (input1 == input2) as u64,
+            FpuAluOp::AdditionOrEqual => match self.signals.fpu_reg_width {
+                FpuRegWidth::Word => (input1_f32 == input2_f32) as u64,
+                FpuRegWidth::DoubleWord => (input1_f64 == input2_f64) as u64,
+            },
+            FpuAluOp::MultiplicationOrSlt => match self.signals.fpu_reg_width {
+                FpuRegWidth::Word => (input1_f32 < input2_f32) as u64,
+                FpuRegWidth::DoubleWord => (input1_f64 < input2_f64) as u64,
+            },
+            FpuAluOp::DivisionOrSle => match self.signals.fpu_reg_width {
+                FpuRegWidth::Word => (input1_f32 <= input2_f32) as u64,
+                FpuRegWidth::DoubleWord => (input1_f64 <= input2_f64) as u64,
+            },
+            FpuAluOp::Sngt => match self.signals.fpu_reg_width {
+                FpuRegWidth::Word => !input1_f32.gt(&input2_f32) as u64,
+                FpuRegWidth::DoubleWord => !input1_f64.gt(&input2_f64) as u64,
+            },
+            FpuAluOp::Snge => match self.signals.fpu_reg_width {
+                FpuRegWidth::Word => !input1_f32.ge(&input2_f32) as u64,
+                FpuRegWidth::DoubleWord => !input1_f64.ge(&input2_f64) as u64,
+            },
             FpuAluOp::Subtraction => 0, // No operation
-            FpuAluOp::MultiplicationOrSlt => (input1 < input2) as u64,
-            FpuAluOp::DivisionOrSle => (input1 <= input2) as u64,
             _ => unimplemented!(),
         }
     }
