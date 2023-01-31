@@ -77,7 +77,7 @@ fn tokenize_instructions_works_basic_version() {
     };
 
     let correct_result = vec![line_0, line_1, line_2];
-    assert_eq!(result, correct_result);
+    assert_eq!(result.0, correct_result);
 }
 
 #[test]
@@ -138,7 +138,7 @@ fn tokenize_instruction_handles_no_spaces_between_commas() {
     };
 
     let correct_result = vec![line_0, line_1];
-    assert_eq!(result, correct_result);
+    assert_eq!(result.0, correct_result);
 }
 
 #[test]
@@ -171,7 +171,7 @@ fn tokenize_instruction_handles_comma_after_space() {
     };
 
     let correct_result = vec![line_0];
-    assert_eq!(result, correct_result);
+    assert_eq!(result.0, correct_result);
 }
 
 #[test]
@@ -213,12 +213,30 @@ fn tokenize_instructions_ignores_comments() {
     };
 
     let correct_result = vec![line_0, line_2, line_3];
-    assert_eq!(results, correct_result);
+    assert_eq!(results.0, correct_result);
+}
+
+#[test]
+fn tokenize_instructions_recognizes_comments() {
+    let results = tokenize_instructions("Addi $t1, $t2, 300\n# this is a comment\nadd $t1, $t2, $t3\n#I'm making a note here. Huge comment".to_string());
+    assert_eq!(results.1[0][0], 1);
+    assert_eq!(results.1[0][1], 0);
+    assert_eq!(results.1[1][0], 3);
+    assert_eq!(results.1[1][1], 0);
+}
+
+#[test]
+fn tokenize_instructions_recognizes_comments_middle_of_line() {
+    let results = tokenize_instructions("Addi $t1, $t2, 300 # this is a comment\nadd $t1, $t2, $t3#I'm making a note here. Huge comment".to_string());
+    assert_eq!(results.1[0][0], 0);
+    assert_eq!(results.1[0][1], 19);
+    assert_eq!(results.1[1][0], 1);
+    assert_eq!(results.1[1][1], 17);
 }
 
 #[test]
 fn build_instruction_list_from_lines_works_basic_version() {
-    let lines =
+    let (lines, _comments) =
         tokenize_instructions("add $t1, $t2, $t3\nlw $t1, 400($t1)\naddi $t1, 100".to_string());
     let result = build_instruction_list_from_lines(lines.clone());
 
@@ -257,7 +275,7 @@ fn build_instruction_list_from_lines_works_basic_version() {
 
 #[test]
 fn build_instruction_list_from_lines_works_on_line_label() {
-    let lines = tokenize_instructions(
+    let (lines, _comments) = tokenize_instructions(
         "add $t1, $t2, $t3\nLoad_from_memory: lw $t1, 400($t1)\naddi $t1, 100".to_string(),
     );
     let result = build_instruction_list_from_lines(lines.clone());
@@ -303,7 +321,7 @@ fn build_instruction_list_from_lines_works_on_line_label() {
 
 #[test]
 fn build_instruction_list_from_lines_works_off_line_label() {
-    let lines = tokenize_instructions(
+    let (lines, _comments) = tokenize_instructions(
         "add $t1, $t2, $t3\nLoad_from_memory:\nlw $t1, 400($t1)\naddi $t1, 100".to_string(),
     );
     let result = build_instruction_list_from_lines(lines.clone());
@@ -349,7 +367,7 @@ fn build_instruction_list_from_lines_works_off_line_label() {
 
 #[test]
 fn build_instruction_list_generates_error_on_double_label() {
-    let lines = tokenize_instructions(
+    let (lines, _comments) = tokenize_instructions(
         "lw $t1, 400($zero)\nLabel1:\nLabel2: add $t1, $t2, $t3\n".to_string(),
     );
     let result = build_instruction_list_from_lines(lines);
@@ -358,7 +376,7 @@ fn build_instruction_list_generates_error_on_double_label() {
 
 #[test]
 fn build_instruction_list_generates_error_on_label_on_last_line() {
-    let lines =
+    let (lines, _comments) =
         tokenize_instructions("lw $t1, 400($zero)\nadd $t1, $t2, $t3\nlabel:\n".to_string());
     let result = build_instruction_list_from_lines(lines);
     assert_eq!(result[2].errors[0].error_name, LabelAssignmentError);
@@ -366,11 +384,13 @@ fn build_instruction_list_generates_error_on_label_on_last_line() {
 
 #[test]
 fn confirm_operand_commas_removes_properly_placed_commas() {
-    let lines = tokenize_instructions("Add $t1, $t2, $t3\nlw $t1, 400($t2)".to_string());
+    let (lines, _comments) =
+        tokenize_instructions("Add $t1, $t2, $t3\nlw $t1, 400($t2)".to_string());
     let mut result = build_instruction_list_from_lines(lines);
     confirm_operand_commas(&mut result);
 
-    let correct_lines = tokenize_instructions("Add $t1  $t2  $t3\nlw $t1  400($t2)".to_string());
+    let (correct_lines, _comments) =
+        tokenize_instructions("Add $t1  $t2  $t3\nlw $t1  400($t2)".to_string());
     let correct_result = build_instruction_list_from_lines(correct_lines);
 
     assert_eq!(correct_result, result);
@@ -378,7 +398,8 @@ fn confirm_operand_commas_removes_properly_placed_commas() {
 
 #[test]
 fn confirm_operand_commas_generates_error_on_missing_commas() {
-    let lines = tokenize_instructions("Add $t1, $t2, $t3\nlw $t1 400($t2)".to_string());
+    let (lines, _comments) =
+        tokenize_instructions("Add $t1, $t2, $t3\nlw $t1 400($t2)".to_string());
     let mut result = build_instruction_list_from_lines(lines);
     confirm_operand_commas(&mut result);
     let correct_error = Error {
@@ -390,7 +411,7 @@ fn confirm_operand_commas_generates_error_on_missing_commas() {
 
 #[test]
 fn create_label_map_generates_map_on_no_errors() {
-    let lines = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
+    let (lines, _comments) = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
     let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
     confirm_operand_commas(&mut instruction_list);
     expand_pseudo_instruction(&mut instruction_list);
@@ -407,7 +428,7 @@ fn create_label_map_generates_map_on_no_errors() {
 
 #[test]
 fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name() {
-    let lines = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string());
+    let (lines, _comments) = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string());
     let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
     confirm_operand_commas(&mut instruction_list);
     expand_pseudo_instruction(&mut instruction_list);

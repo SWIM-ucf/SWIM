@@ -10,10 +10,10 @@ use std::collections::HashMap;
 /// program and builds the binary of the instructions while cataloging any errors that are found.
 pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
     let mut program_info = ProgramInfo::default();
-
     file_string = file_string.to_lowercase();
 
-    let lines = tokenize_instructions(file_string);
+    let (lines, comments) = tokenize_instructions(file_string);
+    program_info.comments_line_and_column = comments;
     program_info.instructions = build_instruction_list_from_lines(lines);
     confirm_operand_commas(&mut program_info.instructions);
     expand_pseudo_instruction(&mut program_info.instructions);
@@ -23,7 +23,10 @@ pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
 
     read_instructions(&mut program_info.instructions, labels);
 
-    (program_info.clone(), create_binary_vec(program_info.instructions.clone()))
+    (
+        program_info.clone(),
+        create_binary_vec(program_info.instructions.clone()),
+    )
 }
 
 ///Takes the vector of instructions and assembles the binary for them.

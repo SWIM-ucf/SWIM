@@ -13,9 +13,18 @@ mod parser_main_function_tests {
         for i in 0..length {
             print_instruction_struct_contents(results.0.instructions.get(i).unwrap());
         }
-        assert_eq!(results.0.instructions[0].binary, 0b10001101001010010000001000000000);
-        assert_eq!(results.0.instructions[1].binary, 0b00000010110010100100100000100000);
-        assert_eq!(results.0.instructions[2].binary, 0b00100001010010011010101010101010);
+        assert_eq!(
+            results.0.instructions[0].binary,
+            0b10001101001010010000001000000000
+        );
+        assert_eq!(
+            results.0.instructions[1].binary,
+            0b00000010110010100100100000100000
+        );
+        assert_eq!(
+            results.0.instructions[2].binary,
+            0b00100001010010011010101010101010
+        );
     }
 }
 
@@ -702,7 +711,7 @@ mod helper_functions {
     pub fn simulate_parser(mut file_string: String) -> Vec<Instruction> {
         file_string = file_string.to_lowercase();
 
-        let lines = tokenize_instructions(file_string);
+        let (lines, _comments) = tokenize_instructions(file_string);
         let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
         confirm_operand_commas(&mut instruction_list);
         expand_pseudo_instruction(&mut instruction_list);
