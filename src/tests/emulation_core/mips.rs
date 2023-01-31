@@ -833,6 +833,7 @@ pub mod dadd {
 
         assert_eq!(datapath.registers.gpr[2], 1_938_187_178_608); // $v0
     }
+}
 
 #[test]
 fn dsub_registers_positive_result() {
@@ -2197,6 +2198,7 @@ pub mod coprocessor {
         assert_eq!(datapath.coprocessor.condition_code, 0);
 
         Ok(())
+    }
 
     pub mod jump_tests {
         use super::*;
