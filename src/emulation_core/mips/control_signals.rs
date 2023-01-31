@@ -7,6 +7,7 @@ pub struct ControlSignals {
     pub alu_op: AluOp,
     pub alu_src: AluSrc,
     pub branch: Branch,
+    pub branch_type: BranchType,
     pub imm_shift: ImmShift,
     pub jump: Jump,
     pub mem_read: MemRead,
@@ -140,6 +141,14 @@ pub enum Branch {
 
     /// Consider branching.
     YesBranch = 1,
+}
+
+/// For deciding to branch on AluZ == YesZero or AluZ == NotZero
+#[derive(Default, PartialEq)]
+pub enum BranchType {
+    #[default]
+    OnEqual = 0,
+    OnNotEqual = 1,
 }
 
 /// Determines the amount of bits to left-shift the immediate value before being passed to the ALU.
