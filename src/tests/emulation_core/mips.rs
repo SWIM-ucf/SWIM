@@ -159,176 +159,188 @@ pub mod add {
     }
 }
 
-#[test]
-fn sub_positive_result() {
-    let mut datapath = MipsDatapath::default();
+pub mod sub {
+    use super::*;
 
-    // $s2 = $s3 - $s2
-    //                       R-type  s3    s2    s2  (shamt) SUB
-    let instruction: u32 = 0b000000_10011_10010_10010_00000_100010;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+    #[test]
+    fn sub_positive_result() {
+        let mut datapath = MipsDatapath::default();
 
-    datapath.registers.gpr[19] = 7; // $s3
-    datapath.registers.gpr[18] = 3; // $s2
+        // $s2 = $s3 - $s2
+        //                       R-type  s3    s2    s2  (shamt) SUB
+        let instruction: u32 = 0b000000_10011_10010_10010_00000_100010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    datapath.execute_instruction();
+        datapath.registers.gpr[19] = 7; // $s3
+        datapath.registers.gpr[18] = 3; // $s2
 
-    // Register $s2 should contain 4, as 7 - 3 = 4.
-    assert_eq!(datapath.registers.gpr[18], 4);
+        datapath.execute_instruction();
+
+        // Register $s2 should contain 4, as 7 - 3 = 4.
+        assert_eq!(datapath.registers.gpr[18], 4);
+    }
+
+    #[test]
+    fn sub_32_bit_negative_result() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $s0 - $t0
+        //                       R-type  s0    t0    s0  (shamt) SUB
+        let instruction: u32 = 0b000000_10000_01000_10000_00000_100010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[16] = 5; // $s0
+        datapath.registers.gpr[8] = 20; // $t0
+
+        datapath.execute_instruction();
+
+        // Register $s0 should contain -15, as 5 - 20 = -15.
+        assert_eq!(datapath.registers.gpr[16] as i32, -15);
+    }
+
+    #[test]
+    fn sub_32_bit_underflow() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s0 = $s0 - $t0
+        //                       R-type  s0    t0    s0  (shamt) SUB
+        let instruction: u32 = 0b000000_10000_01000_10000_00000_100010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[16] = 0; // $s0
+        datapath.registers.gpr[8] = 1; // $t0
+
+        datapath.execute_instruction();
+
+        // Register $s0 should contain the largest unsigned 32-bit integer due to underflow.
+        assert_eq!(
+            datapath.registers.gpr[16] as u32,
+            0b11111111_11111111_11111111_11111111
+        );
+    }
 }
 
-#[test]
-fn sub_32_bit_negative_result() {
-    let mut datapath = MipsDatapath::default();
+pub mod mul {
+    use super::*;
 
-    // $s0 = $s0 - $t0
-    //                       R-type  s0    t0    s0  (shamt) SUB
-    let instruction: u32 = 0b000000_10000_01000_10000_00000_100010;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+    #[test]
+    fn mul_positive_result() {
+        let mut datapath = MipsDatapath::default();
 
-    datapath.registers.gpr[16] = 5; // $s0
-    datapath.registers.gpr[8] = 20; // $t0
+        // $s5 = $t7 * $t6
+        //                       R-type  t7    t6    s5    MUL   SOP30
+        let instruction: u32 = 0b000000_01111_01110_10101_00010_011000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    datapath.execute_instruction();
+        datapath.registers.gpr[15] = 8; // $t7
+        datapath.registers.gpr[14] = 95; // $t6
 
-    // Register $s0 should contain -15, as 5 - 20 = -15.
-    assert_eq!(datapath.registers.gpr[16] as i32, -15);
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[21], 760); // $s5
+    }
+
+    #[test]
+    fn mul_32_bit_negative_result() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s5 = $t7 * $t6
+        //                       R-type  t7    t6    s5    MUL   SOP30
+        let instruction: u32 = 0b000000_01111_01110_10101_00010_011000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[15] = 5; // $t7
+        datapath.registers.gpr[14] = -5_i64 as u64; // $t6
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[21] as i64, -25); // $s5
+    }
+
+    #[test]
+    fn mul_result_truncate() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s4 = $t6 * $t5
+        //                       R-type  t6    t5    s4    MUL   SOP30
+        let instruction: u32 = 0b000000_01110_01101_10100_00010_011000;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[14] = 731_564_544; // $t6
+        datapath.registers.gpr[13] = 8; // $t5
+
+        datapath.execute_instruction();
+
+        // The result, 5,852,516,352, is too large for a 32-bit integer.
+        // (1 01011100 11010110 01010000 00000000)
+        // The result should instead truncate to the lower 32 bits.
+        assert_eq!(
+            datapath.registers.gpr[20],
+            0b01011100_11010110_01010000_00000000
+        ); // $s5
+    }
 }
 
-#[test]
-fn sub_32_bit_underflow() {
-    let mut datapath = MipsDatapath::default();
+pub mod div {
+    use super::*;
 
-    // $s0 = $s0 - $t0
-    //                       R-type  s0    t0    s0  (shamt) SUB
-    let instruction: u32 = 0b000000_10000_01000_10000_00000_100010;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+    #[test]
+    fn div_positive_result() {
+        let mut datapath = MipsDatapath::default();
 
-    datapath.registers.gpr[16] = 0; // $s0
-    datapath.registers.gpr[8] = 1; // $t0
+        // $s4 = $t6 / $t5
+        //                       R-type  t6    t5    s4    DIV   SOP32
+        let instruction: u32 = 0b000000_01110_01101_10100_00010_011010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    datapath.execute_instruction();
+        datapath.registers.gpr[14] = 20; // $t6
+        datapath.registers.gpr[13] = 2; // $t5
 
-    // Register $s0 should contain the largest unsigned 32-bit integer due to underflow.
-    assert_eq!(
-        datapath.registers.gpr[16] as u32,
-        0b11111111_11111111_11111111_11111111
-    );
-}
+        datapath.execute_instruction();
 
-#[test]
-fn mul_positive_result() {
-    let mut datapath = MipsDatapath::default();
+        assert_eq!(datapath.registers.gpr[20], 10); // $s5
+    }
 
-    // $s5 = $t7 * $t6
-    //                       R-type  t7    t6    s5    MUL   SOP30
-    let instruction: u32 = 0b000000_01111_01110_10101_00010_011000;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+    #[test]
+    fn div_negative_result() {
+        let mut datapath = MipsDatapath::default();
 
-    datapath.registers.gpr[15] = 8; // $t7
-    datapath.registers.gpr[14] = 95; // $t6
+        // $s4 = $t6 / $t5
+        //                       R-type  t6    t5    s4    DIV   SOP32
+        let instruction: u32 = 0b000000_01110_01101_10100_00010_011010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    datapath.execute_instruction();
+        datapath.registers.gpr[14] = 20; // $t6
+        datapath.registers.gpr[13] = -5_i64 as u64; // $t5
 
-    assert_eq!(datapath.registers.gpr[21], 760); // $s5
-}
+        datapath.execute_instruction();
 
-#[test]
-fn mul_32_bit_negative_result() {
-    let mut datapath = MipsDatapath::default();
-
-    // $s5 = $t7 * $t6
-    //                       R-type  t7    t6    s5    MUL   SOP30
-    let instruction: u32 = 0b000000_01111_01110_10101_00010_011000;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
-
-    datapath.registers.gpr[15] = 5; // $t7
-    datapath.registers.gpr[14] = -5_i64 as u64; // $t6
-
-    datapath.execute_instruction();
-
-    assert_eq!(datapath.registers.gpr[21] as i64, -25); // $s5
-}
-
-#[test]
-fn mul_result_truncate() {
-    let mut datapath = MipsDatapath::default();
-
-    // $s4 = $t6 * $t5
-    //                       R-type  t6    t5    s4    MUL   SOP30
-    let instruction: u32 = 0b000000_01110_01101_10100_00010_011000;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
-
-    datapath.registers.gpr[14] = 731_564_544; // $t6
-    datapath.registers.gpr[13] = 8; // $t5
-
-    datapath.execute_instruction();
-
-    // The result, 5,852,516,352, is too large for a 32-bit integer.
-    // (1 01011100 11010110 01010000 00000000)
-    // The result should instead truncate to the lower 32 bits.
-    assert_eq!(
-        datapath.registers.gpr[20],
-        0b01011100_11010110_01010000_00000000
-    ); // $s5
-}
-
-#[test]
-fn div_positive_result() {
-    let mut datapath = MipsDatapath::default();
-
-    // $s4 = $t6 / $t5
-    //                       R-type  t6    t5    s4    DIV   SOP32
-    let instruction: u32 = 0b000000_01110_01101_10100_00010_011010;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
-
-    datapath.registers.gpr[14] = 20; // $t6
-    datapath.registers.gpr[13] = 2; // $t5
-
-    datapath.execute_instruction();
-
-    assert_eq!(datapath.registers.gpr[20], 10); // $s5
-}
-
-#[test]
-fn div_negative_result() {
-    let mut datapath = MipsDatapath::default();
-
-    // $s4 = $t6 / $t5
-    //                       R-type  t6    t5    s4    DIV   SOP32
-    let instruction: u32 = 0b000000_01110_01101_10100_00010_011010;
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
-
-    datapath.registers.gpr[14] = 20; // $t6
-    datapath.registers.gpr[13] = -5_i64 as u64; // $t5
-
-    datapath.execute_instruction();
-
-    assert_eq!(datapath.registers.gpr[20] as i64, -4); // $s5
+        assert_eq!(datapath.registers.gpr[20] as i64, -4); // $s5
+    }
 }
 
 pub mod and {
@@ -794,29 +806,33 @@ pub mod ori {
     }
 }
 
-#[test]
-fn dadd_register_to_itself() {
-    let mut datapath = MipsDatapath::default();
+pub mod dadd {
+    use super::*;
 
-    // dadd rd, rs, rt
-    // dadd $v0, $t5, $t5
-    // GPR[2] <- GPR[13] + GPR[13]
-    //                      SPECIAL rs    rt    rd    0     DADD
-    //                              13    13    2
-    let instruction: u32 = 0b000000_01101_01101_00010_00000_101100;
+    #[test]
+    fn dadd_register_to_itself() {
+        let mut datapath = MipsDatapath::default();
 
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // dadd rd, rs, rt
+        // dadd $v0, $t5, $t5
+        // GPR[2] <- GPR[13] + GPR[13]
+        //                      SPECIAL rs    rt    rd    0     DADD
+        //                              13    13    2
+        let instruction: u32 = 0b000000_01101_01101_00010_00000_101100;
 
-    // Assume register $t5 contains 969,093,589,304, which is an integer
-    // that takes up 39 bits.
-    datapath.registers.gpr[13] = 969_093_589_304; // $t5
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    datapath.execute_instruction();
+        // Assume register $t5 contains 969,093,589,304, which is an integer
+        // that takes up 39 bits.
+        datapath.registers.gpr[13] = 969_093_589_304; // $t5
 
-    assert_eq!(datapath.registers.gpr[2], 1_938_187_178_608); // $v0
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[2], 1_938_187_178_608); // $v0
+    }
 }
 
 #[test]
@@ -849,152 +865,193 @@ fn dsub_registers_positive_result() {
     assert_eq!(datapath.registers.gpr[19], 4_669_680_037_183_490); // $s5
 }
 
-#[test]
-fn dmul_positive_result() {
-    let mut datapath = MipsDatapath::default();
+pub mod dsub {
+    use super::*;
 
-    // dmul rd, rs, rt
-    // dmul $a0, $t8, $t9
-    // dmul 4, 24, 25
-    // GPR[rd] <- lo_doubleword(multiply.signed(GPR[rs] * GPR[rt]))
-    //                      opcode  rs    rt    rd          funct
-    //                      SPECIAL $t8   $t9   $a0   DMUL  SOP34
-    //                              24    25    4
-    let instruction: u32 = 0b000000_11000_11001_00100_00010_011100;
+    #[test]
+    fn dsub_registers_positive_result() {
+        let mut datapath = MipsDatapath::default();
 
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // dsub rd, rs, rt
+        // dsub $s5, $s4, $s3
+        // GPR[rd] <- GPR[rs] - GPR[rt]
+        // GPR[$s5] <- GPR[$s4] - GPR[$s3]
+        // GPR[19] <- GPR[18] - GPR[17]
+        //                      SPECIAL rs    rt    rd    0     funct
+        //                              $s4   $s3   $s5         DSUB
+        //                              18    17    19
+        let instruction: u32 = 0b000000_10010_10001_10011_00000_101110;
 
-    // Assume register $t8 contains a number larger than 32 bits,
-    // but smaller than 64 bits.
-    datapath.registers.gpr[24] = 5_861_036_283_017; // $t8
-    datapath.registers.gpr[25] = 5; // $t9
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    datapath.execute_instruction();
+        // Assume registers $s3 and $s4 contain numbers larger than 32 bits,
+        // but smaller than 64 bits.
+        datapath.registers.gpr[18] = 4_833_323_886_298_794; // $s4
+        datapath.registers.gpr[17] = 163_643_849_115_304; // $s3
 
-    assert_eq!(datapath.registers.gpr[4], 29_305_181_415_085); // $a0
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[19], 4_669_680_037_183_490); // $s5
+    }
 }
 
-#[test]
-fn dmul_negative_result() {
-    let mut datapath = MipsDatapath::default();
+pub mod dmul {
+    use super::*;
 
-    // dmul rd, rs, rt
-    // dmul $s7, $t7, $t6
-    // dmul 23, 15, 14
-    // GPR[rd] <- lo_doubleword(multiply.signed(GPR[rs] * GPR[rt]))
-    //                      opcode  rs    rt    rd          funct
-    //                      SPECIAL $t7   $t6   $s7   DMUL  SOP34
-    //                              15    14    23
-    let instruction: u32 = 0b000000_01111_01110_10111_00010_011100;
+    #[test]
+    fn dmul_positive_result() {
+        let mut datapath = MipsDatapath::default();
 
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // dmul rd, rs, rt
+        // dmul $a0, $t8, $t9
+        // dmul 4, 24, 25
+        // GPR[rd] <- lo_doubleword(multiply.signed(GPR[rs] * GPR[rt]))
+        //                      opcode  rs    rt    rd          funct
+        //                      SPECIAL $t8   $t9   $a0   DMUL  SOP34
+        //                              24    25    4
+        let instruction: u32 = 0b000000_11000_11001_00100_00010_011100;
 
-    // Assume register $t7 contains a number larger than 32 bits,
-    // but smaller than 64 bits.
-    datapath.registers.gpr[15] = 363_251_152_978_005; // $t7
-    datapath.registers.gpr[14] = -19_i64 as u64; // $t6
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    datapath.execute_instruction();
+        // Assume register $t8 contains a number larger than 32 bits,
+        // but smaller than 64 bits.
+        datapath.registers.gpr[24] = 5_861_036_283_017; // $t8
+        datapath.registers.gpr[25] = 5; // $t9
 
-    assert_eq!(datapath.registers.gpr[23] as i64, -6_901_771_906_582_095); // $s7
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[4], 29_305_181_415_085); // $a0
+    }
+
+    #[test]
+    fn dmul_negative_result() {
+        let mut datapath = MipsDatapath::default();
+
+        // dmul rd, rs, rt
+        // dmul $s7, $t7, $t6
+        // dmul 23, 15, 14
+        // GPR[rd] <- lo_doubleword(multiply.signed(GPR[rs] * GPR[rt]))
+        //                      opcode  rs    rt    rd          funct
+        //                      SPECIAL $t7   $t6   $s7   DMUL  SOP34
+        //                              15    14    23
+        let instruction: u32 = 0b000000_01111_01110_10111_00010_011100;
+
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        // Assume register $t7 contains a number larger than 32 bits,
+        // but smaller than 64 bits.
+        datapath.registers.gpr[15] = 363_251_152_978_005; // $t7
+        datapath.registers.gpr[14] = -19_i64 as u64; // $t6
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[23] as i64, -6_901_771_906_582_095); // $s7
+    }
+
+    #[test]
+    fn dmul_result_truncate() {
+        let mut datapath = MipsDatapath::default();
+
+        // dmul rd, rs, rt
+        // dmul $s2, $s4, $s3
+        // dmul 18, 20, 19
+        // GPR[rd] <- lo_doubleword(multiply.signed(GPR[rs] * GPR[rt]))
+        //                      opcode  rs    rt    rd          funct
+        //                      SPECIAL $s4   $s3   $s2   DMUL  SOP34
+        //                              20    19    18
+        let instruction: u32 = 0b000000_10100_10011_10010_00010_011100;
+
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        // Assume registers $s4 and $s3 contain numbers larger than 32 bits,
+        // but smaller than 64 bits.
+        datapath.registers.gpr[20] = 191_893_548_893_556_856; // $s4
+        datapath.registers.gpr[19] = 2_799_316_838_897; // $s3
+
+        datapath.execute_instruction();
+
+        // The result, 537,170,842,693,438,490,068,661,827,832, is too large for
+        // a 64-bit integer.
+        // (110 11000111 10110001 01001110 10000100 [00110100 01101011 00001011 00010110 11011010 00010011 11111000 11111000])
+        // The result should instead truncate to the lower 64 bits.
+        assert_eq!(datapath.registers.gpr[18], 3_777_124_905_256_220_920); // $s2
+    }
 }
 
-#[test]
-fn dmul_result_truncate() {
-    let mut datapath = MipsDatapath::default();
+pub mod ddiv {
+    use super::*;
 
-    // dmul rd, rs, rt
-    // dmul $s2, $s4, $s3
-    // dmul 18, 20, 19
-    // GPR[rd] <- lo_doubleword(multiply.signed(GPR[rs] * GPR[rt]))
-    //                      opcode  rs    rt    rd          funct
-    //                      SPECIAL $s4   $s3   $s2   DMUL  SOP34
-    //                              20    19    18
-    let instruction: u32 = 0b000000_10100_10011_10010_00010_011100;
+    #[test]
+    fn ddiv_positive_result() {
+        let mut datapath = MipsDatapath::default();
 
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // ddiv rd, rs, rt
+        // ddiv $s0, $s1, $s2
+        // ddiv 16, 17, 18
+        // GPR[rd] <- divide.signed(GPR[rs], GPR[rt])
+        //                      opcode  rs    rt    rd          funct
+        //                      SPECIAL $s1   $s2   $s0   DDIV  SOP36
+        //                              17    18    16
+        let instruction: u32 = 0b000000_10001_10010_10000_00010_011110;
 
-    // Assume registers $s4 and $s3 contain numbers larger than 32 bits,
-    // but smaller than 64 bits.
-    datapath.registers.gpr[20] = 191_893_548_893_556_856; // $s4
-    datapath.registers.gpr[19] = 2_799_316_838_897; // $s3
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    datapath.execute_instruction();
+        // Assume register $s1 contains a number larger than 32 bits,
+        // but smaller than 64 bits.
+        datapath.registers.gpr[17] = 1_284_064_531_192; // $s1
+        datapath.registers.gpr[18] = 7; // $s2
 
-    // The result, 537,170,842,693,438,490,068,661,827,832, is too large for
-    // a 64-bit integer.
-    // (110 11000111 10110001 01001110 10000100 [00110100 01101011 00001011 00010110 11011010 00010011 11111000 11111000])
-    // The result should instead truncate to the lower 64 bits.
-    assert_eq!(datapath.registers.gpr[18], 3_777_124_905_256_220_920); // $s2
-}
+        datapath.execute_instruction();
 
-#[test]
-fn ddiv_positive_result() {
-    let mut datapath = MipsDatapath::default();
+        // While the actual result is 183,437,790,170.285714....
+        // the decimal portion is truncated.
+        assert_eq!(datapath.registers.gpr[16], 183_437_790_170); // $s0
+    }
 
-    // ddiv rd, rs, rt
-    // ddiv $s0, $s1, $s2
-    // ddiv 16, 17, 18
-    // GPR[rd] <- divide.signed(GPR[rs], GPR[rt])
-    //                      opcode  rs    rt    rd          funct
-    //                      SPECIAL $s1   $s2   $s0   DDIV  SOP36
-    //                              17    18    16
-    let instruction: u32 = 0b000000_10001_10010_10000_00010_011110;
+    #[test]
+    fn ddiv_negative_result() {
+        let mut datapath = MipsDatapath::default();
 
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
+        // ddiv rd, rs, rt
+        // ddiv $a3, $a2, $a1
+        // ddiv 7, 6, 5
+        // GPR[rd] <- divide.signed(GPR[rs], GPR[rt])
+        //                      opcode  rs    rt    rd          funct
+        //                      SPECIAL $a2   $a1   $a3   DDIV  SOP36
+        //                              6     5     7
+        let instruction: u32 = 0b000000_00110_00101_00111_00010_011110;
 
-    // Assume register $s1 contains a number larger than 32 bits,
-    // but smaller than 64 bits.
-    datapath.registers.gpr[17] = 1_284_064_531_192; // $s1
-    datapath.registers.gpr[18] = 7; // $s2
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
 
-    datapath.execute_instruction();
+        // Assume register $a2 contains a number larger than 32 bits,
+        // but smaller than 64 bits.
+        datapath.registers.gpr[6] = -6_245_352_518_120_328_878_i64 as u64; // $a2
+        datapath.registers.gpr[5] = 123; // $a1
 
-    // While the actual result is 183,437,790,170.285714....
-    // the decimal portion is truncated.
-    assert_eq!(datapath.registers.gpr[16], 183_437_790_170); // $s0
-}
+        datapath.execute_instruction();
 
-#[test]
-fn ddiv_negative_result() {
-    let mut datapath = MipsDatapath::default();
-
-    // ddiv rd, rs, rt
-    // ddiv $a3, $a2, $a1
-    // ddiv 7, 6, 5
-    // GPR[rd] <- divide.signed(GPR[rs], GPR[rt])
-    //                      opcode  rs    rt    rd          funct
-    //                      SPECIAL $a2   $a1   $a3   DDIV  SOP36
-    //                              6     5     7
-    let instruction: u32 = 0b000000_00110_00101_00111_00010_011110;
-
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
-
-    // Assume register $a2 contains a number larger than 32 bits,
-    // but smaller than 64 bits.
-    datapath.registers.gpr[6] = -6_245_352_518_120_328_878_i64 as u64; // $a2
-    datapath.registers.gpr[5] = 123; // $a1
-
-    datapath.execute_instruction();
-
-    // While the actual result is -50,775,223,724,555,519.333333....
-    // the decimal portion is truncated.
-    assert_eq!(datapath.registers.gpr[7] as i64, -50_775_223_724_555_519); // $a3
+        // While the actual result is -50,775,223,724,555,519.333333....
+        // the decimal portion is truncated.
+        assert_eq!(datapath.registers.gpr[7] as i64, -50_775_223_724_555_519); // $a3
+    }
 }
 
 pub mod dahi_dati {
@@ -1635,6 +1692,512 @@ pub mod coprocessor {
             f32::from_bits(datapath.coprocessor.fpr[11] as u32),
             6.1875f32
         );
+    }
+
+    #[test]
+    fn c_eq_s_should_be_true() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.eq.s fs, ft
+        // c.eq.s $f1, $f2
+        // CC[0] <- FPR[fs] == FPR[ft]
+        // CC[0] <- FPR[1] == FPR[2]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              s     $f2   $f1   0        EQ
+        let instruction: u32 = 0b010001_10000_00010_00001_000_00_110010;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[1] = f32::to_bits(15.5f32) as u64;
+        datapath.coprocessor.fpr[2] = f32::to_bits(15.5f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_eq_s_should_be_false() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.eq.s fs, ft
+        // c.eq.s $f14, $f3
+        // CC[0] <- FPR[fs] == FPR[ft]
+        // CC[0] <- FPR[14] == FPR[3]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              s     $f3   $f14  0        EQ
+        let instruction: u32 = 0b010001_10000_00011_01110_000_00_110010;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[14] = f32::to_bits(20.125f32) as u64;
+        datapath.coprocessor.fpr[3] = f32::to_bits(100f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_eq_d_should_be_true() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.eq.d fs, ft
+        // c.eq.d $f5, $f9
+        // CC[0] <- FPR[fs] == FPR[ft]
+        // CC[0] <- FPR[5] == FPR[9]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              d     $f9   $f5   0        EQ
+        let instruction: u32 = 0b010001_10001_01001_00101_000_00_110010;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[5] = f64::to_bits(12951.625);
+        datapath.coprocessor.fpr[9] = f64::to_bits(12951.625);
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_eq_d_should_be_false() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.eq.d fs, ft
+        // c.eq.d $f15, $f19
+        // CC[0] <- FPR[fs] == FPR[ft]
+        // CC[0] <- FPR[15] == FPR[19]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              d     $f19  $f15  0        EQ
+        let instruction: u32 = 0b010001_10001_10011_01111_000_00_110010;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[15] = f64::to_bits(6016.25);
+        datapath.coprocessor.fpr[19] = f64::to_bits(820.43);
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_lt_s_should_be_true() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.lt.s fs, ft
+        // c.lt.s $f19, $f0
+        // CC[0] <- FPR[fs] < FPR[ft]
+        // CC[0] <- FPR[19] < FPR[0]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              s     $f0   $f19  0        LT
+        let instruction: u32 = 0b010001_10000_00000_10011_000_00_111100;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[19] = f32::to_bits(2.875f32) as u64;
+        datapath.coprocessor.fpr[0] = f32::to_bits(70.6f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_lt_s_should_be_false() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.lt.s fs, ft
+        // c.lt.s $f30, $f31
+        // CC[0] <- FPR[fs] < FPR[ft]
+        // CC[0] <- FPR[30] < FPR[31]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              s     $f31  $f30  0        LT
+        let instruction: u32 = 0b010001_10000_11111_11110_000_00_111100;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[30] = f32::to_bits(90.7f32) as u64;
+        datapath.coprocessor.fpr[31] = f32::to_bits(-87.44f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_lt_d_should_be_true() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.lt.d fs, ft
+        // c.lt.d $f12, $f29
+        // CC[0] <- FPR[fs] < FPR[ft]
+        // CC[0] <- FPR[12] < FPR[29]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              d     $f29  $f12  0        LT
+        let instruction: u32 = 0b010001_10001_11101_01100_000_00_111100;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[12] = f64::to_bits(4.0);
+        datapath.coprocessor.fpr[29] = f64::to_bits(30000.6);
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_lt_d_should_be_false() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.lt.d fs, ft
+        // c.lt.d $f4, $f5
+        // CC[0] <- FPR[fs] < FPR[ft]
+        // CC[0] <- FPR[4] < FPR[5]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              d     $f5   $f4  0        LT
+        let instruction: u32 = 0b010001_10001_00101_00100_000_00_111100;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[4] = f64::to_bits(413.420);
+        datapath.coprocessor.fpr[5] = f64::to_bits(-6600.9);
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_le_s_should_be_true_less() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.le.s fs, ft
+        // c.le.s $f0, $f1
+        // CC[0] <- FPR[fs] <= FPR[ft]
+        // CC[0] <- FPR[0] <= FPR[1]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              s     $f1   $f0   0        LE
+        let instruction: u32 = 0b010001_10000_00001_00000_000_00_111110;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[0] = f32::to_bits(171.937f32) as u64;
+        datapath.coprocessor.fpr[1] = f32::to_bits(9930.829f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_le_s_should_be_true_equal() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.le.s fs, ft
+        // c.le.s $f2, $f3
+        // CC[0] <- FPR[fs] <= FPR[ft]
+        // CC[0] <- FPR[2] <= FPR[3]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              s     $f3   $f2   0        LE
+        let instruction: u32 = 0b010001_10000_00011_00010_000_00_111110;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[2] = f32::to_bits(6.5f32) as u64;
+        datapath.coprocessor.fpr[3] = f32::to_bits(6.5f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_le_s_should_be_false() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.le.s fs, ft
+        // c.le.s $f4, $f5
+        // CC[0] <- FPR[fs] <= FPR[ft]
+        // CC[0] <- FPR[4] <= FPR[5]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              s     $f5   $f4   0        LE
+        let instruction: u32 = 0b010001_10000_00101_00100_000_00_111110;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[4] = f32::to_bits(5742.006f32) as u64;
+        datapath.coprocessor.fpr[5] = f32::to_bits(1336.568f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_le_d_should_be_true_less() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.le.d fs, ft
+        // c.le.d $f6, $f7
+        // CC[0] <- FPR[fs] <= FPR[ft]
+        // CC[0] <- FPR[6] <= FPR[7]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              d     $f7   $f6   0        LE
+        let instruction: u32 = 0b010001_10001_00111_00110_000_00_111110;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[6] = f64::to_bits(3483.70216);
+        datapath.coprocessor.fpr[7] = f64::to_bits(7201.56625);
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_le_d_should_be_true_equal() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.le.d fs, ft
+        // c.le.d $f8, $f9
+        // CC[0] <- FPR[fs] <= FPR[ft]
+        // CC[0] <- FPR[8] <= FPR[9]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              d     $f9   $f8   0        LE
+        let instruction: u32 = 0b010001_10001_01001_01000_000_00_111110;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[8] = f64::to_bits(77.4009);
+        datapath.coprocessor.fpr[9] = f64::to_bits(77.4009);
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_le_d_should_be_false() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.le.d fs, ft
+        // c.le.d $f10, $f11
+        // CC[0] <- FPR[fs] <= FPR[ft]
+        // CC[0] <- FPR[10] <= FPR[11]
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              d     $f11  $f10  0        LE
+        let instruction: u32 = 0b010001_10001_01011_01010_000_00_111110;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[10] = f64::to_bits(9190.43309);
+        datapath.coprocessor.fpr[11] = f64::to_bits(2869.57622);
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_ngt_s_should_be_true() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.ngt.s fs, ft
+        // c.ngt.s $f12, $f13
+        // CC[0] <- !(FPR[fs] > FPR[ft])
+        // CC[0] <- !(FPR[12] > FPR[13])
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              s     $f13  $f12  0        NGT
+        let instruction: u32 = 0b010001_10000_01101_01100_000_00_111111;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[12] = f32::to_bits(2469.465f32) as u64;
+        datapath.coprocessor.fpr[13] = f32::to_bits(3505.57f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_ngt_s_should_be_false() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.ngt.s fs, ft
+        // c.ngt.s $f14, $f15
+        // CC[0] <- !(FPR[fs] > FPR[ft])
+        // CC[0] <- !(FPR[14] > FPR[15])
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              s     $f15  $f14  0        NGT
+        let instruction: u32 = 0b010001_10000_01111_01110_000_00_111111;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[14] = f32::to_bits(7099.472f32) as u64;
+        datapath.coprocessor.fpr[15] = f32::to_bits(87.198f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_ngt_d_should_be_true() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.ngt.d fs, ft
+        // c.ngt.d $f16, $f17
+        // CC[0] <- !(FPR[fs] > FPR[ft])
+        // CC[0] <- !(FPR[16] > FPR[17])
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              d     $f17  $f16  0        NGT
+        let instruction: u32 = 0b010001_10001_10001_10000_000_00_111111;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[16] = f64::to_bits(7726.4794015);
+        datapath.coprocessor.fpr[17] = f64::to_bits(9345.7753943);
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_ngt_d_should_be_false() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.ngt.d fs, ft
+        // c.ngt.d $f18, $f19
+        // CC[0] <- !(FPR[fs] > FPR[ft])
+        // CC[0] <- !(FPR[18] > FPR[19])
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              d     $f19  $f18  0        NGT
+        let instruction: u32 = 0b010001_10001_10011_10010_000_00_111111;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[18] = f64::to_bits(4688.2854359);
+        datapath.coprocessor.fpr[19] = f64::to_bits(819.7956308);
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_nge_s_should_be_true() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.nge.s fs, ft
+        // c.nge.s $f20, $f21
+        // CC[0] <- !(FPR[fs] >= FPR[ft])
+        // CC[0] <- !(FPR[20] >= FPR[21])
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              s     $f21  $f20  0        NGE
+        let instruction: u32 = 0b010001_10000_10101_10100_000_00_111101;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[20] = f32::to_bits(3090.244f32) as u64;
+        datapath.coprocessor.fpr[21] = f32::to_bits(7396.444f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_nge_s_should_be_false() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.nge.s fs, ft
+        // c.nge.s $f22, $f23
+        // CC[0] <- !(FPR[fs] >= FPR[ft])
+        // CC[0] <- !(FPR[22] >= FPR[23])
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              s     $f23  $f22  0        NGE
+        let instruction: u32 = 0b010001_10000_10111_10110_000_00_111101;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[22] = f32::to_bits(6269.823f32) as u64;
+        datapath.coprocessor.fpr[23] = f32::to_bits(3089.393f32) as u64;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_nge_d_should_be_true() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.nge.d fs, ft
+        // c.nge.d $f24, $f25
+        // CC[0] <- !(FPR[fs] >= FPR[ft])
+        // CC[0] <- !(FPR[24] >= FPR[25])
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              d     $f25  $f24  0        NGE
+        let instruction: u32 = 0b010001_10001_11001_11000_000_00_111101;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[24] = f64::to_bits(819.7956308);
+        datapath.coprocessor.fpr[25] = f64::to_bits(4688.2854359);
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn c_nge_d_should_be_false() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // c.nge.d fs, ft
+        // c.nge.d $f26, $f27
+        // CC[0] <- !(FPR[fs] >= FPR[ft])
+        // CC[0] <- !(FPR[26] >= FPR[27])
+        //                       COP1   fmt   ft    fs    cc     __cond
+        //                              d     $f27  $f26  0        NGE
+        let instruction: u32 = 0b010001_10001_11011_11010_000_00_111101;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[26] = f64::to_bits(9776.3465875);
+        datapath.coprocessor.fpr[27] = f64::to_bits(1549.8268716);
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.coprocessor.condition_code, 0);
+
+        Ok(())
     }
 
     pub mod jump_tests {

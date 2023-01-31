@@ -405,9 +405,9 @@ impl MipsDatapath {
                 self.state.rd = 0; // Placeholder
                 self.state.imm = i.immediate as u32;
             }
-            // R-type FPU instructions exclusively use the FPU, so these data lines
-            // do not need to be used.
-            Instruction::FpuRType(_) => (),
+            // R-type and comparison FPU instructions exclusively use the
+            // FPU, so these data lines do not need to be used.
+            Instruction::FpuRType(_) | Instruction::FpuCompareType(_) => (),
             Instruction::FpuIType(i) => {
                 self.state.rs = i.base as u32;
                 self.state.imm = i.offset as u32;
@@ -751,7 +751,7 @@ impl MipsDatapath {
             Instruction::JType(j) => {
                 self.set_jtype_control_signals(j);
             }
-            Instruction::FpuRType(_) => {
+            Instruction::FpuRType(_) | Instruction::FpuCompareType(_) => {
                 self.signals = ControlSignals {
                     branch: Branch::NoBranch,
                     jump: Jump::NoJump,
