@@ -1,29 +1,29 @@
 use crate::parser::operand_reading::read_operands;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::*;
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::*;
 use crate::parser::preprocessing::*;
 use std::collections::HashMap;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
-pub fn parser(mut file_string: String) -> (Vec<Instruction>, Vec<u32>) {
+pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
+    let mut program_info = ProgramInfo::default();
+
     file_string = file_string.to_lowercase();
 
     let lines = tokenize_instructions(file_string);
-    let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
-    confirm_operand_commas(&mut instruction_list);
-    expand_pseudo_instruction(&mut instruction_list);
-    assign_instruction_numbers(&mut instruction_list);
+    program_info.instructions = build_instruction_list_from_lines(lines);
+    confirm_operand_commas(&mut program_info.instructions);
+    expand_pseudo_instruction(&mut program_info.instructions);
+    assign_instruction_numbers(&mut program_info.instructions);
 
-    let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
+    let labels: HashMap<String, u32> = create_label_map(&mut program_info.instructions);
 
-    read_instructions(&mut instruction_list, labels);
+    read_instructions(&mut program_info.instructions, labels);
 
-    (
-        instruction_list.clone(),
-        create_binary_vec(instruction_list.clone()),
-    )
+    (program_info.clone(), create_binary_vec(program_info.instructions.clone()))
 }
 
 ///Takes the vector of instructions and assembles the binary for them.

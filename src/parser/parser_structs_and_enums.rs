@@ -1,10 +1,9 @@
 pub mod instruction_tokenization {
     use std::default::Default;
 
-
     #[derive(Default, Debug, Clone, PartialEq, Eq)]
     ///Wrapper for all information gathered in the Parser/Assembler about the written program.
-    pub struct ProgramInfo{
+    pub struct ProgramInfo {
         pub instructions: Vec<Instruction>,
         pub comments_line_and_column: Vec<[u32; 2]>,
         pub data_starting_line: u32,
