@@ -743,7 +743,7 @@ impl MipsDatapath {
             _ => unimplemented!("J-type instruction with opcode `{}`", j.op),
         };
     }
-    
+
     /// Set the control signals for the datapath, specifically in the
     /// case where the instruction is an FPU register-immediate type.
     fn set_fpu_reg_imm_control_signals(&mut self, i: FpuRegImmType) {
