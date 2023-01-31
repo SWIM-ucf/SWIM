@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/litrs-0.2.3/src/float/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../litrs/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/litrs-0.3.0/src/float/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../litrs/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -200,6 +200,33 @@
 <a href="#200" id="200">200</a>
 <a href="#201" id="201">201</a>
 <a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::fmt;
 
 <span class="kw">use crate</span>::{
@@ -223,27 +250,27 @@
 /// [ref]: https://doc.rust-lang.org/reference/tokens.html#floating-point-literals
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>FloatLit&lt;B: Buffer&gt; {
-    <span class="doccomment">/// Basically the whole literal, but without the type suffix. Other `usize`
-    /// fields in this struct partition this string. `end_integer_part` is
-    /// always &lt;= `end_fractional_part`.
+    <span class="doccomment">/// The whole raw input. The `usize` fields in this struct partition this
+    /// string. Always true: `end_integer_part &lt;= end_fractional_part`.
     ///
     /// ```text
-    ///    12_3.4_56e789
-    ///        ╷    ╷
+    ///    12_3.4_56e789f32
+    ///        ╷    ╷   ╷
+    ///        |    |   └ end_number_part = 13
     ///        |    └ end_fractional_part = 9
     ///        └ end_integer_part = 4
     ///
     ///    246.
     ///       ╷╷
-    ///       |└ end_fractional_part = 4
+    ///       |└ end_fractional_part = end_number_part = 4
     ///       └ end_integer_part = 3
     ///
     ///    1234e89
-    ///        ╷
-    ///        |
+    ///        ╷  ╷
+    ///        |  └ end_number_part = 7
     ///        └ end_integer_part = end_fractional_part = 4
     /// ```
-    </span>number_part: B,
+    </span>raw: B,
 
     <span class="doccomment">/// The first index not part of the integer part anymore. Since the integer
     /// part is at the start, this is also the length of that part.
@@ -251,6 +278,9 @@
 
     <span class="doccomment">/// The first index after the fractional part.
     </span>end_fractional_part: usize,
+
+    <span class="doccomment">/// The first index after the whole number part (everything except type suffix).
+    </span>end_number_part: usize,
 
     <span class="doccomment">/// Optional type suffix.
     </span>type_suffix: <span class="prelude-ty">Option</span>&lt;FloatType&gt;,
@@ -268,7 +298,24 @@
     /// input is invalid or represents a different kind of literal.
     </span><span class="kw">pub fn </span>parse(s: B) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
         <span class="kw">match </span>first_byte_or_empty(<span class="kw-2">&amp;</span>s)<span class="question-mark">? </span>{
-            <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>=&gt; <span class="self">Self</span>::parse_impl(s),
+            <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>=&gt; {
+                <span class="comment">// TODO: simplify once RFC 2528 is stabilized
+                </span><span class="kw">let </span>FloatLit {
+                    end_integer_part,
+                    end_fractional_part,
+                    end_number_part,
+                    type_suffix,
+                    ..
+                } = parse_impl(<span class="kw-2">&amp;</span>s)<span class="question-mark">?</span>;
+
+                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+                    raw: s,
+                    end_integer_part,
+                    end_fractional_part,
+                    end_number_part,
+                    type_suffix,
+                })
+            },
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(perr(<span class="number">0</span>, DoesNotStartWithDigit)),
         }
     }
@@ -278,12 +325,12 @@
     /// floating point value, you need to parse this string, e.g. with
     /// `f32::from_str` or an external crate.
     </span><span class="kw">pub fn </span>number_part(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.number_part
+        <span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.raw)[..<span class="self">self</span>.end_number_part]
     }
 
     <span class="doccomment">/// Returns the non-empty integer part of this literal.
     </span><span class="kw">pub fn </span>integer_part(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.number_part)[..<span class="self">self</span>.end_integer_part]
+        <span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.raw)[..<span class="self">self</span>.end_integer_part]
     }
 
     <span class="doccomment">/// Returns the optional fractional part of this literal. Does not include
@@ -293,14 +340,14 @@
         <span class="kw">if </span><span class="self">self</span>.end_integer_part == <span class="self">self</span>.end_fractional_part {
             <span class="prelude-val">None
         </span>} <span class="kw">else </span>{
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.number_part)[<span class="self">self</span>.end_integer_part + <span class="number">1</span>..<span class="self">self</span>.end_fractional_part])
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.raw)[<span class="self">self</span>.end_integer_part + <span class="number">1</span>..<span class="self">self</span>.end_fractional_part])
         }
     }
 
     <span class="doccomment">/// Optional exponent part. Might be empty if there was no exponent part in
     /// the input. Includes the `e` or `E` at the beginning.
     </span><span class="kw">pub fn </span>exponent_part(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.number_part)[<span class="self">self</span>.end_fractional_part..]
+        <span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.raw)[<span class="self">self</span>.end_fractional_part..<span class="self">self</span>.end_number_part]
     }
 
     <span class="doccomment">/// The optional type suffix.
@@ -308,70 +355,14 @@
         <span class="self">self</span>.type_suffix
     }
 
-    <span class="doccomment">/// Precondition: first byte of string has to be in `b&#39;0&#39;..=b&#39;9&#39;`.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_impl(input: B) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-        <span class="comment">// Integer part.
-        </span><span class="kw">let </span>end_integer_part = end_dec_digits(<span class="kw-2">&amp;</span>input);
-        <span class="kw">let </span>rest = <span class="kw-2">&amp;</span>input[end_integer_part..];
+    <span class="doccomment">/// Returns the raw input that was passed to `parse`.
+    </span><span class="kw">pub fn </span>raw_input(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.raw
+    }
 
-
-        <span class="comment">// Fractional part.
-        </span><span class="kw">let </span>end_fractional_part = <span class="kw">if </span>rest.as_bytes().get(<span class="number">0</span>) == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;.&#39;</span>) {
-            <span class="comment">// The fractional part must not start with `_`.
-            </span><span class="kw">if </span>rest.as_bytes().get(<span class="number">1</span>) == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;_&#39;</span>) {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(perr(end_integer_part + <span class="number">1</span>, UnexpectedChar));
-            }
-
-            end_dec_digits(<span class="kw-2">&amp;</span>rest[<span class="number">1</span>..]) + <span class="number">1 </span>+ end_integer_part
-        } <span class="kw">else </span>{
-            end_integer_part
-        };
-        <span class="kw">let </span>rest = <span class="kw-2">&amp;</span>input[end_fractional_part..];
-
-        <span class="comment">// If we have a period that is not followed by decimal digits, the
-        // literal must end now.
-        </span><span class="kw">if </span>end_integer_part + <span class="number">1 </span>== end_fractional_part &amp;&amp; !rest.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(perr(end_integer_part + <span class="number">1</span>, UnexpectedChar));
-        }
-
-
-        <span class="comment">// Optional exponent.
-        </span><span class="kw">let </span>end_number_part = <span class="kw">if </span>rest.starts_with(<span class="string">&#39;e&#39;</span>) || rest.starts_with(<span class="string">&#39;E&#39;</span>) {
-            <span class="comment">// Strip single - or + sign at the beginning.
-            </span><span class="kw">let </span>exp_number_start = <span class="kw">match </span>rest.as_bytes().get(<span class="number">1</span>) {
-                <span class="prelude-val">Some</span>(<span class="string">b&#39;-&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">b&#39;+&#39;</span>) =&gt; <span class="number">2</span>,
-                <span class="kw">_ </span>=&gt; <span class="number">1</span>,
-            };
-
-            <span class="comment">// Find end of exponent and make sure there is at least one digit.
-            </span><span class="kw">let </span>end_exponent = end_dec_digits(<span class="kw-2">&amp;</span>rest[exp_number_start..]) + exp_number_start;
-            <span class="kw">if </span>!rest[exp_number_start..end_exponent].bytes().any(|b| <span class="macro">matches!</span>(b, <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39;</span>)) {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(perr(
-                    end_fractional_part..end_fractional_part + end_exponent,
-                    NoExponentDigits,
-                ));
-            }
-
-            end_exponent + end_fractional_part
-        } <span class="kw">else </span>{
-            end_fractional_part
-        };
-
-
-        <span class="comment">// Type suffix
-        </span><span class="kw">let </span>type_suffix = <span class="kw">match </span><span class="kw-2">&amp;</span>input[end_number_part..] {
-            <span class="string">&quot;&quot; </span>=&gt; <span class="prelude-val">None</span>,
-            <span class="string">&quot;f32&quot; </span>=&gt; <span class="prelude-val">Some</span>(FloatType::F32),
-            <span class="string">&quot;f64&quot; </span>=&gt; <span class="prelude-val">Some</span>(FloatType::F64),
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(perr(end_number_part..input.len(), InvalidFloatTypeSuffix)),
-        };
-
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            number_part: input.cut(<span class="number">0</span>..end_number_part),
-            end_integer_part,
-            end_fractional_part,
-            type_suffix,
-        })
+    <span class="doccomment">/// Returns the raw input that was passed to `parse`, potentially owned.
+    </span><span class="kw">pub fn </span>into_raw_input(<span class="self">self</span>) -&gt; B {
+        <span class="self">self</span>.raw
     }
 }
 
@@ -380,9 +371,10 @@
     /// `Self`.
     </span><span class="kw">pub fn </span>to_owned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; FloatLit&lt;String&gt; {
         FloatLit {
-            number_part: <span class="self">self</span>.number_part.to_owned(),
+            raw: <span class="self">self</span>.raw.to_owned(),
             end_integer_part: <span class="self">self</span>.end_integer_part,
             end_fractional_part: <span class="self">self</span>.end_fractional_part,
+            end_number_part: <span class="self">self</span>.end_number_part,
             type_suffix: <span class="self">self</span>.type_suffix,
         }
     }
@@ -390,15 +382,77 @@
 
 <span class="kw">impl</span>&lt;B: Buffer&gt; fmt::Display <span class="kw">for </span>FloatLit&lt;B&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">let </span>suffix = <span class="kw">match </span><span class="self">self</span>.type_suffix {
-            <span class="prelude-val">None </span>=&gt; <span class="string">&quot;&quot;</span>,
-            <span class="prelude-val">Some</span>(FloatType::F32) =&gt; <span class="string">&quot;f32&quot;</span>,
-            <span class="prelude-val">Some</span>(FloatType::F64) =&gt; <span class="string">&quot;f64&quot;</span>,
-        };
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}{}&quot;</span>, <span class="self">self</span>.number_part(), suffix)
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">&amp;*</span><span class="self">self</span>.raw)
     }
 }
 
+<span class="doccomment">/// Precondition: first byte of string has to be in `b&#39;0&#39;..=b&#39;9&#39;`.
+</span><span class="attr">#[inline(never)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_impl(input: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;FloatLit&lt;<span class="kw-2">&amp;</span>str&gt;, ParseError&gt; {
+    <span class="comment">// Integer part.
+    </span><span class="kw">let </span>end_integer_part = end_dec_digits(input.as_bytes());
+    <span class="kw">let </span>rest = <span class="kw-2">&amp;</span>input[end_integer_part..];
+
+
+    <span class="comment">// Fractional part.
+    </span><span class="kw">let </span>end_fractional_part = <span class="kw">if </span>rest.as_bytes().get(<span class="number">0</span>) == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;.&#39;</span>) {
+        <span class="comment">// The fractional part must not start with `_`.
+        </span><span class="kw">if </span>rest.as_bytes().get(<span class="number">1</span>) == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;_&#39;</span>) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(perr(end_integer_part + <span class="number">1</span>, UnexpectedChar));
+        }
+
+        end_dec_digits(rest[<span class="number">1</span>..].as_bytes()) + <span class="number">1 </span>+ end_integer_part
+    } <span class="kw">else </span>{
+        end_integer_part
+    };
+    <span class="kw">let </span>rest = <span class="kw-2">&amp;</span>input[end_fractional_part..];
+
+    <span class="comment">// If we have a period that is not followed by decimal digits, the
+    // literal must end now.
+    </span><span class="kw">if </span>end_integer_part + <span class="number">1 </span>== end_fractional_part &amp;&amp; !rest.is_empty() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(perr(end_integer_part + <span class="number">1</span>, UnexpectedChar));
+    }
+
+
+    <span class="comment">// Optional exponent.
+    </span><span class="kw">let </span>end_number_part = <span class="kw">if </span>rest.starts_with(<span class="string">&#39;e&#39;</span>) || rest.starts_with(<span class="string">&#39;E&#39;</span>) {
+        <span class="comment">// Strip single - or + sign at the beginning.
+        </span><span class="kw">let </span>exp_number_start = <span class="kw">match </span>rest.as_bytes().get(<span class="number">1</span>) {
+            <span class="prelude-val">Some</span>(<span class="string">b&#39;-&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">b&#39;+&#39;</span>) =&gt; <span class="number">2</span>,
+            <span class="kw">_ </span>=&gt; <span class="number">1</span>,
+        };
+
+        <span class="comment">// Find end of exponent and make sure there is at least one digit.
+        </span><span class="kw">let </span>end_exponent = end_dec_digits(rest[exp_number_start..].as_bytes()) + exp_number_start;
+        <span class="kw">if </span>!rest[exp_number_start..end_exponent].bytes().any(|b| <span class="macro">matches!</span>(b, <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39;</span>)) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(perr(
+                end_fractional_part..end_fractional_part + end_exponent,
+                NoExponentDigits,
+            ));
+        }
+
+        end_exponent + end_fractional_part
+    } <span class="kw">else </span>{
+        end_fractional_part
+    };
+
+
+    <span class="comment">// Type suffix
+    </span><span class="kw">let </span>type_suffix = <span class="kw">match </span><span class="kw-2">&amp;</span>input[end_number_part..] {
+        <span class="string">&quot;&quot; </span>=&gt; <span class="prelude-val">None</span>,
+        <span class="string">&quot;f32&quot; </span>=&gt; <span class="prelude-val">Some</span>(FloatType::F32),
+        <span class="string">&quot;f64&quot; </span>=&gt; <span class="prelude-val">Some</span>(FloatType::F64),
+        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(perr(end_number_part..input.len(), InvalidFloatTypeSuffix)),
+    };
+
+    <span class="prelude-val">Ok</span>(FloatLit {
+        raw: input,
+        end_integer_part,
+        end_fractional_part,
+        end_number_part,
+        type_suffix,
+    })
+}
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests;

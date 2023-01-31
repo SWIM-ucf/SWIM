@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["callback","Callback-style timer APIs."]]};
+window.SIDEBAR_ITEMS = {"mod":[["callback","Callback-style timer APIs."],["future","`Future`- and `Stream`-backed timers APIs."]]};

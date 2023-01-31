@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/litrs-0.2.3/src/integer/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../litrs/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/litrs-0.3.0/src/integer/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../litrs/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -283,6 +283,27 @@
 <a href="#283" id="283">283</a>
 <a href="#284" id="284">284</a>
 <a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::fmt;
 
 <span class="kw">use crate</span>::{
@@ -310,8 +331,12 @@
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>IntegerLit&lt;B: Buffer&gt; {
+    raw: B,
+    <span class="comment">// First index of the main number part (after the base prefix).
+    </span>start_main_part: usize,
+    <span class="comment">// First index not part of the main number part.
+    </span>end_main_part: usize,
     base: IntegerBase,
-    main_part: B,
     type_suffix: <span class="prelude-ty">Option</span>&lt;IntegerType&gt;,
 }
 
@@ -359,7 +384,24 @@
     /// invalid or represents a different kind of literal.
     </span><span class="kw">pub fn </span>parse(input: B) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
         <span class="kw">match </span>first_byte_or_empty(<span class="kw-2">&amp;</span>input)<span class="question-mark">? </span>{
-            digit @ <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>=&gt; <span class="self">Self</span>::parse_impl(input, digit),
+            digit @ <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>=&gt; {
+                <span class="comment">// TODO: simplify once RFC 2528 is stabilized
+                </span><span class="kw">let </span>IntegerLit {
+                    start_main_part,
+                    end_main_part,
+                    base,
+                    type_suffix,
+                    ..
+                } =  parse_impl(<span class="kw-2">&amp;</span>input, digit)<span class="question-mark">?</span>;
+
+                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+                    raw: input,
+                    start_main_part,
+                    end_main_part,
+                    base,
+                    type_suffix,
+                })
+            },
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(perr(<span class="number">0</span>, DoesNotStartWithDigit)),
         }
     }
@@ -378,7 +420,7 @@
         };
 
         <span class="kw">let </span><span class="kw-2">mut </span>acc = N::from_small_number(<span class="number">0</span>);
-        <span class="kw">for </span>digit <span class="kw">in </span><span class="self">self</span>.main_part.bytes() {
+        <span class="kw">for </span>digit <span class="kw">in </span><span class="self">self</span>.raw_main_part().bytes() {
             <span class="kw">if </span>digit == <span class="string">b&#39;_&#39; </span>{
                 <span class="kw">continue</span>;
             }
@@ -403,7 +445,7 @@
     <span class="doccomment">/// The main part containing the digits and potentially `_`. Do not try to
     /// parse this directly as that would ignore the base!
     </span><span class="kw">pub fn </span>raw_main_part(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.main_part
+        <span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.raw)[<span class="self">self</span>.start_main_part..<span class="self">self</span>.end_main_part]
     }
 
     <span class="doccomment">/// The type suffix, if specified.
@@ -411,73 +453,14 @@
         <span class="self">self</span>.type_suffix
     }
 
-    <span class="doccomment">/// Precondition: first byte of string has to be in `b&#39;0&#39;..=b&#39;9&#39;`.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_impl(input: B, first: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
-        <span class="comment">// Figure out base and strip prefix base, if it exists.
-        </span><span class="kw">let </span>(end_prefix, base) = <span class="kw">match </span>(first, input.as_bytes().get(<span class="number">1</span>)) {
-            (<span class="string">b&#39;0&#39;</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;b&#39;</span>)) =&gt; (<span class="number">2</span>, IntegerBase::Binary),
-            (<span class="string">b&#39;0&#39;</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;o&#39;</span>)) =&gt; (<span class="number">2</span>, IntegerBase::Octal),
-            (<span class="string">b&#39;0&#39;</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;x&#39;</span>)) =&gt; (<span class="number">2</span>, IntegerBase::Hexadecimal),
+    <span class="doccomment">/// Returns the raw input that was passed to `parse`.
+    </span><span class="kw">pub fn </span>raw_input(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.raw
+    }
 
-            <span class="comment">// Everything else is treated as decimal. Several cases are caught
-            // by this:
-            // - &quot;123&quot;
-            // - &quot;0&quot;
-            // - &quot;0u8&quot;
-            // - &quot;0r&quot; -&gt; this will error later
-            </span><span class="kw">_ </span>=&gt; (<span class="number">0</span>, IntegerBase::Decimal),
-        };
-        <span class="kw">let </span>without_prefix = <span class="kw-2">&amp;</span>input[end_prefix..];
-
-        <span class="comment">// Find end of main part.
-        </span><span class="kw">let </span>end_main = without_prefix.bytes()
-                .position(|b| !<span class="macro">matches!</span>(b, <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>| <span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;f&#39; </span>| <span class="string">b&#39;A&#39;</span>..=<span class="string">b&#39;F&#39; </span>| <span class="string">b&#39;_&#39;</span>))
-                .unwrap_or(without_prefix.len());
-        <span class="kw">let </span>(main_part, type_suffix) = without_prefix.split_at(end_main);
-
-        <span class="comment">// Check for invalid digits and make sure there is at least one valid digit.
-        </span><span class="kw">let </span>invalid_digit_pos = <span class="kw">match </span>base {
-            IntegerBase::Binary =&gt; main_part.bytes()
-                .position(|b| !<span class="macro">matches!</span>(b, <span class="string">b&#39;0&#39; </span>| <span class="string">b&#39;1&#39; </span>| <span class="string">b&#39;_&#39;</span>)),
-            IntegerBase::Octal =&gt; main_part.bytes()
-                .position(|b| !<span class="macro">matches!</span>(b, <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;7&#39; </span>| <span class="string">b&#39;_&#39;</span>)),
-            IntegerBase::Decimal =&gt; main_part.bytes()
-                .position(|b| !<span class="macro">matches!</span>(b, <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>| <span class="string">b&#39;_&#39;</span>)),
-            IntegerBase::Hexadecimal =&gt; <span class="prelude-val">None</span>,
-        };
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(pos) = invalid_digit_pos {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(perr(end_prefix + pos, InvalidDigit));
-        }
-
-        <span class="kw">if </span>main_part.bytes().filter(|<span class="kw-2">&amp;</span>b| b != <span class="string">b&#39;_&#39;</span>).count() == <span class="number">0 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(perr(end_prefix..end_prefix + end_main, NoDigits));
-        }
-
-
-        <span class="comment">// Parse type suffix
-        </span><span class="kw">let </span>type_suffix = <span class="kw">match </span>type_suffix {
-            <span class="string">&quot;&quot; </span>=&gt; <span class="prelude-val">None</span>,
-            <span class="string">&quot;u8&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::U8),
-            <span class="string">&quot;u16&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::U16),
-            <span class="string">&quot;u32&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::U32),
-            <span class="string">&quot;u64&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::U64),
-            <span class="string">&quot;u128&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::U128),
-            <span class="string">&quot;usize&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::Usize),
-            <span class="string">&quot;i8&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::I8),
-            <span class="string">&quot;i16&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::I16),
-            <span class="string">&quot;i32&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::I32),
-            <span class="string">&quot;i64&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::I64),
-            <span class="string">&quot;i128&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::I128),
-            <span class="string">&quot;isize&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::Isize),
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(perr(end_main + end_prefix..input.len(), InvalidIntegerTypeSuffix)),
-        };
-
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            base,
-            main_part: input.cut(end_prefix..end_main + end_prefix),
-            type_suffix,
-        })
+    <span class="doccomment">/// Returns the raw input that was passed to `parse`, potentially owned.
+    </span><span class="kw">pub fn </span>into_raw_input(<span class="self">self</span>) -&gt; B {
+        <span class="self">self</span>.raw
     }
 }
 
@@ -486,8 +469,10 @@
     /// `Self`.
     </span><span class="kw">pub fn </span>to_owned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; IntegerLit&lt;String&gt; {
         IntegerLit {
+            raw: <span class="self">self</span>.raw.to_owned(),
+            start_main_part: <span class="self">self</span>.start_main_part,
+            end_main_part: <span class="self">self</span>.end_main_part,
             base: <span class="self">self</span>.base,
-            main_part: <span class="self">self</span>.main_part.to_owned(),
             type_suffix: <span class="self">self</span>.type_suffix,
         }
     }
@@ -495,22 +480,7 @@
 
 <span class="kw">impl</span>&lt;B: Buffer&gt; fmt::Display <span class="kw">for </span>IntegerLit&lt;B&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">let </span>suffix = <span class="kw">match </span><span class="self">self</span>.type_suffix {
-            <span class="prelude-val">None </span>=&gt; <span class="string">&quot;&quot;</span>,
-            <span class="prelude-val">Some</span>(IntegerType::U8) =&gt; <span class="string">&quot;u8&quot;</span>,
-            <span class="prelude-val">Some</span>(IntegerType::U16) =&gt; <span class="string">&quot;u16&quot;</span>,
-            <span class="prelude-val">Some</span>(IntegerType::U32) =&gt; <span class="string">&quot;u32&quot;</span>,
-            <span class="prelude-val">Some</span>(IntegerType::U64) =&gt; <span class="string">&quot;u64&quot;</span>,
-            <span class="prelude-val">Some</span>(IntegerType::U128) =&gt; <span class="string">&quot;u128&quot;</span>,
-            <span class="prelude-val">Some</span>(IntegerType::Usize) =&gt; <span class="string">&quot;usize&quot;</span>,
-            <span class="prelude-val">Some</span>(IntegerType::I8) =&gt; <span class="string">&quot;i8&quot;</span>,
-            <span class="prelude-val">Some</span>(IntegerType::I16) =&gt; <span class="string">&quot;i16&quot;</span>,
-            <span class="prelude-val">Some</span>(IntegerType::I32) =&gt; <span class="string">&quot;i32&quot;</span>,
-            <span class="prelude-val">Some</span>(IntegerType::I64) =&gt; <span class="string">&quot;i64&quot;</span>,
-            <span class="prelude-val">Some</span>(IntegerType::I128) =&gt; <span class="string">&quot;i128&quot;</span>,
-            <span class="prelude-val">Some</span>(IntegerType::Isize) =&gt; <span class="string">&quot;isize&quot;</span>,
-        };
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}{}{}&quot;</span>, <span class="self">self</span>.base.prefix(), <span class="kw-2">&amp;*</span><span class="self">self</span>.main_part, suffix)
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">&amp;*</span><span class="self">self</span>.raw)
     }
 }
 
@@ -563,6 +533,78 @@
 
 <span class="kw">mod </span>sealed {
     <span class="kw">pub trait </span>Sealed {}
+}
+
+<span class="doccomment">/// Precondition: first byte of string has to be in `b&#39;0&#39;..=b&#39;9&#39;`.
+</span><span class="attr">#[inline(never)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_impl(input: <span class="kw-2">&amp;</span>str, first: u8) -&gt; <span class="prelude-ty">Result</span>&lt;IntegerLit&lt;<span class="kw-2">&amp;</span>str&gt;, ParseError&gt; {
+    <span class="comment">// Figure out base and strip prefix base, if it exists.
+    </span><span class="kw">let </span>(end_prefix, base) = <span class="kw">match </span>(first, input.as_bytes().get(<span class="number">1</span>)) {
+        (<span class="string">b&#39;0&#39;</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;b&#39;</span>)) =&gt; (<span class="number">2</span>, IntegerBase::Binary),
+        (<span class="string">b&#39;0&#39;</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;o&#39;</span>)) =&gt; (<span class="number">2</span>, IntegerBase::Octal),
+        (<span class="string">b&#39;0&#39;</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;x&#39;</span>)) =&gt; (<span class="number">2</span>, IntegerBase::Hexadecimal),
+
+        <span class="comment">// Everything else is treated as decimal. Several cases are caught
+        // by this:
+        // - &quot;123&quot;
+        // - &quot;0&quot;
+        // - &quot;0u8&quot;
+        // - &quot;0r&quot; -&gt; this will error later
+        </span><span class="kw">_ </span>=&gt; (<span class="number">0</span>, IntegerBase::Decimal),
+    };
+    <span class="kw">let </span>without_prefix = <span class="kw-2">&amp;</span>input[end_prefix..];
+
+    <span class="comment">// Find end of main part.
+    </span><span class="kw">let </span>end_main = without_prefix.bytes()
+            .position(|b| !<span class="macro">matches!</span>(b, <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>| <span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;f&#39; </span>| <span class="string">b&#39;A&#39;</span>..=<span class="string">b&#39;F&#39; </span>| <span class="string">b&#39;_&#39;</span>))
+            .unwrap_or(without_prefix.len());
+    <span class="kw">let </span>(main_part, type_suffix) = without_prefix.split_at(end_main);
+
+    <span class="comment">// Check for invalid digits and make sure there is at least one valid digit.
+    </span><span class="kw">let </span>invalid_digit_pos = <span class="kw">match </span>base {
+        IntegerBase::Binary =&gt; main_part.bytes()
+            .position(|b| !<span class="macro">matches!</span>(b, <span class="string">b&#39;0&#39; </span>| <span class="string">b&#39;1&#39; </span>| <span class="string">b&#39;_&#39;</span>)),
+        IntegerBase::Octal =&gt; main_part.bytes()
+            .position(|b| !<span class="macro">matches!</span>(b, <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;7&#39; </span>| <span class="string">b&#39;_&#39;</span>)),
+        IntegerBase::Decimal =&gt; main_part.bytes()
+            .position(|b| !<span class="macro">matches!</span>(b, <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>| <span class="string">b&#39;_&#39;</span>)),
+        IntegerBase::Hexadecimal =&gt; <span class="prelude-val">None</span>,
+    };
+
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(pos) = invalid_digit_pos {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(perr(end_prefix + pos, InvalidDigit));
+    }
+
+    <span class="kw">if </span>main_part.bytes().filter(|<span class="kw-2">&amp;</span>b| b != <span class="string">b&#39;_&#39;</span>).count() == <span class="number">0 </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(perr(end_prefix..end_prefix + end_main, NoDigits));
+    }
+
+
+    <span class="comment">// Parse type suffix
+    </span><span class="kw">let </span>type_suffix = <span class="kw">match </span>type_suffix {
+        <span class="string">&quot;&quot; </span>=&gt; <span class="prelude-val">None</span>,
+        <span class="string">&quot;u8&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::U8),
+        <span class="string">&quot;u16&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::U16),
+        <span class="string">&quot;u32&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::U32),
+        <span class="string">&quot;u64&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::U64),
+        <span class="string">&quot;u128&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::U128),
+        <span class="string">&quot;usize&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::Usize),
+        <span class="string">&quot;i8&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::I8),
+        <span class="string">&quot;i16&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::I16),
+        <span class="string">&quot;i32&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::I32),
+        <span class="string">&quot;i64&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::I64),
+        <span class="string">&quot;i128&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::I128),
+        <span class="string">&quot;isize&quot; </span>=&gt; <span class="prelude-val">Some</span>(IntegerType::Isize),
+        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(perr(end_main + end_prefix..input.len(), InvalidIntegerTypeSuffix)),
+    };
+
+    <span class="prelude-val">Ok</span>(IntegerLit {
+        raw: input,
+        start_main_part: end_prefix,
+        end_main_part: end_main + end_prefix,
+        base,
+        type_suffix,
+    })
 }
 
 
