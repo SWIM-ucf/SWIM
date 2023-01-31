@@ -462,6 +462,36 @@
 <a href="#462" id="462">462</a>
 <a href="#463" id="463">463</a>
 <a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Internal datapath control signals.
 
 /// Full collection of control signals.
@@ -729,6 +759,8 @@
 }
 
 <span class="kw">pub mod </span>floating_point {
+    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::constants::<span class="kw-2">*</span>;
+
     <span class="attr">#[derive(Default, PartialEq)]
     </span><span class="kw">pub struct </span>FpuControlSignals {
         <span class="kw">pub </span>cc: Cc,
@@ -857,6 +889,20 @@
         </span>Snge = <span class="number">7</span>,
     }
 
+    <span class="kw">impl </span>FpuAluOp {
+        <span class="doccomment">/// Get the corresponding control signal given a function code.
+        </span><span class="kw">pub fn </span>from_function(function: u8) -&gt; <span class="self">Self </span>{
+            <span class="kw">match </span>function {
+                FUNCTION_C_EQ =&gt; <span class="self">Self</span>::AdditionOrEqual,
+                FUNCTION_C_LT =&gt; <span class="self">Self</span>::MultiplicationOrSlt,
+                FUNCTION_C_NGE =&gt; <span class="self">Self</span>::Snge,
+                FUNCTION_C_LE =&gt; <span class="self">Self</span>::DivisionOrSle,
+                FUNCTION_C_NGT =&gt; <span class="self">Self</span>::Sngt,
+                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unsupported function code `{function}`&quot;</span>),
+            }
+        }
+    }
+
     <span class="doccomment">/// Determines if the floating-point unit should consider branching, based on the
     /// contents of the condition code register.
     ///
@@ -913,6 +959,20 @@
         <span class="doccomment">/// Use doublewords (64 bits). Equivalent to a double-precision floating-point value.
         </span><span class="attr">#[default]
         </span>DoubleWord = <span class="number">1</span>,
+    }
+
+    <span class="kw">impl </span>FpuRegWidth {
+        <span class="doccomment">/// Get the corresponding [`FpuRegWidth`] control signal based on
+        /// the `fmt` field in an instruction.
+        </span><span class="kw">pub fn </span>from_fmt(fmt: u8) -&gt; <span class="self">Self </span>{
+            <span class="kw">match </span>fmt {
+                FMT_SINGLE =&gt; <span class="self">Self</span>::Word,
+                FMT_DOUBLE =&gt; <span class="self">Self</span>::DoubleWord,
+                <span class="kw">_ </span>=&gt; {
+                    <span class="macro">unimplemented!</span>(<span class="string">&quot;`{}` is an invalid fmt value&quot;</span>, fmt);
+                }
+            }
+        }
     }
 
     <span class="doccomment">/// Determines if the floating-point register file should be written to.

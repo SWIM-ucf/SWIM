@@ -99,6 +99,14 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::control_signals::RegWidth;
 
 <span class="kw">pub const </span>FUNCT_ADD: u8 = <span class="number">0b100000</span>;
@@ -182,6 +190,14 @@
 <span class="kw">pub const </span>FUNCTION_SUB: u8 = <span class="number">0b000001</span>;
 <span class="kw">pub const </span>FUNCTION_MUL: u8 = <span class="number">0b000010</span>;
 <span class="kw">pub const </span>FUNCTION_DIV: u8 = <span class="number">0b000011</span>;
+
+<span class="comment">// All floating-point c.cond.fmt instructions begin the
+// function field with 11.
+</span><span class="kw">pub const </span>FUNCTION_C_EQ: u8 = <span class="number">0b110010</span>;
+<span class="kw">pub const </span>FUNCTION_C_LT: u8 = <span class="number">0b111100</span>;
+<span class="kw">pub const </span>FUNCTION_C_NGE: u8 = <span class="number">0b111101</span>;
+<span class="kw">pub const </span>FUNCTION_C_LE: u8 = <span class="number">0b111110</span>;
+<span class="kw">pub const </span>FUNCTION_C_NGT: u8 = <span class="number">0b111111</span>;
 
 <span class="kw">pub const </span>FMT_SINGLE: u8 = <span class="number">16</span>;
 <span class="kw">pub const </span>FMT_DOUBLE: u8 = <span class="number">17</span>;

@@ -114,6 +114,36 @@
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
 <a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Abstract representation of an instruction.
 
 </span><span class="kw">use </span><span class="kw">super</span>::constants::<span class="kw-2">*</span>;
@@ -160,6 +190,16 @@
     <span class="kw">pub </span>offset: u16,
 }
 
+<span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
+</span><span class="kw">pub struct </span>FpuCompareType {
+    <span class="kw">pub </span>op: u8,
+    <span class="kw">pub </span>fmt: u8,
+    <span class="kw">pub </span>ft: u8,
+    <span class="kw">pub </span>fs: u8,
+    <span class="kw">pub </span>cc: u8,
+    <span class="kw">pub </span>function: u8,
+}
+
 <span class="attr">#[derive(Debug, PartialEq)]
 </span><span class="kw">pub enum </span>Instruction {
     RType(RType),
@@ -167,6 +207,7 @@
     JType(JType),
     FpuRType(FpuRType),
     FpuIType(FpuIType),
+    FpuCompareType(FpuCompareType),
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>Instruction {
@@ -193,15 +234,34 @@
             }),
 
             <span class="comment">// COP1 (coprocessor 1)
-            // add.fmt, sub.fmt, mul.fmt, div.fmt
-            </span>OPCODE_COP1 =&gt; Instruction::FpuRType(FpuRType {
-                op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
-                fmt: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                ft: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                fs: ((value &gt;&gt; <span class="number">11</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                fd: ((value &gt;&gt; <span class="number">6</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                function: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
-            }),
+            </span>OPCODE_COP1 =&gt; {
+                <span class="kw">let </span>function = (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8;
+                <span class="kw">match </span>function {
+                    <span class="comment">// add.fmt, sub.fmt, mul.fmt, div.fmt
+                    </span>FUNCTION_ADD | FUNCTION_SUB | FUNCTION_MUL | FUNCTION_DIV =&gt; {
+                        Instruction::FpuRType(FpuRType {
+                            op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
+                            fmt: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
+                            ft: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
+                            fs: ((value &gt;&gt; <span class="number">11</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
+                            fd: ((value &gt;&gt; <span class="number">6</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
+                            function: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
+                        })
+                    }
+                    <span class="comment">// Comparison instructions:
+                    // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
+                    </span>FUNCTION_C_EQ | FUNCTION_C_LT | FUNCTION_C_NGE | FUNCTION_C_LE
+                    | FUNCTION_C_NGT =&gt; Instruction::FpuCompareType(FpuCompareType {
+                        op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
+                        fmt: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
+                        ft: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
+                        fs: ((value &gt;&gt; <span class="number">11</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
+                        cc: ((value &gt;&gt; <span class="number">8</span>) &amp; <span class="number">0x7</span>) <span class="kw">as </span>u8,
+                        function: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
+                    }),
+                    <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;function `{}` not supported for opcode {}&quot;</span>, function, op),
+                }
+            }
 
             <span class="comment">// I-Type instructions:
             </span>OPCODE_ADDI | OPCODE_ADDIU | OPCODE_DADDI | OPCODE_DADDIU | OPCODE_LW | OPCODE_SW

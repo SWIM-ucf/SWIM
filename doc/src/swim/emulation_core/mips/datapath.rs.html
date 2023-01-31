@@ -1421,9 +1421,9 @@
                 <span class="self">self</span>.state.rd = <span class="number">0</span>; <span class="comment">// Placeholder
                 </span><span class="self">self</span>.state.imm = i.immediate <span class="kw">as </span>u32;
             }
-            <span class="comment">// R-type FPU instructions exclusively use the FPU, so these data lines
-            // do not need to be used.
-            </span>Instruction::FpuRType(<span class="kw">_</span>) =&gt; (),
+            <span class="comment">// R-type and comparison FPU instructions exclusively use the
+            // FPU, so these data lines do not need to be used.
+            </span>Instruction::FpuRType(<span class="kw">_</span>) | Instruction::FpuCompareType(<span class="kw">_</span>) =&gt; (),
             Instruction::FpuIType(i) =&gt; {
                 <span class="self">self</span>.state.rs = i.base <span class="kw">as </span>u32;
                 <span class="self">self</span>.state.imm = i.offset <span class="kw">as </span>u32;
@@ -1767,7 +1767,7 @@
             Instruction::JType(j) =&gt; {
                 <span class="self">self</span>.set_jtype_control_signals(j);
             }
-            Instruction::FpuRType(<span class="kw">_</span>) =&gt; {
+            Instruction::FpuRType(<span class="kw">_</span>) | Instruction::FpuCompareType(<span class="kw">_</span>) =&gt; {
                 <span class="self">self</span>.signals = ControlSignals {
                     branch: Branch::NoBranch,
                     jump: Jump::NoJump,

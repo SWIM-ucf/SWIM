@@ -360,6 +360,31 @@
 <a href="#360" id="360">360</a>
 <a href="#361" id="361">361</a>
 <a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of a MIPS64 floating-point coprocessor.
 
 </span><span class="kw">use </span><span class="kw">super</span>::constants::<span class="kw-2">*</span>;
@@ -377,7 +402,7 @@
     <span class="kw">pub </span>state: FpuState,
 
     <span class="kw">pub </span>fpr: [u64; <span class="number">32</span>],
-    condition_code: u64,
+    <span class="kw">pub </span>condition_code: u64,
     data: u64,
 }
 
@@ -448,20 +473,15 @@
             Instruction::FpuIType(i) =&gt; {
                 <span class="self">self</span>.state.ft = i.ft <span class="kw">as </span>u32;
             }
+            Instruction::FpuCompareType(c) =&gt; {
+                <span class="self">self</span>.state.op = c.op <span class="kw">as </span>u32;
+                <span class="self">self</span>.state.fmt = c.fmt <span class="kw">as </span>u32;
+                <span class="self">self</span>.state.ft = c.ft <span class="kw">as </span>u32;
+                <span class="self">self</span>.state.fs = c.fs <span class="kw">as </span>u32;
+                <span class="self">self</span>.state.function = c.function <span class="kw">as </span>u32;
+            }
             <span class="comment">// These types do not use the floating-point unit so they can be ignored.
             </span>Instruction::RType(<span class="kw">_</span>) | Instruction::IType(<span class="kw">_</span>) | Instruction::JType(<span class="kw">_</span>) =&gt; (),
-        }
-    }
-
-    <span class="doccomment">/// Set the [`FpuRegWidth`] control signal based on the `fmt` field in
-    /// the instruction.
-    </span><span class="kw">fn </span>set_reg_width(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.signals.fpu_reg_width = <span class="kw">match </span><span class="self">self</span>.state.fmt <span class="kw">as </span>u8 {
-            FMT_SINGLE =&gt; FpuRegWidth::Word,
-            FMT_DOUBLE =&gt; FpuRegWidth::DoubleWord,
-            <span class="kw">_ </span>=&gt; {
-                <span class="macro">unimplemented!</span>(<span class="string">&quot;`{}` is an invalid fmt value&quot;</span>, <span class="self">self</span>.state.fmt);
-            }
         }
     }
 
@@ -507,8 +527,8 @@
                             <span class="self">self</span>.signals.fpu_branch = FpuBranch::NoBranch;
                             <span class="self">self</span>.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             <span class="self">self</span>.signals.fpu_reg_dst = FpuRegDst::Reg3;
+                            <span class="self">self</span>.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
                             <span class="self">self</span>.signals.fpu_reg_write = FpuRegWrite::YesWrite;
-                            <span class="self">self</span>.set_reg_width();
                         }
                         FUNCTION_SUB =&gt; {
                             <span class="self">self</span>.signals.cc = Cc::Cc0;
@@ -519,8 +539,8 @@
                             <span class="self">self</span>.signals.fpu_branch = FpuBranch::NoBranch;
                             <span class="self">self</span>.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             <span class="self">self</span>.signals.fpu_reg_dst = FpuRegDst::Reg3;
+                            <span class="self">self</span>.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
                             <span class="self">self</span>.signals.fpu_reg_write = FpuRegWrite::YesWrite;
-                            <span class="self">self</span>.set_reg_width();
                         }
                         FUNCTION_MUL =&gt; {
                             <span class="self">self</span>.signals.cc = Cc::Cc0;
@@ -531,8 +551,8 @@
                             <span class="self">self</span>.signals.fpu_branch = FpuBranch::NoBranch;
                             <span class="self">self</span>.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             <span class="self">self</span>.signals.fpu_reg_dst = FpuRegDst::Reg3;
+                            <span class="self">self</span>.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
                             <span class="self">self</span>.signals.fpu_reg_write = FpuRegWrite::YesWrite;
-                            <span class="self">self</span>.set_reg_width();
                         }
                         FUNCTION_DIV =&gt; {
                             <span class="self">self</span>.signals.cc = Cc::Cc0;
@@ -543,8 +563,8 @@
                             <span class="self">self</span>.signals.fpu_branch = FpuBranch::NoBranch;
                             <span class="self">self</span>.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             <span class="self">self</span>.signals.fpu_reg_dst = FpuRegDst::Reg3;
+                            <span class="self">self</span>.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
                             <span class="self">self</span>.signals.fpu_reg_write = FpuRegWrite::YesWrite;
-                            <span class="self">self</span>.set_reg_width();
                         }
                         <span class="comment">// Unrecognized format code. Perform no operation.
                         </span><span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;COP1 instruction with function code `{}`&quot;</span>, r.function),
@@ -578,6 +598,18 @@
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;Unsupported opcode `{}` for FPU I-type instruction&quot;</span>, i.op),
             },
+            Instruction::FpuCompareType(c) =&gt; {
+                <span class="self">self</span>.signals = FpuControlSignals {
+                    cc: Cc::Cc0,
+                    cc_write: CcWrite::YesWrite,
+                    data_write: DataWrite::NoWrite,
+                    fpu_alu_op: FpuAluOp::from_function(c.function),
+                    fpu_branch: FpuBranch::NoBranch,
+                    fpu_reg_width: FpuRegWidth::from_fmt(c.fmt),
+                    fpu_reg_write: FpuRegWrite::NoWrite,
+                    ..Default::default()
+                }
+            }
             <span class="comment">// These types do not use the floating-point unit so they can be ignored.
             </span>Instruction::RType(<span class="kw">_</span>) | Instruction::IType(<span class="kw">_</span>) | Instruction::JType(<span class="kw">_</span>) =&gt; {
                 <span class="self">self</span>.signals = FpuControlSignals::default()
@@ -649,27 +681,45 @@
                     }
                 }
             },
+            <span class="comment">// No operation.
+            </span>FpuAluOp::Sngt | FpuAluOp::Snge =&gt; <span class="number">0</span>,
             <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(),
         };
     }
 
     <span class="doccomment">/// Perform a comparison.
     </span><span class="kw">fn </span>comparator(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">let </span><span class="kw-2">mut </span>input1 = <span class="self">self</span>.state.read_data_1;
-        <span class="kw">let </span><span class="kw-2">mut </span>input2 = <span class="self">self</span>.state.read_data_2;
+        <span class="kw">let </span>input1 = <span class="self">self</span>.state.read_data_1;
+        <span class="kw">let </span>input2 = <span class="self">self</span>.state.read_data_2;
 
-        <span class="comment">// Truncate the inputs if 32-bit operations are expected.
-        </span><span class="kw">if let </span>FpuRegWidth::Word = <span class="self">self</span>.signals.fpu_reg_width {
-            input1 = input1 <span class="kw">as </span>u32 <span class="kw">as </span>u64;
-            input2 = input2 <span class="kw">as </span>u32 <span class="kw">as </span>u64;
-        }
+        <span class="kw">let </span>input1_f32 = f32::from_bits(input1 <span class="kw">as </span>u32);
+        <span class="kw">let </span>input2_f32 = f32::from_bits(input2 <span class="kw">as </span>u32);
+        <span class="kw">let </span>input1_f64 = f64::from_bits(input1);
+        <span class="kw">let </span>input2_f64 = f64::from_bits(input2);
 
         <span class="self">self</span>.state.comparator_result = <span class="kw">match </span><span class="self">self</span>.signals.fpu_alu_op {
-            FpuAluOp::AdditionOrEqual =&gt; (input1 == input2) <span class="kw">as </span>u64,
+            FpuAluOp::AdditionOrEqual =&gt; <span class="kw">match </span><span class="self">self</span>.signals.fpu_reg_width {
+                FpuRegWidth::Word =&gt; (input1_f32 == input2_f32) <span class="kw">as </span>u64,
+                FpuRegWidth::DoubleWord =&gt; (input1_f64 == input2_f64) <span class="kw">as </span>u64,
+            },
+            FpuAluOp::MultiplicationOrSlt =&gt; <span class="kw">match </span><span class="self">self</span>.signals.fpu_reg_width {
+                FpuRegWidth::Word =&gt; (input1_f32 &lt; input2_f32) <span class="kw">as </span>u64,
+                FpuRegWidth::DoubleWord =&gt; (input1_f64 &lt; input2_f64) <span class="kw">as </span>u64,
+            },
+            FpuAluOp::DivisionOrSle =&gt; <span class="kw">match </span><span class="self">self</span>.signals.fpu_reg_width {
+                FpuRegWidth::Word =&gt; (input1_f32 &lt;= input2_f32) <span class="kw">as </span>u64,
+                FpuRegWidth::DoubleWord =&gt; (input1_f64 &lt;= input2_f64) <span class="kw">as </span>u64,
+            },
+            FpuAluOp::Sngt =&gt; <span class="kw">match </span><span class="self">self</span>.signals.fpu_reg_width {
+                FpuRegWidth::Word =&gt; !input1_f32.gt(<span class="kw-2">&amp;</span>input2_f32) <span class="kw">as </span>u64,
+                FpuRegWidth::DoubleWord =&gt; !input1_f64.gt(<span class="kw-2">&amp;</span>input2_f64) <span class="kw">as </span>u64,
+            },
+            FpuAluOp::Snge =&gt; <span class="kw">match </span><span class="self">self</span>.signals.fpu_reg_width {
+                FpuRegWidth::Word =&gt; !input1_f32.ge(<span class="kw-2">&amp;</span>input2_f32) <span class="kw">as </span>u64,
+                FpuRegWidth::DoubleWord =&gt; !input1_f64.ge(<span class="kw-2">&amp;</span>input2_f64) <span class="kw">as </span>u64,
+            },
             FpuAluOp::Subtraction =&gt; <span class="number">0</span>, <span class="comment">// No operation
-            </span>FpuAluOp::MultiplicationOrSlt =&gt; (input1 &lt; input2) <span class="kw">as </span>u64,
-            FpuAluOp::DivisionOrSle =&gt; (input1 &lt;= input2) <span class="kw">as </span>u64,
-            <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(),
+            </span><span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(),
         }
     }
 
