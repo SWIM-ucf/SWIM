@@ -107,6 +107,16 @@
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
 <a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::control_signals::RegWidth;
 
 <span class="kw">pub const </span>FUNCT_ADD: u8 = <span class="number">0b100000</span>;
@@ -198,6 +208,16 @@
 <span class="kw">pub const </span>FUNCTION_C_NGE: u8 = <span class="number">0b111101</span>;
 <span class="kw">pub const </span>FUNCTION_C_LE: u8 = <span class="number">0b111110</span>;
 <span class="kw">pub const </span>FUNCTION_C_NGT: u8 = <span class="number">0b111111</span>;
+
+<span class="comment">// &quot;SUB&quot; is short for operation subcode. Bits 25..21 of some instructions.
+</span><span class="doccomment">/// Move word from floating point.
+</span><span class="kw">pub const </span>SUB_MF: u8 = <span class="number">0b00000</span>;
+<span class="doccomment">/// Move word to floating point.
+</span><span class="kw">pub const </span>SUB_MT: u8 = <span class="number">0b00100</span>;
+<span class="doccomment">/// Doubleword move from floating point.
+</span><span class="kw">pub const </span>SUB_DMF: u8 = <span class="number">0b00001</span>;
+<span class="doccomment">/// Doubleword move to floating point.
+</span><span class="kw">pub const </span>SUB_DMT: u8 = <span class="number">0b00101</span>;
 
 <span class="kw">pub const </span>FMT_SINGLE: u8 = <span class="number">16</span>;
 <span class="kw">pub const </span>FMT_DOUBLE: u8 = <span class="number">17</span>;
