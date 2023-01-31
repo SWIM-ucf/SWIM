@@ -706,7 +706,6 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                     None,
                 );
             }
-
             _ => instruction.errors.push(Error {
                 error_name: UnrecognizedInstruction,
                 operand_number: None,
