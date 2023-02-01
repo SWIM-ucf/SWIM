@@ -99,12 +99,29 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>instruction_tokenization {
     <span class="kw">use </span>std::default::Default;
 
     <span class="attr">#[derive(Default, Debug, Clone, PartialEq, Eq)]
+    </span><span class="doccomment">///Wrapper for all information gathered in the Parser/Assembler about the written program.
+    </span><span class="kw">pub struct </span>ProgramInfo {
+        <span class="kw">pub </span>instructions: Vec&lt;Instruction&gt;,
+        <span class="kw">pub </span>comments_line_and_column: Vec&lt;[u32; <span class="number">2</span>]&gt;,
+        <span class="kw">pub </span>data_starting_line: u32,
+        <span class="kw">pub </span>text_starting_line: u32,
+    }
+
+    <span class="doccomment">///A collection of all relevant information found about an instruction in the Parser/Assembler
+    </span><span class="attr">#[derive(Default, Debug, Clone, PartialEq, Eq)]
     </span><span class="kw">pub struct </span>Instruction {
-        <span class="kw">pub </span>tokens: Vec&lt;String&gt;,
         <span class="kw">pub </span>operator: Token,
         <span class="kw">pub </span>operands: Vec&lt;Token&gt;,
         <span class="kw">pub </span>binary: u32,
@@ -160,7 +177,6 @@
         LabelAssignmentError,
         LabelMultipleDefinition,
         LabelNotFound,
-        JALRRDRegisterZero,
     }
 
     <span class="comment">//this enum is used for the fn read_operands to choose the types of operands expected for an instruction type
