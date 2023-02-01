@@ -203,7 +203,7 @@ mod read_label_absolute_tests {
 
     #[test]
     fn read_label_absolute_returns_address_of_instruction() {
-        let lines = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (lines, _comments) = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
         confirm_operand_commas(&mut instruction_list);
         expand_pseudo_instruction(&mut instruction_list);
@@ -218,7 +218,7 @@ mod read_label_absolute_tests {
 
     #[test]
     fn read_label_absolute_returns_error_if_label_cannot_be_found() {
-        let lines = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsave_to_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (lines, _comments) = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsave_to_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
         confirm_operand_commas(&mut instruction_list);
         expand_pseudo_instruction(&mut instruction_list);
@@ -242,7 +242,7 @@ mod read_label_relative_tests {
 
     #[test]
     fn read_label_relative_returns_correct_value_for_instruction_above_current() {
-        let lines = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (lines, _comments) = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
         confirm_operand_commas(&mut instruction_list);
         expand_pseudo_instruction(&mut instruction_list);
@@ -257,7 +257,7 @@ mod read_label_relative_tests {
 
     #[test]
     fn read_label_relative_returns_correct_value_for_instruction_below_current() {
-        let lines = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (lines, _comments) = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
         confirm_operand_commas(&mut instruction_list);
         expand_pseudo_instruction(&mut instruction_list);

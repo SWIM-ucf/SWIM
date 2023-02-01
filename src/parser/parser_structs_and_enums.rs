@@ -2,8 +2,17 @@ pub mod instruction_tokenization {
     use std::default::Default;
 
     #[derive(Default, Debug, Clone, PartialEq, Eq)]
+    ///Wrapper for all information gathered in the Parser/Assembler about the written program.
+    pub struct ProgramInfo {
+        pub instructions: Vec<Instruction>,
+        pub comments_line_and_column: Vec<[u32; 2]>,
+        pub data_starting_line: u32,
+        pub text_starting_line: u32,
+    }
+
+    ///A collection of all relevant information found about an instruction in the Parser/Assembler
+    #[derive(Default, Debug, Clone, PartialEq, Eq)]
     pub struct Instruction {
-        pub tokens: Vec<String>,
         pub operator: Token,
         pub operands: Vec<Token>,
         pub binary: u32,
@@ -59,7 +68,6 @@ pub mod instruction_tokenization {
         LabelAssignmentError,
         LabelMultipleDefinition,
         LabelNotFound,
-        JALRRDRegisterZero,
     }
 
     //this enum is used for the fn read_operands to choose the types of operands expected for an instruction type
