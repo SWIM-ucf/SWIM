@@ -410,6 +410,12 @@ fn confirm_operand_commas_generates_error_on_missing_commas() {
 }
 
 #[test]
+fn confirm_operands_does_not_break_when_instruction_has_no_operands() {
+    let (lines, _comments) = tokenize_instructions("Add $t1, $t2, $t3\nlw".to_string());
+    let _result = build_instruction_list_from_lines(lines);
+}
+
+#[test]
 fn create_label_map_generates_map_on_no_errors() {
     let (lines, _comments) = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
     let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
