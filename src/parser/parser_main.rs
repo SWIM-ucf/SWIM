@@ -1,31 +1,28 @@
 use crate::parser::operand_reading::read_operands;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::*;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::*;
 use crate::parser::preprocessing::*;
 use std::collections::HashMap;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
-pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
-    let mut program_info = ProgramInfo::default();
+pub fn parser(mut file_string: String) -> (Vec<Instruction>, Vec<u32>) {
     file_string = file_string.to_lowercase();
 
-    let (lines, comments) = tokenize_instructions(file_string);
-    program_info.comments_line_and_column = comments;
-    program_info.instructions = build_instruction_list_from_lines(lines);
-    confirm_operand_commas(&mut program_info.instructions);
-    expand_pseudo_instruction(&mut program_info.instructions);
-    assign_instruction_numbers(&mut program_info.instructions);
+    let lines = tokenize_instructions(file_string);
+    let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
+    confirm_operand_commas(&mut instruction_list);
+    expand_pseudo_instruction(&mut instruction_list);
+    assign_instruction_numbers(&mut instruction_list);
 
-    let labels: HashMap<String, u32> = create_label_map(&mut program_info.instructions);
+    let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
 
-    read_instructions(&mut program_info.instructions, labels);
+    read_instructions(&mut instruction_list, labels);
 
     (
-        program_info.clone(),
-        create_binary_vec(program_info.instructions.clone()),
+        instruction_list.clone(),
+        create_binary_vec(instruction_list.clone()),
     )
 }
 
@@ -634,6 +631,76 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                     vec![LabelRelative],
                     vec![1],
                     Some(labels.clone()),
+                );
+            }
+            "jalr" => {
+                //JALR is unique in a number of ways.
+                //if rd is left blank, rd = 31 is implied.
+                //in release 6, rd cannot be 00000
+                //it makes use of hint bits in some releases. In our implementation, we are not implementing hint bits.
+
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+
+                if instruction.operands.len() == 1 {
+                    //if len() == 1, rd is omitted and assumed to equal 31
+                    read_operands(instruction, vec![RegisterGP], vec![1], None);
+                    instruction.binary = append_binary(instruction.binary, 0b11111, 5);
+                //rd = 31
+                } else {
+                    if instruction.operands[0].token_name == "$zero" {
+                        instruction.errors.push(Error {
+                            error_name: JALRRDRegisterZero,
+                            operand_number: Some(1),
+                        })
+                    }
+                    read_operands(instruction, vec![RegisterGP, RegisterGP], vec![2, 1], None);
+                }
+
+                instruction.binary =
+                    place_binary_in_middle_of_another(instruction.binary, 0b00000, 5, 5); //0
+
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //hint
+                instruction.binary = append_binary(instruction.binary, 0b001001, 6);
+                //JALR
+            }
+            "ld" => {
+                instruction.binary = append_binary(instruction.binary, 0b110111, 6); //ld
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, MemoryAddress],
+                    vec![3, 1, 2],
+                    None,
+                );
+            }
+            "sd" => {
+                instruction.binary = append_binary(instruction.binary, 0b111111, 6); //sd
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, MemoryAddress],
+                    vec![3, 1, 2],
+                    None,
+                );
+            }
+            "ldc1" => {
+                instruction.binary = append_binary(instruction.binary, 0b110101, 6); //ldc1
+
+                read_operands(
+                    instruction,
+                    vec![RegisterFP, MemoryAddress],
+                    vec![3, 1, 2],
+                    None,
+                );
+            }
+            "sdc1" => {
+                instruction.binary = append_binary(instruction.binary, 0b111101, 6); //sdc1
+
+                read_operands(
+                    instruction,
+                    vec![RegisterFP, MemoryAddress],
+                    vec![3, 1, 2],
+                    None,
                 );
             }
 
