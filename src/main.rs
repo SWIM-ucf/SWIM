@@ -177,7 +177,7 @@ fn app() -> Html {
             <input type="button" value="Load File" onclick={upload_clicked_callback} />
             <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
             // Pass in register data from emu core
-            <Regview gp={(*datapath).borrow().registers}/>
+            <Regview gp={(*datapath).borrow().registers} fp={(*datapath).borrow().coprocessor.fpr}/>
             <SwimEditor text_model={(*text_model).borrow().clone()} />
             <button onclick={on_error_clicked}>{ "Click" }</button>
             <Console parsermsg={(*parser_text_output).clone()}/>

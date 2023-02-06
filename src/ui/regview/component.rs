@@ -1,13 +1,13 @@
+use gloo::console::log;
 use yew::prelude::*;
 
 use crate::emulation_core::mips::registers::GpRegisters;
-use crate::emulation_core::mips::registers::FpRegisters;
 
 // datapath.coprocessor.fpr
 #[derive(Properties, PartialEq)]
 pub struct Regviewprops {
     pub gp: GpRegisters,
-    pub fp: FpRegisters,
+    pub fp: [u64; 32],
 }
 
 //Convert register to html through iterator
@@ -28,8 +28,8 @@ pub fn gen_reg_html(gp: GpRegisters) -> Html {
         .collect::<Html>()
 }
 
-pub fn gen_reg_fp_html(fp: FpRegisters) -> Html {
-    fp.into_iter()
+pub fn fp_reg(fp: [u64; 32]) -> Html {
+    fp.iter().enumerate()
         .map(|(register, data)| {
             html! {
                 <tr style="border: 1px solid black;">
@@ -47,15 +47,17 @@ pub fn gen_reg_fp_html(fp: FpRegisters) -> Html {
 
 #[function_component(Regview)]
 pub fn regview(props: &Regviewprops) -> Html {
+    let switch_flag = use_state_eq(||true);
     let on_switch_clicked = {
-        let switch_view = switch_view.clone();
+        let switch_flag = switch_flag.clone();
         use_callback(
-            move|_, _| {
-                assert_eq!(switch_view, 1);
+            move |_, _| {
+                switch_flag.set(!(*switch_flag));
             }, 
             (),
         )
     };
+    log!("This is ", *switch_flag);
     html! {
         <>
         <button onclick={on_switch_clicked}>{"Switch view"}</button>
@@ -65,7 +67,11 @@ pub fn regview(props: &Regviewprops) -> Html {
                         <th style="border: 1px solid black;">{"Register Name"}</th>
                         <th style="border: 1px solid black;">{"Data"}</th>
                     </tr>
-                    {gen_reg_html(props.gp)}
+                    if (*switch_flag.clone()) == true {
+                        {gen_reg_html(props.gp)}
+                    } else {
+                        {fp_reg(props.fp)}
+                    }
                 </table>
             </div>
         </>
