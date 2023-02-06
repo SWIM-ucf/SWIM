@@ -133,16 +133,7 @@ fn app() -> Html {
         )
     };
 
-    // datapath.coprocessor.fpr 
-    let on_switch_clicked = {
-        let switch_view = switch_view.clone();
-        use_callback(
-            move|_, _| {
-                assert_eq!(switch_view, 1);
-            }, 
-            (),
-        )
-    };
+    // datapath.coprocessor.fpr
 
     // This is where we will have the user prompted to load in a file
     let upload_clicked_callback = use_callback(
@@ -186,8 +177,6 @@ fn app() -> Html {
             <input type="button" value="Load File" onclick={upload_clicked_callback} />
             <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
             // Pass in register data from emu core
-            // datapath.coprocessor.fpr 
-            <button onclick={on_switch_clicked}>{"Switch view"}</button>
             <Regview gp={(*datapath).borrow().registers}/>
             <SwimEditor text_model={(*text_model).borrow().clone()} />
             <button onclick={on_error_clicked}>{ "Click" }</button>
