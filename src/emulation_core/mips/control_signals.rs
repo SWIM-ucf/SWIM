@@ -234,6 +234,9 @@ pub enum RegDst {
     /// Use register `rd`.
     #[default]
     Reg3 = 2,
+
+    // Write to return register, used by JAL
+    ReturnRegister = 3,
 }
 
 /// Determines the amount of data to be sent or recieved from registers

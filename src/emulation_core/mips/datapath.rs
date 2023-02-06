@@ -751,9 +751,9 @@ impl MipsDatapath {
                 self.signals.mem_to_reg = MemToReg::UsePcPlusFour;
                 self.signals.mem_write = MemWrite::YesWrite;
                 self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
-                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_dst = RegDst::ReturnRegister;
                 self.signals.reg_width = RegWidth::DoubleWord;
-                self.signals.reg_write = RegWrite::NoWrite;
+                self.signals.reg_write = RegWrite::YesWrite;
             }
             _ => unimplemented!("J-type instruction with opcode `{}`", j.op),
         };
@@ -1076,6 +1076,7 @@ impl MipsDatapath {
             RegDst::Reg1 => self.state.rs as usize,
             RegDst::Reg2 => self.state.rt as usize,
             RegDst::Reg3 => self.state.rd as usize,
+            RegDst::ReturnRegister => 31 as usize,
         };
 
         // If we are attempting to write to register $zero, stop.
