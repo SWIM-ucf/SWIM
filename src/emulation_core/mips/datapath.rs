@@ -1076,7 +1076,7 @@ impl MipsDatapath {
             RegDst::Reg1 => self.state.rs as usize,
             RegDst::Reg2 => self.state.rt as usize,
             RegDst::Reg3 => self.state.rd as usize,
-            RegDst::ReturnRegister => 31 as usize,
+            RegDst::ReturnRegister => 31_usize,
         };
 
         // If we are attempting to write to register $zero, stop.
