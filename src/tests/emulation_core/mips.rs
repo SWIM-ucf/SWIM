@@ -454,6 +454,140 @@ pub mod and {
     }
 }
 
+pub mod slt {
+    use super::*;
+
+    #[test]
+    fn easy_rs_less_than_rt_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 < $s1
+        //                       R-type  s0    s1    s2  (shamt)  SLT
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers[GpRegisterType::S0] = 1;
+        datapath.registers[GpRegisterType::S1] = 123;
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers[GpRegisterType::S2], 1);
+    }
+
+    #[test]
+    fn easy_rs_greater_than_rt_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 < $s1
+        //                       R-type  s0    s1    s2  (shamt)  SLT
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers[GpRegisterType::S0] = 124;
+        datapath.registers[GpRegisterType::S1] = 123;
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers[GpRegisterType::S2], 0);
+    }
+
+    #[test]
+    fn easy_signed_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 < $s1
+        //                       R-type  s0    s1    s2  (shamt)  SLT
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers[GpRegisterType::S0] = -124_i64 as u64;
+        datapath.registers[GpRegisterType::S1] = 123;
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers[GpRegisterType::S2], 1);
+    }
+}
+
+pub mod sltu {
+    use super::*;
+
+    #[test]
+    fn easy_rs_less_than_rt_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 < $s1
+        //                       R-type  s0    s1    s2  (shamt)  SLTU
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101011;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers[GpRegisterType::S0] = 1;
+        datapath.registers[GpRegisterType::S1] = 123;
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers[GpRegisterType::S2], 1);
+    }
+
+    #[test]
+    fn easy_rs_greater_than_rt_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 < $s1
+        //                       R-type  s0    s1    s2  (shamt)  SLTU
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101011;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers[GpRegisterType::S0] = 124;
+        datapath.registers[GpRegisterType::S1] = 123;
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers[GpRegisterType::S2], 0);
+    }
+
+    #[test]
+    fn easy_signed_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 < $s1
+        //                       R-type  s0    s1    s2  (shamt)  SLTU
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101011;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers[GpRegisterType::S0] = -124_i64 as u64;
+        datapath.registers[GpRegisterType::S1] = 123;
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers[GpRegisterType::S2], 0);
+    }
+}
+
 pub mod andi {
     use super::*;
     #[test]
