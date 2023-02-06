@@ -192,6 +192,7 @@ pub enum MemToReg {
     #[default]
     UseAlu = 0,
     UseMemory = 1,
+    UsePcPlusFour = 2,
 }
 
 /// Determines if memory should be written to.

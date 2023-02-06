@@ -315,6 +315,7 @@ impl MipsDatapath {
         self.state.data_result = match self.signals.mem_to_reg {
             MemToReg::UseAlu => self.state.alu_result,
             MemToReg::UseMemory => self.state.memory_data,
+            MemToReg::UsePcPlusFour => self.state.pc_plus_4,
         };
 
         // PC calculation stuff from upper part of datapath
@@ -740,6 +741,20 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::DoubleWord;
                 self.signals.reg_write = RegWrite::NoWrite;
             }
+            OPCODE_JAL => {
+                self.signals.alu_op = AluOp::Addition;
+                self.signals.alu_src = AluSrc::ReadRegister2;
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::YesJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UsePcPlusFour;
+                self.signals.mem_write = MemWrite::YesWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg2;
+                self.signals.reg_width = RegWidth::DoubleWord;
+                self.signals.reg_write = RegWrite::NoWrite;
+            }
             _ => unimplemented!("J-type instruction with opcode `{}`", j.op),
         };
     }
@@ -1039,6 +1054,7 @@ impl MipsDatapath {
         self.state.data_result = match self.signals.mem_to_reg {
             MemToReg::UseAlu => self.state.alu_result,
             MemToReg::UseMemory => self.state.memory_data,
+            MemToReg::UsePcPlusFour => self.state.pc_plus_4,
         };
 
         // Decide to retrieve data either from the main processor or the coprocessor.
