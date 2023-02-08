@@ -343,6 +343,116 @@ pub mod div {
     }
 }
 
+pub mod or {
+    use super::*;
+
+    #[test]
+    fn or_register_to_itself() {
+        let mut datapath = MipsDatapath::default();
+
+        // $t1 = $t1 & $t1
+        //                       R-type  t1    t1    t1  (shamt)  OR
+        let instruction: u32 = 0b000000_01001_01001_01001_00000_100101;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        // Assume the register $t1 has the value 5.
+        datapath.registers[GpRegisterType::T1] = 0x5;
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers[GpRegisterType::T1], 0x5);
+    }
+
+    #[test]
+    fn or_register_to_another16() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 & $s1
+        //                       R-type  s0    s1    s2  (shamt)  OR
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_100101;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[16] = 0x1234; // $s0
+        datapath.registers.gpr[17] = 0x4321; // $s1
+
+        datapath.execute_instruction();
+
+        // Register $s2 should contain 55.
+        let result = datapath.registers.gpr[18];
+        assert_eq!(result, 0x5335);
+    }
+
+    #[test]
+    fn or_register_to_another32() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 & $s1
+        //                       R-type  s0    s1    s2  (shamt)  OR
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_100101;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[16] = 0x12341234; // $s0
+        datapath.registers.gpr[17] = 0x43214321; // $s1
+
+        datapath.execute_instruction();
+
+        // Register $s2 should contain something...
+        let result = datapath.registers.gpr[18];
+        assert_eq!(result, 0x53355335);
+    }
+
+    #[test]
+    fn or_register_to_another64() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 & $s1
+        //                       R-type  s0    s1    s2  (shamt)  OR
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_100101;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[16] = 0x1234123412341234; // $s0
+        datapath.registers.gpr[17] = 0x4321432143214321; // $s1
+
+        datapath.execute_instruction();
+
+        // Register $s2 should contain something...
+        let result = datapath.registers.gpr[18];
+        assert_eq!(result, 0x5335533553355335);
+    }
+
+    #[test]
+    // This test attempts to write to register $zero. The datapath should
+    // not overwrite this register, and remain with a value of 0.
+    fn or_to_register_zero() {
+        let mut datapath = MipsDatapath::default();
+
+        // $zero = $t3 & $t3
+        //                       R-type  t3    t3    zero (shamt) OR
+        let instruction: u32 = 0b000000_01011_01011_00000_00000_100101;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[11] = 1234; // $t3
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers.gpr[0], 0);
+    }
+}
 pub mod and {
     use super::*;
 
@@ -451,6 +561,140 @@ pub mod and {
 
         // $zero should still contain 0.
         assert_eq!(datapath.registers.gpr[0], 0);
+    }
+}
+
+pub mod slt {
+    use super::*;
+
+    #[test]
+    fn easy_rs_less_than_rt_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 < $s1
+        //                       R-type  s0    s1    s2  (shamt)  SLT
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers[GpRegisterType::S0] = 1;
+        datapath.registers[GpRegisterType::S1] = 123;
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers[GpRegisterType::S2], 1);
+    }
+
+    #[test]
+    fn easy_rs_greater_than_rt_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 < $s1
+        //                       R-type  s0    s1    s2  (shamt)  SLT
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers[GpRegisterType::S0] = 124;
+        datapath.registers[GpRegisterType::S1] = 123;
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers[GpRegisterType::S2], 0);
+    }
+
+    #[test]
+    fn easy_signed_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 < $s1
+        //                       R-type  s0    s1    s2  (shamt)  SLT
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers[GpRegisterType::S0] = -124_i64 as u64;
+        datapath.registers[GpRegisterType::S1] = 123;
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers[GpRegisterType::S2], 1);
+    }
+}
+
+pub mod sltu {
+    use super::*;
+
+    #[test]
+    fn easy_rs_less_than_rt_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 < $s1
+        //                       R-type  s0    s1    s2  (shamt)  SLTU
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101011;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers[GpRegisterType::S0] = 1;
+        datapath.registers[GpRegisterType::S1] = 123;
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers[GpRegisterType::S2], 1);
+    }
+
+    #[test]
+    fn easy_rs_greater_than_rt_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 < $s1
+        //                       R-type  s0    s1    s2  (shamt)  SLTU
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101011;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers[GpRegisterType::S0] = 124;
+        datapath.registers[GpRegisterType::S1] = 123;
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers[GpRegisterType::S2], 0);
+    }
+
+    #[test]
+    fn easy_signed_test() {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 < $s1
+        //                       R-type  s0    s1    s2  (shamt)  SLTU
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101011;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers[GpRegisterType::S0] = -124_i64 as u64;
+        datapath.registers[GpRegisterType::S1] = 123;
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers[GpRegisterType::S2], 0);
     }
 }
 
@@ -2200,120 +2444,274 @@ pub mod coprocessor {
         Ok(())
     }
 
-    pub mod jump_tests {
-        use super::*;
-        #[test]
-        fn jump_test_basic() {
-            let mut datapath = MipsDatapath::default();
+    #[test]
+    fn mtc1_basic_move() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
 
-            //                        J
-            let instruction: u32 = 0b000010_00_00000000_00000000_00000010;
-            datapath
-                .memory
-                .store_word(0, instruction)
-                .expect("Failed to store instruction.");
-            datapath.execute_instruction();
+        // mtc1 rt, fs
+        // mtc1 $s0, $f0
+        // FPR[fs] <- GPR[rt]
+        // FPR[0] <- GPR[16]
+        //                       COP1   sub   rt    fs    0
+        //                              MT    $s0   $f0
+        let instruction: u32 = 0b010001_00100_10000_00000_00000000000;
+        datapath.memory.store_word(0, instruction)?;
 
-            assert_eq!(datapath.registers.pc, 8);
-        }
+        datapath.registers.gpr[16] = 25;
 
-        #[test]
-        fn jump_test_mid() {
-            let mut datapath = MipsDatapath::default();
+        datapath.execute_instruction();
 
-            //                        J
-            let instruction: u32 = 0x0800_0fff;
-            datapath
-                .memory
-                .store_word(0, instruction)
-                .expect("Failed to store instruction.");
-            datapath.execute_instruction();
+        assert_eq!(datapath.coprocessor.fpr[0], 25);
 
-            assert_eq!(datapath.registers.pc, 0x3ffc);
-        }
-
-        #[test]
-        fn jump_test_hard() {
-            // Jump to address 0xfff_fffc
-            let mut datapath = MipsDatapath::default();
-
-            //                        J             low_26
-            let instruction: u32 = 0x0800_0000 | 0x03ff_ffff;
-            datapath
-                .memory
-                .store_word(0, instruction)
-                .expect("Failed to store instruction.");
-            datapath.execute_instruction();
-
-            assert_eq!(datapath.registers.pc, 0x0fff_fffc);
-        }
+        Ok(())
     }
 
-    pub mod beq_tests {
-        use super::*;
-        #[test]
-        fn beq_test_basic_registers_are_equal() {
-            let mut datapath = MipsDatapath::default();
+    #[test]
+    fn mtc1_truncate() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
 
-            //                        beq
-            let instruction: u32 = 0b000100_01000_10000_0000000000000001;
-            datapath
-                .memory
-                .store_word(0, instruction)
-                .expect("Failed to store instruction.");
-            datapath.execute_instruction();
+        // mtc1 rt, fs
+        // mtc1 $s1, $f1
+        // FPR[fs] <- GPR[rt]
+        // FPR[1] <- GPR[17]
+        //                       COP1   sub   rt    fs    0
+        //                              MT    $s1   $f1
+        let instruction: u32 = 0b010001_00100_10001_00001_00000000000;
+        datapath.memory.store_word(0, instruction)?;
 
-            assert_eq!(datapath.registers.pc, 8);
-        }
+        datapath.registers.gpr[17] = 0x1234_5678_ABCD_BEEF;
 
-        #[test]
-        fn beq_test_basic_register_are_not_equal() {
-            let mut datapath = MipsDatapath::default();
+        datapath.execute_instruction();
 
-            //                        beq
-            let instruction: u32 = 0b000100_01000_10000_0000000000000001;
-            datapath
-                .memory
-                .store_word(0, instruction)
-                .expect("Failed to store instruction.");
+        assert_eq!(datapath.coprocessor.fpr[1], 0xABCD_BEEF);
 
-            datapath.registers.gpr[0b01000] = 1234;
-            datapath.registers.gpr[0b10000] = 4321;
-            datapath.execute_instruction();
+        Ok(())
+    }
 
-            assert_eq!(datapath.registers.pc, 4);
-        }
+    #[test]
+    fn dmtc1_basic_move() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
 
-        #[test]
-        fn beq_test_basic_branch_backwards() {
-            let mut datapath = MipsDatapath::default();
+        // dmtc1 rt, fs
+        // dmtc1 $t0, $f30
+        // FPR[fs] <- GPR[rt]
+        // FPR[30] <- GPR[8]
+        //                       COP1   sub   rt    fs    0
+        //                              DMT   $t0   $f30
+        let instruction: u32 = 0b010001_00101_01000_11110_00000000000;
+        datapath.memory.store_word(0, instruction)?;
 
-            datapath.registers.gpr[0b01000] = 1234;
-            datapath.registers.gpr[0b10000] = 1234;
+        datapath.registers.gpr[8] = 0xDEAD_BEEF_FEED_DEED;
 
-            //                        beq                +2(branch by +8)
-            let instruction: u32 = 0b000100_01000_10000_0000000000000011;
-            datapath
-                .memory
-                .store_word(0, instruction)
-                .expect("Failed to store instruction.");
-            //                        beq               -2 (branch by -8)
-            // let instruction: u32 = 0b000100_01000_10000_1111111111111110;
+        datapath.execute_instruction();
 
-            //                         beq                  (branch by 0)
-            let instruction: u32 = 0b000100_01000_10000_0000000000000000;
-            datapath
-                .memory
-                .store_word(16, instruction)
-                .expect("Failed to store instruction.");
+        assert_eq!(datapath.coprocessor.fpr[30], 0xDEAD_BEEF_FEED_DEED);
 
-            datapath.execute_instruction();
-            assert_eq!(datapath.registers.pc, 16);
-            assert_eq!(datapath.registers.gpr[0b01000], 1234);
-            assert_eq!(datapath.registers.gpr[0b10000], 1234);
+        Ok(())
+    }
 
-            datapath.execute_instruction();
-            assert_eq!(datapath.registers.pc, 20);
-        }
+    #[test]
+    fn mfc1_basic_move() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // mfc1 rt, fs
+        // mfc1 $s5, $f18
+        // GPR[rt] <- FPR[fs]
+        // GPR[21] <- FPR[18]
+        //                       COP1   sub   rt    fs    0
+        //                              MF    $s5   $f18
+        let instruction: u32 = 0b010001_00000_10101_10010_00000000000;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[18] = 123;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[21], 123);
+
+        Ok(())
+    }
+
+    #[test]
+    fn mfc1_truncate() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // mfc1 rt, fs
+        // mfc1 $s6, $f19
+        // GPR[rt] <- FPR[fs]
+        // GPR[22] <- FPR[19]
+        //                       COP1   sub   rt    fs    0
+        //                              MF    $s6   $f19
+        let instruction: u32 = 0b010001_00000_10110_10011_00000000000;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[19] = 0xABBA_BABB_3ABA_4444;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[22], 0x3ABA_4444);
+
+        Ok(())
+    }
+
+    #[test]
+    fn mfc1_sign_extend() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // mfc1 rt, fs
+        // mfc1 $s7, $f20
+        // GPR[rt] <- FPR[fs]
+        // GPR[23] <- FPR[20]
+        //                       COP1   sub   rt    fs    0
+        //                              MF    $s7   $f20
+        let instruction: u32 = 0b010001_00000_10111_10100_00000000000;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[20] = 0xBADA_BEEF_BADA_B00E;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[23], 0xFFFF_FFFF_BADA_B00E);
+
+        Ok(())
+    }
+
+    #[test]
+    fn dmfc1_basic_move() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // dmfc1 rt, fs
+        // dmfc1 $t8, $f21
+        // GPR[rt] <- FPR[fs]
+        // GPR[24] <- FPR[21]
+        //                       COP1   sub   rt    fs    0
+        //                              DMF   $t8   $f21
+        let instruction: u32 = 0b010001_00001_11000_10101_00000000000;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.coprocessor.fpr[21] = 0xADDA_DADD_1BAA_CAFE;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[24], 0xADDA_DADD_1BAA_CAFE);
+
+        Ok(())
+    }
+}
+
+pub mod jump_tests {
+    use super::*;
+    #[test]
+    fn jump_test_basic() {
+        let mut datapath = MipsDatapath::default();
+
+        //                        J
+        let instruction: u32 = 0b000010_00_00000000_00000000_00000010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 8);
+    }
+
+    #[test]
+    fn jump_test_mid() {
+        let mut datapath = MipsDatapath::default();
+
+        //                        J
+        let instruction: u32 = 0x0800_0fff;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 0x3ffc);
+    }
+
+    #[test]
+    fn jump_test_hard() {
+        // Jump to address 0xfff_fffc
+        let mut datapath = MipsDatapath::default();
+
+        //                        J             low_26
+        let instruction: u32 = 0x0800_0000 | 0x03ff_ffff;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 0x0fff_fffc);
+    }
+}
+
+pub mod beq_tests {
+    use super::*;
+    #[test]
+    fn beq_test_basic_registers_are_equal() {
+        let mut datapath = MipsDatapath::default();
+
+        //                        beq
+        let instruction: u32 = 0b000100_01000_10000_0000000000000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 8);
+    }
+
+    #[test]
+    fn beq_test_basic_register_are_not_equal() {
+        let mut datapath = MipsDatapath::default();
+
+        //                        beq
+        let instruction: u32 = 0b000100_01000_10000_0000000000000001;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.registers.gpr[0b01000] = 1234;
+        datapath.registers.gpr[0b10000] = 4321;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 4);
+    }
+
+    #[test]
+    fn beq_test_basic_branch_backwards() {
+        let mut datapath = MipsDatapath::default();
+
+        datapath.registers.gpr[0b01000] = 1234;
+        datapath.registers.gpr[0b10000] = 1234;
+
+        //                        beq                +2(branch by +8)
+        let instruction: u32 = 0b000100_01000_10000_0000000000000011;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+        //                        beq               -2 (branch by -8)
+        // let instruction: u32 = 0b000100_01000_10000_1111111111111110;
+
+        //                         beq                  (branch by 0)
+        let instruction: u32 = 0b000100_01000_10000_0000000000000000;
+        datapath
+            .memory
+            .store_word(16, instruction)
+            .expect("Failed to store instruction.");
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.pc, 16);
+        assert_eq!(datapath.registers.gpr[0b01000], 1234);
+        assert_eq!(datapath.registers.gpr[0b10000], 1234);
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.pc, 20);
     }
 }

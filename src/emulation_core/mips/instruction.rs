@@ -44,6 +44,32 @@ pub struct FpuIType {
     pub offset: u16,
 }
 
+/// Register-Immediate FPU Instruction
+///
+/// Used for instructions that transfer data between the main processor
+/// and the floating-point coprocessor.
+///
+/// ```text
+/// 31           26   25       21   20       16   15       11   10                    0
+/// ┌───────────────┬─────────────┬─────────────┬─────────────┬─────────────────────────┐
+/// │ opcode = COP1 │     sub     │     rt      │     fs      │            0            │
+/// │    010001     │             │             │             │                         │
+/// └───────────────┴─────────────┴─────────────┴─────────────┴─────────────────────────┘
+///         6              5             5             5                   11
+/// ```
+///
+/// - opcode: COP1 (`010001`)
+/// - sub: Operation subcode field for COP1 register immediate-mode instructions.
+/// - rt: CPU register - can be either source or destination.
+/// - fs: FPU register - can be either source or destination.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct FpuRegImmType {
+    pub op: u8,
+    pub sub: u8,
+    pub rt: u8,
+    pub fs: u8,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct FpuCompareType {
     pub op: u8,
@@ -61,6 +87,7 @@ pub enum Instruction {
     JType(JType),
     FpuRType(FpuRType),
     FpuIType(FpuIType),
+    FpuRegImmType(FpuRegImmType),
     FpuCompareType(FpuCompareType),
 }
 
@@ -89,31 +116,59 @@ impl From<u32> for Instruction {
 
             // COP1 (coprocessor 1)
             OPCODE_COP1 => {
-                let function = (value & 0x3F) as u8;
-                match function {
-                    // add.fmt, sub.fmt, mul.fmt, div.fmt
-                    FUNCTION_ADD | FUNCTION_SUB | FUNCTION_MUL | FUNCTION_DIV => {
-                        Instruction::FpuRType(FpuRType {
+                // First break down the instruction by its `fmt` or `rs` field.
+                // Also called `sub` (operation subcode) field.
+                let sub = ((value >> 21) & 0x1F) as u8;
+
+                match sub {
+                    // If it is the "s" or "d" fmts, use the `function` field.
+                    FMT_SINGLE | FMT_DOUBLE => {
+                        let function = (value & 0x3F) as u8;
+                        match function {
+                            // add.fmt, sub.fmt, mul.fmt, div.fmt
+                            FUNCTION_ADD | FUNCTION_SUB | FUNCTION_MUL | FUNCTION_DIV => {
+                                Instruction::FpuRType(FpuRType {
+                                    op: ((value >> 26) & 0x3F) as u8,
+                                    fmt: ((value >> 21) & 0x1F) as u8,
+                                    ft: ((value >> 16) & 0x1F) as u8,
+                                    fs: ((value >> 11) & 0x1F) as u8,
+                                    fd: ((value >> 6) & 0x1F) as u8,
+                                    function: (value & 0x3F) as u8,
+                                })
+                            }
+                            // Comparison instructions:
+                            // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
+                            FUNCTION_C_EQ | FUNCTION_C_LT | FUNCTION_C_NGE | FUNCTION_C_LE
+                            | FUNCTION_C_NGT => Instruction::FpuCompareType(FpuCompareType {
+                                op: ((value >> 26) & 0x3F) as u8,
+                                fmt: ((value >> 21) & 0x1F) as u8,
+                                ft: ((value >> 16) & 0x1F) as u8,
+                                fs: ((value >> 11) & 0x1F) as u8,
+                                cc: ((value >> 8) & 0x7) as u8,
+                                function: (value & 0x3F) as u8,
+                            }),
+                            _ => unimplemented!(
+                                "function `{}` not supported for opcode {}",
+                                function,
+                                op
+                            ),
+                        }
+                    }
+
+                    // Move word to coprocessor 1 (mtc1)
+                    // Move doubleword to coprocessor 1 (dmtc1)
+                    // Move word from coprocessor 1 (mfc1)
+                    // Move doubleword from coprocessor 1 (dmfc1)
+                    SUB_MT | SUB_DMT | SUB_MF | SUB_DMF => {
+                        Instruction::FpuRegImmType(FpuRegImmType {
                             op: ((value >> 26) & 0x3F) as u8,
-                            fmt: ((value >> 21) & 0x1F) as u8,
-                            ft: ((value >> 16) & 0x1F) as u8,
+                            sub: ((value >> 21) & 0x1F) as u8,
+                            rt: ((value >> 16) & 0x1F) as u8,
                             fs: ((value >> 11) & 0x1F) as u8,
-                            fd: ((value >> 6) & 0x1F) as u8,
-                            function: (value & 0x3F) as u8,
                         })
                     }
-                    // Comparison instructions:
-                    // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
-                    FUNCTION_C_EQ | FUNCTION_C_LT | FUNCTION_C_NGE | FUNCTION_C_LE
-                    | FUNCTION_C_NGT => Instruction::FpuCompareType(FpuCompareType {
-                        op: ((value >> 26) & 0x3F) as u8,
-                        fmt: ((value >> 21) & 0x1F) as u8,
-                        ft: ((value >> 16) & 0x1F) as u8,
-                        fs: ((value >> 11) & 0x1F) as u8,
-                        cc: ((value >> 8) & 0x7) as u8,
-                        function: (value & 0x3F) as u8,
-                    }),
-                    _ => unimplemented!("function `{}` not supported for opcode {}", function, op),
+
+                    _ => unimplemented!("sub code `{}` not supported for opcode {}", sub, op),
                 }
             }
 

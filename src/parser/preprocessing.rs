@@ -9,15 +9,16 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::{
 };
 use std::collections::HashMap;
 
-///This function takes the initial string of the program given by the editor and turns it into a vector of Line,
-/// a struct that holds tokens and the original line number
-pub fn tokenize_instructions(program: String) -> Vec<Line> {
+///Takes the initial string of the program given by the editor and turns it into a vector of Line,
+/// a struct that holds tokens and the original line number, and finds the starting point for all comments.
+pub fn tokenize_instructions(program: String) -> (Vec<Line>, Vec<[u32; 2]>) {
     let mut line_vec: Vec<Line> = Vec::new();
     let mut token: Token = Token {
         token_name: "".to_string(),
         starting_column: 0,
         token_type: Unknown,
     };
+    let mut comments: Vec<[u32; 2]> = Vec::new();
 
     for (i, line_of_program) in program.lines().enumerate() {
         let mut line_of_tokens = Line {
@@ -28,6 +29,7 @@ pub fn tokenize_instructions(program: String) -> Vec<Line> {
 
         for (j, char) in line_of_program.chars().enumerate() {
             if char == '#' {
+                comments.push([i as u32, j as u32]);
                 break;
             };
             if char != ' ' {
@@ -58,7 +60,7 @@ pub fn tokenize_instructions(program: String) -> Vec<Line> {
         }
     }
 
-    line_vec
+    (line_vec, comments)
 }
 
 ///This function takes the vector of lines created by tokenize instructions and turns them into instructions
@@ -131,7 +133,8 @@ pub fn build_instruction_list_from_lines(mut lines: Vec<Line>) -> Vec<Instructio
 /// If they do, the comma is removed. If they don't a missing comma error is generated.
 pub fn confirm_operand_commas(instructions: &mut Vec<Instruction>) {
     for instruction in instructions {
-        for i in 0..(instruction.operands.len() - 1) {
+        let mut i = 0;
+        while i < (instruction.operands.len() - 1) {
             if instruction.operands[i].token_name.ends_with(',') {
                 instruction.operands[i].token_name.pop();
             } else {
@@ -140,6 +143,7 @@ pub fn confirm_operand_commas(instructions: &mut Vec<Instruction>) {
                     operand_number: Some(i as u8),
                 })
             }
+            i += 1;
         }
     }
 }

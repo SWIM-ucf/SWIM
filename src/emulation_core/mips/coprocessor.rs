@@ -86,6 +86,13 @@ impl MipsFpCoprocessor {
             Instruction::FpuIType(i) => {
                 self.state.ft = i.ft as u32;
             }
+            Instruction::FpuRegImmType(i) => {
+                self.state.op = i.op as u32;
+                self.state.fmt = 0; // Not applicable
+                self.state.fs = i.fs as u32;
+                self.state.ft = 0; // Not applicable
+                self.state.fd = 0; // Not applicable
+            }
             Instruction::FpuCompareType(c) => {
                 self.state.op = c.op as u32;
                 self.state.fmt = c.fmt as u32;
@@ -108,7 +115,10 @@ impl MipsFpCoprocessor {
     /// Gets the contents of the data line between the `Data` register and the multiplexer
     /// in the main processor controlled by the [`DataWrite`] control signal.
     pub fn get_data_register(&mut self) -> u64 {
-        self.data as i32 as i64 as u64
+        match self.signals.fpu_reg_width {
+            FpuRegWidth::Word => self.data as i32 as i64 as u64,
+            FpuRegWidth::DoubleWord => self.data,
+        }
     }
 
     /// Sets the data line between the multiplexer controlled by [`MemToReg`](super::control_signals::MemToReg)
@@ -210,6 +220,60 @@ impl MipsFpCoprocessor {
                     }
                 }
                 _ => unimplemented!("Unsupported opcode `{}` for FPU I-type instruction", i.op),
+            },
+            Instruction::FpuRegImmType(i) => match i.sub {
+                SUB_MT => {
+                    self.signals = FpuControlSignals {
+                        cc_write: CcWrite::NoWrite,
+                        data_src: DataSrc::MainProcessorUnit,
+                        data_write: DataWrite::YesWrite,
+                        fpu_branch: FpuBranch::NoBranch,
+                        fpu_mem_to_reg: FpuMemToReg::UseDataWrite,
+                        fpu_reg_dst: FpuRegDst::Reg2,
+                        fpu_reg_width: FpuRegWidth::Word,
+                        fpu_reg_write: FpuRegWrite::YesWrite,
+                        ..Default::default()
+                    }
+                }
+                SUB_DMT => {
+                    self.signals = FpuControlSignals {
+                        cc_write: CcWrite::NoWrite,
+                        data_src: DataSrc::MainProcessorUnit,
+                        data_write: DataWrite::YesWrite,
+                        fpu_branch: FpuBranch::NoBranch,
+                        fpu_mem_to_reg: FpuMemToReg::UseDataWrite,
+                        fpu_reg_dst: FpuRegDst::Reg2,
+                        fpu_reg_width: FpuRegWidth::DoubleWord,
+                        fpu_reg_write: FpuRegWrite::YesWrite,
+                        ..Default::default()
+                    }
+                }
+                SUB_MF => {
+                    self.signals = FpuControlSignals {
+                        cc_write: CcWrite::NoWrite,
+                        data_src: DataSrc::FloatingPointUnit,
+                        data_write: DataWrite::YesWrite,
+                        fpu_branch: FpuBranch::NoBranch,
+                        fpu_reg_width: FpuRegWidth::Word,
+                        fpu_reg_write: FpuRegWrite::NoWrite,
+                        ..Default::default()
+                    }
+                }
+                SUB_DMF => {
+                    self.signals = FpuControlSignals {
+                        cc_write: CcWrite::NoWrite,
+                        data_src: DataSrc::FloatingPointUnit,
+                        data_write: DataWrite::YesWrite,
+                        fpu_branch: FpuBranch::NoBranch,
+                        fpu_reg_width: FpuRegWidth::DoubleWord,
+                        fpu_reg_write: FpuRegWrite::NoWrite,
+                        ..Default::default()
+                    }
+                }
+                _ => unimplemented!(
+                    "Unsupported sub code `{}` for FPU register-immediate instruction",
+                    i.sub
+                ),
             },
             Instruction::FpuCompareType(c) => {
                 self.signals = FpuControlSignals {
@@ -343,12 +407,10 @@ impl MipsFpCoprocessor {
             return;
         }
 
-        let data = match self.signals.data_src {
-            DataSrc::FloatingPointUnit => self.state.read_data_1 as u32,
-            DataSrc::MainProcessorUnit => self.state.data_from_main_processor as u32,
+        self.data = match self.signals.data_src {
+            DataSrc::FloatingPointUnit => self.state.read_data_1,
+            DataSrc::MainProcessorUnit => self.state.data_from_main_processor,
         };
-
-        self.condition_code = data as u64;
     }
 
     /// Set the condition code (CC) register based on the result from the comparator.
