@@ -2,3 +2,4 @@
 
 pub mod console;
 pub mod regview;
+pub mod visual_datapath;

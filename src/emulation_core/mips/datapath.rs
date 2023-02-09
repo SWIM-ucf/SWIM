@@ -33,7 +33,7 @@ use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 
 /// An implementation of a datapath for the MIPS64 ISA.
-#[derive(Default, PartialEq)]
+#[derive(Default, PartialEq, Clone)]
 pub struct MipsDatapath {
     pub registers: GpRegisters,
     pub memory: Memory,
@@ -49,7 +49,7 @@ pub struct MipsDatapath {
 }
 
 /// A collection of all the data lines and wires in the datapath.
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub struct DatapathState {
     /// *Data line.* The currently loaded instruction. Initialized after the
     /// Instruction Fetch stage.
