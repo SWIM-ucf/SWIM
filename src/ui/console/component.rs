@@ -10,7 +10,7 @@ pub fn console(props: &Consoleprops) -> Html {
     html! {
         <>
             // <div style="width: 80.4%; height: 17vh; border: 1px solid black;"></div>
-            <div style="width: 80.4%; height: 17vh; border: 2px solid black; background-color: #b9cceb; color: #000000;">
+            <div style="width: 100%; height: 17vh; border: 2px solid black; background-color: #b9cceb; color: #000000;">
                 <p>{ props.parsermsg.clone() }</p>
                 //<p>{ ">" }</p>
             </div>

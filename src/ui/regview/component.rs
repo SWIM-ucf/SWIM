@@ -34,7 +34,8 @@ pub fn gen_reg_html(gp: GpRegisters) -> Html {
 }
 
 pub fn fp_reg(fp: [u64; 32]) -> Html {
-    fp.iter().enumerate()
+    fp.iter()
+        .enumerate()
         .map(|(register, data)| {
             html! {
                 <tr style="border: 1px solid black;">
@@ -52,26 +53,26 @@ pub fn fp_reg(fp: [u64; 32]) -> Html {
 
 #[function_component(Regview)]
 pub fn regview(props: &Regviewprops) -> Html {
-    let switch_flag = use_state_eq(||true);
+    let switch_flag = use_state_eq(|| true);
     let on_switch_clicked = {
         let switch_flag = switch_flag.clone();
         use_callback(
             move |_, switch_flag| {
-                if **switch_flag{
+                if **switch_flag {
                     switch_flag.set(false);
                 } else {
                     switch_flag.set(true);
                 }
-            }, 
+            },
             switch_flag,
         )
     };
     log!("This is ", *switch_flag);
     html! {
         <>
-        <button onclick={on_switch_clicked} style="float: right">{"Switch view"}</button>
-            <div>
-                <table style="width: 19.2%; height: 97vh; border: 1px solid black; background-color: white; float: right;" content="width=device-width; initial-scale=1.0">
+            <div style="width: 28%">
+                <button onclick={on_switch_clicked}>{"Switch view"}</button>
+                <table style="width: 100%; height: 100%; border: 1px solid black; background-color: white;">
                     <tr style="border: 1px solid black;">
                         <th style="border: 1px solid black;">{"Register Name"}</th>
                         <th style="border: 1px solid black;">{"Data"}</th>

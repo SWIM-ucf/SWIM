@@ -168,20 +168,28 @@ fn app() -> Html {
     };
 
     html! {
-        <div>
-            <h1>{"Welcome to SWIM"}</h1>
-            <button onclick={on_load_clicked}>{ "Assemble" }</button>
-            <button onclick={on_execute_clicked}> { "Execute" }</button>
-            <button onclick={on_reset_clicked}>{ "Reset" }</button>
-            // button tied to the input file element, which is hidden to be more clean
-            <input type="button" value="Load File" onclick={upload_clicked_callback} />
-            <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
-            // Pass in register data from emu core
-            <Regview gp={(*datapath).borrow().registers} fp={(*datapath).borrow().coprocessor.fpr}/>
-            <SwimEditor text_model={(*text_model).borrow().clone()} />
-            <button onclick={on_error_clicked}>{ "Click" }</button>
-            <Console parsermsg={(*parser_text_output).clone()}/>
-        </div>
+        <>
+            <div style="display: flex; flex-direction: column;">
+                <div>
+                    //<h1>{"Welcome to SWIM"}</h1>
+                    // button tied to the input file element, which is hidden to be more clean
+                    <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
+                </div>
+                <div style="display: flex">
+                    <div style="width: 70%">
+                        <button onclick={on_load_clicked}>{ "Assemble" }</button>
+                        <button onclick={on_execute_clicked}> { "Execute" }</button>
+                        <button onclick={on_reset_clicked}>{ "Reset" }</button>
+                        <input type="button" value="Load File" onclick={upload_clicked_callback} />
+                        <SwimEditor text_model={(*text_model).borrow().clone()} />
+                        <button onclick={on_error_clicked}>{ "Click" }</button>
+                        <Console parsermsg={(*parser_text_output).clone()}/>
+                    </div>
+                    // Pass in register data from emu core
+                    <Regview gp={(*datapath).borrow().registers} fp={(*datapath).borrow().coprocessor.fpr}/>
+                </div>
+            </div>
+        </>
     }
 }
 
@@ -209,7 +217,7 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 #[function_component]
 pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     html! {
-        <CodeEditor classes={css!(r#"height: 70vh; width: 79vw;"#)} options={get_options()} model={props.text_model.clone()} />
+        <CodeEditor classes={css!(r#"height: 70vh; width: 100%;"#)} options={get_options()} model={props.text_model.clone()} />
     }
 }
 
