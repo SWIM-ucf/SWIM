@@ -13,9 +13,10 @@ strum_macros = "0.24"
 
 # UI
 gloo = {version = "0.8.0", features = ["futures"]}
-monaco = { git = "https://github.com/siku2/rust-monaco", rev = "cac3ea13d4467966ac3d969d5b9c3c949209f637", features = ["yew-components"]  }
+monaco = { git = "https://github.com/b0x-Cub3d/rust-monaco", features = ["yew-components"]  }
 stylist = {version = "0.12.0", features = ["yew", "parser"]}
 wasm-bindgen = "0.2.83"
 web-sys = {version = "0.3.60", features = ["Event", "HtmlInputElement"]}
+js-sys = "0.3.60"
 yew = {version = "0.20.0", features = ["csr"] }
 wasm-bindgen-futures = "0.4.33"
