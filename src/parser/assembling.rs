@@ -1,4 +1,4 @@
-use crate::parser::parser_main::append_binary;
+use crate::parser::parser_assembler_main::append_binary;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     ImmediateOutOfBounds, IncorrectNumberOfOperands, IncorrectRegisterType, InvalidMemorySyntax,
     LabelNotFound, NonIntImmediate, UnrecognizedFPRegister, UnrecognizedGPRegister,

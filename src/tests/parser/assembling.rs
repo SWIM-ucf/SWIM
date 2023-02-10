@@ -1,7 +1,7 @@
 #[cfg(test)]
 
 mod convert_to_u32_tests {
-    use crate::parser::operand_reading::_convert_to_u32;
+    use crate::parser::assembling::_convert_to_u32;
 
     #[test]
     fn convert_to_u32_returns_correct_value_on_zeros() {
@@ -22,7 +22,7 @@ mod convert_to_u32_tests {
     }
 }
 mod read_register_tests {
-    use crate::parser::operand_reading::read_register;
+    use crate::parser::assembling::read_register;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
         IncorrectRegisterType, UnrecognizedGPRegister,
     };
@@ -62,7 +62,7 @@ mod read_register_tests {
 }
 
 mod immediate_tests {
-    use crate::parser::operand_reading::read_immediate;
+    use crate::parser::assembling::read_immediate;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
         ImmediateOutOfBounds, NonIntImmediate,
     };
@@ -99,7 +99,7 @@ mod immediate_tests {
 }
 
 mod memory_address_tests {
-    use crate::parser::operand_reading::read_memory_address;
+    use crate::parser::assembling::read_memory_address;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
         ImmediateOutOfBounds, InvalidMemorySyntax, NonIntImmediate, UnrecognizedGPRegister,
     };
@@ -162,7 +162,7 @@ mod memory_address_tests {
     }
 }
 mod append_instruction_component_tests {
-    use crate::parser::parser_main::append_binary;
+    use crate::parser::parser_assembler_main::append_binary;
 
     #[test]
     fn append_binary_works() {
@@ -192,19 +192,18 @@ mod append_instruction_component_tests {
 }
 
 mod read_label_absolute_tests {
-    use crate::parser::operand_reading::read_label_absolute;
+    use crate::parser::assembling::read_label_absolute;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::LabelNotFound;
-    use crate::parser::parser_structs_and_enums::instruction_tokenization::Instruction;
-    use crate::parser::preprocessing::{
-        assign_instruction_numbers, build_instruction_list_from_lines, confirm_operand_commas,
-        create_label_map, expand_pseudo_instruction, tokenize_instructions,
+    use crate::parser::parsing::{
+        assign_instruction_numbers, confirm_operand_commas, create_label_map,
+        expand_pseudo_instruction, separate_data_and_text, tokenize_program,
     };
     use std::collections::HashMap;
 
     #[test]
     fn read_label_absolute_returns_address_of_instruction() {
-        let (lines, _comments) = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
-        let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
+        let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (mut instruction_list, _data) = separate_data_and_text(lines);
         confirm_operand_commas(&mut instruction_list);
         expand_pseudo_instruction(&mut instruction_list);
         assign_instruction_numbers(&mut instruction_list);
@@ -218,8 +217,8 @@ mod read_label_absolute_tests {
 
     #[test]
     fn read_label_absolute_returns_error_if_label_cannot_be_found() {
-        let (lines, _comments) = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsave_to_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
-        let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
+        let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsave_to_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (mut instruction_list, _data) = separate_data_and_text(lines);
         confirm_operand_commas(&mut instruction_list);
         expand_pseudo_instruction(&mut instruction_list);
         assign_instruction_numbers(&mut instruction_list);
@@ -232,18 +231,17 @@ mod read_label_absolute_tests {
 }
 
 mod read_label_relative_tests {
-    use crate::parser::operand_reading::read_label_relative;
-    use crate::parser::parser_structs_and_enums::instruction_tokenization::Instruction;
-    use crate::parser::preprocessing::{
-        assign_instruction_numbers, build_instruction_list_from_lines, confirm_operand_commas,
-        create_label_map, expand_pseudo_instruction, tokenize_instructions,
+    use crate::parser::assembling::read_label_relative;
+    use crate::parser::parsing::{
+        assign_instruction_numbers, confirm_operand_commas, create_label_map,
+        expand_pseudo_instruction, separate_data_and_text, tokenize_program,
     };
     use std::collections::HashMap;
 
     #[test]
     fn read_label_relative_returns_correct_value_for_instruction_above_current() {
-        let (lines, _comments) = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
-        let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
+        let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (mut instruction_list, _data) = separate_data_and_text(lines);
         confirm_operand_commas(&mut instruction_list);
         expand_pseudo_instruction(&mut instruction_list);
         assign_instruction_numbers(&mut instruction_list);
@@ -257,8 +255,8 @@ mod read_label_relative_tests {
 
     #[test]
     fn read_label_relative_returns_correct_value_for_instruction_below_current() {
-        let (lines, _comments) = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
-        let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
+        let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (mut instruction_list, _data) = separate_data_and_text(lines);
         confirm_operand_commas(&mut instruction_list);
         expand_pseudo_instruction(&mut instruction_list);
         assign_instruction_numbers(&mut instruction_list);

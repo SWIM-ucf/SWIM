@@ -1,17 +1,18 @@
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
-    LabelAssignmentError, LabelMultipleDefinition, MissingComma,
+    IncorrectlyFormattedData, IncorrectlyFormattedLabel, LabelAssignmentError,
+    LabelMultipleDefinition, MissingComma,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Error, Instruction, Line, Token,
+    Data, Error, Instruction, Line, Token,
 };
 use std::collections::HashMap;
 
 ///Takes the initial string of the program given by the editor and turns it into a vector of Line,
 /// a struct that holds tokens and the original line number, and finds the starting point for all comments.
-pub fn tokenize_instructions(program: String) -> (Vec<Line>, Vec<[u32; 2]>) {
+pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<[u32; 2]>) {
     let mut line_vec: Vec<Line> = Vec::new();
     let mut token: Token = Token {
         token_name: "".to_string(),
@@ -22,7 +23,7 @@ pub fn tokenize_instructions(program: String) -> (Vec<Line>, Vec<[u32; 2]>) {
 
     for (i, line_of_program) in program.lines().enumerate() {
         let mut line_of_tokens = Line {
-            line_number: i as i32,
+            line_number: i as u32,
 
             tokens: vec![],
         };
@@ -34,7 +35,7 @@ pub fn tokenize_instructions(program: String) -> (Vec<Line>, Vec<[u32; 2]>) {
             };
             if char != ' ' {
                 if token.token_name.is_empty() {
-                    token.starting_column = j as i32;
+                    token.starting_column = j as u32;
                 }
                 token.token_name.push(char);
                 if char == ',' {
@@ -63,70 +64,125 @@ pub fn tokenize_instructions(program: String) -> (Vec<Line>, Vec<[u32; 2]>) {
     (line_vec, comments)
 }
 
-///This function takes the vector of lines created by tokenize instructions and turns them into instructions
-///assigning labels, operators, operands, and line numbers
-pub fn build_instruction_list_from_lines(mut lines: Vec<Line>) -> Vec<Instruction> {
+///This function takes the vector of lines created by tokenize program and turns them into instructions
+///assigning labels, operators, operands, and line numbers and data assigning labels, data types, and values
+pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Data>) {
     let mut instruction_list: Vec<Instruction> = Vec::new();
     let mut instruction = Instruction::default();
+    let mut data_list: Vec<Data> = Vec::new();
+    let mut data = Data::default();
+    let mut is_text = true;
 
     let mut i = 0;
     //goes through each line of the line vector and builds instructions as it goes
     while i < lines.len() {
-        let mut operand_iterator = 1;
+        if lines[i].tokens[0].token_name == ".text" {
+            is_text = true;
+            i += 1;
+            continue;
+        } else if lines[i].tokens[0].token_name == ".data" {
+            is_text = false;
+            i += 1;
+            continue;
+        }
 
-        if lines[i].tokens[0].token_name.ends_with(':') {
-            //if the instruction already has a label at this point, that means that the user wrote a label on a line on its
-            //own and then wrote another label on the next line without ever finishing the first
-            if instruction.label.is_some() {
-                instruction.errors.push(Error {
-                    error_name: LabelAssignmentError,
-                    operand_number: None,
-                })
-                //if the above error doesn't occur, we can push the label to the instruction struct.
-            } else {
-                lines[i].tokens[0].token_name.pop();
-                lines[i].tokens[0].token_type = Label;
-                instruction.label = Some((lines[i].tokens[0].clone(), lines[i].line_number));
-            }
+        if is_text {
+            let mut operand_iterator = 1;
 
-            if lines[i].tokens.len() == 1 {
-                //if the only token on the last line of the program is a label, the user never finished assigning a value to the label
-                if i == (lines.len() - 1) {
+            if lines[i].tokens[0].token_name.ends_with(':') {
+                //if the instruction already has a label at this point, that means that the user wrote a label on a line on its
+                //own and then wrote another label on the next line without ever finishing the first
+                if instruction.label.is_some() {
                     instruction.errors.push(Error {
                         error_name: LabelAssignmentError,
                         operand_number: None,
-                    });
-                    instruction_list.push(instruction.clone());
+                    })
+                    //if the above error doesn't occur, we can push the label to the instruction struct.
+                } else {
+                    lines[i].tokens[0].token_name.pop();
+                    lines[i].tokens[0].token_type = Label;
+                    instruction.label = Some((lines[i].tokens[0].clone(), lines[i].line_number));
                 }
 
+                if lines[i].tokens.len() == 1 {
+                    //if the only token on the last line of the program is a label, the user never finished assigning a value to the label
+                    if i == (lines.len() - 1) {
+                        instruction.errors.push(Error {
+                            error_name: LabelAssignmentError,
+                            operand_number: None,
+                        });
+                        instruction_list.push(instruction.clone());
+                    }
+
+                    i += 1;
+                    continue;
+                }
+                //since token[0] was a label, the operator will be token[1] and operands start at token[2]
+                lines[i].tokens[1].token_type = Operator;
+                instruction.operator = lines[i].tokens[1].clone();
+                operand_iterator = 2;
+            } else {
+                lines[i].tokens[0].token_type = Operator;
+                instruction.operator = lines[i].tokens[0].clone();
+            }
+            //push all operands to the instruction operand vec
+            while operand_iterator < lines[i].tokens.len() {
+                instruction
+                    .operands
+                    .push(lines[i].tokens[operand_iterator].clone());
+                operand_iterator += 1;
+            }
+            instruction.line_number = lines[i].line_number as u32;
+
+            //push completed instruction to the instruction vec
+            instruction_list.push(instruction.clone());
+            instruction = Instruction::default();
+        }
+        //if not text, it must be data
+        else {
+            data.line_number = lines[i].line_number as u32;
+
+            //the first token should be the label name
+            if lines[i].tokens[0].token_name.ends_with(':') {
+                lines[i].tokens[0].token_name.pop();
+                lines[i].tokens[0].token_type = Label;
+                data.label = lines[i].tokens[0].clone();
+            } else {
+                data.errors.push(Error {
+                    error_name: IncorrectlyFormattedLabel,
+                    operand_number: Some(0),
+                });
+                lines[i].tokens[0].token_type = Label;
+                data.label = lines[i].tokens[0].clone();
+            }
+
+            //just a simple check in case the user didn't complete a line
+            if lines[i].tokens.len() < 2 {
+                data.errors.push(Error {
+                    error_name: IncorrectlyFormattedData,
+                    operand_number: None,
+                });
                 i += 1;
                 continue;
             }
-            //since token[0] was a label, the operator will be token[1] and operands start at token[2]
-            lines[i].tokens[1].token_type = Operator;
-            instruction.operator = lines[i].tokens[1].clone();
-            operand_iterator = 2;
-        } else {
-            lines[i].tokens[0].token_type = Operator;
-            instruction.operator = lines[i].tokens[0].clone();
-        }
-        //push all operands to the instruction operand vec
-        while operand_iterator < lines[i].tokens.len() {
-            instruction
-                .operands
-                .push(lines[i].tokens[operand_iterator].clone());
-            operand_iterator += 1;
-        }
-        instruction.line_number = lines[i].line_number as u32;
 
-        //push completed instruction to the instruction vec
-        instruction_list.push(instruction.clone());
-        instruction = Instruction::default();
+            //the second token on the line is the data type
+            data.data_type = lines[i].tokens[1].clone();
 
+            let mut value_iterator = 2;
+            while value_iterator < lines[i].tokens.len() {
+                data.data_entries_and_values
+                    .push((lines[i].tokens[value_iterator].clone(), 0));
+                value_iterator += 1;
+            }
+
+            data_list.push(data.clone());
+            data = Data::default();
+        }
         i += 1;
     }
 
-    instruction_list
+    (instruction_list, data_list)
 }
 
 ///This function goes through all but the last operands of each instruction checking that they end in a comma.

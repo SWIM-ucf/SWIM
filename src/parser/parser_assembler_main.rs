@@ -1,9 +1,9 @@
-use crate::parser::operand_reading::read_operands;
+use crate::parser::assembling::read_operands;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::*;
-use crate::parser::preprocessing::*;
+use crate::parser::parsing::*;
 use std::collections::HashMap;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
@@ -12,9 +12,9 @@ pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
     let mut program_info = ProgramInfo::default();
     file_string = file_string.to_lowercase();
 
-    let (lines, comments) = tokenize_instructions(file_string);
+    let (lines, comments) = tokenize_program(file_string);
     program_info.comments_line_and_column = comments;
-    program_info.instructions = build_instruction_list_from_lines(lines);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     confirm_operand_commas(&mut program_info.instructions);
     expand_pseudo_instruction(&mut program_info.instructions);
     assign_instruction_numbers(&mut program_info.instructions);

@@ -5,20 +5,18 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType
     Label, Operator, Unknown,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Error, Instruction, Line, Token,
+    Data, Error, Instruction, Line, Token,
 };
-use crate::parser::preprocessing::{
+use crate::parser::parsing::{
     assign_instruction_numbers, create_label_map, expand_pseudo_instruction,
 };
 #[cfg(test)]
-use crate::parser::preprocessing::{
-    build_instruction_list_from_lines, confirm_operand_commas, tokenize_instructions,
-};
+use crate::parser::parsing::{confirm_operand_commas, separate_data_and_text, tokenize_program};
 use std::collections::HashMap;
 
 #[test]
-fn tokenize_instructions_works_basic_version() {
-    let result = tokenize_instructions("This line\nThis second line\nHere's a third!".to_string());
+fn tokenize_program_works_basic_version() {
+    let result = tokenize_program("This line\nThis second line\nHere's a third!".to_string());
 
     let i_0_t_0 = Token {
         token_name: "This".to_string(),
@@ -81,8 +79,8 @@ fn tokenize_instructions_works_basic_version() {
 }
 
 #[test]
-fn tokenize_instruction_handles_no_spaces_between_commas() {
-    let result = tokenize_instructions("add $t1, $t2, $t3\nsub $s1,$s2,$s3\n".to_string());
+fn tokenize_program_handles_no_spaces_between_commas() {
+    let result = tokenize_program("add $t1, $t2, $t3\nsub $s1,$s2,$s3\n".to_string());
 
     let i_0_t_0 = Token {
         token_name: "add".to_string(),
@@ -142,8 +140,8 @@ fn tokenize_instruction_handles_no_spaces_between_commas() {
 }
 
 #[test]
-fn tokenize_instruction_handles_comma_after_space() {
-    let result = tokenize_instructions("add $t1 , $t2, $t3\n".to_string());
+fn tokenize_program_handles_comma_after_space() {
+    let result = tokenize_program("add $t1 , $t2, $t3\n".to_string());
 
     let i_0_t_0 = Token {
         token_name: "add".to_string(),
@@ -175,8 +173,8 @@ fn tokenize_instruction_handles_comma_after_space() {
 }
 
 #[test]
-fn tokenize_instructions_ignores_comments() {
-    let results = tokenize_instructions(
+fn tokenize_program_ignores_comments() {
+    let results = tokenize_program(
         "This Line\n#this line is a comment\nbut_this_isn't\nthis#has a comment in the middle\n"
             .to_string(),
     );
@@ -217,8 +215,8 @@ fn tokenize_instructions_ignores_comments() {
 }
 
 #[test]
-fn tokenize_instructions_recognizes_comments() {
-    let results = tokenize_instructions("Addi $t1, $t2, 300\n# this is a comment\nadd $t1, $t2, $t3\n#I'm making a note here. Huge comment".to_string());
+fn tokenize_program_recognizes_comments() {
+    let results = tokenize_program("Addi $t1, $t2, 300\n# this is a comment\nadd $t1, $t2, $t3\n#I'm making a note here. Huge comment".to_string());
     assert_eq!(results.1[0][0], 1);
     assert_eq!(results.1[0][1], 0);
     assert_eq!(results.1[1][0], 3);
@@ -226,8 +224,8 @@ fn tokenize_instructions_recognizes_comments() {
 }
 
 #[test]
-fn tokenize_instructions_recognizes_comments_middle_of_line() {
-    let results = tokenize_instructions("Addi $t1, $t2, 300 # this is a comment\nadd $t1, $t2, $t3#I'm making a note here. Huge comment".to_string());
+fn tokenize_program_recognizes_comments_middle_of_line() {
+    let results = tokenize_program("Addi $t1, $t2, 300 # this is a comment\nadd $t1, $t2, $t3#I'm making a note here. Huge comment".to_string());
     assert_eq!(results.1[0][0], 0);
     assert_eq!(results.1[0][1], 19);
     assert_eq!(results.1[1][0], 1);
@@ -235,10 +233,10 @@ fn tokenize_instructions_recognizes_comments_middle_of_line() {
 }
 
 #[test]
-fn build_instruction_list_from_lines_works_basic_version() {
+fn separate_data_and_text_works_basic_version() {
     let (lines, _comments) =
-        tokenize_instructions("add $t1, $t2, $t3\nlw $t1, 400($t1)\naddi $t1, 100".to_string());
-    let result = build_instruction_list_from_lines(lines.clone());
+        tokenize_program("add $t1, $t2, $t3\nlw $t1, 400($t1)\naddi $t1, 100".to_string());
+    let result = separate_data_and_text(lines.clone());
 
     let mut instruction_0 = Instruction {
         operator: lines[0].tokens[0].clone(),
@@ -270,15 +268,15 @@ fn build_instruction_list_from_lines_works_basic_version() {
 
     let correct_result = vec![instruction_0, instruction_1, instruction_2];
 
-    assert_eq!(result, correct_result);
+    assert_eq!(result.0, correct_result);
 }
 
 #[test]
-fn build_instruction_list_from_lines_works_on_line_label() {
-    let (lines, _comments) = tokenize_instructions(
+fn separate_data_and_text_works_on_line_label() {
+    let (lines, _comments) = tokenize_program(
         "add $t1, $t2, $t3\nLoad_from_memory: lw $t1, 400($t1)\naddi $t1, 100".to_string(),
     );
-    let result = build_instruction_list_from_lines(lines.clone());
+    let result = separate_data_and_text(lines.clone());
 
     let mut instruction_0 = Instruction {
         operator: lines[0].tokens[0].clone(),
@@ -316,15 +314,15 @@ fn build_instruction_list_from_lines_works_on_line_label() {
 
     let correct_result = vec![instruction_0, instruction_1, instruction_2];
 
-    assert_eq!(correct_result, result);
+    assert_eq!(correct_result, result.0);
 }
 
 #[test]
-fn build_instruction_list_from_lines_works_off_line_label() {
-    let (lines, _comments) = tokenize_instructions(
+fn separate_data_and_text_works_off_line_label() {
+    let (lines, _comments) = tokenize_program(
         "add $t1, $t2, $t3\nLoad_from_memory:\nlw $t1, 400($t1)\naddi $t1, 100".to_string(),
     );
-    let result = build_instruction_list_from_lines(lines.clone());
+    let result = separate_data_and_text(lines.clone());
 
     let mut instruction_0 = Instruction {
         operator: lines[0].tokens[0].clone(),
@@ -362,45 +360,187 @@ fn build_instruction_list_from_lines_works_off_line_label() {
 
     let correct_result = vec![instruction_0, instruction_1, instruction_2];
 
-    assert_eq!(correct_result, result);
+    assert_eq!(correct_result, result.0);
+}
+
+#[test]
+fn separate_data_and_text_recognizes_text() {
+    let (lines, _comments) =
+        tokenize_program(".text\nadd $t1, $t2, $t3\nlw $t1, 400($t1)\n".to_string());
+    let result = separate_data_and_text(lines.clone());
+
+    let mut correct_result: Vec<Instruction> = vec![
+        Instruction {
+            operator: lines[1].tokens[0].clone(),
+            operands: vec![
+                lines[1].tokens[1].clone(),
+                lines[1].tokens[2].clone(),
+                lines[1].tokens[3].clone(),
+            ],
+            line_number: 1,
+            ..Default::default()
+        },
+        Instruction {
+            operator: lines[2].tokens[0].clone(),
+            operands: vec![lines[2].tokens[1].clone(), lines[2].tokens[2].clone()],
+            line_number: 2,
+            ..Default::default()
+        },
+    ];
+    correct_result[0].operator.token_type = Operator;
+    correct_result[1].operator.token_type = Operator;
+
+    assert_eq!(result.0, correct_result);
+}
+
+#[test]
+fn separate_data_and_text_recognizes_data_and_text_interspersed() {
+    let (lines, _comments) = tokenize_program(
+        ".data\nword1: .word 32\n.text\nadd $t1, $t2, $t3\n.data\nword2: .word 1,2,3\n.text\nlw $t1, 400($t1)\n"
+            .to_string(),
+    );
+    let result = separate_data_and_text(lines.clone());
+
+    let mut correct_result: (Vec<Instruction>, Vec<Data>) = (
+        vec![
+            Instruction {
+                operator: lines[3].tokens[0].clone(),
+                operands: vec![
+                    lines[3].tokens[1].clone(),
+                    lines[3].tokens[2].clone(),
+                    lines[3].tokens[3].clone(),
+                ],
+                line_number: 3,
+                ..Default::default()
+            },
+            Instruction {
+                operator: lines[7].tokens[0].clone(),
+                operands: vec![lines[7].tokens[1].clone(), lines[7].tokens[2].clone()],
+                line_number: 7,
+                ..Default::default()
+            },
+        ],
+        vec![
+            Data {
+                line_number: 1,
+                label: lines[1].tokens[0].clone(),
+                data_type: lines[1].tokens[1].clone(),
+                data_entries_and_values: vec![(lines[1].tokens[2].clone(), 0)],
+                ..Default::default()
+            },
+            Data {
+                line_number: 5,
+                label: lines[5].tokens[0].clone(),
+                data_type: lines[5].tokens[1].clone(),
+                data_entries_and_values: vec![
+                    (lines[5].tokens[2].clone(), 0),
+                    (lines[5].tokens[3].clone(), 0),
+                    (lines[5].tokens[4].clone(), 0),
+                ],
+                ..Default::default()
+            },
+        ],
+    );
+    correct_result.0[0].operator.token_type = Operator;
+    correct_result.0[1].operator.token_type = Operator;
+    correct_result.1[0].label.token_type = Label;
+    correct_result.1[0].label.token_name.pop();
+    correct_result.1[1].label.token_type = Label;
+    correct_result.1[1].label.token_name.pop();
+
+    assert_eq!(result, correct_result);
+}
+#[test]
+fn separate_data_and_text_recognizes_data_and_text() {
+    let (lines, _comments) = tokenize_program(
+        ".data\nword1: .word 32\nword2: .word 1,2,3\n.text\nadd $t1, $t2, $t3\nlw $t1, 400($t1)\n"
+            .to_string(),
+    );
+    let result = separate_data_and_text(lines.clone());
+
+    let mut correct_result: (Vec<Instruction>, Vec<Data>) = (
+        vec![
+            Instruction {
+                operator: lines[4].tokens[0].clone(),
+                operands: vec![
+                    lines[4].tokens[1].clone(),
+                    lines[4].tokens[2].clone(),
+                    lines[4].tokens[3].clone(),
+                ],
+                line_number: 4,
+                ..Default::default()
+            },
+            Instruction {
+                operator: lines[5].tokens[0].clone(),
+                operands: vec![lines[5].tokens[1].clone(), lines[5].tokens[2].clone()],
+                line_number: 5,
+                ..Default::default()
+            },
+        ],
+        vec![
+            Data {
+                line_number: 1,
+                label: lines[1].tokens[0].clone(),
+                data_type: lines[1].tokens[1].clone(),
+                data_entries_and_values: vec![(lines[1].tokens[2].clone(), 0)],
+                ..Default::default()
+            },
+            Data {
+                line_number: 2,
+                label: lines[2].tokens[0].clone(),
+                data_type: lines[2].tokens[1].clone(),
+                data_entries_and_values: vec![
+                    (lines[2].tokens[2].clone(), 0),
+                    (lines[2].tokens[3].clone(), 0),
+                    (lines[2].tokens[4].clone(), 0),
+                ],
+                ..Default::default()
+            },
+        ],
+    );
+    correct_result.0[0].operator.token_type = Operator;
+    correct_result.0[1].operator.token_type = Operator;
+    correct_result.1[0].label.token_type = Label;
+    correct_result.1[0].label.token_name.pop();
+    correct_result.1[1].label.token_type = Label;
+    correct_result.1[1].label.token_name.pop();
+
+    assert_eq!(result, correct_result);
 }
 
 #[test]
 fn build_instruction_list_generates_error_on_double_label() {
-    let (lines, _comments) = tokenize_instructions(
-        "lw $t1, 400($zero)\nLabel1:\nLabel2: add $t1, $t2, $t3\n".to_string(),
-    );
-    let result = build_instruction_list_from_lines(lines);
-    assert_eq!(result[1].errors[0].error_name, LabelAssignmentError);
+    let (lines, _comments) =
+        tokenize_program("lw $t1, 400($zero)\nLabel1:\nLabel2: add $t1, $t2, $t3\n".to_string());
+    let result = separate_data_and_text(lines);
+    assert_eq!(result.0[1].errors[0].error_name, LabelAssignmentError);
 }
 
 #[test]
 fn build_instruction_list_generates_error_on_label_on_last_line() {
     let (lines, _comments) =
-        tokenize_instructions("lw $t1, 400($zero)\nadd $t1, $t2, $t3\nlabel:\n".to_string());
-    let result = build_instruction_list_from_lines(lines);
-    assert_eq!(result[2].errors[0].error_name, LabelAssignmentError);
+        tokenize_program("lw $t1, 400($zero)\nadd $t1, $t2, $t3\nlabel:\n".to_string());
+    let result = separate_data_and_text(lines);
+    assert_eq!(result.0[2].errors[0].error_name, LabelAssignmentError);
 }
 
 #[test]
 fn confirm_operand_commas_removes_properly_placed_commas() {
-    let (lines, _comments) =
-        tokenize_instructions("Add $t1, $t2, $t3\nlw $t1, 400($t2)".to_string());
-    let mut result = build_instruction_list_from_lines(lines);
-    confirm_operand_commas(&mut result);
+    let (lines, _comments) = tokenize_program("Add $t1, $t2, $t3\nlw $t1, 400($t2)".to_string());
+    let mut result = separate_data_and_text(lines);
+    confirm_operand_commas(&mut result.0);
 
     let (correct_lines, _comments) =
-        tokenize_instructions("Add $t1  $t2  $t3\nlw $t1  400($t2)".to_string());
-    let correct_result = build_instruction_list_from_lines(correct_lines);
+        tokenize_program("Add $t1  $t2  $t3\nlw $t1  400($t2)".to_string());
+    let correct_result = separate_data_and_text(correct_lines);
 
     assert_eq!(correct_result, result);
 }
 
 #[test]
 fn confirm_operand_commas_generates_error_on_missing_commas() {
-    let (lines, _comments) =
-        tokenize_instructions("Add $t1, $t2, $t3\nlw $t1 400($t2)".to_string());
-    let mut result = build_instruction_list_from_lines(lines);
+    let (lines, _comments) = tokenize_program("Add $t1, $t2, $t3\nlw $t1 400($t2)".to_string());
+    let (mut result, _data) = separate_data_and_text(lines);
     confirm_operand_commas(&mut result);
     let correct_error = Error {
         error_name: MissingComma,
@@ -411,14 +551,14 @@ fn confirm_operand_commas_generates_error_on_missing_commas() {
 
 #[test]
 fn confirm_operands_does_not_break_when_instruction_has_no_operands() {
-    let (lines, _comments) = tokenize_instructions("Add $t1, $t2, $t3\nlw".to_string());
-    let _result = build_instruction_list_from_lines(lines);
+    let (lines, _comments) = tokenize_program("Add $t1, $t2, $t3\nlw".to_string());
+    let _result = separate_data_and_text(lines);
 }
 
 #[test]
 fn create_label_map_generates_map_on_no_errors() {
-    let (lines, _comments) = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
-    let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
+    let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
+    let (mut instruction_list, _data) = separate_data_and_text(lines);
     confirm_operand_commas(&mut instruction_list);
     expand_pseudo_instruction(&mut instruction_list);
     assign_instruction_numbers(&mut instruction_list);
@@ -434,8 +574,8 @@ fn create_label_map_generates_map_on_no_errors() {
 
 #[test]
 fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name() {
-    let (lines, _comments) = tokenize_instructions("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string());
-    let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
+    let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string());
+    let (mut instruction_list, _data) = separate_data_and_text(lines);
     confirm_operand_commas(&mut instruction_list);
     expand_pseudo_instruction(&mut instruction_list);
     assign_instruction_numbers(&mut instruction_list);
