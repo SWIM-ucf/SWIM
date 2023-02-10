@@ -131,7 +131,8 @@ pub fn build_instruction_list_from_lines(mut lines: Vec<Line>) -> Vec<Instructio
 /// If they do, the comma is removed. If they don't a missing comma error is generated.
 pub fn confirm_operand_commas(instructions: &mut Vec<Instruction>) {
     for instruction in instructions {
-        for i in 0..(instruction.operands.len() - 1) {
+        let mut i = 0;
+        while i < (instruction.operands.len() - 1) {
             if instruction.operands[i].token_name.ends_with(',') {
                 instruction.operands[i].token_name.pop();
             } else {
@@ -140,6 +141,7 @@ pub fn confirm_operand_commas(instructions: &mut Vec<Instruction>) {
                     operand_number: Some(i as u8),
                 })
             }
+            i += 1;
         }
     }
 }
