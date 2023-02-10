@@ -9,10 +9,10 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandTy
 use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
     FloatingPoint, GeneralPurpose,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Error, Instruction, OperandType, RegisterType, TokenType,
-};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{Data, Error, Instruction, OperandType, RegisterType, TokenType};
 use std::collections::HashMap;
+use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Word;
+use crate::parser::parsing::{separate_data_and_text, tokenize_program};
 
 ///This function takes an instruction whose operands it is supposed to read, the order of expected operand types and then
 ///the order these operands should be concatenated onto the binary representation of the string
@@ -418,7 +418,7 @@ pub fn read_immediate(
     //attempts to cast the text into a large int
     let parse_results = given_text.parse::<i32>();
 
-    //if there was an error typecasting, the function returns with an error to add to the instruction
+    //if there was an error typecasting, the function returns with an error to add to the instruction or data
     if parse_results.is_err() {
         return (
             0,
@@ -429,10 +429,10 @@ pub fn read_immediate(
         );
     }
 
-    let int_representation: i32 = parse_results.unwrap();
+    let int_representation: i64 = parse_results.unwrap() as i64;
 
     //finds the max and min values of a signed integer with specified number of bits
-    let max_value = i32::pow(2, num_bits);
+    let max_value = i64::pow(2, num_bits);
     let min_value = (-max_value) - 1;
     //if the parsed value is out of possible bounds, an error is returned to add to the instruction
     if int_representation > max_value || int_representation < min_value {
@@ -447,3 +447,34 @@ pub fn read_immediate(
 
     (int_representation as u32, None)
 }
+
+
+pub fn assemble_data_binary(data_list: &mut Vec<Data>){
+    for data_entry in data_list.iter_mut(){
+        match &*data_entry.data_type.token_name{
+            ".word" =>{
+              for (i, word) in data_entry.data_entries_and_values.iter_mut().enumerate(){
+                  word.0.token_type = Word;
+                  let immediate_results = read_immediate(&word.0.token_name, i as i32, 32);
+                  word.1 = immediate_results.0;
+                  if immediate_results.1.is_some(){
+                      data_entry.errors.push(immediate_results.1.unwrap());
+                  }
+
+              }
+            }
+
+            _ => {}
+        }
+    }
+}
+
+#[test]
+fn assemble_data_binary_works_word(){
+    let lines = tokenize_program(".data\nlabel: .word 200".to_string()).0;
+    let mut result = separate_data_and_text(lines).1;
+    assemble_data_binary(&mut result);
+    assert_eq!(result[0].data_entries_and_values[0].1, 200);
+}
+
+

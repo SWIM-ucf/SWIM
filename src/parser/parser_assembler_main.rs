@@ -1,4 +1,4 @@
-use crate::parser::assembling::read_operands;
+use crate::parser::assembling::{assemble_data_binary, read_operands};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
@@ -18,6 +18,8 @@ pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
     confirm_operand_commas(&mut program_info.instructions);
     expand_pseudo_instruction(&mut program_info.instructions);
     assign_instruction_numbers(&mut program_info.instructions);
+
+    assemble_data_binary(&mut program_info.data);
 
     let labels: HashMap<String, u32> = create_label_map(&mut program_info.instructions);
 

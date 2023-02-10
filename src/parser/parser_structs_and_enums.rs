@@ -63,6 +63,10 @@ pub mod instruction_tokenization {
         RegisterFP,
         RegisterGP,
         Operator,
+        Word,
+        ASCIIZ,
+        ASCII,
+        DataType
     }
 
     #[derive(Debug, PartialEq, Eq, Clone)]
