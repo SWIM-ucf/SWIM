@@ -1,3 +1,6 @@
+use crate::parser::assembling::assemble_data_binary;
+use crate::parser::parsing::{separate_data_and_text, tokenize_program};
+
 #[cfg(test)]
 
 mod convert_to_u32_tests {
@@ -231,7 +234,7 @@ mod read_label_absolute_tests {
 mod read_label_relative_tests {
     use crate::parser::assembling::read_label_relative;
     use crate::parser::parsing::{
-        assign_instruction_numbers, confirm_operand_commas, create_label_map,
+        assign_instruction_numbers, create_label_map,
         expand_pseudo_instruction, separate_data_and_text, tokenize_program,
     };
     use std::collections::HashMap;
@@ -263,3 +266,26 @@ mod read_label_relative_tests {
         assert_eq!(result.0, 1);
     }
 }
+
+#[test]
+fn assemble_data_binary_works_one_word(){
+    let lines = tokenize_program(".data\nlabel: .word 200".to_string()).0;
+    let mut result = separate_data_and_text(lines).1;
+    assemble_data_binary(&mut result);
+    assert_eq!(result[0].data_entries_and_values[0].1, 200);
+}
+
+#[test]
+fn assemble_data_binary_works_multiple_words(){
+    let lines = tokenize_program(".data\nlabel: .word 200, 45, -12".to_string()).0;
+    let mut result = separate_data_and_text(lines).1;
+    assemble_data_binary(&mut result);
+    assert_eq!(result[0].data_entries_and_values[0].1, 200);
+    assert_eq!(result[0].data_entries_and_values[1].1, 45);
+    let negative = -12;
+    let negative_as_u32 = negative as u32;
+    assert_eq!(result[0].data_entries_and_values[2].1, negative_as_u32);
+}
+
+
+
