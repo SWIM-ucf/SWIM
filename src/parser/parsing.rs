@@ -125,13 +125,33 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 lines[i].tokens[0].token_type = Operator;
                 instruction.operator = lines[i].tokens[0].clone();
             }
-            //push all operands to the instruction operand vec
-            while operand_iterator < lines[i].tokens.len() {
+
+
+            //push all operands to the instruction operand vec that will have commas
+            while operand_iterator < (lines[i].tokens.len() - 1){
+                if lines[i].tokens[operand_iterator].token_name.ends_with(','){
+                    lines[i].tokens[operand_iterator].token_name.pop();
+                }else{
+                    instruction.errors.push(Error{ error_name: MissingComma, operand_number: Some(operand_iterator as u8)})
+                }
                 instruction
                     .operands
                     .push(lines[i].tokens[operand_iterator].clone());
                 operand_iterator += 1;
             }
+
+            //simple statement to handle cases where the user doesn't finish instructions
+            if operand_iterator >= lines[i].tokens.len(){
+                i += 1;
+                continue;
+            }
+
+            //push last operand that will not have a comma
+            instruction
+                .operands
+                .push(lines[i].tokens[operand_iterator].clone());
+
+
             instruction.line_number = lines[i].line_number as u32;
 
             //push completed instruction to the instruction vec
@@ -170,11 +190,27 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
             data.data_type = lines[i].tokens[1].clone();
 
             let mut value_iterator = 2;
-            while value_iterator < lines[i].tokens.len() {
-                data.data_entries_and_values
+
+
+
+            //push all values to the data vec that will have commas
+            while value_iterator < (lines[i].tokens.len() - 1){
+                if lines[i].tokens[value_iterator].token_name.ends_with(','){
+                    lines[i].tokens[value_iterator].token_name.pop();
+                }else{
+                    instruction.errors.push(Error{ error_name: MissingComma, operand_number: Some(value_iterator as u8)})
+                }
+                data
+                    .data_entries_and_values
                     .push((lines[i].tokens[value_iterator].clone(), 0));
                 value_iterator += 1;
             }
+
+            //push last operand that will not have a comma
+            data
+                .data_entries_and_values
+                .push((lines[i].tokens[value_iterator].clone(), 0));
+
 
             data_list.push(data.clone());
             data = Data::default();

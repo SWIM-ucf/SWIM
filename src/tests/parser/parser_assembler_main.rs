@@ -1,18 +1,12 @@
 #[cfg(test)]
 mod parser_main_function_tests {
     use crate::parser::parser_assembler_main::*;
-    use crate::parser::parser_structs_and_enums::instruction_tokenization::print_instruction_struct_contents;
 
     #[test]
     fn parser_takes_string_and_returns_vec_of_instructions() {
         let results =
             parser("lw $t1, 512($t1)\nadd $t1, $s6, $t2\naddi $t1, $t2, 43690".to_string());
 
-        let length = results.0.instructions.len();
-
-        for i in 0..length {
-            print_instruction_struct_contents(results.0.instructions.get(i).unwrap());
-        }
         assert_eq!(
             results.0.instructions[0].binary,
             0b10001101001010010000001000000000
