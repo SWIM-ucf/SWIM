@@ -492,6 +492,10 @@
 <a href="#492" id="492">492</a>
 <a href="#493" id="493">493</a>
 <a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Internal datapath control signals.
 
 /// Full collection of control signals.
@@ -686,6 +690,7 @@
     <span class="attr">#[default]
     </span>UseAlu = <span class="number">0</span>,
     UseMemory = <span class="number">1</span>,
+    UsePcPlusFour = <span class="number">2</span>,
 }
 
 <span class="doccomment">/// Determines if memory should be written to.
@@ -727,6 +732,9 @@
     <span class="doccomment">/// Use register `rd`.
     </span><span class="attr">#[default]
     </span>Reg3 = <span class="number">2</span>,
+
+    <span class="comment">// Write to return register, used by JAL
+    </span>ReturnRegister = <span class="number">3</span>,
 }
 
 <span class="doccomment">/// Determines the amount of data to be sent or recieved from registers
@@ -987,4 +995,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="swim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="swim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
