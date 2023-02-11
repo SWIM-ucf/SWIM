@@ -126,13 +126,14 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 instruction.operator = lines[i].tokens[0].clone();
             }
 
+            let first_operand_index = operand_iterator;
 
             //push all operands to the instruction operand vec that will have commas
             while operand_iterator < (lines[i].tokens.len() - 1){
                 if lines[i].tokens[operand_iterator].token_name.ends_with(','){
                     lines[i].tokens[operand_iterator].token_name.pop();
                 }else{
-                    instruction.errors.push(Error{ error_name: MissingComma, operand_number: Some(operand_iterator as u8)})
+                    instruction.errors.push(Error{ error_name: MissingComma, operand_number: Some((operand_iterator - first_operand_index) as u8)})
                 }
                 instruction
                     .operands
@@ -190,7 +191,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
             data.data_type = lines[i].tokens[1].clone();
 
             let mut value_iterator = 2;
-
+            let first_value_index = value_iterator;
 
 
             //push all values to the data vec that will have commas
@@ -198,7 +199,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 if lines[i].tokens[value_iterator].token_name.ends_with(','){
                     lines[i].tokens[value_iterator].token_name.pop();
                 }else{
-                    instruction.errors.push(Error{ error_name: MissingComma, operand_number: Some(value_iterator as u8)})
+                    instruction.errors.push(Error{ error_name: MissingComma, operand_number: Some((value_iterator - first_value_index) as u8)})
                 }
                 data
                     .data_entries_and_values

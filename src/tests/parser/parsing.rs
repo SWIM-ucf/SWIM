@@ -9,7 +9,7 @@ use crate::parser::parsing::{
     assign_instruction_numbers, create_label_map, expand_pseudo_instruction,
 };
 #[cfg(test)]
-use crate::parser::parsing::{confirm_operand_commas, separate_data_and_text, tokenize_program};
+use crate::parser::parsing::{separate_data_and_text, tokenize_program};
 use std::collections::HashMap;
 
 #[test]
@@ -273,6 +273,17 @@ fn separate_data_and_text_works_basic_version() {
     let correct_result = vec![instruction_0, instruction_1, instruction_2];
 
     assert_eq!(result.0, correct_result);
+}
+
+#[test]
+fn separate_data_and_text_generates_error_on_missing_commas_text(){
+    let lines = tokenize_program("add $t1, $t2, $t3\nlw $t1 400($t2)".to_string()).0;
+    let result = separate_data_and_text(lines);
+    let correct_error = Error{
+        error_name: MissingComma,
+        operand_number: Some(0),
+    };
+    assert_eq!(correct_error, result.0[1].errors[0]);
 }
 
 #[test]
@@ -556,42 +567,12 @@ fn build_instruction_list_generates_error_on_label_on_last_line() {
     assert_eq!(result.0[2].errors[0].error_name, LabelAssignmentError);
 }
 
-#[test]
-fn confirm_operand_commas_removes_properly_placed_commas() {
-    let (lines, _comments) = tokenize_program("Add $t1, $t2, $t3\nlw $t1, 400($t2)".to_string());
-    let mut result = separate_data_and_text(lines);
-    confirm_operand_commas(&mut result.0);
 
-    let (correct_lines, _comments) =
-        tokenize_program("Add $t1  $t2  $t3\nlw $t1  400($t2)".to_string());
-    let correct_result = separate_data_and_text(correct_lines);
-
-    assert_eq!(correct_result, result);
-}
-
-#[test]
-fn confirm_operand_commas_generates_error_on_missing_commas() {
-    let (lines, _comments) = tokenize_program("Add $t1, $t2, $t3\nlw $t1 400($t2)".to_string());
-    let (mut result, _data) = separate_data_and_text(lines);
-    confirm_operand_commas(&mut result);
-    let correct_error = Error {
-        error_name: MissingComma,
-        operand_number: Some(0),
-    };
-    assert_eq!(correct_error, result[1].errors[0]);
-}
-
-#[test]
-fn confirm_operands_does_not_break_when_instruction_has_no_operands() {
-    let (lines, _comments) = tokenize_program("Add $t1, $t2, $t3\nlw".to_string());
-    let _result = separate_data_and_text(lines);
-}
 
 #[test]
 fn create_label_map_generates_map_on_no_errors() {
-    let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
+    let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
     let (mut instruction_list, _data) = separate_data_and_text(lines);
-    confirm_operand_commas(&mut instruction_list);
     expand_pseudo_instruction(&mut instruction_list);
     assign_instruction_numbers(&mut instruction_list);
 
@@ -606,9 +587,8 @@ fn create_label_map_generates_map_on_no_errors() {
 
 #[test]
 fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name() {
-    let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string());
+    let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string());
     let (mut instruction_list, _data) = separate_data_and_text(lines);
-    confirm_operand_commas(&mut instruction_list);
     expand_pseudo_instruction(&mut instruction_list);
     assign_instruction_numbers(&mut instruction_list);
 
