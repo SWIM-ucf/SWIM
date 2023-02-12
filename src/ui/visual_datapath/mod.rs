@@ -1,10 +1,13 @@
+use std::{cell::RefCell, rc::Rc};
+
 use gloo::utils::document;
-// use gloo_console::log;
+use gloo_console::log;
+use gloo_events::EventListener;
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
-use web_sys::{Element, HtmlCollection, HtmlElement, HtmlObjectElement};
+use web_sys::{Element, Event, HtmlCollection, HtmlElement, HtmlObjectElement};
 use yew::prelude::*;
 
-use crate::emulation_core::mips::datapath::MipsDatapath;
+use crate::emulation_core::mips::datapath::{MipsDatapath, Stage};
 
 const DATAPATH_ID: &str = "datapath";
 
@@ -18,25 +21,59 @@ pub struct VisualDatapathProps {
     pub svg_path: String,
 }
 
-pub struct VisualDatapath;
+pub struct VisualDatapath {
+    active_listeners: Rc<RefCell<Vec<EventListener>>>,
+}
 
 impl Component for VisualDatapath {
     type Message = ();
     type Properties = VisualDatapathProps;
 
     fn create(_ctx: &Context<Self>) -> Self {
-      VisualDatapath
+        VisualDatapath {
+            active_listeners: Rc::new(RefCell::new(vec![])),
+        }
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
-            <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID}></object>
+            <>
+                <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID}></object>
+                <div id="popup">
+                    <h1 class="title">{ "[Title]" }</h1>
+                    <p class="description">{ "[Description]" }</p>
+                    <div class="data">
+                        <span class="label">{ "Value:" }</span>
+                        <span class="code">{ "[bits]" }</span>
+                        <span class="meaning">{ "([base 10] - [register])" }</span>
+                    </div>
+                </div>
+            </>
         }
     }
 
-    fn rendered(&mut self, _ctx: &Context<Self>, first_render: bool) {
+    fn rendered(&mut self, ctx: &Context<Self>, first_render: bool) {
+        let current_stage = String::from(match ctx.props().datapath.current_stage {
+            Stage::InstructionFetch => "instruction_fetch",
+            Stage::InstructionDecode => "instruction_decode",
+            Stage::Execute => "execute",
+            Stage::Memory => "memory",
+            Stage::WriteBack => "writeback",
+        });
+
+        log!(&current_stage);
+
         if first_render {
-            Self::initialize();
+            self.initialize(current_stage);
+        }
+    }
+
+    fn destroy(&mut self, _ctx: &Context<Self>) {
+        let active_listeners = Rc::clone(&self.active_listeners);
+        let active_listeners = (*active_listeners).borrow_mut();
+
+        for listener in &(*active_listeners) {
+            drop(listener);
         }
     }
 }
@@ -77,19 +114,74 @@ impl VisualDatapath {
     }
 
     // Activates a given <g> tag.
-    pub fn activate_element(element: &Element) -> Result<(), JsValue> {
+    pub fn activate_element(element: &Element) -> Result<Vec<EventListener>, JsValue> {
+        let on_mouseover = Callback::from(move |event: web_sys::Event| {
+            let event = event.unchecked_into::<MouseEvent>();
+            let target = event.target().unwrap().unchecked_into::<HtmlElement>();
+            Self::set_active_hovered(&target).ok();
+
+            // Get popup element
+            let popup = document().get_element_by_id("popup").unwrap();
+            let popup = popup.unchecked_into::<HtmlElement>();
+            let title = popup.query_selector(".title").unwrap().unwrap();
+
+            // Show popup
+            let element_id = target.parent_element().unwrap().id();
+            title.set_text_content(Some(&element_id));
+            popup.style().set_property("display", "block").ok();
+            popup
+                .style()
+                .set_property("left", &format!("{}px", event.client_x() + 20))
+                .ok();
+            popup
+                .style()
+                .set_property("top", &format!("{}px", event.client_y() + 20))
+                .ok();
+        });
+
+        let on_mousemove = Callback::from(move |event: Event| {
+            let event = event.unchecked_into::<MouseEvent>();
+
+            // Get popup element
+            let popup = document().get_element_by_id("popup").unwrap();
+            let popup = popup.unchecked_into::<HtmlElement>();
+
+            // Move popup
+            popup
+                .style()
+                .set_property("left", &format!("{}px", event.client_x() + 20))
+                .ok();
+            popup
+                .style()
+                .set_property("top", &format!("{}px", event.client_y() + 20))
+                .ok();
+        });
+
+        let on_mouseout = Callback::from(move |event: Event| {
+            let target = event.target().unwrap().unchecked_into::<HtmlElement>();
+            Self::set_active_unhovered(&target).ok();
+
+            // Get popup element
+            let popup = document().get_element_by_id("popup").unwrap();
+            let popup = popup.unchecked_into::<HtmlElement>();
+
+            // Hide popup
+            popup.style().set_property("display", "none").ok();
+        });
+
         let set_active_hovered_event = Closure::<dyn Fn(_)>::new(move |event: web_sys::Event| {
             let target = event.target().unwrap().unchecked_into::<HtmlElement>();
             Self::set_active_hovered(&target).ok();
         });
 
         let set_active_unhovered_event = Closure::<dyn Fn(_)>::new(move |event: web_sys::Event| {
-          let target = event.target().unwrap().unchecked_into::<HtmlElement>();
-          Self::set_active_unhovered(&target).ok();
+            let target = event.target().unwrap().unchecked_into::<HtmlElement>();
+            Self::set_active_unhovered(&target).ok();
         });
 
         let children = element.children();
 
+        let mut active_listeners: Vec<EventListener> = vec![];
         for i in 0..children.length() {
             let path = children.item(i).unwrap();
             let path = path.unchecked_into::<HtmlElement>();
@@ -97,47 +189,30 @@ impl VisualDatapath {
             Self::set_active_unhovered(&path)?;
 
             if path.tag_name() == "path" {
-                path.add_event_listener_with_callback("mouseover", set_active_hovered_event.as_ref().unchecked_ref()).ok();
-                path.add_event_listener_with_callback("mouseout", set_active_unhovered_event.as_ref().unchecked_ref()).ok();
+                let on_mouseover = on_mouseover.clone();
+                let on_mouseover_listener = EventListener::new(&path, "mouseover", move |event| {
+                    on_mouseover.emit(event.clone())
+                });
 
-                /*
-                path.addEventListener("mouseover", setActiveHoveredEvent);
-                path.addEventListener("mouseout", setActiveUnhoveredEvent);
-                path.addEventListener("mouseover", openPopupEvent);
-                path.addEventListener("mousemove", movePopupEvent);
-                path.addEventListener("mouseout", closePopupEvent);
-                */
+                let on_mousemove = on_mousemove.clone();
+                let on_mousemove_listener = EventListener::new(&path, "mousemove", move |event| {
+                    on_mousemove.emit(event.clone())
+                });
+
+                let on_mouseout = on_mouseout.clone();
+                let on_mouseout_listener = EventListener::new(&path, "mouseout", move |event| {
+                    on_mouseout.emit(event.clone())
+                });
+
+                active_listeners.push(on_mouseover_listener);
+                active_listeners.push(on_mousemove_listener);
+                active_listeners.push(on_mouseout_listener);
             }
         }
         set_active_hovered_event.forget();
         set_active_unhovered_event.forget();
 
-        Ok(())
-    }
-
-    pub fn deactivate_element(element: &Element) -> Result<(), JsValue> {
-        let children = element.children();
-
-        for i in 0..children.length() {
-            let path = children.item(i).unwrap();
-            let path = path.unchecked_into::<HtmlElement>();
-
-            Self::set_inactive(&path)?;
-
-            if path.tag_name() == "path" {
-                // path.remove_event_listener_with_callback("mouseover", &events.set_active_hovered_event.as_ref().unchecked_ref());
-
-                /*
-                path.removeEventListener("mouseover", setActiveHoveredEvent);
-                path.removeEventListener("mouseout", setActiveUnhoveredEvent);
-                path.removeEventListener("mouseover", openPopupEvent);
-                path.removeEventListener("mousemove", movePopupEvent);
-                path.removeEventListener("mouseout", closePopupEvent);
-                */
-            }
-        }
-
-        Ok(())
+        Ok(active_listeners)
     }
 
     // Highlight and enable interactivity for all lines in a given stage.
@@ -148,7 +223,12 @@ impl VisualDatapath {
     //  - execute
     //  - memory
     //  - writeback
-    pub fn highlight_stage(nodes: &HtmlCollection, stage: &str) -> Result<(), JsValue> {
+    pub fn highlight_stage(
+        nodes: &HtmlCollection,
+        stage: String,
+    ) -> Result<Vec<EventListener>, JsValue> {
+        let mut active_listeners: Vec<EventListener> = vec![];
+
         for i in 0..nodes.length() {
             let element = nodes.item(i).unwrap();
 
@@ -158,19 +238,20 @@ impl VisualDatapath {
                 // This is an element we want. Highlight it.
                 // log!(&element);
 
-                Self::activate_element(&element)?;
-            } else {
-                // Not an element we want. Stop highlighting it.
-                Self::deactivate_element(&element)?;
+                if let Ok(listeners) = Self::activate_element(&element) {
+                    for l in listeners {
+                        active_listeners.push(l);
+                    }
+                }
             }
         }
 
-        Ok(())
+        Ok(active_listeners)
     }
 
-    pub fn initialize() {
+    pub fn initialize(&mut self, current_stage: String) {
         // Make the SVG interact-able.
-        let pre_process_datapath = Closure::<dyn Fn(_)>::new(move |event: web_sys::Event| {
+        let on_load = Callback::from(move |event: web_sys::Event| {
             let dp = event.target().unwrap();
             let dp = dp.dyn_into::<HtmlObjectElement>().unwrap();
 
@@ -216,11 +297,24 @@ impl VisualDatapath {
                 }
             }
 
-            Self::highlight_stage(&nodes, "instruction_decode").ok();
+            Self::highlight_stage(&nodes, current_stage.clone())
         });
 
-        let document = document().get_element_by_id(DATAPATH_ID).unwrap();
-        document.add_event_listener_with_callback("load", pre_process_datapath.as_ref().unchecked_ref()).ok();
-        pre_process_datapath.forget();
+        let active_listeners = Rc::clone(&self.active_listeners);
+
+        let dp = document().get_element_by_id(DATAPATH_ID).unwrap();
+        let on_load_listener = EventListener::new(&dp, "load", move |event| {
+            let mut active_listeners = (*active_listeners).borrow_mut();
+            let listeners = on_load.emit(event.clone());
+            if let Ok(new_l) = listeners {
+                for l in new_l {
+                    (*active_listeners).push(l);
+                }
+            }
+        });
+
+        let active_listeners = Rc::clone(&self.active_listeners);
+        let mut active_listeners = (*active_listeners).borrow_mut();
+        (*active_listeners).push(on_load_listener);
     }
 }
