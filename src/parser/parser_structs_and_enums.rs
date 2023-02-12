@@ -63,6 +63,7 @@ pub mod instruction_tokenization {
         RegisterFP,
         RegisterGP,
         Operator,
+        Half,
         Word,
         ASCIIZ,
         ASCII,

@@ -15,7 +15,6 @@ pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
     let (lines, comments) = tokenize_program(file_string);
     program_info.comments_line_and_column = comments;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
-    confirm_operand_commas(&mut program_info.instructions);
     expand_pseudo_instruction(&mut program_info.instructions);
     assign_instruction_numbers(&mut program_info.instructions);
 

@@ -278,14 +278,29 @@ fn assemble_data_binary_works_one_word(){
 #[test]
 fn assemble_data_binary_works_multiple_words(){
     let lines = tokenize_program(".data\nlabel: .word 200, 45, -12".to_string()).0;
-    let mut result = separate_data_and_text(lines).1;
-    assemble_data_binary(&mut result);
-    assert_eq!(result[0].data_entries_and_values[0].1, 200);
-    assert_eq!(result[0].data_entries_and_values[1].1, 45);
+    let mut modified_data = separate_data_and_text(lines).1;
+    let result =  assemble_data_binary(&mut modified_data);
+    assert_eq!(modified_data[0].data_entries_and_values[0].1, 200);
+    assert_eq!(modified_data[0].data_entries_and_values[1].1, 45);
     let negative = -12;
     let negative_as_u32 = negative as u32;
-    assert_eq!(result[0].data_entries_and_values[2].1, negative_as_u32);
+    assert_eq!(modified_data[0].data_entries_and_values[2].1, negative_as_u32);
+
+    assert_eq!(result[0], 0);
+    assert_eq!(result[1], 0);
+    assert_eq!(result[2], 0);
+    assert_eq!(result[3], 200);
+    assert_eq!(result[4], 0);
+    assert_eq!(result[5], 0);
+    assert_eq!(result[6], 0);
+    assert_eq!(result[7], 45);
+    assert_eq!(result[8], 255);
+    assert_eq!(result[9], 255);
+    assert_eq!(result[10], 255);
+    assert_eq!(result[11], 244);
 }
+
+
 
 
 

@@ -222,24 +222,6 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
     (instruction_list, data_list)
 }
 
-///This function goes through all but the last operands of each instruction checking that they end in a comma.
-/// If they do, the comma is removed. If they don't a missing comma error is generated.
-pub fn confirm_operand_commas(instructions: &mut Vec<Instruction>) {
-    for instruction in instructions {
-        let mut i = 0;
-        while i < (instruction.operands.len() - 1) {
-            if instruction.operands[i].token_name.ends_with(',') {
-                instruction.operands[i].token_name.pop();
-            } else {
-                instruction.errors.push(Error {
-                    error_name: MissingComma,
-                    operand_number: Some(i as u8),
-                })
-            }
-            i += 1;
-        }
-    }
-}
 
 //TODO Add more pseudo instructions. Especially ones that are converted into more than a single instruction to make sure this method works
 pub fn expand_pseudo_instruction(instruction_list: &mut [Instruction]) {
