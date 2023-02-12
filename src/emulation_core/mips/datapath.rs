@@ -45,7 +45,7 @@ pub struct MipsDatapath {
     pub state: DatapathState,
 
     /// The currently-active stage in the datapath.
-    current_stage: Stage,
+    pub current_stage: Stage,
 }
 
 /// A collection of all the data lines and wires in the datapath.
@@ -119,7 +119,7 @@ pub struct DatapathState {
 
 /// The possible stages the datapath could be in during execution.
 #[derive(Default, Copy, Clone, Eq, PartialEq)]
-enum Stage {
+pub enum Stage {
     #[default]
     InstructionFetch,
     InstructionDecode,
