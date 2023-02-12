@@ -1,10 +1,32 @@
+//! The visual datapath component.
+//!
+//! This component operates largely in JS-land, manipulating the page's DOM directly.
+//! The visual datapath operates by instantiating an `<object>` element that contains
+//! the SVG diagram of the datapath. This offers direct access to its own sub-DOM that
+//! can be manipulated, including but not limited to changing the colors of individual
+//! lines and components in the datapath.
+//!
+//! At its core, interactivity is enabled through event listeners. Within the [`VisualDatapath`]
+//! struct is a shared reference to a [`Vec<EventListener>`], which contains the currently
+//! active event listeners at any given point. Whenever a set of lines are highlighted in
+//! the datapath, event listeners are created for each of those lines as well. These event
+//! listeners wait for mouse movement over lines to determine when, where, and what
+//! information should be displayed.
+//!
+//! Any existing event listeners need to be disposed of when the diagram updates and a new
+//! set of lines are highlighted. This is handled during the `changed()` function built into
+//! the Yew framework. After this, it will proceed to re-render the diagram and create new
+//! event listeners.
+//!
+//! Displaying information about a line is done via a "popup" element, which is moved around
+//! the page depending on the position of the mouse. Its visibility is controlled by
+//! the aforementioned event listeners.
+
 pub mod consts;
 pub mod utils;
 
 use std::{cell::RefCell, rc::Rc};
 
-use gloo::utils::document;
-use gloo_console::log;
 use gloo_events::EventListener;
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{Element, Event, HtmlCollection, HtmlElement};
@@ -17,6 +39,11 @@ use utils::*;
 #[derive(PartialEq, Properties)]
 pub struct VisualDatapathProps {
     pub datapath: MipsDatapath,
+
+    /// A path to the location of the datapath SVG file. This path should be
+    /// relative to the project root.
+    ///
+    /// For example, "`static/datapath.svg`".
     pub svg_path: String,
 }
 
@@ -64,7 +91,7 @@ impl Component for VisualDatapath {
             self.initialize(current_stage);
         } else {
             let result = Self::highlight_stage(&get_g_elements(), current_stage);
-                
+
             // Capture new event listeners.
             if let Ok(new_listeners) = result {
                 self.add_event_listeners(new_listeners);
@@ -84,7 +111,7 @@ impl Component for VisualDatapath {
 }
 
 impl VisualDatapath {
-    /// Append the contents of a `Vec<EventListener>` to `self.event_listeners`.
+    /// Move the contents of `new_listeners` to `self.event_listeners`.
     pub fn add_event_listeners(&mut self, new_listeners: Vec<EventListener>) {
         let active_listeners = Rc::clone(&self.active_listeners);
         let mut active_listeners = (*active_listeners).borrow_mut();
@@ -101,48 +128,126 @@ impl VisualDatapath {
         (*active_listeners).clear();
     }
 
-    /// Set a line's color.
-    pub fn set_color(path: &HtmlElement, color: &str) -> Result<(), JsValue> {
-        path.set_attribute("stroke", color)?;
+    /// Make the SVG element on the page interact-able.
+    ///
+    /// There are aspects about the SVG element from exporting that initially
+    /// make it hard to properly interact with. This makes a few adjustments to
+    /// the element to allow this functionality.
+    ///
+    /// This function is written in the way that it is (encapsulating
+    /// the initialization within a [`Callback`]) due to the nature of page
+    /// loading.
+    ///
+    /// While the `<VisualDatapath>` element is finished loading on the page when the
+    /// `rendered()` function is called, there is a likely chance that the virtual
+    /// DOM within the `<object>` element has *not* yet finished loading. This is
+    /// circumvented by creating an event listener on the `<object>` element for the
+    /// "load" event, which will guarantee when that virtual DOM is actually ready
+    /// to be manipulated.
+    pub fn initialize(&mut self, current_stage: String) {
+        let on_load = Callback::from(move |_| {
+            let nodes = get_g_elements();
 
-        if path.tag_name() == "ellipse" {
-            path.set_attribute("fill", color)?;
-        }
+            do_over_html_collection(&nodes, |g| {
+                if g.has_attribute("data-stage") {
+                    let paths = g.children();
 
-        Ok(())
+                    do_over_html_collection_safe(&paths, |item| {
+                        if let Some(path) = item {
+                            // Allow the path to have event listeners.
+                            path.set_attribute("pointer-events", "stroke").ok();
+
+                            if path.tag_name() == "ellipse" {
+                                // Remove the large <rect> surrounding the ellipse. It covers up elements and is stupid.
+                                let rects = path
+                                    .parent_element()
+                                    .unwrap()
+                                    .get_elements_by_tag_name("rect");
+
+                                for k in 0..rects.length() {
+                                    let rect = rects.item(k).unwrap();
+                                    rect.remove();
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+
+            Self::highlight_stage(&nodes, current_stage.clone())
+        });
+
+        let active_listeners = Rc::clone(&self.active_listeners);
+
+        // Attach the on load listener.
+        let on_load_listener = EventListener::new(&get_datapath_root(), "load", move |event| {
+            let result = on_load.emit(event.clone());
+
+            // Capture the new event listeners.
+            let mut active_listeners = (*active_listeners).borrow_mut();
+            if let Ok(new_listeners) = result {
+                for l in new_listeners {
+                    (*active_listeners).push(l);
+                }
+            }
+        });
+
+        // Capture the "load" event listener.
+        let active_listeners = Rc::clone(&self.active_listeners);
+        let mut active_listeners = (*active_listeners).borrow_mut();
+        (*active_listeners).push(on_load_listener);
     }
 
-    /// Set a line to be inactive.
-    pub fn set_inactive(path: &HtmlElement) -> Result<(), JsValue> {
-        path.style().set_property("cursor", "auto")?;
-        Self::set_color(path, INACTIVE_COLOR)?;
+    /// Highlight and enable interactivity for all lines in a given stage.
+    ///
+    /// Consequently un-highlights for all other lines. (Disabling interactivity
+    /// for other lines is done within [`Self::changed()`].)
+    ///
+    /// Takes as input a reference to an [`HtmlCollection`] that contains all the `<g>` elements
+    /// of the SVG diagram.
+    ///
+    /// Valid strings in the `stage` parameter:
+    ///  - instruction_fetch
+    ///  - instruction_decode
+    ///  - execute
+    ///  - memory
+    ///  - writeback
+    ///
+    /// If successful, returns a [`Vec<EventListener>`] containing the new event
+    /// listeners generated.
+    pub fn highlight_stage(
+        nodes: &HtmlCollection,
+        stage: String,
+    ) -> Result<Vec<EventListener>, JsValue> {
+        let mut active_listeners: Vec<EventListener> = vec![];
 
-        Ok(())
+        do_over_html_collection(nodes, |element| {
+            if !element.has_attribute("data-stage") {
+                // Do nothing if the line has no defined stage.
+            } else if element.get_attribute("data-stage").unwrap() == stage {
+                // This is an element we want. Highlight it.
+                if let Ok(listeners) = Self::activate_element(element) {
+                    for l in listeners {
+                        active_listeners.push(l);
+                    }
+                }
+            } else {
+                // Not an element we want. Stop highlighting it.
+                Self::deactivate_element(element).ok();
+            }
+        });
+
+        Ok(active_listeners)
     }
 
-    /// Set a line to be active and unhovered.
-    pub fn set_active_unhovered(path: &HtmlElement) -> Result<(), JsValue> {
-        path.style().set_property("cursor", "pointer")?;
-        Self::set_color(path, ACTIVE_UNHOVERED_COLOR)?;
-
-        Ok(())
-    }
-
-    /// Set a line to be active and hovered.
-    pub fn set_active_hovered(path: &HtmlElement) -> Result<(), JsValue> {
-        Self::set_color(path, ACTIVE_HOVERED_COLOR)?;
-
-        Ok(())
-    }
-
-    /// Activates a given <g> tag.
-    /// 
+    /// Activates a given `<g>` element.
+    ///
     /// If successful, returns a [`Vec<EventListener>`] containing the newly created event listeners.
     pub fn activate_element(element: &Element) -> Result<Vec<EventListener>, JsValue> {
         // Callback to execute if a line is hovered over.
         let on_mouseover = Callback::from(move |event: web_sys::Event| {
             let event = event.unchecked_into::<MouseEvent>();
-            
+
             // Get relevant elements.
             let target = event.target().unwrap().unchecked_into::<HtmlElement>();
             let popup = get_popup_element();
@@ -199,8 +304,7 @@ impl VisualDatapath {
         // Get the children of this element, and iterate over them.
         let children = element.children();
         for i in 0..children.length() {
-            let path = children.item(i).unwrap();
-            let path = path.unchecked_into::<HtmlElement>();
+            let path = children.item(i).unwrap().unchecked_into::<HtmlElement>();
 
             Self::set_active_unhovered(&path)?;
 
@@ -223,7 +327,7 @@ impl VisualDatapath {
                     on_mouseout.emit(event.clone())
                 });
 
-                // 
+                // Save the event listeners.
                 active_listeners.push(on_mouseover_listener);
                 active_listeners.push(on_mousemove_listener);
                 active_listeners.push(on_mouseout_listener);
@@ -233,12 +337,12 @@ impl VisualDatapath {
         Ok(active_listeners)
     }
 
+    /// Deactivates a given `<g>` element.
     pub fn deactivate_element(element: &Element) -> Result<(), JsValue> {
         let children = element.children();
 
         for i in 0..children.length() {
-            let path = children.item(i).unwrap();
-            let path = path.unchecked_into::<HtmlElement>();
+            let path = children.item(i).unwrap().unchecked_into::<HtmlElement>();
 
             Self::set_inactive(&path)?;
         }
@@ -246,107 +350,37 @@ impl VisualDatapath {
         Ok(())
     }
 
-    /// Highlight and enable interactivity for all lines in a given stage.
-    /// 
-    /// Consequently un-highlights for all other lines. (Disabling interactivity
-    /// for other lines is done within [`Self::changed()`].)
-    /// 
-    /// Takes as input a reference to an [`HtmlCollection`] that contains all the <g> elements
-    /// of the SVG diagram.
-    /// 
-    /// Valid strings in `stage` parameter:
-    ///  - instruction_fetch
-    ///  - instruction_decode
-    ///  - execute
-    ///  - memory
-    ///  - writeback
-    /// 
-    /// If successful, returns a [`Vec<EventListener>`] containing the new event
-    /// listeners generated.
-    pub fn highlight_stage(
-        nodes: &HtmlCollection,
-        stage: String,
-    ) -> Result<Vec<EventListener>, JsValue> {
-        let mut active_listeners: Vec<EventListener> = vec![];
+    /// Set a line to be inactive.
+    pub fn set_inactive(path: &HtmlElement) -> Result<(), JsValue> {
+        path.style().set_property("cursor", "auto")?;
+        Self::set_color(path, INACTIVE_COLOR)?;
 
-        for i in 0..nodes.length() {
-            let element = nodes.item(i).unwrap();
-
-            if !element.has_attribute("data-stage") {
-                // Do nothing if the line has no defined stage.
-            } else if element.get_attribute("data-stage").unwrap() == stage {
-                // This is an element we want. Highlight it.
-                if let Ok(listeners) = Self::activate_element(&element) {
-                    for l in listeners {
-                        active_listeners.push(l);
-                    }
-                }
-            } else {
-                // Not an element we want. Stop highlighting it.
-                Self::deactivate_element(&element)?;
-            }
-        }
-
-        Ok(active_listeners)
+        Ok(())
     }
 
-    /// Make the SVG element on the page interactable.
-    pub fn initialize(&mut self, current_stage: String) {
-        let on_load = Callback::from(move |_| {
-            let nodes = get_g_elements();
+    /// Set a line to be active and unhovered.
+    pub fn set_active_unhovered(path: &HtmlElement) -> Result<(), JsValue> {
+        path.style().set_property("cursor", "pointer")?;
+        Self::set_color(path, ACTIVE_UNHOVERED_COLOR)?;
 
-            for i in 0..nodes.length() {
-                let g = nodes.item(i).unwrap();
+        Ok(())
+    }
 
-                if g.has_attribute("data-stage") {
-                    let paths = g.children();
+    /// Set a line to be active and hovered.
+    pub fn set_active_hovered(path: &HtmlElement) -> Result<(), JsValue> {
+        Self::set_color(path, ACTIVE_HOVERED_COLOR)?;
 
-                    for j in 0..paths.length() {
-                        match paths.item(j) {
-                            Some(path) => {
-                                // Allow the path to have event listeners.
-                                path.set_attribute("pointer-events", "stroke").ok();
+        Ok(())
+    }
 
-                                if path.tag_name() == "ellipse" {
-                                    // Remove the large <rect> surrounding the ellipse. It covers up elements and is stupid.
-                                    let rects = path
-                                        .parent_element()
-                                        .unwrap()
-                                        .get_elements_by_tag_name("rect");
+    /// Set a line's color.
+    pub fn set_color(path: &HtmlElement, color: &str) -> Result<(), JsValue> {
+        path.set_attribute("stroke", color)?;
 
-                                    for k in 0..rects.length() {
-                                        let rect = rects.item(k).unwrap();
-                                        rect.remove();
-                                    }
-                                }
-                            }
-                            None => continue,
-                        }
-                    }
-                }
-            }
+        if path.tag_name() == "ellipse" {
+            path.set_attribute("fill", color)?;
+        }
 
-            Self::highlight_stage(&nodes, current_stage.clone())
-        });
-
-        let active_listeners = Rc::clone(&self.active_listeners);
-
-        let dp = document().get_element_by_id(DATAPATH_ID).unwrap();
-        let on_load_listener = EventListener::new(&dp, "load", move |event| {
-            let mut active_listeners = (*active_listeners).borrow_mut();
-            let result = on_load.emit(event.clone());
-
-            // Capture the new event listeners.
-            if let Ok(new_listeners) = result {
-                for l in new_listeners {
-                    (*active_listeners).push(l);
-                }
-            }
-        });
-
-        // Capture the "load" event listener.
-        let active_listeners = Rc::clone(&self.active_listeners);
-        let mut active_listeners = (*active_listeners).borrow_mut();
-        (*active_listeners).push(on_load_listener);
+        Ok(())
     }
 }
