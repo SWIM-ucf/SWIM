@@ -1,19 +1,18 @@
+pub mod consts;
+pub mod utils;
+
 use std::{cell::RefCell, rc::Rc};
 
 use gloo::utils::document;
 use gloo_console::log;
 use gloo_events::EventListener;
-use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
-use web_sys::{Element, Event, HtmlCollection, HtmlElement, HtmlObjectElement};
+use wasm_bindgen::{JsCast, JsValue};
+use web_sys::{Element, Event, HtmlCollection, HtmlElement};
 use yew::prelude::*;
 
 use crate::emulation_core::mips::datapath::{MipsDatapath, Stage};
-
-const DATAPATH_ID: &str = "datapath";
-
-const INACTIVE_COLOR: &str = "#000000";
-const ACTIVE_HOVERED_COLOR: &str = "#FF0000";
-const ACTIVE_UNHOVERED_COLOR: &str = "#00FFFF";
+use consts::*;
+use utils::*;
 
 #[derive(PartialEq, Properties)]
 pub struct VisualDatapathProps {
@@ -61,25 +60,48 @@ impl Component for VisualDatapath {
             Stage::WriteBack => "writeback",
         });
 
-        log!(&current_stage);
-
         if first_render {
             self.initialize(current_stage);
+        } else {
+            let result = Self::highlight_stage(&get_g_elements(), current_stage);
+                
+            // Capture new event listeners.
+            if let Ok(new_listeners) = result {
+                self.add_event_listeners(new_listeners);
+            }
         }
     }
 
-    fn destroy(&mut self, _ctx: &Context<Self>) {
-        let active_listeners = Rc::clone(&self.active_listeners);
-        let active_listeners = (*active_listeners).borrow_mut();
+    fn changed(&mut self, _ctx: &Context<Self>, _old_props: &Self::Properties) -> bool {
+        self.clear_event_listeners();
 
-        for listener in &(*active_listeners) {
-            drop(listener);
-        }
+        true
+    }
+
+    fn destroy(&mut self, _ctx: &Context<Self>) {
+        self.clear_event_listeners();
     }
 }
 
 impl VisualDatapath {
-    // Set a line's color.
+    /// Append the contents of a `Vec<EventListener>` to `self.event_listeners`.
+    pub fn add_event_listeners(&mut self, new_listeners: Vec<EventListener>) {
+        let active_listeners = Rc::clone(&self.active_listeners);
+        let mut active_listeners = (*active_listeners).borrow_mut();
+
+        for l in new_listeners {
+            (*active_listeners).push(l);
+        }
+    }
+
+    /// Clear the contents of `self.event_listeners`.
+    pub fn clear_event_listeners(&mut self) {
+        let active_listeners = Rc::clone(&self.active_listeners);
+        let mut active_listeners = (*active_listeners).borrow_mut();
+        (*active_listeners).clear();
+    }
+
+    /// Set a line's color.
     pub fn set_color(path: &HtmlElement, color: &str) -> Result<(), JsValue> {
         path.set_attribute("stroke", color)?;
 
@@ -90,7 +112,7 @@ impl VisualDatapath {
         Ok(())
     }
 
-    // Set a line to be inactive.
+    /// Set a line to be inactive.
     pub fn set_inactive(path: &HtmlElement) -> Result<(), JsValue> {
         path.style().set_property("cursor", "auto")?;
         Self::set_color(path, INACTIVE_COLOR)?;
@@ -98,7 +120,7 @@ impl VisualDatapath {
         Ok(())
     }
 
-    // Set a line to be active and unhovered.
+    /// Set a line to be active and unhovered.
     pub fn set_active_unhovered(path: &HtmlElement) -> Result<(), JsValue> {
         path.style().set_property("cursor", "pointer")?;
         Self::set_color(path, ACTIVE_UNHOVERED_COLOR)?;
@@ -106,26 +128,29 @@ impl VisualDatapath {
         Ok(())
     }
 
-    // Set a line to be active and hovered.
+    /// Set a line to be active and hovered.
     pub fn set_active_hovered(path: &HtmlElement) -> Result<(), JsValue> {
         Self::set_color(path, ACTIVE_HOVERED_COLOR)?;
 
         Ok(())
     }
 
-    // Activates a given <g> tag.
+    /// Activates a given <g> tag.
+    /// 
+    /// If successful, returns a [`Vec<EventListener>`] containing the newly created event listeners.
     pub fn activate_element(element: &Element) -> Result<Vec<EventListener>, JsValue> {
+        // Callback to execute if a line is hovered over.
         let on_mouseover = Callback::from(move |event: web_sys::Event| {
             let event = event.unchecked_into::<MouseEvent>();
+            
+            // Get relevant elements.
             let target = event.target().unwrap().unchecked_into::<HtmlElement>();
-            Self::set_active_hovered(&target).ok();
-
-            // Get popup element
-            let popup = document().get_element_by_id("popup").unwrap();
-            let popup = popup.unchecked_into::<HtmlElement>();
+            let popup = get_popup_element();
             let title = popup.query_selector(".title").unwrap().unwrap();
 
-            // Show popup
+            Self::set_active_hovered(&target).ok();
+
+            // Show popup.
             let element_id = target.parent_element().unwrap().id();
             title.set_text_content(Some(&element_id));
             popup.style().set_property("display", "block").ok();
@@ -139,14 +164,13 @@ impl VisualDatapath {
                 .ok();
         });
 
+        // Callback to execute if the mouse moves while hovered on an element.
         let on_mousemove = Callback::from(move |event: Event| {
             let event = event.unchecked_into::<MouseEvent>();
 
-            // Get popup element
-            let popup = document().get_element_by_id("popup").unwrap();
-            let popup = popup.unchecked_into::<HtmlElement>();
+            let popup = get_popup_element();
 
-            // Move popup
+            // Move popup.
             popup
                 .style()
                 .set_property("left", &format!("{}px", event.client_x() + 20))
@@ -157,31 +181,23 @@ impl VisualDatapath {
                 .ok();
         });
 
+        // Callback to execute if the mouse stops hovering over an element.
         let on_mouseout = Callback::from(move |event: Event| {
+            // Get relevant elements.
             let target = event.target().unwrap().unchecked_into::<HtmlElement>();
+            let popup = get_popup_element();
+
             Self::set_active_unhovered(&target).ok();
 
-            // Get popup element
-            let popup = document().get_element_by_id("popup").unwrap();
-            let popup = popup.unchecked_into::<HtmlElement>();
-
-            // Hide popup
+            // Hide popup.
             popup.style().set_property("display", "none").ok();
         });
 
-        let set_active_hovered_event = Closure::<dyn Fn(_)>::new(move |event: web_sys::Event| {
-            let target = event.target().unwrap().unchecked_into::<HtmlElement>();
-            Self::set_active_hovered(&target).ok();
-        });
-
-        let set_active_unhovered_event = Closure::<dyn Fn(_)>::new(move |event: web_sys::Event| {
-            let target = event.target().unwrap().unchecked_into::<HtmlElement>();
-            Self::set_active_unhovered(&target).ok();
-        });
-
-        let children = element.children();
-
         let mut active_listeners: Vec<EventListener> = vec![];
+
+        // Within a given <g> tag is its composition of <path> elements building a line.
+        // Get the children of this element, and iterate over them.
+        let children = element.children();
         for i in 0..children.length() {
             let path = children.item(i).unwrap();
             let path = path.unchecked_into::<HtmlElement>();
@@ -189,40 +205,64 @@ impl VisualDatapath {
             Self::set_active_unhovered(&path)?;
 
             if path.tag_name() == "path" {
+                // Attach mouseover listener.
                 let on_mouseover = on_mouseover.clone();
                 let on_mouseover_listener = EventListener::new(&path, "mouseover", move |event| {
                     on_mouseover.emit(event.clone())
                 });
 
+                // Attach mousemove listener.
                 let on_mousemove = on_mousemove.clone();
                 let on_mousemove_listener = EventListener::new(&path, "mousemove", move |event| {
                     on_mousemove.emit(event.clone())
                 });
 
+                // Attach mouseout listener.
                 let on_mouseout = on_mouseout.clone();
                 let on_mouseout_listener = EventListener::new(&path, "mouseout", move |event| {
                     on_mouseout.emit(event.clone())
                 });
 
+                // 
                 active_listeners.push(on_mouseover_listener);
                 active_listeners.push(on_mousemove_listener);
                 active_listeners.push(on_mouseout_listener);
             }
         }
-        set_active_hovered_event.forget();
-        set_active_unhovered_event.forget();
 
         Ok(active_listeners)
     }
 
-    // Highlight and enable interactivity for all lines in a given stage.
-    // Consequently un-highlights and disables interactivity for all other lines.
-    // Valid strings in "stage" parameter:
-    //  - instruction_fetch
-    //  - instruction_decode
-    //  - execute
-    //  - memory
-    //  - writeback
+    pub fn deactivate_element(element: &Element) -> Result<(), JsValue> {
+        let children = element.children();
+
+        for i in 0..children.length() {
+            let path = children.item(i).unwrap();
+            let path = path.unchecked_into::<HtmlElement>();
+
+            Self::set_inactive(&path)?;
+        }
+
+        Ok(())
+    }
+
+    /// Highlight and enable interactivity for all lines in a given stage.
+    /// 
+    /// Consequently un-highlights for all other lines. (Disabling interactivity
+    /// for other lines is done within [`Self::changed()`].)
+    /// 
+    /// Takes as input a reference to an [`HtmlCollection`] that contains all the <g> elements
+    /// of the SVG diagram.
+    /// 
+    /// Valid strings in `stage` parameter:
+    ///  - instruction_fetch
+    ///  - instruction_decode
+    ///  - execute
+    ///  - memory
+    ///  - writeback
+    /// 
+    /// If successful, returns a [`Vec<EventListener>`] containing the new event
+    /// listeners generated.
     pub fn highlight_stage(
         nodes: &HtmlCollection,
         stage: String,
@@ -236,35 +276,24 @@ impl VisualDatapath {
                 // Do nothing if the line has no defined stage.
             } else if element.get_attribute("data-stage").unwrap() == stage {
                 // This is an element we want. Highlight it.
-                // log!(&element);
-
                 if let Ok(listeners) = Self::activate_element(&element) {
                     for l in listeners {
                         active_listeners.push(l);
                     }
                 }
+            } else {
+                // Not an element we want. Stop highlighting it.
+                Self::deactivate_element(&element)?;
             }
         }
 
         Ok(active_listeners)
     }
 
+    /// Make the SVG element on the page interactable.
     pub fn initialize(&mut self, current_stage: String) {
-        // Make the SVG interact-able.
-        let on_load = Callback::from(move |event: web_sys::Event| {
-            let dp = event.target().unwrap();
-            let dp = dp.dyn_into::<HtmlObjectElement>().unwrap();
-
-            // Get all the <p> tags.
-            let nodes = dp
-                .content_document()
-                .unwrap()
-                .first_element_child()
-                .unwrap()
-                .query_selector("g")
-                .unwrap()
-                .unwrap()
-                .children();
+        let on_load = Callback::from(move |_| {
+            let nodes = get_g_elements();
 
             for i in 0..nodes.length() {
                 let g = nodes.item(i).unwrap();
@@ -305,14 +334,17 @@ impl VisualDatapath {
         let dp = document().get_element_by_id(DATAPATH_ID).unwrap();
         let on_load_listener = EventListener::new(&dp, "load", move |event| {
             let mut active_listeners = (*active_listeners).borrow_mut();
-            let listeners = on_load.emit(event.clone());
-            if let Ok(new_l) = listeners {
-                for l in new_l {
+            let result = on_load.emit(event.clone());
+
+            // Capture the new event listeners.
+            if let Ok(new_listeners) = result {
+                for l in new_listeners {
                     (*active_listeners).push(l);
                 }
             }
         });
 
+        // Capture the "load" event listener.
         let active_listeners = Rc::clone(&self.active_listeners);
         let mut active_listeners = (*active_listeners).borrow_mut();
         (*active_listeners).push(on_load_listener);
