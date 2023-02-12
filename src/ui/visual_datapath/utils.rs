@@ -36,6 +36,13 @@ pub fn get_g_elements() -> HtmlCollection {
         .children()
 }
 
+/// Returns the relative coordinates of the `<object>` element to the page.
+pub fn get_datapath_position() -> (i32, i32) {
+    let datapath_root = get_datapath_root();
+
+    (datapath_root.offset_left(), datapath_root.offset_top())
+}
+
 /// Perform some function over an [`HtmlCollection`], assuming each element
 /// inside of it is valid.
 pub fn do_over_html_collection<F>(html_collection: &HtmlCollection, mut function: F)

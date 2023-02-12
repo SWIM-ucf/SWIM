@@ -252,6 +252,7 @@ impl VisualDatapath {
             let target = event.target().unwrap().unchecked_into::<HtmlElement>();
             let popup = get_popup_element();
             let title = popup.query_selector(".title").unwrap().unwrap();
+            let datapath_position = get_datapath_position();
 
             Self::set_active_hovered(&target).ok();
 
@@ -261,11 +262,17 @@ impl VisualDatapath {
             popup.style().set_property("display", "block").ok();
             popup
                 .style()
-                .set_property("left", &format!("{}px", event.client_x() + 20))
+                .set_property(
+                    "left",
+                    &format!("{}px", datapath_position.0 + event.client_x() + 20),
+                )
                 .ok();
             popup
                 .style()
-                .set_property("top", &format!("{}px", event.client_y() + 20))
+                .set_property(
+                    "top",
+                    &format!("{}px", datapath_position.1 + event.client_y() + 20),
+                )
                 .ok();
         });
 
@@ -274,15 +281,22 @@ impl VisualDatapath {
             let event = event.unchecked_into::<MouseEvent>();
 
             let popup = get_popup_element();
+            let datapath_position = get_datapath_position();
 
             // Move popup.
             popup
                 .style()
-                .set_property("left", &format!("{}px", event.client_x() + 20))
+                .set_property(
+                    "left",
+                    &format!("{}px", datapath_position.0 + event.client_x() + 20),
+                )
                 .ok();
             popup
                 .style()
-                .set_property("top", &format!("{}px", event.client_y() + 20))
+                .set_property(
+                    "top",
+                    &format!("{}px", datapath_position.1 + event.client_y() + 20),
+                )
                 .ok();
         });
 
