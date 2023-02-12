@@ -9,7 +9,7 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandTy
 use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
     FloatingPoint, GeneralPurpose,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{Half, Space, Word};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{Byte, Half, Space, Word};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
     Data, Error, Instruction, OperandType, RegisterType, TokenType,
 };
@@ -456,7 +456,22 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
         match &*data_entry.data_type.token_name {
             ".ascii" => {}
             ".asciiz" => {}
-            ".byte" => {}
+            ".byte" => {
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                    value.0.token_type = Byte;
+
+                    if value.0.token_name.starts_with('\''){
+                        //todo implement reading an ascii char
+                    }else{
+                        let immediate_results = read_immediate(&value.0.token_name, i as i32, 8);
+                        value.1 = immediate_results.0;
+                        vec_of_data.push(immediate_results.0 as u8);
+                        if immediate_results.1.is_some(){
+                            data_entry.errors.push(immediate_results.1.unwrap());
+                        }
+                    }
+                }
+            }
             ".double" => {}
             ".float" => {}
             ".half" => {//half words are 16 bits each. The vec is of u32s so 2 half words are in each u32

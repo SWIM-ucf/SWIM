@@ -69,6 +69,7 @@ pub mod instruction_tokenization {
         ASCII,
         DataType,
         Space,
+        Byte,
     }
 
     #[derive(Debug, PartialEq, Eq, Clone)]
