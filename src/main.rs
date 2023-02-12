@@ -162,6 +162,19 @@ fn app() -> Html {
         )
     };
 
+    let move_stage = {
+        let datapath = Rc::clone(&datapath);
+        let trigger = use_force_update();
+        use_callback(
+            move |_, _| {
+                let mut datapath = (*datapath).borrow_mut();
+                (*datapath).execute_stage();
+                trigger.force_update();
+            },
+            (),
+        )
+    };
+
     html! {
         <div>
             <h1>{"Welcome to SWIM"}</h1>
@@ -175,6 +188,7 @@ fn app() -> Html {
             <Regview gp={(*datapath).borrow().registers}/>
             <SwimEditor text_model={(*text_model).borrow().clone()} />
             <button onclick={on_error_clicked}>{ "Click" }</button>
+            <button onclick={move_stage}>{ "Move stage" }</button>
             <VisualDatapath datapath={(*datapath.borrow()).clone()} svg_path={"static/datapath.svg"} />
             <Console parsermsg={(*parser_text_output).clone()}/>
         </div>

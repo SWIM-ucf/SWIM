@@ -1,0 +1,33 @@
+#popup {
+  display: none;
+  position: absolute;
+  background-color: #333333;
+  padding: 10px;
+}
+
+#popup .title, #popup .description, #popup .data {
+  color: #FFFFFF;
+  margin: 0;
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+}
+
+#popup .title {
+  font-size: 1em;
+  margin-bottom: 0.2rem;
+}
+
+#popup .description, #popup .data {
+  font-size: 0.8em;
+}
+
+#popup .data {
+  margin-top: 0.7rem;
+}
+
+#popup .data .label {
+  font-weight: bold;
+}
+
+#popup .data .code {
+  font-family: 'Iosevka', 'Fira Code', monospace;
+}

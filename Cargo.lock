@@ -741,6 +741,7 @@ version = "0.1.0"
 dependencies = [
  "gloo",
  "gloo-console",
+ "gloo-events",
  "js-sys",
  "monaco",
  "strum",
