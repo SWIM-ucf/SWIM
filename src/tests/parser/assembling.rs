@@ -198,8 +198,8 @@ mod read_label_absolute_tests {
     use crate::parser::assembling::read_label_absolute;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::LabelNotFound;
     use crate::parser::parsing::{
-        assign_instruction_numbers, create_label_map,
-        expand_pseudo_instruction, separate_data_and_text, tokenize_program,
+        assign_instruction_numbers, create_label_map, expand_pseudo_instruction,
+        separate_data_and_text, tokenize_program,
     };
     use std::collections::HashMap;
 
@@ -234,8 +234,8 @@ mod read_label_absolute_tests {
 mod read_label_relative_tests {
     use crate::parser::assembling::read_label_relative;
     use crate::parser::parsing::{
-        assign_instruction_numbers, create_label_map,
-        expand_pseudo_instruction, separate_data_and_text, tokenize_program,
+        assign_instruction_numbers, create_label_map, expand_pseudo_instruction,
+        separate_data_and_text, tokenize_program,
     };
     use std::collections::HashMap;
 
@@ -268,7 +268,7 @@ mod read_label_relative_tests {
 }
 
 #[test]
-fn assemble_data_binary_works_one_word(){
+fn assemble_data_binary_works_one_word() {
     let lines = tokenize_program(".data\nlabel: .word 200".to_string()).0;
     let mut result = separate_data_and_text(lines).1;
     assemble_data_binary(&mut result);
@@ -276,15 +276,19 @@ fn assemble_data_binary_works_one_word(){
 }
 
 #[test]
-fn assemble_data_binary_works_multiple_words(){
+fn assemble_data_binary_works_multiple_words() {
     let lines = tokenize_program(".data\nlabel: .word 200, 45, -12".to_string()).0;
     let mut modified_data = separate_data_and_text(lines).1;
-    let result =  assemble_data_binary(&mut modified_data);
+    let result = assemble_data_binary(&mut modified_data);
+
     assert_eq!(modified_data[0].data_entries_and_values[0].1, 200);
     assert_eq!(modified_data[0].data_entries_and_values[1].1, 45);
     let negative = -12;
     let negative_as_u32 = negative as u32;
-    assert_eq!(modified_data[0].data_entries_and_values[2].1, negative_as_u32);
+    assert_eq!(
+        modified_data[0].data_entries_and_values[2].1,
+        negative_as_u32
+    );
 
     assert_eq!(result[0], 0);
     assert_eq!(result[1], 0);
@@ -300,7 +304,42 @@ fn assemble_data_binary_works_multiple_words(){
     assert_eq!(result[11], 244);
 }
 
+#[test]
+fn assemble_data_binary_works_half_words(){
+    let lines = tokenize_program(".data\nlabel: .half 200, 45, -12".to_string()).0;
+    let mut modified_data = separate_data_and_text(lines).1;
+    let result = assemble_data_binary(&mut modified_data);
 
+    assert_eq!(modified_data[0].data_entries_and_values[0].1, 200);
+    assert_eq!(modified_data[0].data_entries_and_values[1].1, 45);
+    let negative = -12;
+    let negative_as_u32 = negative as u32;
+    assert_eq!(
+        modified_data[0].data_entries_and_values[2].1,
+        negative_as_u32
+    );
+    assert_eq!(result[0], 0);
+    assert_eq!(result[1], 200);
+    assert_eq!(result[2], 0);
+    assert_eq!(result[3], 45);
+    assert_eq!(result[4], 255);
+    assert_eq!(result[5], 244);
+    assert_eq!(result.len(), 6);
+}
 
+#[test]
+fn assemble_data_binary_works_for_spaces(){
+    let lines = tokenize_program(".data\nlabel: .space 3, 1".to_string()).0;
+    let mut modified_data = separate_data_and_text(lines).1;
+    let result = assemble_data_binary(&mut modified_data);
 
+    assert_eq!(modified_data[0].data_entries_and_values[0].1, 3);
+    assert_eq!(modified_data[0].data_entries_and_values[1].1, 1);
 
+    assert_eq!(result[0], 0);
+    assert_eq!(result[1], 0);
+    assert_eq!(result[2], 0);
+    assert_eq!(result[3], 0);
+    assert_eq!(result.len(), 4);
+
+}

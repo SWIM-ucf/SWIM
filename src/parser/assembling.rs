@@ -9,9 +9,11 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandTy
 use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
     FloatingPoint, GeneralPurpose,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{Data, Error, Instruction, OperandType, RegisterType, TokenType};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{Half, Space, Word};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{
+    Data, Error, Instruction, OperandType, RegisterType, TokenType,
+};
 use std::collections::HashMap;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{Half, Word};
 
 ///This function takes an instruction whose operands it is supposed to read, the order of expected operand types and then
 ///the order these operands should be concatenated onto the binary representation of the string
@@ -448,28 +450,17 @@ pub fn read_immediate(
 }
 
 ///Takes the data list and finds the actual values for each data entry that will be put into memory
-pub fn assemble_data_binary(data_list: &mut Vec<Data>) -> Vec<u8>{
+pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
     let mut vec_of_data: Vec<u8> = Vec::new();
-    for data_entry in data_list.iter_mut(){
-        match &*data_entry.data_type.token_name{
-            ".ascii" =>{
-
-            },
-            ".asciiz" =>{
-
-            },
-            ".byte" => {
-
-            },
-            ".double" => {
-
-            },
-            ".float" => {
-
-            },//half words are 16 bits each. The vec is of u32s so 2 half words are in each u32
-            ".half" => {
-                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate(){
-
+    for data_entry in data_list.iter_mut() {
+        match &*data_entry.data_type.token_name {
+            ".ascii" => {}
+            ".asciiz" => {}
+            ".byte" => {}
+            ".double" => {}
+            ".float" => {}
+            ".half" => {//half words are 16 bits each. The vec is of u32s so 2 half words are in each u32
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Half;
                     let immediate_results = read_immediate(&value.0.token_name, i as i32, 16);
                     value.1 = immediate_results.0;
@@ -477,20 +468,32 @@ pub fn assemble_data_binary(data_list: &mut Vec<Data>) -> Vec<u8>{
                     vec_of_data.push((value.1 >> 8) as u8);
                     vec_of_data.push(value.1 as u8);
 
+                    if immediate_results.1.is_some() {
+                        data_entry.errors.push(immediate_results.1.unwrap());
+                    }
+                }
+            }
+            ".space" => {
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                    value.0.token_type = Space;
+                    let immediate_results = read_immediate(&value.0.token_name, i as i32, 32);
+                    value.1 = immediate_results.0;
+
+                    for _i in 0..immediate_results.0{
+                        vec_of_data.push(0);
+                    }
+
                     if immediate_results.1.is_some(){
                         data_entry.errors.push(immediate_results.1.unwrap());
                     }
                 }
-            },
-            ".space" => {
-
-            },
+            }
             ".word" => {
-                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate(){
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Word;
                     let immediate_results = read_immediate(&value.0.token_name, i as i32, 32);
                     value.1 = immediate_results.0;
-                    if immediate_results.1.is_some(){
+                    if immediate_results.1.is_some() {
                         data_entry.errors.push(immediate_results.1.unwrap());
                     }
 
@@ -499,9 +502,8 @@ pub fn assemble_data_binary(data_list: &mut Vec<Data>) -> Vec<u8>{
                     vec_of_data.push((value.1 >> 16) as u8);
                     vec_of_data.push((value.1 >> 8) as u8);
                     vec_of_data.push(value.1 as u8);
-
                 }
-            },
+            }
 
             _ => {}
         }

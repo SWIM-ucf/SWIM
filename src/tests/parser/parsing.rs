@@ -4,7 +4,9 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{Data, Error, Instruction, Line, Token};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{
+    Data, Error, Instruction, Line, Token,
+};
 use crate::parser::parsing::{
     assign_instruction_numbers, create_label_map, expand_pseudo_instruction,
 };
@@ -259,7 +261,6 @@ fn separate_data_and_text_works_basic_version() {
     instruction_1.operator.token_type = Operator;
     instruction_1.operands[0].token_name.pop();
 
-
     let mut instruction_2 = Instruction {
         operator: lines[2].tokens[0].clone(),
         operands: vec![lines[2].tokens[1].clone(), lines[2].tokens[2].clone()],
@@ -269,17 +270,16 @@ fn separate_data_and_text_works_basic_version() {
     instruction_2.operator.token_type = Operator;
     instruction_2.operands[0].token_name.pop();
 
-
     let correct_result = vec![instruction_0, instruction_1, instruction_2];
 
     assert_eq!(result.0, correct_result);
 }
 
 #[test]
-fn separate_data_and_text_generates_error_on_missing_commas_text(){
+fn separate_data_and_text_generates_error_on_missing_commas_text() {
     let lines = tokenize_program("add $t1, $t2, $t3\nlw $t1 400($t2)".to_string()).0;
     let result = separate_data_and_text(lines);
-    let correct_error = Error{
+    let correct_error = Error {
         error_name: MissingComma,
         operand_number: Some(0),
     };
@@ -322,7 +322,6 @@ fn separate_data_and_text_works_on_line_label() {
     instruction_1.operator.token_type = Operator;
     instruction_1.operands[0].token_name.pop();
 
-
     let mut instruction_2 = Instruction {
         operator: lines[2].tokens[0].clone(),
         operands: vec![lines[2].tokens[1].clone(), lines[2].tokens[2].clone()],
@@ -331,7 +330,6 @@ fn separate_data_and_text_works_on_line_label() {
     };
     instruction_2.operator.token_type = Operator;
     instruction_2.operands[0].token_name.pop();
-
 
     let correct_result = vec![instruction_0, instruction_1, instruction_2];
 
@@ -374,7 +372,6 @@ fn separate_data_and_text_works_off_line_label() {
     instruction_1.operator.token_type = Operator;
     instruction_1.operands[0].token_name.pop();
 
-
     let mut instruction_2 = Instruction {
         operator: lines[3].tokens[0].clone(),
         operands: vec![lines[3].tokens[1].clone(), lines[3].tokens[2].clone()],
@@ -383,7 +380,6 @@ fn separate_data_and_text_works_off_line_label() {
     };
     instruction_2.operator.token_type = Operator;
     instruction_2.operands[0].token_name.pop();
-
 
     let correct_result = vec![instruction_0, instruction_1, instruction_2];
 
@@ -430,7 +426,6 @@ fn separate_data_and_text_recognizes_data_and_text_interspersed() {
             .to_string(),
     );
     let result = separate_data_and_text(lines.clone());
-
 
     let mut correct_result: (Vec<Instruction>, Vec<Data>) = (
         vec![
@@ -481,8 +476,14 @@ fn separate_data_and_text_recognizes_data_and_text_interspersed() {
     correct_result.1[0].label.token_name.pop();
     correct_result.1[1].label.token_type = Label;
     correct_result.1[1].label.token_name.pop();
-    correct_result.1[1].data_entries_and_values[0].0.token_name.pop();
-    correct_result.1[1].data_entries_and_values[1].0.token_name.pop();
+    correct_result.1[1].data_entries_and_values[0]
+        .0
+        .token_name
+        .pop();
+    correct_result.1[1].data_entries_and_values[1]
+        .0
+        .token_name
+        .pop();
 
     assert_eq!(result, correct_result);
 }
@@ -544,9 +545,14 @@ fn separate_data_and_text_recognizes_data_and_text() {
     correct_result.1[0].label.token_name.pop();
     correct_result.1[1].label.token_type = Label;
     correct_result.1[1].label.token_name.pop();
-    correct_result.1[1].data_entries_and_values[0].0.token_name.pop();
-    correct_result.1[1].data_entries_and_values[1].0.token_name.pop();
-
+    correct_result.1[1].data_entries_and_values[0]
+        .0
+        .token_name
+        .pop();
+    correct_result.1[1].data_entries_and_values[1]
+        .0
+        .token_name
+        .pop();
 
     assert_eq!(result, correct_result);
 }
@@ -566,8 +572,6 @@ fn build_instruction_list_generates_error_on_label_on_last_line() {
     let result = separate_data_and_text(lines);
     assert_eq!(result.0[2].errors[0].error_name, LabelAssignmentError);
 }
-
-
 
 #[test]
 fn create_label_map_generates_map_on_no_errors() {

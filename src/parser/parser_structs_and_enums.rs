@@ -67,7 +67,8 @@ pub mod instruction_tokenization {
         Word,
         ASCIIZ,
         ASCII,
-        DataType
+        DataType,
+        Space,
     }
 
     #[derive(Debug, PartialEq, Eq, Clone)]
@@ -105,41 +106,40 @@ pub mod instruction_tokenization {
         FloatingPoint,
     }
 
-    pub fn print_vec_of_instructions(instructions: Vec<Instruction>){
-        for instruction in instructions{
+    pub fn print_vec_of_instructions(instructions: Vec<Instruction>) {
+        for instruction in instructions {
             print_instruction_contents(instruction);
         }
     }
 
-    pub fn print_vec_of_data(data: Vec<Data>){
+    pub fn print_vec_of_data(data: Vec<Data>) {
         for data_entry in data {
             print_data_contents(data_entry);
         }
     }
 
-    pub fn print_instruction_contents(instruction: Instruction){
+    pub fn print_instruction_contents(instruction: Instruction) {
         println!("Operator: {}", instruction.operator.token_name);
         print!("Operands: ");
-        for operand in instruction.operands{
+        for operand in instruction.operands {
             print!("{} ", operand.token_name);
         }
         println!();
-        if instruction.label.is_some(){
+        if instruction.label.is_some() {
             println!("Label: {:?}", instruction.label.unwrap().0);
         }
         print!("Errors: ");
-        for error in instruction.errors{
+        for error in instruction.errors {
             print!("{:?} ", error.error_name);
         }
     }
 
-    pub fn print_data_contents(data: Data){
+    pub fn print_data_contents(data: Data) {
         println!("Label: {}", data.label.token_name);
         println!("Data Type: {}", data.data_type.token_name);
         println!("Data Entries:");
-        for data_entry in data.data_entries_and_values{
+        for data_entry in data.data_entries_and_values {
             println!("{:?} read as {}", data_entry.0, data_entry.1);
         }
     }
-
 }

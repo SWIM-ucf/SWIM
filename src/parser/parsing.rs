@@ -129,11 +129,14 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
             let first_operand_index = operand_iterator;
 
             //push all operands to the instruction operand vec that will have commas
-            while operand_iterator < (lines[i].tokens.len() - 1){
-                if lines[i].tokens[operand_iterator].token_name.ends_with(','){
+            while operand_iterator < (lines[i].tokens.len() - 1) {
+                if lines[i].tokens[operand_iterator].token_name.ends_with(',') {
                     lines[i].tokens[operand_iterator].token_name.pop();
-                }else{
-                    instruction.errors.push(Error{ error_name: MissingComma, operand_number: Some((operand_iterator - first_operand_index) as u8)})
+                } else {
+                    instruction.errors.push(Error {
+                        error_name: MissingComma,
+                        operand_number: Some((operand_iterator - first_operand_index) as u8),
+                    })
                 }
                 instruction
                     .operands
@@ -142,7 +145,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
             }
 
             //simple statement to handle cases where the user doesn't finish instructions
-            if operand_iterator >= lines[i].tokens.len(){
+            if operand_iterator >= lines[i].tokens.len() {
                 i += 1;
                 continue;
             }
@@ -152,8 +155,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 .operands
                 .push(lines[i].tokens[operand_iterator].clone());
 
-
-            instruction.line_number = lines[i].line_number as u32;
+            instruction.line_number = lines[i].line_number;
 
             //push completed instruction to the instruction vec
             instruction_list.push(instruction.clone());
@@ -161,7 +163,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
         }
         //if not text, it must be data
         else {
-            data.line_number = lines[i].line_number as u32;
+            data.line_number = lines[i].line_number;
 
             //the first token should be the label name
             if lines[i].tokens[0].token_name.ends_with(':') {
@@ -193,25 +195,24 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
             let mut value_iterator = 2;
             let first_value_index = value_iterator;
 
-
             //push all values to the data vec that will have commas
-            while value_iterator < (lines[i].tokens.len() - 1){
-                if lines[i].tokens[value_iterator].token_name.ends_with(','){
+            while value_iterator < (lines[i].tokens.len() - 1) {
+                if lines[i].tokens[value_iterator].token_name.ends_with(',') {
                     lines[i].tokens[value_iterator].token_name.pop();
-                }else{
-                    instruction.errors.push(Error{ error_name: MissingComma, operand_number: Some((value_iterator - first_value_index) as u8)})
+                } else {
+                    instruction.errors.push(Error {
+                        error_name: MissingComma,
+                        operand_number: Some((value_iterator - first_value_index) as u8),
+                    })
                 }
-                data
-                    .data_entries_and_values
+                data.data_entries_and_values
                     .push((lines[i].tokens[value_iterator].clone(), 0));
                 value_iterator += 1;
             }
 
             //push last operand that will not have a comma
-            data
-                .data_entries_and_values
+            data.data_entries_and_values
                 .push((lines[i].tokens[value_iterator].clone(), 0));
-
 
             data_list.push(data.clone());
             data = Data::default();
@@ -221,7 +222,6 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
 
     (instruction_list, data_list)
 }
-
 
 //TODO Add more pseudo instructions. Especially ones that are converted into more than a single instruction to make sure this method works
 pub fn expand_pseudo_instruction(instruction_list: &mut [Instruction]) {
@@ -265,7 +265,7 @@ pub fn create_label_map(instruction_list: &mut Vec<Instruction>) -> HashMap<Stri
             } else {
                 labels.insert(
                     instruction.clone().label.unwrap().0.token_name,
-                    instruction.clone().label.unwrap().1 as u32,
+                    instruction.clone().label.unwrap().1,
                 );
             }
         }
