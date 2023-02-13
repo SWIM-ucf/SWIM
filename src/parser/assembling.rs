@@ -1,18 +1,12 @@
 use crate::parser::parser_assembler_main::append_binary;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
-    ImmediateOutOfBounds, ImproperlyFormattedASCII, ImproperlyFormattedChar,
-    IncorrectNumberOfOperands, IncorrectRegisterType, InvalidMemorySyntax, LabelNotFound,
-    NonIntImmediate, UnrecognizedFPRegister, UnrecognizedGPRegister,
-};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{ImmediateOutOfBounds, ImproperlyFormattedASCII, ImproperlyFormattedChar, IncorrectNumberOfOperands, IncorrectRegisterType, InvalidMemorySyntax, LabelNotFound, NonFloatImmediate, NonIntImmediate, UnrecognizedDataType, UnrecognizedFPRegister, UnrecognizedGPRegister};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::{
     Immediate, LabelAbsolute, LabelRelative, MemoryAddress, RegisterFP, RegisterGP,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
     FloatingPoint, GeneralPurpose,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
-    Byte, Half, Space, Word, ASCII,
-};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{Byte, Half, Space, Word, ASCII, Float};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
     Data, Error, Instruction, OperandType, RegisterType, TokenType,
 };
@@ -464,7 +458,6 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     let chars = value.0.token_name.as_bytes();
                     if chars[0] == b'\"' && chars[chars.len() - 1] == b'\"' && chars.len() > 2 {
                         for char in chars.iter().take(chars.len() - 1).skip(1) {
-                            value.1 = *char as u32;
                             vec_of_data.push(*char);
                         }
                     } else {
@@ -482,7 +475,6 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     let chars = value.0.token_name.as_bytes();
                     if chars[0] == b'\"' && chars[chars.len() - 1] == b'\"' && chars.len() > 2 {
                         for char in chars.iter().take(chars.len() - 1).skip(1) {
-                            value.1 = *char as u32;
                             vec_of_data.push(*char);
                         }
                     } else {
@@ -508,13 +500,11 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                             let mut chars = value.0.token_name.chars();
                             chars.next();
                             let char = chars.next().unwrap();
-                            value.1 = char as u32;
                             vec_of_data.push(char as u8);
                         }
                     } else {
                         //otherwise we can assume it is an int
                         let immediate_results = read_immediate(&value.0.token_name, i as i32, 8);
-                        value.1 = immediate_results.0;
                         vec_of_data.push(immediate_results.0 as u8);
                         if immediate_results.1.is_some() {
                             data_entry.errors.push(immediate_results.1.unwrap());
@@ -523,16 +513,33 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                 }
             }
             ".double" => {}
-            ".float" => {}
+            ".float" => {
+                for(i, value) in data_entry.data_entries_and_values.iter_mut().enumerate(){
+                    value.0.token_type = Float;
+                    let parse_results = value.0.token_name.parse::<f32>();
+                    if parse_results.is_err(){
+                        data_entry.errors.push(Error{
+                            error_name: NonFloatImmediate,
+                            operand_number: Some(i as u8),
+                        })
+                    } else{
+                        let float_bits = parse_results.unwrap().to_bits();
+                        vec_of_data.push((float_bits >> 24) as u8);
+                        vec_of_data.push((float_bits >> 16) as u8);
+                        vec_of_data.push((float_bits >> 8) as u8);
+                        vec_of_data.push(float_bits  as u8);
+
+                    }
+                }
+            }
             ".half" => {
                 //half words are 16 bits each. The vec is of u32s so 2 half words are in each u32
                 for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Half;
                     let immediate_results = read_immediate(&value.0.token_name, i as i32, 16);
-                    value.1 = immediate_results.0;
 
-                    vec_of_data.push((value.1 >> 8) as u8);
-                    vec_of_data.push(value.1 as u8);
+                    vec_of_data.push((immediate_results.0 >> 8) as u8);
+                    vec_of_data.push(immediate_results.0 as u8);
 
                     if immediate_results.1.is_some() {
                         data_entry.errors.push(immediate_results.1.unwrap());
@@ -559,20 +566,21 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                 for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Word;
                     let immediate_results = read_immediate(&value.0.token_name, i as i32, 32);
-                    value.1 = immediate_results.0;
                     if immediate_results.1.is_some() {
                         data_entry.errors.push(immediate_results.1.unwrap());
                     }
 
                     //push all four bytes of the word to the vector
-                    vec_of_data.push((value.1 >> 24) as u8);
-                    vec_of_data.push((value.1 >> 16) as u8);
-                    vec_of_data.push((value.1 >> 8) as u8);
-                    vec_of_data.push(value.1 as u8);
+                    vec_of_data.push((immediate_results.0 >> 24) as u8);
+                    vec_of_data.push((immediate_results.0 >> 16) as u8);
+                    vec_of_data.push((immediate_results.0 >> 8) as u8);
+                    vec_of_data.push(immediate_results.0 as u8);
                 }
             }
-
-            _ => {}
+            _ => {data_entry.errors.push(Error{
+                error_name: UnrecognizedDataType,
+                operand_number: None,
+            })}
         }
     }
     vec_of_data

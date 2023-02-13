@@ -1,5 +1,5 @@
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
-    IncorrectlyFormattedData, IncorrectlyFormattedLabel, LabelAssignmentError,
+    ImproperlyFormattedData, ImproperlyFormattedLabel, LabelAssignmentError,
     LabelMultipleDefinition, MissingComma,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
@@ -172,7 +172,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 data.label = lines[i].tokens[0].clone();
             } else {
                 data.errors.push(Error {
-                    error_name: IncorrectlyFormattedLabel,
+                    error_name: ImproperlyFormattedLabel,
                     operand_number: Some(0),
                 });
                 lines[i].tokens[0].token_type = Label;
@@ -182,7 +182,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
             //just a simple check in case the user didn't complete a line
             if lines[i].tokens.len() < 2 {
                 data.errors.push(Error {
-                    error_name: IncorrectlyFormattedData,
+                    error_name: ImproperlyFormattedData,
                     operand_number: None,
                 });
                 i += 1;

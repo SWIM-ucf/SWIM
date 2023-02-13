@@ -270,9 +270,13 @@ mod read_label_relative_tests {
 #[test]
 fn assemble_data_binary_works_one_word() {
     let lines = tokenize_program(".data\nlabel: .word 200".to_string()).0;
-    let mut result = separate_data_and_text(lines).1;
-    assemble_data_binary(&mut result);
-    assert_eq!(result[0].data_entries_and_values[0].1, 200);
+    let mut modified_data = separate_data_and_text(lines).1;
+    let result = assemble_data_binary(&mut modified_data);
+
+    assert_eq!(result[0], 0);
+    assert_eq!(result[1], 0);
+    assert_eq!(result[2], 0);
+    assert_eq!(result[3], 200);
 }
 
 #[test]
@@ -280,15 +284,6 @@ fn assemble_data_binary_works_multiple_words() {
     let lines = tokenize_program(".data\nlabel: .word 200, 45, -12".to_string()).0;
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
-
-    assert_eq!(modified_data[0].data_entries_and_values[0].1, 200);
-    assert_eq!(modified_data[0].data_entries_and_values[1].1, 45);
-    let negative = -12;
-    let negative_as_u32 = negative as u32;
-    assert_eq!(
-        modified_data[0].data_entries_and_values[2].1,
-        negative_as_u32
-    );
 
     assert_eq!(result[0], 0);
     assert_eq!(result[1], 0);
@@ -310,14 +305,6 @@ fn assemble_data_binary_works_half_words() {
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 
-    assert_eq!(modified_data[0].data_entries_and_values[0].1, 200);
-    assert_eq!(modified_data[0].data_entries_and_values[1].1, 45);
-    let negative = -12;
-    let negative_as_u32 = negative as u32;
-    assert_eq!(
-        modified_data[0].data_entries_and_values[2].1,
-        negative_as_u32
-    );
     assert_eq!(result[0], 0);
     assert_eq!(result[1], 200);
     assert_eq!(result[2], 0);
@@ -333,9 +320,6 @@ fn assemble_data_binary_works_for_spaces() {
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 
-    assert_eq!(modified_data[0].data_entries_and_values[0].1, 3);
-    assert_eq!(modified_data[0].data_entries_and_values[1].1, 1);
-
     assert_eq!(result[0], 0);
     assert_eq!(result[1], 0);
     assert_eq!(result[2], 0);
@@ -349,11 +333,6 @@ fn assemble_data_binary_works_for_int_bytes() {
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 
-    assert_eq!(modified_data[0].data_entries_and_values[0].1, 255);
-    assert_eq!(
-        ((modified_data[0].data_entries_and_values[1].1 << 24) >> 24),
-        128
-    );
     assert_eq!(result[0], 255);
     assert_eq!(result[1], 128);
 }
@@ -364,8 +343,6 @@ fn assemble_data_binary_works_for_char_bytes() {
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 
-    assert_eq!(modified_data[0].data_entries_and_values[0].1, 97);
-    assert_eq!(modified_data[0].data_entries_and_values[1].1, 63);
     assert_eq!(result[0], 97);
     assert_eq!(result[1], 63);
 }
@@ -376,10 +353,6 @@ fn assemble_data_binary_works_for_char_bytes_escape_characters_other_than_newlin
     let mut modified_data = separate_data_and_text(lines.clone()).1;
     let result = assemble_data_binary(&mut modified_data);
 
-    assert_eq!(modified_data[0].data_entries_and_values[0].1, 92);
-    assert_eq!(modified_data[0].data_entries_and_values[1].1, 9);
-    assert_eq!(modified_data[0].data_entries_and_values[2].1, 39);
-    assert_eq!(modified_data[0].data_entries_and_values[3].1, 0);
     assert_eq!(result[0], 92);
     assert_eq!(result[1], 9);
     assert_eq!(result[2], 39);
@@ -411,4 +384,24 @@ fn assemble_data_binary_works_for_asciiz() {
     assert_eq!(result[3], 100);
     assert_eq!(result[4], 101);
     assert_eq!(result[5], 0);
+}
+
+#[test]
+fn assemble_data_binary_works_for_float() {
+    let lines = tokenize_program(".data\nlabel: .float 0.234, -121.8, 20".to_string()).0;
+    let mut modified_data = separate_data_and_text(lines.clone()).1;
+    let result = assemble_data_binary(&mut modified_data);
+
+    assert_eq!(result[0], 62);
+    assert_eq!(result[1], 111);
+    assert_eq!(result[2], 157);
+    assert_eq!(result[3], 178);
+    assert_eq!(result[4], 194);
+    assert_eq!(result[5], 243);
+    assert_eq!(result[6], 153);
+    assert_eq!(result[7], 154);
+    assert_eq!(result[8], 65);
+    assert_eq!(result[9], 160);
+    assert_eq!(result[10], 0);
+    assert_eq!(result[11], 0);
 }

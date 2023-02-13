@@ -70,6 +70,8 @@ pub mod instruction_tokenization {
         DataType,
         Space,
         Byte,
+        Float,
+        Double,
     }
 
     #[derive(Debug, PartialEq, Eq, Clone)]
@@ -77,17 +79,19 @@ pub mod instruction_tokenization {
         UnrecognizedGPRegister,
         UnrecognizedFPRegister,
         UnrecognizedInstruction,
+        UnrecognizedDataType,
         IncorrectRegisterType,
         MissingComma,
         ImmediateOutOfBounds,
         NonIntImmediate,
+        NonFloatImmediate,
         InvalidMemorySyntax,
         IncorrectNumberOfOperands,
         LabelAssignmentError,
         LabelMultipleDefinition,
         LabelNotFound,
-        IncorrectlyFormattedLabel,
-        IncorrectlyFormattedData,
+        ImproperlyFormattedLabel,
+        ImproperlyFormattedData,
         ImproperlyFormattedASCII,
         ImproperlyFormattedChar,
     }
