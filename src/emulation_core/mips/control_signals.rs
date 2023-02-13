@@ -14,10 +14,10 @@ pub struct ControlSignals {
     pub mem_to_reg: MemToReg,
     pub mem_write: MemWrite,
     pub mem_write_src: MemWriteSrc,
+    pub overflow_write_block: OverflowWriteBlock,
     pub reg_dst: RegDst,
     pub reg_width: RegWidth,
     pub reg_write: RegWrite,
-    pub overflow_write_block: OverflowWriteBlock,
 }
 
 /// The output of the ALU control unit that directly controls the ALU.
@@ -221,6 +221,20 @@ pub enum MemWriteSrc {
     FloatingPointUnit = 1,
 }
 
+/// Demonstrates an overflow signal from the ALU.
+///
+/// If this signal is set, this overrides [`RegWrite`], blocking any
+/// general-purpose register from being written to.
+#[derive(Clone, Default, Eq, PartialEq)]
+pub enum OverflowWriteBlock {
+    /// Do not block writing to general-purpose registers if [`RegWrite`] is set.
+    #[default]
+    NoBlock = 0,
+
+    /// Block writing to general-purpose registers and ignore [`RegWrite`].
+    YesBlock = 1,
+}
+
 /// Determines, given that [`RegWrite`] is set, which destination
 /// register to write to, which largely depends on the instruction format.
 #[derive(Clone, Default, PartialEq)]
@@ -254,18 +268,13 @@ pub enum RegWidth {
 }
 
 /// Determines if the register file should be written to.
+///
+/// This signal may be overridden if [`OverflowWriteBlock`] is set.
 #[derive(Clone, Default, Eq, PartialEq)]
 pub enum RegWrite {
     #[default]
     NoWrite = 0,
     YesWrite = 1,
-}
-
-#[derive(Clone, Default, Eq, PartialEq)]
-pub enum OverflowWriteBlock {
-    #[default]
-    NoBlock = 0,
-    YesBlock = 1,
 }
 
 pub mod floating_point {
