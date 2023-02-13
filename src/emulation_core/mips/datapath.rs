@@ -17,7 +17,7 @@
 //! - Only the `addi` and `daddi` instructions follow the proper MIPS specification
 //!   in terms of integer overflow. That is, if there is an overflow, the general-purpose
 //!   register will not be written to. `add` and `dadd` will continue to write on
-//!   overflow.
+//!   overflow. `sub`, `dsub` will likewise continue to write on underflow.
 //! - 32-bit instructions are treated exclusively with 32 bits, and the upper 32
 //!   bits stored in a register are completely ignored in any of these cases. For
 //!   example, before an `add` instruction, it should be checked whether it is a
@@ -928,8 +928,9 @@ impl MipsDatapath {
     /// Perform an ALU operation.
     ///
     /// **Implementation Note:** Unlike the MIPS64 specification, this ALU
-    /// does not handle integer overflow exceptions. Should this be implemented
-    /// in the future, the ALU should be adjusted accordingly to address this.
+    /// does not handle exceptions due to integer overflow. However, it will
+    /// set the [`OverflowWriteBlock`] signal on overflow when the operation
+    /// [`AluControl`] is set to `AddWithNoWriteOverflow`.
     fn alu(&mut self) {
         // Left shift the immediate value based on the ImmShift control signal.
         let alu_immediate = match self.signals.imm_shift {
