@@ -595,10 +595,6 @@ impl MipsDatapath {
                 self.signals.reg_write = RegWrite::YesWrite;
             }
 
-            // The difference between ADDI and ADDIU is on whether
-            // and exception is thrown on overflow, and on whether
-            // to write on overflow, Our emu does not impliment
-            // exceptions for now...
             OPCODE_ADDI => {
                 self.signals.alu_op = AluOp::AddWithNoWriteOnOverflow;
                 self.signals.alu_src = AluSrc::SignExtendedImmediate;
@@ -613,6 +609,7 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::Word;
                 self.signals.reg_write = RegWrite::YesWrite;
             }
+
             OPCODE_ADDIU => {
                 self.signals.alu_op = AluOp::Addition;
                 self.signals.alu_src = AluSrc::SignExtendedImmediate;
