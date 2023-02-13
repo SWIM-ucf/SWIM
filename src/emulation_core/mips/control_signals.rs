@@ -32,10 +32,11 @@ pub struct ControlSignals {
 #[derive(Clone, Default, PartialEq)]
 pub enum AluControl {
     /// `_0000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
+    /// Will not set any overflow signal on overflow.
     #[default]
     Addition = 0,
 
-    /// `_0001` (1) - Perform a subtraction.
+    /// `_0001` (1) - Perform a subtraction. Will not set any underflow signal on underflow.
     Subtraction = 1,
 
     /// `_0010` (2) - Perform a "set on less than" operation.
@@ -68,7 +69,9 @@ pub enum AluControl {
     /// `_1011` (11) - Perform unsigned integer division. (Returns the integer quotient.)
     DivisionUnsigned = 11,
 
-    AddWithNoWriteOnOverFlow = 12,
+    /// `_1100` (12) - Perform an addition, and set the [`OverflowWriteBlock`] signal in
+    /// the event of an overflow.
+    AddWithNoWriteOnOverflow = 12,
 }
 
 /// This determines the operation sent to the ALU control unit.
@@ -78,29 +81,30 @@ pub enum AluControl {
 /// will perform.
 #[derive(Clone, Default, PartialEq)]
 pub enum AluOp {
-    /// `000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
+    /// `0000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
+    /// Will not set any overflow signal on overflow.
     #[default]
     Addition = 0,
 
-    /// `001` (1) - Perform a subtraction.
+    /// `0001` (1) - Perform a subtraction. Will not set any underflow signal on underflow.
     Subtraction = 1,
 
-    /// `010` (2) - Perform a "set on less than" operation.
+    /// `0010` (2) - Perform a "set on less than" operation.
     SetOnLessThanSigned = 2,
 
-    /// `011` (3) - Perform a "set on less than unsigned" operation.
+    /// `0011` (3) - Perform a "set on less than unsigned" operation.
     SetOnLessThanUnsigned = 3,
 
-    /// `100` (4) - Perform a binary "AND" operation.
+    /// `0100` (4) - Perform a binary "AND" operation.
     And = 4,
 
-    /// `101` (5) - Perform a binary "OR" operation.
+    /// `0101` (5) - Perform a binary "OR" operation.
     Or = 5,
 
-    /// `110` (6) - Left shift the sign-extended immediate value 16 bits.
+    /// `0110` (6) - Left shift the sign-extended immediate value 16 bits.
     LeftShift16 = 6,
 
-    /// `111` (7) - This is an R-type instruction and the operation
+    /// `0111` (7) - This is an R-type instruction and the operation
     /// should instead refer to the `funct` field in the instruction.
     ///
     /// (Note: For the `mul` and `div` instructions, the operation of
@@ -110,7 +114,9 @@ pub enum AluOp {
     /// instructions.)
     UseFunctField = 7,
 
-    AddWithNoWriteOnOverFlow = 8,
+    /// `1000` (8) - Perform an addition, and set the [`OverflowWriteBlock`]
+    /// signal in the event of an overflow.
+    AddWithNoWriteOnOverflow = 8,
 }
 
 /// Determines the second source of the ALU.
