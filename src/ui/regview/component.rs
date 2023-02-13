@@ -54,13 +54,22 @@ pub fn fp_reg(fp: [u64; 32]) -> Html {
 #[function_component(Regview)]
 pub fn regview(props: &Regviewprops) -> Html {
     let switch_flag = use_state_eq(|| true);
-    let on_switch_clicked = {
+    let on_switch_clicked_false = {
         let switch_flag = switch_flag.clone();
         use_callback(
             move |_, switch_flag| {
-                if **switch_flag {
+                if **switch_flag == true {
                     switch_flag.set(false);
-                } else {
+                }
+            },
+            switch_flag,
+        )
+    };
+    let on_switch_clicked_true = {
+        let switch_flag = switch_flag.clone();
+        use_callback(
+            move |_, switch_flag| {
+                if **switch_flag == false {
                     switch_flag.set(true);
                 }
             },
@@ -71,7 +80,10 @@ pub fn regview(props: &Regviewprops) -> Html {
     html! {
         <>
             <div style="width: 28%">
-                <button onclick={on_switch_clicked}>{"Switch view"}</button>
+                <div class="tab">
+                    <button class="tablinks" style="width: 50%; background-color: white; border: 1px solid black;" onclick={on_switch_clicked_true.clone()}>{"GP"}</button>
+                    <button class="tablinks" style="width: 50%; background-color: white; border: 1px solid black;" onclick={on_switch_clicked_false.clone()}>{"FP"}</button>
+                </div>
                 <table style="width: 100%; height: 100%; border: 1px solid black; background-color: white;">
                     <tr style="border: 1px solid black;">
                         <th style="border: 1px solid black;">{"Register Name"}</th>
