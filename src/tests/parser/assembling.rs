@@ -305,7 +305,7 @@ fn assemble_data_binary_works_multiple_words() {
 }
 
 #[test]
-fn assemble_data_binary_works_half_words(){
+fn assemble_data_binary_works_half_words() {
     let lines = tokenize_program(".data\nlabel: .half 200, 45, -12".to_string()).0;
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
@@ -328,7 +328,7 @@ fn assemble_data_binary_works_half_words(){
 }
 
 #[test]
-fn assemble_data_binary_works_for_spaces(){
+fn assemble_data_binary_works_for_spaces() {
     let lines = tokenize_program(".data\nlabel: .space 3, 1".to_string()).0;
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
@@ -344,13 +344,36 @@ fn assemble_data_binary_works_for_spaces(){
 }
 
 #[test]
-fn assemble_data_binary_works_for_int_bytes(){
+fn assemble_data_binary_works_for_int_bytes() {
     let lines = tokenize_program(".data\nlabel: .byte 255, -128".to_string()).0;
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 
     assert_eq!(modified_data[0].data_entries_and_values[0].1, 255);
-    assert_eq!(((modified_data[0].data_entries_and_values[1].1 << 24) >> 24), 128);
+    assert_eq!(
+        ((modified_data[0].data_entries_and_values[1].1 << 24) >> 24),
+        128
+    );
     assert_eq!(result[0], 255);
     assert_eq!(result[1], 128);
+}
+
+#[test]
+fn assemble_data_binary_works_for_char_bytes(){
+    let lines = tokenize_program(".data\nlabel: .byte 'a', '?'".to_string()).0;
+    let mut modified_data = separate_data_and_text(lines).1;
+    let result = assemble_data_binary(&mut modified_data);
+
+    assert_eq!(modified_data[0].data_entries_and_values[0].1, 97);
+    assert_eq!(modified_data[0].data_entries_and_values[1].1, 63);
+    assert_eq!(result[0], 97);
+    assert_eq!(result[1], 63);
+}
+
+#[test]
+fn assemble_data_binary_works_for_char_bytes_escape_characters() {
+    let lines = tokenize_program(".data\nlabel: .byte '\n'".to_string()).0;
+    let mut modified_data = separate_data_and_text(lines).1;
+    //let _result = assemble_data_binary(&mut modified_data);
+    print!("{}", '\t' as u8);
 }
