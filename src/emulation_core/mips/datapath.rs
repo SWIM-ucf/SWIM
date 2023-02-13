@@ -956,13 +956,11 @@ impl MipsDatapath {
         self.state.alu_result = match self.signals.alu_control {
             AluControl::Addition => input1.wrapping_add(input2),
             AluControl::AddWithNoWriteOnOverFlow => {
-                // Ugly hack to make addi and daddi work correctly
                 if let RegWidth::Word = self.signals.reg_width {
                     let input1 = input1 as u32;
                     let input2 = input2 as u32;
                     let sum = input1.overflowing_add(input2);
                     if sum.1 {
-                        // read_data_2 is the value already in the output register
                         self.signals.overflow_write_block = OverflowWriteBlock::YesBlock;
                     }
                     sum.0 as u64
