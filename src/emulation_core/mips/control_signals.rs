@@ -192,6 +192,7 @@ pub enum MemToReg {
     #[default]
     UseAlu = 0,
     UseMemory = 1,
+    UsePcPlusFour = 2,
 }
 
 /// Determines if memory should be written to.
@@ -233,6 +234,9 @@ pub enum RegDst {
     /// Use register `rd`.
     #[default]
     Reg3 = 2,
+
+    // Write to return register, used by JAL
+    ReturnRegister = 3,
 }
 
 /// Determines the amount of data to be sent or recieved from registers

@@ -55,6 +55,7 @@ pub const OPCODE_SW: u8 = 0b101011;
 pub const OPCODE_LWC1: u8 = 0b110001;
 pub const OPCODE_SWC1: u8 = 0b111001;
 pub const OPCODE_J: u8 = 0b000010;
+pub const OPCODE_JAL: u8 = 0b000011;
 
 pub const OPCODE_BEQ: u8 = 0b000100;
 pub const OPCODE_BNE: u8 = 0b000101;

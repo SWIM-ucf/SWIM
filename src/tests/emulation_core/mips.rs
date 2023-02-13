@@ -2648,6 +2648,61 @@ pub mod jump_tests {
     }
 }
 
+pub mod jump_and_link_tests {
+    use super::*;
+    #[test]
+    fn test_basic() {
+        let mut datapath = MipsDatapath::default();
+        let old_pc = datapath.registers.pc;
+
+        //                        J
+        let instruction: u32 = 0b000011_00_00000000_00000000_00000010;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 8);
+        assert_eq!(datapath.registers.gpr[31], old_pc + 4);
+    }
+
+    #[test]
+    fn test_mid() {
+        let mut datapath = MipsDatapath::default();
+        let old_pc = datapath.registers.pc;
+
+        //                        J
+        let instruction: u32 = 0x0c00_0fff;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 0x3ffc);
+        assert_eq!(datapath.registers.gpr[31], old_pc + 4);
+    }
+
+    #[test]
+    fn test_hard() {
+        // Jump to address 0xfff_fffc
+        let mut datapath = MipsDatapath::default();
+        let old_pc = datapath.registers.pc;
+
+        //                        J             low_26
+        let instruction: u32 = 0x0c00_0000 | 0x03ff_ffff;
+        datapath
+            .memory
+            .store_word(0, instruction)
+            .expect("Failed to store instruction.");
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 0x0fff_fffc);
+        assert_eq!(datapath.registers.gpr[31], old_pc + 4);
+    }
+}
+
 pub mod beq_tests {
     use super::*;
     #[test]
