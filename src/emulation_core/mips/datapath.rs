@@ -315,6 +315,7 @@ impl MipsDatapath {
         self.state.data_result = match self.signals.mem_to_reg {
             MemToReg::UseAlu => self.state.alu_result,
             MemToReg::UseMemory => self.state.memory_data,
+            MemToReg::UsePcPlusFour => self.state.pc_plus_4,
         };
 
         // PC calculation stuff from upper part of datapath
@@ -740,6 +741,20 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::DoubleWord;
                 self.signals.reg_write = RegWrite::NoWrite;
             }
+            OPCODE_JAL => {
+                self.signals.alu_op = AluOp::Addition;
+                self.signals.alu_src = AluSrc::ReadRegister2;
+                self.signals.branch = Branch::NoBranch;
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::YesJump;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UsePcPlusFour;
+                self.signals.mem_write = MemWrite::YesWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::ReturnRegister;
+                self.signals.reg_width = RegWidth::DoubleWord;
+                self.signals.reg_write = RegWrite::YesWrite;
+            }
             _ => unimplemented!("J-type instruction with opcode `{}`", j.op),
         };
     }
@@ -1039,6 +1054,7 @@ impl MipsDatapath {
         self.state.data_result = match self.signals.mem_to_reg {
             MemToReg::UseAlu => self.state.alu_result,
             MemToReg::UseMemory => self.state.memory_data,
+            MemToReg::UsePcPlusFour => self.state.pc_plus_4,
         };
 
         // Decide to retrieve data either from the main processor or the coprocessor.
@@ -1060,6 +1076,7 @@ impl MipsDatapath {
             RegDst::Reg1 => self.state.rs as usize,
             RegDst::Reg2 => self.state.rt as usize,
             RegDst::Reg3 => self.state.rd as usize,
+            RegDst::ReturnRegister => 31_usize,
         };
 
         // If we are attempting to write to register $zero, stop.
