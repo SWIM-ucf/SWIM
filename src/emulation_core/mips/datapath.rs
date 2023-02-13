@@ -600,7 +600,7 @@ impl MipsDatapath {
             // to write on overflow, Our emu does not impliment
             // exceptions for now...
             OPCODE_ADDI => {
-                self.signals.alu_op = AluOp::AddWithNoWriteOnOverFlow;
+                self.signals.alu_op = AluOp::AddWithNoWriteOnOverflow;
                 self.signals.alu_src = AluSrc::SignExtendedImmediate;
                 self.signals.branch = Branch::NoBranch;
                 self.signals.imm_shift = ImmShift::Shift0;
@@ -629,7 +629,7 @@ impl MipsDatapath {
             }
 
             OPCODE_DADDI => {
-                self.signals.alu_op = AluOp::AddWithNoWriteOnOverFlow;
+                self.signals.alu_op = AluOp::AddWithNoWriteOnOverflow;
                 self.signals.alu_src = AluSrc::SignExtendedImmediate;
                 self.signals.branch = Branch::NoBranch;
                 self.signals.imm_shift = ImmShift::Shift0;
@@ -878,7 +878,7 @@ impl MipsDatapath {
     fn set_alu_control(&mut self) {
         self.signals.alu_control = match self.signals.alu_op {
             AluOp::Addition => AluControl::Addition,
-            AluOp::AddWithNoWriteOnOverFlow => AluControl::AddWithNoWriteOnOverFlow,
+            AluOp::AddWithNoWriteOnOverflow => AluControl::AddWithNoWriteOnOverflow,
             AluOp::Subtraction => AluControl::Subtraction,
             AluOp::SetOnLessThanSigned => AluControl::SetOnLessThanSigned,
             AluOp::SetOnLessThanUnsigned => AluControl::SetOnLessThanUnsigned,
@@ -960,7 +960,7 @@ impl MipsDatapath {
         // Set the result.
         self.state.alu_result = match self.signals.alu_control {
             AluControl::Addition => input1.wrapping_add(input2),
-            AluControl::AddWithNoWriteOnOverFlow => {
+            AluControl::AddWithNoWriteOnOverflow => {
                 if let RegWidth::Word = self.signals.reg_width {
                     let input1 = input1 as u32;
                     let input2 = input2 as u32;
