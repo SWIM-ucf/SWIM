@@ -24,6 +24,10 @@
 //! - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
 //!   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
 //!   `bnezalc`, `beqc`, and `bovc` instructions.
+//! - The "load upper immediate" (`lui`) instruction is officially supported as of MIPS64
+//!   version 5. In version 6, `lui` is an assembly idiom for "add upper immediate" (`aui`)
+//!   with `rs` = 0. However, `aui` is not officially supported nor tested in this
+//!   datapath.
 
 use super::super::datapath::Datapath;
 use super::constants::*;
