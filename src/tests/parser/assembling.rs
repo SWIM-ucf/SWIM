@@ -1,4 +1,4 @@
-use crate::parser::assembling::{assemble_data_binary};
+use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
 
 #[cfg(test)]
@@ -384,24 +384,23 @@ fn assemble_data_binary_works_for_char_bytes_escape_characters_other_than_newlin
     assert_eq!(result[1], 9);
     assert_eq!(result[2], 39);
     assert_eq!(result[3], 0);
-
 }
 
 #[test]
-fn assemble_data_binary_works_for_ascii(){
+fn assemble_data_binary_works_for_ascii() {
     let lines = tokenize_program(".data\nlabel: .ascii \"abcde\"".to_string()).0;
     let mut modified_data = separate_data_and_text(lines.clone()).1;
     let result = assemble_data_binary(&mut modified_data);
 
-     assert_eq!(result[0], 97);
-     assert_eq!(result[1], 98);
-     assert_eq!(result[2], 99);
-     assert_eq!(result[3], 100);
-     assert_eq!(result[4], 101);
+    assert_eq!(result[0], 97);
+    assert_eq!(result[1], 98);
+    assert_eq!(result[2], 99);
+    assert_eq!(result[3], 100);
+    assert_eq!(result[4], 101);
 }
 
 #[test]
-fn assemble_data_binary_works_for_asciiz(){
+fn assemble_data_binary_works_for_asciiz() {
     let lines = tokenize_program(".data\nlabel: .asciiz \"abcde\"".to_string()).0;
     let mut modified_data = separate_data_and_text(lines.clone()).1;
     let result = assemble_data_binary(&mut modified_data);

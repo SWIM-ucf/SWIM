@@ -1,7 +1,7 @@
 use crate::parser::parser_assembler_main::append_binary;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
-    ImmediateOutOfBounds, ImproperlyFormattedChar, IncorrectNumberOfOperands,
-    IncorrectRegisterType, InvalidMemorySyntax, LabelNotFound, ImproperlyFormattedASCII,
+    ImmediateOutOfBounds, ImproperlyFormattedASCII, ImproperlyFormattedChar,
+    IncorrectNumberOfOperands, IncorrectRegisterType, InvalidMemorySyntax, LabelNotFound,
     NonIntImmediate, UnrecognizedFPRegister, UnrecognizedGPRegister,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::{
@@ -457,16 +457,16 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
     let mut vec_of_data: Vec<u8> = Vec::new();
     for data_entry in data_list.iter_mut() {
         match &*data_entry.data_type.token_name {
-            ".ascii" => {//pushes a string of characters to memory
+            ".ascii" => {
+                //pushes a string of characters to memory
                 for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = ASCII;
                     let chars = value.0.token_name.as_bytes();
-                    if chars[0] == '\"' as u8 && chars[chars.len() - 1] == '\"' as u8 && chars.len() > 2 {
-                        for i in 1..(chars.len() - 1) {
-                            value.1 = chars[i] as u32;
-                            vec_of_data.push(chars[i]);
+                    if chars[0] == b'\"' && chars[chars.len() - 1] == b'\"' && chars.len() > 2 {
+                        for char in chars.iter().take(chars.len() - 1).skip(1) {
+                            value.1 = *char as u32;
+                            vec_of_data.push(*char);
                         }
-
                     } else {
                         data_entry.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
@@ -475,16 +475,16 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     }
                 }
             }
-            ".asciiz" => {//same as ascii but pushes a \0 to memory as well
+            ".asciiz" => {
+                //same as ascii but pushes a \0 to memory as well
                 for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = ASCII;
                     let chars = value.0.token_name.as_bytes();
-                    if chars[0] == '\"' as u8 && chars[chars.len() - 1] == '\"' as u8 && chars.len() > 2 {
-                        for i in 1..(chars.len() - 1) {
-                            value.1 = chars[i] as u32;
-                            vec_of_data.push(chars[i]);
+                    if chars[0] == b'\"' && chars[chars.len() - 1] == b'\"' && chars.len() > 2 {
+                        for char in chars.iter().take(chars.len() - 1).skip(1) {
+                            value.1 = *char as u32;
+                            vec_of_data.push(*char);
                         }
-
                     } else {
                         data_entry.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
@@ -499,19 +499,20 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     value.0.token_type = Byte;
                     //this if block handles chars
                     if value.0.token_name.starts_with('\'') {
-                        if value.0.token_name.len() != 3 || !value.0.token_name.ends_with('\''){
-                            data_entry.errors.push(Error{
+                        if value.0.token_name.len() != 3 || !value.0.token_name.ends_with('\'') {
+                            data_entry.errors.push(Error {
                                 error_name: ImproperlyFormattedChar,
                                 operand_number: Some(i as u8),
                             });
-                        }else {
+                        } else {
                             let mut chars = value.0.token_name.chars();
                             chars.next();
-                            let char=  chars.next().unwrap();
-                            value.1 = char.clone() as u32;
+                            let char = chars.next().unwrap();
+                            value.1 = char as u32;
                             vec_of_data.push(char as u8);
                         }
-                    } else {//otherwise we can assume it is an int
+                    } else {
+                        //otherwise we can assume it is an int
                         let immediate_results = read_immediate(&value.0.token_name, i as i32, 8);
                         value.1 = immediate_results.0;
                         vec_of_data.push(immediate_results.0 as u8);
@@ -538,7 +539,8 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     }
                 }
             }
-            ".space" => {//pushes specified number of empty bytes
+            ".space" => {
+                //pushes specified number of empty bytes
                 for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Space;
                     let immediate_results = read_immediate(&value.0.token_name, i as i32, 32);
