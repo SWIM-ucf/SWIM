@@ -1067,7 +1067,8 @@ impl MipsDatapath {
             DataWrite::YesWrite => self.coprocessor.get_data_register(),
         };
 
-        // Abort if the RegWrite signal is not set.
+        // Abort if the RegWrite signal is not set, or if the OverflowWriteBlock signal
+        // is set and overriding write behavior.
         if self.signals.reg_write == RegWrite::NoWrite
             || self.signals.overflow_write_block == OverflowWriteBlock::YesBlock
         {
