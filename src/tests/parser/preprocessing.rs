@@ -390,7 +390,7 @@ fn confirm_operand_commas_generates_error_on_missing_commas() {
 
 #[test]
 fn confirm_operands_does_not_break_when_instruction_has_no_operands() {
-    let (lines, _comments) = tokenize_instructions("Add $t1, $t2, $t3\nlw".to_string());
+    let lines = tokenize_instructions("Add $t1, $t2, $t3\nlw".to_string());
     let _result = build_instruction_list_from_lines(lines);
 }
 
