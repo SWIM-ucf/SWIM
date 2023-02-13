@@ -405,3 +405,37 @@ fn assemble_data_binary_works_for_float() {
     assert_eq!(result[10], 0);
     assert_eq!(result[11], 0);
 }
+
+#[test]
+fn assemble_data_binary_works_for_double() {
+    let lines = tokenize_program(".data\nlabel: .double 0.234, -121.8, 20".to_string()).0;
+    let mut modified_data = separate_data_and_text(lines.clone()).1;
+    let result = assemble_data_binary(&mut modified_data);
+
+    assert_eq!(result[0], 0b00111111);
+    assert_eq!(result[1], 0b11001101);
+    assert_eq!(result[2], 0b11110011);
+    assert_eq!(result[3], 0b10110110);
+    assert_eq!(result[4], 0b01000101);
+    assert_eq!(result[5], 0b10100001);
+    assert_eq!(result[6], 0b11001010);
+    assert_eq!(result[7], 0b11000001);
+
+    assert_eq!(result[8], 0b11000000);
+    assert_eq!(result[9], 0b01011110);
+    assert_eq!(result[10], 0b01110011);
+    assert_eq!(result[11], 0b00110011);
+    assert_eq!(result[12], 0b00110011);
+    assert_eq!(result[13], 0b00110011);
+    assert_eq!(result[14], 0b00110011);
+    assert_eq!(result[15], 0b00110011);
+
+    assert_eq!(result[16], 0b01000000);
+    assert_eq!(result[17], 0b00110100);
+    assert_eq!(result[18], 0b00000000);
+    assert_eq!(result[19], 0b00000000);
+    assert_eq!(result[20], 0b00000000);
+    assert_eq!(result[21], 0b00000000);
+    assert_eq!(result[22], 0b00000000);
+    assert_eq!(result[23], 0b00000000);
+}

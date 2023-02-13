@@ -1,12 +1,19 @@
 use crate::parser::parser_assembler_main::append_binary;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{ImmediateOutOfBounds, ImproperlyFormattedASCII, ImproperlyFormattedChar, IncorrectNumberOfOperands, IncorrectRegisterType, InvalidMemorySyntax, LabelNotFound, NonFloatImmediate, NonIntImmediate, UnrecognizedDataType, UnrecognizedFPRegister, UnrecognizedGPRegister};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
+    ImmediateOutOfBounds, ImproperlyFormattedASCII, ImproperlyFormattedChar,
+    IncorrectNumberOfOperands, IncorrectRegisterType, InvalidMemorySyntax, LabelNotFound,
+    NonFloatImmediate, NonIntImmediate, UnrecognizedDataType, UnrecognizedFPRegister,
+    UnrecognizedGPRegister,
+};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::{
     Immediate, LabelAbsolute, LabelRelative, MemoryAddress, RegisterFP, RegisterGP,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
     FloatingPoint, GeneralPurpose,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{Byte, Half, Space, Word, ASCII, Float};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
+    Byte, Float, Half, Space, Word, ASCII,
+};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
     Data, Error, Instruction, OperandType, RegisterType, TokenType,
 };
@@ -512,23 +519,43 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     }
                 }
             }
-            ".double" => {}
-            ".float" => {
-                for(i, value) in data_entry.data_entries_and_values.iter_mut().enumerate(){
+            ".double" => {//pushes the given 64 bit float values
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Float;
-                    let parse_results = value.0.token_name.parse::<f32>();
-                    if parse_results.is_err(){
-                        data_entry.errors.push(Error{
+                    let parse_results = value.0.token_name.parse::<f64>();
+                    if parse_results.is_err() {
+                        data_entry.errors.push(Error {
                             error_name: NonFloatImmediate,
                             operand_number: Some(i as u8),
                         })
-                    } else{
+                    } else {
+                        let float_bits = parse_results.unwrap().to_bits();
+                        vec_of_data.push((float_bits >> 56) as u8);
+                        vec_of_data.push((float_bits >> 48) as u8);
+                        vec_of_data.push((float_bits >> 40) as u8);
+                        vec_of_data.push((float_bits >> 32) as u8);
+                        vec_of_data.push((float_bits >> 24) as u8);
+                        vec_of_data.push((float_bits >> 16) as u8);
+                        vec_of_data.push((float_bits >> 8) as u8);
+                        vec_of_data.push(float_bits as u8);
+                    }
+                }
+            }
+            ".float" => {//pushes the given 32 bit float values
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                    value.0.token_type = Float;
+                    let parse_results = value.0.token_name.parse::<f32>();
+                    if parse_results.is_err() {
+                        data_entry.errors.push(Error {
+                            error_name: NonFloatImmediate,
+                            operand_number: Some(i as u8),
+                        })
+                    } else {
                         let float_bits = parse_results.unwrap().to_bits();
                         vec_of_data.push((float_bits >> 24) as u8);
                         vec_of_data.push((float_bits >> 16) as u8);
                         vec_of_data.push((float_bits >> 8) as u8);
-                        vec_of_data.push(float_bits  as u8);
-
+                        vec_of_data.push(float_bits as u8);
                     }
                 }
             }
@@ -577,10 +604,10 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     vec_of_data.push(immediate_results.0 as u8);
                 }
             }
-            _ => {data_entry.errors.push(Error{
+            _ => data_entry.errors.push(Error {
                 error_name: UnrecognizedDataType,
                 operand_number: None,
-            })}
+            }),
         }
     }
     vec_of_data
