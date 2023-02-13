@@ -1,12 +1,18 @@
 use crate::parser::parser_assembler_main::append_binary;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{ImmediateOutOfBounds, IncorrectlyFormattedChar, IncorrectNumberOfOperands, IncorrectRegisterType, InvalidMemorySyntax, LabelNotFound, MissingQuoteForASCII, NonIntImmediate, UnrecognizedFPRegister, UnrecognizedGPRegister};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
+    ImmediateOutOfBounds, ImproperlyFormattedChar, IncorrectNumberOfOperands,
+    IncorrectRegisterType, InvalidMemorySyntax, LabelNotFound, ImproperlyFormattedASCII,
+    NonIntImmediate, UnrecognizedFPRegister, UnrecognizedGPRegister,
+};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::{
     Immediate, LabelAbsolute, LabelRelative, MemoryAddress, RegisterFP, RegisterGP,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
     FloatingPoint, GeneralPurpose,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{ASCII, Byte, Half, Space, Word};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
+    Byte, Half, Space, Word, ASCII,
+};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
     Data, Error, Instruction, OperandType, RegisterType, TokenType,
 };
@@ -446,86 +452,72 @@ pub fn read_immediate(
     (int_representation as u32, None)
 }
 
-pub fn read_character(string: String)-> (u8, Option<Error>){
-
-    let elements  = string.as_bytes();
-    let mut char_i = 1;
-    if elements[char_i] == 92 {
-        if elements.len() != 4 {
-            return (0, Some(Error{
-                error_name: IncorrectlyFormattedChar,
-                operand_number: None,
-            }));
-        }
-        char_i += 1;
-        return match elements[char_i]{
-            0 => {   //0
-               (0, None)
-            },
-            34 => { //"
-                (34, None)
-            }
-            39 => {  //'
-                (39, None)
-            },
-            92 => { //\
-                (92, None)
-            },
-            110  => {   //n
-                (10, None)
-            },
-            116 => {    //t
-                (9, None)
-            }
-
-            _ => {
-                (0, Some(Error{
-                    error_name: IncorrectlyFormattedChar,
-                    operand_number: None,
-                }))
-            }
-        }
-
-    }
-
-    (0, None)
-}
-
 ///Takes the data list and finds the actual values for each data entry that will be put into memory
 pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
     let mut vec_of_data: Vec<u8> = Vec::new();
     for data_entry in data_list.iter_mut() {
         match &*data_entry.data_type.token_name {
-            ".ascii" => {
-                for(i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+            ".ascii" => {//pushes a string of characters to memory
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = ASCII;
-                    if value.0.token_name.starts_with('\"') && value.0.token_name.ends_with('\"'){
-                        for char in 1..(value.0.token_name.len() - 1){
-                            vec_of_data.push(char as u8);
+                    let chars = value.0.token_name.as_bytes();
+                    if chars[0] == '\"' as u8 && chars[chars.len() - 1] == '\"' as u8 && chars.len() > 2 {
+                        for i in 1..(chars.len() - 1) {
+                            value.1 = chars[i] as u32;
+                            vec_of_data.push(chars[i]);
                         }
-                    }else {
-                        data_entry.errors.push(Error{
-                            error_name: MissingQuoteForASCII,
+
+                    } else {
+                        data_entry.errors.push(Error {
+                            error_name: ImproperlyFormattedASCII,
                             operand_number: Some(i as u8),
                         });
                     }
                 }
             }
-            ".asciiz" => {}
+            ".asciiz" => {//same as ascii but pushes a \0 to memory as well
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                    value.0.token_type = ASCII;
+                    let chars = value.0.token_name.as_bytes();
+                    if chars[0] == '\"' as u8 && chars[chars.len() - 1] == '\"' as u8 && chars.len() > 2 {
+                        for i in 1..(chars.len() - 1) {
+                            value.1 = chars[i] as u32;
+                            vec_of_data.push(chars[i]);
+                        }
+
+                    } else {
+                        data_entry.errors.push(Error {
+                            error_name: ImproperlyFormattedASCII,
+                            operand_number: Some(i as u8),
+                        });
+                    }
+                }
+                vec_of_data.push(0);
+            }
             ".byte" => {
                 for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Byte;
                     //this if block handles chars
                     if value.0.token_name.starts_with('\'') {
-                        let character_result = read_character(value.0.token_name.clone());
-
-                    } else{
-                            let immediate_results = read_immediate(&value.0.token_name, i as i32, 8);
-                            value.1 = immediate_results.0;
-                            vec_of_data.push(immediate_results.0 as u8);
-                            if immediate_results.1.is_some() {
-                                data_entry.errors.push(immediate_results.1.unwrap());
-                            }
+                        if value.0.token_name.len() != 3 || !value.0.token_name.ends_with('\''){
+                            data_entry.errors.push(Error{
+                                error_name: ImproperlyFormattedChar,
+                                operand_number: Some(i as u8),
+                            });
+                        }else {
+                            let mut chars = value.0.token_name.chars();
+                            chars.next();
+                            let char=  chars.next().unwrap();
+                            value.1 = char.clone() as u32;
+                            vec_of_data.push(char as u8);
+                        }
+                    } else {//otherwise we can assume it is an int
+                        let immediate_results = read_immediate(&value.0.token_name, i as i32, 8);
+                        value.1 = immediate_results.0;
+                        vec_of_data.push(immediate_results.0 as u8);
+                        if immediate_results.1.is_some() {
+                            data_entry.errors.push(immediate_results.1.unwrap());
+                        }
                     }
                 }
             }
@@ -546,7 +538,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     }
                 }
             }
-            ".space" => {
+            ".space" => {//pushes specified number of empty bytes
                 for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Space;
                     let immediate_results = read_immediate(&value.0.token_name, i as i32, 32);

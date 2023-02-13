@@ -88,8 +88,8 @@ pub mod instruction_tokenization {
         LabelNotFound,
         IncorrectlyFormattedLabel,
         IncorrectlyFormattedData,
-        MissingQuoteForASCII,
-        IncorrectlyFormattedChar
+        ImproperlyFormattedASCII,
+        ImproperlyFormattedChar,
     }
 
     //this enum is used for the fn read_operands to choose the types of operands expected for an instruction type
