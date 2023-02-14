@@ -1,3 +1,4 @@
+use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     LabelAssignmentError, LabelMultipleDefinition, MissingComma,
 };
@@ -13,7 +14,6 @@ use crate::parser::parsing::{
 #[cfg(test)]
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
 use std::collections::HashMap;
-use crate::parser::assembling::assemble_data_binary;
 
 #[test]
 fn tokenize_program_works_basic_version() {
@@ -591,7 +591,7 @@ fn create_label_map_generates_map_on_no_errors() {
 }
 
 #[test]
-fn create_label_map_recognizes_data_labels(){
+fn create_label_map_recognizes_data_labels() {
     let lines = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\n".to_string()).0;
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
     assemble_data_binary(&mut data);
@@ -608,7 +608,7 @@ fn create_label_map_recognizes_data_labels(){
 }
 
 #[test]
-fn create_label_map_recognizes_data_labels_and_text_together(){
+fn create_label_map_recognizes_data_labels_and_text_together() {
     let lines = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\ninstruction: sub $t1, $t2, $t3\n".to_string()).0;
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
     assemble_data_binary(&mut data);

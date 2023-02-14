@@ -100,15 +100,15 @@ mod immediate_tests {
 }
 
 mod memory_address_tests {
-    use std::collections::HashMap;
     use crate::parser::assembling::read_memory_address;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
         ImmediateOutOfBounds, InvalidMemorySyntax, NonIntImmediate, UnrecognizedGPRegister,
     };
+    use std::collections::HashMap;
 
     #[test]
     fn missing_open_parenthesis_returns_error() {
-        let results = read_memory_address("4$t1)", 0, HashMap::new() );
+        let results = read_memory_address("4$t1)", 0, HashMap::new());
         assert_eq!(results.2.unwrap()[0].error_name, InvalidMemorySyntax);
     }
 
@@ -150,7 +150,9 @@ mod memory_address_tests {
 
     #[test]
     fn invalid_base_and_offset_returns_multiple_errors() {
-        let results = read_memory_address("sad($wrong)", 0, HashMap::new()).2.unwrap();
+        let results = read_memory_address("sad($wrong)", 0, HashMap::new())
+            .2
+            .unwrap();
         assert_eq!(results[0].error_name, NonIntImmediate);
         assert_eq!(results[1].error_name, UnrecognizedGPRegister);
     }

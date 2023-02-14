@@ -250,7 +250,10 @@ pub fn assign_instruction_numbers(instruction_list: &mut [Instruction]) {
 }
 
 ///Create_label_map builds a hashmap of addresses for labels in memory
-pub fn create_label_map(instruction_list: &mut Vec<Instruction>, data_list: &mut[Data]) -> HashMap<String, u32> {
+pub fn create_label_map(
+    instruction_list: &mut Vec<Instruction>,
+    data_list: &mut [Data],
+) -> HashMap<String, u32> {
     let mut labels: HashMap<String, u32> = HashMap::new();
     for instruction in &mut *instruction_list {
         if instruction.label.is_some() {
@@ -272,9 +275,9 @@ pub fn create_label_map(instruction_list: &mut Vec<Instruction>, data_list: &mut
 
     let last_instruction = instruction_list.last();
 
-    let offset_for_instructions: u32 = if last_instruction.is_none(){
-       0
-    }else{
+    let offset_for_instructions: u32 = if last_instruction.is_none() {
+        0
+    } else {
         (last_instruction.unwrap().instruction_number + 1) << 2
     };
 

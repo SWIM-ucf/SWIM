@@ -18,9 +18,10 @@ pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
     expand_pseudo_instruction(&mut program_info.instructions);
     assign_instruction_numbers(&mut program_info.instructions);
 
-    let vec_of_data =  assemble_data_binary(&mut program_info.data);
+    let vec_of_data = assemble_data_binary(&mut program_info.data);
 
-    let labels: HashMap<String, u32> = create_label_map(&mut program_info.instructions, &mut program_info.data);
+    let labels: HashMap<String, u32> =
+        create_label_map(&mut program_info.instructions, &mut program_info.data);
 
     read_instructions(&mut program_info.instructions, labels);
 
@@ -691,15 +692,14 @@ pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8
         binary.push(instruction.binary);
     }
 
-
     //makes sure the byte array length is a multiple of 4
     let mod4 = vec_of_data.len() % 4;
-    for _i in 0..mod4{
+    for _i in 0..mod4 {
         vec_of_data.push(0);
     }
     //push the .data
     let mut i = 0;
-    while i < vec_of_data.len(){
+    while i < vec_of_data.len() {
         //create a word from 4 bytes and then push it to the vec
         let mut word = vec_of_data[i] as u32;
         word <<= 8;

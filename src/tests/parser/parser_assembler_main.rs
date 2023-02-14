@@ -626,6 +626,7 @@ fn place_binary_works_dahi() {
 }
 
 mod helper_functions {
+    use crate::parser::assembling::assemble_data_binary;
     use crate::parser::parser_assembler_main::read_instructions;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::Instruction;
     use crate::parser::parsing::{
@@ -633,7 +634,6 @@ mod helper_functions {
         separate_data_and_text, tokenize_program,
     };
     use std::collections::HashMap;
-    use crate::parser::assembling::assemble_data_binary;
 
     pub fn simulate_parser(mut file_string: String) -> Vec<Instruction> {
         file_string = file_string.to_lowercase();

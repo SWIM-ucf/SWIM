@@ -37,9 +37,9 @@ pub fn read_operands(
         return instruction;
     }
 
-    let labels = if labels_option.is_some(){
+    let labels = if labels_option.is_some() {
         labels_option.unwrap()
-    }else{
+    } else {
         HashMap::new()
     };
 
@@ -91,8 +91,11 @@ pub fn read_operands(
                 bit_lengths.push(5);
                 //memory address works a bit differently because it really amounts to two operands: the offset and base
                 //meaning there are two values to push and the possibility of errors on both operands
-                let memory_results =
-                    read_memory_address(&instruction.operands[i].token_name, i as i32, labels.clone());
+                let memory_results = read_memory_address(
+                    &instruction.operands[i].token_name,
+                    i as i32,
+                    labels.clone(),
+                );
 
                 binary_representation.push(memory_results.0);
                 binary_representation.push(memory_results.1);
@@ -178,7 +181,7 @@ pub fn read_label_relative(
         );
     }
     let mut offset = *result.unwrap() as i32;
-    offset -= (current_instruction_number as i32 + 1)  << 2 ;
+    offset -= (current_instruction_number as i32 + 1) << 2;
     offset >>= 2;
 
     (offset as u32, None)
@@ -211,15 +214,15 @@ pub fn read_memory_address(
     operand_number: i32,
     labels: HashMap<String, u32>,
 ) -> (u32, u32, Option<Vec<Error>>) {
-//returns base, offset, and any errors
+    //returns base, offset, and any errors
     //if orig_string matches a label, create a base and offset based on that
-    if labels.contains_key(orig_string){
+    if labels.contains_key(orig_string) {
         let address = labels.get(orig_string).unwrap();
         return if *address > 31 {
             (31, (*address - 31) >> 2, None)
         } else {
             (*address, 0, None)
-        }
+        };
     }
 
     //the indices of the open and close parentheses are checked.
