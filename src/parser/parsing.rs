@@ -250,7 +250,7 @@ pub fn assign_instruction_numbers(instruction_list: &mut [Instruction]) {
 }
 
 ///Create_label_map builds a hashmap of addresses for labels in memory
-pub fn create_label_map(instruction_list: &mut Vec<Instruction>, data_list: &mut Vec<Data>) -> HashMap<String, u32> {
+pub fn create_label_map(instruction_list: &mut Vec<Instruction>, data_list: &mut[Data]) -> HashMap<String, u32> {
     let mut labels: HashMap<String, u32> = HashMap::new();
     for instruction in &mut *instruction_list {
         if instruction.label.is_some() {
@@ -270,15 +270,15 @@ pub fn create_label_map(instruction_list: &mut Vec<Instruction>, data_list: &mut
         }
     }
 
-    let offset_for_instructions: u32;
     let last_instruction = instruction_list.last();
-    if last_instruction.is_none(){
-        offset_for_instructions = 0;
-    }else{
-        offset_for_instructions = (last_instruction.unwrap().instruction_number + 1) << 2;
-    }
 
-    for (i, data) in data_list.into_iter().enumerate() {
+    let offset_for_instructions: u32 = if last_instruction.is_none(){
+       0
+    }else{
+        (last_instruction.unwrap().instruction_number + 1) << 2
+    };
+
+    for (i, data) in data_list.iter_mut().enumerate() {
         //if the given label name is already used, an error is generated
         if labels.contains_key(&*data.label.clone().token_name) {
             data.errors.push(Error {
@@ -289,7 +289,7 @@ pub fn create_label_map(instruction_list: &mut Vec<Instruction>, data_list: &mut
         } else {
             labels.insert(
                 data.label.token_name.clone(),
-                data.data_number.clone() + offset_for_instructions,
+                data.data_number + offset_for_instructions,
             );
         }
     }

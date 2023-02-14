@@ -26,7 +26,7 @@ pub fn read_operands(
     instruction: &mut Instruction,
     expected_operands: Vec<OperandType>,
     concat_order: Vec<usize>,
-    labels: Option<HashMap<String, u32>>,
+    labels_option: Option<HashMap<String, u32>>,
 ) -> &mut Instruction {
     //if the number of operands in the instruction does not match the expected number, there is an error
     if instruction.operands.len() != expected_operands.len() {
@@ -36,6 +36,13 @@ pub fn read_operands(
         });
         return instruction;
     }
+
+    let labels = if labels_option.is_some(){
+        labels_option.unwrap()
+    }else{
+        HashMap::new()
+    };
+
     //operands aren't represented in the binary in the order they're read so the vec<u32> allows us to concatenate them in the proper order after they're all read.
     let mut binary_representation: Vec<u32> = Vec::new();
     let mut bit_lengths: Vec<u8> = Vec::new();
@@ -85,7 +92,7 @@ pub fn read_operands(
                 //memory address works a bit differently because it really amounts to two operands: the offset and base
                 //meaning there are two values to push and the possibility of errors on both operands
                 let memory_results =
-                    read_memory_address(&instruction.operands[i].token_name, i as i32);
+                    read_memory_address(&instruction.operands[i].token_name, i as i32, labels.clone());
 
                 binary_representation.push(memory_results.0);
                 binary_representation.push(memory_results.1);
@@ -114,7 +121,7 @@ pub fn read_operands(
                 let label_absolute_results = read_label_absolute(
                     &instruction.operands[i].token_name,
                     i as i32,
-                    labels.clone().unwrap(),
+                    labels.clone(),
                 );
 
                 binary_representation.push(label_absolute_results.0);
@@ -130,7 +137,7 @@ pub fn read_operands(
                     &instruction.operands[i].token_name,
                     i as i32,
                     instruction.instruction_number,
-                    labels.clone().unwrap(),
+                    labels.clone(),
                 );
                 binary_representation.push(label_relative_results.0);
                 if label_relative_results.1.is_some() {
@@ -171,8 +178,8 @@ pub fn read_label_relative(
         );
     }
     let mut offset = *result.unwrap() as i32;
-    offset = offset - (current_instruction_number + 1 << 2) as i32;
-    offset = offset >> 2;
+    offset -= (current_instruction_number as i32 + 1)  << 2 ;
+    offset >>= 2;
 
     (offset as u32, None)
 }
@@ -197,11 +204,24 @@ pub fn read_label_absolute(
     (*result.unwrap() >> 2, None)
 }
 
-///This function takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors
+///Takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors.
+/// If the string given matches a label, that address is returned instead
 pub fn read_memory_address(
     orig_string: &str,
     operand_number: i32,
+    labels: HashMap<String, u32>,
 ) -> (u32, u32, Option<Vec<Error>>) {
+//returns base, offset, and any errors
+    //if orig_string matches a label, create a base and offset based on that
+    if labels.contains_key(orig_string){
+        let address = labels.get(orig_string).unwrap();
+        return if *address > 31 {
+            (31, (*address - 31) >> 2, None)
+        } else {
+            (*address, 0, None)
+        }
+    }
+
     //the indices of the open and close parentheses are checked.
     //If either are missing or they are in the wrong order, an error is returned
     let open_index = orig_string.find('(');

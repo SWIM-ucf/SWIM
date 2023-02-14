@@ -5,7 +5,6 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramIn
 use crate::parser::parser_structs_and_enums::instruction_tokenization::*;
 use crate::parser::parsing::*;
 use std::collections::HashMap;
-use std::io::Read;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
@@ -703,11 +702,13 @@ pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8
     while i < vec_of_data.len(){
         //create a word from 4 bytes and then push it to the vec
         let mut word = vec_of_data[i] as u32;
-        word <= 8;
+        word <<= 8;
         i += 1;
         word &= vec_of_data[i] as u32;
+        word <<= 8;
         i += 1;
         word &= vec_of_data[i] as u32;
+        word <<= 8;
         i += 1;
         word &= vec_of_data[i] as u32;
         binary.push(word);
