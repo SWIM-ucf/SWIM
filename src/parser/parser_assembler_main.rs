@@ -18,9 +18,9 @@ pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
     expand_pseudo_instruction(&mut program_info.instructions);
     assign_instruction_numbers(&mut program_info.instructions);
 
-    assemble_data_binary(&mut program_info.data);
+    let _vec_of_data =  assemble_data_binary(&mut program_info.data);
 
-    let labels: HashMap<String, u32> = create_label_map(&mut program_info.instructions);
+    let labels: HashMap<String, u32> = create_label_map(&mut program_info.instructions, &mut program_info.data);
 
     read_instructions(&mut program_info.instructions, labels);
 

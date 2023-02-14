@@ -250,10 +250,9 @@ pub fn assign_instruction_numbers(instruction_list: &mut [Instruction]) {
 }
 
 ///Create_label_map builds a hashmap of addresses for labels in memory
-pub fn create_label_map(instruction_list: &mut Vec<Instruction>) -> HashMap<String, u32> {
+pub fn create_label_map(instruction_list: &mut Vec<Instruction>, data_list: &mut Vec<Data>) -> HashMap<String, u32> {
     let mut labels: HashMap<String, u32> = HashMap::new();
-
-    for instruction in instruction_list {
+    for instruction in &mut *instruction_list {
         if instruction.label.is_some() {
             //if the given label name is already used, an error is generated
             if labels.contains_key(&*instruction.label.clone().unwrap().0.token_name) {
@@ -265,13 +264,35 @@ pub fn create_label_map(instruction_list: &mut Vec<Instruction>) -> HashMap<Stri
             } else {
                 labels.insert(
                     instruction.clone().label.unwrap().0.token_name,
-                    instruction.clone().label.unwrap().1,
+                    instruction.clone().instruction_number << 2,
                 );
             }
         }
     }
 
-    //When support for labelled data is added, a for loop going through that vec right here will put it all after instructions in memory
+    let offset_for_instructions: u32;
+    let last_instruction = instruction_list.last();
+    if last_instruction.is_none(){
+        offset_for_instructions = 0;
+    }else{
+        offset_for_instructions = (last_instruction.unwrap().instruction_number + 1) << 2;
+    }
+
+    for (i, data) in data_list.into_iter().enumerate() {
+        //if the given label name is already used, an error is generated
+        if labels.contains_key(&*data.label.clone().token_name) {
+            data.errors.push(Error {
+                error_name: LabelMultipleDefinition,
+                operand_number: Some(i as u8),
+            });
+            //otherwise, it is inserted
+        } else {
+            labels.insert(
+                data.label.token_name.clone(),
+                data.data_number.clone() + offset_for_instructions,
+            );
+        }
+    }
 
     labels
 }

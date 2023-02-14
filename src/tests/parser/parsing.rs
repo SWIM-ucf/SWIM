@@ -13,6 +13,7 @@ use crate::parser::parsing::{
 #[cfg(test)]
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
 use std::collections::HashMap;
+use crate::parser::assembling::assemble_data_binary;
 
 #[test]
 fn tokenize_program_works_basic_version() {
@@ -575,16 +576,51 @@ fn build_instruction_list_generates_error_on_label_on_last_line() {
 
 #[test]
 fn create_label_map_generates_map_on_no_errors() {
-    let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
-    let (mut instruction_list, _data) = separate_data_and_text(lines);
+    let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
+    let (mut instruction_list, mut data) = separate_data_and_text(lines);
     expand_pseudo_instruction(&mut instruction_list);
     assign_instruction_numbers(&mut instruction_list);
 
-    let results: HashMap<String, u32> = create_label_map(&mut instruction_list);
+    let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
     let mut correct_map: HashMap<String, u32> = HashMap::new();
-    correct_map.insert("load_from_memory".to_string(), 1);
-    correct_map.insert("store_in_memory".to_string(), 3);
+    correct_map.insert("load_from_memory".to_string(), 4);
+    correct_map.insert("store_in_memory".to_string(), 12);
+
+    assert_eq!(results, correct_map);
+}
+
+#[test]
+fn create_label_map_recognizes_data_labels(){
+    let lines = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\n".to_string()).0;
+    let (mut instruction_list, mut data) = separate_data_and_text(lines);
+    assemble_data_binary(&mut data);
+    expand_pseudo_instruction(&mut instruction_list);
+    assign_instruction_numbers(&mut instruction_list);
+    let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
+
+    let mut correct_map: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
+    correct_map.insert("label".to_string(), 4);
+    correct_map.insert("label2".to_string(), 5);
+    correct_map.insert("label3".to_string(), 9);
+
+    assert_eq!(results, correct_map);
+}
+
+#[test]
+fn create_label_map_recognizes_data_labels_and_text_together(){
+    let lines = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\ninstruction: sub $t1, $t2, $t3\n".to_string()).0;
+    let (mut instruction_list, mut data) = separate_data_and_text(lines);
+    assemble_data_binary(&mut data);
+    expand_pseudo_instruction(&mut instruction_list);
+    assign_instruction_numbers(&mut instruction_list);
+    let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
+
+    let mut correct_map: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
+    correct_map.insert("instruction".to_string(), 4);
+    correct_map.insert("label".to_string(), 8);
+    correct_map.insert("label2".to_string(), 9);
+    correct_map.insert("label3".to_string(), 13);
 
     assert_eq!(results, correct_map);
 }
@@ -592,14 +628,14 @@ fn create_label_map_generates_map_on_no_errors() {
 #[test]
 fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name() {
     let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string());
-    let (mut instruction_list, _data) = separate_data_and_text(lines);
+    let (mut instruction_list, mut data) = separate_data_and_text(lines);
     expand_pseudo_instruction(&mut instruction_list);
     assign_instruction_numbers(&mut instruction_list);
 
-    let results: HashMap<String, u32> = create_label_map(&mut instruction_list);
+    let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
     let mut correct_map: HashMap<String, u32> = HashMap::new();
-    correct_map.insert("load_from_memory".to_string(), 1);
+    correct_map.insert("load_from_memory".to_string(), 4);
 
     assert_eq!(results, correct_map);
     assert_eq!(

@@ -151,7 +151,8 @@ pub fn read_operands(
     instruction
 }
 
-///Returns distance to an address of a labeled instruction relative to the instruction after the current instruction.
+///Returns distance to a labeled instruction relative to the instruction after the current instruction.
+/// The value represents instruction numbers NOT bytes.
 pub fn read_label_relative(
     given_label: &str,
     operand_number: i32,
@@ -169,12 +170,15 @@ pub fn read_label_relative(
             }),
         );
     }
+    let mut offset = *result.unwrap() as i32;
+    offset = offset - (current_instruction_number + 1 << 2) as i32;
+    offset = offset >> 2;
 
-    let offset = *result.unwrap() as i32 - (current_instruction_number as i32 + 1);
     (offset as u32, None)
 }
 
-///Takes a string and returns the address of the matching label in memory. If there is no match, an error is returned
+///Takes a string and returns the instruction number of the matching label in memory. If there is no match, an error is returned
+/// This value corresponds to instruction number, NOT byte address.
 pub fn read_label_absolute(
     given_label: &str,
     operand_number: i32,
@@ -190,7 +194,7 @@ pub fn read_label_absolute(
             }),
         );
     }
-    (*result.unwrap(), None)
+    (*result.unwrap() >> 2, None)
 }
 
 ///This function takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors
@@ -457,6 +461,7 @@ pub fn read_immediate(
 pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
     let mut vec_of_data: Vec<u8> = Vec::new();
     for data_entry in data_list.iter_mut() {
+        data_entry.data_number = vec_of_data.len() as u32;
         match &*data_entry.data_type.token_name {
             ".ascii" => {
                 //pushes a string of characters to memory
@@ -519,7 +524,8 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     }
                 }
             }
-            ".double" => {//pushes the given 64 bit float values
+            ".double" => {
+                //pushes the given 64 bit float values
                 for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Float;
                     let parse_results = value.0.token_name.parse::<f64>();
@@ -541,7 +547,8 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     }
                 }
             }
-            ".float" => {//pushes the given 32 bit float values
+            ".float" => {
+                //pushes the given 32 bit float values
                 for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Float;
                     let parse_results = value.0.token_name.parse::<f32>();

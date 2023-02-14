@@ -633,16 +633,18 @@ mod helper_functions {
         separate_data_and_text, tokenize_program,
     };
     use std::collections::HashMap;
+    use crate::parser::assembling::assemble_data_binary;
 
     pub fn simulate_parser(mut file_string: String) -> Vec<Instruction> {
         file_string = file_string.to_lowercase();
 
         let (lines, _comments) = tokenize_program(file_string);
-        let (mut instruction_list, _data) = separate_data_and_text(lines);
+        let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instruction(&mut instruction_list);
         assign_instruction_numbers(&mut instruction_list);
+        assemble_data_binary(&mut data);
 
-        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
+        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
         read_instructions(&mut instruction_list, labels);
 
