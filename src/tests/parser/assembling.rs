@@ -1,8 +1,6 @@
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
 
-#[cfg(test)]
-
 mod convert_to_u32_tests {
     use crate::parser::assembling::_convert_to_u32;
 

@@ -5,6 +5,7 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramIn
 use crate::parser::parser_structs_and_enums::instruction_tokenization::*;
 use crate::parser::parsing::*;
 use std::collections::HashMap;
+use std::io::Read;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
@@ -18,7 +19,7 @@ pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
     expand_pseudo_instruction(&mut program_info.instructions);
     assign_instruction_numbers(&mut program_info.instructions);
 
-    let _vec_of_data =  assemble_data_binary(&mut program_info.data);
+    let vec_of_data =  assemble_data_binary(&mut program_info.data);
 
     let labels: HashMap<String, u32> = create_label_map(&mut program_info.instructions, &mut program_info.data);
 
@@ -26,7 +27,7 @@ pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
 
     (
         program_info.clone(),
-        create_binary_vec(program_info.instructions.clone()),
+        create_binary_vec(program_info.instructions.clone(), vec_of_data),
     )
 }
 
@@ -684,10 +685,33 @@ pub fn append_binary(mut first: u32, mut second: u32, shift_amount: u8) -> u32 {
 }
 
 ///Creates a vector of u32 from the data found in the parser / assembler to put into memory.
-pub fn create_binary_vec(instructions: Vec<Instruction>) -> Vec<u32> {
+pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8>) -> Vec<u32> {
+    //push all instructions
     let mut binary: Vec<u32> = Vec::new();
     for instruction in instructions {
         binary.push(instruction.binary);
     }
+
+
+    //makes sure the byte array length is a multiple of 4
+    let mod4 = vec_of_data.len() % 4;
+    for _i in 0..mod4{
+        vec_of_data.push(0);
+    }
+    //push the .data
+    let mut i = 0;
+    while i < vec_of_data.len(){
+        //create a word from 4 bytes and then push it to the vec
+        let mut word = vec_of_data[i] as u32;
+        word <= 8;
+        i += 1;
+        word &= vec_of_data[i] as u32;
+        i += 1;
+        word &= vec_of_data[i] as u32;
+        i += 1;
+        word &= vec_of_data[i] as u32;
+        binary.push(word);
+    }
+
     binary
 }
