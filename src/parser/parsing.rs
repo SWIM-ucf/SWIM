@@ -377,7 +377,48 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.instruction_number += 1;
             }
-            "divi" => {}
+            "divi" => {
+                //make sure that there actually is a second operand
+                if instruction.operands.len() < 2 {
+                    continue;
+                }
+                let extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        starting_column: 0,
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "$at".to_string(),
+                            starting_column: 4,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "$zero".to_string(),
+                            starting_column: 9,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[1].token_name.clone(),
+                            starting_column: 16,
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number,
+                    line_number: 0,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction);
+                //adjust subi for the added instruction
+                instruction.operator.token_name = "div".to_string();
+                instruction.operands[0].starting_column -= 1;
+                instruction.operands[1].starting_column -= 1;
+                instruction.operands[1].token_name = "$at".to_string();
+                instruction.instruction_number += 1;
+            }
             "seq" => {}
             "sne" => {}
             "sle" => {}
