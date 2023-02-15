@@ -287,6 +287,58 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     instruction.instruction_number += 1;
                 }
             }
+            "subi" => {
+
+            },
+            "muli" => {
+
+            },
+            "divi" => {
+
+            },
+            "seq" => {
+
+            },
+            "sne" => {
+
+            },
+            "sle" => {
+
+            },
+            "sgt" => {
+
+            },
+            "sge" => {
+
+            },
+            "sleu" => {
+
+            },
+            "sgtu" => {
+
+            },
+            "sgeu" => {
+
+            },
+            "dsubi" => {
+
+            },
+            "dmuli" => {
+
+            },
+            "ddivi" => {
+
+            },
+            "dsubiu" => {
+
+            },
+            "dmuliu" => {
+
+            },
+            "ddiviu" => {
+
+            },
+
             _ => {}
         }
     }
