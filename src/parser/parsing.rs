@@ -293,7 +293,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
             }
             "subi" => {
                 //make sure that there actually is a second operand
-                if instruction.operands.len() < 3{
+                if instruction.operands.len() < 3 {
                     continue;
                 }
                 let extra_instruction = Instruction {
@@ -313,11 +313,11 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                             starting_column: 9,
                             token_type: Default::default(),
                         },
-                        Token{
+                        Token {
                             token_name: instruction.operands[2].token_name.clone(),
                             starting_column: 16,
                             token_type: Default::default(),
-                        }
+                        },
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
@@ -333,56 +333,23 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].starting_column -= 1;
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.instruction_number += 1;
-
-            },
-            "muli" => {
-
-            },
-            "divi" => {
-
-            },
-            "seq" => {
-
-            },
-            "sne" => {
-
-            },
-            "sle" => {
-
-            },
-            "sgt" => {
-
-            },
-            "sge" => {
-
-            },
-            "sleu" => {
-
-            },
-            "sgtu" => {
-
-            },
-            "sgeu" => {
-
-            },
-            "dsubi" => {
-
-            },
-            "dmuli" => {
-
-            },
-            "ddivi" => {
-
-            },
-            "dsubiu" => {
-
-            },
-            "dmuliu" => {
-
-            },
-            "ddiviu" => {
-
-            },
+            }
+            "muli" => {}
+            "divi" => {}
+            "seq" => {}
+            "sne" => {}
+            "sle" => {}
+            "sgt" => {}
+            "sge" => {}
+            "sleu" => {}
+            "sgtu" => {}
+            "sgeu" => {}
+            "dsubi" => {}
+            "dmuli" => {}
+            "ddivi" => {}
+            "dsubiu" => {}
+            "dmuliu" => {}
+            "ddiviu" => {}
 
             _ => {}
         }

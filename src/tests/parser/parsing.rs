@@ -5,7 +5,9 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{Data, Error, Instruction, Line, print_instruction_contents, print_vec_of_instructions, ProgramInfo, Token};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{
+    Data, Error, Instruction, Line, ProgramInfo, Token,
+};
 use crate::parser::parsing::{
     assign_instruction_numbers, complete_lw_sw_pseudo_instructions, create_label_map,
     expand_pseudo_instructions_and_assign_instruction_numbers,
@@ -771,9 +773,8 @@ fn complete_lw_sw_pseudo_instructions_works() {
     );
 }
 
-
 #[test]
-fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi(){
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi() {
     let mut program_info = ProgramInfo::default();
 
     let file_string = "subi $t1, $t2, 100\nsw $t1, label".to_string();
@@ -785,5 +786,68 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi(){
         &program_info.data,
     );
 
-    print_vec_of_instructions(program_info.instructions.clone());
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    starting_column: 16,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "sub".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 14,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
 }
