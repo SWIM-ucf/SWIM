@@ -448,7 +448,7 @@ checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 [[package]]
 name = "monaco"
 version = "0.3.0"
-source = "git+https://github.com/siku2/rust-monaco?rev=cac3ea13d4467966ac3d969d5b9c3c949209f637#cac3ea13d4467966ac3d969d5b9c3c949209f637"
+source = "git+https://github.com/b0x-Cub3d/rust-monaco?rev=cd679f41310896309f5e2464c22c51d348af22de#cd679f41310896309f5e2464c22c51d348af22de"
 dependencies = [
  "js-sys",
  "paste",
@@ -754,6 +754,7 @@ name = "swim"
 version = "0.1.0"
 dependencies = [
  "gloo",
+ "js-sys",
  "monaco",
  "strum",
  "strum_macros",
