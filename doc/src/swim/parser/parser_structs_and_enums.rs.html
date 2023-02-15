@@ -99,31 +99,102 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>instruction_tokenization {
     <span class="kw">use </span>std::default::Default;
 
     <span class="attr">#[derive(Default, Debug, Clone, PartialEq, Eq)]
+    </span><span class="doccomment">///Wrapper for all information gathered in the Parser/Assembler about the written program.
+    </span><span class="kw">pub struct </span>ProgramInfo {
+        <span class="kw">pub </span>instructions: Vec&lt;Instruction&gt;,
+        <span class="kw">pub </span>data: Vec&lt;Data&gt;,
+        <span class="kw">pub </span>comments_line_and_column: Vec&lt;[u32; <span class="number">2</span>]&gt;,
+        <span class="kw">pub </span>directives: Vec&lt;(Token, u32)&gt;,
+    }
+
+    <span class="doccomment">///A collection of all relevant information found about an instruction in the Parser/Assembler
+    </span><span class="attr">#[derive(Default, Debug, Clone, PartialEq, Eq)]
     </span><span class="kw">pub struct </span>Instruction {
-        <span class="kw">pub </span>tokens: Vec&lt;String&gt;,
         <span class="kw">pub </span>operator: Token,
         <span class="kw">pub </span>operands: Vec&lt;Token&gt;,
         <span class="kw">pub </span>binary: u32,
         <span class="kw">pub </span>instruction_number: u32,
         <span class="kw">pub </span>line_number: u32,
         <span class="kw">pub </span>errors: Vec&lt;Error&gt;,
-        <span class="kw">pub </span>label: <span class="prelude-ty">Option</span>&lt;(Token, i32)&gt;,
+        <span class="kw">pub </span>label: <span class="prelude-ty">Option</span>&lt;(Token, u32)&gt;,
+    }
+
+    <span class="doccomment">///A collection of all relevant information found about a variable in the Parser/Assembler
+    </span><span class="attr">#[derive(Default, Debug, Clone, PartialEq, Eq)]
+    </span><span class="kw">pub struct </span>Data {
+        <span class="kw">pub </span>data_number: u32,
+        <span class="kw">pub </span>line_number: u32,
+        <span class="kw">pub </span>errors: Vec&lt;Error&gt;,
+        <span class="kw">pub </span>label: Token,
+        <span class="kw">pub </span>data_type: Token,
+        <span class="kw">pub </span>data_entries_and_values: Vec&lt;(Token, u32)&gt;,
     }
 
     <span class="attr">#[derive(Default, Debug, Clone, PartialEq, Eq)]
     </span><span class="kw">pub struct </span>Token {
         <span class="kw">pub </span>token_name: String,
-        <span class="kw">pub </span>starting_column: i32,
+        <span class="kw">pub </span>starting_column: u32,
         <span class="kw">pub </span>token_type: TokenType,
     }
 
     <span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
     </span><span class="kw">pub struct </span>Line {
-        <span class="kw">pub </span>line_number: i32,
+        <span class="kw">pub </span>line_number: u32,
         <span class="kw">pub </span>tokens: Vec&lt;Token&gt;,
     }
 
@@ -144,6 +215,15 @@
         RegisterFP,
         RegisterGP,
         Operator,
+        Half,
+        Word,
+        ASCIIZ,
+        ASCII,
+        DataType,
+        Space,
+        Byte,
+        Float,
+        Double,
     }
 
     <span class="attr">#[derive(Debug, PartialEq, Eq, Clone)]
@@ -151,16 +231,21 @@
         UnrecognizedGPRegister,
         UnrecognizedFPRegister,
         UnrecognizedInstruction,
+        UnrecognizedDataType,
         IncorrectRegisterType,
         MissingComma,
         ImmediateOutOfBounds,
         NonIntImmediate,
+        NonFloatImmediate,
         InvalidMemorySyntax,
         IncorrectNumberOfOperands,
         LabelAssignmentError,
         LabelMultipleDefinition,
         LabelNotFound,
-        JALRRDRegisterZero,
+        ImproperlyFormattedLabel,
+        ImproperlyFormattedData,
+        ImproperlyFormattedASCII,
+        ImproperlyFormattedChar,
     }
 
     <span class="comment">//this enum is used for the fn read_operands to choose the types of operands expected for an instruction type
@@ -180,24 +265,41 @@
         FloatingPoint,
     }
 
-    <span class="kw">pub fn </span>print_instruction_struct_contents(instruction: <span class="kw-2">&amp;</span>Instruction) {
-        <span class="macro">println!</span>(<span class="string">&quot;Instruction Number: {}&quot;</span>, instruction.instruction_number);
-        <span class="macro">println!</span>(<span class="string">&quot;Line Number: {}&quot;</span>, instruction.line_number);
+    <span class="kw">pub fn </span>print_vec_of_instructions(instructions: Vec&lt;Instruction&gt;) {
+        <span class="kw">for </span>instruction <span class="kw">in </span>instructions {
+            print_instruction_contents(instruction);
+        }
+    }
 
-        <span class="macro">println!</span>();
+    <span class="kw">pub fn </span>print_vec_of_data(data: Vec&lt;Data&gt;) {
+        <span class="kw">for </span>data_entry <span class="kw">in </span>data {
+            print_data_contents(data_entry);
+        }
+    }
 
-        <span class="macro">println!</span>(<span class="string">&quot;Binary representation: {:b}&quot;</span>, instruction.binary);
-        <span class="macro">println!</span>(<span class="string">&quot;Int representation: {}&quot;</span>, instruction.binary);
-
-        <span class="kw">for </span>error <span class="kw">in </span><span class="kw-2">&amp;</span>instruction.errors {
-            <span class="macro">print!</span>(<span class="string">&quot;{error:?}&quot;</span>);
-            <span class="kw">if </span>error.operand_number.is_some() {
-                <span class="macro">println!</span>(<span class="string">&quot; on operand {}.&quot;</span>, error.operand_number.unwrap());
-            } <span class="kw">else </span>{
-                <span class="macro">println!</span>();
-            }
+    <span class="kw">pub fn </span>print_instruction_contents(instruction: Instruction) {
+        <span class="macro">println!</span>(<span class="string">&quot;Operator: {}&quot;</span>, instruction.operator.token_name);
+        <span class="macro">print!</span>(<span class="string">&quot;Operands: &quot;</span>);
+        <span class="kw">for </span>operand <span class="kw">in </span>instruction.operands {
+            <span class="macro">print!</span>(<span class="string">&quot;{} &quot;</span>, operand.token_name);
         }
         <span class="macro">println!</span>();
+        <span class="kw">if </span>instruction.label.is_some() {
+            <span class="macro">println!</span>(<span class="string">&quot;Label: {:?}&quot;</span>, instruction.label.unwrap().<span class="number">0</span>);
+        }
+        <span class="macro">print!</span>(<span class="string">&quot;Errors: &quot;</span>);
+        <span class="kw">for </span>error <span class="kw">in </span>instruction.errors {
+            <span class="macro">print!</span>(<span class="string">&quot;{:?} &quot;</span>, error.error_name);
+        }
+    }
+
+    <span class="kw">pub fn </span>print_data_contents(data: Data) {
+        <span class="macro">println!</span>(<span class="string">&quot;Label: {}&quot;</span>, data.label.token_name);
+        <span class="macro">println!</span>(<span class="string">&quot;Data Type: {}&quot;</span>, data.data_type.token_name);
+        <span class="macro">println!</span>(<span class="string">&quot;Data Entries:&quot;</span>);
+        <span class="kw">for </span>data_entry <span class="kw">in </span>data.data_entries_and_values {
+            <span class="macro">println!</span>(<span class="string">&quot;{:?} read as {}&quot;</span>, data_entry.<span class="number">0</span>, data_entry.<span class="number">1</span>);
+        }
     }
 }
 </code></pre></div>
