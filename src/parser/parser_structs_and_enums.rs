@@ -116,6 +116,7 @@ pub mod instruction_tokenization {
     pub fn print_vec_of_instructions(instructions: Vec<Instruction>) {
         for instruction in instructions {
             print_instruction_contents(instruction);
+            println!();
         }
     }
 

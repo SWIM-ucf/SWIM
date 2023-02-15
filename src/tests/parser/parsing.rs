@@ -5,9 +5,7 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, Instruction, Line, ProgramInfo, Token,
-};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{Data, Error, Instruction, Line, print_instruction_contents, print_vec_of_instructions, ProgramInfo, Token};
 use crate::parser::parsing::{
     assign_instruction_numbers, complete_lw_sw_pseudo_instructions, create_label_map,
     expand_pseudo_instructions_and_assign_instruction_numbers,
@@ -771,4 +769,21 @@ fn complete_lw_sw_pseudo_instructions_works() {
             label: None,
         }
     );
+}
+
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi(){
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "subi $t1, $t2, 100\nsw $t1, label".to_string();
+
+    let (lines, _comments) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+
+    print_vec_of_instructions(program_info.instructions.clone());
 }
