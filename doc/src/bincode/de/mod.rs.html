@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bincode-1.0.1/src/de/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../bincode/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bincode-1.3.3/src/de/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../bincode/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -486,18 +486,46 @@
 <a href="#486" id="486">486</a>
 <a href="#487" id="487">487</a>
 <a href="#488" id="488">488</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::io::Read;
-<span class="kw">use </span>::config::Options;
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+</pre><pre class="rust"><code><span class="kw">use </span>config::{BincodeByteOrder, Options};
+<span class="kw">use </span>std::io::Read;
 
-<span class="kw">use </span>serde;
+<span class="kw">use </span><span class="self">self</span>::read::{BincodeRead, IoReader, SliceReader};
 <span class="kw">use </span>byteorder::ReadBytesExt;
-<span class="kw">use </span>serde::de::IntoDeserializer;
+<span class="kw">use </span>config::{IntEncoding, SizeLimit};
+<span class="kw">use </span>serde;
 <span class="kw">use </span>serde::de::Error <span class="kw">as </span>DeError;
-<span class="kw">use </span>::{Error, ErrorKind, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span>::internal::SizeLimit;
-<span class="kw">use </span><span class="self">self</span>::read::BincodeRead;
+<span class="kw">use </span>serde::de::IntoDeserializer;
+<span class="kw">use </span>{Error, ErrorKind, <span class="prelude-ty">Result</span>};
 
-<span class="kw">pub mod </span>read;
+<span class="doccomment">/// Specialized ways to read data into bincode.
+</span><span class="kw">pub mod </span>read;
 
 <span class="doccomment">/// A Deserializer that reads bytes from a buffer.
 ///
@@ -507,36 +535,78 @@
 /// The ByteOrder that is chosen will impact the endianness that
 /// is used to read integers out of the reader.
 ///
-/// ```rust,ignore
+/// ```ignore
 /// let d = Deserializer::new(&amp;mut some_reader, SizeLimit::new());
 /// serde::Deserialize::deserialize(&amp;mut deserializer);
 /// let bytes_read = d.bytes_read();
 /// ```
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Deserializer&lt;R, O: Options&gt; {
-    reader: R,
+</span><span class="kw">pub struct </span>Deserializer&lt;R, O: Options&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) reader: R,
     options: O,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt; Deserializer&lt;R, O&gt; {
-    <span class="doccomment">/// Creates a new Deserializer with a given `Read`er and a size_limit.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(r: R, options: O) -&gt; Deserializer&lt;R, O&gt; {
-        Deserializer {
-            reader: r,
-            options: options,
+<span class="macro">macro_rules! </span>impl_deserialize_literal {
+    (<span class="macro-nonterminal">$name</span>:ident : <span class="macro-nonterminal">$ty</span>:ty = <span class="macro-nonterminal">$read</span>:ident()) =&gt; {
+        <span class="attr">#[inline]
+        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span><span class="macro-nonterminal">$name</span>(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="macro-nonterminal">$ty</span>&gt; {
+            <span class="self">self</span>.read_literal_type::&lt;<span class="macro-nonterminal">$ty</span>&gt;()<span class="question-mark">?</span>;
+            <span class="self">self</span>.reader
+                .<span class="macro-nonterminal">$read</span>::&lt;&lt;O::Endian <span class="kw">as </span>BincodeByteOrder&gt;::Endian&gt;()
+                .map_err(Into::into)
         }
+    };
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, IR: Read, O: Options&gt; Deserializer&lt;IoReader&lt;IR&gt;, O&gt; {
+    <span class="doccomment">/// Creates a new Deserializer with a given `Read`er and options.
+    </span><span class="kw">pub fn </span>with_reader(r: IR, options: O) -&gt; <span class="self">Self </span>{
+        Deserializer {
+            reader: IoReader::new(r),
+            options,
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, O: Options&gt; Deserializer&lt;SliceReader&lt;<span class="lifetime">&#39;de</span>&gt;, O&gt; {
+    <span class="doccomment">/// Creates a new Deserializer that will read from the given slice.
+    </span><span class="kw">pub fn </span>from_slice(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8], options: O) -&gt; <span class="self">Self </span>{
+        Deserializer {
+            reader: SliceReader::new(slice),
+            options,
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt; Deserializer&lt;R, O&gt; {
+    <span class="doccomment">/// Creates a new Deserializer with the given `BincodeRead`er
+    </span><span class="kw">pub fn </span>with_bincode_read(r: R, options: O) -&gt; Deserializer&lt;R, O&gt; {
+        Deserializer { reader: r, options }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>deserialize_byte(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u8&gt; {
+        <span class="self">self</span>.read_literal_type::&lt;u8&gt;()<span class="question-mark">?</span>;
+        <span class="self">self</span>.reader.read_u8().map_err(Into::into)
+    }
+
+    <span class="macro">impl_deserialize_literal! </span>{ deserialize_literal_u16 : u16 = read_u16() }
+    <span class="macro">impl_deserialize_literal! </span>{ deserialize_literal_u32 : u32 = read_u32() }
+    <span class="macro">impl_deserialize_literal! </span>{ deserialize_literal_u64 : u64 = read_u64() }
+
+    <span class="macro">serde_if_integer128! </span>{
+        <span class="macro">impl_deserialize_literal! </span>{ deserialize_literal_u128 : u128 = read_u128() }
     }
 
     <span class="kw">fn </span>read_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, count: u64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.options.limit().add(count)
     }
 
-    <span class="kw">fn </span>read_type&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">fn </span>read_literal_type&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">use </span>std::mem::size_of;
         <span class="self">self</span>.read_bytes(size_of::&lt;T&gt;() <span class="kw">as </span>u64)
     }
 
     <span class="kw">fn </span>read_vec(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
-        <span class="kw">let </span>len: usize = <span class="macro">try!</span>(serde::Deserialize::deserialize(<span class="kw-2">&amp;mut *</span><span class="self">self</span>));
+        <span class="kw">let </span>len = O::IntEncoding::deserialize_len(<span class="self">self</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.read_bytes(len <span class="kw">as </span>u64)<span class="question-mark">?</span>;
         <span class="self">self</span>.reader.get_byte_buffer(len)
     }
@@ -547,17 +617,16 @@
     }
 }
 
-<span class="macro">macro_rules! </span>impl_nums {
-    (<span class="macro-nonterminal">$ty</span>:ty, <span class="macro-nonterminal">$dser_method</span>:ident, <span class="macro-nonterminal">$visitor_method</span>:ident, <span class="macro-nonterminal">$reader_method</span>:ident) =&gt; {
+<span class="macro">macro_rules! </span>impl_deserialize_int {
+    (<span class="macro-nonterminal">$name</span>:ident = <span class="macro-nonterminal">$visitor_method</span>:ident (<span class="macro-nonterminal">$dser_method</span>:ident)) =&gt; {
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span><span class="macro-nonterminal">$dser_method</span>&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
-            <span class="kw">where </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span><span class="kw">fn </span><span class="macro-nonterminal">$name</span>&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
+        <span class="kw">where
+            </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
         {
-            <span class="macro">try!</span>(<span class="self">self</span>.read_type::&lt;<span class="macro-nonterminal">$ty</span>&gt;());
-            <span class="kw">let </span>value = <span class="macro">try!</span>(<span class="self">self</span>.reader.<span class="macro-nonterminal">$reader_method</span>::&lt;O::Endian&gt;());
-            visitor.<span class="macro-nonterminal">$visitor_method</span>(value)
+            visitor.<span class="macro-nonterminal">$visitor_method</span>(O::IntEncoding::<span class="macro-nonterminal">$dser_method</span>(<span class="self">self</span>)<span class="question-mark">?</span>)
         }
-    }
+    };
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>, R, O&gt; serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Deserializer&lt;R, O&gt;
@@ -579,47 +648,45 @@
     <span class="kw">where
         </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">let </span>value: u8 = <span class="macro">try!</span>(serde::Deserialize::deserialize(<span class="self">self</span>));
-        <span class="kw">match </span>value {
+        <span class="kw">match </span><span class="self">self</span>.deserialize_byte()<span class="question-mark">? </span>{
             <span class="number">1 </span>=&gt; visitor.visit_bool(<span class="bool-val">true</span>),
             <span class="number">0 </span>=&gt; visitor.visit_bool(<span class="bool-val">false</span>),
             value =&gt; <span class="prelude-val">Err</span>(ErrorKind::InvalidBoolEncoding(value).into()),
         }
     }
 
-    <span class="macro">impl_nums!</span>(u16, deserialize_u16, visit_u16, read_u16);
-    <span class="macro">impl_nums!</span>(u32, deserialize_u32, visit_u32, read_u32);
-    <span class="macro">impl_nums!</span>(u64, deserialize_u64, visit_u64, read_u64);
-    <span class="macro">impl_nums!</span>(i16, deserialize_i16, visit_i16, read_i16);
-    <span class="macro">impl_nums!</span>(i32, deserialize_i32, visit_i32, read_i32);
-    <span class="macro">impl_nums!</span>(i64, deserialize_i64, visit_i64, read_i64);
-    <span class="macro">impl_nums!</span>(f32, deserialize_f32, visit_f32, read_f32);
-    <span class="macro">impl_nums!</span>(f64, deserialize_f64, visit_f64, read_f64);
+    <span class="macro">impl_deserialize_int!</span>(deserialize_u16 = visit_u16(deserialize_u16));
+    <span class="macro">impl_deserialize_int!</span>(deserialize_u32 = visit_u32(deserialize_u32));
+    <span class="macro">impl_deserialize_int!</span>(deserialize_u64 = visit_u64(deserialize_u64));
+    <span class="macro">impl_deserialize_int!</span>(deserialize_i16 = visit_i16(deserialize_i16));
+    <span class="macro">impl_deserialize_int!</span>(deserialize_i32 = visit_i32(deserialize_i32));
+    <span class="macro">impl_deserialize_int!</span>(deserialize_i64 = visit_i64(deserialize_i64));
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;i128&quot;</span>)]
-    </span><span class="macro">impl_nums!</span>(u128, deserialize_u128, visit_u128, read_u128);
+    <span class="kw">fn </span>deserialize_f32&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
+    <span class="kw">where
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+    {
+        <span class="self">self</span>.read_literal_type::&lt;f32&gt;()<span class="question-mark">?</span>;
+        <span class="kw">let </span>value = <span class="self">self
+            </span>.reader
+            .read_f32::&lt;&lt;O::Endian <span class="kw">as </span>BincodeByteOrder&gt;::Endian&gt;()<span class="question-mark">?</span>;
+        visitor.visit_f32(value)
+    }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;i128&quot;</span>)]
-    </span><span class="macro">impl_nums!</span>(i128, deserialize_i128, visit_i128, read_i128);
+    <span class="kw">fn </span>deserialize_f64&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
+    <span class="kw">where
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+    {
+        <span class="self">self</span>.read_literal_type::&lt;f64&gt;()<span class="question-mark">?</span>;
+        <span class="kw">let </span>value = <span class="self">self
+            </span>.reader
+            .read_f64::&lt;&lt;O::Endian <span class="kw">as </span>BincodeByteOrder&gt;::Endian&gt;()<span class="question-mark">?</span>;
+        visitor.visit_f64(value)
+    }
 
     <span class="macro">serde_if_integer128! </span>{
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;i128&quot;</span>))]
-        </span><span class="kw">fn </span>deserialize_u128&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
-        <span class="kw">where
-            </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;
-        {
-            <span class="kw">let _ </span>= visitor;
-            <span class="prelude-val">Err</span>(DeError::custom(<span class="string">&quot;u128 is not supported. Enable the `i128` feature of `bincode`&quot;</span>))
-        }
-
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;i128&quot;</span>))]
-        </span><span class="kw">fn </span>deserialize_i128&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
-        <span class="kw">where
-            </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;
-        {
-            <span class="kw">let _ </span>= visitor;
-            <span class="prelude-val">Err</span>(DeError::custom(<span class="string">&quot;i128 is not supported. Enable the `i128` feature of `bincode`&quot;</span>))
-        }
+        <span class="macro">impl_deserialize_int!</span>(deserialize_u128 = visit_u128(deserialize_u128));
+        <span class="macro">impl_deserialize_int!</span>(deserialize_i128 = visit_i128(deserialize_i128));
     }
 
     <span class="attr">#[inline]
@@ -627,8 +694,7 @@
     <span class="kw">where
         </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="macro">try!</span>(<span class="self">self</span>.read_type::&lt;u8&gt;());
-        visitor.visit_u8(<span class="macro">try!</span>(<span class="self">self</span>.reader.read_u8()))
+        visitor.visit_u8(<span class="self">self</span>.deserialize_byte()<span class="question-mark">? </span><span class="kw">as </span>u8)
     }
 
     <span class="attr">#[inline]
@@ -636,8 +702,7 @@
     <span class="kw">where
         </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="macro">try!</span>(<span class="self">self</span>.read_type::&lt;i8&gt;());
-        visitor.visit_i8(<span class="macro">try!</span>(<span class="self">self</span>.reader.read_i8()))
+        visitor.visit_i8(<span class="self">self</span>.deserialize_byte()<span class="question-mark">? </span><span class="kw">as </span>i8)
     }
 
     <span class="kw">fn </span>deserialize_unit&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
@@ -658,7 +723,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>buf = [<span class="number">0u8</span>; <span class="number">4</span>];
 
         <span class="comment">// Look at the first byte to see how many bytes must be read
-        </span><span class="kw">let _ </span>= <span class="macro">try!</span>(<span class="self">self</span>.reader.read_exact(<span class="kw-2">&amp;mut </span>buf[..<span class="number">1</span>]));
+        </span><span class="self">self</span>.reader.read_exact(<span class="kw-2">&amp;mut </span>buf[..<span class="number">1</span>])<span class="question-mark">?</span>;
         <span class="kw">let </span>width = utf8_char_width(buf[<span class="number">0</span>]);
         <span class="kw">if </span>width == <span class="number">1 </span>{
             <span class="kw">return </span>visitor.visit_char(buf[<span class="number">0</span>] <span class="kw">as </span>char);
@@ -671,12 +736,10 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(error());
         }
 
-        <span class="kw">let </span>res = <span class="macro">try!</span>(
-            str::from_utf8(<span class="kw-2">&amp;</span>buf[..width])
-                .ok()
-                .and_then(|s| s.chars().next())
-                .ok_or(error())
-        );
+        <span class="kw">let </span>res = str::from_utf8(<span class="kw-2">&amp;</span>buf[..width])
+            .ok()
+            .and_then(|s| s.chars().next())
+            .ok_or_else(error)<span class="question-mark">?</span>;
         visitor.visit_char(res)
     }
 
@@ -684,8 +747,8 @@
     <span class="kw">where
         </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">let </span>len: usize = <span class="macro">try!</span>(serde::Deserialize::deserialize(<span class="kw-2">&amp;mut *</span><span class="self">self</span>));
-        <span class="macro">try!</span>(<span class="self">self</span>.read_bytes(len <span class="kw">as </span>u64));
+        <span class="kw">let </span>len = O::IntEncoding::deserialize_len(<span class="self">self</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.read_bytes(len <span class="kw">as </span>u64)<span class="question-mark">?</span>;
         <span class="self">self</span>.reader.forward_read_str(len, visitor)
     }
 
@@ -693,15 +756,15 @@
     <span class="kw">where
         </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        visitor.visit_string(<span class="macro">try!</span>(<span class="self">self</span>.read_string()))
+        visitor.visit_string(<span class="self">self</span>.read_string()<span class="question-mark">?</span>)
     }
 
     <span class="kw">fn </span>deserialize_bytes&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
         </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">let </span>len: usize = <span class="macro">try!</span>(serde::Deserialize::deserialize(<span class="kw-2">&amp;mut *</span><span class="self">self</span>));
-        <span class="macro">try!</span>(<span class="self">self</span>.read_bytes(len <span class="kw">as </span>u64));
+        <span class="kw">let </span>len = O::IntEncoding::deserialize_len(<span class="self">self</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.read_bytes(len <span class="kw">as </span>u64)<span class="question-mark">?</span>;
         <span class="self">self</span>.reader.forward_read_bytes(len, visitor)
     }
 
@@ -709,7 +772,7 @@
     <span class="kw">where
         </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        visitor.visit_byte_buf(<span class="macro">try!</span>(<span class="self">self</span>.read_vec()))
+        visitor.visit_byte_buf(<span class="self">self</span>.read_vec()<span class="question-mark">?</span>)
     }
 
     <span class="kw">fn </span>deserialize_enum&lt;V&gt;(
@@ -722,16 +785,20 @@
         </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
         <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>, R: <span class="lifetime">&#39;a</span>, O&gt; serde::de::EnumAccess&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Deserializer&lt;R, O&gt;
-        <span class="kw">where </span>R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options {
+        <span class="kw">where
+            </span>R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;,
+            O: Options,
+        {
             <span class="kw">type </span>Error = Error;
             <span class="kw">type </span>Variant = <span class="self">Self</span>;
 
             <span class="kw">fn </span>variant_seed&lt;V&gt;(<span class="self">self</span>, seed: V) -&gt; <span class="prelude-ty">Result</span>&lt;(V::Value, <span class="self">Self</span>::Variant)&gt;
-                <span class="kw">where </span>V: serde::de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;,
+            <span class="kw">where
+                </span>V: serde::de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;,
             {
-                <span class="kw">let </span>idx: u32 = <span class="macro">try!</span>(serde::de::Deserialize::deserialize(<span class="kw-2">&amp;mut *</span><span class="self">self</span>));
+                <span class="kw">let </span>idx: u32 = O::IntEncoding::deserialize_u32(<span class="self">self</span>)<span class="question-mark">?</span>;
                 <span class="kw">let </span>val: <span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>&gt; = seed.deserialize(idx.into_deserializer());
-                <span class="prelude-val">Ok</span>((<span class="macro">try!</span>(val), <span class="self">self</span>))
+                <span class="prelude-val">Ok</span>((val<span class="question-mark">?</span>, <span class="self">self</span>))
             }
         }
 
@@ -747,13 +814,9 @@
             len: usize,
         }
 
-        <span class="kw">impl</span>&lt;
-            <span class="lifetime">&#39;de</span>,
-            <span class="lifetime">&#39;a</span>,
-            <span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>,
-            R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt; + <span class="lifetime">&#39;b</span>,
-            O: Options,
-        &gt; serde::de::SeqAccess&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Access&lt;<span class="lifetime">&#39;a</span>, R, O&gt; {
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt; + <span class="lifetime">&#39;b</span>, O: Options&gt; serde::de::SeqAccess&lt;<span class="lifetime">&#39;de</span>&gt;
+            <span class="kw">for </span>Access&lt;<span class="lifetime">&#39;a</span>, R, O&gt;
+        {
             <span class="kw">type </span>Error = Error;
 
             <span class="kw">fn </span>next_element_seed&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;T::Value&gt;&gt;
@@ -762,10 +825,8 @@
             {
                 <span class="kw">if </span><span class="self">self</span>.len &gt; <span class="number">0 </span>{
                     <span class="self">self</span>.len -= <span class="number">1</span>;
-                    <span class="kw">let </span>value = <span class="macro">try!</span>(serde::de::DeserializeSeed::deserialize(
-                        seed,
-                        <span class="kw-2">&amp;mut *</span><span class="self">self</span>.deserializer,
-                    ));
+                    <span class="kw">let </span>value =
+                        serde::de::DeserializeSeed::deserialize(seed, <span class="kw-2">&amp;mut *</span><span class="self">self</span>.deserializer)<span class="question-mark">?</span>;
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(value))
                 } <span class="kw">else </span>{
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
@@ -779,7 +840,7 @@
 
         visitor.visit_seq(Access {
             deserializer: <span class="self">self</span>,
-            len: len,
+            len,
         })
     }
 
@@ -787,7 +848,7 @@
     <span class="kw">where
         </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">let </span>value: u8 = <span class="macro">try!</span>(serde::de::Deserialize::deserialize(<span class="kw-2">&amp;mut *</span><span class="self">self</span>));
+        <span class="kw">let </span>value: u8 = serde::de::Deserialize::deserialize(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)<span class="question-mark">?</span>;
         <span class="kw">match </span>value {
             <span class="number">0 </span>=&gt; visitor.visit_none(),
             <span class="number">1 </span>=&gt; visitor.visit_some(<span class="kw-2">&amp;mut *</span><span class="self">self</span>),
@@ -799,7 +860,7 @@
     <span class="kw">where
         </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">let </span>len = <span class="macro">try!</span>(serde::Deserialize::deserialize(<span class="kw-2">&amp;mut *</span><span class="self">self</span>));
+        <span class="kw">let </span>len = O::IntEncoding::deserialize_len(<span class="self">self</span>)<span class="question-mark">?</span>;
 
         <span class="self">self</span>.deserialize_tuple(len, visitor)
     }
@@ -813,13 +874,9 @@
             len: usize,
         }
 
-        <span class="kw">impl</span>&lt;
-            <span class="lifetime">&#39;de</span>,
-            <span class="lifetime">&#39;a</span>,
-            <span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>,
-            R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt; + <span class="lifetime">&#39;b</span>,
-            O: Options,
-        &gt; serde::de::MapAccess&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Access&lt;<span class="lifetime">&#39;a</span>, R, O&gt; {
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt; + <span class="lifetime">&#39;b</span>, O: Options&gt; serde::de::MapAccess&lt;<span class="lifetime">&#39;de</span>&gt;
+            <span class="kw">for </span>Access&lt;<span class="lifetime">&#39;a</span>, R, O&gt;
+        {
             <span class="kw">type </span>Error = Error;
 
             <span class="kw">fn </span>next_key_seed&lt;K&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;&gt;
@@ -828,10 +885,8 @@
             {
                 <span class="kw">if </span><span class="self">self</span>.len &gt; <span class="number">0 </span>{
                     <span class="self">self</span>.len -= <span class="number">1</span>;
-                    <span class="kw">let </span>key = <span class="macro">try!</span>(serde::de::DeserializeSeed::deserialize(
-                        seed,
-                        <span class="kw-2">&amp;mut *</span><span class="self">self</span>.deserializer,
-                    ));
+                    <span class="kw">let </span>key =
+                        serde::de::DeserializeSeed::deserialize(seed, <span class="kw-2">&amp;mut *</span><span class="self">self</span>.deserializer)<span class="question-mark">?</span>;
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(key))
                 } <span class="kw">else </span>{
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
@@ -842,10 +897,7 @@
             <span class="kw">where
                 </span>V: serde::de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;,
             {
-                <span class="kw">let </span>value = <span class="macro">try!</span>(serde::de::DeserializeSeed::deserialize(
-                    seed,
-                    <span class="kw-2">&amp;mut *</span><span class="self">self</span>.deserializer,
-                ));
+                <span class="kw">let </span>value = serde::de::DeserializeSeed::deserialize(seed, <span class="kw-2">&amp;mut *</span><span class="self">self</span>.deserializer)<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(value)
             }
 
@@ -854,11 +906,11 @@
             }
         }
 
-        <span class="kw">let </span>len = <span class="macro">try!</span>(serde::Deserialize::deserialize(<span class="kw-2">&amp;mut *</span><span class="self">self</span>));
+        <span class="kw">let </span>len = O::IntEncoding::deserialize_len(<span class="self">self</span>)<span class="question-mark">?</span>;
 
         visitor.visit_map(Access {
             deserializer: <span class="self">self</span>,
-            len: len,
+            len,
         })
     }
 
@@ -922,7 +974,10 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>, R, O&gt; serde::de::VariantAccess&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Deserializer&lt;R, O&gt;
-<span class="kw">where </span>R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options{
+<span class="kw">where
+    </span>R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;,
+    O: Options,
+{
     <span class="kw">type </span>Error = Error;
 
     <span class="kw">fn </span>unit_variant(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
@@ -930,44 +985,43 @@
     }
 
     <span class="kw">fn </span>newtype_variant_seed&lt;T&gt;(<span class="self">self</span>, seed: T) -&gt; <span class="prelude-ty">Result</span>&lt;T::Value&gt;
-        <span class="kw">where </span>T: serde::de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;,
+    <span class="kw">where
+        </span>T: serde::de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
         serde::de::DeserializeSeed::deserialize(seed, <span class="self">self</span>)
     }
 
-    <span class="kw">fn </span>tuple_variant&lt;V&gt;(<span class="self">self</span>,
-                      len: usize,
-                      visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
-        <span class="kw">where </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+    <span class="kw">fn </span>tuple_variant&lt;V&gt;(<span class="self">self</span>, len: usize, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
+    <span class="kw">where
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
         serde::de::Deserializer::deserialize_tuple(<span class="self">self</span>, len, visitor)
     }
 
-    <span class="kw">fn </span>struct_variant&lt;V&gt;(<span class="self">self</span>,
-                       fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str],
-                       visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
-        <span class="kw">where </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+    <span class="kw">fn </span>struct_variant&lt;V&gt;(<span class="self">self</span>, fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str], visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
+    <span class="kw">where
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
         serde::de::Deserializer::deserialize_tuple(<span class="self">self</span>, fields.len(), visitor)
     }
 }
 <span class="kw">static </span>UTF8_CHAR_WIDTH: [u8; <span class="number">256</span>] = [
-<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,
-<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>, <span class="comment">// 0x1F
-</span><span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,
-<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>, <span class="comment">// 0x3F
-</span><span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,
-<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>, <span class="comment">// 0x5F
-</span><span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,
-<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>, <span class="comment">// 0x7F
-</span><span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,
-<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>, <span class="comment">// 0x9F
-</span><span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,
-<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>, <span class="comment">// 0xBF
-</span><span class="number">0</span>,<span class="number">0</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,
-<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>, <span class="comment">// 0xDF
-</span><span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">3</span>, <span class="comment">// 0xEF
-</span><span class="number">4</span>,<span class="number">4</span>,<span class="number">4</span>,<span class="number">4</span>,<span class="number">4</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>, <span class="comment">// 0xFF
+    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
+    <span class="number">1</span>, <span class="comment">// 0x1F
+    </span><span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
+    <span class="number">1</span>, <span class="comment">// 0x3F
+    </span><span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
+    <span class="number">1</span>, <span class="comment">// 0x5F
+    </span><span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
+    <span class="number">1</span>, <span class="comment">// 0x7F
+    </span><span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
+    <span class="number">0</span>, <span class="comment">// 0x9F
+    </span><span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
+    <span class="number">0</span>, <span class="comment">// 0xBF
+    </span><span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>,
+    <span class="number">2</span>, <span class="comment">// 0xDF
+    </span><span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="comment">// 0xEF
+    </span><span class="number">4</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="comment">// 0xFF
 </span>];
 
 <span class="comment">// This function is a copy of core::str::utf8_char_width

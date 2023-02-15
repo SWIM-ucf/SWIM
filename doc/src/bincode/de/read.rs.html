@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bincode-1.0.1/src/de/read.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>read.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../bincode/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bincode-1.3.3/src/de/read.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>read.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../bincode/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -182,39 +182,58 @@
 <a href="#182" id="182">182</a>
 <a href="#183" id="183">183</a>
 <a href="#184" id="184">184</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::io;
-<span class="kw">use </span>error::Result;
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+</pre><pre class="rust"><code><span class="kw">use </span>error::Result;
 <span class="kw">use </span>serde;
+<span class="kw">use </span>std::io;
 
 <span class="doccomment">/// An optional Read trait for advanced Bincode usage.
 ///
 /// It is highly recommended to use bincode with `io::Read` or `&amp;[u8]` before
 /// implementing a custom `BincodeRead`.
+///
+/// The forward_read_* methods are necessary because some byte sources want
+/// to pass a long-lived borrow to the visitor and others want to pass a
+/// transient slice.
 </span><span class="kw">pub trait </span>BincodeRead&lt;<span class="lifetime">&#39;storage</span>&gt;: io::Read {
-    <span class="doccomment">/// Forwards reading `length` bytes of a string on to the serde reader.
+    <span class="doccomment">/// Check that the next `length` bytes are a valid string and pass
+    /// it on to the serde reader.
     </span><span class="kw">fn </span>forward_read_str&lt;V&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: usize, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
         </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;storage</span>&gt;;
 
-    <span class="doccomment">/// Return the first `length` bytes of the internal byte buffer.
+    <span class="doccomment">/// Transfer ownership of the next `length` bytes to the caller.
     </span><span class="kw">fn </span>get_byte_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: usize) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt;;
 
-    <span class="doccomment">/// Forwards reading `length` bytes on to the serde reader.
+    <span class="doccomment">/// Pass a slice of the next `length` bytes on to the serde reader.
     </span><span class="kw">fn </span>forward_read_bytes&lt;V&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: usize, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
         </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;storage</span>&gt;;
 }
 
 <span class="doccomment">/// A BincodeRead implementation for byte slices
-/// NOT A PART OF THE STABLE PUBLIC API
-</span><span class="attr">#[doc(hidden)]
 </span><span class="kw">pub struct </span>SliceReader&lt;<span class="lifetime">&#39;storage</span>&gt; {
     slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;storage </span>[u8],
 }
 
-<span class="doccomment">/// A BincodeRead implementation for io::Readers
-/// NOT A PART OF THE STABLE PUBLIC API
-</span><span class="attr">#[doc(hidden)]
+<span class="doccomment">/// A BincodeRead implementation for `io::Read`ers
 </span><span class="kw">pub struct </span>IoReader&lt;R&gt; {
     reader: R,
     temp_buffer: Vec&lt;u8&gt;,
@@ -222,14 +241,28 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;storage</span>&gt; SliceReader&lt;<span class="lifetime">&#39;storage</span>&gt; {
     <span class="doccomment">/// Constructs a slice reader
-    </span><span class="kw">pub fn </span>new(bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;storage </span>[u8]) -&gt; SliceReader&lt;<span class="lifetime">&#39;storage</span>&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;storage </span>[u8]) -&gt; SliceReader&lt;<span class="lifetime">&#39;storage</span>&gt; {
         SliceReader { slice: bytes }
+    }
+
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">fn </span>get_byte_slice(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;storage </span>[u8]&gt; {
+        <span class="kw">if </span>length &gt; <span class="self">self</span>.slice.len() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(SliceReader::unexpected_eof());
+        }
+        <span class="kw">let </span>(read_slice, remaining) = <span class="self">self</span>.slice.split_at(length);
+        <span class="self">self</span>.slice = remaining;
+        <span class="prelude-val">Ok</span>(read_slice)
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_finished(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.slice.is_empty()
     }
 }
 
 <span class="kw">impl</span>&lt;R&gt; IoReader&lt;R&gt; {
     <span class="doccomment">/// Constructs an IoReadReader
-    </span><span class="kw">pub fn </span>new(r: R) -&gt; IoReader&lt;R&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(r: R) -&gt; IoReader&lt;R&gt; {
         IoReader {
             reader: r,
             temp_buffer: <span class="macro">vec!</span>[],
@@ -240,11 +273,19 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;storage</span>&gt; io::Read <span class="kw">for </span>SliceReader&lt;<span class="lifetime">&#39;storage</span>&gt; {
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>[u8]) -&gt; io::Result&lt;usize&gt; {
-        (<span class="kw-2">&amp;mut </span><span class="self">self</span>.slice).read(out)
+        <span class="kw">if </span>out.len() &gt; <span class="self">self</span>.slice.len() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(io::ErrorKind::UnexpectedEof.into());
+        }
+        <span class="kw">let </span>(read_slice, remaining) = <span class="self">self</span>.slice.split_at(out.len());
+        out.copy_from_slice(read_slice);
+        <span class="self">self</span>.slice = remaining;
+
+        <span class="prelude-val">Ok</span>(out.len())
     }
+
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>read_exact(<span class="kw-2">&amp;mut </span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>[u8]) -&gt; io::Result&lt;()&gt; {
-        (<span class="kw-2">&amp;mut </span><span class="self">self</span>.slice).read_exact(out)
+        <span class="self">self</span>.read(out).map(|<span class="kw">_</span>| ())
     }
 }
 
@@ -262,9 +303,10 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;storage</span>&gt; SliceReader&lt;<span class="lifetime">&#39;storage</span>&gt; {
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>unexpected_eof() -&gt; Box&lt;::ErrorKind&gt; {
-        <span class="kw">return </span>Box::new(::ErrorKind::Io(
-            io::Error::new(io::ErrorKind::UnexpectedEof, <span class="string">&quot;&quot;</span>),
-        ));
+        Box::new(::ErrorKind::Io(io::Error::new(
+            io::ErrorKind::UnexpectedEof,
+            <span class="string">&quot;&quot;</span>,
+        )))
     }
 }
 
@@ -275,28 +317,16 @@
         </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;storage</span>&gt;,
     {
         <span class="kw">use </span>ErrorKind;
-        <span class="kw">if </span>length &gt; <span class="self">self</span>.slice.len() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(SliceReader::unexpected_eof());
-        }
-
-        <span class="kw">let </span>string = <span class="kw">match </span>::std::str::from_utf8(<span class="kw-2">&amp;</span><span class="self">self</span>.slice[..length]) {
+        <span class="kw">let </span>string = <span class="kw">match </span>::std::str::from_utf8(<span class="self">self</span>.get_byte_slice(length)<span class="question-mark">?</span>) {
             <span class="prelude-val">Ok</span>(s) =&gt; s,
             <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(ErrorKind::InvalidUtf8Encoding(e).into()),
         };
-        <span class="kw">let </span>r = visitor.visit_borrowed_str(string);
-        <span class="self">self</span>.slice = <span class="kw-2">&amp;</span><span class="self">self</span>.slice[length..];
-        r
+        visitor.visit_borrowed_str(string)
     }
 
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>get_byte_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: usize) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
-        <span class="kw">if </span>length &gt; <span class="self">self</span>.slice.len() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(SliceReader::unexpected_eof());
-        }
-
-        <span class="kw">let </span>r = <span class="kw-2">&amp;</span><span class="self">self</span>.slice[..length];
-        <span class="self">self</span>.slice = <span class="kw-2">&amp;</span><span class="self">self</span>.slice[length..];
-        <span class="prelude-val">Ok</span>(r.to_vec())
+        <span class="self">self</span>.get_byte_slice(length).map(|x| x.to_vec())
     }
 
     <span class="attr">#[inline(always)]
@@ -304,13 +334,7 @@
     <span class="kw">where
         </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;storage</span>&gt;,
     {
-        <span class="kw">if </span>length &gt; <span class="self">self</span>.slice.len() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(SliceReader::unexpected_eof());
-        }
-
-        <span class="kw">let </span>r = visitor.visit_borrowed_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.slice[..length]);
-        <span class="self">self</span>.slice = <span class="kw-2">&amp;</span><span class="self">self</span>.slice[length..];
-        r
+        visitor.visit_borrowed_bytes(<span class="self">self</span>.get_byte_slice(length)<span class="question-mark">?</span>)
     }
 }
 
@@ -319,27 +343,21 @@
     </span>R: io::Read,
 {
     <span class="kw">fn </span>fill_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: usize) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>current_length = <span class="self">self</span>.temp_buffer.len();
-        <span class="kw">if </span>length &gt; current_length {
-            <span class="self">self</span>.temp_buffer.reserve_exact(length - current_length);
-        }
-
-        <span class="kw">unsafe </span>{
-            <span class="self">self</span>.temp_buffer.set_len(length);
-        }
+        <span class="self">self</span>.temp_buffer.resize(length, <span class="number">0</span>);
 
         <span class="self">self</span>.reader.read_exact(<span class="kw-2">&amp;mut </span><span class="self">self</span>.temp_buffer)<span class="question-mark">?</span>;
+
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span>&lt;R&gt; BincodeRead&lt;<span class="lifetime">&#39;static</span>&gt; <span class="kw">for </span>IoReader&lt;R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, R&gt; BincodeRead&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>IoReader&lt;R&gt;
 <span class="kw">where
     </span>R: io::Read,
 {
     <span class="kw">fn </span>forward_read_str&lt;V&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: usize, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;static</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;a</span>&gt;,
     {
         <span class="self">self</span>.fill_buffer(length)<span class="question-mark">?</span>;
 
@@ -348,8 +366,7 @@
             <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(::ErrorKind::InvalidUtf8Encoding(e).into()),
         };
 
-        <span class="kw">let </span>r = visitor.visit_str(string);
-        r
+        visitor.visit_str(string)
     }
 
     <span class="kw">fn </span>get_byte_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: usize) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
@@ -359,11 +376,30 @@
 
     <span class="kw">fn </span>forward_read_bytes&lt;V&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: usize, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;static</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;a</span>&gt;,
     {
         <span class="self">self</span>.fill_buffer(length)<span class="question-mark">?</span>;
-        <span class="kw">let </span>r = visitor.visit_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.temp_buffer[..]);
-        r
+        visitor.visit_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.temp_buffer[..])
+    }
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span><span class="kw">super</span>::IoReader;
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_fill_buffer() {
+        <span class="kw">let </span>buffer = <span class="macro">vec!</span>[<span class="number">0u8</span>; <span class="number">64</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>reader = IoReader::new(buffer.as_slice());
+
+        reader.fill_buffer(<span class="number">20</span>).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="number">20</span>, reader.temp_buffer.len());
+
+        reader.fill_buffer(<span class="number">30</span>).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="number">30</span>, reader.temp_buffer.len());
+
+        reader.fill_buffer(<span class="number">5</span>).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="number">5</span>, reader.temp_buffer.len());
     }
 }
 </code></pre></div>

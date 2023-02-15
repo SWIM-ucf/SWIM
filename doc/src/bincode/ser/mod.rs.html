@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bincode-1.0.1/src/ser/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../bincode/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bincode-1.3.3/src/ser/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../bincode/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -770,22 +770,6 @@
 <a href="#770" id="770">770</a>
 <a href="#771" id="771">771</a>
 <a href="#772" id="772">772</a>
-<a href="#773" id="773">773</a>
-<a href="#774" id="774">774</a>
-<a href="#775" id="775">775</a>
-<a href="#776" id="776">776</a>
-<a href="#777" id="777">777</a>
-<a href="#778" id="778">778</a>
-<a href="#779" id="779">779</a>
-<a href="#780" id="780">780</a>
-<a href="#781" id="781">781</a>
-<a href="#782" id="782">782</a>
-<a href="#783" id="783">783</a>
-<a href="#784" id="784">784</a>
-<a href="#785" id="785">785</a>
-<a href="#786" id="786">786</a>
-<a href="#787" id="787">787</a>
-<a href="#788" id="788">788</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::io::Write;
 <span class="kw">use </span>std::u32;
 
@@ -793,9 +777,10 @@
 
 <span class="kw">use </span>byteorder::WriteBytesExt;
 
-<span class="kw">use super</span>::{<span class="prelude-ty">Result</span>, Error, ErrorKind};
-<span class="kw">use </span>::config::Options;
-<span class="kw">use </span><span class="kw">super</span>::internal::SizeLimit;
+<span class="kw">use </span><span class="kw">super</span>::config::{IntEncoding, SizeLimit};
+<span class="kw">use super</span>::{Error, ErrorKind, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>config::{BincodeByteOrder, Options};
+<span class="kw">use </span>std::mem::size_of;
 
 <span class="doccomment">/// An Serializer that encodes values directly into a Writer.
 ///
@@ -804,9 +789,19 @@
 ///
 /// This struct should not be used often.
 /// For most cases, prefer the `encode_into` function.
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Serializer&lt;W, O: Options&gt; {
+</span><span class="kw">pub struct </span>Serializer&lt;W, O: Options&gt; {
     writer: W,
     _options: O,
+}
+
+<span class="macro">macro_rules! </span>impl_serialize_literal {
+    (<span class="macro-nonterminal">$ser_method</span>:ident(<span class="macro-nonterminal">$ty</span>:ty) = <span class="macro-nonterminal">$write</span>:ident()) =&gt; {
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span><span class="macro-nonterminal">$ser_method</span>(<span class="kw-2">&amp;mut </span><span class="self">self</span>, v: <span class="macro-nonterminal">$ty</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+            <span class="self">self</span>.writer
+                .<span class="macro-nonterminal">$write</span>::&lt;&lt;O::Endian <span class="kw">as </span>BincodeByteOrder&gt;::Endian&gt;(v)
+                .map_err(Into::into)
+        }
+    };
 }
 
 <span class="kw">impl</span>&lt;W: Write, O: Options&gt; Serializer&lt;W, O&gt; {
@@ -817,6 +812,26 @@
             _options: options,
         }
     }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>serialize_byte(<span class="kw-2">&amp;mut </span><span class="self">self</span>, v: u8) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.writer.write_u8(v).map_err(Into::into)
+    }
+
+    <span class="macro">impl_serialize_literal! </span>{serialize_literal_u16(u16) = write_u16()}
+    <span class="macro">impl_serialize_literal! </span>{serialize_literal_u32(u32) = write_u32()}
+    <span class="macro">impl_serialize_literal! </span>{serialize_literal_u64(u64) = write_u64()}
+
+    <span class="macro">serde_if_integer128! </span>{
+        <span class="macro">impl_serialize_literal!</span>{serialize_literal_u128(u128) = write_u128()}
+    }
+}
+
+<span class="macro">macro_rules! </span>impl_serialize_int {
+    (<span class="macro-nonterminal">$ser_method</span>:ident(<span class="macro-nonterminal">$ty</span>:ty) = <span class="macro-nonterminal">$ser_int</span>:ident()) =&gt; {
+        <span class="kw">fn </span><span class="macro-nonterminal">$ser_method</span>(<span class="self">self</span>, v: <span class="macro-nonterminal">$ty</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+            O::IntEncoding::<span class="macro-nonterminal">$ser_int</span>(<span class="self">self</span>, v)
+        }
+    };
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W: Write, O: Options&gt; serde::Serializer <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Serializer&lt;W, O&gt; {
@@ -839,92 +854,55 @@
     }
 
     <span class="kw">fn </span>serialize_bool(<span class="self">self</span>, v: bool) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.writer.write_u8(<span class="kw">if </span>v { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>}).map_err(
-            Into::into,
-        )
+        <span class="self">self</span>.serialize_byte(v <span class="kw">as </span>u8)
     }
 
     <span class="kw">fn </span>serialize_u8(<span class="self">self</span>, v: u8) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.writer.write_u8(v).map_err(Into::into)
+        <span class="self">self</span>.serialize_byte(v)
     }
 
-    <span class="kw">fn </span>serialize_u16(<span class="self">self</span>, v: u16) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.writer.write_u16::&lt;O::Endian&gt;(v).map_err(Into::into)
-    }
-
-    <span class="kw">fn </span>serialize_u32(<span class="self">self</span>, v: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.writer.write_u32::&lt;O::Endian&gt;(v).map_err(Into::into)
-    }
-
-    <span class="kw">fn </span>serialize_u64(<span class="self">self</span>, v: u64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.writer.write_u64::&lt;O::Endian&gt;(v).map_err(Into::into)
-    }
+    <span class="macro">impl_serialize_int! </span>{serialize_u16(u16) = serialize_u16()}
+    <span class="macro">impl_serialize_int! </span>{serialize_u32(u32) = serialize_u32()}
+    <span class="macro">impl_serialize_int! </span>{serialize_u64(u64) = serialize_u64()}
 
     <span class="kw">fn </span>serialize_i8(<span class="self">self</span>, v: i8) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.writer.write_i8(v).map_err(Into::into)
+        <span class="self">self</span>.serialize_byte(v <span class="kw">as </span>u8)
     }
 
-    <span class="kw">fn </span>serialize_i16(<span class="self">self</span>, v: i16) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.writer.write_i16::&lt;O::Endian&gt;(v).map_err(Into::into)
-    }
-
-    <span class="kw">fn </span>serialize_i32(<span class="self">self</span>, v: i32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.writer.write_i32::&lt;O::Endian&gt;(v).map_err(Into::into)
-    }
-
-    <span class="kw">fn </span>serialize_i64(<span class="self">self</span>, v: i64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.writer.write_i64::&lt;O::Endian&gt;(v).map_err(Into::into)
-    }
-
-    <span class="attr">#[cfg(feature = <span class="string">&quot;i128&quot;</span>)]
-    </span><span class="kw">fn </span>serialize_u128(<span class="self">self</span>, v: u128) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.writer.write_u128::&lt;O::Endian&gt;(v).map_err(Into::into)
-    }
-
-    <span class="attr">#[cfg(feature = <span class="string">&quot;i128&quot;</span>)]
-    </span><span class="kw">fn </span>serialize_i128(<span class="self">self</span>, v: i128) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.writer.write_i128::&lt;O::Endian&gt;(v).map_err(Into::into)
-    }
+    <span class="macro">impl_serialize_int! </span>{serialize_i16(i16) = serialize_i16()}
+    <span class="macro">impl_serialize_int! </span>{serialize_i32(i32) = serialize_i32()}
+    <span class="macro">impl_serialize_int! </span>{serialize_i64(i64) = serialize_i64()}
 
     <span class="macro">serde_if_integer128! </span>{
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;i128&quot;</span>))]
-        </span><span class="kw">fn </span>serialize_u128(<span class="self">self</span>, v: u128) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-            <span class="kw">use </span>serde::ser::Error;
-
-            <span class="kw">let _ </span>= v;
-            <span class="prelude-val">Err</span>(Error::custom(<span class="string">&quot;u128 is not supported. Enable the `i128` feature of `bincode`&quot;</span>))
-        }
-
-        <span class="attr">#[cfg(not(feature = <span class="string">&quot;i128&quot;</span>))]
-        </span><span class="kw">fn </span>serialize_i128(<span class="self">self</span>, v: i128) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-            <span class="kw">use </span>serde::ser::Error;
-            
-            <span class="kw">let _ </span>= v;
-            <span class="prelude-val">Err</span>(Error::custom(<span class="string">&quot;i128 is not supported. Enable the `i128` feature of `bincode`&quot;</span>))
-        }
+        <span class="macro">impl_serialize_int!</span>{serialize_u128(u128) = serialize_u128()}
+        <span class="macro">impl_serialize_int!</span>{serialize_i128(i128) = serialize_i128()}
     }
 
     <span class="kw">fn </span>serialize_f32(<span class="self">self</span>, v: f32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.writer.write_f32::&lt;O::Endian&gt;(v).map_err(Into::into)
+        <span class="self">self</span>.writer
+            .write_f32::&lt;&lt;O::Endian <span class="kw">as </span>BincodeByteOrder&gt;::Endian&gt;(v)
+            .map_err(Into::into)
     }
 
     <span class="kw">fn </span>serialize_f64(<span class="self">self</span>, v: f64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.writer.write_f64::&lt;O::Endian&gt;(v).map_err(Into::into)
+        <span class="self">self</span>.writer
+            .write_f64::&lt;&lt;O::Endian <span class="kw">as </span>BincodeByteOrder&gt;::Endian&gt;(v)
+            .map_err(Into::into)
     }
 
     <span class="kw">fn </span>serialize_str(<span class="self">self</span>, v: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">try!</span>(<span class="self">self</span>.serialize_u64(v.len() <span class="kw">as </span>u64));
+        O::IntEncoding::serialize_len(<span class="self">self</span>, v.len())<span class="question-mark">?</span>;
         <span class="self">self</span>.writer.write_all(v.as_bytes()).map_err(Into::into)
     }
 
     <span class="kw">fn </span>serialize_char(<span class="self">self</span>, c: char) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.writer.write_all(encode_utf8(c).as_slice()).map_err(
-            Into::into,
-        )
+        <span class="self">self</span>.writer
+            .write_all(encode_utf8(c).as_slice())
+            .map_err(Into::into)
     }
 
     <span class="kw">fn </span>serialize_bytes(<span class="self">self</span>, v: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">try!</span>(<span class="self">self</span>.serialize_u64(v.len() <span class="kw">as </span>u64));
+        O::IntEncoding::serialize_len(<span class="self">self</span>, v.len())<span class="question-mark">?</span>;
         <span class="self">self</span>.writer.write_all(v).map_err(Into::into)
     }
 
@@ -936,13 +914,13 @@
     <span class="kw">where
         </span>T: serde::Serialize,
     {
-        <span class="macro">try!</span>(<span class="self">self</span>.writer.write_u8(<span class="number">1</span>));
+        <span class="self">self</span>.writer.write_u8(<span class="number">1</span>)<span class="question-mark">?</span>;
         v.serialize(<span class="self">self</span>)
     }
 
     <span class="kw">fn </span>serialize_seq(<span class="self">self</span>, len: <span class="prelude-ty">Option</span>&lt;usize&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeSeq&gt; {
-        <span class="kw">let </span>len = <span class="macro">try!</span>(len.ok_or(ErrorKind::SequenceMustHaveLength));
-        <span class="macro">try!</span>(<span class="self">self</span>.serialize_u64(len <span class="kw">as </span>u64));
+        <span class="kw">let </span>len = len.ok_or(ErrorKind::SequenceMustHaveLength)<span class="question-mark">?</span>;
+        O::IntEncoding::serialize_len(<span class="self">self</span>, len)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(Compound { ser: <span class="self">self </span>})
     }
 
@@ -965,13 +943,13 @@
         _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
         _len: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTupleVariant&gt; {
-        <span class="macro">try!</span>(<span class="self">self</span>.serialize_u32(variant_index));
+        O::IntEncoding::serialize_u32(<span class="self">self</span>, variant_index)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(Compound { ser: <span class="self">self </span>})
     }
 
     <span class="kw">fn </span>serialize_map(<span class="self">self</span>, len: <span class="prelude-ty">Option</span>&lt;usize&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeMap&gt; {
-        <span class="kw">let </span>len = <span class="macro">try!</span>(len.ok_or(ErrorKind::SequenceMustHaveLength));
-        <span class="macro">try!</span>(<span class="self">self</span>.serialize_u64(len <span class="kw">as </span>u64));
+        <span class="kw">let </span>len = len.ok_or(ErrorKind::SequenceMustHaveLength)<span class="question-mark">?</span>;
+        O::IntEncoding::serialize_len(<span class="self">self</span>, len)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(Compound { ser: <span class="self">self </span>})
     }
 
@@ -986,7 +964,7 @@
         _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
         _len: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStructVariant&gt; {
-        <span class="macro">try!</span>(<span class="self">self</span>.serialize_u32(variant_index));
+        O::IntEncoding::serialize_u32(<span class="self">self</span>, variant_index)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(Compound { ser: <span class="self">self </span>})
     }
 
@@ -1007,7 +985,7 @@
     <span class="kw">where
         </span>T: serde::ser::Serialize,
     {
-        <span class="macro">try!</span>(<span class="self">self</span>.serialize_u32(variant_index));
+        O::IntEncoding::serialize_u32(<span class="self">self</span>, variant_index)<span class="question-mark">?</span>;
         value.serialize(<span class="self">self</span>)
     }
 
@@ -1017,7 +995,7 @@
         variant_index: u32,
         _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.serialize_u32(variant_index)
+        O::IntEncoding::serialize_u32(<span class="self">self</span>, variant_index)
     }
 
     <span class="kw">fn </span>is_human_readable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -1027,21 +1005,34 @@
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>SizeChecker&lt;O: Options&gt; {
     <span class="kw">pub </span>options: O,
+    <span class="kw">pub </span>total: u64,
 }
 
 <span class="kw">impl</span>&lt;O: Options&gt; SizeChecker&lt;O&gt; {
-    <span class="kw">pub fn </span>new(options: O) -&gt; SizeChecker&lt;O&gt; {
-        SizeChecker { options: options }
-    }
-
     <span class="kw">fn </span>add_raw(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.options.limit().add(size)
+        <span class="self">self</span>.options.limit().add(size)<span class="question-mark">?</span>;
+        <span class="self">self</span>.total += size;
+
+        <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>add_value&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, t: T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">use </span>std::mem::size_of_val;
-        <span class="self">self</span>.add_raw(size_of_val(<span class="kw-2">&amp;</span>t) <span class="kw">as </span>u64)
+    <span class="kw">fn </span>add_discriminant(<span class="kw-2">&amp;mut </span><span class="self">self</span>, idx: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>bytes = O::IntEncoding::u32_size(idx);
+        <span class="self">self</span>.add_raw(bytes)
     }
+
+    <span class="kw">fn </span>add_len(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>bytes = O::IntEncoding::len_size(len);
+        <span class="self">self</span>.add_raw(bytes)
+    }
+}
+
+<span class="macro">macro_rules! </span>impl_size_int {
+    (<span class="macro-nonterminal">$ser_method</span>:ident(<span class="macro-nonterminal">$ty</span>:ty) = <span class="macro-nonterminal">$size_method</span>:ident()) =&gt; {
+        <span class="kw">fn </span><span class="macro-nonterminal">$ser_method</span>(<span class="self">self</span>, v: <span class="macro-nonterminal">$ty</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+            <span class="self">self</span>.add_raw(O::IntEncoding::<span class="macro-nonterminal">$size_method</span>(v))
+        }
+    };
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, O: Options&gt; serde::Serializer <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>SizeChecker&lt;O&gt; {
@@ -1064,61 +1055,38 @@
     }
 
     <span class="kw">fn </span>serialize_bool(<span class="self">self</span>, <span class="kw">_</span>: bool) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.add_value(<span class="number">0 </span><span class="kw">as </span>u8)
+        <span class="self">self</span>.add_raw(<span class="number">1</span>)
     }
 
-    <span class="kw">fn </span>serialize_u8(<span class="self">self</span>, v: u8) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.add_value(v)
+    <span class="kw">fn </span>serialize_u8(<span class="self">self</span>, <span class="kw">_</span>: u8) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.add_raw(<span class="number">1</span>)
+    }
+    <span class="kw">fn </span>serialize_i8(<span class="self">self</span>, <span class="kw">_</span>: i8) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.add_raw(<span class="number">1</span>)
     }
 
-    <span class="kw">fn </span>serialize_u16(<span class="self">self</span>, v: u16) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.add_value(v)
-    }
-
-    <span class="kw">fn </span>serialize_u32(<span class="self">self</span>, v: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.add_value(v)
-    }
-
-    <span class="kw">fn </span>serialize_u64(<span class="self">self</span>, v: u64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.add_value(v)
-    }
-
-    <span class="kw">fn </span>serialize_i8(<span class="self">self</span>, v: i8) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.add_value(v)
-    }
-
-    <span class="kw">fn </span>serialize_i16(<span class="self">self</span>, v: i16) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.add_value(v)
-    }
-
-    <span class="kw">fn </span>serialize_i32(<span class="self">self</span>, v: i32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.add_value(v)
-    }
-
-    <span class="kw">fn </span>serialize_i64(<span class="self">self</span>, v: i64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.add_value(v)
-    }
+    <span class="macro">impl_size_int! </span>{serialize_u16(u16) = u16_size()}
+    <span class="macro">impl_size_int! </span>{serialize_u32(u32) = u32_size()}
+    <span class="macro">impl_size_int! </span>{serialize_u64(u64) = u64_size()}
+    <span class="macro">impl_size_int! </span>{serialize_i16(i16) = i16_size()}
+    <span class="macro">impl_size_int! </span>{serialize_i32(i32) = i32_size()}
+    <span class="macro">impl_size_int! </span>{serialize_i64(i64) = i64_size()}
 
     <span class="macro">serde_if_integer128! </span>{
-        <span class="kw">fn </span>serialize_u128(<span class="self">self</span>, v: u128) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-            <span class="self">self</span>.add_value(v)
-        }
-
-        <span class="kw">fn </span>serialize_i128(<span class="self">self</span>, v: i128) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-            <span class="self">self</span>.add_value(v)
-        }
+        <span class="macro">impl_size_int!</span>{serialize_u128(u128) = u128_size()}
+        <span class="macro">impl_size_int!</span>{serialize_i128(i128) = i128_size()}
     }
 
-    <span class="kw">fn </span>serialize_f32(<span class="self">self</span>, v: f32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.add_value(v)
+    <span class="kw">fn </span>serialize_f32(<span class="self">self</span>, <span class="kw">_</span>: f32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.add_raw(size_of::&lt;f32&gt;() <span class="kw">as </span>u64)
     }
 
-    <span class="kw">fn </span>serialize_f64(<span class="self">self</span>, v: f64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.add_value(v)
+    <span class="kw">fn </span>serialize_f64(<span class="self">self</span>, <span class="kw">_</span>: f64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.add_raw(size_of::&lt;f64&gt;() <span class="kw">as </span>u64)
     }
 
     <span class="kw">fn </span>serialize_str(<span class="self">self</span>, v: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">try!</span>(<span class="self">self</span>.add_value(<span class="number">0 </span><span class="kw">as </span>u64));
+        <span class="self">self</span>.add_len(v.len())<span class="question-mark">?</span>;
         <span class="self">self</span>.add_raw(v.len() <span class="kw">as </span>u64)
     }
 
@@ -1127,26 +1095,26 @@
     }
 
     <span class="kw">fn </span>serialize_bytes(<span class="self">self</span>, v: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">try!</span>(<span class="self">self</span>.add_value(<span class="number">0 </span><span class="kw">as </span>u64));
+        <span class="self">self</span>.add_len(v.len())<span class="question-mark">?</span>;
         <span class="self">self</span>.add_raw(v.len() <span class="kw">as </span>u64)
     }
 
     <span class="kw">fn </span>serialize_none(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.add_value(<span class="number">0 </span><span class="kw">as </span>u8)
+        <span class="self">self</span>.add_raw(<span class="number">1</span>)
     }
 
     <span class="kw">fn </span>serialize_some&lt;T: <span class="question-mark">?</span>Sized&gt;(<span class="self">self</span>, v: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
     <span class="kw">where
         </span>T: serde::Serialize,
     {
-        <span class="macro">try!</span>(<span class="self">self</span>.add_value(<span class="number">1 </span><span class="kw">as </span>u8));
+        <span class="self">self</span>.add_raw(<span class="number">1</span>)<span class="question-mark">?</span>;
         v.serialize(<span class="self">self</span>)
     }
 
     <span class="kw">fn </span>serialize_seq(<span class="self">self</span>, len: <span class="prelude-ty">Option</span>&lt;usize&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeSeq&gt; {
-        <span class="kw">let </span>len = <span class="macro">try!</span>(len.ok_or(ErrorKind::SequenceMustHaveLength));
+        <span class="kw">let </span>len = len.ok_or(ErrorKind::SequenceMustHaveLength)<span class="question-mark">?</span>;
 
-        <span class="macro">try!</span>(<span class="self">self</span>.serialize_u64(len <span class="kw">as </span>u64));
+        <span class="self">self</span>.add_len(len)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(SizeCompound { ser: <span class="self">self </span>})
     }
 
@@ -1169,14 +1137,14 @@
         _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
         _len: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTupleVariant&gt; {
-        <span class="macro">try!</span>(<span class="self">self</span>.add_value(variant_index));
+        <span class="self">self</span>.add_raw(O::IntEncoding::u32_size(variant_index))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(SizeCompound { ser: <span class="self">self </span>})
     }
 
     <span class="kw">fn </span>serialize_map(<span class="self">self</span>, len: <span class="prelude-ty">Option</span>&lt;usize&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeMap&gt; {
-        <span class="kw">let </span>len = <span class="macro">try!</span>(len.ok_or(ErrorKind::SequenceMustHaveLength));
+        <span class="kw">let </span>len = len.ok_or(ErrorKind::SequenceMustHaveLength)<span class="question-mark">?</span>;
 
-        <span class="macro">try!</span>(<span class="self">self</span>.serialize_u64(len <span class="kw">as </span>u64));
+        <span class="self">self</span>.add_len(len)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(SizeCompound { ser: <span class="self">self </span>})
     }
 
@@ -1191,7 +1159,7 @@
         _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
         _len: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStructVariant&gt; {
-        <span class="macro">try!</span>(<span class="self">self</span>.add_value(variant_index));
+        <span class="self">self</span>.add_discriminant(variant_index)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(SizeCompound { ser: <span class="self">self </span>})
     }
 
@@ -1209,7 +1177,7 @@
         variant_index: u32,
         _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.add_value(variant_index)
+        <span class="self">self</span>.add_discriminant(variant_index)
     }
 
     <span class="kw">fn </span>serialize_newtype_variant&lt;V: serde::Serialize + <span class="question-mark">?</span>Sized&gt;(
@@ -1219,7 +1187,7 @@
         _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
         value: <span class="kw-2">&amp;</span>V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">try!</span>(<span class="self">self</span>.add_value(variant_index));
+        <span class="self">self</span>.add_discriminant(variant_index)<span class="question-mark">?</span>;
         value.serialize(<span class="self">self</span>)
     }
 
@@ -1228,7 +1196,7 @@
     </span>}
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Compound&lt;<span class="lifetime">&#39;a</span>, W: <span class="lifetime">&#39;a</span>, O: Options + <span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">pub struct </span>Compound&lt;<span class="lifetime">&#39;a</span>, W: <span class="lifetime">&#39;a</span>, O: Options + <span class="lifetime">&#39;a</span>&gt; {
     ser: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Serializer&lt;W, O&gt;,
 }
 
@@ -1470,7 +1438,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, O: Options+ <span class="lifetime">&#39;a</span>&gt; serde::ser::SerializeMap <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, O: Options + <span class="lifetime">&#39;a</span>&gt; serde::ser::SerializeMap <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt; {
     <span class="kw">type </span><span class="prelude-val">Ok </span>= ();
     <span class="kw">type </span>Error = Error;
 
@@ -1561,7 +1529,7 @@
         buf[<span class="number">3</span>] = (code &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8 | TAG_CONT;
         <span class="number">0
     </span>};
-    EncodeUtf8 { buf: buf, pos: pos }
+    EncodeUtf8 { buf, pos }
 }
 
 <span class="kw">struct </span>EncodeUtf8 {

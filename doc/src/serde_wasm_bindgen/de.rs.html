@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/serde-wasm-bindgen-0.3.1/src/de.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>de.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../serde_wasm_bindgen/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/serde-wasm-bindgen-0.4.5/src/de.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>de.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../serde_wasm_bindgen/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -545,9 +545,62 @@
 <a href="#545" id="545">545</a>
 <a href="#546" id="546">546</a>
 <a href="#547" id="547">547</a>
-</pre><pre class="rust"><code><span class="kw">use </span>js_sys::{Array, ArrayBuffer, JsString, Number, Object, Reflect, Symbol, Uint8Array};
-<span class="kw">use </span>serde::{de, serde_if_integer128};
-<span class="kw">use </span>wasm_bindgen::{JsCast, JsValue};
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+</pre><pre class="rust"><code><span class="kw">use </span>js_sys::{Array, ArrayBuffer, JsString, Number, Object, Symbol, Uint8Array};
+<span class="kw">use </span>serde::de::value::{MapDeserializer, SeqDeserializer};
+<span class="kw">use </span>serde::de::{<span class="self">self</span>, IntoDeserializer};
+<span class="kw">use </span>std::convert::TryFrom;
+<span class="kw">use </span>wasm_bindgen::{JsCast, JsValue, UnwrapThrowExt};
 
 <span class="kw">use super</span>::{static_str_to_js, Error, ObjectExt, <span class="prelude-ty">Result</span>};
 
@@ -576,6 +629,15 @@
     next_value: <span class="prelude-ty">Option</span>&lt;Deserializer&gt;,
 }
 
+<span class="kw">impl </span>MapAccess {
+    <span class="kw">const fn </span>new(iter: js_sys::IntoIter) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            iter,
+            next_value: <span class="prelude-val">None</span>,
+        }
+    }
+}
+
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; de::MapAccess&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>MapAccess {
     <span class="kw">type </span>Error = Error;
 
@@ -593,29 +655,24 @@
     }
 
     <span class="kw">fn </span>next_value_seed&lt;V: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
-        seed.deserialize(<span class="self">self</span>.next_value.take().unwrap())
-    }
-
-    <span class="kw">fn </span>next_entry_seed&lt;K: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;, V: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        kseed: K,
-        vseed: V,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(K::Value, V::Value)&gt;&gt; {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.next_value.is_none());
-
-        <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self</span>.iter.next().transpose()<span class="question-mark">? </span>{
-            <span class="prelude-val">Some</span>(pair) =&gt; {
-                <span class="kw">let </span>(key, value) = convert_pair(pair);
-                <span class="prelude-val">Some</span>((kseed.deserialize(key)<span class="question-mark">?</span>, vseed.deserialize(value)<span class="question-mark">?</span>))
-            }
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
-        })
+        seed.deserialize(<span class="self">self</span>.next_value.take().unwrap_throw())
     }
 }
 
 <span class="kw">struct </span>ObjectAccess {
     obj: ObjectExt,
-    fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str],
+    fields: std::slice::Iter&lt;<span class="lifetime">&#39;static</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
+    next_value: <span class="prelude-ty">Option</span>&lt;Deserializer&gt;,
+}
+
+<span class="kw">impl </span>ObjectAccess {
+    <span class="kw">fn </span>new(obj: ObjectExt, fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str]) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            obj,
+            fields: fields.iter(),
+            next_value: <span class="prelude-val">None</span>,
+        }
+    }
 }
 
 <span class="kw">fn </span>str_deserializer(s: <span class="kw-2">&amp;</span>str) -&gt; de::value::StrDeserializer&lt;Error&gt; {
@@ -626,34 +683,25 @@
     <span class="kw">type </span>Error = Error;
 
     <span class="kw">fn </span>next_key_seed&lt;K: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;&gt; {
-        <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self</span>.fields.get(<span class="number">0</span>) {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>field) =&gt; <span class="prelude-val">Some</span>(seed.deserialize(str_deserializer(field))<span class="question-mark">?</span>),
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
-        })
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.next_value.is_none());
+
+        <span class="kw">for </span>field <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.fields {
+            <span class="kw">let </span>js_field = static_str_to_js(field);
+            <span class="kw">let </span>next_value = <span class="self">self</span>.obj.get_with_ref_key(<span class="kw-2">&amp;</span>js_field);
+            <span class="comment">// If this value is `undefined`, it might be actually a missing field;
+            // double-check with an `in` operator if so.
+            </span><span class="kw">let </span>is_missing_field = next_value.is_undefined() &amp;&amp; !js_field.js_in(<span class="kw-2">&amp;</span><span class="self">self</span>.obj);
+            <span class="kw">if </span>!is_missing_field {
+                <span class="self">self</span>.next_value = <span class="prelude-val">Some</span>(Deserializer::from(next_value));
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(seed.deserialize(str_deserializer(field))<span class="question-mark">?</span>));
+            }
+        }
+
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
     }
 
     <span class="kw">fn </span>next_value_seed&lt;V: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
-        <span class="kw">let </span>(field, fields) = <span class="self">self</span>.fields.split_first().unwrap();
-        <span class="self">self</span>.fields = fields;
-        <span class="kw">let </span>value = <span class="self">self</span>.obj.get(static_str_to_js(field));
-        seed.deserialize(Deserializer::from(value))
-    }
-
-    <span class="kw">fn </span>next_entry_seed&lt;K: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;, V: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        kseed: K,
-        vseed: V,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(K::Value, V::Value)&gt;&gt; {
-        <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self</span>.fields.split_first() {
-            <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span>field, fields)) =&gt; {
-                <span class="self">self</span>.fields = fields;
-                <span class="prelude-val">Some</span>((
-                    kseed.deserialize(str_deserializer(field))<span class="question-mark">?</span>,
-                    vseed.deserialize(Deserializer::from(<span class="self">self</span>.obj.get(static_str_to_js(field))))<span class="question-mark">?</span>,
-                ))
-            }
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
-        })
+        seed.deserialize(<span class="self">self</span>.next_value.take().unwrap_throw())
     }
 }
 
@@ -686,6 +734,16 @@
     }
 }
 
+<span class="comment">// Ideally this would be implemented for `JsValue` instead, but we can&#39;t because
+// of the orphan rule.
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; IntoDeserializer&lt;<span class="lifetime">&#39;de</span>, Error&gt; <span class="kw">for </span>Deserializer {
+    <span class="kw">type </span>Deserializer = <span class="self">Self</span>;
+
+    <span class="kw">fn </span>into_deserializer(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Deserializer {
+        <span class="self">self
+    </span>}
+}
+
 <span class="doccomment">/// Destructures a JS `[key, value]` pair into a tuple of [`Deserializer`]s.
 </span><span class="kw">fn </span>convert_pair(pair: JsValue) -&gt; (Deserializer, Deserializer) {
     <span class="kw">let </span>pair = pair.unchecked_into::&lt;Array&gt;();
@@ -704,7 +762,7 @@
     }
 
     <span class="kw">fn </span>is_nullish(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.value.is_null() || <span class="self">self</span>.value.is_undefined()
+        <span class="self">self</span>.value.loose_eq(<span class="kw-2">&amp;</span>JsValue::NULL)
     }
 
     <span class="kw">fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt; {
@@ -759,6 +817,26 @@
         }
         <span class="prelude-val">None
     </span>}
+
+    <span class="kw">fn </span>deserialize_from_js_number_signed&lt;<span class="lifetime">&#39;de</span>, V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        visitor: V,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+        <span class="kw">match </span><span class="self">self</span>.as_safe_integer() {
+            <span class="prelude-val">Some</span>(v) =&gt; visitor.visit_i64(v),
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_type(visitor),
+        }
+    }
+
+    <span class="kw">fn </span>deserialize_from_js_number_unsigned&lt;<span class="lifetime">&#39;de</span>, V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        visitor: V,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+        <span class="kw">match </span><span class="self">self</span>.as_safe_integer() {
+            <span class="prelude-val">Some</span>(v) <span class="kw">if </span>v &gt;= <span class="number">0 </span>=&gt; visitor.visit_u64(v <span class="kw">as _</span>),
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_type(visitor),
+        }
+    }
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; de::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Deserializer {
@@ -772,6 +850,14 @@
             </span>visitor.visit_unit()
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(v) = <span class="self">self</span>.value.as_bool() {
             visitor.visit_bool(v)
+        } <span class="kw">else if </span><span class="self">self</span>.value.is_bigint() {
+            <span class="kw">match </span>i64::try_from(<span class="self">self</span>.value) {
+                <span class="prelude-val">Ok</span>(v) =&gt; visitor.visit_i64(v),
+                <span class="prelude-val">Err</span>(value) =&gt; <span class="kw">match </span>u64::try_from(value) {
+                    <span class="prelude-val">Ok</span>(v) =&gt; visitor.visit_u64(v),
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(de::Error::custom(<span class="string">&quot;Couldn&#39;t deserialize i64 or u64 from a BigInt outside i64::MIN..u64::MAX bounds&quot;</span>))
+                }
+            }
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(v) = <span class="self">self</span>.value.as_f64() {
             <span class="kw">if </span>Number::is_safe_integer(<span class="kw-2">&amp;</span><span class="self">self</span>.value) {
                 visitor.visit_i64(v <span class="kw">as </span>i64)
@@ -793,7 +879,7 @@
             //
             // Hopefully we can rid of these hacks altogether once
             // https://github.com/serde-rs/serde/issues/1183 is implemented / fixed on serde side.
-            </span>!Reflect::has(<span class="kw-2">&amp;</span><span class="self">self</span>.value, <span class="kw-2">&amp;</span>Symbol::iterator()).unwrap_or(<span class="bool-val">false</span>)
+            </span>!Symbol::iterator().js_in(<span class="kw-2">&amp;</span><span class="self">self</span>.value)
         {
             <span class="self">self</span>.deserialize_map(visitor)
         } <span class="kw">else </span>{
@@ -858,56 +944,78 @@
     // these to 64-bit methods to save some space in the generated WASM.
 
     </span><span class="kw">fn </span>deserialize_i8&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
-        <span class="self">self</span>.deserialize_i64(visitor)
+        <span class="self">self</span>.deserialize_from_js_number_signed(visitor)
     }
 
     <span class="kw">fn </span>deserialize_i16&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
-        <span class="self">self</span>.deserialize_i64(visitor)
+        <span class="self">self</span>.deserialize_from_js_number_signed(visitor)
     }
 
     <span class="kw">fn </span>deserialize_i32&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
-        <span class="self">self</span>.deserialize_i64(visitor)
+        <span class="self">self</span>.deserialize_from_js_number_signed(visitor)
     }
 
-    <span class="macro">serde_if_integer128! </span>{
-        <span class="kw">fn </span>deserialize_i128&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
-            <span class="self">self</span>.deserialize_i64(visitor)
-        }
-    }
-
-    <span class="comment">// Same as above, but for `i64`.
-
-    </span><span class="kw">fn </span>deserialize_u8&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
-        <span class="self">self</span>.deserialize_u64(visitor)
+    <span class="kw">fn </span>deserialize_u8&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+        <span class="self">self</span>.deserialize_from_js_number_unsigned(visitor)
     }
 
     <span class="kw">fn </span>deserialize_u16&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
-        <span class="self">self</span>.deserialize_u64(visitor)
+        <span class="self">self</span>.deserialize_from_js_number_unsigned(visitor)
     }
 
     <span class="kw">fn </span>deserialize_u32&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
-        <span class="self">self</span>.deserialize_u64(visitor)
+        <span class="self">self</span>.deserialize_from_js_number_unsigned(visitor)
     }
 
-    <span class="macro">serde_if_integer128! </span>{
-        <span class="kw">fn </span>deserialize_u128&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
-            <span class="self">self</span>.deserialize_u64(visitor)
-        }
-    }
-
-    <span class="comment">// Define real `i64` / `u64` deserializers that try to cast from `f64`.
-
-    </span><span class="kw">fn </span>deserialize_i64&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
-        <span class="kw">match </span><span class="self">self</span>.as_safe_integer() {
-            <span class="prelude-val">Some</span>(v) =&gt; visitor.visit_i64(v),
-            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.invalid_type(visitor),
+    <span class="kw">fn </span>deserialize_i64&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+        <span class="kw">if </span><span class="self">self</span>.value.is_bigint() {
+            <span class="kw">match </span>i64::try_from(<span class="self">self</span>.value) {
+                <span class="prelude-val">Ok</span>(v) =&gt; visitor.visit_i64(v),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(de::Error::custom(
+                    <span class="string">&quot;Couldn&#39;t deserialize i64 from a BigInt outside i64::MIN..i64::MAX bounds&quot;</span>,
+                )),
+            }
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.deserialize_from_js_number_signed(visitor)
         }
     }
 
     <span class="kw">fn </span>deserialize_u64&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
-        <span class="kw">match </span><span class="self">self</span>.as_safe_integer() {
-            <span class="prelude-val">Some</span>(v) <span class="kw">if </span>v &gt;= <span class="number">0 </span>=&gt; visitor.visit_u64(v <span class="kw">as _</span>),
-            <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_type(visitor),
+        <span class="kw">if </span><span class="self">self</span>.value.is_bigint() {
+            <span class="kw">match </span>u64::try_from(<span class="self">self</span>.value) {
+                <span class="prelude-val">Ok</span>(v) =&gt; visitor.visit_u64(v),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(de::Error::custom(
+                    <span class="string">&quot;Couldn&#39;t deserialize u64 from a BigInt outside u64::MIN..u64::MAX bounds&quot;</span>,
+                )),
+            }
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.deserialize_from_js_number_unsigned(visitor)
+        }
+    }
+
+    <span class="kw">fn </span>deserialize_i128&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+        <span class="kw">if </span><span class="self">self</span>.value.is_bigint() {
+            <span class="kw">match </span>i128::try_from(<span class="self">self</span>.value) {
+                <span class="prelude-val">Ok</span>(v) =&gt; visitor.visit_i128(v),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(de::Error::custom(
+                    <span class="string">&quot;Couldn&#39;t deserialize i128 from a BigInt outside i128::MIN..i128::MAX bounds&quot;</span>,
+                )),
+            }
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.invalid_type(visitor)
+        }
+    }
+
+    <span class="kw">fn </span>deserialize_u128&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+        <span class="kw">if </span><span class="self">self</span>.value.is_bigint() {
+            <span class="kw">match </span>u128::try_from(<span class="self">self</span>.value) {
+                <span class="prelude-val">Ok</span>(v) =&gt; visitor.visit_u128(v),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(de::Error::custom(
+                    <span class="string">&quot;Couldn&#39;t deserialize u128 from a BigInt outside u128::MIN..u128::MAX bounds&quot;</span>,
+                )),
+            }
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.invalid_type(visitor)
         }
     }
 
@@ -949,14 +1057,13 @@
     /// Supported outputs:
     ///  - Any Rust sequence from Serde point of view ([`Vec`], [`HashSet`](std::collections::HashSet), etc.)
     </span><span class="kw">fn </span>deserialize_seq&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
-        <span class="kw">let </span>iter = <span class="kw">if let </span><span class="prelude-val">Some</span>(arr) = <span class="self">self</span>.value.dyn_ref::&lt;Array&gt;() {
-            arr.values().into_iter()
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(arr) = <span class="self">self</span>.value.dyn_ref::&lt;Array&gt;() {
+            visitor.visit_seq(SeqDeserializer::new(arr.iter().map(Deserializer::from)))
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(iter) = js_sys::try_iter(<span class="kw-2">&amp;</span><span class="self">self</span>.value)<span class="question-mark">? </span>{
-            iter
+            visitor.visit_seq(SeqAccess { iter })
         } <span class="kw">else </span>{
-            <span class="kw">return </span><span class="self">self</span>.invalid_type(visitor);
-        };
-        visitor.visit_seq(SeqAccess { iter })
+            <span class="self">self</span>.invalid_type(visitor)
+        }
     }
 
     <span class="doccomment">/// Forwards to [`Self::deserialize_seq`](#method.deserialize_seq).
@@ -981,17 +1088,13 @@
     ///  - A Rust key-value map ([`HashMap`](std::collections::HashMap), [`BTreeMap`](std::collections::BTreeMap), etc.).
     ///  - A typed Rust structure with `#[derive(Deserialize)]`.
     </span><span class="kw">fn </span>deserialize_map&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
-        <span class="kw">let </span>map = MapAccess {
-            iter: <span class="kw">match </span>js_sys::try_iter(<span class="kw-2">&amp;</span><span class="self">self</span>.value)<span class="question-mark">? </span>{
-                <span class="prelude-val">Some</span>(iter) =&gt; iter,
-                <span class="prelude-val">None </span>=&gt; <span class="kw">match </span><span class="self">self</span>.as_object_entries() {
-                    <span class="prelude-val">Some</span>(entries) =&gt; entries.values().into_iter(),
-                    <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="self">self</span>.invalid_type(visitor),
-                },
+        <span class="kw">match </span>js_sys::try_iter(<span class="kw-2">&amp;</span><span class="self">self</span>.value)<span class="question-mark">? </span>{
+            <span class="prelude-val">Some</span>(iter) =&gt; visitor.visit_map(MapAccess::new(iter)),
+            <span class="prelude-val">None </span>=&gt; <span class="kw">match </span><span class="self">self</span>.as_object_entries() {
+                <span class="prelude-val">Some</span>(arr) =&gt; visitor.visit_map(MapDeserializer::new(arr.iter().map(convert_pair))),
+                <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.invalid_type(visitor),
             },
-            next_value: <span class="prelude-val">None</span>,
-        };
-        visitor.visit_map(map)
+        }
     }
 
     <span class="doccomment">/// Supported inputs:
@@ -1009,8 +1112,7 @@
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="self">self</span>.invalid_type(visitor);
         };
-        <span class="kw">let </span>map = ObjectAccess { obj, fields };
-        visitor.visit_map(map)
+        visitor.visit_map(ObjectAccess::new(obj, fields))
     }
 
     <span class="doccomment">/// Here we try to be compatible with `serde-json`, which means supporting:

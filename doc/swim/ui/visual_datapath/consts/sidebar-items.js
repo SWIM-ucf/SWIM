@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":[["ACTIVE_HOVERED_COLOR",""],["ACTIVE_UNHOVERED_COLOR",""],["DATAPATH_ID",""],["INACTIVE_COLOR",""]]};

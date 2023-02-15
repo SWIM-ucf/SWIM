@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bincode-1.0.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../bincode/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bincode-1.3.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../bincode/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -175,7 +175,32 @@
 <a href="#175" id="175">175</a>
 <a href="#176" id="176">176</a>
 <a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
 </pre><pre class="rust"><code><span class="attr">#![deny(missing_docs)]
+#![allow(unknown_lints, bare_trait_objects, deprecated)]
 
 </span><span class="doccomment">//! Bincode is a crate for encoding and decoding using a tiny binary
 //! serialization strategy.  Using it, you can easily go from having
@@ -184,71 +209,44 @@
 //!
 //! ### Using Basic Functions
 //!
-//! ```rust
-//! extern crate bincode;
-//! use bincode::{serialize, deserialize};
+//! ```edition2018
 //! fn main() {
 //!     // The object that we will serialize.
 //!     let target: Option&lt;String&gt;  = Some(&quot;hello world&quot;.to_string());
 //!
-//!     let encoded: Vec&lt;u8&gt;        = serialize(&amp;target).unwrap();
-//!     let decoded: Option&lt;String&gt; = deserialize(&amp;encoded[..]).unwrap();
+//!     let encoded: Vec&lt;u8&gt; = bincode::serialize(&amp;target).unwrap();
+//!     let decoded: Option&lt;String&gt; = bincode::deserialize(&amp;encoded[..]).unwrap();
 //!     assert_eq!(target, decoded);
 //! }
 //! ```
-//! 
+//!
 //! ### 128bit numbers
-//! 
-//! Support for `i128` and `u128` on Rust toolchains after `1.26.0` is 
-//! enabled through the `i128` feature. Add the following to your 
-//! `Cargo.toml`:
-//! 
-//! ```toml,ignore
-//! [dependencies.bincode]
-//! features = [&quot;i128&quot;]
-//! ```
+//!
+//! Support for `i128` and `u128` is automatically enabled on Rust toolchains
+//! greater than or equal to `1.26.0` and disabled for targets which do not support it
 
-</span><span class="attr">#![crate_name = <span class="string">&quot;bincode&quot;</span>]
+</span><span class="attr">#![doc(html_root_url = <span class="string">&quot;https://docs.rs/bincode/1.3.3&quot;</span>)]
+#![crate_name = <span class="string">&quot;bincode&quot;</span>]
 #![crate_type = <span class="string">&quot;rlib&quot;</span>]
 #![crate_type = <span class="string">&quot;dylib&quot;</span>]
 
-</span><span class="kw">extern crate </span>byteorder;
-<span class="attr">#[macro_use]
+#[macro_use]
 </span><span class="kw">extern crate </span>serde;
 
-<span class="kw">mod </span>config;
-<span class="kw">mod </span>ser;
+<span class="kw">pub mod </span>config;
+<span class="doccomment">/// Deserialize bincode data to a Rust data structure.
+</span><span class="kw">pub mod </span>de;
+
+<span class="kw">mod </span>byteorder;
 <span class="kw">mod </span>error;
-<span class="kw">mod </span>de;
 <span class="kw">mod </span>internal;
+<span class="kw">mod </span>ser;
 
+<span class="kw">pub use </span>config::{Config, DefaultOptions, Options};
+<span class="kw">pub use </span>de::read::BincodeRead;
+<span class="kw">pub use </span>de::Deserializer;
 <span class="kw">pub use </span>error::{Error, ErrorKind, <span class="prelude-ty">Result</span>};
-<span class="kw">pub use </span>config::Config;
-<span class="kw">pub use </span>de::read::{BincodeRead, IoReader, SliceReader};
-
-<span class="doccomment">/// An object that implements this trait can be passed a
-/// serde::Deserializer without knowing its concrete type.
-///
-/// This trait should be used only for `with_deserializer` functions.
-</span><span class="attr">#[doc(hidden)]
-</span><span class="kw">pub trait </span>DeserializerAcceptor&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="doccomment">/// The return type for the accept method
-    </span><span class="kw">type </span>Output;
-    <span class="doccomment">/// Accept a serde::Deserializer and do whatever you want with it.
-    </span><span class="kw">fn </span>accept&lt;T: serde::Deserializer&lt;<span class="lifetime">&#39;a</span>&gt;&gt;(<span class="self">self</span>, T) -&gt; <span class="self">Self</span>::Output;
-}
-
-<span class="doccomment">/// An object that implements this trait can be passed a
-/// serde::Serializer without knowing its concrete type.
-///
-/// This trait should be used only for `with_serializer` functions.
-</span><span class="attr">#[doc(hidden)]
-</span><span class="kw">pub trait </span>SerializerAcceptor {
-    <span class="doccomment">/// The return type for the accept method
-    </span><span class="kw">type </span>Output;
-    <span class="doccomment">/// Accept a serde::Serializer and do whatever you want with it.
-    </span><span class="kw">fn </span>accept&lt;T: serde::Serializer&gt;(<span class="self">self</span>, T) -&gt; <span class="self">Self</span>::Output;
-}
+<span class="kw">pub use </span>ser::Serializer;
 
 <span class="doccomment">/// Get a default configuration object.
 ///
@@ -257,39 +255,82 @@
 /// | Byte limit | Endianness |
 /// |------------|------------|
 /// | Unlimited  | Little     |
+</span><span class="attr">#[inline(always)]
+#[deprecated(since = <span class="string">&quot;1.3.0&quot;</span>, note = <span class="string">&quot;please use `options()` instead&quot;</span>)]
 </span><span class="kw">pub fn </span>config() -&gt; Config {
     Config::new()
+}
+
+<span class="doccomment">/// Get a default configuration object.
+///
+/// **Warning:** the default configuration returned by this function
+/// is not the same as that used by the other functions in this
+/// module. See the
+/// [config](config/index.html#options-struct-vs-bincode-functions)
+/// module for more details
+///
+/// ### Default Configuration:
+///
+/// | Byte limit | Endianness | Int Encoding | Trailing Behavior |
+/// |------------|------------|--------------|-------------------|
+/// | Unlimited  | Little     | Varint       | Reject            |
+</span><span class="attr">#[inline(always)]
+</span><span class="kw">pub fn </span>options() -&gt; DefaultOptions {
+    DefaultOptions::new()
 }
 
 <span class="doccomment">/// Serializes an object directly into a `Writer` using the default configuration.
 ///
 /// If the serialization would take more bytes than allowed by the size limit, an error
 /// is returned and *no bytes* will be written into the `Writer`.
+///
+/// **Warning:** the default configuration used by this function is not
+/// the same as that used by the `DefaultOptions` struct. See the
+/// [config](config/index.html#options-struct-vs-bincode-functions)
+/// module for more details
 </span><span class="kw">pub fn </span>serialize_into&lt;W, T: <span class="question-mark">?</span>Sized&gt;(writer: W, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
 <span class="kw">where
     </span>W: std::io::Write,
     T: serde::Serialize,
 {
-    config().serialize_into(writer, value)
+    DefaultOptions::new()
+        .with_fixint_encoding()
+        .serialize_into(writer, value)
 }
 
 <span class="doccomment">/// Serializes a serializable object into a `Vec` of bytes using the default configuration.
+///
+/// **Warning:** the default configuration used by this function is not
+/// the same as that used by the `DefaultOptions` struct. See the
+/// [config](config/index.html#options-struct-vs-bincode-functions)
+/// module for more details
 </span><span class="kw">pub fn </span>serialize&lt;T: <span class="question-mark">?</span>Sized&gt;(value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt;
 <span class="kw">where
     </span>T: serde::Serialize,
 {
-    config().serialize(value)
+    DefaultOptions::new()
+        .with_fixint_encoding()
+        .allow_trailing_bytes()
+        .serialize(value)
 }
 
 <span class="doccomment">/// Deserializes an object directly from a `Read`er using the default configuration.
 ///
 /// If this returns an `Error`, `reader` may be in an invalid state.
+///
+/// **Warning:** the default configuration used by this function is not
+/// the same as that used by the `DefaultOptions` struct. See the
+/// [config](config/index.html#options-struct-vs-bincode-functions)
+/// module for more details
 </span><span class="kw">pub fn </span>deserialize_from&lt;R, T&gt;(reader: R) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;
 <span class="kw">where
     </span>R: std::io::Read,
     T: serde::de::DeserializeOwned,
 {
-    config().deserialize_from(reader)
+    DefaultOptions::new()
+        .with_fixint_encoding()
+        .allow_trailing_bytes()
+        .deserialize_from(reader)
 }
 
 <span class="doccomment">/// Deserializes an object from a custom `BincodeRead`er using the default configuration.
@@ -297,12 +338,20 @@
 /// `BincodeRead` for performance reasons.
 ///
 /// If this returns an `Error`, `reader` may be in an invalid state.
+///
+/// **Warning:** the default configuration used by this function is not
+/// the same as that used by the `DefaultOptions` struct. See the
+/// [config](config/index.html#options-struct-vs-bincode-functions)
+/// module for more details
 </span><span class="kw">pub fn </span>deserialize_from_custom&lt;<span class="lifetime">&#39;a</span>, R, T&gt;(reader: R) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;
 <span class="kw">where
     </span>R: de::read::BincodeRead&lt;<span class="lifetime">&#39;a</span>&gt;,
     T: serde::de::DeserializeOwned,
 {
-    config().deserialize_from_custom(reader)
+    DefaultOptions::new()
+        .with_fixint_encoding()
+        .allow_trailing_bytes()
+        .deserialize_from_custom(reader)
 }
 
 <span class="doccomment">/// Only use this if you know what you&#39;re doing.
@@ -312,45 +361,44 @@
 </span><span class="kw">pub fn </span>deserialize_in_place&lt;<span class="lifetime">&#39;a</span>, R, T&gt;(reader: R, place: <span class="kw-2">&amp;mut </span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
 <span class="kw">where
     </span>T: serde::de::Deserialize&lt;<span class="lifetime">&#39;a</span>&gt;,
-    R: BincodeRead&lt;<span class="lifetime">&#39;a</span>&gt;
+    R: BincodeRead&lt;<span class="lifetime">&#39;a</span>&gt;,
 {
-    config().deserialize_in_place(reader, place)
+    DefaultOptions::new()
+        .with_fixint_encoding()
+        .allow_trailing_bytes()
+        .deserialize_in_place(reader, place)
 }
 
 <span class="doccomment">/// Deserializes a slice of bytes into an instance of `T` using the default configuration.
+///
+/// **Warning:** the default configuration used by this function is not
+/// the same as that used by the `DefaultOptions` struct. See the
+/// [config](config/index.html#options-struct-vs-bincode-functions)
+/// module for more details
 </span><span class="kw">pub fn </span>deserialize&lt;<span class="lifetime">&#39;a</span>, T&gt;(bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;
 <span class="kw">where
     </span>T: serde::de::Deserialize&lt;<span class="lifetime">&#39;a</span>&gt;,
 {
-    config().deserialize(bytes)
+    DefaultOptions::new()
+        .with_fixint_encoding()
+        .allow_trailing_bytes()
+        .deserialize(bytes)
 }
 
 <span class="doccomment">/// Returns the size that an object would be if serialized using Bincode with the default configuration.
+///
+/// **Warning:** the default configuration used by this function is not
+/// the same as that used by the `DefaultOptions` struct. See the
+/// [config](config/index.html#options-struct-vs-bincode-functions)
+/// module for more details
 </span><span class="kw">pub fn </span>serialized_size&lt;T: <span class="question-mark">?</span>Sized&gt;(value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt;
 <span class="kw">where
     </span>T: serde::Serialize,
 {
-    config().serialized_size(value)
-}
-
-<span class="doccomment">/// Executes the acceptor with a serde::Deserializer instance.
-/// NOT A PART OF THE STABLE PUBLIC API
-</span><span class="attr">#[doc(hidden)]
-</span><span class="kw">pub fn </span>with_deserializer&lt;<span class="lifetime">&#39;a</span>, A,  R&gt;(reader: R, acceptor: A) -&gt; A::Output
-<span class="kw">where </span>A: DeserializerAcceptor&lt;<span class="lifetime">&#39;a</span>&gt;,
-        R: BincodeRead&lt;<span class="lifetime">&#39;a</span>&gt;
-{
-    config().with_deserializer(reader, acceptor)
-}
-
-<span class="doccomment">/// Executes the acceptor with a serde::Serializer instance.
-/// NOT A PART OF THE STABLE PUBLIC API
-</span><span class="attr">#[doc(hidden)]
-</span><span class="kw">pub fn </span>with_serializer&lt;A, W&gt;(writer: W, acceptor: A) -&gt; A::Output
-<span class="kw">where </span>A: SerializerAcceptor,
-    W: std::io::Write
-{
-    config().with_serializer(writer, acceptor)
+    DefaultOptions::new()
+        .with_fixint_encoding()
+        .allow_trailing_bytes()
+        .serialized_size(value)
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="bincode" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>

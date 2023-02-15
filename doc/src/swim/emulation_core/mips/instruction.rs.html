@@ -281,7 +281,7 @@
     <span class="kw">pub </span>function: u8,
 }
 
-<span class="attr">#[derive(Debug, PartialEq)]
+<span class="attr">#[derive(Clone, Debug, PartialEq)]
 </span><span class="kw">pub enum </span>Instruction {
     RType(RType),
     IType(IType),

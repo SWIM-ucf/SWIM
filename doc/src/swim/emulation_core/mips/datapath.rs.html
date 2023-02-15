@@ -1137,7 +1137,7 @@
 <span class="kw">use super</span>::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 
 <span class="doccomment">/// An implementation of a datapath for the MIPS64 ISA.
-</span><span class="attr">#[derive(Default, PartialEq)]
+</span><span class="attr">#[derive(Default, PartialEq, Clone)]
 </span><span class="kw">pub struct </span>MipsDatapath {
     <span class="kw">pub </span>registers: GpRegisters,
     <span class="kw">pub </span>memory: Memory,
@@ -1149,11 +1149,11 @@
     <span class="kw">pub </span>state: DatapathState,
 
     <span class="doccomment">/// The currently-active stage in the datapath.
-    </span>current_stage: Stage,
+    </span><span class="kw">pub </span>current_stage: Stage,
 }
 
 <span class="doccomment">/// A collection of all the data lines and wires in the datapath.
-</span><span class="attr">#[derive(Default, PartialEq)]
+</span><span class="attr">#[derive(Clone, Default, PartialEq)]
 </span><span class="kw">pub struct </span>DatapathState {
     <span class="doccomment">/// *Data line.* The currently loaded instruction. Initialized after the
     /// Instruction Fetch stage.
@@ -1223,7 +1223,7 @@
 
 <span class="doccomment">/// The possible stages the datapath could be in during execution.
 </span><span class="attr">#[derive(Default, Copy, Clone, Eq, PartialEq)]
-</span><span class="kw">enum </span>Stage {
+</span><span class="kw">pub enum </span>Stage {
     <span class="attr">#[default]
     </span>InstructionFetch,
     InstructionDecode,

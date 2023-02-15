@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["console",""],["regview",""]]};
+window.SIDEBAR_ITEMS = {"mod":[["console",""],["regview",""],["visual_datapath","The visual datapath component."]]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/web-sys-0.3.60/src/features/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../web_sys/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/web-sys-0.3.61/src/features/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../web_sys/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -9027,6 +9027,108 @@
 <a href="#9027" id="9027">9027</a>
 <a href="#9028" id="9028">9028</a>
 <a href="#9029" id="9029">9029</a>
+<a href="#9030" id="9030">9030</a>
+<a href="#9031" id="9031">9031</a>
+<a href="#9032" id="9032">9032</a>
+<a href="#9033" id="9033">9033</a>
+<a href="#9034" id="9034">9034</a>
+<a href="#9035" id="9035">9035</a>
+<a href="#9036" id="9036">9036</a>
+<a href="#9037" id="9037">9037</a>
+<a href="#9038" id="9038">9038</a>
+<a href="#9039" id="9039">9039</a>
+<a href="#9040" id="9040">9040</a>
+<a href="#9041" id="9041">9041</a>
+<a href="#9042" id="9042">9042</a>
+<a href="#9043" id="9043">9043</a>
+<a href="#9044" id="9044">9044</a>
+<a href="#9045" id="9045">9045</a>
+<a href="#9046" id="9046">9046</a>
+<a href="#9047" id="9047">9047</a>
+<a href="#9048" id="9048">9048</a>
+<a href="#9049" id="9049">9049</a>
+<a href="#9050" id="9050">9050</a>
+<a href="#9051" id="9051">9051</a>
+<a href="#9052" id="9052">9052</a>
+<a href="#9053" id="9053">9053</a>
+<a href="#9054" id="9054">9054</a>
+<a href="#9055" id="9055">9055</a>
+<a href="#9056" id="9056">9056</a>
+<a href="#9057" id="9057">9057</a>
+<a href="#9058" id="9058">9058</a>
+<a href="#9059" id="9059">9059</a>
+<a href="#9060" id="9060">9060</a>
+<a href="#9061" id="9061">9061</a>
+<a href="#9062" id="9062">9062</a>
+<a href="#9063" id="9063">9063</a>
+<a href="#9064" id="9064">9064</a>
+<a href="#9065" id="9065">9065</a>
+<a href="#9066" id="9066">9066</a>
+<a href="#9067" id="9067">9067</a>
+<a href="#9068" id="9068">9068</a>
+<a href="#9069" id="9069">9069</a>
+<a href="#9070" id="9070">9070</a>
+<a href="#9071" id="9071">9071</a>
+<a href="#9072" id="9072">9072</a>
+<a href="#9073" id="9073">9073</a>
+<a href="#9074" id="9074">9074</a>
+<a href="#9075" id="9075">9075</a>
+<a href="#9076" id="9076">9076</a>
+<a href="#9077" id="9077">9077</a>
+<a href="#9078" id="9078">9078</a>
+<a href="#9079" id="9079">9079</a>
+<a href="#9080" id="9080">9080</a>
+<a href="#9081" id="9081">9081</a>
+<a href="#9082" id="9082">9082</a>
+<a href="#9083" id="9083">9083</a>
+<a href="#9084" id="9084">9084</a>
+<a href="#9085" id="9085">9085</a>
+<a href="#9086" id="9086">9086</a>
+<a href="#9087" id="9087">9087</a>
+<a href="#9088" id="9088">9088</a>
+<a href="#9089" id="9089">9089</a>
+<a href="#9090" id="9090">9090</a>
+<a href="#9091" id="9091">9091</a>
+<a href="#9092" id="9092">9092</a>
+<a href="#9093" id="9093">9093</a>
+<a href="#9094" id="9094">9094</a>
+<a href="#9095" id="9095">9095</a>
+<a href="#9096" id="9096">9096</a>
+<a href="#9097" id="9097">9097</a>
+<a href="#9098" id="9098">9098</a>
+<a href="#9099" id="9099">9099</a>
+<a href="#9100" id="9100">9100</a>
+<a href="#9101" id="9101">9101</a>
+<a href="#9102" id="9102">9102</a>
+<a href="#9103" id="9103">9103</a>
+<a href="#9104" id="9104">9104</a>
+<a href="#9105" id="9105">9105</a>
+<a href="#9106" id="9106">9106</a>
+<a href="#9107" id="9107">9107</a>
+<a href="#9108" id="9108">9108</a>
+<a href="#9109" id="9109">9109</a>
+<a href="#9110" id="9110">9110</a>
+<a href="#9111" id="9111">9111</a>
+<a href="#9112" id="9112">9112</a>
+<a href="#9113" id="9113">9113</a>
+<a href="#9114" id="9114">9114</a>
+<a href="#9115" id="9115">9115</a>
+<a href="#9116" id="9116">9116</a>
+<a href="#9117" id="9117">9117</a>
+<a href="#9118" id="9118">9118</a>
+<a href="#9119" id="9119">9119</a>
+<a href="#9120" id="9120">9120</a>
+<a href="#9121" id="9121">9121</a>
+<a href="#9122" id="9122">9122</a>
+<a href="#9123" id="9123">9123</a>
+<a href="#9124" id="9124">9124</a>
+<a href="#9125" id="9125">9125</a>
+<a href="#9126" id="9126">9126</a>
+<a href="#9127" id="9127">9127</a>
+<a href="#9128" id="9128">9128</a>
+<a href="#9129" id="9129">9129</a>
+<a href="#9130" id="9130">9130</a>
+<a href="#9131" id="9131">9131</a>
 </pre><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">&quot;AbortController&quot;</span>)]
 #[allow(non_snake_case)]
 </span><span class="kw">mod </span>gen_AbortController;
@@ -9861,18 +9963,6 @@
 <span class="attr">#[cfg(feature = <span class="string">&quot;ChannelMergerOptions&quot;</span>)]
 </span><span class="kw">pub use </span>gen_ChannelMergerOptions::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ChannelPixelLayout&quot;</span>)]
-#[allow(non_snake_case)]
-</span><span class="kw">mod </span>gen_ChannelPixelLayout;
-<span class="attr">#[cfg(feature = <span class="string">&quot;ChannelPixelLayout&quot;</span>)]
-</span><span class="kw">pub use </span>gen_ChannelPixelLayout::<span class="kw-2">*</span>;
-
-<span class="attr">#[cfg(feature = <span class="string">&quot;ChannelPixelLayoutDataType&quot;</span>)]
-#[allow(non_snake_case)]
-</span><span class="kw">mod </span>gen_ChannelPixelLayoutDataType;
-<span class="attr">#[cfg(feature = <span class="string">&quot;ChannelPixelLayoutDataType&quot;</span>)]
-</span><span class="kw">pub use </span>gen_ChannelPixelLayoutDataType::<span class="kw-2">*</span>;
-
 <span class="attr">#[cfg(feature = <span class="string">&quot;ChannelSplitterNode&quot;</span>)]
 #[allow(non_snake_case)]
 </span><span class="kw">mod </span>gen_ChannelSplitterNode;
@@ -10010,6 +10100,12 @@
 </span><span class="kw">mod </span>gen_CollectedClientData;
 <span class="attr">#[cfg(feature = <span class="string">&quot;CollectedClientData&quot;</span>)]
 </span><span class="kw">pub use </span>gen_CollectedClientData::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;ColorSpaceConversion&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_ColorSpaceConversion;
+<span class="attr">#[cfg(feature = <span class="string">&quot;ColorSpaceConversion&quot;</span>)]
+</span><span class="kw">pub use </span>gen_ColorSpaceConversion::<span class="kw-2">*</span>;
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;Comment&quot;</span>)]
 #[allow(non_snake_case)]
@@ -11013,6 +11109,12 @@
 <span class="attr">#[cfg(feature = <span class="string">&quot;ExtTextureFilterAnisotropic&quot;</span>)]
 </span><span class="kw">pub use </span>gen_ExtTextureFilterAnisotropic::<span class="kw-2">*</span>;
 
+<span class="attr">#[cfg(feature = <span class="string">&quot;ExtTextureNorm16&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_ExtTextureNorm16;
+<span class="attr">#[cfg(feature = <span class="string">&quot;ExtTextureNorm16&quot;</span>)]
+</span><span class="kw">pub use </span>gen_ExtTextureNorm16::<span class="kw-2">*</span>;
+
 <span class="attr">#[cfg(feature = <span class="string">&quot;ExtendableEvent&quot;</span>)]
 #[allow(non_snake_case)]
 </span><span class="kw">mod </span>gen_ExtendableEvent;
@@ -11192,6 +11294,12 @@
 </span><span class="kw">mod </span>gen_FlexLineGrowthState;
 <span class="attr">#[cfg(feature = <span class="string">&quot;FlexLineGrowthState&quot;</span>)]
 </span><span class="kw">pub use </span>gen_FlexLineGrowthState::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;FlowControlType&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_FlowControlType;
+<span class="attr">#[cfg(feature = <span class="string">&quot;FlowControlType&quot;</span>)]
+</span><span class="kw">pub use </span>gen_FlowControlType::<span class="kw-2">*</span>;
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;FocusEvent&quot;</span>)]
 #[allow(non_snake_case)]
@@ -12981,11 +13089,11 @@
 <span class="attr">#[cfg(feature = <span class="string">&quot;ImageBitmap&quot;</span>)]
 </span><span class="kw">pub use </span>gen_ImageBitmap::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ImageBitmapFormat&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">&quot;ImageBitmapOptions&quot;</span>)]
 #[allow(non_snake_case)]
-</span><span class="kw">mod </span>gen_ImageBitmapFormat;
-<span class="attr">#[cfg(feature = <span class="string">&quot;ImageBitmapFormat&quot;</span>)]
-</span><span class="kw">pub use </span>gen_ImageBitmapFormat::<span class="kw-2">*</span>;
+</span><span class="kw">mod </span>gen_ImageBitmapOptions;
+<span class="attr">#[cfg(feature = <span class="string">&quot;ImageBitmapOptions&quot;</span>)]
+</span><span class="kw">pub use </span>gen_ImageBitmapOptions::<span class="kw-2">*</span>;
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;ImageBitmapRenderingContext&quot;</span>)]
 #[allow(non_snake_case)]
@@ -13046,6 +13154,12 @@
 </span><span class="kw">mod </span>gen_ImageDecoderInit;
 <span class="attr">#[cfg(feature = <span class="string">&quot;ImageDecoderInit&quot;</span>)]
 </span><span class="kw">pub use </span>gen_ImageDecoderInit::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;ImageOrientation&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_ImageOrientation;
+<span class="attr">#[cfg(feature = <span class="string">&quot;ImageOrientation&quot;</span>)]
+</span><span class="kw">pub use </span>gen_ImageOrientation::<span class="kw-2">*</span>;
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;ImageTrack&quot;</span>)]
 #[allow(non_snake_case)]
@@ -14127,6 +14241,12 @@
 <span class="attr">#[cfg(feature = <span class="string">&quot;PanningModelType&quot;</span>)]
 </span><span class="kw">pub use </span>gen_PanningModelType::<span class="kw-2">*</span>;
 
+<span class="attr">#[cfg(feature = <span class="string">&quot;ParityType&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_ParityType;
+<span class="attr">#[cfg(feature = <span class="string">&quot;ParityType&quot;</span>)]
+</span><span class="kw">pub use </span>gen_ParityType::<span class="kw-2">*</span>;
+
 <span class="attr">#[cfg(feature = <span class="string">&quot;Path2d&quot;</span>)]
 #[allow(non_snake_case)]
 </span><span class="kw">mod </span>gen_Path2d;
@@ -14426,6 +14546,12 @@
 </span><span class="kw">mod </span>gen_PositionOptions;
 <span class="attr">#[cfg(feature = <span class="string">&quot;PositionOptions&quot;</span>)]
 </span><span class="kw">pub use </span>gen_PositionOptions::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;PremultiplyAlpha&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_PremultiplyAlpha;
+<span class="attr">#[cfg(feature = <span class="string">&quot;PremultiplyAlpha&quot;</span>)]
+</span><span class="kw">pub use </span>gen_PremultiplyAlpha::<span class="kw-2">*</span>;
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;Presentation&quot;</span>)]
 #[allow(non_snake_case)]
@@ -14930,6 +15056,12 @@
 </span><span class="kw">mod </span>gen_ResizeObserverSize;
 <span class="attr">#[cfg(feature = <span class="string">&quot;ResizeObserverSize&quot;</span>)]
 </span><span class="kw">pub use </span>gen_ResizeObserverSize::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;ResizeQuality&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_ResizeQuality;
+<span class="attr">#[cfg(feature = <span class="string">&quot;ResizeQuality&quot;</span>)]
+</span><span class="kw">pub use </span>gen_ResizeQuality::<span class="kw-2">*</span>;
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;Response&quot;</span>)]
 #[allow(non_snake_case)]
@@ -15542,6 +15674,54 @@
 </span><span class="kw">mod </span>gen_Selection;
 <span class="attr">#[cfg(feature = <span class="string">&quot;Selection&quot;</span>)]
 </span><span class="kw">pub use </span>gen_Selection::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;Serial&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_Serial;
+<span class="attr">#[cfg(feature = <span class="string">&quot;Serial&quot;</span>)]
+</span><span class="kw">pub use </span>gen_Serial::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;SerialInputSignals&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_SerialInputSignals;
+<span class="attr">#[cfg(feature = <span class="string">&quot;SerialInputSignals&quot;</span>)]
+</span><span class="kw">pub use </span>gen_SerialInputSignals::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;SerialOptions&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_SerialOptions;
+<span class="attr">#[cfg(feature = <span class="string">&quot;SerialOptions&quot;</span>)]
+</span><span class="kw">pub use </span>gen_SerialOptions::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;SerialOutputSignals&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_SerialOutputSignals;
+<span class="attr">#[cfg(feature = <span class="string">&quot;SerialOutputSignals&quot;</span>)]
+</span><span class="kw">pub use </span>gen_SerialOutputSignals::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;SerialPort&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_SerialPort;
+<span class="attr">#[cfg(feature = <span class="string">&quot;SerialPort&quot;</span>)]
+</span><span class="kw">pub use </span>gen_SerialPort::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;SerialPortFilter&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_SerialPortFilter;
+<span class="attr">#[cfg(feature = <span class="string">&quot;SerialPortFilter&quot;</span>)]
+</span><span class="kw">pub use </span>gen_SerialPortFilter::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;SerialPortInfo&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_SerialPortInfo;
+<span class="attr">#[cfg(feature = <span class="string">&quot;SerialPortInfo&quot;</span>)]
+</span><span class="kw">pub use </span>gen_SerialPortInfo::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;SerialPortRequestOptions&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_SerialPortRequestOptions;
+<span class="attr">#[cfg(feature = <span class="string">&quot;SerialPortRequestOptions&quot;</span>)]
+</span><span class="kw">pub use </span>gen_SerialPortRequestOptions::<span class="kw-2">*</span>;
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;ServerSocketOptions&quot;</span>)]
 #[allow(non_snake_case)]
@@ -17811,6 +17991,18 @@
 <span class="attr">#[cfg(feature = <span class="string">&quot;XrFrame&quot;</span>)]
 </span><span class="kw">pub use </span>gen_XrFrame::<span class="kw-2">*</span>;
 
+<span class="attr">#[cfg(feature = <span class="string">&quot;XrHand&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_XrHand;
+<span class="attr">#[cfg(feature = <span class="string">&quot;XrHand&quot;</span>)]
+</span><span class="kw">pub use </span>gen_XrHand::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;XrHandJoint&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_XrHandJoint;
+<span class="attr">#[cfg(feature = <span class="string">&quot;XrHandJoint&quot;</span>)]
+</span><span class="kw">pub use </span>gen_XrHandJoint::<span class="kw-2">*</span>;
+
 <span class="attr">#[cfg(feature = <span class="string">&quot;XrHandedness&quot;</span>)]
 #[allow(non_snake_case)]
 </span><span class="kw">mod </span>gen_XrHandedness;
@@ -17852,6 +18044,18 @@
 </span><span class="kw">mod </span>gen_XrInputSourcesChangeEventInit;
 <span class="attr">#[cfg(feature = <span class="string">&quot;XrInputSourcesChangeEventInit&quot;</span>)]
 </span><span class="kw">pub use </span>gen_XrInputSourcesChangeEventInit::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;XrJointPose&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_XrJointPose;
+<span class="attr">#[cfg(feature = <span class="string">&quot;XrJointPose&quot;</span>)]
+</span><span class="kw">pub use </span>gen_XrJointPose::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(feature = <span class="string">&quot;XrJointSpace&quot;</span>)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>gen_XrJointSpace;
+<span class="attr">#[cfg(feature = <span class="string">&quot;XrJointSpace&quot;</span>)]
+</span><span class="kw">pub use </span>gen_XrJointSpace::<span class="kw-2">*</span>;
 
 <span class="attr">#[cfg(feature = <span class="string">&quot;XrLayer&quot;</span>)]
 #[allow(non_snake_case)]
