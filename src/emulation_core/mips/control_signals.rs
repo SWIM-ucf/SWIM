@@ -1,7 +1,7 @@
 //! Internal datapath control signals.
 
 /// Full collection of control signals.
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub struct ControlSignals {
     pub alu_control: AluControl,
     pub alu_op: AluOp,
@@ -29,7 +29,7 @@ pub struct ControlSignals {
 /// ALUControl. The leading bit of the signal determines the size of
 /// the input and output data within the datapath. See [`RegWidth`] for
 /// more details.
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum AluControl {
     /// `_0000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
     #[default]
@@ -76,7 +76,7 @@ pub enum AluControl {
 /// This is on a higher abstraction than the output of this control
 /// unit, which more specifically determines what operation the ALU
 /// will perform.
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum AluOp {
     /// `000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
     #[default]
@@ -117,7 +117,7 @@ pub enum AluOp {
 ///
 /// The first input is always the data read from the register `rs` (or
 /// called `base` in some contexts.)
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum AluSrc {
     /// Use the data from the from the second source register `rt`.
     #[default]
@@ -133,7 +133,7 @@ pub enum AluSrc {
 /// Determines if the datapath should consider branching.
 ///
 /// Exact choice of branching or not branching relies on the result from the ALU.
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum Branch {
     /// Do not consider branching.
     #[default]
@@ -144,7 +144,7 @@ pub enum Branch {
 }
 
 /// For deciding to branch on AluZ == YesZero or AluZ == NotZero
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum BranchType {
     #[default]
     OnEqual = 0,
@@ -152,7 +152,7 @@ pub enum BranchType {
 }
 
 /// Determines the amount of bits to left-shift the immediate value before being passed to the ALU.
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum ImmShift {
     #[default]
     Shift0 = 0,
@@ -162,7 +162,7 @@ pub enum ImmShift {
 }
 
 /// Determines if the datapath should jump. This is an unconditional branch.
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum Jump {
     #[default]
     NoJump = 0,
@@ -172,7 +172,7 @@ pub enum Jump {
 /// Determines if memory should be read.
 ///
 /// This should not be set in combination with [`MemWrite`].
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum MemRead {
     #[default]
     NoRead = 0,
@@ -187,17 +187,18 @@ pub enum MemRead {
 ///
 /// This control signal also applies to what data is sent to the
 /// floating-point unit to be stored in its registers.
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum MemToReg {
     #[default]
     UseAlu = 0,
     UseMemory = 1,
+    UsePcPlusFour = 2,
 }
 
 /// Determines if memory should be written to.
 ///
 /// This should not be set in combination with the [`MemRead`] control signal.
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum MemWrite {
     #[default]
     NoWrite = 0,
@@ -210,7 +211,7 @@ pub enum MemWrite {
 /// Compared to the general-purpose datapath introduced by Hennessy and
 /// Patterson, this is a new control signal created to incorporate the
 /// floating-point unit.
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum MemWriteSrc {
     /// Source the write data from the main processing unit. Specifically, this means the data read from the register `rt` from a given instruction.
     #[default]
@@ -222,7 +223,7 @@ pub enum MemWriteSrc {
 
 /// Determines, given that [`RegWrite`] is set, which destination
 /// register to write to, which largely depends on the instruction format.
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum RegDst {
     /// Use register `rs`.
     Reg1 = 0,
@@ -233,13 +234,16 @@ pub enum RegDst {
     /// Use register `rd`.
     #[default]
     Reg3 = 2,
+
+    // Write to return register, used by JAL
+    ReturnRegister = 3,
 }
 
 /// Determines the amount of data to be sent or recieved from registers
 /// and the ALU. While all buses carrying information are 64 bits wide,
 /// some bits of the bus may be ignored in the case of this control
 /// signal.
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum RegWidth {
     /// Use words (32 bits).
     Word = 0,
@@ -250,14 +254,14 @@ pub enum RegWidth {
 }
 
 /// Determines if the register file should be written to.
-#[derive(Default, Eq, PartialEq)]
+#[derive(Clone, Default, Eq, PartialEq)]
 pub enum RegWrite {
     #[default]
     NoWrite = 0,
     YesWrite = 1,
 }
 
-#[derive(Default, Eq, PartialEq)]
+#[derive(Clone, Default, Eq, PartialEq)]
 pub enum OverflowWriteBlock {
     #[default]
     NoBlock = 0,
@@ -267,7 +271,7 @@ pub enum OverflowWriteBlock {
 pub mod floating_point {
     use super::super::constants::*;
 
-    #[derive(Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq)]
     pub struct FpuControlSignals {
         pub cc: Cc,
         pub cc_write: CcWrite,
@@ -286,7 +290,7 @@ pub mod floating_point {
     ///
     /// For the sake of this project, it will usually be assumed that this will
     /// be 0, however the functionality is available to be extended.
-    #[derive(Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq)]
     pub enum Cc {
         /// Use condition code register 0. Default in most operations. Can be
         /// additionally used in the case where the condition code register is
@@ -296,7 +300,7 @@ pub mod floating_point {
     }
 
     /// Determines if the condition code register file should be written to.
-    #[derive(Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq)]
     pub enum CcWrite {
         #[default]
         NoWrite = 0,
@@ -307,7 +311,7 @@ pub mod floating_point {
     ///
     /// This is a special intermediary register that facilitates passing data between
     /// the main processing unit and the floating-point unit.
-    #[derive(Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq)]
     pub enum DataSrc {
         /// Use data from the main processing unit. Specifically, the data from register
         /// `rt` from a given instruction. This value can additionally be used in the cases
@@ -328,7 +332,7 @@ pub mod floating_point {
     /// For the latter two functions, it is imperative to unset the [`RegWrite`](super::RegWrite) and
     /// [`FpuRegWrite`] control signals in cases where registers should not be modified
     /// with unintended data.
-    #[derive(Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq)]
     pub enum DataWrite {
         /// - Do not write to the data register.
         /// - Source data to write to the main processing unit register file from the main
@@ -356,7 +360,7 @@ pub mod floating_point {
     /// The fourth bit of the control signal represents either a single-precision
     /// floating-point operation (0), or a double-precision floating-point operation (1).
     /// This fourth bit is determined by [`FpuRegWidth`].
-    #[derive(Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq)]
     pub enum FpuAluOp {
         #[default]
         /// `_000` (0):
@@ -414,7 +418,7 @@ pub mod floating_point {
     ///
     /// This directly overrides any branch decisions decided by the main processing unit.
     /// The [`Branch`](super::Branch) control signal should not be set in addition to this signal.
-    #[derive(Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq)]
     pub enum FpuBranch {
         /// Do not consider branching.
         #[default]
@@ -428,7 +432,7 @@ pub mod floating_point {
     /// register's new data will be.
     ///
     /// This decision, if set, overrides the decision from the [`DataWrite`] control signal.
-    #[derive(Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq)]
     pub enum FpuMemToReg {
         /// Do not use data from memory. Use the result of the [`DataWrite`] control signal.
         #[default]
@@ -440,7 +444,7 @@ pub mod floating_point {
 
     /// Determines, given that [`FpuRegWrite`] is set, which destination register to write
     /// to, which largely depends on the instruction format.
-    #[derive(Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq)]
     pub enum FpuRegDst {
         /// Use register `ft`.
         Reg1 = 0,
@@ -457,7 +461,7 @@ pub mod floating_point {
     ///
     /// While all buses carrying information are 64-bits wide, some bits of the bus may be
     /// ignored in the case of this control signal.
-    #[derive(Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq)]
     pub enum FpuRegWidth {
         /// Use words (32 bits). Equivalent to a single-precision floating-point value.
         Word = 0,
@@ -482,7 +486,7 @@ pub mod floating_point {
     }
 
     /// Determines if the floating-point register file should be written to.
-    #[derive(Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq)]
     pub enum FpuRegWrite {
         /// Do not write to the floating-point register file.
         #[default]

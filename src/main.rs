@@ -20,6 +20,7 @@ use web_sys::HtmlInputElement;
 //use stylist::yew::*;
 use ui::console::component::Console;
 use ui::regview::component::Regview;
+use ui::visual_datapath::VisualDatapath;
 use wasm_bindgen::{JsCast, JsValue};
 use yew::prelude::*;
 use yew::{html, Html, Properties};
@@ -175,6 +176,7 @@ fn app() -> Html {
             <SwimEditor text_model={(*text_model).borrow().clone()} />
             <button onclick={on_error_clicked}>{ "Click" }</button>
             <Console parsermsg={(*parser_text_output).clone()}/>
+            <VisualDatapath datapath={(*datapath.borrow()).clone()} svg_path={"static/datapath.svg"} />
         </div>
     }
 }

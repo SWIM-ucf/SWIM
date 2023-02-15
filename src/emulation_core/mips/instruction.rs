@@ -80,7 +80,7 @@ pub struct FpuCompareType {
     pub function: u8,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Instruction {
     RType(RType),
     IType(IType),
@@ -191,7 +191,7 @@ impl From<u32> for Instruction {
                 offset: (value & 0xFFFF) as u16,
             }),
 
-            OPCODE_J => Instruction::JType(JType {
+            OPCODE_J | OPCODE_JAL => Instruction::JType(JType {
                 op: ((value >> 26) & 0x3F) as u8,
                 addr: value & 0x03ffffff,
             }),
