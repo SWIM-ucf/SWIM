@@ -90,7 +90,11 @@ impl Component for VisualDatapath {
         if first_render {
             self.initialize();
         } else {
-            let result = Self::highlight_stage(&get_g_elements(), current_stage);
+            let result = Self::highlight_stage(
+                ctx.props().datapath.clone(),
+                &get_g_elements(),
+                current_stage,
+            );
 
             // Capture new event listeners.
             if let Ok(new_listeners) = result {
@@ -204,6 +208,7 @@ impl VisualDatapath {
     /// If successful, returns a [`Vec<EventListener>`] containing the new event
     /// listeners generated.
     pub fn highlight_stage(
+        datapath: MipsDatapath,
         nodes: &HtmlCollection,
         stage: String,
     ) -> Result<Vec<EventListener>, JsValue> {
@@ -214,7 +219,7 @@ impl VisualDatapath {
                 // Do nothing if the line has no defined stage.
             } else if element.get_attribute("data-stage").unwrap() == stage {
                 // This is an element we want. Highlight it.
-                if let Ok(listeners) = Self::activate_element(element) {
+                if let Ok(listeners) = Self::activate_element(datapath.clone(), element) {
                     for l in listeners {
                         active_listeners.push(l);
                     }
@@ -231,7 +236,10 @@ impl VisualDatapath {
     /// Activates a given `<g>` element.
     ///
     /// If successful, returns a [`Vec<EventListener>`] containing the newly created event listeners.
-    pub fn activate_element(element: &Element) -> Result<Vec<EventListener>, JsValue> {
+    pub fn activate_element(
+        datapath: MipsDatapath,
+        element: &Element,
+    ) -> Result<Vec<EventListener>, JsValue> {
         // Callback to execute if a line is hovered over.
         let on_mouseover = Callback::from(move |event: web_sys::Event| {
             let event = event.unchecked_into::<MouseEvent>();
@@ -239,14 +247,17 @@ impl VisualDatapath {
             // Get relevant elements.
             let target = event.target().unwrap().unchecked_into::<HtmlElement>();
             let popup = get_popup_element();
-            let title = popup.query_selector(".title").unwrap().unwrap();
             let datapath_position = get_datapath_position();
 
             Self::set_active_hovered(&target).ok();
 
             // Show popup.
-            let element_id = target.parent_element().unwrap().id();
-            title.set_text_content(Some(&element_id));
+            let variable = target
+                .parent_element()
+                .unwrap()
+                .get_attribute("data-variable")
+                .unwrap_or_default();
+            populate_popup_information(&datapath, &variable);
             popup.style().set_property("display", "block").ok();
             popup
                 .style()
