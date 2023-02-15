@@ -1,7 +1,9 @@
-use crate::parser::parser_main::append_binary;
+use crate::parser::parser_assembler_main::append_binary;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
-    ImmediateOutOfBounds, IncorrectNumberOfOperands, IncorrectRegisterType, InvalidMemorySyntax,
-    LabelNotFound, NonIntImmediate, UnrecognizedFPRegister, UnrecognizedGPRegister,
+    ImmediateOutOfBounds, ImproperlyFormattedASCII, ImproperlyFormattedChar,
+    IncorrectNumberOfOperands, IncorrectRegisterType, InvalidMemorySyntax, LabelNotFound,
+    NonFloatImmediate, NonIntImmediate, UnrecognizedDataType, UnrecognizedFPRegister,
+    UnrecognizedGPRegister,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::{
     Immediate, LabelAbsolute, LabelRelative, MemoryAddress, RegisterFP, RegisterGP,
@@ -9,8 +11,11 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandTy
 use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
     FloatingPoint, GeneralPurpose,
 };
+use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
+    Byte, Float, Half, Space, Word, ASCII,
+};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Error, Instruction, OperandType, RegisterType, TokenType,
+    Data, Error, Instruction, OperandType, RegisterType, TokenType,
 };
 use std::collections::HashMap;
 
@@ -21,7 +26,7 @@ pub fn read_operands(
     instruction: &mut Instruction,
     expected_operands: Vec<OperandType>,
     concat_order: Vec<usize>,
-    labels: Option<HashMap<String, u32>>,
+    labels_option: Option<HashMap<String, u32>>,
 ) -> &mut Instruction {
     //if the number of operands in the instruction does not match the expected number, there is an error
     if instruction.operands.len() != expected_operands.len() {
@@ -31,6 +36,13 @@ pub fn read_operands(
         });
         return instruction;
     }
+
+    let labels = if let Some(..) = labels_option {
+        labels_option.unwrap()
+    } else {
+        HashMap::new()
+    };
+
     //operands aren't represented in the binary in the order they're read so the vec<u32> allows us to concatenate them in the proper order after they're all read.
     let mut binary_representation: Vec<u32> = Vec::new();
     let mut bit_lengths: Vec<u8> = Vec::new();
@@ -49,11 +61,8 @@ pub fn read_operands(
                 instruction.operands[i].token_type = TokenType::RegisterGP;
                 bit_lengths.push(5);
 
-                let register_results = read_register(
-                    &instruction.operands[i].token_name,
-                    i as i32,
-                    GeneralPurpose,
-                );
+                let register_results =
+                    read_register(&instruction.operands[i].token_name, i as u8, GeneralPurpose);
 
                 binary_representation.push(register_results.0);
                 if register_results.1.is_some() {
@@ -65,7 +74,7 @@ pub fn read_operands(
                 bit_lengths.push(16);
 
                 let immediate_results =
-                    read_immediate(&instruction.operands[i].token_name, i as i32, 16);
+                    read_immediate(&instruction.operands[i].token_name, i as u8, 16);
 
                 binary_representation.push(immediate_results.0);
                 if immediate_results.1.is_some() {
@@ -80,7 +89,7 @@ pub fn read_operands(
                 //memory address works a bit differently because it really amounts to two operands: the offset and base
                 //meaning there are two values to push and the possibility of errors on both operands
                 let memory_results =
-                    read_memory_address(&instruction.operands[i].token_name, i as i32);
+                    read_memory_address(&instruction.operands[i].token_name, i as u8);
 
                 binary_representation.push(memory_results.0);
                 binary_representation.push(memory_results.1);
@@ -95,7 +104,7 @@ pub fn read_operands(
 
                 bit_lengths.push(5);
                 let register_results =
-                    read_register(&instruction.operands[i].token_name, i as i32, FloatingPoint);
+                    read_register(&instruction.operands[i].token_name, i as u8, FloatingPoint);
 
                 binary_representation.push(register_results.0);
                 if register_results.1.is_some() {
@@ -109,7 +118,7 @@ pub fn read_operands(
                 let label_absolute_results = read_label_absolute(
                     &instruction.operands[i].token_name,
                     i as i32,
-                    labels.clone().unwrap(),
+                    labels.clone(),
                 );
 
                 binary_representation.push(label_absolute_results.0);
@@ -125,7 +134,7 @@ pub fn read_operands(
                     &instruction.operands[i].token_name,
                     i as i32,
                     instruction.instruction_number,
-                    labels.clone().unwrap(),
+                    labels.clone(),
                 );
                 binary_representation.push(label_relative_results.0);
                 if label_relative_results.1.is_some() {
@@ -146,7 +155,8 @@ pub fn read_operands(
     instruction
 }
 
-///Returns distance to an address of a labeled instruction relative to the instruction after the current instruction.
+///Returns distance to a labeled instruction relative to the instruction after the current instruction.
+/// The value represents instruction numbers NOT bytes.
 pub fn read_label_relative(
     given_label: &str,
     operand_number: i32,
@@ -164,12 +174,15 @@ pub fn read_label_relative(
             }),
         );
     }
+    let mut offset = *result.unwrap() as i32;
+    offset -= (current_instruction_number as i32 + 1) << 2;
+    offset >>= 2;
 
-    let offset = *result.unwrap() as i32 - (current_instruction_number as i32 + 1);
     (offset as u32, None)
 }
 
-///Takes a string and returns the address of the matching label in memory. If there is no match, an error is returned
+///Takes a string and returns the instruction number of the matching label in memory. If there is no match, an error is returned
+/// This value corresponds to instruction number, NOT byte address.
 pub fn read_label_absolute(
     given_label: &str,
     operand_number: i32,
@@ -185,13 +198,14 @@ pub fn read_label_absolute(
             }),
         );
     }
-    (*result.unwrap(), None)
+    (*result.unwrap() >> 2, None)
 }
 
-///This function takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors
+///Takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors.
+/// If the string given matches a label, that address is returned instead
 pub fn read_memory_address(
     orig_string: &str,
-    operand_number: i32,
+    operand_number: u8,
 ) -> (u32, u32, Option<Vec<Error>>) {
     //the indices of the open and close parentheses are checked.
     //If either are missing or they are in the wrong order, an error is returned
@@ -203,7 +217,7 @@ pub fn read_memory_address(
             0,
             Some(vec![Error {
                 error_name: InvalidMemorySyntax,
-                operand_number: Some(operand_number as u8),
+                operand_number: Some(operand_number),
             }]),
         );
     }
@@ -220,7 +234,7 @@ pub fn read_memory_address(
             0,
             Some(vec![Error {
                 error_name: InvalidMemorySyntax,
-                operand_number: Some(operand_number as u8),
+                operand_number: Some(operand_number),
             }]),
         );
     }
@@ -270,7 +284,7 @@ pub fn _convert_to_u32(binary_as_string: String) -> u32 {
 ///and the expected register type. It calls the corresponding functions holding the match cases for the different register types.
 pub fn read_register(
     register: &str,
-    operand_number: i32,
+    operand_number: u8,
     register_type: RegisterType,
 ) -> (u32, Option<Error>) {
     if register_type == GeneralPurpose {
@@ -283,7 +297,7 @@ pub fn read_register(
                 0,
                 Some(Error {
                     error_name: IncorrectRegisterType,
-                    operand_number: Some(operand_number as u8),
+                    operand_number: Some(operand_number),
                 }),
             )
         } else {
@@ -291,7 +305,7 @@ pub fn read_register(
                 0,
                 Some(Error {
                     error_name: UnrecognizedGPRegister,
-                    operand_number: Some(operand_number as u8),
+                    operand_number: Some(operand_number),
                 }),
             )
         }
@@ -305,7 +319,7 @@ pub fn read_register(
                 0,
                 Some(Error {
                     error_name: IncorrectRegisterType,
-                    operand_number: Some(operand_number as u8),
+                    operand_number: Some(operand_number),
                 }),
             )
         } else {
@@ -313,7 +327,7 @@ pub fn read_register(
                 0,
                 Some(Error {
                     error_name: UnrecognizedFPRegister,
-                    operand_number: Some(operand_number as u8),
+                    operand_number: Some(operand_number),
                 }),
             )
         }
@@ -410,29 +424,25 @@ pub fn match_fp_register(register: &str) -> Option<u32> {
 ///This function takes a string representation of an immediate value and the number of bits available to represent it
 /// and attempts to translate it to an actual integer. If the value cannot be cast to int or is too big to be represented
 /// by the available bits, an error is returned.
-pub fn read_immediate(
-    given_text: &str,
-    operand_number: i32,
-    num_bits: u32,
-) -> (u32, Option<Error>) {
+pub fn read_immediate(given_text: &str, operand_number: u8, num_bits: u32) -> (u32, Option<Error>) {
     //attempts to cast the text into a large int
     let parse_results = given_text.parse::<i32>();
 
-    //if there was an error typecasting, the function returns with an error to add to the instruction
+    //if there was an error typecasting, the function returns with an error to add to the instruction or data
     if parse_results.is_err() {
         return (
             0,
             Some(Error {
                 error_name: NonIntImmediate,
-                operand_number: Some(operand_number as u8),
+                operand_number: Some(operand_number),
             }),
         );
     }
 
-    let int_representation: i32 = parse_results.unwrap();
+    let int_representation: i64 = parse_results.unwrap() as i64;
 
     //finds the max and min values of a signed integer with specified number of bits
-    let max_value = i32::pow(2, num_bits);
+    let max_value = i64::pow(2, num_bits);
     let min_value = (-max_value) - 1;
     //if the parsed value is out of possible bounds, an error is returned to add to the instruction
     if int_representation > max_value || int_representation < min_value {
@@ -440,10 +450,173 @@ pub fn read_immediate(
             0,
             Some(Error {
                 error_name: ImmediateOutOfBounds,
-                operand_number: Some(operand_number as u8),
+                operand_number: Some(operand_number),
             }),
         );
     }
 
     (int_representation as u32, None)
+}
+
+///Takes the data list and finds the actual values for each data entry that will be put into memory
+pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
+    let mut vec_of_data: Vec<u8> = Vec::new();
+    for data_entry in data_list.iter_mut() {
+        data_entry.data_number = vec_of_data.len() as u32;
+        match &*data_entry.data_type.token_name {
+            ".ascii" => {
+                //pushes a string of characters to memory
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                    value.0.token_type = ASCII;
+                    let chars = value.0.token_name.as_bytes();
+                    if chars[0] == b'\"' && chars[chars.len() - 1] == b'\"' && chars.len() > 2 {
+                        for char in chars.iter().take(chars.len() - 1).skip(1) {
+                            vec_of_data.push(*char);
+                        }
+                    } else {
+                        data_entry.errors.push(Error {
+                            error_name: ImproperlyFormattedASCII,
+                            operand_number: Some(i as u8),
+                        });
+                    }
+                }
+            }
+            ".asciiz" => {
+                //same as ascii but pushes a \0 to memory as well
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                    value.0.token_type = ASCII;
+                    let chars = value.0.token_name.as_bytes();
+                    if chars[0] == b'\"' && chars[chars.len() - 1] == b'\"' && chars.len() > 2 {
+                        for char in chars.iter().take(chars.len() - 1).skip(1) {
+                            vec_of_data.push(*char);
+                        }
+                    } else {
+                        data_entry.errors.push(Error {
+                            error_name: ImproperlyFormattedASCII,
+                            operand_number: Some(i as u8),
+                        });
+                    }
+                }
+                vec_of_data.push(0);
+            }
+            ".byte" => {
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                    value.0.token_type = Byte;
+                    //this if block handles chars
+                    if value.0.token_name.starts_with('\'') {
+                        if value.0.token_name.len() != 3 || !value.0.token_name.ends_with('\'') {
+                            data_entry.errors.push(Error {
+                                error_name: ImproperlyFormattedChar,
+                                operand_number: Some(i as u8),
+                            });
+                        } else {
+                            let mut chars = value.0.token_name.chars();
+                            chars.next();
+                            let char = chars.next().unwrap();
+                            vec_of_data.push(char as u8);
+                        }
+                    } else {
+                        //otherwise we can assume it is an int
+                        let immediate_results = read_immediate(&value.0.token_name, i as u8, 8);
+                        vec_of_data.push(immediate_results.0 as u8);
+                        if immediate_results.1.is_some() {
+                            data_entry.errors.push(immediate_results.1.unwrap());
+                        }
+                    }
+                }
+            }
+            ".double" => {
+                //pushes the given 64 bit float values
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                    value.0.token_type = Float;
+                    let parse_results = value.0.token_name.parse::<f64>();
+                    if let Ok(..) = parse_results {
+                        let float_bits = parse_results.unwrap().to_bits();
+                        vec_of_data.push((float_bits >> 56) as u8);
+                        vec_of_data.push((float_bits >> 48) as u8);
+                        vec_of_data.push((float_bits >> 40) as u8);
+                        vec_of_data.push((float_bits >> 32) as u8);
+                        vec_of_data.push((float_bits >> 24) as u8);
+                        vec_of_data.push((float_bits >> 16) as u8);
+                        vec_of_data.push((float_bits >> 8) as u8);
+                        vec_of_data.push(float_bits as u8);
+                    } else {
+                        data_entry.errors.push(Error {
+                            error_name: NonFloatImmediate,
+                            operand_number: Some(i as u8),
+                        })
+                    }
+                }
+            }
+            ".float" => {
+                //pushes the given 32 bit float values
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                    value.0.token_type = Float;
+                    let parse_results = value.0.token_name.parse::<f32>();
+                    if let Ok(..) = parse_results {
+                        let float_bits = parse_results.unwrap().to_bits();
+                        vec_of_data.push((float_bits >> 24) as u8);
+                        vec_of_data.push((float_bits >> 16) as u8);
+                        vec_of_data.push((float_bits >> 8) as u8);
+                        vec_of_data.push(float_bits as u8);
+                    } else {
+                        data_entry.errors.push(Error {
+                            error_name: NonFloatImmediate,
+                            operand_number: Some(i as u8),
+                        })
+                    }
+                }
+            }
+            ".half" => {
+                //half words are 16 bits each. The vec is of u32s so 2 half words are in each u32
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                    value.0.token_type = Half;
+                    let immediate_results = read_immediate(&value.0.token_name, i as u8, 16);
+
+                    vec_of_data.push((immediate_results.0 >> 8) as u8);
+                    vec_of_data.push(immediate_results.0 as u8);
+
+                    if immediate_results.1.is_some() {
+                        data_entry.errors.push(immediate_results.1.unwrap());
+                    }
+                }
+            }
+            ".space" => {
+                //pushes specified number of empty bytes
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                    value.0.token_type = Space;
+                    let immediate_results = read_immediate(&value.0.token_name, i as u8, 32);
+                    value.1 = immediate_results.0;
+
+                    for _i in 0..immediate_results.0 {
+                        vec_of_data.push(0);
+                    }
+
+                    if immediate_results.1.is_some() {
+                        data_entry.errors.push(immediate_results.1.unwrap());
+                    }
+                }
+            }
+            ".word" => {
+                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                    value.0.token_type = Word;
+                    let immediate_results = read_immediate(&value.0.token_name, i as u8, 32);
+                    if immediate_results.1.is_some() {
+                        data_entry.errors.push(immediate_results.1.unwrap());
+                    }
+
+                    //push all four bytes of the word to the vector
+                    vec_of_data.push((immediate_results.0 >> 24) as u8);
+                    vec_of_data.push((immediate_results.0 >> 16) as u8);
+                    vec_of_data.push((immediate_results.0 >> 8) as u8);
+                    vec_of_data.push(immediate_results.0 as u8);
+                }
+            }
+            _ => data_entry.errors.push(Error {
+                error_name: UnrecognizedDataType,
+                operand_number: None,
+            }),
+        }
+    }
+    vec_of_data
 }

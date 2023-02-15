@@ -1,6 +1,6 @@
 use crate::emulation_core::datapath::Datapath;
 use crate::emulation_core::mips::datapath::MipsDatapath;
-use crate::parser::parser_main::parser;
+use crate::parser::parser_assembler_main::parser;
 
 #[test]
 fn add_register_plus_itself() -> Result<(), String> {

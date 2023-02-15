@@ -1,3 +1,3 @@
-pub mod operand_reading;
-pub mod parser_main;
-pub mod preprocessing;
+pub mod assembling;
+pub mod parser_assembler_main;
+pub mod parsing;

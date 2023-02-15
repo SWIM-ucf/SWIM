@@ -12,7 +12,7 @@ use monaco::{
     sys::editor::{IEditorMinimapOptions, IStandaloneEditorConstructionOptions},
     yew::CodeEditor,
 };
-use parser::parser_main::parser;
+use parser::parser_assembler_main::parser;
 use std::{cell::RefCell, rc::Rc};
 use stylist::css;
 use wasm_bindgen_futures::spawn_local;

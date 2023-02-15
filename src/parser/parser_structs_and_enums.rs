@@ -2,27 +2,47 @@ pub mod instruction_tokenization {
     use std::default::Default;
 
     #[derive(Default, Debug, Clone, PartialEq, Eq)]
+    ///Wrapper for all information gathered in the Parser/Assembler about the written program.
+    pub struct ProgramInfo {
+        pub instructions: Vec<Instruction>,
+        pub data: Vec<Data>,
+        pub comments_line_and_column: Vec<[u32; 2]>,
+        pub directives: Vec<(Token, u32)>,
+    }
+
+    ///A collection of all relevant information found about an instruction in the Parser/Assembler
+    #[derive(Default, Debug, Clone, PartialEq, Eq)]
     pub struct Instruction {
-        pub tokens: Vec<String>,
         pub operator: Token,
         pub operands: Vec<Token>,
         pub binary: u32,
         pub instruction_number: u32,
         pub line_number: u32,
         pub errors: Vec<Error>,
-        pub label: Option<(Token, i32)>,
+        pub label: Option<(Token, u32)>,
+    }
+
+    ///A collection of all relevant information found about a variable in the Parser/Assembler
+    #[derive(Default, Debug, Clone, PartialEq, Eq)]
+    pub struct Data {
+        pub data_number: u32,
+        pub line_number: u32,
+        pub errors: Vec<Error>,
+        pub label: Token,
+        pub data_type: Token,
+        pub data_entries_and_values: Vec<(Token, u32)>,
     }
 
     #[derive(Default, Debug, Clone, PartialEq, Eq)]
     pub struct Token {
         pub token_name: String,
-        pub starting_column: i32,
+        pub starting_column: u32,
         pub token_type: TokenType,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct Line {
-        pub line_number: i32,
+        pub line_number: u32,
         pub tokens: Vec<Token>,
     }
 
@@ -43,6 +63,15 @@ pub mod instruction_tokenization {
         RegisterFP,
         RegisterGP,
         Operator,
+        Half,
+        Word,
+        ASCIIZ,
+        ASCII,
+        DataType,
+        Space,
+        Byte,
+        Float,
+        Double,
     }
 
     #[derive(Debug, PartialEq, Eq, Clone)]
@@ -50,16 +79,21 @@ pub mod instruction_tokenization {
         UnrecognizedGPRegister,
         UnrecognizedFPRegister,
         UnrecognizedInstruction,
+        UnrecognizedDataType,
         IncorrectRegisterType,
         MissingComma,
         ImmediateOutOfBounds,
         NonIntImmediate,
+        NonFloatImmediate,
         InvalidMemorySyntax,
         IncorrectNumberOfOperands,
         LabelAssignmentError,
         LabelMultipleDefinition,
         LabelNotFound,
-        JALRRDRegisterZero,
+        ImproperlyFormattedLabel,
+        ImproperlyFormattedData,
+        ImproperlyFormattedASCII,
+        ImproperlyFormattedChar,
     }
 
     //this enum is used for the fn read_operands to choose the types of operands expected for an instruction type
@@ -79,23 +113,40 @@ pub mod instruction_tokenization {
         FloatingPoint,
     }
 
-    pub fn print_instruction_struct_contents(instruction: &Instruction) {
-        println!("Instruction Number: {}", instruction.instruction_number);
-        println!("Line Number: {}", instruction.line_number);
+    pub fn print_vec_of_instructions(instructions: Vec<Instruction>) {
+        for instruction in instructions {
+            print_instruction_contents(instruction);
+        }
+    }
 
-        println!();
+    pub fn print_vec_of_data(data: Vec<Data>) {
+        for data_entry in data {
+            print_data_contents(data_entry);
+        }
+    }
 
-        println!("Binary representation: {:b}", instruction.binary);
-        println!("Int representation: {}", instruction.binary);
-
-        for error in &instruction.errors {
-            print!("{error:?}");
-            if error.operand_number.is_some() {
-                println!(" on operand {}.", error.operand_number.unwrap());
-            } else {
-                println!();
-            }
+    pub fn print_instruction_contents(instruction: Instruction) {
+        println!("Operator: {}", instruction.operator.token_name);
+        print!("Operands: ");
+        for operand in instruction.operands {
+            print!("{} ", operand.token_name);
         }
         println!();
+        if instruction.label.is_some() {
+            println!("Label: {:?}", instruction.label.unwrap().0);
+        }
+        print!("Errors: ");
+        for error in instruction.errors {
+            print!("{:?} ", error.error_name);
+        }
+    }
+
+    pub fn print_data_contents(data: Data) {
+        println!("Label: {}", data.label.token_name);
+        println!("Data Type: {}", data.data_type.token_name);
+        println!("Data Entries:");
+        for data_entry in data.data_entries_and_values {
+            println!("{:?} read as {}", data_entry.0, data_entry.1);
+        }
     }
 }

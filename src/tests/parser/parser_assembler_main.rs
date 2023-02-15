@@ -1,27 +1,29 @@
 #[cfg(test)]
 mod parser_main_function_tests {
-    use crate::parser::parser_main::*;
-    use crate::parser::parser_structs_and_enums::instruction_tokenization::print_instruction_struct_contents;
+    use crate::parser::parser_assembler_main::*;
 
     #[test]
     fn parser_takes_string_and_returns_vec_of_instructions() {
         let results =
             parser("lw $t1, 512($t1)\nadd $t1, $s6, $t2\naddi $t1, $t2, 43690".to_string());
 
-        let length = results.0.len();
-
-        for i in 0..length {
-            print_instruction_struct_contents(results.0.get(i).unwrap());
-        }
-        assert_eq!(results.0[0].binary, 0b10001101001010010000001000000000);
-        assert_eq!(results.0[1].binary, 0b00000010110010100100100000100000);
-        assert_eq!(results.0[2].binary, 0b00100001010010011010101010101010);
+        assert_eq!(
+            results.0.instructions[0].binary,
+            0b10001101001010010000001000000000
+        );
+        assert_eq!(
+            results.0.instructions[1].binary,
+            0b00000010110010100100100000100000
+        );
+        assert_eq!(
+            results.0.instructions[2].binary,
+            0b00100001010010011010101010101010
+        );
     }
 }
 
 mod read_instructions_tests {
-    use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::JALRRDRegisterZero;
-    use crate::tests::parser::parser_main::helper_functions::simulate_parser;
+    use crate::tests::parser::parser_assembler_main::helper_functions::simulate_parser;
 
     #[test]
     fn read_instructions_add() {
@@ -599,75 +601,8 @@ mod read_instructions_tests {
             0b01000101000000001111111111111110
         );
     }
-
-    #[test]
-    fn read_instruction_jalr_with_rd() {
-        let instruction_list = simulate_parser("jalr $t1, $t2".to_string());
-
-        assert_eq!(
-            instruction_list[0].binary,
-            0b00000001010000000100100000001001
-        );
-    }
-
-    #[test]
-    fn read_instruction_jalr_without_rd() {
-        let instruction_list = simulate_parser("jalr $t2".to_string());
-
-        assert_eq!(
-            instruction_list[0].binary,
-            0b00000001010000001111100000001001
-        );
-    }
-
-    #[test]
-    fn read_instruction_jalr_creates_error_with_rd_equal_0() {
-        let instruction_list = simulate_parser("jalr $zero, $t2".to_string());
-
-        assert_eq!(instruction_list[0].errors[0].error_name, JALRRDRegisterZero);
-    }
-
-    #[test]
-    fn read_instruction_ld() {
-        let instruction_list = simulate_parser("ld $t1, 512($t1)".to_string());
-
-        assert_eq!(
-            instruction_list[0].binary,
-            0b11011101001010010000001000000000
-        );
-    }
-
-    #[test]
-    fn read_instruction_sd() {
-        let instruction_list = simulate_parser("sd $t1, 512($t1)".to_string());
-
-        assert_eq!(
-            instruction_list[0].binary,
-            0b11111101001010010000001000000000
-        );
-    }
-
-    #[test]
-    fn read_instruction_ldc1() {
-        let instruction_list = simulate_parser("ldc1 $f9, 512($t1)".to_string());
-
-        assert_eq!(
-            instruction_list[0].binary,
-            0b11010101001010010000001000000000
-        );
-    }
-
-    #[test]
-    fn read_instruction_sdc1() {
-        let instruction_list = simulate_parser("sdc1 $f9, 512($t1)".to_string());
-
-        assert_eq!(
-            instruction_list[0].binary,
-            0b11110101001010010000001000000000
-        );
-    }
 }
-use crate::parser::parser_main::place_binary_in_middle_of_another;
+use crate::parser::parser_assembler_main::place_binary_in_middle_of_another;
 #[test]
 fn place_binary_in_middle_of_another_works() {
     let result = place_binary_in_middle_of_another(0b11, 0b0, 1, 0);
@@ -691,24 +626,26 @@ fn place_binary_works_dahi() {
 }
 
 mod helper_functions {
-    use crate::parser::parser_main::read_instructions;
+    use crate::parser::assembling::assemble_data_binary;
+    use crate::parser::parser_assembler_main::read_instructions;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::Instruction;
-    use crate::parser::preprocessing::{
-        assign_instruction_numbers, build_instruction_list_from_lines, confirm_operand_commas,
-        create_label_map, expand_pseudo_instruction, tokenize_instructions,
+    use crate::parser::parsing::{
+        assign_instruction_numbers, create_label_map,
+        expand_pseudo_instructions_and_assign_instruction_numbers, separate_data_and_text,
+        tokenize_program,
     };
     use std::collections::HashMap;
 
     pub fn simulate_parser(mut file_string: String) -> Vec<Instruction> {
         file_string = file_string.to_lowercase();
 
-        let lines = tokenize_instructions(file_string);
-        let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
-        confirm_operand_commas(&mut instruction_list);
-        expand_pseudo_instruction(&mut instruction_list);
+        let (lines, _comments) = tokenize_program(file_string);
+        let (mut instruction_list, mut data) = separate_data_and_text(lines);
+        expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
         assign_instruction_numbers(&mut instruction_list);
+        assemble_data_binary(&mut data);
 
-        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
+        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
         read_instructions(&mut instruction_list, labels);
 
