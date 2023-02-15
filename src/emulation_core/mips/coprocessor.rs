@@ -21,23 +21,23 @@ pub struct MipsFpCoprocessor {
 
 #[derive(Clone, Default, PartialEq)]
 pub struct FpuState {
-    instruction: u32,
-    op: u32,
-    fmt: u32,
-    fs: u32,
-    ft: u32,
-    fd: u32,
-    function: u32,
+    pub instruction: u32,
+    pub op: u32,
+    pub fmt: u32,
+    pub fs: u32,
+    pub ft: u32,
+    pub fd: u32,
+    pub function: u32,
 
-    data_from_main_processor: u64,
-    fp_register_data_from_main_processor: u64,
-    read_data_1: u64,
-    read_data_2: u64,
+    pub data_from_main_processor: u64,
+    pub fp_register_data_from_main_processor: u64,
+    pub read_data_1: u64,
+    pub read_data_2: u64,
     /// Data line that goes from `Read Data 2` to the multiplexer in the main processor
     /// controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
-    fp_register_to_memory: u64,
-    alu_result: u64,
-    comparator_result: u64,
+    pub fp_register_to_memory: u64,
+    pub alu_result: u64,
+    pub comparator_result: u64,
 }
 
 impl MipsFpCoprocessor {
