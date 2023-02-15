@@ -6,10 +6,11 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType
     Label, Operator, Unknown,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, Instruction, Line, Token,
+    Data, Error, Instruction, Line, ProgramInfo, Token,
 };
 use crate::parser::parsing::{
-    assign_instruction_numbers, create_label_map, expand_pseudo_instruction,
+    assign_instruction_numbers, complete_lw_sw_pseudo_instructions, create_label_map,
+    expand_pseudo_instructions_and_assign_instruction_numbers,
 };
 #[cfg(test)]
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
@@ -578,7 +579,7 @@ fn build_instruction_list_generates_error_on_label_on_last_line() {
 fn create_label_map_generates_map_on_no_errors() {
     let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
-    expand_pseudo_instruction(&mut instruction_list);
+    expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
     assign_instruction_numbers(&mut instruction_list);
 
     let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
@@ -595,7 +596,7 @@ fn create_label_map_recognizes_data_labels() {
     let lines = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\n".to_string()).0;
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
     assemble_data_binary(&mut data);
-    expand_pseudo_instruction(&mut instruction_list);
+    expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
     assign_instruction_numbers(&mut instruction_list);
     let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
@@ -612,7 +613,7 @@ fn create_label_map_recognizes_data_labels_and_text_together() {
     let lines = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\ninstruction: sub $t1, $t2, $t3\n".to_string()).0;
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
     assemble_data_binary(&mut data);
-    expand_pseudo_instruction(&mut instruction_list);
+    expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
     assign_instruction_numbers(&mut instruction_list);
     let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
@@ -629,7 +630,7 @@ fn create_label_map_recognizes_data_labels_and_text_together() {
 fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name() {
     let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string());
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
-    expand_pseudo_instruction(&mut instruction_list);
+    expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
     assign_instruction_numbers(&mut instruction_list);
 
     let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
@@ -641,5 +642,133 @@ fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name() {
     assert_eq!(
         instruction_list[3].errors[0].error_name,
         LabelMultipleDefinition
+    );
+}
+
+#[test]
+fn complete_lw_sw_pseudo_instructions_works() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = ".data\nlabel: .word 100\n.text\nlw $t1, label\nsw $t1, label".to_string();
+
+    let (lines, _comments) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+    let _vec_of_data = assemble_data_binary(&mut program_info.data);
+    let labels: HashMap<String, u32> =
+        create_label_map(&mut program_info.instructions, &mut program_info.data);
+
+    complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels);
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "lui".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "0".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "lw".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 3,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "16($at)".to_string(),
+                    starting_column: 8,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 3,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[2],
+        Instruction {
+            operator: Token {
+                token_name: "lui".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "0".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 2,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[3],
+        Instruction {
+            operator: Token {
+                token_name: "sw".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 3,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "16($at)".to_string(),
+                    starting_column: 8,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 3,
+            line_number: 4,
+            errors: vec![],
+            label: None,
+        }
     );
 }

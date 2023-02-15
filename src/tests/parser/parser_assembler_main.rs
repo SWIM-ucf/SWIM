@@ -630,8 +630,9 @@ mod helper_functions {
     use crate::parser::parser_assembler_main::read_instructions;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::Instruction;
     use crate::parser::parsing::{
-        assign_instruction_numbers, create_label_map, expand_pseudo_instruction,
-        separate_data_and_text, tokenize_program,
+        assign_instruction_numbers, create_label_map,
+        expand_pseudo_instructions_and_assign_instruction_numbers, separate_data_and_text,
+        tokenize_program,
     };
     use std::collections::HashMap;
 
@@ -640,7 +641,7 @@ mod helper_functions {
 
         let (lines, _comments) = tokenize_program(file_string);
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
-        expand_pseudo_instruction(&mut instruction_list);
+        expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
         assign_instruction_numbers(&mut instruction_list);
         assemble_data_binary(&mut data);
 

@@ -104,62 +104,59 @@ mod memory_address_tests {
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
         ImmediateOutOfBounds, InvalidMemorySyntax, NonIntImmediate, UnrecognizedGPRegister,
     };
-    use std::collections::HashMap;
 
     #[test]
     fn missing_open_parenthesis_returns_error() {
-        let results = read_memory_address("4$t1)", 0, HashMap::new());
+        let results = read_memory_address("4$t1)", 0);
         assert_eq!(results.2.unwrap()[0].error_name, InvalidMemorySyntax);
     }
 
     #[test]
     fn missing_close_parenthesis_returns_error() {
-        let results = read_memory_address("4($t1", 0, HashMap::new());
+        let results = read_memory_address("4($t1", 0);
         assert_eq!(results.2.unwrap()[0].error_name, InvalidMemorySyntax);
     }
 
     #[test]
     fn invalid_parentheses_order_returns_error() {
-        let results = read_memory_address("4)$t1(", 0, HashMap::new());
+        let results = read_memory_address("4)$t1(", 0);
         assert_eq!(results.2.unwrap()[0].error_name, InvalidMemorySyntax);
     }
 
     #[test]
     fn character_after_close_parenthesis_returns_error() {
-        let results = read_memory_address("4($t1)char", 0, HashMap::new());
+        let results = read_memory_address("4($t1)char", 0);
         assert_eq!(results.2.unwrap()[0].error_name, InvalidMemorySyntax);
     }
 
     #[test]
     fn non_int_offset_returns_error() {
-        let results = read_memory_address("characters($t1)", 0, HashMap::new());
+        let results = read_memory_address("characters($t1)", 0);
         assert_eq!(results.2.unwrap()[0].error_name, NonIntImmediate);
     }
 
     #[test]
     fn offset_over_16_bits_returns_error() {
-        let results = read_memory_address("9999999($t1)", 0, HashMap::new());
+        let results = read_memory_address("9999999($t1)", 0);
         assert_eq!(results.2.unwrap()[0].error_name, ImmediateOutOfBounds);
     }
 
     #[test]
     fn base_not_valid_register_returns_error() {
-        let results = read_memory_address("0($wrong)", 0, HashMap::new());
+        let results = read_memory_address("0($wrong)", 0);
         assert_eq!(results.2.unwrap()[0].error_name, UnrecognizedGPRegister);
     }
 
     #[test]
     fn invalid_base_and_offset_returns_multiple_errors() {
-        let results = read_memory_address("sad($wrong)", 0, HashMap::new())
-            .2
-            .unwrap();
+        let results = read_memory_address("sad($wrong)", 0).2.unwrap();
         assert_eq!(results[0].error_name, NonIntImmediate);
         assert_eq!(results[1].error_name, UnrecognizedGPRegister);
     }
 
     #[test]
     fn memory_address_can_be_correctly_read() {
-        let results = read_memory_address("4($t1)", 0, HashMap::new());
+        let results = read_memory_address("4($t1)", 0);
         assert!(results.2.is_none());
         assert_eq!(results.0, 0b0000000000000100);
         assert_eq!(results.1, 0b01001);
@@ -199,8 +196,9 @@ mod read_label_absolute_tests {
     use crate::parser::assembling::read_label_absolute;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::LabelNotFound;
     use crate::parser::parsing::{
-        assign_instruction_numbers, create_label_map, expand_pseudo_instruction,
-        separate_data_and_text, tokenize_program,
+        assign_instruction_numbers, create_label_map,
+        expand_pseudo_instructions_and_assign_instruction_numbers, separate_data_and_text,
+        tokenize_program,
     };
     use std::collections::HashMap;
 
@@ -208,7 +206,7 @@ mod read_label_absolute_tests {
     fn read_label_absolute_returns_address_of_instruction() {
         let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
-        expand_pseudo_instruction(&mut instruction_list);
+        expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
         assign_instruction_numbers(&mut instruction_list);
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
@@ -222,7 +220,7 @@ mod read_label_absolute_tests {
     fn read_label_absolute_returns_error_if_label_cannot_be_found() {
         let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, #t2, $t3\nsave_to_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
-        expand_pseudo_instruction(&mut instruction_list);
+        expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
         assign_instruction_numbers(&mut instruction_list);
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
@@ -235,8 +233,9 @@ mod read_label_absolute_tests {
 mod read_label_relative_tests {
     use crate::parser::assembling::read_label_relative;
     use crate::parser::parsing::{
-        assign_instruction_numbers, create_label_map, expand_pseudo_instruction,
-        separate_data_and_text, tokenize_program,
+        assign_instruction_numbers, create_label_map,
+        expand_pseudo_instructions_and_assign_instruction_numbers, separate_data_and_text,
+        tokenize_program,
     };
     use std::collections::HashMap;
 
@@ -244,7 +243,7 @@ mod read_label_relative_tests {
     fn read_label_relative_returns_correct_value_for_instruction_above_current() {
         let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
-        expand_pseudo_instruction(&mut instruction_list);
+        expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
         assign_instruction_numbers(&mut instruction_list);
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
@@ -258,7 +257,7 @@ mod read_label_relative_tests {
     fn read_label_relative_returns_correct_value_for_instruction_below_current() {
         let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
-        expand_pseudo_instruction(&mut instruction_list);
+        expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
         assign_instruction_numbers(&mut instruction_list);
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 

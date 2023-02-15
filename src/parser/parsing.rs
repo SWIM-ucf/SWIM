@@ -223,9 +223,27 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
     (instruction_list, data_list)
 }
 
-//TODO Add more pseudo instructions. Especially ones that are converted into more than a single instruction to make sure this method works
-pub fn expand_pseudo_instruction(instruction_list: &mut [Instruction]) {
-    for (_i, mut instruction) in instruction_list.iter_mut().enumerate() {
+pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
+    instructions: &mut Vec<Instruction>,
+    data: &Vec<Data>,
+) {
+    //figure out list of labels to be used for lw and sw labels
+    let mut list_of_labels: Vec<String> = Vec::new();
+    for instruction in instructions.clone() {
+        if instruction.label.is_some() {
+            list_of_labels.push(instruction.clone().label.unwrap().0.token_name);
+        }
+    }
+    for data in data {
+        list_of_labels.push(data.label.token_name.clone());
+    }
+
+    //vec_of_added_instructions is needed because of rust ownership rules. It will not let us
+    //insert into instruction_list while instruction_list is being iterated over.
+    let mut vec_of_added_instructions: Vec<Instruction> = Vec::new();
+
+    for (i, mut instruction) in &mut instructions.iter_mut().enumerate() {
+        instruction.instruction_number = (i + vec_of_added_instructions.len()) as u32;
         match &*instruction.operator.token_name {
             "li" => {
                 instruction.operator.token_name = "ori".to_string();
@@ -236,9 +254,46 @@ pub fn expand_pseudo_instruction(instruction_list: &mut [Instruction]) {
                     token_type: Default::default(),
                 });
             }
-            "temp_text_to_appease_Clippy_until_more_are_added" => {}
+            "lw" | "sw" => {
+                if instruction.operands.len() > 1
+                    && list_of_labels.contains(&instruction.operands[1].token_name)
+                {
+                    let extra_instruction = Instruction {
+                        operator: Token {
+                            token_name: "lui".to_string(),
+                            starting_column: 0,
+                            token_type: Operator,
+                        },
+                        operands: vec![
+                            Token {
+                                token_name: "$at".to_string(),
+                                starting_column: 4,
+                                token_type: Default::default(),
+                            },
+                            Token {
+                                token_name: instruction.operands[1].token_name.clone(),
+                                starting_column: 9,
+                                token_type: Default::default(),
+                            },
+                        ],
+                        binary: 0,
+                        instruction_number: instruction.instruction_number,
+                        line_number: 0,
+                        errors: vec![],
+                        label: None,
+                    };
+                    vec_of_added_instructions.push(extra_instruction);
+                    instruction.operands[1].token_name = "$at".to_string();
+                    instruction.instruction_number += 1;
+                }
+            }
             _ => {}
         }
+    }
+
+    //insert all new new instructions
+    for instruction in vec_of_added_instructions {
+        instructions.insert(instruction.instruction_number as usize, instruction);
     }
 }
 
@@ -275,10 +330,10 @@ pub fn create_label_map(
 
     let last_instruction = instruction_list.last();
 
-    let offset_for_instructions: u32 = if last_instruction.is_none() {
-        0
-    } else {
+    let offset_for_instructions: u32 = if let Some(..) = last_instruction {
         (last_instruction.unwrap().instruction_number + 1) << 2
+    } else {
+        0
     };
 
     for (i, data) in data_list.iter_mut().enumerate() {
@@ -298,4 +353,33 @@ pub fn create_label_map(
     }
 
     labels
+}
+
+///the second part of completing pseudo-instructions. LW and SW with labels requires the address of the label to be known,
+/// the second part of this must occur after the label hashmap is completed.
+pub fn complete_lw_sw_pseudo_instructions(
+    instructions: &mut Vec<Instruction>,
+    labels: &HashMap<String, u32>,
+) {
+    for mut index in 0..(instructions.len() - 1) {
+        if instructions[index].operator.token_name == "lui"
+            && instructions[index].operands.len() > 1
+            && labels.contains_key(&*instructions[index].operands[1].token_name)
+            && (instructions[index + 1].operator.token_name == "sw"
+                || instructions[index + 1].operator.token_name == "lw")
+        {
+            //upper 16 bits are stored in $at using lui
+            let address = *labels
+                .get(&*instructions[index].operands[1].token_name)
+                .unwrap();
+            instructions[index].operands[1].token_name = (address >> 16).to_string();
+            index += 1;
+
+            //lower 16 bits are stored as the offset for the load/store operation
+            let lower_16_bits = address as u16;
+            let mut memory_operand = lower_16_bits.to_string();
+            memory_operand.push_str("($at)");
+            instructions[index].operands[1].token_name = memory_operand;
+        }
+    }
 }

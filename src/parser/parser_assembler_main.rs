@@ -15,13 +15,17 @@ pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
     let (lines, comments) = tokenize_program(file_string);
     program_info.comments_line_and_column = comments;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
-    expand_pseudo_instruction(&mut program_info.instructions);
-    assign_instruction_numbers(&mut program_info.instructions);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
 
     let vec_of_data = assemble_data_binary(&mut program_info.data);
 
     let labels: HashMap<String, u32> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
+
+    complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels);
 
     read_instructions(&mut program_info.instructions, labels);
 
