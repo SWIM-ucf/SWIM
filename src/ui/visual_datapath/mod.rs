@@ -71,7 +71,7 @@ impl Component for VisualDatapath {
                     <div class="data">
                         <span class="label">{ "Value:" }</span>
                         <span class="code">{ "[bits]" }</span>
-                        <span class="meaning">{ "([base 10] - [register])" }</span>
+                        <span class="meaning">{ "[base 10]" }</span>
                     </div>
                 </div>
             </>
