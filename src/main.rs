@@ -99,6 +99,19 @@ fn app() -> Html {
         )
     };
 
+    let on_execute_stage_clicked = {
+        let datapath = Rc::clone(&datapath);
+        let trigger = use_force_update();
+        use_callback(
+            move |_, _| {
+                let mut datapath = (*datapath).borrow_mut();
+                (*datapath).execute_stage();
+                trigger.force_update();
+            },
+            (),
+        )
+    };
+
     // This is how we will reset the datapath. This is the only method to "halt"
     // programs since if the user continues to execute, the whole application will
     // crash.
@@ -166,7 +179,8 @@ fn app() -> Html {
         <div>
             <h1>{"Welcome to SWIM"}</h1>
             <button onclick={on_load_clicked}>{ "Assemble" }</button>
-            <button onclick={on_execute_clicked}> { "Execute" }</button>
+            <button onclick={on_execute_clicked}> { "Execute Instruction" }</button>
+            <button onclick={on_execute_stage_clicked}> { "Execute Stage" }</button>
             <button onclick={on_reset_clicked}>{ "Reset" }</button>
             // button tied to the input file element, which is hidden to be more clean
             <input type="button" value="Load File" onclick={upload_clicked_callback} />
