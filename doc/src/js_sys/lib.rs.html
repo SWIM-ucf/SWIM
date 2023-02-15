@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/js-sys-0.3.60/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../js_sys/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/js-sys-0.3.61/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../js_sys/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -5869,6 +5869,236 @@
 <a href="#5869" id="5869">5869</a>
 <a href="#5870" id="5870">5870</a>
 <a href="#5871" id="5871">5871</a>
+<a href="#5872" id="5872">5872</a>
+<a href="#5873" id="5873">5873</a>
+<a href="#5874" id="5874">5874</a>
+<a href="#5875" id="5875">5875</a>
+<a href="#5876" id="5876">5876</a>
+<a href="#5877" id="5877">5877</a>
+<a href="#5878" id="5878">5878</a>
+<a href="#5879" id="5879">5879</a>
+<a href="#5880" id="5880">5880</a>
+<a href="#5881" id="5881">5881</a>
+<a href="#5882" id="5882">5882</a>
+<a href="#5883" id="5883">5883</a>
+<a href="#5884" id="5884">5884</a>
+<a href="#5885" id="5885">5885</a>
+<a href="#5886" id="5886">5886</a>
+<a href="#5887" id="5887">5887</a>
+<a href="#5888" id="5888">5888</a>
+<a href="#5889" id="5889">5889</a>
+<a href="#5890" id="5890">5890</a>
+<a href="#5891" id="5891">5891</a>
+<a href="#5892" id="5892">5892</a>
+<a href="#5893" id="5893">5893</a>
+<a href="#5894" id="5894">5894</a>
+<a href="#5895" id="5895">5895</a>
+<a href="#5896" id="5896">5896</a>
+<a href="#5897" id="5897">5897</a>
+<a href="#5898" id="5898">5898</a>
+<a href="#5899" id="5899">5899</a>
+<a href="#5900" id="5900">5900</a>
+<a href="#5901" id="5901">5901</a>
+<a href="#5902" id="5902">5902</a>
+<a href="#5903" id="5903">5903</a>
+<a href="#5904" id="5904">5904</a>
+<a href="#5905" id="5905">5905</a>
+<a href="#5906" id="5906">5906</a>
+<a href="#5907" id="5907">5907</a>
+<a href="#5908" id="5908">5908</a>
+<a href="#5909" id="5909">5909</a>
+<a href="#5910" id="5910">5910</a>
+<a href="#5911" id="5911">5911</a>
+<a href="#5912" id="5912">5912</a>
+<a href="#5913" id="5913">5913</a>
+<a href="#5914" id="5914">5914</a>
+<a href="#5915" id="5915">5915</a>
+<a href="#5916" id="5916">5916</a>
+<a href="#5917" id="5917">5917</a>
+<a href="#5918" id="5918">5918</a>
+<a href="#5919" id="5919">5919</a>
+<a href="#5920" id="5920">5920</a>
+<a href="#5921" id="5921">5921</a>
+<a href="#5922" id="5922">5922</a>
+<a href="#5923" id="5923">5923</a>
+<a href="#5924" id="5924">5924</a>
+<a href="#5925" id="5925">5925</a>
+<a href="#5926" id="5926">5926</a>
+<a href="#5927" id="5927">5927</a>
+<a href="#5928" id="5928">5928</a>
+<a href="#5929" id="5929">5929</a>
+<a href="#5930" id="5930">5930</a>
+<a href="#5931" id="5931">5931</a>
+<a href="#5932" id="5932">5932</a>
+<a href="#5933" id="5933">5933</a>
+<a href="#5934" id="5934">5934</a>
+<a href="#5935" id="5935">5935</a>
+<a href="#5936" id="5936">5936</a>
+<a href="#5937" id="5937">5937</a>
+<a href="#5938" id="5938">5938</a>
+<a href="#5939" id="5939">5939</a>
+<a href="#5940" id="5940">5940</a>
+<a href="#5941" id="5941">5941</a>
+<a href="#5942" id="5942">5942</a>
+<a href="#5943" id="5943">5943</a>
+<a href="#5944" id="5944">5944</a>
+<a href="#5945" id="5945">5945</a>
+<a href="#5946" id="5946">5946</a>
+<a href="#5947" id="5947">5947</a>
+<a href="#5948" id="5948">5948</a>
+<a href="#5949" id="5949">5949</a>
+<a href="#5950" id="5950">5950</a>
+<a href="#5951" id="5951">5951</a>
+<a href="#5952" id="5952">5952</a>
+<a href="#5953" id="5953">5953</a>
+<a href="#5954" id="5954">5954</a>
+<a href="#5955" id="5955">5955</a>
+<a href="#5956" id="5956">5956</a>
+<a href="#5957" id="5957">5957</a>
+<a href="#5958" id="5958">5958</a>
+<a href="#5959" id="5959">5959</a>
+<a href="#5960" id="5960">5960</a>
+<a href="#5961" id="5961">5961</a>
+<a href="#5962" id="5962">5962</a>
+<a href="#5963" id="5963">5963</a>
+<a href="#5964" id="5964">5964</a>
+<a href="#5965" id="5965">5965</a>
+<a href="#5966" id="5966">5966</a>
+<a href="#5967" id="5967">5967</a>
+<a href="#5968" id="5968">5968</a>
+<a href="#5969" id="5969">5969</a>
+<a href="#5970" id="5970">5970</a>
+<a href="#5971" id="5971">5971</a>
+<a href="#5972" id="5972">5972</a>
+<a href="#5973" id="5973">5973</a>
+<a href="#5974" id="5974">5974</a>
+<a href="#5975" id="5975">5975</a>
+<a href="#5976" id="5976">5976</a>
+<a href="#5977" id="5977">5977</a>
+<a href="#5978" id="5978">5978</a>
+<a href="#5979" id="5979">5979</a>
+<a href="#5980" id="5980">5980</a>
+<a href="#5981" id="5981">5981</a>
+<a href="#5982" id="5982">5982</a>
+<a href="#5983" id="5983">5983</a>
+<a href="#5984" id="5984">5984</a>
+<a href="#5985" id="5985">5985</a>
+<a href="#5986" id="5986">5986</a>
+<a href="#5987" id="5987">5987</a>
+<a href="#5988" id="5988">5988</a>
+<a href="#5989" id="5989">5989</a>
+<a href="#5990" id="5990">5990</a>
+<a href="#5991" id="5991">5991</a>
+<a href="#5992" id="5992">5992</a>
+<a href="#5993" id="5993">5993</a>
+<a href="#5994" id="5994">5994</a>
+<a href="#5995" id="5995">5995</a>
+<a href="#5996" id="5996">5996</a>
+<a href="#5997" id="5997">5997</a>
+<a href="#5998" id="5998">5998</a>
+<a href="#5999" id="5999">5999</a>
+<a href="#6000" id="6000">6000</a>
+<a href="#6001" id="6001">6001</a>
+<a href="#6002" id="6002">6002</a>
+<a href="#6003" id="6003">6003</a>
+<a href="#6004" id="6004">6004</a>
+<a href="#6005" id="6005">6005</a>
+<a href="#6006" id="6006">6006</a>
+<a href="#6007" id="6007">6007</a>
+<a href="#6008" id="6008">6008</a>
+<a href="#6009" id="6009">6009</a>
+<a href="#6010" id="6010">6010</a>
+<a href="#6011" id="6011">6011</a>
+<a href="#6012" id="6012">6012</a>
+<a href="#6013" id="6013">6013</a>
+<a href="#6014" id="6014">6014</a>
+<a href="#6015" id="6015">6015</a>
+<a href="#6016" id="6016">6016</a>
+<a href="#6017" id="6017">6017</a>
+<a href="#6018" id="6018">6018</a>
+<a href="#6019" id="6019">6019</a>
+<a href="#6020" id="6020">6020</a>
+<a href="#6021" id="6021">6021</a>
+<a href="#6022" id="6022">6022</a>
+<a href="#6023" id="6023">6023</a>
+<a href="#6024" id="6024">6024</a>
+<a href="#6025" id="6025">6025</a>
+<a href="#6026" id="6026">6026</a>
+<a href="#6027" id="6027">6027</a>
+<a href="#6028" id="6028">6028</a>
+<a href="#6029" id="6029">6029</a>
+<a href="#6030" id="6030">6030</a>
+<a href="#6031" id="6031">6031</a>
+<a href="#6032" id="6032">6032</a>
+<a href="#6033" id="6033">6033</a>
+<a href="#6034" id="6034">6034</a>
+<a href="#6035" id="6035">6035</a>
+<a href="#6036" id="6036">6036</a>
+<a href="#6037" id="6037">6037</a>
+<a href="#6038" id="6038">6038</a>
+<a href="#6039" id="6039">6039</a>
+<a href="#6040" id="6040">6040</a>
+<a href="#6041" id="6041">6041</a>
+<a href="#6042" id="6042">6042</a>
+<a href="#6043" id="6043">6043</a>
+<a href="#6044" id="6044">6044</a>
+<a href="#6045" id="6045">6045</a>
+<a href="#6046" id="6046">6046</a>
+<a href="#6047" id="6047">6047</a>
+<a href="#6048" id="6048">6048</a>
+<a href="#6049" id="6049">6049</a>
+<a href="#6050" id="6050">6050</a>
+<a href="#6051" id="6051">6051</a>
+<a href="#6052" id="6052">6052</a>
+<a href="#6053" id="6053">6053</a>
+<a href="#6054" id="6054">6054</a>
+<a href="#6055" id="6055">6055</a>
+<a href="#6056" id="6056">6056</a>
+<a href="#6057" id="6057">6057</a>
+<a href="#6058" id="6058">6058</a>
+<a href="#6059" id="6059">6059</a>
+<a href="#6060" id="6060">6060</a>
+<a href="#6061" id="6061">6061</a>
+<a href="#6062" id="6062">6062</a>
+<a href="#6063" id="6063">6063</a>
+<a href="#6064" id="6064">6064</a>
+<a href="#6065" id="6065">6065</a>
+<a href="#6066" id="6066">6066</a>
+<a href="#6067" id="6067">6067</a>
+<a href="#6068" id="6068">6068</a>
+<a href="#6069" id="6069">6069</a>
+<a href="#6070" id="6070">6070</a>
+<a href="#6071" id="6071">6071</a>
+<a href="#6072" id="6072">6072</a>
+<a href="#6073" id="6073">6073</a>
+<a href="#6074" id="6074">6074</a>
+<a href="#6075" id="6075">6075</a>
+<a href="#6076" id="6076">6076</a>
+<a href="#6077" id="6077">6077</a>
+<a href="#6078" id="6078">6078</a>
+<a href="#6079" id="6079">6079</a>
+<a href="#6080" id="6080">6080</a>
+<a href="#6081" id="6081">6081</a>
+<a href="#6082" id="6082">6082</a>
+<a href="#6083" id="6083">6083</a>
+<a href="#6084" id="6084">6084</a>
+<a href="#6085" id="6085">6085</a>
+<a href="#6086" id="6086">6086</a>
+<a href="#6087" id="6087">6087</a>
+<a href="#6088" id="6088">6088</a>
+<a href="#6089" id="6089">6089</a>
+<a href="#6090" id="6090">6090</a>
+<a href="#6091" id="6091">6091</a>
+<a href="#6092" id="6092">6092</a>
+<a href="#6093" id="6093">6093</a>
+<a href="#6094" id="6094">6094</a>
+<a href="#6095" id="6095">6095</a>
+<a href="#6096" id="6096">6096</a>
+<a href="#6097" id="6097">6097</a>
+<a href="#6098" id="6098">6098</a>
+<a href="#6099" id="6099">6099</a>
+<a href="#6100" id="6100">6100</a>
+<a href="#6101" id="6101">6101</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Bindings to JavaScript&#39;s standard, built-in objects, including their methods
 //! and properties.
 //!
@@ -5900,7 +6130,6 @@
 <span class="kw">use </span>std::str::FromStr;
 
 <span class="kw">use </span>wasm_bindgen::prelude::<span class="kw-2">*</span>;
-<span class="kw">use </span>wasm_bindgen::JsCast;
 
 <span class="comment">// When adding new imports:
 //
@@ -6319,6 +6548,19 @@
     </span><span class="attr">#[wasm_bindgen(method, getter, structural)]
     </span><span class="kw">pub fn </span>length(this: <span class="kw-2">&amp;</span>Array) -&gt; u32;
 
+    <span class="doccomment">/// Sets the length of the array.
+    ///
+    /// If it is set to less than the current length of the array, it will
+    /// shrink the array.
+    ///
+    /// If it is set to more than the current length of the array, it will
+    /// increase the length of the array, filling the new space with empty
+    /// slots.
+    ///
+    /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/length)
+    </span><span class="attr">#[wasm_bindgen(method, setter)]
+    </span><span class="kw">pub fn </span>set_length(this: <span class="kw-2">&amp;</span>Array, value: u32);
+
     <span class="doccomment">/// `map()` calls a provided callback function once for each element in an array,
     /// in order, and constructs a new array from the results. callback is invoked
     /// only for indexes of the array which have assigned values, including undefined.
@@ -6694,9 +6936,22 @@
         /// This atomic operation guarantees that no other write happens
         /// until the modified value is written back.
         ///
+        /// You should use `add_bigint` to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/add)
         </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch)]
         </span><span class="kw">pub fn </span>add(typed_array: <span class="kw-2">&amp;</span>JsValue, index: u32, value: i32) -&gt; <span class="prelude-ty">Result</span>&lt;i32, JsValue&gt;;
+
+        <span class="doccomment">/// The static `Atomics.add()` method adds a given value at a given
+        /// position in the array and returns the old value at that position.
+        /// This atomic operation guarantees that no other write happens
+        /// until the modified value is written back.
+        ///
+        /// This method is used to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/add)
+        </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch, js_name = add)]
+        </span><span class="kw">pub fn </span>add_bigint(typed_array: <span class="kw-2">&amp;</span>JsValue, index: u32, value: i64) -&gt; <span class="prelude-ty">Result</span>&lt;i64, JsValue&gt;;
 
         <span class="doccomment">/// The static `Atomics.and()` method computes a bitwise AND with a given
         /// value at a given position in the array, and returns the old value
@@ -6704,9 +6959,23 @@
         /// This atomic operation guarantees that no other write happens
         /// until the modified value is written back.
         ///
+        /// You should use `and_bigint` to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/and)
         </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch)]
         </span><span class="kw">pub fn </span>and(typed_array: <span class="kw-2">&amp;</span>JsValue, index: u32, value: i32) -&gt; <span class="prelude-ty">Result</span>&lt;i32, JsValue&gt;;
+
+        <span class="doccomment">/// The static `Atomics.and()` method computes a bitwise AND with a given
+        /// value at a given position in the array, and returns the old value
+        /// at that position.
+        /// This atomic operation guarantees that no other write happens
+        /// until the modified value is written back.
+        ///
+        /// This method is used to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/and)
+        </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch, js_name = and)]
+        </span><span class="kw">pub fn </span>and_bigint(typed_array: <span class="kw-2">&amp;</span>JsValue, index: u32, value: i64) -&gt; <span class="prelude-ty">Result</span>&lt;i64, JsValue&gt;;
 
         <span class="doccomment">/// The static `Atomics.compareExchange()` method exchanges a given
         /// replacement value at a given position in the array, if a given expected
@@ -6714,6 +6983,8 @@
         /// whether it was equal to the expected value or not.
         /// This atomic operation guarantees that no other write happens
         /// until the modified value is written back.
+        ///
+        /// You should use `compare_exchange_bigint` to operate on a `BigInt64Array` or a `BigUint64Array`.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/compareExchange)
         </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch, js_name = compareExchange)]
@@ -6724,14 +6995,49 @@
             replacement_value: i32,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;i32, JsValue&gt;;
 
+        <span class="doccomment">/// The static `Atomics.compareExchange()` method exchanges a given
+        /// replacement value at a given position in the array, if a given expected
+        /// value equals the old value. It returns the old value at that position
+        /// whether it was equal to the expected value or not.
+        /// This atomic operation guarantees that no other write happens
+        /// until the modified value is written back.
+        ///
+        /// This method is used to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/compareExchange)
+        </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch, js_name = compareExchange)]
+        </span><span class="kw">pub fn </span>compare_exchange_bigint(
+            typed_array: <span class="kw-2">&amp;</span>JsValue,
+            index: u32,
+            expected_value: i64,
+            replacement_value: i64,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;i64, JsValue&gt;;
+
         <span class="doccomment">/// The static `Atomics.exchange()` method stores a given value at a given
         /// position in the array and returns the old value at that position.
         /// This atomic operation guarantees that no other write happens
         /// until the modified value is written back.
         ///
+        /// You should use `exchange_bigint` to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/exchange)
         </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch)]
         </span><span class="kw">pub fn </span>exchange(typed_array: <span class="kw-2">&amp;</span>JsValue, index: u32, value: i32) -&gt; <span class="prelude-ty">Result</span>&lt;i32, JsValue&gt;;
+
+        <span class="doccomment">/// The static `Atomics.exchange()` method stores a given value at a given
+        /// position in the array and returns the old value at that position.
+        /// This atomic operation guarantees that no other write happens
+        /// until the modified value is written back.
+        ///
+        /// This method is used to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/exchange)
+        </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch, js_name = exchange)]
+        </span><span class="kw">pub fn </span>exchange_bigint(
+            typed_array: <span class="kw-2">&amp;</span>JsValue,
+            index: u32,
+            value: i64,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;i64, JsValue&gt;;
 
         <span class="doccomment">/// The static `Atomics.isLockFree()` method is used to determine
         /// whether to use locks or atomic operations. It returns true,
@@ -6745,9 +7051,20 @@
         <span class="doccomment">/// The static `Atomics.load()` method returns a value at a given
         /// position in the array.
         ///
+        /// You should use `load_bigint` to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/load)
         </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch)]
         </span><span class="kw">pub fn </span>load(typed_array: <span class="kw-2">&amp;</span>JsValue, index: u32) -&gt; <span class="prelude-ty">Result</span>&lt;i32, JsValue&gt;;
+
+        <span class="doccomment">/// The static `Atomics.load()` method returns a value at a given
+        /// position in the array.
+        ///
+        /// This method is used to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/load)
+        </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch, js_name = load)]
+        </span><span class="kw">pub fn </span>load_bigint(typed_array: <span class="kw-2">&amp;</span>JsValue, index: i64) -&gt; <span class="prelude-ty">Result</span>&lt;i64, JsValue&gt;;
 
         <span class="doccomment">/// The static `Atomics.notify()` method notifies up some agents that
         /// are sleeping in the wait queue.
@@ -6771,25 +7088,62 @@
         /// This atomic operation guarantees that no other write happens
         /// until the modified value is written back.
         ///
+        /// You should use `or_bigint` to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/or)
         </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch)]
         </span><span class="kw">pub fn </span>or(typed_array: <span class="kw-2">&amp;</span>JsValue, index: u32, value: i32) -&gt; <span class="prelude-ty">Result</span>&lt;i32, JsValue&gt;;
 
+        <span class="doccomment">/// The static `Atomics.or()` method computes a bitwise OR with a given value
+        /// at a given position in the array, and returns the old value at that position.
+        /// This atomic operation guarantees that no other write happens
+        /// until the modified value is written back.
+        ///
+        /// This method is used to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/or)
+        </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch, js_name = or)]
+        </span><span class="kw">pub fn </span>or_bigint(typed_array: <span class="kw-2">&amp;</span>JsValue, index: u32, value: i64) -&gt; <span class="prelude-ty">Result</span>&lt;i64, JsValue&gt;;
+
         <span class="doccomment">/// The static `Atomics.store()` method stores a given value at the given
         /// position in the array and returns that value.
+        ///
+        /// You should use `store_bigint` to operate on a `BigInt64Array` or a `BigUint64Array`.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/store)
         </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch)]
         </span><span class="kw">pub fn </span>store(typed_array: <span class="kw-2">&amp;</span>JsValue, index: u32, value: i32) -&gt; <span class="prelude-ty">Result</span>&lt;i32, JsValue&gt;;
+
+        <span class="doccomment">/// The static `Atomics.store()` method stores a given value at the given
+        /// position in the array and returns that value.
+        ///
+        /// This method is used to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/store)
+        </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch, js_name = store)]
+        </span><span class="kw">pub fn </span>store_bigint(typed_array: <span class="kw-2">&amp;</span>JsValue, index: u32, value: i64) -&gt; <span class="prelude-ty">Result</span>&lt;i64, JsValue&gt;;
 
         <span class="doccomment">/// The static `Atomics.sub()` method substracts a given value at a
         /// given position in the array and returns the old value at that position.
         /// This atomic operation guarantees that no other write happens
         /// until the modified value is written back.
         ///
+        /// You should use `sub_bigint` to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/sub)
         </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch)]
         </span><span class="kw">pub fn </span>sub(typed_array: <span class="kw-2">&amp;</span>JsValue, index: u32, value: i32) -&gt; <span class="prelude-ty">Result</span>&lt;i32, JsValue&gt;;
+
+        <span class="doccomment">/// The static `Atomics.sub()` method substracts a given value at a
+        /// given position in the array and returns the old value at that position.
+        /// This atomic operation guarantees that no other write happens
+        /// until the modified value is written back.
+        ///
+        /// This method is used to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/sub)
+        </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch, js_name = sub)]
+        </span><span class="kw">pub fn </span>sub_bigint(typed_array: <span class="kw-2">&amp;</span>JsValue, index: u32, value: i64) -&gt; <span class="prelude-ty">Result</span>&lt;i64, JsValue&gt;;
 
         <span class="doccomment">/// The static `Atomics.wait()` method verifies that a given
         /// position in an `Int32Array` still contains a given value
@@ -6798,11 +7152,32 @@
         /// Note: This operation only works with a shared `Int32Array`
         /// and may not be allowed on the main thread.
         ///
+        /// You should use `wait_bigint` to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/wait)
         </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch)]
         </span><span class="kw">pub fn </span>wait(typed_array: <span class="kw-2">&amp;</span>Int32Array, index: u32, value: i32) -&gt; <span class="prelude-ty">Result</span>&lt;JsString, JsValue&gt;;
 
+        <span class="doccomment">/// The static `Atomics.wait()` method verifies that a given
+        /// position in an `Int32Array` still contains a given value
+        /// and if so sleeps, awaiting a wakeup or a timeout.
+        /// It returns a string which is either &quot;ok&quot;, &quot;not-equal&quot;, or &quot;timed-out&quot;.
+        /// Note: This operation only works with a shared `Int32Array`
+        /// and may not be allowed on the main thread.
+        ///
+        /// This method is used to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/wait)
+        </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch, js_name = wait)]
+        </span><span class="kw">pub fn </span>wait_bigint(
+            typed_array: <span class="kw-2">&amp;</span>Int32Array,
+            index: u32,
+            value: i64,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;JsString, JsValue&gt;;
+
         <span class="doccomment">/// Like `wait()`, but with timeout
+        ///
+        /// You should use `wait_with_timeout_bigint` to operate on a `BigInt64Array` or a `BigUint64Array`.
         ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/wait)
         </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch, js_name = wait)]
@@ -6813,15 +7188,42 @@
             timeout: f64,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;JsString, JsValue&gt;;
 
+        <span class="doccomment">/// Like `wait()`, but with timeout
+        ///
+        /// This method is used to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/wait)
+        </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch, js_name = wait)]
+        </span><span class="kw">pub fn </span>wait_with_timeout_bigint(
+            typed_array: <span class="kw-2">&amp;</span>Int32Array,
+            index: u32,
+            value: i64,
+            timeout: f64,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;JsString, JsValue&gt;;
+
         <span class="doccomment">/// The static `Atomics.xor()` method computes a bitwise XOR
         /// with a given value at a given position in the array,
         /// and returns the old value at that position.
         /// This atomic operation guarantees that no other write happens
         /// until the modified value is written back.
         ///
+        /// You should use `xor_bigint` to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
         /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/xor)
         </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch)]
         </span><span class="kw">pub fn </span>xor(typed_array: <span class="kw-2">&amp;</span>JsValue, index: u32, value: i32) -&gt; <span class="prelude-ty">Result</span>&lt;i32, JsValue&gt;;
+
+        <span class="doccomment">/// The static `Atomics.xor()` method computes a bitwise XOR
+        /// with a given value at a given position in the array,
+        /// and returns the old value at that position.
+        /// This atomic operation guarantees that no other write happens
+        /// until the modified value is written back.
+        ///
+        /// This method is used to operate on a `BigInt64Array` or a `BigUint64Array`.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/xor)
+        </span><span class="attr">#[wasm_bindgen(js_namespace = Atomics, catch, js_name = xor)]
+        </span><span class="kw">pub fn </span>xor_bigint(typed_array: <span class="kw-2">&amp;</span>JsValue, index: u32, value: i64) -&gt; <span class="prelude-ty">Result</span>&lt;i64, JsValue&gt;;
     }
 }
 
@@ -11232,6 +11634,64 @@ impl convert::TryFrom&lt;JsValue&gt; for Number {
     }
 
     <span class="kw">impl </span>Default <span class="kw">for </span>PluralRules {
+        <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>::new(
+                <span class="kw-2">&amp;</span>JsValue::UNDEFINED.unchecked_into(),
+                <span class="kw-2">&amp;</span>JsValue::UNDEFINED.unchecked_into(),
+            )
+        }
+    }
+
+    <span class="comment">// Intl.RelativeTimeFormat
+    </span><span class="attr">#[wasm_bindgen]
+    </span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+        <span class="doccomment">/// The `Intl.RelativeTimeFormat` object is a constructor for objects
+        /// that enable language-sensitive relative time formatting.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/RelativeTimeFormat)
+        </span><span class="attr">#[wasm_bindgen(extends = Object, js_namespace = Intl, typescript_type = <span class="string">&quot;Intl.RelativeTimeFormat&quot;</span>)]
+        #[derive(Clone, Debug)]
+        </span><span class="kw">pub type </span>RelativeTimeFormat;
+
+        <span class="doccomment">/// The `Intl.RelativeTimeFormat` object is a constructor for objects
+        /// that enable language-sensitive relative time formatting.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/RelativeTimeFormat)
+        </span><span class="attr">#[wasm_bindgen(constructor, js_namespace = Intl)]
+        </span><span class="kw">pub fn </span>new(locales: <span class="kw-2">&amp;</span>Array, options: <span class="kw-2">&amp;</span>Object) -&gt; RelativeTimeFormat;
+
+        <span class="doccomment">/// The `Intl.RelativeTimeFormat.prototype.format` method formats a `value` and `unit`
+        /// according to the locale and formatting options of this Intl.RelativeTimeFormat object.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/RelativeTimeFormat/format)
+        </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Intl.RelativeTimeFormat&quot;</span>)]
+        </span><span class="kw">pub fn </span>format(this: <span class="kw-2">&amp;</span>RelativeTimeFormat, value: f64, unit: <span class="kw-2">&amp;</span>str) -&gt; JsString;
+
+        <span class="doccomment">/// The `Intl.RelativeTimeFormat.prototype.formatToParts()` method returns an array of
+        /// objects representing the relative time format in parts that can be used for custom locale-aware formatting.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/RelativeTimeFormat/formatToParts)
+        </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Intl.RelativeTimeFormat&quot;</span>, js_name = formatToParts)]
+        </span><span class="kw">pub fn </span>format_to_parts(this: <span class="kw-2">&amp;</span>RelativeTimeFormat, value: f64, unit: <span class="kw-2">&amp;</span>str) -&gt; Array;
+
+        <span class="doccomment">/// The `Intl.RelativeTimeFormat.prototype.resolvedOptions()` method returns a new
+        /// object with properties reflecting the locale and relative time formatting
+        /// options computed during initialization of this RelativeTimeFormat object.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/RelativeTimeFormat/resolvedOptions)
+        </span><span class="attr">#[wasm_bindgen(method, js_namespace = Intl, js_name = resolvedOptions)]
+        </span><span class="kw">pub fn </span>resolved_options(this: <span class="kw-2">&amp;</span>RelativeTimeFormat) -&gt; Object;
+
+        <span class="doccomment">/// The `Intl.RelativeTimeFormat.supportedLocalesOf()` method returns an array
+        /// containing those of the provided locales that are supported in date and time
+        /// formatting without having to fall back to the runtime&#39;s default locale.
+        ///
+        /// [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RelativeTimeFormat/supportedLocalesOf)
+        </span><span class="attr">#[wasm_bindgen(static_method_of = RelativeTimeFormat, js_namespace = Intl, js_name = supportedLocalesOf)]
+        </span><span class="kw">pub fn </span>supported_locales_of(locales: <span class="kw-2">&amp;</span>Array, options: <span class="kw-2">&amp;</span>Object) -&gt; Array;
+    }
+
+    <span class="kw">impl </span>Default <span class="kw">for </span>RelativeTimeFormat {
         <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
             <span class="self">Self</span>::new(
                 <span class="kw-2">&amp;</span>JsValue::UNDEFINED.unchecked_into(),

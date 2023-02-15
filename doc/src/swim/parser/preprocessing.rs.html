@@ -198,8 +198,6 @@
 <a href="#198" id="198">198</a>
 <a href="#199" id="199">199</a>
 <a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     LabelAssignmentError, LabelMultipleDefinition, MissingComma,
 };
@@ -211,16 +209,15 @@
 };
 <span class="kw">use </span>std::collections::HashMap;
 
-<span class="doccomment">///Takes the initial string of the program given by the editor and turns it into a vector of Line,
-/// a struct that holds tokens and the original line number, and finds the starting point for all comments.
-</span><span class="kw">pub fn </span>tokenize_instructions(program: String) -&gt; (Vec&lt;Line&gt;, Vec&lt;[u32; <span class="number">2</span>]&gt;) {
+<span class="doccomment">///This function takes the initial string of the program given by the editor and turns it into a vector of Line,
+/// a struct that holds tokens and the original line number
+</span><span class="kw">pub fn </span>tokenize_instructions(program: String) -&gt; Vec&lt;Line&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>line_vec: Vec&lt;Line&gt; = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>token: Token = Token {
         token_name: <span class="string">&quot;&quot;</span>.to_string(),
         starting_column: <span class="number">0</span>,
         token_type: Unknown,
     };
-    <span class="kw">let </span><span class="kw-2">mut </span>comments: Vec&lt;[u32; <span class="number">2</span>]&gt; = Vec::new();
 
     <span class="kw">for </span>(i, line_of_program) <span class="kw">in </span>program.lines().enumerate() {
         <span class="kw">let </span><span class="kw-2">mut </span>line_of_tokens = Line {
@@ -231,7 +228,6 @@
 
         <span class="kw">for </span>(j, char) <span class="kw">in </span>line_of_program.chars().enumerate() {
             <span class="kw">if </span>char == <span class="string">&#39;#&#39; </span>{
-                comments.push([i <span class="kw">as </span>u32, j <span class="kw">as </span>u32]);
                 <span class="kw">break</span>;
             };
             <span class="kw">if </span>char != <span class="string">&#39; &#39; </span>{
@@ -262,7 +258,7 @@
         }
     }
 
-    (line_vec, comments)
+    line_vec
 }
 
 <span class="doccomment">///This function takes the vector of lines created by tokenize instructions and turns them into instructions
