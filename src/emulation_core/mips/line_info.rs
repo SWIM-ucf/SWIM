@@ -50,7 +50,7 @@ impl VisualDatapath for MipsDatapath {
                 value: self.coprocessor.state.fs as u64,
                 bits: 5,
             },
-            
+
             _ => LineInformation {
                 title: String::from("[Title]"),
                 description: String::from("[Description]"),
