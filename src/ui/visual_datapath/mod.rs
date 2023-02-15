@@ -79,12 +79,16 @@ impl Component for VisualDatapath {
     }
 
     fn rendered(&mut self, ctx: &Context<Self>, first_render: bool) {
+        // The diagram views the lines *after* the stage has executed. This is so
+        // there is actual data to view. A better way to see this is "when stage X is
+        // set on the datapath, highlight the lines for stage Y." The datapath stage
+        // tells where it will start the next time "execute" is pressed.
         let current_stage = String::from(match ctx.props().datapath.current_stage {
-            Stage::InstructionFetch => "instruction_fetch",
-            Stage::InstructionDecode => "instruction_decode",
-            Stage::Execute => "execute",
-            Stage::Memory => "memory",
-            Stage::WriteBack => "writeback",
+            Stage::InstructionFetch => "writeback",
+            Stage::InstructionDecode => "instruction_fetch",
+            Stage::Execute => "instruction_decode",
+            Stage::Memory => "execute",
+            Stage::WriteBack => "memory",
         });
 
         if first_render {
