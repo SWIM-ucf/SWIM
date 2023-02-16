@@ -223,6 +223,10 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
     (instruction_list, data_list)
 }
 
+///Iterates through the instruction list and translates pseudo-instructions into real instructions.
+/// LW and SW with labelled memory are not completely translated in this step because they require
+/// the address of the labelled memory to be known which is not found until after all other pseudo-instructions
+/// have been translated.
 pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     instructions: &mut Vec<Instruction>,
     data: &Vec<Data>,
@@ -287,6 +291,286 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     instruction.instruction_number += 1;
                 }
             }
+            "subi" => {
+                //make sure that there actually is a third operand
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+                let extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        starting_column: 0,
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "$at".to_string(),
+                            starting_column: 4,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "$zero".to_string(),
+                            starting_column: 9,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[2].token_name.clone(),
+                            starting_column: 16,
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number,
+                    line_number: 0,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction);
+                //adjust subi for the added instruction
+                instruction.operator.token_name = "sub".to_string();
+                instruction.operands[0].starting_column -= 1;
+                instruction.operands[1].starting_column -= 1;
+                instruction.operands[2].starting_column -= 1;
+                instruction.operands[2].token_name = "$at".to_string();
+                instruction.instruction_number += 1;
+            }
+            "muli" => {
+                //make sure that there actually is a third operand
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+                let extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        starting_column: 0,
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "$at".to_string(),
+                            starting_column: 4,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "$zero".to_string(),
+                            starting_column: 9,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[2].token_name.clone(),
+                            starting_column: 16,
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number,
+                    line_number: 0,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction);
+                //adjust subi for the added instruction
+                instruction.operator.token_name = "mul".to_string();
+                instruction.operands[0].starting_column -= 1;
+                instruction.operands[1].starting_column -= 1;
+                instruction.operands[2].starting_column -= 1;
+                instruction.operands[2].token_name = "$at".to_string();
+                instruction.instruction_number += 1;
+            }
+            "divi" => {
+                //make sure that there actually is a second operand
+                if instruction.operands.len() < 2 {
+                    continue;
+                }
+                let extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        starting_column: 0,
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "$at".to_string(),
+                            starting_column: 4,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "$zero".to_string(),
+                            starting_column: 9,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[1].token_name.clone(),
+                            starting_column: 16,
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number,
+                    line_number: 0,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction);
+                //adjust subi for the added instruction
+                instruction.operator.token_name = "div".to_string();
+                instruction.operands[0].starting_column -= 1;
+                instruction.operands[1].starting_column -= 1;
+                instruction.operands[1].token_name = "$at".to_string();
+                instruction.instruction_number += 1;
+            }
+            "seq" => {}
+            "sne" => {}
+            "sle" => {}
+            "sgt" => {
+                //make sure that there actually is a third operand
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+                let temp = instruction.operands[1].clone();
+                instruction.operands[1] = instruction.operands[2].clone();
+                instruction.operands[1].starting_column = temp.starting_column;
+                instruction.operands[2] = temp.clone();
+                instruction.operands[2].starting_column =
+                    temp.starting_column + temp.token_name.len() as u32 + 1;
+                instruction.operator.token_name = "slt".to_string();
+            }
+            "sge" => {}
+            "sleu" => {}
+            "sgtu" => {}
+            "sgeu" => {}
+            "dsubi" => {
+                //make sure that there actually is a third operand
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+                let extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        starting_column: 0,
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "$at".to_string(),
+                            starting_column: 4,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "$zero".to_string(),
+                            starting_column: 9,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[2].token_name.clone(),
+                            starting_column: 16,
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number,
+                    line_number: 0,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction);
+                //adjust subi for the added instruction
+                instruction.operator.token_name = "dsub".to_string();
+                instruction.operands[0].starting_column -= 1;
+                instruction.operands[1].starting_column -= 1;
+                instruction.operands[2].starting_column -= 1;
+                instruction.operands[2].token_name = "$at".to_string();
+                instruction.instruction_number += 1;
+            }
+            "dmuli" => {
+                //make sure that there actually is a third operand
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+                let extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        starting_column: 0,
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "$at".to_string(),
+                            starting_column: 4,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "$zero".to_string(),
+                            starting_column: 9,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[2].token_name.clone(),
+                            starting_column: 16,
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number,
+                    line_number: 0,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction);
+                //adjust subi for the added instruction
+                instruction.operator.token_name = "dmul".to_string();
+                instruction.operands[0].starting_column -= 1;
+                instruction.operands[1].starting_column -= 1;
+                instruction.operands[2].starting_column -= 1;
+                instruction.operands[2].token_name = "$at".to_string();
+                instruction.instruction_number += 1;
+            }
+            "ddivi" => {
+                //make sure that there actually is a second operand
+                if instruction.operands.len() < 2 {
+                    continue;
+                }
+                let extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        starting_column: 0,
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "$at".to_string(),
+                            starting_column: 4,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "$zero".to_string(),
+                            starting_column: 9,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[1].token_name.clone(),
+                            starting_column: 16,
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number,
+                    line_number: 0,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction);
+                //adjust subi for the added instruction
+                instruction.operator.token_name = "ddiv".to_string();
+                instruction.operands[0].starting_column -= 1;
+                instruction.operands[1].starting_column -= 1;
+                instruction.operands[1].token_name = "$at".to_string();
+                instruction.instruction_number += 1;
+            }
+            "dsubiu" => {}
+            "dmuliu" => {}
+            "ddiviu" => {}
+
             _ => {}
         }
     }
@@ -366,7 +650,7 @@ pub fn complete_lw_sw_pseudo_instructions(
             && instructions[index].operands.len() > 1
             && labels.contains_key(&*instructions[index].operands[1].token_name)
             && (instructions[index + 1].operator.token_name == "sw"
-                || instructions[index + 1].operator.token_name == "lw")
+            || instructions[index + 1].operator.token_name == "lw")
         {
             //upper 16 bits are stored in $at using lui
             let address = *labels
