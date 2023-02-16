@@ -772,3 +772,514 @@ fn complete_lw_sw_pseudo_instructions_works() {
         }
     );
 }
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "subi $t1, $t2, 100\nsw $t1, label".to_string();
+
+    let (lines, _comments) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    starting_column: 16,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "sub".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 14,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_muli() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "muli $t1, $t2, 100\nsw $t1, label".to_string();
+
+    let (lines, _comments) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    starting_column: 16,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "mul".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 14,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_divi() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "divi $t1, 100\nsw $t1, label".to_string();
+
+    let (lines, _comments) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    starting_column: 16,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "div".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dsubi() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "dsubi $t1, $t2, 100\nsw $t1, label".to_string();
+
+    let (lines, _comments) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    starting_column: 16,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "dsub".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 5,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    starting_column: 10,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 15,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuli() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "dmuli $t1, $t2, 100\nsw $t1, label".to_string();
+
+    let (lines, _comments) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    starting_column: 16,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "dmul".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 5,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    starting_column: 10,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 15,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "ddivi $t1, 100\nsw $t1, label".to_string();
+
+    let (lines, _comments) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    starting_column: 16,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "ddiv".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 5,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    starting_column: 10,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgt() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "sgt $t1, $t2, $t3\nsw $t1, label".to_string();
+
+    let (lines, _comments) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "slt".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t3".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    starting_column: 13,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
