@@ -602,7 +602,7 @@ mod read_instructions_tests {
         );
     }
 }
-use crate::parser::parser_assembler_main::place_binary_in_middle_of_another;
+use crate::parser::parser_assembler_main::{parser, place_binary_in_middle_of_another};
 #[test]
 fn place_binary_in_middle_of_another_works() {
     let result = place_binary_in_middle_of_another(0b11, 0b0, 1, 0);
@@ -623,6 +623,13 @@ fn place_binary_in_middle_of_another_works_3() {
 fn place_binary_works_dahi() {
     let result = place_binary_in_middle_of_another(0b000001010011010101010101010, 0b00110, 5, 15);
     assert_eq!(result, 0b00000101001001101010101010101010);
+}
+
+#[test]
+fn testing_data_output_after_total_parser_assembler_process() {
+    let result = parser(".data\nlabel: .byte 255, -128".to_string()).1;
+
+    assert_eq!(result[0], 0b11111111100000000000000000000000);
 }
 
 mod helper_functions {
