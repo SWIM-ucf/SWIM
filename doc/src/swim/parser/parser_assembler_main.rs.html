@@ -1420,7 +1420,7 @@
 
     <span class="comment">//makes sure the byte array length is a multiple of 4
     </span><span class="kw">let </span>mod4 = vec_of_data.len() % <span class="number">4</span>;
-    <span class="kw">for </span>_i <span class="kw">in </span><span class="number">0</span>..mod4 {
+    <span class="kw">for </span>_i <span class="kw">in </span><span class="number">1</span>..mod4 {
         vec_of_data.push(<span class="number">0</span>);
     }
     <span class="comment">//push the .data
