@@ -645,6 +645,9 @@ pub fn complete_lw_sw_pseudo_instructions(
     instructions: &mut Vec<Instruction>,
     labels: &HashMap<String, u32>,
 ) {
+    if instructions.len() < 2 {
+        return;
+    }
     for mut index in 0..(instructions.len() - 1) {
         if instructions[index].operator.token_name == "lui"
             && instructions[index].operands.len() > 1
