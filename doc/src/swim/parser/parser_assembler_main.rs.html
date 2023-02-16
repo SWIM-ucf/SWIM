@@ -720,6 +720,8 @@
 <a href="#720" id="720">720</a>
 <a href="#721" id="721">721</a>
 <a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::assembling::{assemble_data_binary, read_operands};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::OperandType::<span class="kw-2">*</span>;
@@ -1419,8 +1421,10 @@
     }
 
     <span class="comment">//makes sure the byte array length is a multiple of 4
-    </span><span class="kw">let </span>mod4 = vec_of_data.len() % <span class="number">4</span>;
-    vec_of_data.resize(vec_of_data.len() + mod4, <span class="number">0</span>);
+
+    </span><span class="kw">while </span>vec_of_data.len() % <span class="number">4 </span>!= <span class="number">0 </span>{
+        vec_of_data.push(<span class="number">0</span>);
+    }
 
     <span class="comment">//push the .data
     </span><span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
@@ -1429,13 +1433,13 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>word = vec_of_data[i] <span class="kw">as </span>u32;
         word &lt;&lt;= <span class="number">8</span>;
         i += <span class="number">1</span>;
-        word &amp;= vec_of_data[i] <span class="kw">as </span>u32;
+        word |= vec_of_data[i] <span class="kw">as </span>u32;
         word &lt;&lt;= <span class="number">8</span>;
         i += <span class="number">1</span>;
-        word &amp;= vec_of_data[i] <span class="kw">as </span>u32;
+        word |= vec_of_data[i] <span class="kw">as </span>u32;
         word &lt;&lt;= <span class="number">8</span>;
         i += <span class="number">1</span>;
-        word &amp;= vec_of_data[i] <span class="kw">as </span>u32;
+        word |= vec_of_data[i] <span class="kw">as </span>u32;
         binary.push(word);
         i += <span class="number">1</span>;
     }
