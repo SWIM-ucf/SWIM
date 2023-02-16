@@ -774,6 +774,25 @@ fn complete_lw_sw_pseudo_instructions_works() {
 }
 
 #[test]
+fn complete_lw_sw_pseudo_instructions_doesnt_break_with_empty_instruction_list() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = ".data\nlabel: .word 100\n.text\nlw $t1, label\nsw $t1, label".to_string();
+
+    let (lines, _comments) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+    let _vec_of_data = assemble_data_binary(&mut program_info.data);
+    let labels: HashMap<String, u32> =
+        create_label_map(&mut program_info.instructions, &mut program_info.data);
+
+    complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels);
+}
+
+#[test]
 fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi() {
     let mut program_info = ProgramInfo::default();
 
