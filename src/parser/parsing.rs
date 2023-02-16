@@ -650,7 +650,7 @@ pub fn complete_lw_sw_pseudo_instructions(
             && instructions[index].operands.len() > 1
             && labels.contains_key(&*instructions[index].operands[1].token_name)
             && (instructions[index + 1].operator.token_name == "sw"
-            || instructions[index + 1].operator.token_name == "lw")
+                || instructions[index + 1].operator.token_name == "lw")
         {
             //upper 16 bits are stored in $at using lui
             let address = *labels
