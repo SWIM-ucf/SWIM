@@ -698,9 +698,8 @@ pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8
 
     //makes sure the byte array length is a multiple of 4
     let mod4 = vec_of_data.len() % 4;
-    for _ in 1..mod4 {
-        vec_of_data.push(0);
-    }
+    vec_of_data.resize(vec_of_data.len() + mod4, 0);
+
     //push the .data
     let mut i = 0;
     while i < vec_of_data.len() {
