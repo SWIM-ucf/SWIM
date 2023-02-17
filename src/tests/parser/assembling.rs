@@ -349,15 +349,16 @@ fn assemble_data_binary_works_for_char_bytes() {
 
 #[test]
 fn assemble_data_binary_works_for_ascii() {
-    let lines = tokenize_program(".data\nlabel: .ascii \"abcde\"".to_string()).0;
+    let lines = tokenize_program(".data\nlabel: .ascii \"abc de\"".to_string()).0;
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 
     assert_eq!(result[0], 97);
     assert_eq!(result[1], 98);
     assert_eq!(result[2], 99);
-    assert_eq!(result[3], 100);
-    assert_eq!(result[4], 101);
+    assert_eq!(result[3], ' ' as u8);
+    assert_eq!(result[4], 100);
+    assert_eq!(result[5], 101);
 }
 
 #[test]

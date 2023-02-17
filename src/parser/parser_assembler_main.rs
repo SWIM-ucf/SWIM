@@ -11,7 +11,6 @@ use std::collections::HashMap;
 pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
     let mut program_info = ProgramInfo::default();
     file_string = file_string.to_lowercase();
-
     let (lines, comments) = tokenize_program(file_string);
     program_info.comments_line_and_column = comments;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
@@ -19,14 +18,10 @@ pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
         &mut program_info.instructions,
         &program_info.data,
     );
-
     let vec_of_data = assemble_data_binary(&mut program_info.data);
-
     let labels: HashMap<String, u32> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
-
     complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels);
-
     read_instructions(&mut program_info.instructions, labels);
 
     (
@@ -697,10 +692,8 @@ pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8
     }
 
     //makes sure the byte array length is a multiple of 4
-
-    while vec_of_data.len() % 4 != 0 {
-        vec_of_data.push(0);
-    }
+    let mod4 = vec_of_data.len() % 4;
+    vec_of_data.resize(vec_of_data.len() + mod4, 255);
 
     //push the .data
     let mut i = 0;
