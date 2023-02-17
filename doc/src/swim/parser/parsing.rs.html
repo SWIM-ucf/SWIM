@@ -670,6 +670,49 @@
 <a href="#670" id="670">670</a>
 <a href="#671" id="671">671</a>
 <a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     ImproperlyFormattedData, ImproperlyFormattedLabel, LabelAssignmentError,
     LabelMultipleDefinition, MissingComma,
@@ -699,13 +742,56 @@
 
             tokens: <span class="macro">vec!</span>[],
         };
-
+        <span class="kw">let </span><span class="kw-2">mut </span>is_string = <span class="bool-val">false</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>check_escape = <span class="bool-val">false</span>;
         <span class="kw">for </span>(j, char) <span class="kw">in </span>line_of_program.chars().enumerate() {
             <span class="kw">if </span>char == <span class="string">&#39;#&#39; </span>{
                 comments.push([i <span class="kw">as </span>u32, j <span class="kw">as </span>u32]);
                 <span class="kw">break</span>;
             };
-            <span class="kw">if </span>char != <span class="string">&#39; &#39; </span>{
+            <span class="comment">//is string is a flag to handle strings and read them in as a single token
+            </span><span class="kw">if </span>is_string {
+                <span class="kw">if </span>char == <span class="string">&#39;\\&#39; </span>{
+                    check_escape = <span class="bool-val">true</span>;
+                    <span class="kw">continue</span>;
+                }
+                <span class="kw">if </span>check_escape {
+                    <span class="kw">match </span>char {
+                        <span class="string">&#39;n&#39; </span>=&gt; {
+                            token.token_name.push(<span class="string">&#39;\n&#39;</span>);
+                        }
+                        <span class="string">&#39;t&#39; </span>=&gt; {
+                            token.token_name.push(<span class="string">&#39;\t&#39;</span>);
+                        }
+                        <span class="string">&#39;\\&#39; </span>=&gt; {
+                            token.token_name.push(<span class="string">&#39;\\&#39;</span>);
+                        }
+                        <span class="string">&#39;\&quot;&#39; </span>=&gt; {
+                            token.token_name.push(<span class="string">&#39;\&quot;&#39;</span>);
+                        }
+                        <span class="string">&#39;\&#39;&#39; </span>=&gt; {
+                            token.token_name.push(<span class="string">&#39;\&#39;&#39;</span>);
+                        }
+                        <span class="kw">_ </span>=&gt; {
+                            token.token_name.push(<span class="string">&#39;\\&#39;</span>);
+                            token.token_name.push(char);
+                        }
+                    }
+                    check_escape = <span class="bool-val">false</span>;
+                } <span class="kw">else if </span>char == <span class="string">&#39;\&quot;&#39; </span>{
+                    token.token_name.push(<span class="string">&#39;\&quot;&#39;</span>);
+                    is_string = <span class="bool-val">false</span>;
+                } <span class="kw">else </span>{
+                    token.token_name.push(char);
+                }
+            } <span class="kw">else if </span>char == <span class="string">&#39;\&quot;&#39; </span>{
+                <span class="kw">if </span>!token.token_name.is_empty() {
+                    line_of_tokens.tokens.push(token.clone());
+                }
+                token.token_name = <span class="string">&#39;\&quot;&#39;</span>.to_string();
+                token.starting_column = j <span class="kw">as </span>u32;
+                is_string = <span class="bool-val">true</span>;
+            } <span class="kw">else if </span>char != <span class="string">&#39; &#39; </span>{
                 <span class="kw">if </span>token.token_name.is_empty() {
                     token.starting_column = j <span class="kw">as </span>u32;
                 }

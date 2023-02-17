@@ -715,13 +715,6 @@
 <a href="#715" id="715">715</a>
 <a href="#716" id="716">716</a>
 <a href="#717" id="717">717</a>
-<a href="#718" id="718">718</a>
-<a href="#719" id="719">719</a>
-<a href="#720" id="720">720</a>
-<a href="#721" id="721">721</a>
-<a href="#722" id="722">722</a>
-<a href="#723" id="723">723</a>
-<a href="#724" id="724">724</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::assembling::{assemble_data_binary, read_operands};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::OperandType::<span class="kw-2">*</span>;
@@ -735,7 +728,6 @@
 </span><span class="kw">pub fn </span>parser(<span class="kw-2">mut </span>file_string: String) -&gt; (ProgramInfo, Vec&lt;u32&gt;) {
     <span class="kw">let </span><span class="kw-2">mut </span>program_info = ProgramInfo::default();
     file_string = file_string.to_lowercase();
-
     <span class="kw">let </span>(lines, comments) = tokenize_program(file_string);
     program_info.comments_line_and_column = comments;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
@@ -743,14 +735,10 @@
         <span class="kw-2">&amp;mut </span>program_info.instructions,
         <span class="kw-2">&amp;</span>program_info.data,
     );
-
     <span class="kw">let </span>vec_of_data = assemble_data_binary(<span class="kw-2">&amp;mut </span>program_info.data);
-
     <span class="kw">let </span>labels: HashMap&lt;String, u32&gt; =
         create_label_map(<span class="kw-2">&amp;mut </span>program_info.instructions, <span class="kw-2">&amp;mut </span>program_info.data);
-
     complete_lw_sw_pseudo_instructions(<span class="kw-2">&amp;mut </span>program_info.instructions, <span class="kw-2">&amp;</span>labels);
-
     read_instructions(<span class="kw-2">&amp;mut </span>program_info.instructions, labels);
 
     (
@@ -1421,10 +1409,8 @@
     }
 
     <span class="comment">//makes sure the byte array length is a multiple of 4
-
-    </span><span class="kw">while </span>vec_of_data.len() % <span class="number">4 </span>!= <span class="number">0 </span>{
-        vec_of_data.push(<span class="number">0</span>);
-    }
+    </span><span class="kw">let </span>mod4 = vec_of_data.len() % <span class="number">4</span>;
+    vec_of_data.resize(vec_of_data.len() + mod4, <span class="number">255</span>);
 
     <span class="comment">//push the .data
     </span><span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
