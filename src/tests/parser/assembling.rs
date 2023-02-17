@@ -356,7 +356,7 @@ fn assemble_data_binary_works_for_ascii() {
     assert_eq!(result[0], 97);
     assert_eq!(result[1], 98);
     assert_eq!(result[2], 99);
-    assert_eq!(result[3], ' ' as u8);
+    assert_eq!(result[3], b' ');
     assert_eq!(result[4], 100);
     assert_eq!(result[5], 101);
 }

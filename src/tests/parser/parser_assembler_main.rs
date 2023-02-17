@@ -605,7 +605,7 @@ mod read_instructions_tests {
 
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::{
-    create_binary_vec, parser, place_binary_in_middle_of_another, read_instructions,
+    create_binary_vec, place_binary_in_middle_of_another, read_instructions,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
 use crate::parser::parsing::{
@@ -677,7 +677,7 @@ fn create_binary_vec_works_with_data() {
         &mut program_info.instructions,
         &program_info.data,
     );
-    let mut vec_of_data = assemble_data_binary(&mut program_info.data);
+    let vec_of_data = assemble_data_binary(&mut program_info.data);
 
     let labels: HashMap<String, u32> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
