@@ -235,6 +235,13 @@ fn tokenize_program_recognizes_comments_middle_of_line() {
 }
 
 #[test]
+fn tokenize_program_reads_ascii_properly() {
+    let result = tokenize_program(".data\nlabel: .ascii \"this is a string\"".to_string());
+
+    assert_eq!(result.0[1].tokens[2].token_name, "\"this is a string\"");
+}
+
+#[test]
 fn separate_data_and_text_works_basic_version() {
     let (lines, _comments) =
         tokenize_program("add $t1, $t2, $t3\nlw $t1, 400($t1)\naddi $t1, 100".to_string());
@@ -464,6 +471,75 @@ fn separate_data_and_text_recognizes_data_and_text_interspersed() {
                     (lines[5].tokens[2].clone(), 0),
                     (lines[5].tokens[3].clone(), 0),
                     (lines[5].tokens[4].clone(), 0),
+                ],
+                ..Default::default()
+            },
+        ],
+    );
+    correct_result.0[0].operator.token_type = Operator;
+    correct_result.0[1].operator.token_type = Operator;
+    correct_result.0[0].operands[0].token_name.pop();
+    correct_result.0[0].operands[1].token_name.pop();
+    correct_result.0[1].operands[0].token_name.pop();
+    correct_result.1[0].label.token_type = Label;
+    correct_result.1[0].label.token_name.pop();
+    correct_result.1[1].label.token_type = Label;
+    correct_result.1[1].label.token_name.pop();
+    correct_result.1[1].data_entries_and_values[0]
+        .0
+        .token_name
+        .pop();
+    correct_result.1[1].data_entries_and_values[1]
+        .0
+        .token_name
+        .pop();
+
+    assert_eq!(result, correct_result);
+}
+
+#[test]
+fn separate_data_and_text_recognizes_ascii_data() {
+    let (lines, _comments) = tokenize_program(
+        ".data\nword: .ascii \"this is a string\"\nword2: .word 1,2,3\n.text\nadd $t1, $t2, $t3\nlw $t1, 400($t1)\n"
+            .to_string(),
+    );
+    let result = separate_data_and_text(lines.clone());
+
+    let mut correct_result: (Vec<Instruction>, Vec<Data>) = (
+        vec![
+            Instruction {
+                operator: lines[4].tokens[0].clone(),
+                operands: vec![
+                    lines[4].tokens[1].clone(),
+                    lines[4].tokens[2].clone(),
+                    lines[4].tokens[3].clone(),
+                ],
+                line_number: 4,
+                ..Default::default()
+            },
+            Instruction {
+                operator: lines[5].tokens[0].clone(),
+                operands: vec![lines[5].tokens[1].clone(), lines[5].tokens[2].clone()],
+                line_number: 5,
+                ..Default::default()
+            },
+        ],
+        vec![
+            Data {
+                line_number: 1,
+                label: lines[1].tokens[0].clone(),
+                data_type: lines[1].tokens[1].clone(),
+                data_entries_and_values: vec![(lines[1].tokens[2].clone(), 0)],
+                ..Default::default()
+            },
+            Data {
+                line_number: 2,
+                label: lines[2].tokens[0].clone(),
+                data_type: lines[2].tokens[1].clone(),
+                data_entries_and_values: vec![
+                    (lines[2].tokens[2].clone(), 0),
+                    (lines[2].tokens[3].clone(), 0),
+                    (lines[2].tokens[4].clone(), 0),
                 ],
                 ..Default::default()
             },

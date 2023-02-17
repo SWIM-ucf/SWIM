@@ -27,13 +27,56 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<[u32; 2]>) {
 
             tokens: vec![],
         };
-
+        let mut is_string = false;
+        let mut check_escape = false;
         for (j, char) in line_of_program.chars().enumerate() {
             if char == '#' {
                 comments.push([i as u32, j as u32]);
                 break;
             };
-            if char != ' ' {
+            //is string is a flag to handle strings and read them in as a single token
+            if is_string {
+                if char == '\\' {
+                    check_escape = true;
+                    continue;
+                }
+                if check_escape {
+                    match char {
+                        'n' => {
+                            token.token_name.push('\n');
+                        }
+                        't' => {
+                            token.token_name.push('\t');
+                        }
+                        '\\' => {
+                            token.token_name.push('\\');
+                        }
+                        '\"' => {
+                            token.token_name.push('\"');
+                        }
+                        '\'' => {
+                            token.token_name.push('\'');
+                        }
+                        _ => {
+                            token.token_name.push('\\');
+                            token.token_name.push(char);
+                        }
+                    }
+                    check_escape = false;
+                } else if char == '\"' {
+                    token.token_name.push('\"');
+                    is_string = false;
+                } else {
+                    token.token_name.push(char);
+                }
+            } else if char == '\"' {
+                if !token.token_name.is_empty() {
+                    line_of_tokens.tokens.push(token.clone());
+                }
+                token.token_name = '\"'.to_string();
+                token.starting_column = j as u32;
+                is_string = true;
+            } else if char != ' ' {
                 if token.token_name.is_empty() {
                     token.starting_column = j as u32;
                 }
