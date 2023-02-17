@@ -480,7 +480,21 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
             }
             "sge" => {}
             "sleu" => {}
-            "sgtu" => {}
+            "sgtu" => {
+                //make sure that there actually is a third operand
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+                let temp = instruction.operands[1].clone();
+                instruction.operands[1] = instruction.operands[2].clone();
+                instruction.operands[1].starting_column = temp.starting_column;
+                instruction.operands[2] = temp.clone();
+                instruction.operands[2].starting_column =
+                    temp.starting_column + temp.token_name.len() as u32 + 1;
+                instruction.operator.token_name = "sltu".to_string();
+
+
+            }
             "sgeu" => {}
             "dsubi" => {
                 //make sure that there actually is a third operand
