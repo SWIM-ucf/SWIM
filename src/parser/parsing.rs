@@ -468,37 +468,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     continue;
                 }
                 //sub the two registers to find the difference
-                let mut extra_instruction = Instruction {
-                    operator: Token {
-                        token_name: "sub".to_string(),
-                        starting_column: 0,
-                        token_type: Operator,
-                    },
-                    operands: vec![Token {
-                        token_name: instruction.operands[0].token_name.clone(),
-                        starting_column: 4,
-                        token_type: Default::default(),
-                    }],
-                    binary: 0,
-                    instruction_number: instruction.instruction_number,
-                    line_number: 0,
-                    errors: vec![],
-                    label: None,
-                };
-                extra_instruction.operands.push(Token {
-                    token_name: instruction.operands[1].token_name.clone(),
-                    starting_column: extra_instruction.operands[0].starting_column
-                        + extra_instruction.operands[0].token_name.len() as u32
-                        + 2,
-                    token_type: Default::default(),
-                });
-                extra_instruction.operands.push(Token {
-                    token_name: instruction.operands[2].token_name.clone(),
-                    starting_column: extra_instruction.operands[1].starting_column
-                        + extra_instruction.operands[1].token_name.len() as u32
-                        + 2,
-                    token_type: Default::default(),
-                });
+                let mut extra_instruction = instruction.clone();
+                extra_instruction.operator.token_name = "sub".to_string();
                 vec_of_added_instructions.push(extra_instruction);
 
                 //put a 1 in $at
@@ -533,6 +504,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 };
                 vec_of_added_instructions.push(extra_instruction_2);
 
+                //set r0 to 1 if r1 - r2 == 0
                 instruction.operator.token_name = "sltu".to_string();
                 instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
                 instruction.operands[1].starting_column = instruction.operands[0].starting_column
@@ -540,11 +512,33 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     + 2;
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].starting_column = instruction.operands[1].starting_column
-                    + instruction.operands[0].token_name.len() as u32
+                    + instruction.operands[1].token_name.len() as u32
                     + 2;
                 instruction.instruction_number += 2;
             }
-            "sne" => {}
+            "sne" => {
+                //make sure there are enough operands
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+                //sub the two registers to find the difference
+                let mut extra_instruction = instruction.clone();
+                extra_instruction.operator.token_name = "sub".to_string();
+                vec_of_added_instructions.push(extra_instruction);
+
+                //set r0 to 1 if r1 - r2 != 0
+                instruction.operator.token_name = "sltu".to_string();
+                instruction.operands[1].token_name = "$zero".to_string();
+                instruction.operands[1].starting_column = instruction.operands[0].starting_column
+                    + instruction.operands[0].token_name.len() as u32
+                    + 2;
+                instruction.operands[2].token_name = instruction.operands[0].token_name.clone();
+                instruction.operands[2].starting_column = instruction.operands[1].starting_column
+                    + instruction.operands[1].token_name.len() as u32
+                    + 2;
+                instruction.instruction_number += 1;
+
+            }
             "sle" => {}
             "sgt" => {
                 //make sure that there actually is a third operand

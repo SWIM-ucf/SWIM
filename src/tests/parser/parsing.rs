@@ -1536,3 +1536,82 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_seq() {
         }
     );
 }
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sne() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "sne $t1, $t2, $t3\nsw $t1, label".to_string();
+
+    let (lines, _comments) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "sub".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t3".to_string(),
+                    starting_column: 14,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "sltu".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 4,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    starting_column: 9,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 16,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
