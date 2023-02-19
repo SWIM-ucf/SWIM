@@ -1157,68 +1157,68 @@
 </span><span class="kw">pub struct </span>DatapathState {
     <span class="doccomment">/// *Data line.* The currently loaded instruction. Initialized after the
     /// Instruction Fetch stage.
-    </span>instruction: u32,
-    rs: u32,
-    rt: u32,
-    rd: u32,
-    shamt: u32,
-    funct: u32,
-    imm: u32,
+    </span><span class="kw">pub </span>instruction: u32,
+    <span class="kw">pub </span>rs: u32,
+    <span class="kw">pub </span>rt: u32,
+    <span class="kw">pub </span>rd: u32,
+    <span class="kw">pub </span>shamt: u32,
+    <span class="kw">pub </span>funct: u32,
+    <span class="kw">pub </span>imm: u32,
 
     <span class="doccomment">/// *Data line.* Data read from the register file based on the `rs`
     /// field of the instruction. Initialized after the Instruction
     /// Decode stage.
-    </span>read_data_1: u64,
+    </span><span class="kw">pub </span>read_data_1: u64,
 
     <span class="doccomment">/// *Data line.* Data read from the register file based on the `rt`
     /// field of the instruction. Initialized after the Instruction
     /// Decode stage.
-    </span>read_data_2: u64,
+    </span><span class="kw">pub </span>read_data_2: u64,
 
     <span class="doccomment">/// *Data line.* The instruction&#39;s immediate value sign-extended to
     /// 64 bits. Initialized after the Instruction Decode stage.
-    </span>sign_extend: u64,
+    </span><span class="kw">pub </span>sign_extend: u64,
 
     <span class="doccomment">/// *Data line.* The final result as provided by the ALU.
     /// Initialized after the Execute stage.
-    </span>alu_result: u64,
+    </span><span class="kw">pub </span>alu_result: u64,
 
     <span class="doccomment">/// *Data line.* The data retrieved from memory. Initialized after
     /// the Memory stage.
-    </span>memory_data: u64,
+    </span><span class="kw">pub </span>memory_data: u64,
 
     <span class="doccomment">/// *Data line.* The data after the `MemToReg` multiplexer, but
     /// before the `DataWrite` multiplexer in the main processor.
-    </span>data_result: u64,
+    </span><span class="kw">pub </span>data_result: u64,
 
     <span class="doccomment">/// *Data line.* The data after the `DataWrite` multiplexer in the main
     /// processor and the main processor register file.
-    </span>register_write_data: u64,
+    </span><span class="kw">pub </span>register_write_data: u64,
 
     <span class="doccomment">/// *Jump 26 bit line.* The low 26 bits of the instruction reserved
     /// for possible use by the J instruction
-    </span>lower_26: u32,
+    </span><span class="kw">pub </span>lower_26: u32,
 
     <span class="doccomment">/// *Lower 26 &lt;&lt; 2 line.* This line carries the low 28 bits for the
     /// jump address
-    </span>lower_26_shifted_left_by_2: u32,
+    </span><span class="kw">pub </span>lower_26_shifted_left_by_2: u32,
 
     <span class="doccomment">/// *Jump address line.* The line the will carry the combination of
     /// the high 4 bits and pc, and the lower_26_for_jump_line bits shifted
     /// left by 2.
-    </span>jump_address: u64,
+    </span><span class="kw">pub </span>jump_address: u64,
 
     <span class="doccomment">/// *PC + 4 line.* Yeah, just PC + 4
-    </span>pc_plus_4: u64,
+    </span><span class="kw">pub </span>pc_plus_4: u64,
 
     <span class="doccomment">/// *New PC line.* In the WB stage this line is written to registers.pc
-    </span>new_pc: u64,
+    </span><span class="kw">pub </span>new_pc: u64,
 
     <span class="doccomment">/// *Relative PC branch address line
-    </span>relative_pc_branch: u64,
+    </span><span class="kw">pub </span>relative_pc_branch: u64,
 
     <span class="doccomment">/// bla bla bal
-    </span>mem_mux1_to_mem_mux2: u64,
+    </span><span class="kw">pub </span>mem_mux1_to_mem_mux2: u64,
 }
 
 <span class="doccomment">/// The possible stages the datapath could be in during execution.

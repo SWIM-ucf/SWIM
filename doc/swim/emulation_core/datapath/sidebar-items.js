@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":[["Datapath","A generic datapath."]]};
+window.SIDEBAR_ITEMS = {"trait":[["Datapath","A generic datapath."],["VisualDatapath","A datapath that supports a visual diagram component."]]};

@@ -241,6 +241,20 @@
 <a href="#241" id="241">241</a>
 <a href="#242" id="242">242</a>
 <a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attr">#[cfg(test)]
@@ -342,6 +356,19 @@
         )
     };
 
+    <span class="kw">let </span>on_execute_stage_clicked = {
+        <span class="kw">let </span>datapath = Rc::clone(<span class="kw-2">&amp;</span>datapath);
+        <span class="kw">let </span>trigger = use_force_update();
+        use_callback(
+            <span class="kw">move </span>|<span class="kw">_</span>, <span class="kw">_</span>| {
+                <span class="kw">let </span><span class="kw-2">mut </span>datapath = (<span class="kw-2">*</span>datapath).borrow_mut();
+                (<span class="kw-2">*</span>datapath).execute_stage();
+                trigger.force_update();
+            },
+            (),
+        )
+    };
+
     <span class="comment">// This is how we will reset the datapath. This is the only method to &quot;halt&quot;
     // programs since if the user continues to execute, the whole application will
     // crash.
@@ -409,7 +436,8 @@
         &lt;div&gt;
             &lt;h1&gt;{<span class="string">&quot;Welcome to SWIM&quot;</span>}&lt;/h1&gt;
             &lt;button onclick={on_load_clicked}&gt;{ <span class="string">&quot;Assemble&quot; </span>}&lt;/button&gt;
-            &lt;button onclick={on_execute_clicked}&gt; { <span class="string">&quot;Execute&quot; </span>}&lt;/button&gt;
+            &lt;button onclick={on_execute_clicked}&gt; { <span class="string">&quot;Execute Instruction&quot; </span>}&lt;/button&gt;
+            &lt;button onclick={on_execute_stage_clicked}&gt; { <span class="string">&quot;Execute Stage&quot; </span>}&lt;/button&gt;
             &lt;button onclick={on_reset_clicked}&gt;{ <span class="string">&quot;Reset&quot; </span>}&lt;/button&gt;
             <span class="comment">// button tied to the input file element, which is hidden to be more clean
             </span>&lt;input <span class="kw">type</span>=<span class="string">&quot;button&quot; </span>value=<span class="string">&quot;Load File&quot; </span>onclick={upload_clicked_callback} /&gt;

@@ -398,6 +398,9 @@
 <a href="#398" id="398">398</a>
 <a href="#399" id="399">399</a>
 <a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
 </pre><pre class="rust"><code><span class="doccomment">//! The visual datapath component.
 //!
 //! This component operates largely in JS-land, manipulating the page&#39;s DOM directly.
@@ -471,7 +474,7 @@
                     &lt;div class=<span class="string">&quot;data&quot;</span>&gt;
                         &lt;span class=<span class="string">&quot;label&quot;</span>&gt;{ <span class="string">&quot;Value:&quot; </span>}&lt;/span&gt;
                         &lt;span class=<span class="string">&quot;code&quot;</span>&gt;{ <span class="string">&quot;[bits]&quot; </span>}&lt;/span&gt;
-                        &lt;span class=<span class="string">&quot;meaning&quot;</span>&gt;{ <span class="string">&quot;([base 10] - [register])&quot; </span>}&lt;/span&gt;
+                        &lt;span class=<span class="string">&quot;meaning&quot;</span>&gt;{ <span class="string">&quot;[base 10]&quot; </span>}&lt;/span&gt;
                     &lt;/div&gt;
                 &lt;/div&gt;
             &lt;/&gt;
@@ -479,18 +482,26 @@
     }
 
     <span class="kw">fn </span>rendered(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>Context&lt;<span class="self">Self</span>&gt;, first_render: bool) {
-        <span class="kw">let </span>current_stage = String::from(<span class="kw">match </span>ctx.props().datapath.current_stage {
-            Stage::InstructionFetch =&gt; <span class="string">&quot;instruction_fetch&quot;</span>,
-            Stage::InstructionDecode =&gt; <span class="string">&quot;instruction_decode&quot;</span>,
-            Stage::Execute =&gt; <span class="string">&quot;execute&quot;</span>,
-            Stage::Memory =&gt; <span class="string">&quot;memory&quot;</span>,
-            Stage::WriteBack =&gt; <span class="string">&quot;writeback&quot;</span>,
+        <span class="comment">// The diagram views the lines *after* the stage has executed. This is so
+        // there is actual data to view. A better way to see this is &quot;when stage X is
+        // set on the datapath, highlight the lines for stage Y.&quot; The datapath stage
+        // tells where it will start the next time &quot;execute&quot; is pressed.
+        </span><span class="kw">let </span>current_stage = String::from(<span class="kw">match </span>ctx.props().datapath.current_stage {
+            Stage::InstructionFetch =&gt; <span class="string">&quot;writeback&quot;</span>,
+            Stage::InstructionDecode =&gt; <span class="string">&quot;instruction_fetch&quot;</span>,
+            Stage::Execute =&gt; <span class="string">&quot;instruction_decode&quot;</span>,
+            Stage::Memory =&gt; <span class="string">&quot;execute&quot;</span>,
+            Stage::WriteBack =&gt; <span class="string">&quot;memory&quot;</span>,
         });
 
         <span class="kw">if </span>first_render {
-            <span class="self">self</span>.initialize(current_stage);
+            <span class="self">self</span>.initialize();
         } <span class="kw">else </span>{
-            <span class="kw">let </span>result = <span class="self">Self</span>::highlight_stage(<span class="kw-2">&amp;</span>get_g_elements(), current_stage);
+            <span class="kw">let </span>result = <span class="self">Self</span>::highlight_stage(
+                ctx.props().datapath.clone(),
+                <span class="kw-2">&amp;</span>get_g_elements(),
+                current_stage,
+            );
 
             <span class="comment">// Capture new event listeners.
             </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(new_listeners) = result {
@@ -544,7 +555,7 @@
     /// circumvented by creating an event listener on the `&lt;object&gt;` element for the
     /// &quot;load&quot; event, which will guarantee when that virtual DOM is actually ready
     /// to be manipulated.
-    </span><span class="kw">pub fn </span>initialize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, current_stage: String) {
+    </span><span class="kw">pub fn </span>initialize(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span>on_load = Callback::from(<span class="kw">move </span>|<span class="kw">_</span>| {
             <span class="kw">let </span>nodes = get_g_elements();
 
@@ -573,23 +584,11 @@
                     });
                 }
             });
-
-            <span class="self">Self</span>::highlight_stage(<span class="kw-2">&amp;</span>nodes, current_stage.clone())
         });
-
-        <span class="kw">let </span>active_listeners = Rc::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.active_listeners);
 
         <span class="comment">// Attach the on load listener.
         </span><span class="kw">let </span>on_load_listener = EventListener::new(<span class="kw-2">&amp;</span>get_datapath_root(), <span class="string">&quot;load&quot;</span>, <span class="kw">move </span>|event| {
-            <span class="kw">let </span>result = on_load.emit(event.clone());
-
-            <span class="comment">// Capture the new event listeners.
-            </span><span class="kw">let </span><span class="kw-2">mut </span>active_listeners = (<span class="kw-2">*</span>active_listeners).borrow_mut();
-            <span class="kw">if let </span><span class="prelude-val">Ok</span>(new_listeners) = result {
-                <span class="kw">for </span>l <span class="kw">in </span>new_listeners {
-                    (<span class="kw-2">*</span>active_listeners).push(l);
-                }
-            }
+            on_load.emit(event.clone());
         });
 
         <span class="comment">// Capture the &quot;load&quot; event listener.
@@ -616,6 +615,7 @@
     /// If successful, returns a [`Vec&lt;EventListener&gt;`] containing the new event
     /// listeners generated.
     </span><span class="kw">pub fn </span>highlight_stage(
+        datapath: MipsDatapath,
         nodes: <span class="kw-2">&amp;</span>HtmlCollection,
         stage: String,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;EventListener&gt;, JsValue&gt; {
@@ -626,7 +626,7 @@
                 <span class="comment">// Do nothing if the line has no defined stage.
             </span>} <span class="kw">else if </span>element.get_attribute(<span class="string">&quot;data-stage&quot;</span>).unwrap() == stage {
                 <span class="comment">// This is an element we want. Highlight it.
-                </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(listeners) = <span class="self">Self</span>::activate_element(element) {
+                </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(listeners) = <span class="self">Self</span>::activate_element(datapath.clone(), element) {
                     <span class="kw">for </span>l <span class="kw">in </span>listeners {
                         active_listeners.push(l);
                     }
@@ -643,7 +643,10 @@
     <span class="doccomment">/// Activates a given `&lt;g&gt;` element.
     ///
     /// If successful, returns a [`Vec&lt;EventListener&gt;`] containing the newly created event listeners.
-    </span><span class="kw">pub fn </span>activate_element(element: <span class="kw-2">&amp;</span>Element) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;EventListener&gt;, JsValue&gt; {
+    </span><span class="kw">pub fn </span>activate_element(
+        datapath: MipsDatapath,
+        element: <span class="kw-2">&amp;</span>Element,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;EventListener&gt;, JsValue&gt; {
         <span class="comment">// Callback to execute if a line is hovered over.
         </span><span class="kw">let </span>on_mouseover = Callback::from(<span class="kw">move </span>|event: web_sys::Event| {
             <span class="kw">let </span>event = event.unchecked_into::&lt;MouseEvent&gt;();
@@ -651,14 +654,17 @@
             <span class="comment">// Get relevant elements.
             </span><span class="kw">let </span>target = event.target().unwrap().unchecked_into::&lt;HtmlElement&gt;();
             <span class="kw">let </span>popup = get_popup_element();
-            <span class="kw">let </span>title = popup.query_selector(<span class="string">&quot;.title&quot;</span>).unwrap().unwrap();
             <span class="kw">let </span>datapath_position = get_datapath_position();
 
             <span class="self">Self</span>::set_active_hovered(<span class="kw-2">&amp;</span>target).ok();
 
             <span class="comment">// Show popup.
-            </span><span class="kw">let </span>element_id = target.parent_element().unwrap().id();
-            title.set_text_content(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>element_id));
+            </span><span class="kw">let </span>variable = target
+                .parent_element()
+                .unwrap()
+                .get_attribute(<span class="string">&quot;data-variable&quot;</span>)
+                .unwrap_or_default();
+            populate_popup_information(<span class="kw-2">&amp;</span>datapath, <span class="kw-2">&amp;</span>variable);
             popup.style().set_property(<span class="string">&quot;display&quot;</span>, <span class="string">&quot;block&quot;</span>).ok();
             popup
                 .style()
