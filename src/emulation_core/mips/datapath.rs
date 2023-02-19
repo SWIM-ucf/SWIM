@@ -100,29 +100,29 @@ pub struct DatapathState {
     pub register_write_data: u64,
 
     /// *Jump 26 bit line.* The low 26 bits of the instruction reserved
-    /// for possible use by the J instruction
+    /// for possible use by a J-type instruction.
     pub lower_26: u32,
 
-    /// *Lower 26 << 2 line.* This line carries the low 28 bits for the
-    /// jump address
+    /// *Lower 26 << 2 line.* This line carries the low 28 bits of the
+    /// jump address.
     pub lower_26_shifted_left_by_2: u32,
 
-    /// *Jump address line.* The line the will carry the combination of
-    /// the high 4 bits and pc, and the lower_26_for_jump_line bits shifted
-    /// left by 2.
+    /// *Jump address line.* This lines carries the concatenation of
+    /// the high 36 bits of the PC, and `lower_26_shifted_left_by_2`.
     pub jump_address: u64,
 
-    /// *PC + 4 line.* Yeah, just PC + 4
+    /// *Data line.* Contains PC + 4.
     pub pc_plus_4: u64,
 
-    /// *New PC line.* In the WB stage this line is written to registers.pc
-    pub new_pc: u64,
-
-    /// *Relative PC branch address line
+    /// *Data line.* New PC value used if branching is set for an instruction.
     pub relative_pc_branch: u64,
 
-    /// bla bla bal
+    /// *Data line.* Determines the next value of the PC, given that the
+    /// current instruction is not a jump.
     pub mem_mux1_to_mem_mux2: u64,
+
+    /// *New PC line.* In the WB stage, this line is written to the PC.
+    pub new_pc: u64,
 }
 
 /// The possible stages the datapath could be in during execution.
