@@ -828,6 +828,10 @@ impl MipsDatapath {
     /// Set the control signals for the datapath based on the
     /// instruction's opcode.
     fn set_control_signals(&mut self) {
+        // Restore default behavior for this instruction, should OverflowWriteBlock
+        // have been set from a previous instruction.
+        self.signals.overflow_write_block = OverflowWriteBlock::NoBlock;
+
         match self.instruction {
             Instruction::RType(r) => {
                 self.set_rtype_control_signals(r);
