@@ -41,7 +41,7 @@ use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 
 /// An implementation of a datapath for the MIPS64 ISA.
-#[derive(Default, PartialEq, Clone)]
+#[derive(PartialEq, Clone)]
 pub struct MipsDatapath {
     pub registers: GpRegisters,
     pub memory: Memory,
@@ -154,6 +154,27 @@ impl Stage {
 /// present, this is the equivalent of `panic!()`.
 pub fn error(message: &str) {
     panic!("{}", message);
+}
+
+impl Default for MipsDatapath {
+    fn default() -> Self {
+        let mut datapath = MipsDatapath {
+            registers: GpRegisters::default(),
+            memory: Memory::default(),
+            coprocessor: MipsFpCoprocessor::default(),
+            instruction: Instruction::default(),
+            signals: ControlSignals::default(),
+            datapath_signals: DatapathSignals::default(),
+            state: DatapathState::default(),
+            current_stage: Stage::default(),
+        };
+
+        // Set the stack pointer ($sp) to initially start at the end
+        // of memory.
+        datapath.registers.gpr[29] = super::memory::CAPACITY_BYTES as u64;
+
+        datapath
+    }
 }
 
 impl Datapath for MipsDatapath {
