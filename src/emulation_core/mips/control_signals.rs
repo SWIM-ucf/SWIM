@@ -262,7 +262,8 @@ pub enum RegDst {
     #[default]
     Reg3 = 2,
 
-    // Write to return register, used by JAL
+    /// Write to general-purpose register 31 ($ra). This is the return address
+    /// used in `jal` instructions.
     ReturnRegister = 3,
 }
 
