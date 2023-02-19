@@ -372,56 +372,65 @@ pub mod floating_point {
     ///
     /// Only one of these units are effectively utilized in any given instruction.
     ///
-    /// The fourth bit of the control signal represents either a single-precision
+    /// The fifth bit of the control signal represents either a single-precision
     /// floating-point operation (0), or a double-precision floating-point operation (1).
-    /// This fourth bit is determined by [`FpuRegWidth`].
+    /// This fifth bit is determined by [`FpuRegWidth`].
+    ///
+    /// *Implementation note:* The bits set for the comparator are intended to match
+    /// the bits used in the `cond` field of a `c.cond.fmt` instruction.
     #[derive(Clone, Default, PartialEq)]
     pub enum FpuAluOp {
         #[default]
-        /// `_000` (0):
+        /// `_0000` (0):
         /// - ALU: Perform an addition.
-        /// - Comparator: Set if equal.
-        AdditionOrEqual = 0,
+        Addition = 0,
 
-        /// `_001` (1):
+        /// `_0001` (1):
         /// - ALU: Perform a subtraction.
         Subtraction = 1,
 
-        /// `_010` (2):
+        /// `_0010` (2):
         /// - ALU: Perform a multiplication.
-        /// - Comparator: Set if less than.
-        MultiplicationOrSlt = 2,
+        /// - Comparator: Set if equal.
+        MultiplicationOrEqual = 2,
 
-        /// `_011` (3):
+        /// `_0011` (3):
         /// - ALU: Perform a division.
-        /// - Comparator: Set if less than or equal.
-        DivisionOrSle = 3,
+        Division = 3,
 
-        /// `_100` (4):
+        /// `_0100` (4):
         /// - ALU: Perform an "AND" operation.
         And = 4,
 
-        /// `_101` (5):
+        /// `_0101` (5):
         /// - ALU: Perform an "OR" operation.
         Or = 5,
 
-        /// `_110` (6):
-        /// - Comparator: Set if not greater than.
-        Sngt = 6,
+        /// `_1100` (12):
+        /// - Comparator: Set if less than.
+        Slt = 12,
 
-        /// `_111` (7):
+        /// `_1101` (13):
         /// - Comparator: Set if not greater than or equal.
-        Snge = 7,
+        Snge = 13,
+
+        /// `_1110` (14):
+        /// - Comparator: Set if less than or equal.
+        Sle = 14,
+
+        /// `_1111` (15):
+        /// - Comparator: Set if not greater than.
+        Sngt = 15,
     }
 
     impl FpuAluOp {
         /// Get the corresponding control signal given a function code.
         pub fn from_function(function: u8) -> Self {
             match function {
-                FUNCTION_C_EQ => Self::AdditionOrEqual,
-                FUNCTION_C_LT => Self::MultiplicationOrSlt,
+                FUNCTION_C_EQ => Self::MultiplicationOrEqual,
+                FUNCTION_C_LT => Self::Slt,
                 FUNCTION_C_NGE => Self::Snge,
-                FUNCTION_C_LE => Self::DivisionOrSle,
+                FUNCTION_C_LE => Self::Sle,
                 FUNCTION_C_NGT => Self::Sngt,
                 _ => panic!("Unsupported function code `{function}`"),
             }
