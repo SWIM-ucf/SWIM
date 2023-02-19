@@ -149,11 +149,18 @@ pub enum Branch {
     YesBranch = 1,
 }
 
-/// For deciding to branch on AluZ == YesZero or AluZ == NotZero
+/// Determines, given [`Branch`] is set, whether to branch when the [`AluZ`](super::datapath_signals::AluZ) signal is set,
+/// or when [`AluZ`](super::datapath_signals::AluZ) is not set.
+///
+/// In effect, this decides whether or not to invert the [`AluZ`](super::datapath_signals::AluZ) signal, which is
+/// used between the `beq` and `bne` instructions.
 #[derive(Clone, Default, PartialEq)]
 pub enum BranchType {
+    /// Branch based on [`AluZ`](super::datapath_signals::AluZ). (Used in `beq`.)
     #[default]
     OnEqual = 0,
+
+    /// Branch based on the inverse of [`AluZ`](super::datapath_signals::AluZ). (Used in `bne`.)
     OnNotEqual = 1,
 }
 
