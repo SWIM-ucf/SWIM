@@ -1102,11 +1102,9 @@ impl MipsDatapath {
         self.registers.gpr[destination] = self.state.register_write_data;
     }
 
-    /// Update the program counter register. At the moment, this only
-    /// increments the PC by 4 and does not support branching or
-    /// jumping.
+    /// Update the program counter register.
     ///
-    /// This function is called from the WB stage
+    /// This function is called from the WB stage.
     fn set_pc(&mut self) {
         self.registers.pc = self.state.new_pc;
     }
