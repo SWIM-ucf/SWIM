@@ -53,68 +53,68 @@ pub struct MipsDatapath {
 pub struct DatapathState {
     /// *Data line.* The currently loaded instruction. Initialized after the
     /// Instruction Fetch stage.
-    instruction: u32,
-    rs: u32,
-    rt: u32,
-    rd: u32,
-    shamt: u32,
-    funct: u32,
-    imm: u32,
+    pub instruction: u32,
+    pub rs: u32,
+    pub rt: u32,
+    pub rd: u32,
+    pub shamt: u32,
+    pub funct: u32,
+    pub imm: u32,
 
     /// *Data line.* Data read from the register file based on the `rs`
     /// field of the instruction. Initialized after the Instruction
     /// Decode stage.
-    read_data_1: u64,
+    pub read_data_1: u64,
 
     /// *Data line.* Data read from the register file based on the `rt`
     /// field of the instruction. Initialized after the Instruction
     /// Decode stage.
-    read_data_2: u64,
+    pub read_data_2: u64,
 
     /// *Data line.* The instruction's immediate value sign-extended to
     /// 64 bits. Initialized after the Instruction Decode stage.
-    sign_extend: u64,
+    pub sign_extend: u64,
 
     /// *Data line.* The final result as provided by the ALU.
     /// Initialized after the Execute stage.
-    alu_result: u64,
+    pub alu_result: u64,
 
     /// *Data line.* The data retrieved from memory. Initialized after
     /// the Memory stage.
-    memory_data: u64,
+    pub memory_data: u64,
 
     /// *Data line.* The data after the `MemToReg` multiplexer, but
     /// before the `DataWrite` multiplexer in the main processor.
-    data_result: u64,
+    pub data_result: u64,
 
     /// *Data line.* The data after the `DataWrite` multiplexer in the main
     /// processor and the main processor register file.
-    register_write_data: u64,
+    pub register_write_data: u64,
 
     /// *Jump 26 bit line.* The low 26 bits of the instruction reserved
     /// for possible use by the J instruction
-    lower_26: u32,
+    pub lower_26: u32,
 
     /// *Lower 26 << 2 line.* This line carries the low 28 bits for the
     /// jump address
-    lower_26_shifted_left_by_2: u32,
+    pub lower_26_shifted_left_by_2: u32,
 
     /// *Jump address line.* The line the will carry the combination of
     /// the high 4 bits and pc, and the lower_26_for_jump_line bits shifted
     /// left by 2.
-    jump_address: u64,
+    pub jump_address: u64,
 
     /// *PC + 4 line.* Yeah, just PC + 4
-    pc_plus_4: u64,
+    pub pc_plus_4: u64,
 
     /// *New PC line.* In the WB stage this line is written to registers.pc
-    new_pc: u64,
+    pub new_pc: u64,
 
     /// *Relative PC branch address line
-    relative_pc_branch: u64,
+    pub relative_pc_branch: u64,
 
     /// bla bla bal
-    mem_mux1_to_mem_mux2: u64,
+    pub mem_mux1_to_mem_mux2: u64,
 }
 
 /// The possible stages the datapath could be in during execution.

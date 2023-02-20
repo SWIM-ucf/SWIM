@@ -3,6 +3,7 @@
   position: absolute;
   background-color: #333333;
   padding: 10px;
+  max-width: 430px;
 }
 
 #popup .title, #popup .description, #popup .data {
@@ -28,6 +29,18 @@
   font-weight: bold;
 }
 
+#popup .data .label::after {
+  content: ' ';
+}
+
 #popup .data .code {
   font-family: 'Iosevka', 'Fira Code', monospace;
+}
+
+#popup .data .meaning::before {
+  content: ' (';
+}
+
+#popup .data .meaning::after {
+  content: ')';
 }

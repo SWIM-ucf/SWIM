@@ -71,7 +71,7 @@ impl Component for VisualDatapath {
                     <div class="data">
                         <span class="label">{ "Value:" }</span>
                         <span class="code">{ "[bits]" }</span>
-                        <span class="meaning">{ "([base 10] - [register])" }</span>
+                        <span class="meaning">{ "[base 10]" }</span>
                     </div>
                 </div>
             </>
@@ -79,18 +79,26 @@ impl Component for VisualDatapath {
     }
 
     fn rendered(&mut self, ctx: &Context<Self>, first_render: bool) {
+        // The diagram views the lines *after* the stage has executed. This is so
+        // there is actual data to view. A better way to see this is "when stage X is
+        // set on the datapath, highlight the lines for stage Y." The datapath stage
+        // tells where it will start the next time "execute" is pressed.
         let current_stage = String::from(match ctx.props().datapath.current_stage {
-            Stage::InstructionFetch => "instruction_fetch",
-            Stage::InstructionDecode => "instruction_decode",
-            Stage::Execute => "execute",
-            Stage::Memory => "memory",
-            Stage::WriteBack => "writeback",
+            Stage::InstructionFetch => "writeback",
+            Stage::InstructionDecode => "instruction_fetch",
+            Stage::Execute => "instruction_decode",
+            Stage::Memory => "execute",
+            Stage::WriteBack => "memory",
         });
 
         if first_render {
-            self.initialize(current_stage);
+            self.initialize();
         } else {
-            let result = Self::highlight_stage(&get_g_elements(), current_stage);
+            let result = Self::highlight_stage(
+                ctx.props().datapath.clone(),
+                &get_g_elements(),
+                current_stage,
+            );
 
             // Capture new event listeners.
             if let Ok(new_listeners) = result {
@@ -144,7 +152,7 @@ impl VisualDatapath {
     /// circumvented by creating an event listener on the `<object>` element for the
     /// "load" event, which will guarantee when that virtual DOM is actually ready
     /// to be manipulated.
-    pub fn initialize(&mut self, current_stage: String) {
+    pub fn initialize(&mut self) {
         let on_load = Callback::from(move |_| {
             let nodes = get_g_elements();
 
@@ -173,23 +181,11 @@ impl VisualDatapath {
                     });
                 }
             });
-
-            Self::highlight_stage(&nodes, current_stage.clone())
         });
-
-        let active_listeners = Rc::clone(&self.active_listeners);
 
         // Attach the on load listener.
         let on_load_listener = EventListener::new(&get_datapath_root(), "load", move |event| {
-            let result = on_load.emit(event.clone());
-
-            // Capture the new event listeners.
-            let mut active_listeners = (*active_listeners).borrow_mut();
-            if let Ok(new_listeners) = result {
-                for l in new_listeners {
-                    (*active_listeners).push(l);
-                }
-            }
+            on_load.emit(event.clone());
         });
 
         // Capture the "load" event listener.
@@ -216,6 +212,7 @@ impl VisualDatapath {
     /// If successful, returns a [`Vec<EventListener>`] containing the new event
     /// listeners generated.
     pub fn highlight_stage(
+        datapath: MipsDatapath,
         nodes: &HtmlCollection,
         stage: String,
     ) -> Result<Vec<EventListener>, JsValue> {
@@ -226,7 +223,7 @@ impl VisualDatapath {
                 // Do nothing if the line has no defined stage.
             } else if element.get_attribute("data-stage").unwrap() == stage {
                 // This is an element we want. Highlight it.
-                if let Ok(listeners) = Self::activate_element(element) {
+                if let Ok(listeners) = Self::activate_element(datapath.clone(), element) {
                     for l in listeners {
                         active_listeners.push(l);
                     }
@@ -243,7 +240,10 @@ impl VisualDatapath {
     /// Activates a given `<g>` element.
     ///
     /// If successful, returns a [`Vec<EventListener>`] containing the newly created event listeners.
-    pub fn activate_element(element: &Element) -> Result<Vec<EventListener>, JsValue> {
+    pub fn activate_element(
+        datapath: MipsDatapath,
+        element: &Element,
+    ) -> Result<Vec<EventListener>, JsValue> {
         // Callback to execute if a line is hovered over.
         let on_mouseover = Callback::from(move |event: web_sys::Event| {
             let event = event.unchecked_into::<MouseEvent>();
@@ -251,14 +251,17 @@ impl VisualDatapath {
             // Get relevant elements.
             let target = event.target().unwrap().unchecked_into::<HtmlElement>();
             let popup = get_popup_element();
-            let title = popup.query_selector(".title").unwrap().unwrap();
             let datapath_position = get_datapath_position();
 
             Self::set_active_hovered(&target).ok();
 
             // Show popup.
-            let element_id = target.parent_element().unwrap().id();
-            title.set_text_content(Some(&element_id));
+            let variable = target
+                .parent_element()
+                .unwrap()
+                .get_attribute("data-variable")
+                .unwrap_or_default();
+            populate_popup_information(&datapath, &variable);
             popup.style().set_property("display", "block").ok();
             popup
                 .style()

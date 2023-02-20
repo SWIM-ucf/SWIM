@@ -49,3 +49,16 @@ pub trait Datapath {
     /// Restore the datapath to its default state.
     fn reset(&mut self);
 }
+
+/// A datapath that supports a visual diagram component.
+///
+/// This requires a corresponding visual diagram with labels that can be mapped
+/// to the datapath.
+pub trait VisualDatapath {
+    /// The information about a piece of the diagram that is returned from the datapath.
+    type LineInformation;
+
+    /// Return the information from the datapath corresponding to the `variable` attribute on a
+    /// part of the visual datapath diagram.
+    fn visual_line_to_data(&self, variable: &str) -> Self::LineInformation;
+}
