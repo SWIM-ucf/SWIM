@@ -1694,36 +1694,37 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sle() {
         }
     );
 
-    assert_eq!(   program_info.instructions[2],
-                  Instruction {
-                      operator: Token {
-                          token_name: "andi".to_string(),
-                          starting_column: 0,
-                          token_type: Operator,
-                      },
-                      operands: vec![
-                          Token {
-                              token_name: "$t1".to_string(),
-                              starting_column: 5,
-                              token_type: Default::default(),
-                          },
-                          Token {
-                              token_name: "$t1".to_string(),
-                              starting_column: 10,
-                              token_type: Default::default(),
-                          },
-                          Token {
-                              token_name: "1".to_string(),
-                              starting_column: 15,
-                              token_type: Default::default(),
-                          }
-                      ],
-                      binary: 0,
-                      instruction_number: 2,
-                      line_number: 0,
-                      errors: vec![],
-                      label: None,
-                  }
+    assert_eq!(
+        program_info.instructions[2],
+        Instruction {
+            operator: Token {
+                token_name: "andi".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 5,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 10,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "1".to_string(),
+                    starting_column: 15,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 2,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
     );
 }
 
@@ -1805,36 +1806,37 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sleu() {
         }
     );
 
-    assert_eq!(   program_info.instructions[2],
-                  Instruction {
-                      operator: Token {
-                          token_name: "andi".to_string(),
-                          starting_column: 0,
-                          token_type: Operator,
-                      },
-                      operands: vec![
-                          Token {
-                              token_name: "$t1".to_string(),
-                              starting_column: 5,
-                              token_type: Default::default(),
-                          },
-                          Token {
-                              token_name: "$t1".to_string(),
-                              starting_column: 10,
-                              token_type: Default::default(),
-                          },
-                          Token {
-                              token_name: "1".to_string(),
-                              starting_column: 15,
-                              token_type: Default::default(),
-                          }
-                      ],
-                      binary: 0,
-                      instruction_number: 2,
-                      line_number: 0,
-                      errors: vec![],
-                      label: None,
-                  }
+    assert_eq!(
+        program_info.instructions[2],
+        Instruction {
+            operator: Token {
+                token_name: "andi".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 5,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 10,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "1".to_string(),
+                    starting_column: 15,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 2,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
     );
 }
 
@@ -1916,36 +1918,37 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sge() {
         }
     );
 
-    assert_eq!(   program_info.instructions[2],
-                  Instruction {
-                      operator: Token {
-                          token_name: "andi".to_string(),
-                          starting_column: 0,
-                          token_type: Operator,
-                      },
-                      operands: vec![
-                          Token {
-                              token_name: "$t1".to_string(),
-                              starting_column: 5,
-                              token_type: Default::default(),
-                          },
-                          Token {
-                              token_name: "$t1".to_string(),
-                              starting_column: 10,
-                              token_type: Default::default(),
-                          },
-                          Token {
-                              token_name: "1".to_string(),
-                              starting_column: 15,
-                              token_type: Default::default(),
-                          }
-                      ],
-                      binary: 0,
-                      instruction_number: 2,
-                      line_number: 0,
-                      errors: vec![],
-                      label: None,
-                  }
+    assert_eq!(
+        program_info.instructions[2],
+        Instruction {
+            operator: Token {
+                token_name: "andi".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 5,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 10,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "1".to_string(),
+                    starting_column: 15,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 2,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
     );
 }
 
@@ -2027,35 +2030,36 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
         }
     );
 
-    assert_eq!(   program_info.instructions[2],
-                  Instruction {
-                      operator: Token {
-                          token_name: "andi".to_string(),
-                          starting_column: 0,
-                          token_type: Operator,
-                      },
-                      operands: vec![
-                          Token {
-                              token_name: "$t1".to_string(),
-                              starting_column: 5,
-                              token_type: Default::default(),
-                          },
-                          Token {
-                              token_name: "$t1".to_string(),
-                              starting_column: 10,
-                              token_type: Default::default(),
-                          },
-                          Token {
-                              token_name: "1".to_string(),
-                              starting_column: 15,
-                              token_type: Default::default(),
-                          }
-                      ],
-                      binary: 0,
-                      instruction_number: 2,
-                      line_number: 0,
-                      errors: vec![],
-                      label: None,
-                  }
+    assert_eq!(
+        program_info.instructions[2],
+        Instruction {
+            operator: Token {
+                token_name: "andi".to_string(),
+                starting_column: 0,
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 5,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    starting_column: 10,
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "1".to_string(),
+                    starting_column: 15,
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 2,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
     );
 }

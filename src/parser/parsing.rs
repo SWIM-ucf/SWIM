@@ -450,8 +450,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
                 instruction.operands[1].starting_column += 1;
                 instruction.operands[2].token_name = "1".to_string();
-                instruction.operands[2].starting_column =
-                    instruction.operands[1].starting_column + instruction.operands[1].token_name.len() as u32 + 2;
+                instruction.operands[2].starting_column = instruction.operands[1].starting_column
+                    + instruction.operands[1].token_name.len() as u32
+                    + 2;
                 instruction.instruction_number += 2;
             }
             "sleu" => {
@@ -514,8 +515,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operator.token_name = "andi".to_string();
                 instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
                 instruction.operands[2].token_name = "1".to_string();
-                instruction.operands[2].starting_column =
-                    instruction.operands[1].starting_column + instruction.operands[1].token_name.len() as u32 + 2;
+                instruction.operands[2].starting_column = instruction.operands[1].starting_column
+                    + instruction.operands[1].token_name.len() as u32
+                    + 2;
                 instruction.instruction_number += 2;
             }
             "sgt" => {
@@ -606,10 +608,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
                 instruction.operands[1].starting_column += 1;
                 instruction.operands[2].token_name = "1".to_string();
-                instruction.operands[2].starting_column =
-                    instruction.operands[1].starting_column + instruction.operands[1].token_name.len() as u32 + 2;
+                instruction.operands[2].starting_column = instruction.operands[1].starting_column
+                    + instruction.operands[1].token_name.len() as u32
+                    + 2;
                 instruction.instruction_number += 2;
-
             }
             "sgeu" => {
                 //sgeu $regA, $regB, $regC is translated to:
@@ -665,8 +667,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operator.token_name = "andi".to_string();
                 instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
                 instruction.operands[2].token_name = "1".to_string();
-                instruction.operands[2].starting_column =
-                    instruction.operands[1].starting_column + instruction.operands[1].token_name.len() as u32 + 2;
+                instruction.operands[2].starting_column = instruction.operands[1].starting_column
+                    + instruction.operands[1].token_name.len() as u32
+                    + 2;
                 instruction.instruction_number += 2;
             }
             "lw" | "sw" => {
