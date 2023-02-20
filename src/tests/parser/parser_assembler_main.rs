@@ -110,6 +110,18 @@ mod read_instructions_tests {
     }
 
     #[test]
+    fn read_instructions_aui() {
+        let file_string = "aui $t1, $t1, 43690".to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00111101001010011010101010101010
+        );
+    }
+
+    #[test]
     fn read_instructions_addi() {
         let file_string = "addi $t1, $t2, 43690".to_string();
 

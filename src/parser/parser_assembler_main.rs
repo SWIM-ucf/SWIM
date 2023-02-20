@@ -109,6 +109,11 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
 
                 read_operands(instruction, vec![RegisterGP, Immediate], vec![1, 2], None);
             }
+            "aui" => {
+                instruction.binary = append_binary(instruction.binary, 0b001111, 6);
+
+                read_operands(instruction, vec![RegisterGP, RegisterGP, Immediate], vec![2, 1, 3], None);
+            }
             "andi" => {
                 instruction.binary = append_binary(instruction.binary, 0b001100, 6);
 
@@ -638,10 +643,18 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                 );
             }
 
-            _ => instruction.errors.push(Error {
-                error_name: UnrecognizedInstruction,
-                operand_number: None,
-            }),
+            _ => {
+                let _unsupported_instructions = ["abs.s", "abs.d", "abs.ps", "addiu", "addiupc", "addu", "align", "dalign", "alnv.ps", "aluipc",
+                    ""];
+
+
+
+                instruction.errors.push(Error {
+                    error_name: UnrecognizedInstruction,
+                    operand_number: None,
+                });
+
+            }
         }
     }
 }
