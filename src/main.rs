@@ -32,8 +32,12 @@ fn app() -> Html {
     let language = String::from("mips");
 
     let mut switch_view = 0;
-    true.then(|| { switch_view += 1; });
-    false.then(|| { switch_view += 1; });
+    true.then(|| {
+        switch_view += 1;
+    });
+    false.then(|| {
+        switch_view += 1;
+    });
 
     // This is the initial text model with default text contents. The
     // use_state_eq hook is created so that the component can be updated
@@ -123,7 +127,7 @@ fn app() -> Html {
     // Currently, it is tied to a button with placeholder text. The goal is to have
     // this action take place when the Text Model changes and output the messages provided
     // by the parser.
-    let on_error_clicked = {
+    /*let on_error_clicked = {
         let parser_text_output = parser_text_output.clone();
         use_callback(
             move |_, _| {
@@ -131,7 +135,7 @@ fn app() -> Html {
             },
             (),
         )
-    };
+    };*/
 
     // datapath.coprocessor.fpr
 
@@ -182,7 +186,15 @@ fn app() -> Html {
                         <button onclick={on_reset_clicked}>{ "Reset" }</button>
                         <input type="button" value="Load File" onclick={upload_clicked_callback} />
                         <SwimEditor text_model={(*text_model).borrow().clone()} />
-                        <button onclick={on_error_clicked}>{ "Click" }</button>
+                        //<button onclick={on_error_clicked}>{ "Click" }</button>
+                        <div class="tab">
+                            <button class="tablinks" style="width: 10%;"
+                            >{"Console"}</button>
+                            <button class="tablinks" style="width: 10%;"
+                            >{"Datapath"}</button>
+                            <button class="tablinks" style="width: 10%;"
+                            >{"Memory"}</button>
+                        </div>
                         <Console parsermsg={(*parser_text_output).clone()}/>
                     </div>
                     // Pass in register data from emu core
