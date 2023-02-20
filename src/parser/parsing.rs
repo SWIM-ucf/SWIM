@@ -301,6 +301,377 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     token_type: Default::default(),
                 });
             }
+            "seq" => {
+                //seq $regA, $regB, $regC turns into:
+                //sub $regA, $regB, $regC
+                //ori $at, $zero, 1
+                //sltu $regA, $regA, $at
+
+                //make sure there are enough operands
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+                //sub the two registers to find the difference
+                let mut extra_instruction = instruction.clone();
+                extra_instruction.operator.token_name = "sub".to_string();
+                extra_instruction.line_number = 0;
+                vec_of_added_instructions.push(extra_instruction);
+
+                //put a 1 in $at
+                let extra_instruction_2 = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        starting_column: 0,
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "$at".to_string(),
+                            starting_column: 4,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "$zero".to_string(),
+                            starting_column: 9,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "1".to_string(),
+                            starting_column: 16,
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: 0,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction_2);
+
+                //set r0 to 1 if r1 - r2 == 0
+                instruction.operator.token_name = "sltu".to_string();
+                instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
+                instruction.operands[1].starting_column = instruction.operands[0].starting_column
+                    + instruction.operands[0].token_name.len() as u32
+                    + 2;
+                instruction.operands[2].token_name = "$at".to_string();
+                instruction.operands[2].starting_column = instruction.operands[1].starting_column
+                    + instruction.operands[1].token_name.len() as u32
+                    + 2;
+                instruction.instruction_number += 2;
+            }
+            "sne" => {
+                //sne $regA, $regB, $regC turns into:
+                //sub $regA, $regB, $regC
+                //sltu $regA, $zero, $regA
+
+                //make sure there are enough operands
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+                //sub the two registers to find the difference
+                let mut extra_instruction = instruction.clone();
+                extra_instruction.operator.token_name = "sub".to_string();
+                extra_instruction.line_number = 0;
+                vec_of_added_instructions.push(extra_instruction);
+
+                //set r0 to 1 if r1 - r2 != 0
+                instruction.operator.token_name = "sltu".to_string();
+                instruction.operands[1].token_name = "$zero".to_string();
+                instruction.operands[1].starting_column = instruction.operands[0].starting_column
+                    + instruction.operands[0].token_name.len() as u32
+                    + 2;
+                instruction.operands[2].token_name = instruction.operands[0].token_name.clone();
+                instruction.operands[2].starting_column = instruction.operands[1].starting_column
+                    + instruction.operands[1].token_name.len() as u32
+                    + 2;
+                instruction.instruction_number += 1;
+            }
+            "sle" => {
+                //sle $regA, $regB, $regC is translated to:
+                // slt $regA, $regC, $regB
+                // addi $regA, $regA, 1
+                // andi $regA, $regA, 1
+
+                //make sure there are enough operands
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+
+                //slt
+                let mut extra_instruction = instruction.clone();
+                let temp = extra_instruction.operands[1].clone();
+                extra_instruction.operands[1] = extra_instruction.operands[2].clone();
+                extra_instruction.operands[1].starting_column = temp.starting_column;
+                extra_instruction.operands[2] = temp.clone();
+                extra_instruction.operands[2].starting_column =
+                    temp.starting_column + temp.token_name.len() as u32 + 2;
+                extra_instruction.operator.token_name = "slt".to_string();
+                extra_instruction.line_number = 0;
+                vec_of_added_instructions.push(extra_instruction);
+
+                //addi
+                let extra_instruction_2 = Instruction {
+                    operator: Token {
+                        token_name: "addi".to_string(),
+                        starting_column: 0,
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: instruction.operands[0].token_name.clone(),
+                            starting_column: 5,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[0].token_name.clone(),
+                            starting_column: (instruction.operands[0].token_name.len() + 7) as u32,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "1".to_string(),
+                            starting_column: (instruction.operands[0].token_name.len() * 2 + 9)
+                                as u32,
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: 0,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction_2);
+
+                //andi
+                instruction.operator.token_name = "andi".to_string();
+                instruction.operands[0].starting_column += 1;
+                instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
+                instruction.operands[1].starting_column += 1;
+                instruction.operands[2].token_name = "1".to_string();
+                instruction.operands[2].starting_column = instruction.operands[1].starting_column
+                    + instruction.operands[1].token_name.len() as u32
+                    + 2;
+                instruction.instruction_number += 2;
+            }
+            "sleu" => {
+                //sleu $regA, $regB, $regC is translated to:
+                // sltu $regA, $regC, $regB
+                // addi $regA, $regA, 1
+                // andi $regA, $regA, 1
+
+                //make sure there are enough operands
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+
+                //sltu
+                let mut extra_instruction = instruction.clone();
+                let temp = extra_instruction.operands[1].clone();
+                extra_instruction.operands[1] = extra_instruction.operands[2].clone();
+                extra_instruction.operands[1].starting_column = temp.starting_column;
+                extra_instruction.operands[2] = temp.clone();
+                extra_instruction.operands[2].starting_column =
+                    temp.starting_column + temp.token_name.len() as u32 + 2;
+                extra_instruction.operator.token_name = "sltu".to_string();
+                extra_instruction.line_number = 0;
+                vec_of_added_instructions.push(extra_instruction);
+
+                //addi
+                let extra_instruction_2 = Instruction {
+                    operator: Token {
+                        token_name: "addi".to_string(),
+                        starting_column: 0,
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: instruction.operands[0].token_name.clone(),
+                            starting_column: 5,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[0].token_name.clone(),
+                            starting_column: (instruction.operands[0].token_name.len() + 7) as u32,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "1".to_string(),
+                            starting_column: (instruction.operands[0].token_name.len() * 2 + 9)
+                                as u32,
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: 0,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction_2);
+
+                //andi
+                instruction.operator.token_name = "andi".to_string();
+                instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
+                instruction.operands[2].token_name = "1".to_string();
+                instruction.operands[2].starting_column = instruction.operands[1].starting_column
+                    + instruction.operands[1].token_name.len() as u32
+                    + 2;
+                instruction.instruction_number += 2;
+            }
+            "sgt" => {
+                //sgt $regA, $regB, $regC is translated to:
+                // slt $regA, $regC, $regB
+
+                //make sure that there actually is a third operand
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+                let temp = instruction.operands[1].clone();
+                instruction.operands[1] = instruction.operands[2].clone();
+                instruction.operands[1].starting_column = temp.starting_column;
+                instruction.operands[2] = temp.clone();
+                instruction.operands[2].starting_column =
+                    temp.starting_column + temp.token_name.len() as u32 + 1;
+                instruction.operator.token_name = "slt".to_string();
+            }
+            "sgtu" => {
+                //sgtu $regA, $regB, $regC is translated to:
+                // sltu $regA, $regC, $regB
+
+                //make sure that there actually is a third operand
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+                let temp = instruction.operands[1].clone();
+                instruction.operands[1] = instruction.operands[2].clone();
+                instruction.operands[1].starting_column = temp.starting_column;
+                instruction.operands[2] = temp.clone();
+                instruction.operands[2].starting_column =
+                    temp.starting_column + temp.token_name.len() as u32 + 1;
+                instruction.operator.token_name = "sltu".to_string();
+            }
+            "sge" => {
+                //sge $regA, $regB, $regC is translated to:
+                // slt $regA, $regB, $regC
+                // addi $regA, $regA, 1
+                // andi $regA, $regA, 1
+
+                //make sure there are enough operands
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+
+                //slt
+                let mut extra_instruction = instruction.clone();
+                extra_instruction.operator.token_name = "slt".to_string();
+                extra_instruction.line_number = 0;
+                vec_of_added_instructions.push(extra_instruction);
+
+                //addi
+                let extra_instruction_2 = Instruction {
+                    operator: Token {
+                        token_name: "addi".to_string(),
+                        starting_column: 0,
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: instruction.operands[0].token_name.clone(),
+                            starting_column: 5,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[0].token_name.clone(),
+                            starting_column: (instruction.operands[0].token_name.len() + 7) as u32,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "1".to_string(),
+                            starting_column: (instruction.operands[0].token_name.len() * 2 + 9)
+                                as u32,
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: 0,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction_2);
+
+                //andi
+                instruction.operator.token_name = "andi".to_string();
+                instruction.operands[0].starting_column += 1;
+                instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
+                instruction.operands[1].starting_column += 1;
+                instruction.operands[2].token_name = "1".to_string();
+                instruction.operands[2].starting_column = instruction.operands[1].starting_column
+                    + instruction.operands[1].token_name.len() as u32
+                    + 2;
+                instruction.instruction_number += 2;
+            }
+            "sgeu" => {
+                //sgeu $regA, $regB, $regC is translated to:
+                // sltu $regA, $regC, $regB
+                // addi $regA, $regA, 1
+                // andi $regA, $regA, 1
+
+                //make sure there are enough operands
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+
+                //sltu
+                let mut extra_instruction = instruction.clone();
+                extra_instruction.operator.token_name = "sltu".to_string();
+                extra_instruction.line_number = 0;
+                vec_of_added_instructions.push(extra_instruction);
+
+                //addi
+                let extra_instruction_2 = Instruction {
+                    operator: Token {
+                        token_name: "addi".to_string(),
+                        starting_column: 0,
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: instruction.operands[0].token_name.clone(),
+                            starting_column: 5,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[0].token_name.clone(),
+                            starting_column: (instruction.operands[0].token_name.len() + 7) as u32,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "1".to_string(),
+                            starting_column: (instruction.operands[0].token_name.len() * 2 + 9)
+                                as u32,
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: 0,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction_2);
+
+                //andi
+                instruction.operator.token_name = "andi".to_string();
+                instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
+                instruction.operands[2].token_name = "1".to_string();
+                instruction.operands[2].starting_column = instruction.operands[1].starting_column
+                    + instruction.operands[1].token_name.len() as u32
+                    + 2;
+                instruction.instruction_number += 2;
+            }
             "lw" | "sw" => {
                 if instruction.operands.len() > 1
                     && list_of_labels.contains(&instruction.operands[1].token_name)
@@ -377,111 +748,6 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.instruction_number += 1;
             }
-            "muli" => {
-                //make sure that there actually is a third operand
-                if instruction.operands.len() < 3 {
-                    continue;
-                }
-                let extra_instruction = Instruction {
-                    operator: Token {
-                        token_name: "ori".to_string(),
-                        starting_column: 0,
-                        token_type: Operator,
-                    },
-                    operands: vec![
-                        Token {
-                            token_name: "$at".to_string(),
-                            starting_column: 4,
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: "$zero".to_string(),
-                            starting_column: 9,
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[2].token_name.clone(),
-                            starting_column: 16,
-                            token_type: Default::default(),
-                        },
-                    ],
-                    binary: 0,
-                    instruction_number: instruction.instruction_number,
-                    line_number: 0,
-                    errors: vec![],
-                    label: None,
-                };
-                vec_of_added_instructions.push(extra_instruction);
-                //adjust subi for the added instruction
-                instruction.operator.token_name = "mul".to_string();
-                instruction.operands[0].starting_column -= 1;
-                instruction.operands[1].starting_column -= 1;
-                instruction.operands[2].starting_column -= 1;
-                instruction.operands[2].token_name = "$at".to_string();
-                instruction.instruction_number += 1;
-            }
-            "divi" => {
-                //make sure that there actually is a second operand
-                if instruction.operands.len() < 2 {
-                    continue;
-                }
-                let extra_instruction = Instruction {
-                    operator: Token {
-                        token_name: "ori".to_string(),
-                        starting_column: 0,
-                        token_type: Operator,
-                    },
-                    operands: vec![
-                        Token {
-                            token_name: "$at".to_string(),
-                            starting_column: 4,
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: "$zero".to_string(),
-                            starting_column: 9,
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[1].token_name.clone(),
-                            starting_column: 16,
-                            token_type: Default::default(),
-                        },
-                    ],
-                    binary: 0,
-                    instruction_number: instruction.instruction_number,
-                    line_number: 0,
-                    errors: vec![],
-                    label: None,
-                };
-                vec_of_added_instructions.push(extra_instruction);
-                //adjust subi for the added instruction
-                instruction.operator.token_name = "div".to_string();
-                instruction.operands[0].starting_column -= 1;
-                instruction.operands[1].starting_column -= 1;
-                instruction.operands[1].token_name = "$at".to_string();
-                instruction.instruction_number += 1;
-            }
-            "seq" => {}
-            "sne" => {}
-            "sle" => {}
-            "sgt" => {
-                //make sure that there actually is a third operand
-                if instruction.operands.len() < 3 {
-                    continue;
-                }
-                let temp = instruction.operands[1].clone();
-                instruction.operands[1] = instruction.operands[2].clone();
-                instruction.operands[1].starting_column = temp.starting_column;
-                instruction.operands[2] = temp.clone();
-                instruction.operands[2].starting_column =
-                    temp.starting_column + temp.token_name.len() as u32 + 1;
-                instruction.operator.token_name = "slt".to_string();
-            }
-            "sge" => {}
-            "sleu" => {}
-            "sgtu" => {}
-            "sgeu" => {}
             "dsubi" => {
                 //make sure that there actually is a third operand
                 if instruction.operands.len() < 3 {
@@ -519,6 +785,50 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 vec_of_added_instructions.push(extra_instruction);
                 //adjust subi for the added instruction
                 instruction.operator.token_name = "dsub".to_string();
+                instruction.operands[0].starting_column -= 1;
+                instruction.operands[1].starting_column -= 1;
+                instruction.operands[2].starting_column -= 1;
+                instruction.operands[2].token_name = "$at".to_string();
+                instruction.instruction_number += 1;
+            }
+            "dsubiu" => {}
+            "muli" => {
+                //make sure that there actually is a third operand
+                if instruction.operands.len() < 3 {
+                    continue;
+                }
+                let extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        starting_column: 0,
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "$at".to_string(),
+                            starting_column: 4,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "$zero".to_string(),
+                            starting_column: 9,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[2].token_name.clone(),
+                            starting_column: 16,
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number,
+                    line_number: 0,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction);
+                //adjust subi for the added instruction
+                instruction.operator.token_name = "mul".to_string();
                 instruction.operands[0].starting_column -= 1;
                 instruction.operands[1].starting_column -= 1;
                 instruction.operands[2].starting_column -= 1;
@@ -568,6 +878,49 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.instruction_number += 1;
             }
+            "dmuliu" => {}
+            "divi" => {
+                //make sure that there actually is a second operand
+                if instruction.operands.len() < 2 {
+                    continue;
+                }
+                let extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        starting_column: 0,
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "$at".to_string(),
+                            starting_column: 4,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "$zero".to_string(),
+                            starting_column: 9,
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[1].token_name.clone(),
+                            starting_column: 16,
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number,
+                    line_number: 0,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction);
+                //adjust subi for the added instruction
+                instruction.operator.token_name = "div".to_string();
+                instruction.operands[0].starting_column -= 1;
+                instruction.operands[1].starting_column -= 1;
+                instruction.operands[1].token_name = "$at".to_string();
+                instruction.instruction_number += 1;
+            }
             "ddivi" => {
                 //make sure that there actually is a second operand
                 if instruction.operands.len() < 2 {
@@ -610,10 +963,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[1].token_name = "$at".to_string();
                 instruction.instruction_number += 1;
             }
-            "dsubiu" => {}
-            "dmuliu" => {}
             "ddiviu" => {}
-
             _ => {}
         }
     }
