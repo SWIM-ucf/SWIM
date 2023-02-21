@@ -126,6 +126,8 @@ pub struct DatapathState {
     /// *Data line.* The instruction's immediate value sign-extended to
     /// 64 bits. Initialized after the Instruction Decode stage.
     pub sign_extend: u64,
+
+    pub write_data: u64,
 }
 
 /// The possible stages the datapath could be in during execution.
@@ -1063,7 +1065,7 @@ impl MipsDatapath {
     fn memory_write(&mut self) {
         let address = self.state.alu_result;
 
-        let write_data = match self.signals.mem_write_src {
+        self.state.write_data = match self.signals.mem_write_src {
             MemWriteSrc::PrimaryUnit => self.state.read_data_2,
             MemWriteSrc::FloatingPointUnit => self.coprocessor.get_fp_register_to_memory(),
         };
@@ -1072,10 +1074,10 @@ impl MipsDatapath {
         // control signal.
         match self.signals.reg_width {
             RegWidth::Word => {
-                self.memory.store_word(address, write_data as u32).ok();
+                self.memory.store_word(address, self.state.write_data as u32).ok();
             }
             RegWidth::DoubleWord => {
-                self.memory.store_double_word(address, write_data).ok();
+                self.memory.store_double_word(address, self.state.write_data).ok();
             }
         };
     }
