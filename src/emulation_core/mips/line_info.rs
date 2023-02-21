@@ -65,6 +65,20 @@ impl VisualDatapath for MipsDatapath {
                 bits: 5,
             },
             
+            "funct" => LineInformation {
+                title: String::from("Instruction [5-0] (funct)"),
+                description: String::from("The funct field"),
+                value: self.state.funct as u64,
+                bits: 6,
+            },
+
+            "shamt" => LineInformation {
+                title: String::from("Instruction [10-6] (shamt)"),
+                description: String::from("The shamt field"),
+                value: self.state.shamt as u64,
+                bits: 5,
+            },
+
             "imm" => LineInformation {
                 title: String::from("Instruction [15-0] (imm)"),
                 description: String::from("The imm field"),

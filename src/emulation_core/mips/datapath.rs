@@ -457,7 +457,6 @@ impl MipsDatapath {
                 self.state.imm = i.offset as u32;
             }
             Instruction::JType(i) => {
-                // self.state.lower_26 = self.state.instruction & 0x03ffffff;
                 self.state.lower_26 = i.addr;
             } // _ => unimplemented!(),
         }
