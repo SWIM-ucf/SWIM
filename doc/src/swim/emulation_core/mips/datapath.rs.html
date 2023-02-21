@@ -1102,6 +1102,37 @@
 <a href="#1102" id="1102">1102</a>
 <a href="#1103" id="1103">1103</a>
 <a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
+<a href="#1106" id="1106">1106</a>
+<a href="#1107" id="1107">1107</a>
+<a href="#1108" id="1108">1108</a>
+<a href="#1109" id="1109">1109</a>
+<a href="#1110" id="1110">1110</a>
+<a href="#1111" id="1111">1111</a>
+<a href="#1112" id="1112">1112</a>
+<a href="#1113" id="1113">1113</a>
+<a href="#1114" id="1114">1114</a>
+<a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
+<a href="#1117" id="1117">1117</a>
+<a href="#1118" id="1118">1118</a>
+<a href="#1119" id="1119">1119</a>
+<a href="#1120" id="1120">1120</a>
+<a href="#1121" id="1121">1121</a>
+<a href="#1122" id="1122">1122</a>
+<a href="#1123" id="1123">1123</a>
+<a href="#1124" id="1124">1124</a>
+<a href="#1125" id="1125">1125</a>
+<a href="#1126" id="1126">1126</a>
+<a href="#1127" id="1127">1127</a>
+<a href="#1128" id="1128">1128</a>
+<a href="#1129" id="1129">1129</a>
+<a href="#1130" id="1130">1130</a>
+<a href="#1131" id="1131">1131</a>
+<a href="#1132" id="1132">1132</a>
+<a href="#1133" id="1133">1133</a>
+<a href="#1134" id="1134">1134</a>
+<a href="#1135" id="1135">1135</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of a MIPS64 datapath.
 //!
 //! It is assumed that while moving through stages, only one
@@ -1118,6 +1149,10 @@
 //!
 //! - There is no exception handling, including that for integer overflow. (See
 //!   [`MipsDatapath::alu()`].)
+//! - Only the `addi` and `daddi` instructions follow the proper MIPS specification
+//!   in terms of integer overflow. That is, if there is an overflow, the general-purpose
+//!   register will not be written to. `add` and `dadd` will continue to write on
+//!   overflow. `sub`, `dsub` will likewise continue to write on underflow.
 //! - 32-bit instructions are treated exclusively with 32 bits, and the upper 32
 //!   bits stored in a register are completely ignored in any of these cases. For
 //!   example, before an `add` instruction, it should be checked whether it is a
@@ -1128,6 +1163,13 @@
 //! - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
 //!   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
 //!   `bnezalc`, `beqc`, and `bovc` instructions.
+//! - Unlike the MIPS64 version 6 specification for the `jal` instruction, `PC + 4` is
+//!   stored in `GPR[31]`, *not* `PC + 8`, as there is no implementation of branch
+//!   delay slots.
+//! - The &quot;load upper immediate&quot; (`lui`) instruction is officially supported as of MIPS64
+//!   version 5. In version 6, `lui` is an assembly idiom for &quot;add upper immediate&quot; (`aui`)
+//!   with `rs` = 0. However, `aui` is not officially supported nor tested in this
+//!   datapath.
 
 </span><span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::datapath::Datapath;
 <span class="kw">use </span><span class="kw">super</span>::constants::<span class="kw-2">*</span>;
@@ -1137,7 +1179,7 @@
 <span class="kw">use super</span>::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 
 <span class="doccomment">/// An implementation of a datapath for the MIPS64 ISA.
-</span><span class="attr">#[derive(Default, PartialEq, Clone)]
+</span><span class="attr">#[derive(PartialEq, Clone)]
 </span><span class="kw">pub struct </span>MipsDatapath {
     <span class="kw">pub </span>registers: GpRegisters,
     <span class="kw">pub </span>memory: Memory,
@@ -1196,29 +1238,29 @@
     </span><span class="kw">pub </span>register_write_data: u64,
 
     <span class="doccomment">/// *Jump 26 bit line.* The low 26 bits of the instruction reserved
-    /// for possible use by the J instruction
+    /// for possible use by a J-type instruction.
     </span><span class="kw">pub </span>lower_26: u32,
 
-    <span class="doccomment">/// *Lower 26 &lt;&lt; 2 line.* This line carries the low 28 bits for the
-    /// jump address
+    <span class="doccomment">/// *Lower 26 &lt;&lt; 2 line.* This line carries the low 28 bits of the
+    /// jump address.
     </span><span class="kw">pub </span>lower_26_shifted_left_by_2: u32,
 
-    <span class="doccomment">/// *Jump address line.* The line the will carry the combination of
-    /// the high 4 bits and pc, and the lower_26_for_jump_line bits shifted
-    /// left by 2.
+    <span class="doccomment">/// *Jump address line.* This lines carries the concatenation of
+    /// the high 36 bits of the PC, and `lower_26_shifted_left_by_2`.
     </span><span class="kw">pub </span>jump_address: u64,
 
-    <span class="doccomment">/// *PC + 4 line.* Yeah, just PC + 4
+    <span class="doccomment">/// *Data line.* Contains PC + 4.
     </span><span class="kw">pub </span>pc_plus_4: u64,
 
-    <span class="doccomment">/// *New PC line.* In the WB stage this line is written to registers.pc
-    </span><span class="kw">pub </span>new_pc: u64,
-
-    <span class="doccomment">/// *Relative PC branch address line
+    <span class="doccomment">/// *Data line.* New PC value used if branching is set for an instruction.
     </span><span class="kw">pub </span>relative_pc_branch: u64,
 
-    <span class="doccomment">/// bla bla bal
+    <span class="doccomment">/// *Data line.* Determines the next value of the PC, given that the
+    /// current instruction is not a jump.
     </span><span class="kw">pub </span>mem_mux1_to_mem_mux2: u64,
+
+    <span class="doccomment">/// *New PC line.* In the WB stage, this line is written to the PC.
+    </span><span class="kw">pub </span>new_pc: u64,
 }
 
 <span class="doccomment">/// The possible stages the datapath could be in during execution.
@@ -1250,6 +1292,27 @@
 /// present, this is the equivalent of `panic!()`.
 </span><span class="kw">pub fn </span>error(message: <span class="kw-2">&amp;</span>str) {
     <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, message);
+}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>MipsDatapath {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>datapath = MipsDatapath {
+            registers: GpRegisters::default(),
+            memory: Memory::default(),
+            coprocessor: MipsFpCoprocessor::default(),
+            instruction: Instruction::default(),
+            signals: ControlSignals::default(),
+            datapath_signals: DatapathSignals::default(),
+            state: DatapathState::default(),
+            current_stage: Stage::default(),
+        };
+
+        <span class="comment">// Set the stack pointer ($sp) to initially start at the end
+        // of memory.
+        </span>datapath.registers.gpr[<span class="number">29</span>] = <span class="kw">super</span>::memory::CAPACITY_BYTES <span class="kw">as </span>u64;
+
+        datapath
+    }
 }
 
 <span class="kw">impl </span>Datapath <span class="kw">for </span>MipsDatapath {
@@ -1691,12 +1754,8 @@
                 <span class="self">self</span>.signals.reg_write = RegWrite::YesWrite;
             }
 
-            <span class="comment">// The difference between ADDI and ADDIU is on whether
-            // and exception is thrown on overflow, and on whether
-            // to write on overflow, Our emu does not impliment
-            // exceptions for now...
-            </span>OPCODE_ADDI =&gt; {
-                <span class="self">self</span>.signals.alu_op = AluOp::AddWithNoWriteOnOverFlow;
+            OPCODE_ADDI =&gt; {
+                <span class="self">self</span>.signals.alu_op = AluOp::AddWithNoWriteOnOverflow;
                 <span class="self">self</span>.signals.alu_src = AluSrc::SignExtendedImmediate;
                 <span class="self">self</span>.signals.branch = Branch::NoBranch;
                 <span class="self">self</span>.signals.imm_shift = ImmShift::Shift0;
@@ -1709,6 +1768,7 @@
                 <span class="self">self</span>.signals.reg_width = RegWidth::Word;
                 <span class="self">self</span>.signals.reg_write = RegWrite::YesWrite;
             }
+
             OPCODE_ADDIU =&gt; {
                 <span class="self">self</span>.signals.alu_op = AluOp::Addition;
                 <span class="self">self</span>.signals.alu_src = AluSrc::SignExtendedImmediate;
@@ -1725,7 +1785,7 @@
             }
 
             OPCODE_DADDI =&gt; {
-                <span class="self">self</span>.signals.alu_op = AluOp::AddWithNoWriteOnOverFlow;
+                <span class="self">self</span>.signals.alu_op = AluOp::AddWithNoWriteOnOverflow;
                 <span class="self">self</span>.signals.alu_src = AluSrc::SignExtendedImmediate;
                 <span class="self">self</span>.signals.branch = Branch::NoBranch;
                 <span class="self">self</span>.signals.imm_shift = ImmShift::Shift0;
@@ -1927,6 +1987,10 @@
     <span class="doccomment">/// Set the control signals for the datapath based on the
     /// instruction&#39;s opcode.
     </span><span class="kw">fn </span>set_control_signals(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// Restore default behavior for this instruction, should OverflowWriteBlock
+        // have been set from a previous instruction.
+        </span><span class="self">self</span>.signals.overflow_write_block = OverflowWriteBlock::NoBlock;
+
         <span class="kw">match </span><span class="self">self</span>.instruction {
             Instruction::RType(r) =&gt; {
                 <span class="self">self</span>.set_rtype_control_signals(r);
@@ -1974,7 +2038,7 @@
     </span><span class="kw">fn </span>set_alu_control(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.signals.alu_control = <span class="kw">match </span><span class="self">self</span>.signals.alu_op {
             AluOp::Addition =&gt; AluControl::Addition,
-            AluOp::AddWithNoWriteOnOverFlow =&gt; AluControl::AddWithNoWriteOnOverFlow,
+            AluOp::AddWithNoWriteOnOverflow =&gt; AluControl::AddWithNoWriteOnOverflow,
             AluOp::Subtraction =&gt; AluControl::Subtraction,
             AluOp::SetOnLessThanSigned =&gt; AluControl::SetOnLessThanSigned,
             AluOp::SetOnLessThanUnsigned =&gt; AluControl::SetOnLessThanUnsigned,
@@ -2024,8 +2088,9 @@
     <span class="doccomment">/// Perform an ALU operation.
     ///
     /// **Implementation Note:** Unlike the MIPS64 specification, this ALU
-    /// does not handle integer overflow exceptions. Should this be implemented
-    /// in the future, the ALU should be adjusted accordingly to address this.
+    /// does not handle exceptions due to integer overflow. However, it will
+    /// set the [`OverflowWriteBlock`] signal on overflow when the operation
+    /// [`AluControl`] is set to `AddWithNoWriteOverflow`.
     </span><span class="kw">fn </span>alu(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// Left shift the immediate value based on the ImmShift control signal.
         </span><span class="kw">let </span>alu_immediate = <span class="kw">match </span><span class="self">self</span>.signals.imm_shift {
@@ -2055,15 +2120,13 @@
         <span class="comment">// Set the result.
         </span><span class="self">self</span>.state.alu_result = <span class="kw">match </span><span class="self">self</span>.signals.alu_control {
             AluControl::Addition =&gt; input1.wrapping_add(input2),
-            AluControl::AddWithNoWriteOnOverFlow =&gt; {
-                <span class="comment">// Ugly hack to make addi and daddi work correctly
-                </span><span class="kw">if let </span>RegWidth::Word = <span class="self">self</span>.signals.reg_width {
-                    <span class="kw">let </span>i1 = input1 <span class="kw">as </span>u32;
-                    <span class="kw">let </span>i2 = input2 <span class="kw">as </span>u32;
-                    <span class="kw">let </span>sum = i1.overflowing_add(i2);
+            AluControl::AddWithNoWriteOnOverflow =&gt; {
+                <span class="kw">if let </span>RegWidth::Word = <span class="self">self</span>.signals.reg_width {
+                    <span class="kw">let </span>input1 = input1 <span class="kw">as </span>u32;
+                    <span class="kw">let </span>input2 = input2 <span class="kw">as </span>u32;
+                    <span class="kw">let </span>sum = input1.overflowing_add(input2);
                     <span class="kw">if </span>sum.<span class="number">1 </span>{
-                        <span class="comment">// read_data_2 is the value already in the output register
-                        </span><span class="self">self</span>.signals.overflow_write_block = OverflowWriteBlock::YesBlock;
+                        <span class="self">self</span>.signals.overflow_write_block = OverflowWriteBlock::YesBlock;
                     }
                     sum.<span class="number">0 </span><span class="kw">as </span>u64
                 } <span class="kw">else </span>{
@@ -2167,7 +2230,8 @@
             DataWrite::YesWrite =&gt; <span class="self">self</span>.coprocessor.get_data_register(),
         };
 
-        <span class="comment">// Abort if the RegWrite signal is not set.
+        <span class="comment">// Abort if the RegWrite signal is not set, or if the OverflowWriteBlock signal
+        // is set and overriding write behavior.
         </span><span class="kw">if </span><span class="self">self</span>.signals.reg_write == RegWrite::NoWrite
             || <span class="self">self</span>.signals.overflow_write_block == OverflowWriteBlock::YesBlock
         {
@@ -2197,11 +2261,9 @@
         </span><span class="self">self</span>.registers.gpr[destination] = <span class="self">self</span>.state.register_write_data;
     }
 
-    <span class="doccomment">/// Update the program counter register. At the moment, this only
-    /// increments the PC by 4 and does not support branching or
-    /// jumping.
+    <span class="doccomment">/// Update the program counter register.
     ///
-    /// This function is called from the WB stage
+    /// This function is called from the WB stage.
     </span><span class="kw">fn </span>set_pc(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.registers.pc = <span class="self">self</span>.state.new_pc;
     }

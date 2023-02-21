@@ -496,6 +496,38 @@
 <a href="#496" id="496">496</a>
 <a href="#497" id="497">497</a>
 <a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Internal datapath control signals.
 
 /// Full collection of control signals.
@@ -512,10 +544,10 @@
     <span class="kw">pub </span>mem_to_reg: MemToReg,
     <span class="kw">pub </span>mem_write: MemWrite,
     <span class="kw">pub </span>mem_write_src: MemWriteSrc,
+    <span class="kw">pub </span>overflow_write_block: OverflowWriteBlock,
     <span class="kw">pub </span>reg_dst: RegDst,
     <span class="kw">pub </span>reg_width: RegWidth,
     <span class="kw">pub </span>reg_write: RegWrite,
-    <span class="kw">pub </span>overflow_write_block: OverflowWriteBlock,
 }
 
 <span class="doccomment">/// The output of the ALU control unit that directly controls the ALU.
@@ -530,10 +562,11 @@
 </span><span class="attr">#[derive(Clone, Default, PartialEq)]
 </span><span class="kw">pub enum </span>AluControl {
     <span class="doccomment">/// `_0000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
+    /// Will not set any overflow signal on overflow.
     </span><span class="attr">#[default]
     </span>Addition = <span class="number">0</span>,
 
-    <span class="doccomment">/// `_0001` (1) - Perform a subtraction.
+    <span class="doccomment">/// `_0001` (1) - Perform a subtraction. Will not set any underflow signal on underflow.
     </span>Subtraction = <span class="number">1</span>,
 
     <span class="doccomment">/// `_0010` (2) - Perform a &quot;set on less than&quot; operation.
@@ -566,7 +599,9 @@
     <span class="doccomment">/// `_1011` (11) - Perform unsigned integer division. (Returns the integer quotient.)
     </span>DivisionUnsigned = <span class="number">11</span>,
 
-    AddWithNoWriteOnOverFlow = <span class="number">12</span>,
+    <span class="doccomment">/// `_1100` (12) - Perform an addition, and set the [`OverflowWriteBlock`] signal in
+    /// the event of an overflow.
+    </span>AddWithNoWriteOnOverflow = <span class="number">12</span>,
 }
 
 <span class="doccomment">/// This determines the operation sent to the ALU control unit.
@@ -576,29 +611,30 @@
 /// will perform.
 </span><span class="attr">#[derive(Clone, Default, PartialEq)]
 </span><span class="kw">pub enum </span>AluOp {
-    <span class="doccomment">/// `000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
+    <span class="doccomment">/// `0000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
+    /// Will not set any overflow signal on overflow.
     </span><span class="attr">#[default]
     </span>Addition = <span class="number">0</span>,
 
-    <span class="doccomment">/// `001` (1) - Perform a subtraction.
+    <span class="doccomment">/// `0001` (1) - Perform a subtraction. Will not set any underflow signal on underflow.
     </span>Subtraction = <span class="number">1</span>,
 
-    <span class="doccomment">/// `010` (2) - Perform a &quot;set on less than&quot; operation.
+    <span class="doccomment">/// `0010` (2) - Perform a &quot;set on less than&quot; operation.
     </span>SetOnLessThanSigned = <span class="number">2</span>,
 
-    <span class="doccomment">/// `011` (3) - Perform a &quot;set on less than unsigned&quot; operation.
+    <span class="doccomment">/// `0011` (3) - Perform a &quot;set on less than unsigned&quot; operation.
     </span>SetOnLessThanUnsigned = <span class="number">3</span>,
 
-    <span class="doccomment">/// `100` (4) - Perform a binary &quot;AND&quot; operation.
+    <span class="doccomment">/// `0100` (4) - Perform a binary &quot;AND&quot; operation.
     </span>And = <span class="number">4</span>,
 
-    <span class="doccomment">/// `101` (5) - Perform a binary &quot;OR&quot; operation.
+    <span class="doccomment">/// `0101` (5) - Perform a binary &quot;OR&quot; operation.
     </span>Or = <span class="number">5</span>,
 
-    <span class="doccomment">/// `110` (6) - Left shift the sign-extended immediate value 16 bits.
+    <span class="doccomment">/// `0110` (6) - Left shift the sign-extended immediate value 16 bits.
     </span>LeftShift16 = <span class="number">6</span>,
 
-    <span class="doccomment">/// `111` (7) - This is an R-type instruction and the operation
+    <span class="doccomment">/// `0111` (7) - This is an R-type instruction and the operation
     /// should instead refer to the `funct` field in the instruction.
     ///
     /// (Note: For the `mul` and `div` instructions, the operation of
@@ -608,7 +644,9 @@
     /// instructions.)
     </span>UseFunctField = <span class="number">7</span>,
 
-    AddWithNoWriteOnOverFlow = <span class="number">8</span>,
+    <span class="doccomment">/// `1000` (8) - Perform an addition, and set the [`OverflowWriteBlock`]
+    /// signal in the event of an overflow.
+    </span>AddWithNoWriteOnOverflow = <span class="number">8</span>,
 }
 
 <span class="doccomment">/// Determines the second source of the ALU.
@@ -641,12 +679,19 @@
     </span>YesBranch = <span class="number">1</span>,
 }
 
-<span class="doccomment">/// For deciding to branch on AluZ == YesZero or AluZ == NotZero
+<span class="doccomment">/// Determines, given [`Branch`] is set, whether to branch when the [`AluZ`](super::datapath_signals::AluZ) signal is set,
+/// or when [`AluZ`](super::datapath_signals::AluZ) is not set.
+///
+/// In effect, this decides whether or not to invert the [`AluZ`](super::datapath_signals::AluZ) signal, which is
+/// used between the `beq` and `bne` instructions.
 </span><span class="attr">#[derive(Clone, Default, PartialEq)]
 </span><span class="kw">pub enum </span>BranchType {
-    <span class="attr">#[default]
+    <span class="doccomment">/// Branch based on [`AluZ`](super::datapath_signals::AluZ). (Used in `beq`.)
+    </span><span class="attr">#[default]
     </span>OnEqual = <span class="number">0</span>,
-    OnNotEqual = <span class="number">1</span>,
+
+    <span class="doccomment">/// Branch based on the inverse of [`AluZ`](super::datapath_signals::AluZ). (Used in `bne`.)
+    </span>OnNotEqual = <span class="number">1</span>,
 }
 
 <span class="doccomment">/// Determines the amount of bits to left-shift the immediate value before being passed to the ALU.
@@ -719,6 +764,20 @@
     </span>FloatingPointUnit = <span class="number">1</span>,
 }
 
+<span class="doccomment">/// Demonstrates an overflow signal from the ALU.
+///
+/// If this signal is set, this overrides [`RegWrite`], blocking any
+/// general-purpose register from being written to.
+</span><span class="attr">#[derive(Clone, Default, Eq, PartialEq)]
+</span><span class="kw">pub enum </span>OverflowWriteBlock {
+    <span class="doccomment">/// Do not block writing to general-purpose registers if [`RegWrite`] is set.
+    </span><span class="attr">#[default]
+    </span>NoBlock = <span class="number">0</span>,
+
+    <span class="doccomment">/// Block writing to general-purpose registers and ignore [`RegWrite`].
+    </span>YesBlock = <span class="number">1</span>,
+}
+
 <span class="doccomment">/// Determines, given that [`RegWrite`] is set, which destination
 /// register to write to, which largely depends on the instruction format.
 </span><span class="attr">#[derive(Clone, Default, PartialEq)]
@@ -733,7 +792,8 @@
     </span><span class="attr">#[default]
     </span>Reg3 = <span class="number">2</span>,
 
-    <span class="comment">// Write to return register, used by JAL
+    <span class="doccomment">/// Write to general-purpose register 31 ($ra). This is the return address
+    /// used in `jal` instructions.
     </span>ReturnRegister = <span class="number">3</span>,
 }
 
@@ -752,18 +812,13 @@
 }
 
 <span class="doccomment">/// Determines if the register file should be written to.
+///
+/// This signal may be overridden if [`OverflowWriteBlock`] is set.
 </span><span class="attr">#[derive(Clone, Default, Eq, PartialEq)]
 </span><span class="kw">pub enum </span>RegWrite {
     <span class="attr">#[default]
     </span>NoWrite = <span class="number">0</span>,
     YesWrite = <span class="number">1</span>,
-}
-
-<span class="attr">#[derive(Clone, Default, Eq, PartialEq)]
-</span><span class="kw">pub enum </span>OverflowWriteBlock {
-    <span class="attr">#[default]
-    </span>NoBlock = <span class="number">0</span>,
-    YesBlock = <span class="number">1</span>,
 }
 
 <span class="kw">pub mod </span>floating_point {
@@ -855,56 +910,65 @@
     ///
     /// Only one of these units are effectively utilized in any given instruction.
     ///
-    /// The fourth bit of the control signal represents either a single-precision
+    /// The fifth bit of the control signal represents either a single-precision
     /// floating-point operation (0), or a double-precision floating-point operation (1).
-    /// This fourth bit is determined by [`FpuRegWidth`].
+    /// This fifth bit is determined by [`FpuRegWidth`].
+    ///
+    /// *Implementation note:* The bits set for the comparator are intended to match
+    /// the bits used in the `cond` field of a `c.cond.fmt` instruction.
     </span><span class="attr">#[derive(Clone, Default, PartialEq)]
     </span><span class="kw">pub enum </span>FpuAluOp {
         <span class="attr">#[default]
-        </span><span class="doccomment">/// `_000` (0):
+        </span><span class="doccomment">/// `_0000` (0):
         /// - ALU: Perform an addition.
-        /// - Comparator: Set if equal.
-        </span>AdditionOrEqual = <span class="number">0</span>,
+        </span>Addition = <span class="number">0</span>,
 
-        <span class="doccomment">/// `_001` (1):
+        <span class="doccomment">/// `_0001` (1):
         /// - ALU: Perform a subtraction.
         </span>Subtraction = <span class="number">1</span>,
 
-        <span class="doccomment">/// `_010` (2):
+        <span class="doccomment">/// `_0010` (2):
         /// - ALU: Perform a multiplication.
-        /// - Comparator: Set if less than.
-        </span>MultiplicationOrSlt = <span class="number">2</span>,
+        /// - Comparator: Set if equal.
+        </span>MultiplicationOrEqual = <span class="number">2</span>,
 
-        <span class="doccomment">/// `_011` (3):
+        <span class="doccomment">/// `_0011` (3):
         /// - ALU: Perform a division.
-        /// - Comparator: Set if less than or equal.
-        </span>DivisionOrSle = <span class="number">3</span>,
+        </span>Division = <span class="number">3</span>,
 
-        <span class="doccomment">/// `_100` (4):
+        <span class="doccomment">/// `_0100` (4):
         /// - ALU: Perform an &quot;AND&quot; operation.
         </span>And = <span class="number">4</span>,
 
-        <span class="doccomment">/// `_101` (5):
+        <span class="doccomment">/// `_0101` (5):
         /// - ALU: Perform an &quot;OR&quot; operation.
         </span>Or = <span class="number">5</span>,
 
-        <span class="doccomment">/// `_110` (6):
-        /// - Comparator: Set if not greater than.
-        </span>Sngt = <span class="number">6</span>,
+        <span class="doccomment">/// `_1100` (12):
+        /// - Comparator: Set if less than.
+        </span>Slt = <span class="number">12</span>,
 
-        <span class="doccomment">/// `_111` (7):
+        <span class="doccomment">/// `_1101` (13):
         /// - Comparator: Set if not greater than or equal.
-        </span>Snge = <span class="number">7</span>,
+        </span>Snge = <span class="number">13</span>,
+
+        <span class="doccomment">/// `_1110` (14):
+        /// - Comparator: Set if less than or equal.
+        </span>Sle = <span class="number">14</span>,
+
+        <span class="doccomment">/// `_1111` (15):
+        /// - Comparator: Set if not greater than.
+        </span>Sngt = <span class="number">15</span>,
     }
 
     <span class="kw">impl </span>FpuAluOp {
         <span class="doccomment">/// Get the corresponding control signal given a function code.
         </span><span class="kw">pub fn </span>from_function(function: u8) -&gt; <span class="self">Self </span>{
             <span class="kw">match </span>function {
-                FUNCTION_C_EQ =&gt; <span class="self">Self</span>::AdditionOrEqual,
-                FUNCTION_C_LT =&gt; <span class="self">Self</span>::MultiplicationOrSlt,
+                FUNCTION_C_EQ =&gt; <span class="self">Self</span>::MultiplicationOrEqual,
+                FUNCTION_C_LT =&gt; <span class="self">Self</span>::Slt,
                 FUNCTION_C_NGE =&gt; <span class="self">Self</span>::Snge,
-                FUNCTION_C_LE =&gt; <span class="self">Self</span>::DivisionOrSle,
+                FUNCTION_C_LE =&gt; <span class="self">Self</span>::Sle,
                 FUNCTION_C_NGT =&gt; <span class="self">Self</span>::Sngt,
                 <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unsupported function code `{function}`&quot;</span>),
             }
