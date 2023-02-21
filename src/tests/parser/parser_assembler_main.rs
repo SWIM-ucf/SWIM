@@ -626,6 +626,7 @@ use crate::parser::parsing::{
     tokenize_program,
 };
 use std::collections::HashMap;
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::UnsupportedInstruction;
 
 #[test]
 fn place_binary_in_middle_of_another_works() {
@@ -700,4 +701,26 @@ fn create_binary_vec_works_with_data() {
     assert_eq!(result[3], 0b00100000011010010111001100100000);
     assert_eq!(result[4], 0b01100001001000000111001101110100);
     assert_eq!(result[5], 0b01110010011010010110111001100111);
+}
+
+#[test]
+fn read_instructions_recognizes_valid_but_unsupported_instructions(){
+    let mut program_info = ProgramInfo::default();
+    let file_string = "jalr $t1, $t2\ndsrav $t1, $t2, $t3".to_lowercase();
+    let (lines, comments) = tokenize_program(file_string);
+    program_info.comments_line_and_column = comments;
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+
+    let labels: HashMap<String, u32> =
+        create_label_map(&mut program_info.instructions, &mut program_info.data);
+    complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels);
+    read_instructions(&mut program_info.instructions, labels);
+
+    assert_eq!(program_info.instructions[0].errors[0].error_name, UnsupportedInstruction);
+    assert_eq!(program_info.instructions[1].errors[0].error_name, UnsupportedInstruction);
+
 }
