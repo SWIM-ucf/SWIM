@@ -1,6 +1,8 @@
+
 #[cfg(test)]
 mod parser_main_function_tests {
     use crate::parser::parser_assembler_main::*;
+
 
     #[test]
     fn parser_takes_string_and_returns_vec_of_instructions() {
@@ -728,4 +730,6 @@ fn read_instructions_recognizes_valid_but_unsupported_instructions() {
         program_info.instructions[1].errors[0].error_name,
         UnsupportedInstruction
     );
+
 }
+

@@ -24,10 +24,16 @@ pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
     complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels);
     read_instructions(&mut program_info.instructions, labels);
 
+    suggest_error_corrections(&mut program_info.instructions, &mut program_info.data);
+    
     (
         program_info.clone(),
         create_binary_vec(program_info.instructions.clone(), vec_of_data),
     )
+}
+
+fn suggest_error_corrections(instructions: &mut [Instruction], data: &mut [data]) {
+
 }
 
 ///Takes the vector of instructions and assembles the binary for them.
@@ -1089,6 +1095,7 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
         }
     }
 }
+
 ///This function takes two numbers and inserts the binary of the second at a given index in the binary of the first.
 ///All binary values at and past the insertion index of the original string will be moved to the end of the resultant string.
 ///Since binary is sign extended on the left to 32 bits, insertion index must be the index from the end of the string.
