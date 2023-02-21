@@ -9,7 +9,7 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::{
     Data, Error, Instruction, Line, ProgramInfo, Token,
 };
 use crate::parser::parsing::{
-    assign_instruction_numbers, complete_lw_sw_pseudo_instructions, create_label_map,
+    complete_lw_sw_pseudo_instructions, create_label_map,
     expand_pseudo_instructions_and_assign_instruction_numbers,
 };
 #[cfg(test)]
@@ -656,7 +656,6 @@ fn create_label_map_generates_map_on_no_errors() {
     let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
-    assign_instruction_numbers(&mut instruction_list);
 
     let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
@@ -673,7 +672,6 @@ fn create_label_map_recognizes_data_labels() {
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
     assemble_data_binary(&mut data);
     expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
-    assign_instruction_numbers(&mut instruction_list);
     let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
     let mut correct_map: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
@@ -690,7 +688,6 @@ fn create_label_map_recognizes_data_labels_and_text_together() {
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
     assemble_data_binary(&mut data);
     expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
-    assign_instruction_numbers(&mut instruction_list);
     let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
     let mut correct_map: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
@@ -707,7 +704,6 @@ fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name() {
     let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string());
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
-    assign_instruction_numbers(&mut instruction_list);
 
     let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 

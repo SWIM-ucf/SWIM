@@ -974,13 +974,6 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     }
 }
 
-///This function assigns the instruction number to each instruction
-pub fn assign_instruction_numbers(instruction_list: &mut [Instruction]) {
-    for (i, instruction) in instruction_list.iter_mut().enumerate() {
-        instruction.instruction_number = i as u32;
-    }
-}
-
 ///Create_label_map builds a hashmap of addresses for labels in memory
 pub fn create_label_map(
     instruction_list: &mut Vec<Instruction>,
