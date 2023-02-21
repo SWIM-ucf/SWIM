@@ -1056,13 +1056,6 @@
 <a href="#1056" id="1056">1056</a>
 <a href="#1057" id="1057">1057</a>
 <a href="#1058" id="1058">1058</a>
-<a href="#1059" id="1059">1059</a>
-<a href="#1060" id="1060">1060</a>
-<a href="#1061" id="1061">1061</a>
-<a href="#1062" id="1062">1062</a>
-<a href="#1063" id="1063">1063</a>
-<a href="#1064" id="1064">1064</a>
-<a href="#1065" id="1065">1065</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     ImproperlyFormattedData, ImproperlyFormattedLabel, LabelAssignmentError,
     LabelMultipleDefinition, MissingComma,
@@ -2036,13 +2029,6 @@
     <span class="comment">//insert all new new instructions
     </span><span class="kw">for </span>instruction <span class="kw">in </span>vec_of_added_instructions {
         instructions.insert(instruction.instruction_number <span class="kw">as </span>usize, instruction);
-    }
-}
-
-<span class="doccomment">///This function assigns the instruction number to each instruction
-</span><span class="kw">pub fn </span>assign_instruction_numbers(instruction_list: <span class="kw-2">&amp;mut </span>[Instruction]) {
-    <span class="kw">for </span>(i, instruction) <span class="kw">in </span>instruction_list.iter_mut().enumerate() {
-        instruction.instruction_number = i <span class="kw">as </span>u32;
     }
 }
 
