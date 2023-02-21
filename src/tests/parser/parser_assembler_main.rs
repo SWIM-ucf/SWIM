@@ -619,6 +619,7 @@ use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::{
     create_binary_vec, place_binary_in_middle_of_another, read_instructions,
 };
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::UnsupportedInstruction;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
 use crate::parser::parsing::{
     complete_lw_sw_pseudo_instructions, create_label_map,
@@ -626,7 +627,6 @@ use crate::parser::parsing::{
     tokenize_program,
 };
 use std::collections::HashMap;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::UnsupportedInstruction;
 
 #[test]
 fn place_binary_in_middle_of_another_works() {
@@ -704,7 +704,7 @@ fn create_binary_vec_works_with_data() {
 }
 
 #[test]
-fn read_instructions_recognizes_valid_but_unsupported_instructions(){
+fn read_instructions_recognizes_valid_but_unsupported_instructions() {
     let mut program_info = ProgramInfo::default();
     let file_string = "jalr $t1, $t2\ndsrav $t1, $t2, $t3".to_lowercase();
     let (lines, comments) = tokenize_program(file_string);
@@ -720,7 +720,12 @@ fn read_instructions_recognizes_valid_but_unsupported_instructions(){
     complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels);
     read_instructions(&mut program_info.instructions, labels);
 
-    assert_eq!(program_info.instructions[0].errors[0].error_name, UnsupportedInstruction);
-    assert_eq!(program_info.instructions[1].errors[0].error_name, UnsupportedInstruction);
-
+    assert_eq!(
+        program_info.instructions[0].errors[0].error_name,
+        UnsupportedInstruction
+    );
+    assert_eq!(
+        program_info.instructions[1].errors[0].error_name,
+        UnsupportedInstruction
+    );
 }
