@@ -127,6 +127,9 @@ pub struct DatapathState {
     /// 64 bits. Initialized after the Instruction Decode stage.
     pub sign_extend: u64,
 
+    /// *Data line.* The sign_extend line but shifted left by two
+    pub sign_extend_shift_left_by_2: u64,
+
     pub write_data: u64,
 }
 
@@ -299,8 +302,8 @@ impl MipsDatapath {
     }
 
     fn calc_relative_pc_branch(&mut self) {
-        self.state.relative_pc_branch =
-            (self.state.sign_extend << 2).wrapping_add(self.state.pc_plus_4);
+        self.state.sign_extend_shift_left_by_2 = self.state.sign_extend << 2;
+        self.state.relative_pc_branch = self.state.sign_extend_shift_left_by_2.wrapping_add(self.state.pc_plus_4);
     }
 
     // if Branch::YesBranch && AluZ::YesZero

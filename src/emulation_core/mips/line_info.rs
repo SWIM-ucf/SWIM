@@ -45,24 +45,31 @@ impl VisualDatapath for MipsDatapath {
             },
 
             "rs" => LineInformation {
-                title: String::from("Instruction [20-16]"),
+                title: String::from("Instruction [20-16] (rs)"),
                 description: String::from("The rs field"),
-                value: self.state.rt as u64,
+                value: self.state.rs as u64,
                 bits: 5,
             },
 
             "rt" => LineInformation {
-                title: String::from("Instruction [20-16]"),
+                title: String::from("Instruction [20-16] (rt)"),
                 description: String::from("The rt field. Contains the second register to be read for an R-type instruction."),
                 value: self.state.rt as u64,
                 bits: 5,
             },
 
             "rd" => LineInformation {
-                title: String::from("Instruction [20-16]"),
+                title: String::from("Instruction [20-16] (rd)"),
                 description: String::from("The rd field"),
                 value: self.state.rd as u64,
                 bits: 5,
+            },
+            
+            "imm" => LineInformation {
+                title: String::from("Instruction [15-0] (imm)"),
+                description: String::from("The imm field"),
+                value: self.state.imm as u64,
+                bits: 16,
             },
 
             "coprocessor.fs" => LineInformation {
@@ -90,6 +97,13 @@ impl VisualDatapath for MipsDatapath {
                 title: String::from("Sign extended imm"),
                 description: String::from("The immediate low 16 bits sign extended to a 32/64bit value"),
                 value: self.state.sign_extend,
+                bits: 64,
+            },
+            
+            "sign_extend_shift_left_by_2" => LineInformation {
+                title: String::from("Sign extended imm << 2"),
+                description: String::from("The sign extended immediate low 16 bits shifted left by 2"),
+                value: self.state.sign_extend_shift_left_by_2,
                 bits: 64,
             },
             
