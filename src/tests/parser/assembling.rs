@@ -196,9 +196,8 @@ mod read_label_absolute_tests {
     use crate::parser::assembling::read_label_absolute;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::LabelNotFound;
     use crate::parser::parsing::{
-        assign_instruction_numbers, create_label_map,
-        expand_pseudo_instructions_and_assign_instruction_numbers, separate_data_and_text,
-        tokenize_program,
+        create_label_map, expand_pseudo_instructions_and_assign_instruction_numbers,
+        separate_data_and_text, tokenize_program,
     };
     use std::collections::HashMap;
 
@@ -207,7 +206,6 @@ mod read_label_absolute_tests {
         let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
-        assign_instruction_numbers(&mut instruction_list);
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
         let results = read_label_absolute("load_from_memory", 2, labels);
@@ -221,7 +219,6 @@ mod read_label_absolute_tests {
         let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, #t2, $t3\nsave_to_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
-        assign_instruction_numbers(&mut instruction_list);
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
         let results = read_label_absolute("label_not_found:", 2, labels);
@@ -233,9 +230,8 @@ mod read_label_absolute_tests {
 mod read_label_relative_tests {
     use crate::parser::assembling::read_label_relative;
     use crate::parser::parsing::{
-        assign_instruction_numbers, create_label_map,
-        expand_pseudo_instructions_and_assign_instruction_numbers, separate_data_and_text,
-        tokenize_program,
+        create_label_map, expand_pseudo_instructions_and_assign_instruction_numbers,
+        separate_data_and_text, tokenize_program,
     };
     use std::collections::HashMap;
 
@@ -244,7 +240,6 @@ mod read_label_relative_tests {
         let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
-        assign_instruction_numbers(&mut instruction_list);
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
         let result = read_label_relative("load_from_memory", 0, 4, labels);
@@ -258,7 +253,6 @@ mod read_label_relative_tests {
         let (lines, _comments) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
-        assign_instruction_numbers(&mut instruction_list);
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
         let result = read_label_relative("store_in_memory", 0, 1, labels);

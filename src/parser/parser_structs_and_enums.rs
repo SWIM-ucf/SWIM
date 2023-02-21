@@ -76,6 +76,7 @@ pub mod instruction_tokenization {
 
     #[derive(Debug, PartialEq, Eq, Clone)]
     pub enum ErrorType {
+        UnsupportedInstruction,
         UnrecognizedGPRegister,
         UnrecognizedFPRegister,
         UnrecognizedInstruction,

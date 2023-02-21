@@ -110,6 +110,18 @@ mod read_instructions_tests {
     }
 
     #[test]
+    fn read_instructions_aui() {
+        let file_string = "aui $t1, $t1, 43690".to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00111101001010011010101010101010
+        );
+    }
+
+    #[test]
     fn read_instructions_addi() {
         let file_string = "addi $t1, $t2, 43690".to_string();
 
@@ -607,6 +619,7 @@ use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::{
     create_binary_vec, place_binary_in_middle_of_another, read_instructions,
 };
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::UnsupportedInstruction;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
 use crate::parser::parsing::{
     complete_lw_sw_pseudo_instructions, create_label_map,
@@ -642,9 +655,8 @@ mod helper_functions {
     use crate::parser::parser_assembler_main::read_instructions;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::Instruction;
     use crate::parser::parsing::{
-        assign_instruction_numbers, create_label_map,
-        expand_pseudo_instructions_and_assign_instruction_numbers, separate_data_and_text,
-        tokenize_program,
+        create_label_map, expand_pseudo_instructions_and_assign_instruction_numbers,
+        separate_data_and_text, tokenize_program,
     };
     use std::collections::HashMap;
 
@@ -654,7 +666,6 @@ mod helper_functions {
         let (lines, _comments) = tokenize_program(file_string);
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
-        assign_instruction_numbers(&mut instruction_list);
         assemble_data_binary(&mut data);
 
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
@@ -690,4 +701,31 @@ fn create_binary_vec_works_with_data() {
     assert_eq!(result[3], 0b00100000011010010111001100100000);
     assert_eq!(result[4], 0b01100001001000000111001101110100);
     assert_eq!(result[5], 0b01110010011010010110111001100111);
+}
+
+#[test]
+fn read_instructions_recognizes_valid_but_unsupported_instructions() {
+    let mut program_info = ProgramInfo::default();
+    let file_string = "jalr $t1, $t2\ndsrav $t1, $t2, $t3".to_lowercase();
+    let (lines, comments) = tokenize_program(file_string);
+    program_info.comments_line_and_column = comments;
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+
+    let labels: HashMap<String, u32> =
+        create_label_map(&mut program_info.instructions, &mut program_info.data);
+    complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels);
+    read_instructions(&mut program_info.instructions, labels);
+
+    assert_eq!(
+        program_info.instructions[0].errors[0].error_name,
+        UnsupportedInstruction
+    );
+    assert_eq!(
+        program_info.instructions[1].errors[0].error_name,
+        UnsupportedInstruction
+    );
 }
