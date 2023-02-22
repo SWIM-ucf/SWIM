@@ -1,18 +1,12 @@
 #[cfg(test)]
 mod parser_main_function_tests {
-    use crate::parser::parser_main::*;
-    use crate::parser::parser_structs_and_enums::instruction_tokenization::print_instruction_struct_contents;
+    use crate::parser::parser_assembler_main::*;
 
     #[test]
     fn parser_takes_string_and_returns_vec_of_instructions() {
         let results =
             parser("lw $t1, 512($t1)\nadd $t1, $s6, $t2\naddi $t1, $t2, 43690".to_string());
 
-        let length = results.0.instructions.len();
-
-        for i in 0..length {
-            print_instruction_struct_contents(results.0.instructions.get(i).unwrap());
-        }
         assert_eq!(
             results.0.instructions[0].binary,
             0b10001101001010010000001000000000
@@ -29,13 +23,13 @@ mod parser_main_function_tests {
 }
 
 mod read_instructions_tests {
-    use crate::tests::parser::parser_main::helper_functions::simulate_parser;
+    use crate::tests::parser::parser_assembler_main::helper_functions::instruction_parser;
 
     #[test]
     fn read_instructions_add() {
         let file_string = "add $t1, $s6, $t2".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -47,7 +41,7 @@ mod read_instructions_tests {
     fn read_instructions_sub() {
         let file_string = "sub $t1, $s6, $t2".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -59,7 +53,7 @@ mod read_instructions_tests {
     fn read_instructions_mul() {
         let file_string = "mul $t1, $s6, $t2".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -71,7 +65,7 @@ mod read_instructions_tests {
     fn read_instructions_div() {
         let file_string = "div $t1, $s6".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -83,7 +77,7 @@ mod read_instructions_tests {
     fn read_instructions_lw() {
         let file_string = "lw $t1, 512($t1)".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -95,7 +89,7 @@ mod read_instructions_tests {
     fn read_instructions_sw() {
         let file_string = "sw $t1, 512($t1)".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -107,7 +101,7 @@ mod read_instructions_tests {
     fn read_instructions_lui() {
         let file_string = "lui $t1, 43690".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -116,10 +110,22 @@ mod read_instructions_tests {
     }
 
     #[test]
+    fn read_instructions_aui() {
+        let file_string = "aui $t1, $t1, 43690".to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00111101001010011010101010101010
+        );
+    }
+
+    #[test]
     fn read_instructions_addi() {
         let file_string = "addi $t1, $t2, 43690".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
         assert_eq!(
             instruction_list[0].binary,
             0b00100001010010011010101010101010
@@ -130,7 +136,7 @@ mod read_instructions_tests {
     fn read_instructions_and() {
         let file_string = "and $t1, $s6, $t2".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -142,7 +148,7 @@ mod read_instructions_tests {
     fn read_instructions_or() {
         let file_string = "or $t1, $s6, $t2".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -154,7 +160,7 @@ mod read_instructions_tests {
     fn read_instructions_ori() {
         let file_string = "ori $t1, $t2, 43690".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -166,7 +172,7 @@ mod read_instructions_tests {
     fn read_instructions_andi() {
         let file_string = "andi $t1, $t2, 43690".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -178,7 +184,7 @@ mod read_instructions_tests {
     fn read_instructions_dadd() {
         let file_string = "dadd $t1, $t2, $s6".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -190,7 +196,7 @@ mod read_instructions_tests {
     fn read_instructions_dsub() {
         let file_string = "dsub $t1, $t2, $s6".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -202,7 +208,7 @@ mod read_instructions_tests {
     fn read_instructions_dmul() {
         let file_string = "dmul $t1, $t2, $s6".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -214,7 +220,7 @@ mod read_instructions_tests {
     fn read_instructions_ddiv() {
         let file_string = "ddiv $t1, $t2".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -226,7 +232,7 @@ mod read_instructions_tests {
     fn read_instructions_add_s() {
         let file_string = "add.s $f9, $f10, $f22".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -238,7 +244,7 @@ mod read_instructions_tests {
     fn read_instructions_add_d() {
         let file_string = "add.d $f9, $f10, $f22".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -250,7 +256,7 @@ mod read_instructions_tests {
     fn read_instructions_sub_s() {
         let file_string = "sub.s $f9, $f10, $f22".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -262,7 +268,7 @@ mod read_instructions_tests {
     fn read_instructions_sub_d() {
         let file_string = "sub.d $f9, $f10, $f22".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -274,7 +280,7 @@ mod read_instructions_tests {
     fn read_instructions_mul_s() {
         let file_string = "mul.s $f9, $f10, $f22".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -286,7 +292,7 @@ mod read_instructions_tests {
     fn read_instructions_mul_d() {
         let file_string = "mul.d $f9, $f10, $f22".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -298,7 +304,7 @@ mod read_instructions_tests {
     fn read_instructions_div_s() {
         let file_string = "div.s $f9, $f10, $f22".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -310,7 +316,7 @@ mod read_instructions_tests {
     fn read_instructions_div_d() {
         let file_string = "div.d $f9, $f10, $f22".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -322,7 +328,7 @@ mod read_instructions_tests {
     fn read_instructions_dahi() {
         let file_string = "dahi $t1, 43690".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -334,7 +340,7 @@ mod read_instructions_tests {
     fn read_instructions_dati() {
         let file_string = "dati $t1, 43690".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -346,7 +352,7 @@ mod read_instructions_tests {
     fn read_instructions_daddiu() {
         let file_string = "daddiu $t1, $t2, 43690".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -358,7 +364,7 @@ mod read_instructions_tests {
     fn read_instructions_slt() {
         let file_string = "slt $t1, $t2, $s6".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -370,7 +376,7 @@ mod read_instructions_tests {
     fn read_instructions_sltu() {
         let file_string = "sltu $t1, $t2, $s6".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -382,7 +388,7 @@ mod read_instructions_tests {
     fn read_instructions_swc1() {
         let file_string = "swc1 $f9, 43690($t2)".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -394,7 +400,7 @@ mod read_instructions_tests {
     fn read_instructions_lwc1() {
         let file_string = "lwc1 $f9, 43690($t2)".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -406,7 +412,7 @@ mod read_instructions_tests {
     fn read_instructions_mtc1() {
         let file_string = "mtc1 $t1, $f22".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -418,7 +424,7 @@ mod read_instructions_tests {
     fn read_instructions_dmtc1() {
         let file_string = "dmtc1 $t1, $f22".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -430,7 +436,7 @@ mod read_instructions_tests {
     fn read_instructions_mfc1() {
         let file_string = "mfc1 $t1, $f22".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -442,7 +448,7 @@ mod read_instructions_tests {
     fn read_instructions_dmfc1() {
         let file_string = "dmfc1 $t1, $f22".to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
@@ -456,7 +462,7 @@ mod read_instructions_tests {
             "Add $t1, $t2, $t3\nAddress: add $t1, #t2, $t3\nlw $t1, 400($t2)\nj Address"
                 .to_string();
 
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[3].binary,
@@ -467,7 +473,7 @@ mod read_instructions_tests {
     #[test]
     fn read_instructions_beq() {
         let file_string = "Add $t1, $t2, $t3\nAddress: add $t1, #t2, $t3\nlw $t1, 400($t2)\nbeq $t1, $t2, address".to_string();
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[3].binary,
@@ -478,7 +484,7 @@ mod read_instructions_tests {
     #[test]
     fn read_instructions_bne() {
         let file_string = "Add $t1, $t2, $t3\nAddress: add $t1, #t2, $t3\nlw $t1, 400($t2)\nbne $t1, $t2, address".to_string();
-        let instruction_list = simulate_parser(file_string);
+        let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[3].binary,
@@ -488,7 +494,7 @@ mod read_instructions_tests {
 
     #[test]
     fn read_instructions_c_eq_s() {
-        let instruction_list = simulate_parser("c.eq.s $f9, $f22".to_string());
+        let instruction_list = instruction_parser("c.eq.s $f9, $f22".to_string());
 
         assert_eq!(
             instruction_list[0].binary,
@@ -498,7 +504,7 @@ mod read_instructions_tests {
 
     #[test]
     fn read_instructions_c_eq_d() {
-        let instruction_list = simulate_parser("c.eq.d $f9, $f22".to_string());
+        let instruction_list = instruction_parser("c.eq.d $f9, $f22".to_string());
 
         assert_eq!(
             instruction_list[0].binary,
@@ -508,7 +514,7 @@ mod read_instructions_tests {
 
     #[test]
     fn read_instructions_c_lt_s() {
-        let instruction_list = simulate_parser("c.lt.s $f9, $f22".to_string());
+        let instruction_list = instruction_parser("c.lt.s $f9, $f22".to_string());
 
         assert_eq!(
             instruction_list[0].binary,
@@ -518,7 +524,7 @@ mod read_instructions_tests {
 
     #[test]
     fn read_instructions_c_lt_d() {
-        let instruction_list = simulate_parser("c.lt.d $f9, $f22".to_string());
+        let instruction_list = instruction_parser("c.lt.d $f9, $f22".to_string());
 
         assert_eq!(
             instruction_list[0].binary,
@@ -528,7 +534,7 @@ mod read_instructions_tests {
 
     #[test]
     fn read_instructions_c_le_s() {
-        let instruction_list = simulate_parser("c.le.s $f9, $f22".to_string());
+        let instruction_list = instruction_parser("c.le.s $f9, $f22".to_string());
 
         assert_eq!(
             instruction_list[0].binary,
@@ -538,7 +544,7 @@ mod read_instructions_tests {
 
     #[test]
     fn read_instructions_c_le_d() {
-        let instruction_list = simulate_parser("c.le.d $f9, $f22".to_string());
+        let instruction_list = instruction_parser("c.le.d $f9, $f22".to_string());
 
         assert_eq!(
             instruction_list[0].binary,
@@ -548,7 +554,7 @@ mod read_instructions_tests {
 
     #[test]
     fn read_instructions_c_ngt_s() {
-        let instruction_list = simulate_parser("c.ngt.s $f9, $f22".to_string());
+        let instruction_list = instruction_parser("c.ngt.s $f9, $f22".to_string());
 
         assert_eq!(
             instruction_list[0].binary,
@@ -558,7 +564,7 @@ mod read_instructions_tests {
 
     #[test]
     fn read_instructions_c_ngt_d() {
-        let instruction_list = simulate_parser("c.ngt.d $f9, $f22".to_string());
+        let instruction_list = instruction_parser("c.ngt.d $f9, $f22".to_string());
 
         assert_eq!(
             instruction_list[0].binary,
@@ -568,7 +574,7 @@ mod read_instructions_tests {
 
     #[test]
     fn read_instructions_c_nge_s() {
-        let instruction_list = simulate_parser("c.nge.s $f9, $f22".to_string());
+        let instruction_list = instruction_parser("c.nge.s $f9, $f22".to_string());
 
         assert_eq!(
             instruction_list[0].binary,
@@ -578,7 +584,7 @@ mod read_instructions_tests {
 
     #[test]
     fn read_instructions_c_nge_d() {
-        let instruction_list = simulate_parser("c.nge.d $f9, $f22".to_string());
+        let instruction_list = instruction_parser("c.nge.d $f9, $f22".to_string());
 
         assert_eq!(
             instruction_list[0].binary,
@@ -589,7 +595,7 @@ mod read_instructions_tests {
     #[test]
     fn read_instruction_bc1t() {
         let instruction_list =
-            simulate_parser("instruction: add $t1, $t2, $t3\nbc1t instruction".to_string());
+            instruction_parser("instruction: add $t1, $t2, $t3\nbc1t instruction".to_string());
 
         assert_eq!(
             instruction_list[1].binary,
@@ -600,7 +606,7 @@ mod read_instructions_tests {
     #[test]
     fn read_instruction_bc1f() {
         let instruction_list =
-            simulate_parser("instruction: add $t1, $t2, $t3\nbc1f instruction".to_string());
+            instruction_parser("instruction: add $t1, $t2, $t3\nbc1f instruction".to_string());
 
         assert_eq!(
             instruction_list[1].binary,
@@ -608,7 +614,20 @@ mod read_instructions_tests {
         );
     }
 }
-use crate::parser::parser_main::place_binary_in_middle_of_another;
+
+use crate::parser::assembling::assemble_data_binary;
+use crate::parser::parser_assembler_main::{
+    create_binary_vec, place_binary_in_middle_of_another, read_instructions,
+};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::UnsupportedInstruction;
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
+use crate::parser::parsing::{
+    complete_lw_sw_pseudo_instructions, create_label_map,
+    expand_pseudo_instructions_and_assign_instruction_numbers, separate_data_and_text,
+    tokenize_program,
+};
+use std::collections::HashMap;
+
 #[test]
 fn place_binary_in_middle_of_another_works() {
     let result = place_binary_in_middle_of_another(0b11, 0b0, 1, 0);
@@ -632,27 +651,81 @@ fn place_binary_works_dahi() {
 }
 
 mod helper_functions {
-    use crate::parser::parser_main::read_instructions;
+    use crate::parser::assembling::assemble_data_binary;
+    use crate::parser::parser_assembler_main::read_instructions;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::Instruction;
-    use crate::parser::preprocessing::{
-        assign_instruction_numbers, build_instruction_list_from_lines, confirm_operand_commas,
-        create_label_map, expand_pseudo_instruction, tokenize_instructions,
+    use crate::parser::parsing::{
+        create_label_map, expand_pseudo_instructions_and_assign_instruction_numbers,
+        separate_data_and_text, tokenize_program,
     };
     use std::collections::HashMap;
 
-    pub fn simulate_parser(mut file_string: String) -> Vec<Instruction> {
+    pub fn instruction_parser(mut file_string: String) -> Vec<Instruction> {
         file_string = file_string.to_lowercase();
 
-        let (lines, _comments) = tokenize_instructions(file_string);
-        let mut instruction_list: Vec<Instruction> = build_instruction_list_from_lines(lines);
-        confirm_operand_commas(&mut instruction_list);
-        expand_pseudo_instruction(&mut instruction_list);
-        assign_instruction_numbers(&mut instruction_list);
+        let (lines, _comments) = tokenize_program(file_string);
+        let (mut instruction_list, mut data) = separate_data_and_text(lines);
+        expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
+        assemble_data_binary(&mut data);
 
-        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list);
+        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
-        read_instructions(&mut instruction_list, labels);
+        read_instructions(&mut instruction_list, &labels);
 
         instruction_list
     }
+}
+
+#[test]
+fn create_binary_vec_works_with_data() {
+    let mut program_info = ProgramInfo::default();
+    let file_string =
+        ".data\nlabel: .ascii \"this is a string\"\n.text\nlw $t1, label".to_lowercase();
+    let (lines, comments) = tokenize_program(file_string);
+    program_info.comments_line_and_column = comments;
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+    let vec_of_data = assemble_data_binary(&mut program_info.data);
+
+    let labels: HashMap<String, u32> =
+        create_label_map(&mut program_info.instructions, &mut program_info.data);
+    complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels);
+    read_instructions(&mut program_info.instructions, &labels);
+
+    let result = create_binary_vec(program_info.instructions.clone(), vec_of_data);
+
+    assert_eq!(result[2], 0b01110100011010000110100101110011);
+    assert_eq!(result[3], 0b00100000011010010111001100100000);
+    assert_eq!(result[4], 0b01100001001000000111001101110100);
+    assert_eq!(result[5], 0b01110010011010010110111001100111);
+}
+
+#[test]
+fn read_instructions_recognizes_valid_but_unsupported_instructions() {
+    let mut program_info = ProgramInfo::default();
+    let file_string = "jalr $t1, $t2\ndsrav $t1, $t2, $t3".to_lowercase();
+    let (lines, comments) = tokenize_program(file_string);
+    program_info.comments_line_and_column = comments;
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+
+    let labels: HashMap<String, u32> =
+        create_label_map(&mut program_info.instructions, &mut program_info.data);
+    complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels);
+    read_instructions(&mut program_info.instructions, &labels);
+
+    assert_eq!(
+        program_info.instructions[0].errors[0].error_name,
+        UnsupportedInstruction
+    );
+    assert_eq!(
+        program_info.instructions[1].errors[0].error_name,
+        UnsupportedInstruction
+    );
 }

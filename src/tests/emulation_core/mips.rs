@@ -6,7 +6,7 @@ use crate::emulation_core::mips::registers::GpRegisterType;
 
 pub mod api {
     use super::*;
-    use crate::parser::parser_main::parser;
+    use crate::parser::parser_assembler_main::parser;
 
     #[test]
     fn reset_datapath() -> Result<(), String> {
@@ -584,7 +584,6 @@ pub mod slt {
 
         datapath.execute_instruction();
 
-        // $zero should still contain 0.
         assert_eq!(datapath.registers[GpRegisterType::S2], 1);
     }
 
@@ -605,7 +604,6 @@ pub mod slt {
 
         datapath.execute_instruction();
 
-        // $zero should still contain 0.
         assert_eq!(datapath.registers[GpRegisterType::S2], 0);
     }
 
@@ -626,7 +624,6 @@ pub mod slt {
 
         datapath.execute_instruction();
 
-        // $zero should still contain 0.
         assert_eq!(datapath.registers[GpRegisterType::S2], 1);
     }
 }
@@ -651,7 +648,6 @@ pub mod sltu {
 
         datapath.execute_instruction();
 
-        // $zero should still contain 0.
         assert_eq!(datapath.registers[GpRegisterType::S2], 1);
     }
 
@@ -672,7 +668,6 @@ pub mod sltu {
 
         datapath.execute_instruction();
 
-        // $zero should still contain 0.
         assert_eq!(datapath.registers[GpRegisterType::S2], 0);
     }
 
@@ -693,7 +688,6 @@ pub mod sltu {
 
         datapath.execute_instruction();
 
-        // $zero should still contain 0.
         assert_eq!(datapath.registers[GpRegisterType::S2], 0);
     }
 }
@@ -738,7 +732,7 @@ pub mod andi {
         //         $t0:  00111010 11011110 01101000 10110001
         // AND  12,345:                    00110000 00111001
         // =================================================
-        // 987,658,425:  00000000 00000000 00100000 00110001
+        //       8,241:  00000000 00000000 00100000 00110001
 
         assert_eq!(datapath.registers.gpr[16], 0x2031); // $s0
     }
@@ -750,7 +744,7 @@ pub mod addi_addiu {
     fn addi_simple_test() {
         let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x1
+        // $s0 = $t0 + 0x4
         //                       addi    $t0   $s0          4
         let instruction: u32 = 0b001000_01000_10000_0000000000000100;
         datapath
@@ -779,8 +773,7 @@ pub mod addi_addiu {
         datapath.registers[GpRegisterType::S0] = 123;
         datapath.execute_instruction();
 
-        // if there is an overflow, $s0 should not change.
-        // For the addiu instruction, $s0 would change on overflow, it would become 3.
+        // If there is an overflow on addi, $s0 should not change.
         assert_eq!(datapath.registers[GpRegisterType::S0], 123);
     }
 
@@ -822,7 +815,7 @@ pub mod addi_addiu {
     fn addiu_simple_test() {
         let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x1
+        // $s0 = $t0 + 0x4
         //                       addiu    $t0   $s0          4
         let instruction: u32 = 0b001001_01000_10000_0000000000000100;
         datapath
@@ -840,8 +833,8 @@ pub mod addi_addiu {
     fn addiu_overflow_test() {
         let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x1
-        //                       addiu    $t0   $s0          1
+        // $s0 = $t0 + 0x4
+        //                       addiu    $t0   $s0          4
         let instruction: u32 = 0b001001_01000_10000_0000000000000100;
         datapath
             .memory
@@ -851,7 +844,6 @@ pub mod addi_addiu {
         datapath.registers[GpRegisterType::S0] = 123;
         datapath.execute_instruction();
 
-        // if there is an overflow, $s0 should not change.
         // For the addiu instruction, $s0 would change on overflow, it would become 3.
         assert_eq!(datapath.registers[GpRegisterType::S0], 3);
     }
@@ -880,7 +872,7 @@ pub mod daddi_and_daddiu {
     fn daddi_simple_test() {
         let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x1
+        // $s0 = $t0 + 0x4
         //                       daddi    $t0   $s0          4
         let instruction: u32 = 0b011000_01000_10000_0000000000000100;
         datapath
@@ -900,7 +892,7 @@ pub mod daddi_and_daddiu {
 
         // $s0 = $t0 + 0x1
         //                       daddi    $t0   $s0          1
-        let instruction: u32 = 0b011000_01000_10000_0000000000000100;
+        let instruction: u32 = 0b011000_01000_10000_0000000000000001;
         datapath
             .memory
             .store_word(0, instruction)
@@ -952,7 +944,7 @@ pub mod daddi_and_daddiu {
     fn daddiu_simple_test() {
         let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x1
+        // $s0 = $t0 + 0x4
         //                       daddiu    $t0   $s0          4
         let instruction: u32 = 0b011001_01000_10000_0000000000000100;
         datapath
@@ -970,8 +962,8 @@ pub mod daddi_and_daddiu {
     fn daddiu_overflow_test() {
         let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x1
-        //                       daddiu    $t0   $s0          1
+        // $s0 = $t0 + 0x4
+        //                       daddiu    $t0   $s0          4
         let instruction: u32 = 0b011001_01000_10000_0000000000000100;
         datapath
             .memory

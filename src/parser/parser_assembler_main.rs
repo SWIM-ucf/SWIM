@@ -1,9 +1,9 @@
-use crate::parser::operand_reading::read_operands;
+use crate::parser::assembling::{assemble_data_binary, read_operands};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::*;
-use crate::parser::preprocessing::*;
+use crate::parser::parsing::*;
 use std::collections::HashMap;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
@@ -11,26 +11,33 @@ use std::collections::HashMap;
 pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
     let mut program_info = ProgramInfo::default();
     file_string = file_string.to_lowercase();
-
-    let (lines, comments) = tokenize_instructions(file_string);
+    let (lines, comments) = tokenize_program(file_string);
     program_info.comments_line_and_column = comments;
-    program_info.instructions = build_instruction_list_from_lines(lines);
-    confirm_operand_commas(&mut program_info.instructions);
-    expand_pseudo_instruction(&mut program_info.instructions);
-    assign_instruction_numbers(&mut program_info.instructions);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+    );
+    let vec_of_data = assemble_data_binary(&mut program_info.data);
+    let labels: HashMap<String, u32> =
+        create_label_map(&mut program_info.instructions, &mut program_info.data);
+    complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels);
+    read_instructions(&mut program_info.instructions, &labels);
 
-    let labels: HashMap<String, u32> = create_label_map(&mut program_info.instructions);
-
-    read_instructions(&mut program_info.instructions, labels);
+    suggest_error_corrections(
+        &mut program_info.instructions,
+        &mut program_info.data,
+        &labels,
+    );
 
     (
         program_info.clone(),
-        create_binary_vec(program_info.instructions.clone()),
+        create_binary_vec(program_info.instructions.clone(), vec_of_data),
     )
 }
 
 ///Takes the vector of instructions and assembles the binary for them.
-pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<String, u32>) {
+pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<String, u32>) {
     for mut instruction in &mut instruction_list.iter_mut() {
         //this match case is the heart of the parser and figures out which instruction type it is
         //then it can call the proper functions for that specific instruction
@@ -107,6 +114,16 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5);
 
                 read_operands(instruction, vec![RegisterGP, Immediate], vec![1, 2], None);
+            }
+            "aui" => {
+                instruction.binary = append_binary(instruction.binary, 0b001111, 6);
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, Immediate],
+                    vec![2, 1, 3],
+                    None,
+                );
             }
             "andi" => {
                 instruction.binary = append_binary(instruction.binary, 0b001100, 6);
@@ -637,13 +654,450 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                 );
             }
 
-            _ => instruction.errors.push(Error {
-                error_name: UnrecognizedInstruction,
-                operand_number: None,
-            }),
+            _ => {
+                let unsupported_instructions = [
+                    "abs.s",
+                    "abs.d",
+                    "abs.ps",
+                    "addiu",
+                    "addiupc",
+                    "addu",
+                    "align",
+                    "dalign",
+                    "alnv.ps",
+                    "aluipc",
+                    "daui",
+                    "auipc",
+                    "b",
+                    "bal",
+                    "balc",
+                    "bc",
+                    "bc1eqz",
+                    "bc1nez",
+                    "bc1f",
+                    "bc1fl",
+                    "bc1t",
+                    "bc1tl",
+                    "bc2eqz",
+                    "bc2nez",
+                    "bc2f",
+                    "bc2fl",
+                    "bc2t",
+                    "bc2tl",
+                    "beql",
+                    "bgez",
+                    "bgezal",
+                    "blezalc",
+                    "bgezalc",
+                    "bgtzalc",
+                    "bltzalc",
+                    "beqzalc",
+                    "bnezalc",
+                    "bgezall",
+                    "beqc",
+                    "bnec",
+                    "bltc",
+                    "bgec",
+                    "bltuc",
+                    "bgeuc",
+                    "bgtc",
+                    "blec",
+                    "bgtuc",
+                    "bleuc",
+                    "bltzc",
+                    "blezc",
+                    "bgezc",
+                    "bgtzc",
+                    "beqzc",
+                    "bnezc",
+                    "bgezl",
+                    "bgtz",
+                    "bgtzl",
+                    "bitswap",
+                    "dbitswap",
+                    "blez",
+                    "blezl",
+                    "bltz",
+                    "bltzal",
+                    "bltzall",
+                    "bltzl",
+                    "bnel",
+                    "bovc",
+                    "bnvc",
+                    "break",
+                    "c.f.s",
+                    "c.un.s",
+                    "c.ueq.s",
+                    "c.olt.s",
+                    "c.ult.s",
+                    "c.ole.s",
+                    "c.ule.s",
+                    "c.sf.s",
+                    "c.ngle.s",
+                    "c.seq.s",
+                    "c.ngl.s",
+                    "c.f.d",
+                    "c.un.d",
+                    "c.ueq.d",
+                    "c.olt.d",
+                    "c.ult.d",
+                    "c.ole.d",
+                    "c.ule.d",
+                    "c.sf.d",
+                    "c.ngle.d",
+                    "c.seq.d",
+                    "c.ngl.d",
+                    "cache",
+                    "cachee",
+                    "ceil.l.s",
+                    "ceil.l.d",
+                    "ceil.w.s",
+                    "ceil.w.d",
+                    "cfc1",
+                    "cfc2",
+                    "class.s",
+                    "class.d",
+                    "clo",
+                    "clz",
+                    "cmp.f.s",
+                    "cmp.un.s",
+                    "cmp.eq.s",
+                    "cmp.ueq.s",
+                    "cmp.olt.s",
+                    "cmp.ult.s",
+                    "cmp.ole.s",
+                    "cmp.ule.s",
+                    "cmp.sf.s",
+                    "cmp.ngle.s",
+                    "cmp.seq.s",
+                    "cmp.ngl.s",
+                    "cmp.lt.s",
+                    "cmp.nge.s",
+                    "cmp.le.s",
+                    "cmp.ngt.s",
+                    "cmp.f.d",
+                    "cmp.un.d",
+                    "cmp.eq.d",
+                    "cmp.ueq.d",
+                    "cmp.olt.d",
+                    "cmp.ult.d",
+                    "cmp.ole.d",
+                    "cmp.ule.d",
+                    "cmp.sf.d",
+                    "cmp.ngle.d",
+                    "cmp.seq.d",
+                    "cmp.ngl.d",
+                    "cmp.lt.d",
+                    "cmp.nge.d",
+                    "cmp.le.d",
+                    "cmp.ngt.d",
+                    "cop2",
+                    "crc32b",
+                    "crc32h",
+                    "crc32w",
+                    "crc32d",
+                    "crc32cb",
+                    "crc32ch",
+                    "crc32cw",
+                    "crc32cd",
+                    "ctc1",
+                    "ctc2",
+                    "cvt.d.s",
+                    "cvt.d.w",
+                    "cvt.d.l",
+                    "cvt.l.s",
+                    "cvt.l.d",
+                    "cvt.ps.s",
+                    "cvt.s.pl",
+                    "cvt.s.pu",
+                    "cvt.s.d",
+                    "cvt.s.w",
+                    "cvt.s.l",
+                    "cvt.w.s",
+                    "cvt.w.d",
+                    "dclo",
+                    "dclz",
+                    "ddivu",
+                    "deret",
+                    "dext",
+                    "dextm",
+                    "dextu",
+                    "di",
+                    "dins",
+                    "dinsm",
+                    "dinsu",
+                    "mod",
+                    "divu",
+                    "modu",
+                    "dmod",
+                    "ddivu",
+                    "dmodu",
+                    "dmfc0",
+                    "dmtc0",
+                    "dmtc2",
+                    "dmult",
+                    "dmultu",
+                    "drotr",
+                    "drotr32",
+                    "drotrv",
+                    "dsbh",
+                    "dshd",
+                    "dsll",
+                    "dsll32",
+                    "dsllv",
+                    "dsra",
+                    "dsra32",
+                    "dsrav",
+                    "dsrl",
+                    "dsrl32",
+                    "dsrlv",
+                    "dsubu",
+                    "dvp",
+                    "ehb",
+                    "ei",
+                    "eret",
+                    "eretnc",
+                    "evp",
+                    "ext",
+                    "floor.l.s",
+                    "floor.l.d",
+                    "floor.w.s",
+                    "floor.w.d",
+                    "ginvi",
+                    "ginvt",
+                    "ins",
+                    "jalr",
+                    "jalr.hb",
+                    "jalx",
+                    "jialc",
+                    "jic",
+                    "jr",
+                    "jr.hb",
+                    "lb",
+                    "lbe",
+                    "lbu",
+                    "lbue",
+                    "ldc1",
+                    "ldc2",
+                    "ldl",
+                    "ldpc",
+                    "ldr",
+                    "ldxc1",
+                    "lh",
+                    "lhe",
+                    "lhu",
+                    "lhue",
+                    "ll",
+                    "lld",
+                    "lle",
+                    "lldp",
+                    "llwp",
+                    "llwpe",
+                    "lsa",
+                    "dlsa",
+                    "luxc1",
+                    "lwc2",
+                    "lwe",
+                    "lwl",
+                    "lwle",
+                    "lwpc",
+                    "lwr",
+                    "lwre",
+                    "lwu",
+                    "lwupc",
+                    "lwxc1",
+                    "madd",
+                    "madd.s",
+                    "madd.d",
+                    "madd.ps",
+                    "maddf.s",
+                    "maddf.d",
+                    "maddf.s",
+                    "msubf.s",
+                    "msubf.d",
+                    "maddu",
+                    "max.s",
+                    "max.d",
+                    "maxa.s",
+                    "maxa.d",
+                    "min.s",
+                    "mina.d",
+                    "mcf0",
+                    "mcf1",
+                    "mfc2",
+                    "mfhi",
+                    "mflo",
+                    "mov.s",
+                    "mov.d",
+                    "mov.ps",
+                    "movf",
+                    "movf.s",
+                    "movf.d",
+                    "movf.ps",
+                    "movn",
+                    "movn.s",
+                    "movn.d",
+                    "movn.ps",
+                    "movt",
+                    "movt.s",
+                    "movt.d",
+                    "movt.ps",
+                    "movz",
+                    "movz.s",
+                    "movz.d",
+                    "movz.ps",
+                    "msub",
+                    "msub.s",
+                    "msub.d",
+                    "msub.ps",
+                    "msubu",
+                    "mtc0",
+                    "mtc2",
+                    "mthc0",
+                    "mthc1",
+                    "mthc2",
+                    "mthi",
+                    "mtlo",
+                    "muh",
+                    "mulu",
+                    "muhu",
+                    "dmuh",
+                    "dmulu",
+                    "dmuhu",
+                    "mul.ps",
+                    "mult",
+                    "multu",
+                    "nal",
+                    "neg.s",
+                    "neg.d",
+                    "neg.ps",
+                    "nmadd.s",
+                    "nmadd.d",
+                    "nmadd.ps",
+                    "nmsub.s",
+                    "nmsub.d",
+                    "nmsub.ps",
+                    "nop",
+                    "nor",
+                    "pause",
+                    "pll.ps",
+                    "plu.ps",
+                    "pref",
+                    "prefe",
+                    "prefx",
+                    "pul.ps",
+                    "puu.ps",
+                    "rdhwr",
+                    "rdpgpr",
+                    "recip.s",
+                    "recip.d",
+                    "rint.s",
+                    "rint.d",
+                    "rotzr",
+                    "rotrv",
+                    "round.l.s",
+                    "round.l.d",
+                    "round.w.s",
+                    "round.w.d",
+                    "rsqrt.s",
+                    "rsqrt.d",
+                    "sb",
+                    "sbe",
+                    "sc",
+                    "scd",
+                    "scdp",
+                    "sce",
+                    "scwp",
+                    "scwpe",
+                    "sdbbp",
+                    "sdc1",
+                    "sdc2",
+                    "sdl",
+                    "sdr",
+                    "sdxc1",
+                    "seb",
+                    "seh",
+                    "sel.s",
+                    "sel.d",
+                    "seleqz",
+                    "selnez",
+                    "seleqz.s",
+                    "seleqz.d",
+                    "selneqz.s",
+                    "selneqz.d",
+                    "sh",
+                    "she",
+                    "sigrie",
+                    "sll",
+                    "sllv",
+                    "slti",
+                    "sltiu",
+                    "sqrt.s",
+                    "sqrt.d",
+                    "sra",
+                    "srav",
+                    "srl",
+                    "srlv",
+                    "ssnop",
+                    "sub.ps",
+                    "subu",
+                    "suxc1",
+                    "swc2",
+                    "swe",
+                    "swl",
+                    "swle",
+                    "swr",
+                    "swre",
+                    "swxc1",
+                    "sync",
+                    "synci",
+                    "syscall",
+                    "teq",
+                    "teqi",
+                    "tge",
+                    "tgei",
+                    "tgeiu",
+                    "tgeu",
+                    "tlbinv",
+                    "tlbinvf",
+                    "tlbp",
+                    "tlbr",
+                    "tlbwi",
+                    "tlbwr",
+                    "tlt",
+                    "tlti",
+                    "tltiu",
+                    "tltu",
+                    "tne",
+                    "tnei",
+                    "trunc.l.s",
+                    "trunc.l.d",
+                    "trunc.w.s",
+                    "trunc.w.d",
+                    "wait",
+                    "wrpgpr",
+                    "xor",
+                    "xori",
+                ];
+
+                if unsupported_instructions.contains(&&*instruction.operator.token_name) {
+                    instruction.errors.push(Error {
+                        error_name: UnsupportedInstruction,
+                        operand_number: None,
+                        message: "".to_string(),
+                    })
+                } else {
+                    instruction.errors.push(Error {
+                        error_name: UnrecognizedInstruction,
+                        operand_number: None,
+                        message: "".to_string(),
+                    });
+                }
+            }
         }
     }
 }
+
 ///This function takes two numbers and inserts the binary of the second at a given index in the binary of the first.
 ///All binary values at and past the insertion index of the original string will be moved to the end of the resultant string.
 ///Since binary is sign extended on the left to 32 bits, insertion index must be the index from the end of the string.
@@ -683,10 +1137,34 @@ pub fn append_binary(mut first: u32, mut second: u32, shift_amount: u8) -> u32 {
 }
 
 ///Creates a vector of u32 from the data found in the parser / assembler to put into memory.
-pub fn create_binary_vec(instructions: Vec<Instruction>) -> Vec<u32> {
+pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8>) -> Vec<u32> {
+    //push all instructions
     let mut binary: Vec<u32> = Vec::new();
     for instruction in instructions {
         binary.push(instruction.binary);
     }
+
+    //makes sure the byte array length is a multiple of 4
+    let mod4 = vec_of_data.len() % 4;
+    vec_of_data.resize(vec_of_data.len() + mod4, 255);
+
+    //push the .data
+    let mut i = 0;
+    while i < vec_of_data.len() {
+        //create a word from 4 bytes and then push it to the vec
+        let mut word = vec_of_data[i] as u32;
+        word <<= 8;
+        i += 1;
+        word |= vec_of_data[i] as u32;
+        word <<= 8;
+        i += 1;
+        word |= vec_of_data[i] as u32;
+        word <<= 8;
+        i += 1;
+        word |= vec_of_data[i] as u32;
+        binary.push(word);
+        i += 1;
+    }
+
     binary
 }

@@ -12,7 +12,7 @@ use monaco::{
     sys::editor::{IEditorMinimapOptions, IStandaloneEditorConstructionOptions},
     yew::CodeEditor,
 };
-use parser::parser_main::parser;
+use parser::parser_assembler_main::parser;
 use std::{cell::RefCell, rc::Rc};
 use stylist::css;
 use wasm_bindgen_futures::spawn_local;
@@ -20,6 +20,7 @@ use web_sys::HtmlInputElement;
 //use stylist::yew::*;
 use ui::console::component::Console;
 use ui::regview::component::Regview;
+use ui::visual_datapath::VisualDatapath;
 use wasm_bindgen::{JsCast, JsValue};
 use yew::prelude::*;
 use yew::{html, Html, Properties};
@@ -106,6 +107,19 @@ fn app() -> Html {
         )
     };
 
+    let on_execute_stage_clicked = {
+        let datapath = Rc::clone(&datapath);
+        let trigger = use_force_update();
+        use_callback(
+            move |_, _| {
+                let mut datapath = (*datapath).borrow_mut();
+                (*datapath).execute_stage();
+                trigger.force_update();
+            },
+            (),
+        )
+    };
+
     // This is how we will reset the datapath. This is the only method to "halt"
     // programs since if the user continues to execute, the whole application will
     // crash.
@@ -181,6 +195,7 @@ fn app() -> Html {
                     <div style="width: 70%">
                         <button class="button" onclick={on_load_clicked}>{ "Assemble" }</button>
                         <button class="button" onclick={on_execute_clicked}> { "Execute" }</button>
+                        <button class="button" onclick={on_execute_stage_clicked}> { "Execute Stage" }</button>
                         <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
                         <input type="button" value="Load File" onclick={upload_clicked_callback} />
                         <SwimEditor text_model={(*text_model).borrow().clone()} />
@@ -194,6 +209,7 @@ fn app() -> Html {
                             >{"Memory"}</button>
                         </div>
                         <Console parsermsg={(*parser_text_output).clone()}/>
+                        <VisualDatapath datapath={(*datapath.borrow()).clone()} svg_path={"static/datapath.svg"} />
                     </div>
                     // Pass in register data from emu core
                     <Regview gp={(*datapath).borrow().registers} fp={(*datapath).borrow().coprocessor.fpr}/>

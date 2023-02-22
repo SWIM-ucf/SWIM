@@ -80,7 +80,7 @@ pub struct FpuCompareType {
     pub function: u8,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Instruction {
     RType(RType),
     IType(IType),

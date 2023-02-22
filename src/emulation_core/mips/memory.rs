@@ -3,7 +3,7 @@
 // pub const CAPACITY_BYTES: usize = 2^12; // 4KB
 pub const CAPACITY_BYTES: usize = 64 * 1024; // 64 KB
 
-#[derive(PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct Memory {
     pub memory: Vec<u8>,
 }

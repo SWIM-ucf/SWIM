@@ -14,6 +14,10 @@
 //!
 //! - There is no exception handling, including that for integer overflow. (See
 //!   [`MipsDatapath::alu()`].)
+//! - Only the `addi` and `daddi` instructions follow the proper MIPS specification
+//!   in terms of integer overflow. That is, if there is an overflow, the general-purpose
+//!   register will not be written to. `add` and `dadd` will continue to write on
+//!   overflow. `sub`, `dsub` will likewise continue to write on underflow.
 //! - 32-bit instructions are treated exclusively with 32 bits, and the upper 32
 //!   bits stored in a register are completely ignored in any of these cases. For
 //!   example, before an `add` instruction, it should be checked whether it is a
@@ -24,6 +28,13 @@
 //! - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
 //!   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
 //!   `bnezalc`, `beqc`, and `bovc` instructions.
+//! - Unlike the MIPS64 version 6 specification for the `jal` instruction, `PC + 4` is
+//!   stored in `GPR[31]`, *not* `PC + 8`, as there is no implementation of branch
+//!   delay slots.
+//! - The "load upper immediate" (`lui`) instruction is officially supported as of MIPS64
+//!   version 5. In version 6, `lui` is an assembly idiom for "add upper immediate" (`aui`)
+//!   with `rs` = 0. However, `aui` is not officially supported nor tested in this
+//!   datapath.
 
 use super::super::datapath::Datapath;
 use super::constants::*;
@@ -33,7 +44,7 @@ use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 
 /// An implementation of a datapath for the MIPS64 ISA.
-#[derive(Default, PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct MipsDatapath {
     pub registers: GpRegisters,
     pub memory: Memory,
@@ -45,81 +56,81 @@ pub struct MipsDatapath {
     pub state: DatapathState,
 
     /// The currently-active stage in the datapath.
-    current_stage: Stage,
+    pub current_stage: Stage,
 }
 
 /// A collection of all the data lines and wires in the datapath.
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub struct DatapathState {
     /// *Data line.* The currently loaded instruction. Initialized after the
     /// Instruction Fetch stage.
-    instruction: u32,
-    rs: u32,
-    rt: u32,
-    rd: u32,
-    shamt: u32,
-    funct: u32,
-    imm: u32,
+    pub instruction: u32,
+    pub rs: u32,
+    pub rt: u32,
+    pub rd: u32,
+    pub shamt: u32,
+    pub funct: u32,
+    pub imm: u32,
 
     /// *Data line.* Data read from the register file based on the `rs`
     /// field of the instruction. Initialized after the Instruction
     /// Decode stage.
-    read_data_1: u64,
+    pub read_data_1: u64,
 
     /// *Data line.* Data read from the register file based on the `rt`
     /// field of the instruction. Initialized after the Instruction
     /// Decode stage.
-    read_data_2: u64,
+    pub read_data_2: u64,
 
     /// *Data line.* The instruction's immediate value sign-extended to
     /// 64 bits. Initialized after the Instruction Decode stage.
-    sign_extend: u64,
+    pub sign_extend: u64,
 
     /// *Data line.* The final result as provided by the ALU.
     /// Initialized after the Execute stage.
-    alu_result: u64,
+    pub alu_result: u64,
 
     /// *Data line.* The data retrieved from memory. Initialized after
     /// the Memory stage.
-    memory_data: u64,
+    pub memory_data: u64,
 
     /// *Data line.* The data after the `MemToReg` multiplexer, but
     /// before the `DataWrite` multiplexer in the main processor.
-    data_result: u64,
+    pub data_result: u64,
 
     /// *Data line.* The data after the `DataWrite` multiplexer in the main
     /// processor and the main processor register file.
-    register_write_data: u64,
+    pub register_write_data: u64,
 
     /// *Jump 26 bit line.* The low 26 bits of the instruction reserved
-    /// for possible use by the J instruction
-    lower_26: u32,
+    /// for possible use by a J-type instruction.
+    pub lower_26: u32,
 
-    /// *Lower 26 << 2 line.* This line carries the low 28 bits for the
-    /// jump address
-    lower_26_shifted_left_by_2: u32,
+    /// *Lower 26 << 2 line.* This line carries the low 28 bits of the
+    /// jump address.
+    pub lower_26_shifted_left_by_2: u32,
 
-    /// *Jump address line.* The line the will carry the combination of
-    /// the high 4 bits and pc, and the lower_26_for_jump_line bits shifted
-    /// left by 2.
-    jump_address: u64,
+    /// *Jump address line.* This lines carries the concatenation of
+    /// the high 36 bits of the PC, and `lower_26_shifted_left_by_2`.
+    pub jump_address: u64,
 
-    /// *PC + 4 line.* Yeah, just PC + 4
-    pc_plus_4: u64,
+    /// *Data line.* Contains PC + 4.
+    pub pc_plus_4: u64,
 
-    /// *New PC line.* In the WB stage this line is written to registers.pc
-    new_pc: u64,
+    /// *Data line.* New PC value used if branching is set for an instruction.
+    pub relative_pc_branch: u64,
 
-    /// *Relative PC branch address line
-    relative_pc_branch: u64,
+    /// *Data line.* Determines the next value of the PC, given that the
+    /// current instruction is not a jump.
+    pub mem_mux1_to_mem_mux2: u64,
 
-    /// bla bla bal
-    mem_mux1_to_mem_mux2: u64,
+    /// *New PC line.* In the WB stage, this line is written to the PC.
+    pub new_pc: u64,
 }
 
 /// The possible stages the datapath could be in during execution.
 #[derive(Default, Copy, Clone, Eq, PartialEq)]
-enum Stage {
+pub enum Stage {
     #[default]
     InstructionFetch,
     InstructionDecode,
@@ -146,6 +157,27 @@ impl Stage {
 /// present, this is the equivalent of `panic!()`.
 pub fn error(message: &str) {
     panic!("{}", message);
+}
+
+impl Default for MipsDatapath {
+    fn default() -> Self {
+        let mut datapath = MipsDatapath {
+            registers: GpRegisters::default(),
+            memory: Memory::default(),
+            coprocessor: MipsFpCoprocessor::default(),
+            instruction: Instruction::default(),
+            signals: ControlSignals::default(),
+            datapath_signals: DatapathSignals::default(),
+            state: DatapathState::default(),
+            current_stage: Stage::default(),
+        };
+
+        // Set the stack pointer ($sp) to initially start at the end
+        // of memory.
+        datapath.registers.gpr[29] = super::memory::CAPACITY_BYTES as u64;
+
+        datapath
+    }
 }
 
 impl Datapath for MipsDatapath {
@@ -587,12 +619,8 @@ impl MipsDatapath {
                 self.signals.reg_write = RegWrite::YesWrite;
             }
 
-            // The difference between ADDI and ADDIU is on whether
-            // and exception is thrown on overflow, and on whether
-            // to write on overflow, Our emu does not impliment
-            // exceptions for now...
             OPCODE_ADDI => {
-                self.signals.alu_op = AluOp::AddWithNoWriteOnOverFlow;
+                self.signals.alu_op = AluOp::AddWithNoWriteOnOverflow;
                 self.signals.alu_src = AluSrc::SignExtendedImmediate;
                 self.signals.branch = Branch::NoBranch;
                 self.signals.imm_shift = ImmShift::Shift0;
@@ -605,6 +633,7 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::Word;
                 self.signals.reg_write = RegWrite::YesWrite;
             }
+
             OPCODE_ADDIU => {
                 self.signals.alu_op = AluOp::Addition;
                 self.signals.alu_src = AluSrc::SignExtendedImmediate;
@@ -621,7 +650,7 @@ impl MipsDatapath {
             }
 
             OPCODE_DADDI => {
-                self.signals.alu_op = AluOp::AddWithNoWriteOnOverFlow;
+                self.signals.alu_op = AluOp::AddWithNoWriteOnOverflow;
                 self.signals.alu_src = AluSrc::SignExtendedImmediate;
                 self.signals.branch = Branch::NoBranch;
                 self.signals.imm_shift = ImmShift::Shift0;
@@ -823,6 +852,10 @@ impl MipsDatapath {
     /// Set the control signals for the datapath based on the
     /// instruction's opcode.
     fn set_control_signals(&mut self) {
+        // Restore default behavior for this instruction, should OverflowWriteBlock
+        // have been set from a previous instruction.
+        self.signals.overflow_write_block = OverflowWriteBlock::NoBlock;
+
         match self.instruction {
             Instruction::RType(r) => {
                 self.set_rtype_control_signals(r);
@@ -870,7 +903,7 @@ impl MipsDatapath {
     fn set_alu_control(&mut self) {
         self.signals.alu_control = match self.signals.alu_op {
             AluOp::Addition => AluControl::Addition,
-            AluOp::AddWithNoWriteOnOverFlow => AluControl::AddWithNoWriteOnOverFlow,
+            AluOp::AddWithNoWriteOnOverflow => AluControl::AddWithNoWriteOnOverflow,
             AluOp::Subtraction => AluControl::Subtraction,
             AluOp::SetOnLessThanSigned => AluControl::SetOnLessThanSigned,
             AluOp::SetOnLessThanUnsigned => AluControl::SetOnLessThanUnsigned,
@@ -920,8 +953,9 @@ impl MipsDatapath {
     /// Perform an ALU operation.
     ///
     /// **Implementation Note:** Unlike the MIPS64 specification, this ALU
-    /// does not handle integer overflow exceptions. Should this be implemented
-    /// in the future, the ALU should be adjusted accordingly to address this.
+    /// does not handle exceptions due to integer overflow. However, it will
+    /// set the [`OverflowWriteBlock`] signal on overflow when the operation
+    /// [`AluControl`] is set to `AddWithNoWriteOverflow`.
     fn alu(&mut self) {
         // Left shift the immediate value based on the ImmShift control signal.
         let alu_immediate = match self.signals.imm_shift {
@@ -951,14 +985,12 @@ impl MipsDatapath {
         // Set the result.
         self.state.alu_result = match self.signals.alu_control {
             AluControl::Addition => input1.wrapping_add(input2),
-            AluControl::AddWithNoWriteOnOverFlow => {
-                // Ugly hack to make addi and daddi work correctly
+            AluControl::AddWithNoWriteOnOverflow => {
                 if let RegWidth::Word = self.signals.reg_width {
-                    let i1 = input1 as u32;
-                    let i2 = input2 as u32;
-                    let sum = i1.overflowing_add(i2);
+                    let input1 = input1 as u32;
+                    let input2 = input2 as u32;
+                    let sum = input1.overflowing_add(input2);
                     if sum.1 {
-                        // read_data_2 is the value already in the output register
                         self.signals.overflow_write_block = OverflowWriteBlock::YesBlock;
                     }
                     sum.0 as u64
@@ -1063,7 +1095,8 @@ impl MipsDatapath {
             DataWrite::YesWrite => self.coprocessor.get_data_register(),
         };
 
-        // Abort if the RegWrite signal is not set.
+        // Abort if the RegWrite signal is not set, or if the OverflowWriteBlock signal
+        // is set and overriding write behavior.
         if self.signals.reg_write == RegWrite::NoWrite
             || self.signals.overflow_write_block == OverflowWriteBlock::YesBlock
         {
@@ -1093,11 +1126,9 @@ impl MipsDatapath {
         self.registers.gpr[destination] = self.state.register_write_data;
     }
 
-    /// Update the program counter register. At the moment, this only
-    /// increments the PC by 4 and does not support branching or
-    /// jumping.
+    /// Update the program counter register.
     ///
-    /// This function is called from the WB stage
+    /// This function is called from the WB stage.
     fn set_pc(&mut self) {
         self.registers.pc = self.state.new_pc;
     }
