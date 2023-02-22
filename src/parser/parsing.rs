@@ -2,7 +2,9 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{Data, Error, Instruction, Line, Token};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{
+    Data, Error, Instruction, Line, Token,
+};
 use levenshtein::levenshtein;
 use std::collections::HashMap;
 
@@ -1124,7 +1126,32 @@ pub fn suggest_error_corrections(
                     suggestion.push_str(".");
                     error.suggested_correction = suggestion;
                 }
-                UnrecognizedInstruction => {}
+                UnrecognizedInstruction => {
+                    let recognized_instructions = [
+                        "add", "sub", "mul", "div", "lw", "sw", "lui", "aui", "andi", "ori",
+                        "addi", "dadd", "dsub", "dmul", "ddiv", "or", "and", "add.s", "add.d",
+                        "sub.s", "sub.d", "mul.s", "mul.d", "div.s", "div.d", "dahi", "dati",
+                        "daddiu", "slt", "sltu", "swc1", "lwc1", "mtc1", "dmtc1", "mfc1", "dmfc1",
+                        "j", "beq", "bne", "c.eq.s", "c.eq.d", "c.lt.s", "c.le.s", "c.le.d",
+                        "c.ngt.s", "c.ngt.d", "c.nge.s", "c.nge.d", "bc1t", "bc1f",
+                    ];
+
+                    let given_string =
+                        &instruction.operator.token_name;
+                    let mut closest: (usize, String) = (usize::MAX, "".to_string());
+
+                    for instruction in recognized_instructions {
+                        if levenshtein(given_string, instruction) < closest.0 {
+                            closest.0 = levenshtein(given_string, instruction);
+                            closest.1 = instruction.to_string();
+                        }
+                    }
+
+                    let mut suggestion = "A valid, similar instruction is: ".to_string();
+                    suggestion.push_str(&*closest.1);
+                    suggestion.push_str(".");
+                    error.suggested_correction = suggestion;
+                }
                 IncorrectRegisterType => {}
                 MissingComma => {}
                 ImmediateOutOfBounds => {}
@@ -1135,9 +1162,9 @@ pub fn suggest_error_corrections(
                 LabelAssignmentError => {}
                 LabelMultipleDefinition => {}
                 LabelNotFound => {
-
-                    if labels.is_empty(){
-                        error.suggested_correction = "There is no recognized labelled memory".to_string();
+                    if labels.is_empty() {
+                        error.suggested_correction =
+                            "There is no recognized labelled memory".to_string();
                         continue;
                     }
 

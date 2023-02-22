@@ -6,9 +6,7 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, Instruction, Line, ProgramInfo, Token,
-};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{Data, Error, Instruction, Line, ProgramInfo, Token};
 use crate::parser::parsing::{
     complete_lw_sw_pseudo_instructions, create_label_map,
     expand_pseudo_instructions_and_assign_instruction_numbers,
@@ -2119,9 +2117,10 @@ fn suggest_error_corrections_works_with_various_fp_registers() {
 
 #[test]
 fn suggest_error_corrections_works_with_labels() {
-    let result = parser("j stable\nlabel: add $t1, $t2, $t3\ntable: sub $t1, $t2, $t3\nj lapel".to_string())
-        .0
-        .instructions;
+    let result =
+        parser("j stable\nlabel: add $t1, $t2, $t3\ntable: sub $t1, $t2, $t3\nj lapel".to_string())
+            .0
+            .instructions;
 
     assert_eq!(
         result[0].errors[0].suggested_correction,
@@ -2131,5 +2130,13 @@ fn suggest_error_corrections_works_with_labels() {
         result[3].errors[0].suggested_correction,
         "A valid, similar label is: label."
     );
+}
 
+#[test]
+fn suggest_error_corrections_works_with_instructions(){
+    let result = parser("sun $t1, $t2, $t3\nlq $t1, 100($zero)\n.c.eqd $f1, $f1, $f3".to_string()).0.instructions;
+
+    assert_eq!(result[0].errors[0].suggested_correction, "A valid, similar instruction is: sub.");
+    assert_eq!(result[1].errors[0].suggested_correction, "A valid, similar instruction is: lw.");
+    assert_eq!(result[2].errors[0].suggested_correction, "A valid, similar instruction is: c.eq.d.");
 }
