@@ -181,18 +181,18 @@ fn app() -> Html {
                 </div>
                 <div style="display: flex">
                     <div style="width: 70%">
-                        <button onclick={on_load_clicked}>{ "Assemble" }</button>
-                        <button onclick={on_execute_clicked}> { "Execute" }</button>
-                        <button onclick={on_reset_clicked}>{ "Reset" }</button>
+                        <button class="button" onclick={on_load_clicked}>{ "Assemble" }</button>
+                        <button class="button" onclick={on_execute_clicked}> { "Execute" }</button>
+                        <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
                         <input type="button" value="Load File" onclick={upload_clicked_callback} />
                         <SwimEditor text_model={(*text_model).borrow().clone()} />
                         //<button onclick={on_error_clicked}>{ "Click" }</button>
                         <div class="tab">
-                            <button class="tablinks" style="width: 10%;"
+                            <button class="tabs" style="width: 10%;"
                             >{"Console"}</button>
-                            <button class="tablinks" style="width: 10%;"
+                            <button class="tabs" style="width: 10%;"
                             >{"Datapath"}</button>
-                            <button class="tablinks" style="width: 10%;"
+                            <button class="tabs" style="width: 10%;"
                             >{"Memory"}</button>
                         </div>
                         <Console parsermsg={(*parser_text_output).clone()}/>

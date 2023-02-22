@@ -81,9 +81,9 @@ pub fn regview(props: &Regviewprops) -> Html {
         <>
             <div style="width: 28%">
                 <div class="tab">
-                    <button class="tablinks" style="width: 50%; background-color: white; border: 1px solid black;"
+                    <button class="tabs" style="width: 50%;"
                     onclick={on_switch_clicked_true.clone()}>{"GP"}</button>
-                    <button class="tablinks" style="width: 50%; background-color: white; border: 1px solid black;"
+                    <button class="tabs" style="width: 50%;"
                     onclick={on_switch_clicked_false.clone()}>{"FP"}</button>
                 </div>
                 <table style="width: 100%; height: 100%; border: 1px solid black; background-color: white">
