@@ -6,7 +6,9 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{Data, Error, Instruction, Line, ProgramInfo, Token};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{
+    Data, Error, Instruction, Line, ProgramInfo, Token,
+};
 use crate::parser::parsing::{
     complete_lw_sw_pseudo_instructions, create_label_map,
     expand_pseudo_instructions_and_assign_instruction_numbers,
@@ -290,7 +292,7 @@ fn separate_data_and_text_generates_error_on_missing_commas_text() {
     let correct_error = Error {
         error_name: MissingComma,
         operand_number: Some(0),
-        suggested_correction: "".to_string(),
+        message: "".to_string(),
     };
     assert_eq!(correct_error, result.0[1].errors[0]);
 }
@@ -2078,15 +2080,15 @@ fn suggest_error_corrections_works_with_various_gp_registers() {
         .instructions;
 
     assert_eq!(
-        result[0].errors[0].suggested_correction,
+        result[0].errors[0].message,
         "A valid, similar register is: $t3."
     );
     assert_eq!(
-        result[1].errors[0].suggested_correction,
+        result[1].errors[0].message,
         "A valid, similar register is: $at."
     );
     assert_eq!(
-        result[1].errors[1].suggested_correction,
+        result[1].errors[1].message,
         "A valid, similar register is: r0."
     );
 }
@@ -2098,19 +2100,19 @@ fn suggest_error_corrections_works_with_various_fp_registers() {
         .instructions;
 
     assert_eq!(
-        result[0].errors[0].suggested_correction,
+        result[0].errors[0].message,
         "A valid, similar register is: $f3."
     );
     assert_eq!(
-        result[1].errors[0].suggested_correction,
+        result[1].errors[0].message,
         "A valid, similar register is: $f0."
     );
     assert_eq!(
-        result[1].errors[1].suggested_correction,
+        result[1].errors[1].message,
         "A valid, similar register is: $f2."
     );
     assert_eq!(
-        result[1].errors[2].suggested_correction,
+        result[1].errors[2].message,
         "A valid, similar register is: $f0."
     );
 }
@@ -2123,20 +2125,31 @@ fn suggest_error_corrections_works_with_labels() {
             .instructions;
 
     assert_eq!(
-        result[0].errors[0].suggested_correction,
+        result[0].errors[0].message,
         "A valid, similar label is: table."
     );
     assert_eq!(
-        result[3].errors[0].suggested_correction,
+        result[3].errors[0].message,
         "A valid, similar label is: label."
     );
 }
 
 #[test]
-fn suggest_error_corrections_works_with_instructions(){
-    let result = parser("sun $t1, $t2, $t3\nlq $t1, 100($zero)\n.c.eqd $f1, $f1, $f3".to_string()).0.instructions;
+fn suggest_error_corrections_works_with_instructions() {
+    let result = parser("sun $t1, $t2, $t3\nlq $t1, 100($zero)\n.c.eqd $f1, $f1, $f3".to_string())
+        .0
+        .instructions;
 
-    assert_eq!(result[0].errors[0].suggested_correction, "A valid, similar instruction is: sub.");
-    assert_eq!(result[1].errors[0].suggested_correction, "A valid, similar instruction is: lw.");
-    assert_eq!(result[2].errors[0].suggested_correction, "A valid, similar instruction is: c.eq.d.");
+    assert_eq!(
+        result[0].errors[0].message,
+        "A valid, similar instruction is: sub."
+    );
+    assert_eq!(
+        result[1].errors[0].message,
+        "A valid, similar instruction is: lw."
+    );
+    assert_eq!(
+        result[2].errors[0].message,
+        "A valid, similar instruction is: c.eq.d."
+    );
 }

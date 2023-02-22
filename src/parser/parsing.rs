@@ -137,7 +137,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                     instruction.errors.push(Error {
                         error_name: LabelAssignmentError,
                         operand_number: None,
-                        suggested_correction: "".to_string(),
+                        message: "".to_string(),
                     })
                     //if the above error doesn't occur, we can push the label to the instruction struct.
                 } else {
@@ -152,7 +152,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                         instruction.errors.push(Error {
                             error_name: LabelAssignmentError,
                             operand_number: None,
-                            suggested_correction: "".to_string(),
+                            message: "".to_string(),
                         });
                         instruction_list.push(instruction.clone());
                     }
@@ -179,7 +179,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                     instruction.errors.push(Error {
                         error_name: MissingComma,
                         operand_number: Some((operand_iterator - first_operand_index) as u8),
-                        suggested_correction: "".to_string(),
+                        message: "".to_string(),
                     })
                 }
                 instruction
@@ -218,7 +218,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 data.errors.push(Error {
                     error_name: ImproperlyFormattedLabel,
                     operand_number: Some(0),
-                    suggested_correction: "".to_string(),
+                    message: "".to_string(),
                 });
                 lines[i].tokens[0].token_type = Label;
                 data.label = lines[i].tokens[0].clone();
@@ -229,7 +229,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 data.errors.push(Error {
                     error_name: ImproperlyFormattedData,
                     operand_number: None,
-                    suggested_correction: "".to_string(),
+                    message: "".to_string(),
                 });
                 i += 1;
                 continue;
@@ -249,7 +249,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                     instruction.errors.push(Error {
                         error_name: MissingComma,
                         operand_number: Some((value_iterator - first_value_index) as u8),
-                        suggested_correction: "".to_string(),
+                        message: "".to_string(),
                     })
                 }
                 data.data_entries_and_values
@@ -991,7 +991,7 @@ pub fn create_label_map(
                 instruction.errors.push(Error {
                     error_name: LabelMultipleDefinition,
                     operand_number: None,
-                    suggested_correction: "".to_string(),
+                    message: "".to_string(),
                 });
                 //otherwise, it is inserted
             } else {
@@ -1017,7 +1017,7 @@ pub fn create_label_map(
             data.errors.push(Error {
                 error_name: LabelMultipleDefinition,
                 operand_number: Some(i as u8),
-                suggested_correction: "".to_string(),
+                message: "".to_string(),
             });
             //otherwise, it is inserted
         } else {
@@ -1100,7 +1100,7 @@ pub fn suggest_error_corrections(
                     let mut suggestion = "A valid, similar register is: ".to_string();
                     suggestion.push_str(&*closest.1);
                     suggestion.push_str(".");
-                    error.suggested_correction = suggestion;
+                    error.message = suggestion;
                 }
                 UnrecognizedFPRegister => {
                     let fp_registers = [
@@ -1124,7 +1124,7 @@ pub fn suggest_error_corrections(
                     let mut suggestion = "A valid, similar register is: ".to_string();
                     suggestion.push_str(&*closest.1);
                     suggestion.push_str(".");
-                    error.suggested_correction = suggestion;
+                    error.message = suggestion;
                 }
                 UnrecognizedInstruction => {
                     let recognized_instructions = [
@@ -1136,8 +1136,7 @@ pub fn suggest_error_corrections(
                         "c.ngt.s", "c.ngt.d", "c.nge.s", "c.nge.d", "bc1t", "bc1f",
                     ];
 
-                    let given_string =
-                        &instruction.operator.token_name;
+                    let given_string = &instruction.operator.token_name;
                     let mut closest: (usize, String) = (usize::MAX, "".to_string());
 
                     for instruction in recognized_instructions {
@@ -1150,7 +1149,7 @@ pub fn suggest_error_corrections(
                     let mut suggestion = "A valid, similar instruction is: ".to_string();
                     suggestion.push_str(&*closest.1);
                     suggestion.push_str(".");
-                    error.suggested_correction = suggestion;
+                    error.message = suggestion;
                 }
                 IncorrectRegisterType => {}
                 MissingComma => {}
@@ -1163,7 +1162,7 @@ pub fn suggest_error_corrections(
                 LabelMultipleDefinition => {}
                 LabelNotFound => {
                     if labels.is_empty() {
-                        error.suggested_correction =
+                        error.message =
                             "There is no recognized labelled memory".to_string();
                         continue;
                     }
@@ -1182,7 +1181,7 @@ pub fn suggest_error_corrections(
                     let mut suggestion = "A valid, similar label is: ".to_string();
                     suggestion.push_str(&*closest.1);
                     suggestion.push_str(".");
-                    error.suggested_correction = suggestion;
+                    error.message = suggestion;
                 }
                 ImproperlyFormattedASCII => {}
                 ImproperlyFormattedChar => {}

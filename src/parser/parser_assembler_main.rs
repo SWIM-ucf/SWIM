@@ -1084,13 +1084,13 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     instruction.errors.push(Error {
                         error_name: UnsupportedInstruction,
                         operand_number: None,
-                        suggested_correction: "".to_string(),
+                        message: "".to_string(),
                     })
                 } else {
                     instruction.errors.push(Error {
                         error_name: UnrecognizedInstruction,
                         operand_number: None,
-                        suggested_correction: "".to_string(),
+                        message: "".to_string(),
                     });
                 }
             }

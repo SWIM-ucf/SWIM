@@ -50,7 +50,7 @@ pub mod instruction_tokenization {
     pub struct Error {
         pub error_name: ErrorType,
         pub operand_number: Option<u8>,
-        pub suggested_correction: String,
+        pub message: String,
     }
 
     #[derive(Default, Debug, PartialEq, Eq, Clone)]

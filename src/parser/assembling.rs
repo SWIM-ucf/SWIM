@@ -33,7 +33,7 @@ pub fn read_operands(
         instruction.errors.push(Error {
             error_name: IncorrectNumberOfOperands,
             operand_number: None,
-            suggested_correction: "".to_string(),
+            message: "".to_string(),
         });
         return instruction;
     }
@@ -172,7 +172,7 @@ pub fn read_label_relative(
             Some(Error {
                 error_name: LabelNotFound,
                 operand_number: Some(operand_number as u8),
-                suggested_correction: "".to_string(),
+                message: "".to_string(),
             }),
         );
     }
@@ -197,7 +197,7 @@ pub fn read_label_absolute(
             Some(Error {
                 error_name: LabelNotFound,
                 operand_number: Some(operand_number as u8),
-                suggested_correction: "".to_string(),
+                message: "".to_string(),
             }),
         );
     }
@@ -221,7 +221,7 @@ pub fn read_memory_address(
             Some(vec![Error {
                 error_name: InvalidMemorySyntax,
                 operand_number: Some(operand_number),
-                suggested_correction: "".to_string(),
+                message: "".to_string(),
             }]),
         );
     }
@@ -239,7 +239,7 @@ pub fn read_memory_address(
             Some(vec![Error {
                 error_name: InvalidMemorySyntax,
                 operand_number: Some(operand_number),
-                suggested_correction: "".to_string(),
+                message: "".to_string(),
             }]),
         );
     }
@@ -303,7 +303,7 @@ pub fn read_register(
                 Some(Error {
                     error_name: IncorrectRegisterType,
                     operand_number: Some(operand_number),
-                    suggested_correction: "".to_string(),
+                    message: "".to_string(),
                 }),
             )
         } else {
@@ -312,7 +312,7 @@ pub fn read_register(
                 Some(Error {
                     error_name: UnrecognizedGPRegister,
                     operand_number: Some(operand_number),
-                    suggested_correction: "".to_string(),
+                    message: "".to_string(),
                 }),
             )
         }
@@ -327,7 +327,7 @@ pub fn read_register(
                 Some(Error {
                     error_name: IncorrectRegisterType,
                     operand_number: Some(operand_number),
-                    suggested_correction: "".to_string(),
+                    message: "".to_string(),
                 }),
             )
         } else {
@@ -336,7 +336,7 @@ pub fn read_register(
                 Some(Error {
                     error_name: UnrecognizedFPRegister,
                     operand_number: Some(operand_number),
-                    suggested_correction: "".to_string(),
+                    message: "".to_string(),
                 }),
             )
         }
@@ -444,7 +444,7 @@ pub fn read_immediate(given_text: &str, operand_number: u8, num_bits: u32) -> (u
             Some(Error {
                 error_name: NonIntImmediate,
                 operand_number: Some(operand_number),
-                suggested_correction: "".to_string(),
+                message: "".to_string(),
             }),
         );
     }
@@ -461,7 +461,7 @@ pub fn read_immediate(given_text: &str, operand_number: u8, num_bits: u32) -> (u
             Some(Error {
                 error_name: ImmediateOutOfBounds,
                 operand_number: Some(operand_number),
-                suggested_correction: "".to_string(),
+                message: "".to_string(),
             }),
         );
     }
@@ -488,7 +488,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                         data_entry.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
                             operand_number: Some(i as u8),
-                            suggested_correction: "".to_string(),
+                            message: "".to_string(),
                         });
                     }
                 }
@@ -506,7 +506,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                         data_entry.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
                             operand_number: Some(i as u8),
-                            suggested_correction: "".to_string(),
+                            message: "".to_string(),
                         });
                     }
                 }
@@ -521,7 +521,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                             data_entry.errors.push(Error {
                                 error_name: ImproperlyFormattedChar,
                                 operand_number: Some(i as u8),
-                                suggested_correction: "".to_string(),
+                                message: "".to_string(),
                             });
                         } else {
                             let mut chars = value.0.token_name.chars();
@@ -558,7 +558,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                         data_entry.errors.push(Error {
                             error_name: NonFloatImmediate,
                             operand_number: Some(i as u8),
-                            suggested_correction: "".to_string(),
+                            message: "".to_string(),
                         })
                     }
                 }
@@ -578,7 +578,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                         data_entry.errors.push(Error {
                             error_name: NonFloatImmediate,
                             operand_number: Some(i as u8),
-                            suggested_correction: "".to_string(),
+                            message: "".to_string(),
                         })
                     }
                 }
@@ -631,7 +631,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
             _ => data_entry.errors.push(Error {
                 error_name: UnrecognizedDataType,
                 operand_number: None,
-                suggested_correction: "".to_string(),
+                message: "".to_string(),
             }),
         }
     }
