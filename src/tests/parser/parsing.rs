@@ -7,7 +7,7 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType
     Label, Operator, Unknown,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    print_vec_of_instructions, Data, Error, Instruction, Line, ProgramInfo, Token,
+    Data, Error, Instruction, Line, ProgramInfo, Token,
 };
 use crate::parser::parsing::{
     complete_lw_sw_pseudo_instructions, create_label_map,
@@ -2115,4 +2115,21 @@ fn suggest_error_corrections_works_with_various_fp_registers() {
         result[1].errors[2].suggested_correction,
         "A valid, similar register is: $f0."
     );
+}
+
+#[test]
+fn suggest_error_corrections_works_with_labels() {
+    let result = parser("j stable\nlabel: add $t1, $t2, $t3\ntable: sub $t1, $t2, $t3\nj lapel".to_string())
+        .0
+        .instructions;
+
+    assert_eq!(
+        result[0].errors[0].suggested_correction,
+        "A valid, similar label is: table."
+    );
+    assert_eq!(
+        result[3].errors[0].suggested_correction,
+        "A valid, similar label is: label."
+    );
+
 }

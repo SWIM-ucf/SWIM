@@ -2,9 +2,7 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, Instruction, Line, Token,
-};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{Data, Error, Instruction, Line, Token};
 use levenshtein::levenshtein;
 use std::collections::HashMap;
 
@@ -1127,7 +1125,6 @@ pub fn suggest_error_corrections(
                     error.suggested_correction = suggestion;
                 }
                 UnrecognizedInstruction => {}
-                UnrecognizedDataType => {}
                 IncorrectRegisterType => {}
                 MissingComma => {}
                 ImmediateOutOfBounds => {}
@@ -1137,11 +1134,32 @@ pub fn suggest_error_corrections(
                 IncorrectNumberOfOperands => {}
                 LabelAssignmentError => {}
                 LabelMultipleDefinition => {}
-                LabelNotFound => {}
-                ImproperlyFormattedLabel => {}
-                ImproperlyFormattedData => {}
+                LabelNotFound => {
+
+                    if labels.is_empty(){
+                        error.suggested_correction = "There is no recognized labelled memory".to_string();
+                        continue;
+                    }
+
+                    let given_string =
+                        &instruction.operands[error.operand_number.unwrap() as usize].token_name;
+                    let mut closest: (usize, String) = (usize::MAX, "".to_string());
+
+                    for label in labels {
+                        if levenshtein(given_string, label.0) < closest.0 {
+                            closest.0 = levenshtein(given_string, label.0);
+                            closest.1 = label.0.to_string();
+                        }
+                    }
+
+                    let mut suggestion = "A valid, similar label is: ".to_string();
+                    suggestion.push_str(&*closest.1);
+                    suggestion.push_str(".");
+                    error.suggested_correction = suggestion;
+                }
                 ImproperlyFormattedASCII => {}
                 ImproperlyFormattedChar => {}
+                _ => {}
             }
         }
     }
