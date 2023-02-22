@@ -1192,9 +1192,29 @@ pub fn suggest_error_corrections(
 
     //go through each error in the data and suggest a correction
     for datum in data {
-        for error in &datum.errors {
+        for error in &mut datum.errors {
             match &error.error_name {
-                UnrecognizedDataType => {}
+                UnrecognizedDataType => {
+                    let recognized_data_types = [
+                        ".ascii", ".asciiz", ".byte", ".double", ".float", ".half", ".space", ".word"
+                    ];
+
+                    let given_string = &datum.data_type.token_name.to_string();
+                    let mut closest: (usize, String) = (usize::MAX, "".to_string());
+
+                    for data_type in recognized_data_types {
+                        if levenshtein(given_string, data_type) < closest.0 {
+                            closest.0 = levenshtein(given_string, data_type);
+                            closest.1 = data_type.to_string();
+                        }
+                    }
+
+                    let mut suggestion = "A valid, similar data type is: ".to_string();
+                    suggestion.push_str(&closest.1);
+                    suggestion.push('.');
+                    error.message = suggestion;
+
+                }
                 _ => {}
             }
         }

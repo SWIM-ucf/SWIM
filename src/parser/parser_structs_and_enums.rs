@@ -125,6 +125,7 @@ pub mod instruction_tokenization {
     pub fn print_vec_of_data(data: Vec<Data>) {
         for data_entry in data {
             print_data_contents(data_entry);
+            println!();
         }
     }
 
@@ -149,7 +150,10 @@ pub mod instruction_tokenization {
         println!("Data Type: {}", data.data_type.token_name);
         println!("Data Entries:");
         for data_entry in data.data_entries_and_values {
-            println!("{:?} read as {}", data_entry.0, data_entry.1);
+            println!("{:?}", data_entry.0);
+        }
+        for error in data.errors{
+            println!("{:?}", error.error_name);
         }
     }
 }
