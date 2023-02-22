@@ -1,9 +1,9 @@
 use crate::parser::parser_assembler_main::append_binary;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     ImmediateOutOfBounds, ImproperlyFormattedASCII, ImproperlyFormattedChar,
-    IncorrectNumberOfOperands, IncorrectRegisterType, InvalidMemorySyntax, LabelNotFound,
-    NonFloatImmediate, NonIntImmediate, UnrecognizedDataType, UnrecognizedFPRegister,
-    UnrecognizedGPRegister,
+    IncorrectNumberOfOperands, IncorrectRegisterTypeFP, IncorrectRegisterTypeGP,
+    InvalidMemorySyntax, LabelNotFound, NonFloatImmediate, NonIntImmediate, UnrecognizedDataType,
+    UnrecognizedFPRegister, UnrecognizedGPRegister,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::{
     Immediate, LabelAbsolute, LabelRelative, MemoryAddress, RegisterFP, RegisterGP,
@@ -301,7 +301,7 @@ pub fn read_register(
             (
                 0,
                 Some(Error {
-                    error_name: IncorrectRegisterType,
+                    error_name: IncorrectRegisterTypeFP,
                     operand_number: Some(operand_number),
                     message: "".to_string(),
                 }),
@@ -325,7 +325,7 @@ pub fn read_register(
             (
                 0,
                 Some(Error {
-                    error_name: IncorrectRegisterType,
+                    error_name: IncorrectRegisterTypeGP,
                     operand_number: Some(operand_number),
                     message: "".to_string(),
                 }),

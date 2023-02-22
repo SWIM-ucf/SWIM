@@ -6,7 +6,9 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{Data, Error, Instruction, Line, ProgramInfo, Token};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{
+    Data, Error, Instruction, Line, ProgramInfo, Token,
+};
 use crate::parser::parsing::{
     complete_lw_sw_pseudo_instructions, create_label_map,
     expand_pseudo_instructions_and_assign_instruction_numbers,
@@ -2154,9 +2156,12 @@ fn suggest_error_corrections_works_with_instructions() {
 
 #[test]
 fn suggest_error_corrections_works_with_data_types() {
-    let result = parser(".data\nlabel: word 100\ntable: .bite 'c','1'\nlapel: gobbledygook \"this is a string\"".to_string())
-        .0
-        .data;
+    let result = parser(
+        ".data\nlabel: word 100\ntable: .bite 'c','1'\nlapel: gobbledygook \"this is a string\""
+            .to_string(),
+    )
+    .0
+    .data;
 
     assert_eq!(
         result[0].errors[0].message,

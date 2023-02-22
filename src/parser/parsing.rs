@@ -1074,7 +1074,11 @@ pub fn suggest_error_corrections(
     for instruction in instructions {
         for error in &mut instruction.errors {
             match error.error_name {
-                UnsupportedInstruction => {}
+                UnsupportedInstruction => {
+                    error.message =
+                        "While this is a valid instruction, it is not currently supported by SWIM"
+                            .to_string();
+                }
                 UnrecognizedGPRegister => {
                     let gp_registers = [
                         "$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3", "$t0", "$t1",
@@ -1151,19 +1155,36 @@ pub fn suggest_error_corrections(
                     suggestion.push_str(".");
                     error.message = suggestion;
                 }
-                IncorrectRegisterType => {}
-                MissingComma => {}
-                ImmediateOutOfBounds => {}
-                NonIntImmediate => {}
-                NonFloatImmediate => {}
-                InvalidMemorySyntax => {}
-                IncorrectNumberOfOperands => {}
-                LabelAssignmentError => {}
-                LabelMultipleDefinition => {}
+                IncorrectRegisterTypeGP => {
+                    error.message = "Expected FP register but received GP register.".to_string();
+                }
+                IncorrectRegisterTypeFP => {
+                    error.message = "Expected GP register but received FP register.".to_string();
+                }
+                MissingComma => {
+                    error.message = "Operand expected to end with a comma but it does not.".to_string()
+                }
+                ImmediateOutOfBounds => {
+                    error.message = "Immediate value given cannot be expressed in the available number of bits.".to_string();
+                }
+                NonIntImmediate => {
+                   error.message = "The given string cannot be recognized as an integer.".to_string();
+                }
+                NonFloatImmediate => {
+                    error.message = "The given string cannot be recognized as a float.".to_string();
+                }
+                InvalidMemorySyntax => {
+                    error.message = "The given string for memory does not match syntax of \"offset(base)\" or \"label\"".to_string();
+                }
+                IncorrectNumberOfOperands => {
+                    error.message = "The given number of operands does not match the number expected for the given instruction.".to_string();
+                }
+                LabelMultipleDefinition => {
+                    error.message = "The given label name is already used elsewhere in the project.".to_string();
+                }
                 LabelNotFound => {
                     if labels.is_empty() {
-                        error.message =
-                            "There is no recognized labelled memory".to_string();
+                        error.message = "There is no recognized labelled memory".to_string();
                         continue;
                     }
 
@@ -1183,9 +1204,15 @@ pub fn suggest_error_corrections(
                     suggestion.push_str(".");
                     error.message = suggestion;
                 }
-                ImproperlyFormattedASCII => {}
-                ImproperlyFormattedChar => {}
-                _ => {}
+                ImproperlyFormattedASCII => {
+                    error.message = "Token recognized as ASCII does not start and or end with \".".to_string();
+                }
+                ImproperlyFormattedChar => {
+                    error.message = "Token recognized as a char does not end with ' or is larger than a single char.".to_string();
+                }
+                _ => {
+                    error.message = "PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH AN INSTRUCTION.".to_string();
+                }
             }
         }
     }
@@ -1196,7 +1223,8 @@ pub fn suggest_error_corrections(
             match &error.error_name {
                 UnrecognizedDataType => {
                     let recognized_data_types = [
-                        ".ascii", ".asciiz", ".byte", ".double", ".float", ".half", ".space", ".word"
+                        ".ascii", ".asciiz", ".byte", ".double", ".float", ".half", ".space",
+                        ".word",
                     ];
 
                     let given_string = &datum.data_type.token_name.to_string();
@@ -1213,9 +1241,16 @@ pub fn suggest_error_corrections(
                     suggestion.push_str(&closest.1);
                     suggestion.push('.');
                     error.message = suggestion;
-
                 }
-                _ => {}
+                LabelAssignmentError => {
+                    error.message = "A label is specified but it is not followed by data or an instruction committed to memory.".to_string();
+                }
+                LabelMultipleDefinition => {
+                    error.message = "The given label name is already used elsewhere in the project.".to_string();
+                }
+                _ => {
+                    error.message = "PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.".to_string();
+                }
             }
         }
     }

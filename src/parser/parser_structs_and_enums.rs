@@ -82,7 +82,8 @@ pub mod instruction_tokenization {
         UnrecognizedFPRegister, //Given string does not match FP Register names
         UnrecognizedInstruction, //Given string does not match any valid MIPs64 instructions or our supported pseudo-instructions
         UnrecognizedDataType,    //Given string does not match data type directives
-        IncorrectRegisterType,   //Expected FP Register and received GP or vice versa
+        IncorrectRegisterTypeFP, //Expected GP Register but received FP
+        IncorrectRegisterTypeGP, //Expected FP Register but received GP
         MissingComma,            //Operand expected to end with a comma but does not
         ImmediateOutOfBounds,    //Immediate value given cannot be expressed in given number of bits
         NonIntImmediate,         //Given string cannot be recognized as an integer
@@ -95,7 +96,7 @@ pub mod instruction_tokenization {
         ImproperlyFormattedLabel, //Label assignment recognized but does not end in a colon.
         ImproperlyFormattedData, //Line of data does not contain the proper number of tokens
         ImproperlyFormattedASCII, //Token recognized as ASCII does not start and or end with "
-        ImproperlyFormattedChar, //Token recognized as a Char does not end with ' or is larger than a single char
+        ImproperlyFormattedChar, //Token recognized as a char does not end with ' or is larger than a single char
     }
 
     //this enum is used for the fn read_operands to choose the types of operands expected for an instruction type
@@ -152,7 +153,7 @@ pub mod instruction_tokenization {
         for data_entry in data.data_entries_and_values {
             println!("{:?}", data_entry.0);
         }
-        for error in data.errors{
+        for error in data.errors {
             println!("{:?}", error.error_name);
         }
     }
