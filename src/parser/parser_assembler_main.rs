@@ -22,22 +22,22 @@ pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
     let labels: HashMap<String, u32> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
     complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels);
-    read_instructions(&mut program_info.instructions, labels);
+    read_instructions(&mut program_info.instructions, &labels);
 
-    suggest_error_corrections(&mut program_info.instructions, &mut program_info.data);
-    
+    suggest_error_corrections(
+        &mut program_info.instructions,
+        &mut program_info.data,
+        &labels,
+    );
+
     (
         program_info.clone(),
         create_binary_vec(program_info.instructions.clone(), vec_of_data),
     )
 }
 
-fn suggest_error_corrections(instructions: &mut [Instruction], data: &mut [data]) {
-
-}
-
 ///Takes the vector of instructions and assembles the binary for them.
-pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<String, u32>) {
+pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<String, u32>) {
     for mut instruction in &mut instruction_list.iter_mut() {
         //this match case is the heart of the parser and figures out which instruction type it is
         //then it can call the proper functions for that specific instruction
@@ -1084,11 +1084,13 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: HashMap<S
                     instruction.errors.push(Error {
                         error_name: UnsupportedInstruction,
                         operand_number: None,
+                        suggested_correction: "".to_string(),
                     })
                 } else {
                     instruction.errors.push(Error {
                         error_name: UnrecognizedInstruction,
                         operand_number: None,
+                        suggested_correction: "".to_string(),
                     });
                 }
             }

@@ -5,9 +5,7 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, Instruction, Line, ProgramInfo, Token,
-};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{Data, Error, Instruction, Line, print_vec_of_instructions, ProgramInfo, Token};
 use crate::parser::parsing::{
     complete_lw_sw_pseudo_instructions, create_label_map,
     expand_pseudo_instructions_and_assign_instruction_numbers,
@@ -15,6 +13,7 @@ use crate::parser::parsing::{
 #[cfg(test)]
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
 use std::collections::HashMap;
+use crate::parser::parser_assembler_main::parser;
 
 #[test]
 fn tokenize_program_works_basic_version() {
@@ -291,6 +290,7 @@ fn separate_data_and_text_generates_error_on_missing_commas_text() {
     let correct_error = Error {
         error_name: MissingComma,
         operand_number: Some(0),
+        suggested_correction: "".to_string(),
     };
     assert_eq!(correct_error, result.0[1].errors[0]);
 }
@@ -1950,16 +1950,24 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sge() {
 
 #[test]
 fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
+
     let mut program_info = ProgramInfo::default();
-
     let file_string = "sgeu $t1, $t2, $t3\nsw $t1, label".to_string();
-
-    let (lines, _comments) = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
     );
+
+    let mut correct_program_info = ProgramInfo::default();
+    let correct_string = "sltu $t1, $t2, $t3\naddi $t1, $t1, 1\nandi $t1, $t1, 1\nsw $t1, label".to_string();
+    let correct_lines = tokenize_program(correct_string).0;
+    (correct_program_info.instructions, correct_program_info.data) = separate_data_and_text(correct_lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(&mut correct_program_info.instructions, &program_info.data);
+
+//    assert_eq!(correct_program_info.instructions, program_info.instructions);
+
 
     assert_eq!(
         program_info.instructions[0],
@@ -2059,3 +2067,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
         }
     );
 }
+
+#[test]
+fn suggest_error_corrections_works_with_various_gp_registers(){
+    let result = parser("add $t1, $t2, t3\nori not, ro, 100".to_string()).0.instructions;
+
+    assert_eq!(result[0].errors[0].suggested_correction, "A valid, similar register is: $t3.");
+    assert_eq!(result[1].errors[0].suggested_correction, "A valid, similar register is: $at.");
+    assert_eq!(result[1].errors[1].suggested_correction, "A valid, similar register is: r0.");
+ }
