@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["gen_reg_html",""]],"struct":[["Regview",""],["Regviewprops",""]]};
+window.SIDEBAR_ITEMS = {"fn":[["fp_reg",""],["gen_reg_html",""]],"struct":[["Regview",""],["Regviewprops",""],["Viewswitch",""]]};

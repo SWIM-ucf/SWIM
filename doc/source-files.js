@@ -2,6 +2,8 @@ var sourcesIndex = JSON.parse('{\
 "anymap2":["",[],["any.rs","lib.rs","raw.rs"]],\
 "bincode":["",[["config",[],["endian.rs","int.rs","legacy.rs","limit.rs","mod.rs","trailing.rs"]],["de",[],["mod.rs","read.rs"]],["ser",[],["mod.rs"]]],["byteorder.rs","error.rs","internal.rs","lib.rs"]],\
 "boolinator":["",[],["lib.rs"]],\
+"bounce":["",[["states",[],["artifact.rs","atom.rs","future_notion.rs","input_selector.rs","mod.rs","notion.rs","observer.rs","selector.rs","slice.rs"]]],["any_state.rs","lib.rs","provider.rs","root_state.rs","utils.rs"]],\
+"bounce_macros":["",[],["atom.rs","future_notion.rs","lib.rs","slice.rs"]],\
 "bumpalo":["",[],["alloc.rs","lib.rs"]],\
 "cfg_if":["",[],["lib.rs"]],\
 "console_error_panic_hook":["",[],["lib.rs"]],\
@@ -11,6 +13,7 @@ var sourcesIndex = JSON.parse('{\
 "futures":["",[],["lib.rs"]],\
 "futures_channel":["",[["mpsc",[],["mod.rs","queue.rs","sink_impl.rs"]]],["lib.rs","lock.rs","oneshot.rs"]],\
 "futures_core":["",[["task",[["__internal",[],["atomic_waker.rs","mod.rs"]]],["mod.rs","poll.rs"]]],["future.rs","lib.rs","stream.rs"]],\
+"futures_executor":["",[],["enter.rs","lib.rs","local_pool.rs"]],\
 "futures_io":["",[],["lib.rs"]],\
 "futures_macro":["",[],["executor.rs","join.rs","lib.rs","select.rs","stream_select.rs"]],\
 "futures_sink":["",[],["lib.rs"]],\
