@@ -448,7 +448,6 @@ checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 [[package]]
 name = "monaco"
 version = "0.3.0"
-source = "git+https://github.com/b0x-Cub3d/rust-monaco?rev=497f3b56f30886942088a327a4dc3f54c5b8c9f5#497f3b56f30886942088a327a4dc3f54c5b8c9f5"
 dependencies = [
  "js-sys",
  "paste",
@@ -930,9 +929,9 @@ checksum = "0046fef7e28c3804e5e38bfa31ea2a0f73905319b677e57ebe37e49358989b5d"
 
 [[package]]
 name = "web-sys"
-version = "0.3.60"
+version = "0.3.61"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bcda906d8be16e728fd5adc5b729afad4e444e106ab28cd1c7256e54fa61510f"
+checksum = "e33b99f4b23ba3eec1a53ac264e35a755f00e966e0065077d6027c0f575b0b97"
 dependencies = [
  "js-sys",
  "wasm-bindgen",

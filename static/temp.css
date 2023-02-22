@@ -1,0 +1,5 @@
+.myInlineDecoration {
+	color: rgb(247, 242, 0) !important;
+	text-decoration: underline;
+	font-weight: bold;
+}

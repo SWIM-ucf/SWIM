@@ -7,12 +7,13 @@ pub mod ui;
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
 use gloo::{console::log, file::FileList};
+use js_sys::Object;
 use monaco::{
     api::TextModel,
     sys::editor::{
         IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions,
     },
-    yew::CodeEditor,
+    yew::{CodeEditor, CodeEditorLink},
 };
 use parser::parser_main::parser;
 use std::{cell::RefCell, rc::Rc};
@@ -41,6 +42,8 @@ fn app() -> Html {
             TextModel::create(&code, Some(&language), None).unwrap(),
         ))
     });
+    let codelink = CodeEditorLink::default();
+    let delta_decor = monaco::sys::editor::IModelDecorationOptions::default();
 
     // TODO: Output will be stored in two ways, the first would be the parser's
     // messages via logs and the registers will be stored
@@ -87,11 +90,41 @@ fn app() -> Html {
     // This is where the code will get executed. If you execute further
     // than when the code ends, the program crashes.
     let on_execute_clicked = {
+        let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
+
+        // Setting up the options/parameters which 
+        // will highlight the executed line.
+        // Currently, just highlights the first line as
+        // a proof of concept.
+        let curr_range: monaco::sys::Range = 
+            Object::new().unchecked_into();
+        curr_range.set_start_position(1.0, 0.0);
+        curr_range.set_end_position(1.0, 0.0);
+        let range_js = curr_range.dyn_into::<JsValue>()
+            .expect("Range is not found.");
+        delta_decor.set_is_whole_line(true.into());
+        delta_decor.set_lines_decorations_class_name("myInlineDecoration".into());
+        let highlight_line: monaco::sys::editor::IModelDeltaDecoration =
+            Object::new().unchecked_into();
+        highlight_line.set_options(&delta_decor);
+        highlight_line.set_range(&monaco::sys::IRange::from(range_js));
+        let highlight_js = highlight_line.dyn_into::<JsValue>()
+            .expect("Highlight is not found.");
+        let decor_array = js_sys::Array::new();
+        decor_array.push(&highlight_js);
+
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
+                let text_model = (*text_model).borrow_mut();
+                let curr_model = text_model.as_ref();
+                (*curr_model).delta_decorations(
+                &js_sys::Array::new(),
+                &decor_array,
+                None
+                );
                 (*datapath).execute_instruction();
                 log!(JsValue::from_str(&datapath.registers.to_string()));
                 trigger.force_update();
@@ -173,7 +206,7 @@ fn app() -> Html {
             <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
             // Pass in register data from emu core
             <Regview gp={(*datapath).borrow().registers}/>
-            <SwimEditor text_model={(*text_model).borrow().clone()} />
+            <SwimEditor link={codelink.clone()} text_model={(*text_model).borrow().clone()} />
             <button onclick={on_error_clicked}>{ "Click" }</button>
             <Console parsermsg={(*parser_text_output).clone()}/>
         </div>
@@ -184,7 +217,8 @@ fn app() -> Html {
 
 #[derive(PartialEq, Properties)]
 pub struct SwimEditorProps {
-    text_model: TextModel,
+    pub text_model: TextModel,
+    pub link: CodeEditorLink,
 }
 
 fn get_options() -> IStandaloneEditorConstructionOptions {
@@ -208,7 +242,7 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 #[function_component]
 pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     html! {
-        <CodeEditor classes={css!(r#"height: 70vh; width: 79vw;"#)} options={get_options()} model={props.text_model.clone()} />
+        <CodeEditor classes={css!(r#"height: 70vh; width: 79vw;"#)} link={props.link.clone()} options={get_options()} model={props.text_model.clone()} />
     }
 }
 
