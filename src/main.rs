@@ -127,7 +127,7 @@ fn app() -> Html {
     // Currently, it is tied to a button with placeholder text. The goal is to have
     // this action take place when the Text Model changes and output the messages provided
     // by the parser.
-    /*let on_error_clicked = {
+    let on_error_clicked = {
         let parser_text_output = parser_text_output.clone();
         use_callback(
             move |_, _| {
@@ -135,9 +135,7 @@ fn app() -> Html {
             },
             (),
         )
-    };*/
-
-    // datapath.coprocessor.fpr
+    };
 
     // This is where we will have the user prompted to load in a file
     let upload_clicked_callback = use_callback(
@@ -186,7 +184,7 @@ fn app() -> Html {
                         <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
                         <input type="button" value="Load File" onclick={upload_clicked_callback} />
                         <SwimEditor text_model={(*text_model).borrow().clone()} />
-                        //<button onclick={on_error_clicked}>{ "Click" }</button>
+                        <button onclick={on_error_clicked}>{ "Click" }</button>
                         <div class="tab">
                             <button class="tabs" style="width: 10%;"
                             >{"Console"}</button>
