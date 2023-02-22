@@ -1063,6 +1063,8 @@ pub fn complete_lw_sw_pseudo_instructions(
     }
 }
 
+///Goes through each error found in the parsing & assembling process and suggests to the user a way of
+/// correcting the error.
 pub fn suggest_error_corrections(
     instructions: &mut [Instruction],
     data: &mut [Data],
@@ -1100,7 +1102,30 @@ pub fn suggest_error_corrections(
                     suggestion.push_str(".");
                     error.suggested_correction = suggestion;
                 }
-                UnrecognizedFPRegister => {}
+                UnrecognizedFPRegister => {
+                    let fp_registers = [
+                        "$f0", "$f1", "$f2", "$f3", "$f4", "$f5", "$f6", "$f7", "$f8", "$f9",
+                        "$f10", "$f11", "$f12", "$f13", "$f14", "$f15", "$f16", "$f17", "$f18",
+                        "$f19", "$f20", "$f21", "$f22", "$f23", "$f24", "$f25", "$f26", "$f27",
+                        "$f28", "$f29", "$f30", "$f31",
+                    ];
+
+                    let given_string =
+                        &instruction.operands[error.operand_number.unwrap() as usize].token_name;
+                    let mut closest: (usize, String) = (usize::MAX, "".to_string());
+
+                    for register in fp_registers {
+                        if levenshtein(given_string, register) < closest.0 {
+                            closest.0 = levenshtein(given_string, register);
+                            closest.1 = register.to_string();
+                        }
+                    }
+
+                    let mut suggestion = "A valid, similar register is: ".to_string();
+                    suggestion.push_str(&*closest.1);
+                    suggestion.push_str(".");
+                    error.suggested_correction = suggestion;
+                }
                 UnrecognizedInstruction => {}
                 UnrecognizedDataType => {}
                 IncorrectRegisterType => {}
