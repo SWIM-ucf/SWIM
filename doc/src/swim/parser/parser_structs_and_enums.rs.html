@@ -151,6 +151,13 @@
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>instruction_tokenization {
     <span class="kw">use </span>std::default::Default;
 
@@ -203,6 +210,7 @@
     </span><span class="kw">pub struct </span>Error {
         <span class="kw">pub </span>error_name: ErrorType,
         <span class="kw">pub </span>operand_number: <span class="prelude-ty">Option</span>&lt;u8&gt;,
+        <span class="kw">pub </span>message: String,
     }
 
     <span class="attr">#[derive(Default, Debug, PartialEq, Eq, Clone)]
@@ -229,26 +237,27 @@
 
     <span class="attr">#[derive(Debug, PartialEq, Eq, Clone)]
     </span><span class="kw">pub enum </span>ErrorType {
-        UnsupportedInstruction,
-        UnrecognizedGPRegister,
-        UnrecognizedFPRegister,
-        UnrecognizedInstruction,
-        UnrecognizedDataType,
-        IncorrectRegisterType,
-        MissingComma,
-        ImmediateOutOfBounds,
-        NonIntImmediate,
-        NonFloatImmediate,
-        InvalidMemorySyntax,
-        IncorrectNumberOfOperands,
-        LabelAssignmentError,
-        LabelMultipleDefinition,
-        LabelNotFound,
-        ImproperlyFormattedLabel,
-        ImproperlyFormattedData,
-        ImproperlyFormattedASCII,
-        ImproperlyFormattedChar,
-    }
+        UnsupportedInstruction, <span class="comment">//valid MIPS64 instruction that is not supported by SWIM
+        </span>UnrecognizedGPRegister, <span class="comment">//Given string does not match GP Register names
+        </span>UnrecognizedFPRegister, <span class="comment">//Given string does not match FP Register names
+        </span>UnrecognizedInstruction, <span class="comment">//Given string does not match any valid MIPs64 instructions or our supported pseudo-instructions
+        </span>UnrecognizedDataType,    <span class="comment">//Given string does not match data type directives
+        </span>IncorrectRegisterTypeFP, <span class="comment">//Expected GP Register but received FP
+        </span>IncorrectRegisterTypeGP, <span class="comment">//Expected FP Register but received GP
+        </span>MissingComma,            <span class="comment">//Operand expected to end with a comma but does not
+        </span>ImmediateOutOfBounds,    <span class="comment">//Immediate value given cannot be expressed in given number of bits
+        </span>NonIntImmediate,         <span class="comment">//Given string cannot be recognized as an integer
+        </span>NonFloatImmediate,       <span class="comment">//Given string cannot be recognized as a float
+        </span>InvalidMemorySyntax, <span class="comment">//Given string for memory does not match syntax of &quot;offset(base)&quot; or &quot;label&quot;
+        </span>IncorrectNumberOfOperands, <span class="comment">//The given number of operands does not match the number expected for an instruction
+        </span>LabelAssignmentError, <span class="comment">//A label is specified but it is not followed by anything committed to memory
+        </span>LabelMultipleDefinition, <span class="comment">//The given label name is already used elsewhere in the project
+        </span>LabelNotFound,        <span class="comment">//The given label operand does not match a given label
+        </span>ImproperlyFormattedLabel, <span class="comment">//Label assignment recognized but does not end in a colon.
+        </span>ImproperlyFormattedData, <span class="comment">//Line of data does not contain the proper number of tokens
+        </span>ImproperlyFormattedASCII, <span class="comment">//Token recognized as ASCII does not start and or end with &quot;
+        </span>ImproperlyFormattedChar, <span class="comment">//Token recognized as a char does not end with &#39; or is larger than a single char
+    </span>}
 
     <span class="comment">//this enum is used for the fn read_operands to choose the types of operands expected for an instruction type
     </span><span class="kw">pub enum </span>OperandType {
@@ -270,12 +279,14 @@
     <span class="kw">pub fn </span>print_vec_of_instructions(instructions: Vec&lt;Instruction&gt;) {
         <span class="kw">for </span>instruction <span class="kw">in </span>instructions {
             print_instruction_contents(instruction);
+            <span class="macro">println!</span>();
         }
     }
 
     <span class="kw">pub fn </span>print_vec_of_data(data: Vec&lt;Data&gt;) {
         <span class="kw">for </span>data_entry <span class="kw">in </span>data {
             print_data_contents(data_entry);
+            <span class="macro">println!</span>();
         }
     }
 
@@ -300,7 +311,10 @@
         <span class="macro">println!</span>(<span class="string">&quot;Data Type: {}&quot;</span>, data.data_type.token_name);
         <span class="macro">println!</span>(<span class="string">&quot;Data Entries:&quot;</span>);
         <span class="kw">for </span>data_entry <span class="kw">in </span>data.data_entries_and_values {
-            <span class="macro">println!</span>(<span class="string">&quot;{:?} read as {}&quot;</span>, data_entry.<span class="number">0</span>, data_entry.<span class="number">1</span>);
+            <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, data_entry.<span class="number">0</span>);
+        }
+        <span class="kw">for </span>error <span class="kw">in </span>data.errors {
+            <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, error.error_name);
         }
     }
 }
