@@ -670,7 +670,7 @@ mod helper_functions {
 
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
-        read_instructions(&mut instruction_list, labels);
+        read_instructions(&mut instruction_list, &labels);
 
         instruction_list
     }
@@ -693,7 +693,7 @@ fn create_binary_vec_works_with_data() {
     let labels: HashMap<String, u32> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
     complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels);
-    read_instructions(&mut program_info.instructions, labels);
+    read_instructions(&mut program_info.instructions, &labels);
 
     let result = create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
@@ -718,7 +718,7 @@ fn read_instructions_recognizes_valid_but_unsupported_instructions() {
     let labels: HashMap<String, u32> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
     complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels);
-    read_instructions(&mut program_info.instructions, labels);
+    read_instructions(&mut program_info.instructions, &labels);
 
     assert_eq!(
         program_info.instructions[0].errors[0].error_name,

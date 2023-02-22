@@ -1,4 +1,5 @@
 use crate::parser::assembling::assemble_data_binary;
+use crate::parser::parser_assembler_main::parser;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     LabelAssignmentError, LabelMultipleDefinition, MissingComma,
 };
@@ -291,6 +292,7 @@ fn separate_data_and_text_generates_error_on_missing_commas_text() {
     let correct_error = Error {
         error_name: MissingComma,
         operand_number: Some(0),
+        message: "".to_string(),
     };
     assert_eq!(correct_error, result.0[1].errors[0]);
 }
@@ -1951,15 +1953,26 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sge() {
 #[test]
 fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
     let mut program_info = ProgramInfo::default();
-
     let file_string = "sgeu $t1, $t2, $t3\nsw $t1, label".to_string();
-
-    let (lines, _comments) = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
     );
+
+    let mut correct_program_info = ProgramInfo::default();
+    let correct_string =
+        "sltu $t1, $t2, $t3\naddi $t1, $t1, 1\nandi $t1, $t1, 1\nsw $t1, label".to_string();
+    let correct_lines = tokenize_program(correct_string).0;
+    (correct_program_info.instructions, correct_program_info.data) =
+        separate_data_and_text(correct_lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut correct_program_info.instructions,
+        &program_info.data,
+    );
+
+    //    assert_eq!(correct_program_info.instructions, program_info.instructions);
 
     assert_eq!(
         program_info.instructions[0],
@@ -2057,5 +2070,109 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
             errors: vec![],
             label: None,
         }
+    );
+}
+
+#[test]
+fn suggest_error_corrections_works_with_various_gp_registers() {
+    let result = parser("add $t1, $t2, t3\nori not, ro, 100".to_string())
+        .0
+        .instructions;
+
+    assert_eq!(
+        result[0].errors[0].message,
+        "A valid, similar register is: $t3."
+    );
+    assert_eq!(
+        result[1].errors[0].message,
+        "A valid, similar register is: $at."
+    );
+    assert_eq!(
+        result[1].errors[1].message,
+        "A valid, similar register is: r0."
+    );
+}
+
+#[test]
+fn suggest_error_corrections_works_with_various_fp_registers() {
+    let result = parser("add.s $f1, $f2, f3\nadd.d fake, $052, 1qp".to_string())
+        .0
+        .instructions;
+
+    assert_eq!(
+        result[0].errors[0].message,
+        "A valid, similar register is: $f3."
+    );
+    assert_eq!(
+        result[1].errors[0].message,
+        "A valid, similar register is: $f0."
+    );
+    assert_eq!(
+        result[1].errors[1].message,
+        "A valid, similar register is: $f2."
+    );
+    assert_eq!(
+        result[1].errors[2].message,
+        "A valid, similar register is: $f0."
+    );
+}
+
+#[test]
+fn suggest_error_corrections_works_with_labels() {
+    let result =
+        parser("j stable\nlabel: add $t1, $t2, $t3\ntable: sub $t1, $t2, $t3\nj lapel".to_string())
+            .0
+            .instructions;
+
+    assert_eq!(
+        result[0].errors[0].message,
+        "A valid, similar label is: table."
+    );
+    assert_eq!(
+        result[3].errors[0].message,
+        "A valid, similar label is: label."
+    );
+}
+
+#[test]
+fn suggest_error_corrections_works_with_instructions() {
+    let result = parser("sun $t1, $t2, $t3\nlq $t1, 100($zero)\n.c.eqd $f1, $f1, $f3".to_string())
+        .0
+        .instructions;
+
+    assert_eq!(
+        result[0].errors[0].message,
+        "A valid, similar instruction is: sub."
+    );
+    assert_eq!(
+        result[1].errors[0].message,
+        "A valid, similar instruction is: lw."
+    );
+    assert_eq!(
+        result[2].errors[0].message,
+        "A valid, similar instruction is: c.eq.d."
+    );
+}
+
+#[test]
+fn suggest_error_corrections_works_with_data_types() {
+    let result = parser(
+        ".data\nlabel: word 100\ntable: .bite 'c','1'\nlapel: gobbledygook \"this is a string\""
+            .to_string(),
+    )
+    .0
+    .data;
+
+    assert_eq!(
+        result[0].errors[0].message,
+        "A valid, similar data type is: .word."
+    );
+    assert_eq!(
+        result[1].errors[0].message,
+        "A valid, similar data type is: .byte."
+    );
+    assert_eq!(
+        result[2].errors[0].message,
+        "A valid, similar data type is: .double."
     );
 }

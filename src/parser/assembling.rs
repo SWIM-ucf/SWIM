@@ -1,9 +1,9 @@
 use crate::parser::parser_assembler_main::append_binary;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     ImmediateOutOfBounds, ImproperlyFormattedASCII, ImproperlyFormattedChar,
-    IncorrectNumberOfOperands, IncorrectRegisterType, InvalidMemorySyntax, LabelNotFound,
-    NonFloatImmediate, NonIntImmediate, UnrecognizedDataType, UnrecognizedFPRegister,
-    UnrecognizedGPRegister,
+    IncorrectNumberOfOperands, IncorrectRegisterTypeFP, IncorrectRegisterTypeGP,
+    InvalidMemorySyntax, LabelNotFound, NonFloatImmediate, NonIntImmediate, UnrecognizedDataType,
+    UnrecognizedFPRegister, UnrecognizedGPRegister,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::{
     Immediate, LabelAbsolute, LabelRelative, MemoryAddress, RegisterFP, RegisterGP,
@@ -33,6 +33,7 @@ pub fn read_operands(
         instruction.errors.push(Error {
             error_name: IncorrectNumberOfOperands,
             operand_number: None,
+            message: "".to_string(),
         });
         return instruction;
     }
@@ -171,6 +172,7 @@ pub fn read_label_relative(
             Some(Error {
                 error_name: LabelNotFound,
                 operand_number: Some(operand_number as u8),
+                message: "".to_string(),
             }),
         );
     }
@@ -195,6 +197,7 @@ pub fn read_label_absolute(
             Some(Error {
                 error_name: LabelNotFound,
                 operand_number: Some(operand_number as u8),
+                message: "".to_string(),
             }),
         );
     }
@@ -218,6 +221,7 @@ pub fn read_memory_address(
             Some(vec![Error {
                 error_name: InvalidMemorySyntax,
                 operand_number: Some(operand_number),
+                message: "".to_string(),
             }]),
         );
     }
@@ -235,6 +239,7 @@ pub fn read_memory_address(
             Some(vec![Error {
                 error_name: InvalidMemorySyntax,
                 operand_number: Some(operand_number),
+                message: "".to_string(),
             }]),
         );
     }
@@ -296,8 +301,9 @@ pub fn read_register(
             (
                 0,
                 Some(Error {
-                    error_name: IncorrectRegisterType,
+                    error_name: IncorrectRegisterTypeFP,
                     operand_number: Some(operand_number),
+                    message: "".to_string(),
                 }),
             )
         } else {
@@ -306,6 +312,7 @@ pub fn read_register(
                 Some(Error {
                     error_name: UnrecognizedGPRegister,
                     operand_number: Some(operand_number),
+                    message: "".to_string(),
                 }),
             )
         }
@@ -318,8 +325,9 @@ pub fn read_register(
             (
                 0,
                 Some(Error {
-                    error_name: IncorrectRegisterType,
+                    error_name: IncorrectRegisterTypeGP,
                     operand_number: Some(operand_number),
+                    message: "".to_string(),
                 }),
             )
         } else {
@@ -328,6 +336,7 @@ pub fn read_register(
                 Some(Error {
                     error_name: UnrecognizedFPRegister,
                     operand_number: Some(operand_number),
+                    message: "".to_string(),
                 }),
             )
         }
@@ -435,6 +444,7 @@ pub fn read_immediate(given_text: &str, operand_number: u8, num_bits: u32) -> (u
             Some(Error {
                 error_name: NonIntImmediate,
                 operand_number: Some(operand_number),
+                message: "".to_string(),
             }),
         );
     }
@@ -451,6 +461,7 @@ pub fn read_immediate(given_text: &str, operand_number: u8, num_bits: u32) -> (u
             Some(Error {
                 error_name: ImmediateOutOfBounds,
                 operand_number: Some(operand_number),
+                message: "".to_string(),
             }),
         );
     }
@@ -477,6 +488,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                         data_entry.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
                             operand_number: Some(i as u8),
+                            message: "".to_string(),
                         });
                     }
                 }
@@ -494,6 +506,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                         data_entry.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
                             operand_number: Some(i as u8),
+                            message: "".to_string(),
                         });
                     }
                 }
@@ -508,6 +521,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                             data_entry.errors.push(Error {
                                 error_name: ImproperlyFormattedChar,
                                 operand_number: Some(i as u8),
+                                message: "".to_string(),
                             });
                         } else {
                             let mut chars = value.0.token_name.chars();
@@ -544,6 +558,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                         data_entry.errors.push(Error {
                             error_name: NonFloatImmediate,
                             operand_number: Some(i as u8),
+                            message: "".to_string(),
                         })
                     }
                 }
@@ -563,6 +578,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                         data_entry.errors.push(Error {
                             error_name: NonFloatImmediate,
                             operand_number: Some(i as u8),
+                            message: "".to_string(),
                         })
                     }
                 }
@@ -615,6 +631,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
             _ => data_entry.errors.push(Error {
                 error_name: UnrecognizedDataType,
                 operand_number: None,
+                message: "".to_string(),
             }),
         }
     }

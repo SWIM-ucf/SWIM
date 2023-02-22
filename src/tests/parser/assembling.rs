@@ -25,7 +25,7 @@ mod convert_to_u32_tests {
 mod read_register_tests {
     use crate::parser::assembling::read_register;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
-        IncorrectRegisterType, UnrecognizedGPRegister,
+        IncorrectRegisterTypeFP, IncorrectRegisterTypeGP, UnrecognizedGPRegister,
     };
     use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
         FloatingPoint, GeneralPurpose,
@@ -52,13 +52,13 @@ mod read_register_tests {
     #[test]
     fn read_register_returns_error_fp_when_needs_gp() {
         let results = read_register("$t1", 1, FloatingPoint);
-        assert_eq!(results.1.unwrap().error_name, IncorrectRegisterType);
+        assert_eq!(results.1.unwrap().error_name, IncorrectRegisterTypeGP);
     }
 
     #[test]
     fn read_register_returns_error_gp_when_needs_fp() {
         let results = read_register("$f1", 1, GeneralPurpose);
-        assert_eq!(results.1.unwrap().error_name, IncorrectRegisterType);
+        assert_eq!(results.1.unwrap().error_name, IncorrectRegisterTypeFP);
     }
 }
 

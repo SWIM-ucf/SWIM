@@ -1,13 +1,11 @@
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
-    ImproperlyFormattedData, ImproperlyFormattedLabel, LabelAssignmentError,
-    LabelMultipleDefinition, MissingComma,
-};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::*;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
     Data, Error, Instruction, Line, Token,
 };
+use levenshtein::levenshtein;
 use std::collections::HashMap;
 
 ///Takes the initial string of the program given by the editor and turns it into a vector of Line,
@@ -139,6 +137,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                     instruction.errors.push(Error {
                         error_name: LabelAssignmentError,
                         operand_number: None,
+                        message: "".to_string(),
                     })
                     //if the above error doesn't occur, we can push the label to the instruction struct.
                 } else {
@@ -153,6 +152,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                         instruction.errors.push(Error {
                             error_name: LabelAssignmentError,
                             operand_number: None,
+                            message: "".to_string(),
                         });
                         instruction_list.push(instruction.clone());
                     }
@@ -179,6 +179,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                     instruction.errors.push(Error {
                         error_name: MissingComma,
                         operand_number: Some((operand_iterator - first_operand_index) as u8),
+                        message: "".to_string(),
                     })
                 }
                 instruction
@@ -217,6 +218,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 data.errors.push(Error {
                     error_name: ImproperlyFormattedLabel,
                     operand_number: Some(0),
+                    message: "".to_string(),
                 });
                 lines[i].tokens[0].token_type = Label;
                 data.label = lines[i].tokens[0].clone();
@@ -227,6 +229,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 data.errors.push(Error {
                     error_name: ImproperlyFormattedData,
                     operand_number: None,
+                    message: "".to_string(),
                 });
                 i += 1;
                 continue;
@@ -246,6 +249,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                     instruction.errors.push(Error {
                         error_name: MissingComma,
                         operand_number: Some((value_iterator - first_value_index) as u8),
+                        message: "".to_string(),
                     })
                 }
                 data.data_entries_and_values
@@ -987,6 +991,7 @@ pub fn create_label_map(
                 instruction.errors.push(Error {
                     error_name: LabelMultipleDefinition,
                     operand_number: None,
+                    message: "".to_string(),
                 });
                 //otherwise, it is inserted
             } else {
@@ -1012,6 +1017,7 @@ pub fn create_label_map(
             data.errors.push(Error {
                 error_name: LabelMultipleDefinition,
                 operand_number: Some(i as u8),
+                message: "".to_string(),
             });
             //otherwise, it is inserted
         } else {
@@ -1053,6 +1059,206 @@ pub fn complete_lw_sw_pseudo_instructions(
             let mut memory_operand = lower_16_bits.to_string();
             memory_operand.push_str("($at)");
             instructions[index].operands[1].token_name = memory_operand;
+        }
+    }
+}
+
+///Goes through each error found in the parsing & assembling process and suggests to the user a way of
+/// correcting the error.
+pub fn suggest_error_corrections(
+    instructions: &mut [Instruction],
+    data: &mut [Data],
+    labels: &HashMap<String, u32>,
+) {
+    //go through each error in the instructions and suggest a correction
+    for instruction in instructions {
+        for error in &mut instruction.errors {
+            match error.error_name {
+                UnsupportedInstruction => {
+                    error.message =
+                        "While this is a valid instruction, it is not currently supported by SWIM"
+                            .to_string();
+                }
+                UnrecognizedGPRegister => {
+                    let gp_registers = [
+                        "$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3", "$t0", "$t1",
+                        "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$s0", "$s1", "$s2", "$s3",
+                        "$s4", "$s5", "$s6", "$s7", "$t8", "$t9", "$k0", "$k1", "$gp", "$sp",
+                        "$fp", "$ra", "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9",
+                        "r10", "r11", "r12", "r13", "r14", "r15", "r16", "r17", "r18", "r19",
+                        "r20", "r21", "r22", "r23", "r24", "r25", "r26", "r27", "r28", "r29",
+                        "r30", "r31",
+                    ];
+
+                    let given_string =
+                        &instruction.operands[error.operand_number.unwrap() as usize].token_name;
+                    let mut closest: (usize, String) = (usize::MAX, "".to_string());
+
+                    for register in gp_registers {
+                        if levenshtein(given_string, register) < closest.0 {
+                            closest.0 = levenshtein(given_string, register);
+                            closest.1 = register.to_string();
+                        }
+                    }
+
+                    let mut suggestion = "A valid, similar register is: ".to_string();
+                    suggestion.push_str(&closest.1);
+                    suggestion.push('.');
+                    error.message = suggestion;
+                }
+                UnrecognizedFPRegister => {
+                    let fp_registers = [
+                        "$f0", "$f1", "$f2", "$f3", "$f4", "$f5", "$f6", "$f7", "$f8", "$f9",
+                        "$f10", "$f11", "$f12", "$f13", "$f14", "$f15", "$f16", "$f17", "$f18",
+                        "$f19", "$f20", "$f21", "$f22", "$f23", "$f24", "$f25", "$f26", "$f27",
+                        "$f28", "$f29", "$f30", "$f31",
+                    ];
+
+                    let given_string =
+                        &instruction.operands[error.operand_number.unwrap() as usize].token_name;
+                    let mut closest: (usize, String) = (usize::MAX, "".to_string());
+
+                    for register in fp_registers {
+                        if levenshtein(given_string, register) < closest.0 {
+                            closest.0 = levenshtein(given_string, register);
+                            closest.1 = register.to_string();
+                        }
+                    }
+
+                    let mut suggestion = "A valid, similar register is: ".to_string();
+                    suggestion.push_str(&closest.1);
+                    suggestion.push('.');
+                    error.message = suggestion;
+                }
+                UnrecognizedInstruction => {
+                    let recognized_instructions = [
+                        "add", "sub", "mul", "div", "lw", "sw", "lui", "aui", "andi", "ori",
+                        "addi", "dadd", "dsub", "dmul", "ddiv", "or", "and", "add.s", "add.d",
+                        "sub.s", "sub.d", "mul.s", "mul.d", "div.s", "div.d", "dahi", "dati",
+                        "daddiu", "slt", "sltu", "swc1", "lwc1", "mtc1", "dmtc1", "mfc1", "dmfc1",
+                        "j", "beq", "bne", "c.eq.s", "c.eq.d", "c.lt.s", "c.le.s", "c.le.d",
+                        "c.ngt.s", "c.ngt.d", "c.nge.s", "c.nge.d", "bc1t", "bc1f",
+                    ];
+
+                    let given_string = &instruction.operator.token_name;
+                    let mut closest: (usize, String) = (usize::MAX, "".to_string());
+
+                    for instruction in recognized_instructions {
+                        if levenshtein(given_string, instruction) < closest.0 {
+                            closest.0 = levenshtein(given_string, instruction);
+                            closest.1 = instruction.to_string();
+                        }
+                    }
+
+                    let mut suggestion = "A valid, similar instruction is: ".to_string();
+                    suggestion.push_str(&closest.1);
+                    suggestion.push('.');
+                    error.message = suggestion;
+                }
+                IncorrectRegisterTypeGP => {
+                    error.message = "Expected FP register but received GP register.".to_string();
+                }
+                IncorrectRegisterTypeFP => {
+                    error.message = "Expected GP register but received FP register.".to_string();
+                }
+                MissingComma => {
+                    error.message =
+                        "Operand expected to end with a comma but it does not.".to_string()
+                }
+                ImmediateOutOfBounds => {
+                    error.message = "Immediate value given cannot be expressed in the available number of bits.".to_string();
+                }
+                NonIntImmediate => {
+                    error.message =
+                        "The given string cannot be recognized as an integer.".to_string();
+                }
+                NonFloatImmediate => {
+                    error.message = "The given string cannot be recognized as a float.".to_string();
+                }
+                InvalidMemorySyntax => {
+                    error.message = "The given string for memory does not match syntax of \"offset(base)\" or \"label\"".to_string();
+                }
+                IncorrectNumberOfOperands => {
+                    error.message = "The given number of operands does not match the number expected for the given instruction.".to_string();
+                }
+                LabelMultipleDefinition => {
+                    error.message =
+                        "The given label name is already used elsewhere in the project."
+                            .to_string();
+                }
+                LabelNotFound => {
+                    if labels.is_empty() {
+                        error.message = "There is no recognized labelled memory".to_string();
+                        continue;
+                    }
+
+                    let given_string =
+                        &instruction.operands[error.operand_number.unwrap() as usize].token_name;
+                    let mut closest: (usize, String) = (usize::MAX, "".to_string());
+
+                    for label in labels {
+                        if levenshtein(given_string, label.0) < closest.0 {
+                            closest.0 = levenshtein(given_string, label.0);
+                            closest.1 = label.0.to_string();
+                        }
+                    }
+
+                    let mut suggestion = "A valid, similar label is: ".to_string();
+                    suggestion.push_str(&closest.1);
+                    suggestion.push('.');
+                    error.message = suggestion;
+                }
+                ImproperlyFormattedASCII => {
+                    error.message =
+                        "Token recognized as ASCII does not start and or end with \".".to_string();
+                }
+                ImproperlyFormattedChar => {
+                    error.message = "Token recognized as a char does not end with ' or is larger than a single char.".to_string();
+                }
+                _ => {
+                    error.message = "PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH AN INSTRUCTION.".to_string();
+                }
+            }
+        }
+    }
+
+    //go through each error in the data and suggest a correction
+    for datum in data {
+        for error in &mut datum.errors {
+            match &error.error_name {
+                UnrecognizedDataType => {
+                    let recognized_data_types = [
+                        ".ascii", ".asciiz", ".byte", ".double", ".float", ".half", ".space",
+                        ".word",
+                    ];
+
+                    let given_string = &datum.data_type.token_name.to_string();
+                    let mut closest: (usize, String) = (usize::MAX, "".to_string());
+
+                    for data_type in recognized_data_types {
+                        if levenshtein(given_string, data_type) < closest.0 {
+                            closest.0 = levenshtein(given_string, data_type);
+                            closest.1 = data_type.to_string();
+                        }
+                    }
+
+                    let mut suggestion = "A valid, similar data type is: ".to_string();
+                    suggestion.push_str(&closest.1);
+                    suggestion.push('.');
+                    error.message = suggestion;
+                }
+                LabelAssignmentError => {
+                    error.message = "A label is specified but it is not followed by data or an instruction committed to memory.".to_string();
+                }
+                LabelMultipleDefinition => {
+                    error.message =
+                        "The given label name is already used elsewhere in the project."
+                            .to_string();
+                }
+                _ => {
+                    error.message = "PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.".to_string();
+                }
+            }
         }
     }
 }

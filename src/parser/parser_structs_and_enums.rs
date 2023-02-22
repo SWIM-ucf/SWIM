@@ -50,6 +50,7 @@ pub mod instruction_tokenization {
     pub struct Error {
         pub error_name: ErrorType,
         pub operand_number: Option<u8>,
+        pub message: String,
     }
 
     #[derive(Default, Debug, PartialEq, Eq, Clone)]
@@ -76,25 +77,26 @@ pub mod instruction_tokenization {
 
     #[derive(Debug, PartialEq, Eq, Clone)]
     pub enum ErrorType {
-        UnsupportedInstruction,
-        UnrecognizedGPRegister,
-        UnrecognizedFPRegister,
-        UnrecognizedInstruction,
-        UnrecognizedDataType,
-        IncorrectRegisterType,
-        MissingComma,
-        ImmediateOutOfBounds,
-        NonIntImmediate,
-        NonFloatImmediate,
-        InvalidMemorySyntax,
-        IncorrectNumberOfOperands,
-        LabelAssignmentError,
-        LabelMultipleDefinition,
-        LabelNotFound,
-        ImproperlyFormattedLabel,
-        ImproperlyFormattedData,
-        ImproperlyFormattedASCII,
-        ImproperlyFormattedChar,
+        UnsupportedInstruction, //valid MIPS64 instruction that is not supported by SWIM
+        UnrecognizedGPRegister, //Given string does not match GP Register names
+        UnrecognizedFPRegister, //Given string does not match FP Register names
+        UnrecognizedInstruction, //Given string does not match any valid MIPs64 instructions or our supported pseudo-instructions
+        UnrecognizedDataType,    //Given string does not match data type directives
+        IncorrectRegisterTypeFP, //Expected GP Register but received FP
+        IncorrectRegisterTypeGP, //Expected FP Register but received GP
+        MissingComma,            //Operand expected to end with a comma but does not
+        ImmediateOutOfBounds,    //Immediate value given cannot be expressed in given number of bits
+        NonIntImmediate,         //Given string cannot be recognized as an integer
+        NonFloatImmediate,       //Given string cannot be recognized as a float
+        InvalidMemorySyntax, //Given string for memory does not match syntax of "offset(base)" or "label"
+        IncorrectNumberOfOperands, //The given number of operands does not match the number expected for an instruction
+        LabelAssignmentError, //A label is specified but it is not followed by anything committed to memory
+        LabelMultipleDefinition, //The given label name is already used elsewhere in the project
+        LabelNotFound,        //The given label operand does not match a given label
+        ImproperlyFormattedLabel, //Label assignment recognized but does not end in a colon.
+        ImproperlyFormattedData, //Line of data does not contain the proper number of tokens
+        ImproperlyFormattedASCII, //Token recognized as ASCII does not start and or end with "
+        ImproperlyFormattedChar, //Token recognized as a char does not end with ' or is larger than a single char
     }
 
     //this enum is used for the fn read_operands to choose the types of operands expected for an instruction type
@@ -117,12 +119,14 @@ pub mod instruction_tokenization {
     pub fn print_vec_of_instructions(instructions: Vec<Instruction>) {
         for instruction in instructions {
             print_instruction_contents(instruction);
+            println!();
         }
     }
 
     pub fn print_vec_of_data(data: Vec<Data>) {
         for data_entry in data {
             print_data_contents(data_entry);
+            println!();
         }
     }
 
@@ -147,7 +151,10 @@ pub mod instruction_tokenization {
         println!("Data Type: {}", data.data_type.token_name);
         println!("Data Entries:");
         for data_entry in data.data_entries_and_values {
-            println!("{:?} read as {}", data_entry.0, data_entry.1);
+            println!("{:?}", data_entry.0);
+        }
+        for error in data.errors {
+            println!("{:?}", error.error_name);
         }
     }
 }
