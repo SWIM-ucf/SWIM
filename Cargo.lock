@@ -448,6 +448,7 @@ checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 [[package]]
 name = "monaco"
 version = "0.3.0"
+source = "git+https://github.com/b0x-Cub3d/rust-monaco?rev=497f3b56f30886942088a327a4dc3f54c5b8c9f5#497f3b56f30886942088a327a4dc3f54c5b8c9f5"
 dependencies = [
  "js-sys",
  "paste",

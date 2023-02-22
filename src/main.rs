@@ -66,6 +66,7 @@ fn app() -> Html {
             move |_, text_model| {
                 let mut datapath = (*datapath).borrow_mut();
                 let text_model = (*text_model).borrow_mut();
+                log!(text_model.as_ref());
 
                 // parses through the code to assemble the binary
                 let (_, assembled) = parser(text_model.get_value());
@@ -98,10 +99,11 @@ fn app() -> Html {
         // will highlight the executed line.
         // Currently, just highlights the first line as
         // a proof of concept.
-        let curr_range: monaco::sys::Range = 
-            Object::new().unchecked_into();
-        curr_range.set_start_position(1.0, 0.0);
-        curr_range.set_end_position(1.0, 0.0);
+        let curr_range = monaco::sys::Range::new(1.0, 0.0, 1.0, 0.0);
+
+       // let start = curr_range.set_start_position(1.0, 0.0);
+       //  let end = curr_range.set_end_position(1.0, 0.0);
+
         let range_js = curr_range.dyn_into::<JsValue>()
             .expect("Range is not found.");
         delta_decor.set_is_whole_line(true.into());
@@ -115,6 +117,7 @@ fn app() -> Html {
         let decor_array = js_sys::Array::new();
         decor_array.push(&highlight_js);
 
+
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
@@ -125,6 +128,7 @@ fn app() -> Html {
                 &decor_array,
                 None
                 );
+                log!(curr_model);
                 (*datapath).execute_instruction();
                 log!(JsValue::from_str(&datapath.registers.to_string()));
                 trigger.force_update();
