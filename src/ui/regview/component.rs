@@ -58,7 +58,7 @@ pub fn regview(props: &Regviewprops) -> Html {
         let switch_flag = switch_flag.clone();
         use_callback(
             move |_, switch_flag| {
-                if **switch_flag == true {
+                if **switch_flag {
                     switch_flag.set(false);
                 }
             },
@@ -69,7 +69,7 @@ pub fn regview(props: &Regviewprops) -> Html {
         let switch_flag = switch_flag.clone();
         use_callback(
             move |_, switch_flag| {
-                if **switch_flag == false {
+                if !(**switch_flag) {
                     switch_flag.set(true);
                 }
             },
@@ -91,7 +91,7 @@ pub fn regview(props: &Regviewprops) -> Html {
                         <th style="border: 1px solid black;">{"Register Name"}</th>
                         <th style="border: 1px solid black;">{"Data"}</th>
                     </tr>
-                    if (*switch_flag) == true {
+                    if *switch_flag{
                         {gen_reg_html(props.gp)}
                     } else {
                         {fp_reg(props.fp)}
