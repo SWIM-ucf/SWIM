@@ -92,12 +92,12 @@ impl Component for VisualDatapath {
         });
 
         if first_render {
-            self.initialize(ctx.props().datapath.clone(), current_stage);
+            self.initialize(current_stage, ctx.props().datapath.clone());
         } else {
             let result = Self::highlight_stage(
-                ctx.props().datapath.clone(),
                 &get_g_elements(),
                 current_stage,
+                ctx.props().datapath.clone(),
             );
 
             // Capture new event listeners.
@@ -152,7 +152,7 @@ impl VisualDatapath {
     /// circumvented by creating an event listener on the `<object>` element for the
     /// "load" event, which will guarantee when that virtual DOM is actually ready
     /// to be manipulated.
-    pub fn initialize(&mut self, datapath: MipsDatapath, current_stage: String) {
+    pub fn initialize(&mut self, current_stage: String, datapath: MipsDatapath) {
         let on_load = Callback::from(move |_| {
             let nodes = get_g_elements();
 
@@ -182,7 +182,7 @@ impl VisualDatapath {
                 }
             });
 
-            Self::highlight_stage(datapath.clone(), &nodes, current_stage.clone())
+            Self::highlight_stage(&nodes, current_stage.clone(), datapath.clone())
         });
 
         let active_listeners = Rc::clone(&self.active_listeners);
@@ -206,10 +206,9 @@ impl VisualDatapath {
         (*active_listeners).push(on_load_listener);
     }
 
-    /// Highlight and enable interactivity for all lines in a given stage.
+    /// Highlight the current stage and enable interactivity for all lines.
     ///
-    /// Consequently un-highlights for all other lines. (Disabling interactivity
-    /// for other lines is done within [`Self::changed()`].)
+    /// Consequently un-highlights for all other lines not in the current stage.
     ///
     /// Takes as input a reference to an [`HtmlCollection`] that contains all the `<g>` elements
     /// of the SVG diagram.
@@ -224,9 +223,9 @@ impl VisualDatapath {
     /// If successful, returns a [`Vec<EventListener>`] containing the new event
     /// listeners generated.
     pub fn highlight_stage(
-        datapath: MipsDatapath,
         nodes: &HtmlCollection,
         stage: String,
+        datapath: MipsDatapath,
     ) -> Result<Vec<EventListener>, JsValue> {
         let mut active_listeners: Vec<EventListener> = vec![];
 
@@ -249,13 +248,13 @@ impl VisualDatapath {
     /// Enables interactivity for a given `<g>` element. This includes both the popup
     /// and coloring functionality.
     ///
-    /// `active` indicates whether a given element is active (i.e. is in the current stage).
+    /// `is_active` indicates whether a given element is in the current stage.
     ///
     /// If successful, returns a [`Vec<EventListener>`] containing the newly created event listeners.
     pub fn enable_interactivity(
         element: &Element,
         datapath: MipsDatapath,
-        active: bool,
+        is_active: bool,
     ) -> Result<Vec<EventListener>, JsValue> {
         // Color a line when hovering.
         let color_on_mouseover = Callback::from(move |event: Event| {
@@ -266,7 +265,7 @@ impl VisualDatapath {
         // Color a line (a different color) when no longer hovering.
         let color_on_mouseout = Callback::from(move |event: Event| {
             let target = event.target().unwrap().unchecked_into::<HtmlElement>();
-            if active {
+            if is_active {
                 Self::set_active_unhovered(&target).ok();
             } else {
                 Self::set_inactive(&target).ok();
@@ -345,7 +344,7 @@ impl VisualDatapath {
             let path = children.item(i).unwrap().unchecked_into::<HtmlElement>();
 
             // Set the initial path color.
-            if active {
+            if is_active {
                 Self::set_active_unhovered(&path)?;
             } else {
                 Self::set_inactive(&path)?;
