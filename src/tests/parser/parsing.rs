@@ -2135,9 +2135,14 @@ fn suggest_error_corrections_works_with_labels() {
 }
 
 #[test]
-fn suggest_error_corrections_works_with_labels_when_no_labels_specified(){
-    let result = parser("add $t1, $t2, $t3\nj stable\nlw $t1, 100($zero)\n".to_string()).0.instructions;
-    assert_eq!(result[1].errors[0].message, "There is no recognized labelled memory.");
+fn suggest_error_corrections_works_with_labels_when_no_labels_specified() {
+    let result = parser("add $t1, $t2, $t3\nj stable\nlw $t1, 100($zero)\n".to_string())
+        .0
+        .instructions;
+    assert_eq!(
+        result[1].errors[0].message,
+        "There is no recognized labelled memory."
+    );
 }
 
 #[test]
