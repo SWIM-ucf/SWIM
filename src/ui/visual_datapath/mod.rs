@@ -92,7 +92,7 @@ impl Component for VisualDatapath {
         });
 
         if first_render {
-            self.initialize();
+            self.initialize(ctx.props().datapath.clone(), current_stage);
         } else {
             let result = Self::highlight_stage(
                 ctx.props().datapath.clone(),
@@ -152,7 +152,7 @@ impl VisualDatapath {
     /// circumvented by creating an event listener on the `<object>` element for the
     /// "load" event, which will guarantee when that virtual DOM is actually ready
     /// to be manipulated.
-    pub fn initialize(&mut self) {
+    pub fn initialize(&mut self, datapath: MipsDatapath, current_stage: String) {
         let on_load = Callback::from(move |_| {
             let nodes = get_g_elements();
 
@@ -181,11 +181,23 @@ impl VisualDatapath {
                     });
                 }
             });
+
+            Self::highlight_stage(datapath.clone(), &nodes, current_stage.clone())
         });
+
+        let active_listeners = Rc::clone(&self.active_listeners);
 
         // Attach the on load listener.
         let on_load_listener = EventListener::new(&get_datapath_root(), "load", move |event| {
-            on_load.emit(event.clone());
+            let result = on_load.emit(event.clone());
+
+            // Capture the new event listeners.
+            let mut active_listeners = (*active_listeners).borrow_mut();
+            if let Ok(new_listeners) = result {
+                for l in new_listeners {
+                    (*active_listeners).push(l);
+                }
+            }
         });
 
         // Capture the "load" event listener.
