@@ -401,6 +401,48 @@
 <a href="#401" id="401">401</a>
 <a href="#402" id="402">402</a>
 <a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
 </pre><pre class="rust"><code><span class="doccomment">//! The visual datapath component.
 //!
 //! This component operates largely in JS-land, manipulating the page&#39;s DOM directly.
@@ -495,12 +537,12 @@
         });
 
         <span class="kw">if </span>first_render {
-            <span class="self">self</span>.initialize();
+            <span class="self">self</span>.initialize(current_stage, ctx.props().datapath.clone());
         } <span class="kw">else </span>{
             <span class="kw">let </span>result = <span class="self">Self</span>::highlight_stage(
-                ctx.props().datapath.clone(),
                 <span class="kw-2">&amp;</span>get_g_elements(),
                 current_stage,
+                ctx.props().datapath.clone(),
             );
 
             <span class="comment">// Capture new event listeners.
@@ -555,7 +597,7 @@
     /// circumvented by creating an event listener on the `&lt;object&gt;` element for the
     /// &quot;load&quot; event, which will guarantee when that virtual DOM is actually ready
     /// to be manipulated.
-    </span><span class="kw">pub fn </span>initialize(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+    </span><span class="kw">pub fn </span>initialize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, current_stage: String, datapath: MipsDatapath) {
         <span class="kw">let </span>on_load = Callback::from(<span class="kw">move </span>|<span class="kw">_</span>| {
             <span class="kw">let </span>nodes = get_g_elements();
 
@@ -584,11 +626,23 @@
                     });
                 }
             });
+
+            <span class="self">Self</span>::highlight_stage(<span class="kw-2">&amp;</span>nodes, current_stage.clone(), datapath.clone())
         });
+
+        <span class="kw">let </span>active_listeners = Rc::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.active_listeners);
 
         <span class="comment">// Attach the on load listener.
         </span><span class="kw">let </span>on_load_listener = EventListener::new(<span class="kw-2">&amp;</span>get_datapath_root(), <span class="string">&quot;load&quot;</span>, <span class="kw">move </span>|event| {
-            on_load.emit(event.clone());
+            <span class="kw">let </span>result = on_load.emit(event.clone());
+
+            <span class="comment">// Capture the new event listeners.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>active_listeners = (<span class="kw-2">*</span>active_listeners).borrow_mut();
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(new_listeners) = result {
+                <span class="kw">for </span>l <span class="kw">in </span>new_listeners {
+                    (<span class="kw-2">*</span>active_listeners).push(l);
+                }
+            }
         });
 
         <span class="comment">// Capture the &quot;load&quot; event listener.
@@ -597,10 +651,9 @@
         (<span class="kw-2">*</span>active_listeners).push(on_load_listener);
     }
 
-    <span class="doccomment">/// Highlight and enable interactivity for all lines in a given stage.
+    <span class="doccomment">/// Highlight the current stage and enable interactivity for all lines.
     ///
-    /// Consequently un-highlights for all other lines. (Disabling interactivity
-    /// for other lines is done within [`Self::changed()`].)
+    /// Consequently un-highlights for all other lines not in the current stage.
     ///
     /// Takes as input a reference to an [`HtmlCollection`] that contains all the `&lt;g&gt;` elements
     /// of the SVG diagram.
@@ -615,48 +668,63 @@
     /// If successful, returns a [`Vec&lt;EventListener&gt;`] containing the new event
     /// listeners generated.
     </span><span class="kw">pub fn </span>highlight_stage(
-        datapath: MipsDatapath,
         nodes: <span class="kw-2">&amp;</span>HtmlCollection,
         stage: String,
+        datapath: MipsDatapath,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;EventListener&gt;, JsValue&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>active_listeners: Vec&lt;EventListener&gt; = <span class="macro">vec!</span>[];
 
         do_over_html_collection(nodes, |element| {
-            <span class="kw">if </span>!element.has_attribute(<span class="string">&quot;data-stage&quot;</span>) {
-                <span class="comment">// Do nothing if the line has no defined stage.
-            </span>} <span class="kw">else if </span>element.get_attribute(<span class="string">&quot;data-stage&quot;</span>).unwrap() == stage {
-                <span class="comment">// This is an element we want. Highlight it.
-                </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(listeners) = <span class="self">Self</span>::activate_element(datapath.clone(), element) {
+            <span class="kw">if </span>element.has_attribute(<span class="string">&quot;data-stage&quot;</span>) {
+                <span class="kw">let </span>is_in_current_stage = element.get_attribute(<span class="string">&quot;data-stage&quot;</span>).unwrap() == stage;
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(listeners) =
+                    <span class="self">Self</span>::enable_interactivity(element, datapath.clone(), is_in_current_stage)
+                {
                     <span class="kw">for </span>l <span class="kw">in </span>listeners {
                         active_listeners.push(l);
                     }
                 }
-            } <span class="kw">else </span>{
-                <span class="comment">// Not an element we want. Stop highlighting it.
-                </span><span class="self">Self</span>::deactivate_element(element).ok();
             }
         });
 
         <span class="prelude-val">Ok</span>(active_listeners)
     }
 
-    <span class="doccomment">/// Activates a given `&lt;g&gt;` element.
+    <span class="doccomment">/// Enables interactivity for a given `&lt;g&gt;` element. This includes both the popup
+    /// and coloring functionality.
+    ///
+    /// `is_active` indicates whether a given element is in the current stage.
     ///
     /// If successful, returns a [`Vec&lt;EventListener&gt;`] containing the newly created event listeners.
-    </span><span class="kw">pub fn </span>activate_element(
-        datapath: MipsDatapath,
+    </span><span class="kw">pub fn </span>enable_interactivity(
         element: <span class="kw-2">&amp;</span>Element,
+        datapath: MipsDatapath,
+        is_active: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;EventListener&gt;, JsValue&gt; {
-        <span class="comment">// Callback to execute if a line is hovered over.
-        </span><span class="kw">let </span>on_mouseover = Callback::from(<span class="kw">move </span>|event: web_sys::Event| {
+        <span class="comment">// Color a line when hovering.
+        </span><span class="kw">let </span>color_on_mouseover = Callback::from(<span class="kw">move </span>|event: Event| {
+            <span class="kw">let </span>target = event.target().unwrap().unchecked_into::&lt;HtmlElement&gt;();
+            <span class="self">Self</span>::set_active_hovered(<span class="kw-2">&amp;</span>target).ok();
+        });
+
+        <span class="comment">// Color a line (a different color) when no longer hovering.
+        </span><span class="kw">let </span>color_on_mouseout = Callback::from(<span class="kw">move </span>|event: Event| {
+            <span class="kw">let </span>target = event.target().unwrap().unchecked_into::&lt;HtmlElement&gt;();
+            <span class="kw">if </span>is_active {
+                <span class="self">Self</span>::set_active_unhovered(<span class="kw-2">&amp;</span>target).ok();
+            } <span class="kw">else </span>{
+                <span class="self">Self</span>::set_inactive(<span class="kw-2">&amp;</span>target).ok();
+            }
+        });
+
+        <span class="comment">// Show the popup when hovering.
+        </span><span class="kw">let </span>popup_on_mouseover = Callback::from(<span class="kw">move </span>|event: web_sys::Event| {
             <span class="kw">let </span>event = event.unchecked_into::&lt;MouseEvent&gt;();
 
             <span class="comment">// Get relevant elements.
             </span><span class="kw">let </span>target = event.target().unwrap().unchecked_into::&lt;HtmlElement&gt;();
             <span class="kw">let </span>popup = get_popup_element();
             <span class="kw">let </span>datapath_position = get_datapath_position();
-
-            <span class="self">Self</span>::set_active_hovered(<span class="kw-2">&amp;</span>target).ok();
 
             <span class="comment">// Show popup.
             </span><span class="kw">let </span>variable = target
@@ -682,8 +750,8 @@
                 .ok();
         });
 
-        <span class="comment">// Callback to execute if the mouse moves while hovered on an element.
-        </span><span class="kw">let </span>on_mousemove = Callback::from(<span class="kw">move </span>|event: Event| {
+        <span class="comment">// Move the popup if the mouse moves while still hovering.
+        </span><span class="kw">let </span>popup_on_mousemove = Callback::from(<span class="kw">move </span>|event: Event| {
             <span class="kw">let </span>event = event.unchecked_into::&lt;MouseEvent&gt;();
 
             <span class="kw">let </span>popup = get_popup_element();
@@ -706,16 +774,10 @@
                 .ok();
         });
 
-        <span class="comment">// Callback to execute if the mouse stops hovering over an element.
-        </span><span class="kw">let </span>on_mouseout = Callback::from(<span class="kw">move </span>|event: Event| {
-            <span class="comment">// Get relevant elements.
-            </span><span class="kw">let </span>target = event.target().unwrap().unchecked_into::&lt;HtmlElement&gt;();
+        <span class="comment">// Hide the popup when no longer hovering.
+        </span><span class="kw">let </span>popup_on_mouseout = Callback::from(<span class="kw">move </span>|<span class="kw">_</span>| {
             <span class="kw">let </span>popup = get_popup_element();
-
-            <span class="self">Self</span>::set_active_unhovered(<span class="kw-2">&amp;</span>target).ok();
-
-            <span class="comment">// Hide popup.
-            </span>popup.style().set_property(<span class="string">&quot;display&quot;</span>, <span class="string">&quot;none&quot;</span>).ok();
+            popup.style().set_property(<span class="string">&quot;display&quot;</span>, <span class="string">&quot;none&quot;</span>).ok();
         });
 
         <span class="kw">let </span><span class="kw-2">mut </span>active_listeners: Vec&lt;EventListener&gt; = <span class="macro">vec!</span>[];
@@ -726,31 +788,55 @@
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..children.length() {
             <span class="kw">let </span>path = children.item(i).unwrap().unchecked_into::&lt;HtmlElement&gt;();
 
-            <span class="self">Self</span>::set_active_unhovered(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
+            <span class="comment">// Set the initial path color.
+            </span><span class="kw">if </span>is_active {
+                <span class="self">Self</span>::set_active_unhovered(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
+            } <span class="kw">else </span>{
+                <span class="self">Self</span>::set_inactive(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
+            }
 
             <span class="kw">if </span>path.tag_name() == <span class="string">&quot;path&quot; </span>{
-                <span class="comment">// Attach mouseover listener.
-                </span><span class="kw">let </span>on_mouseover = on_mouseover.clone();
-                <span class="kw">let </span>on_mouseover_listener = EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">&quot;mouseover&quot;</span>, <span class="kw">move </span>|event| {
-                    on_mouseover.emit(event.clone())
-                });
+                <span class="comment">// Set the initial state of this path:
+                // Make the mouse look like a hand when the path is hovered.
+                </span>path.style().set_property(<span class="string">&quot;cursor&quot;</span>, <span class="string">&quot;pointer&quot;</span>)<span class="question-mark">?</span>;
 
-                <span class="comment">// Attach mousemove listener.
-                </span><span class="kw">let </span>on_mousemove = on_mousemove.clone();
-                <span class="kw">let </span>on_mousemove_listener = EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">&quot;mousemove&quot;</span>, <span class="kw">move </span>|event| {
-                    on_mousemove.emit(event.clone())
-                });
+                <span class="comment">// Attach all the event listeners.
+                </span><span class="kw">let </span>color_on_mouseover = color_on_mouseover.clone();
+                <span class="kw">let </span>color_on_mouseover_listener =
+                    EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">&quot;mouseover&quot;</span>, <span class="kw">move </span>|event| {
+                        color_on_mouseover.emit(event.clone())
+                    });
 
-                <span class="comment">// Attach mouseout listener.
-                </span><span class="kw">let </span>on_mouseout = on_mouseout.clone();
-                <span class="kw">let </span>on_mouseout_listener = EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">&quot;mouseout&quot;</span>, <span class="kw">move </span>|event| {
-                    on_mouseout.emit(event.clone())
-                });
+                <span class="kw">let </span>color_on_mouseout = color_on_mouseout.clone();
+                <span class="kw">let </span>color_on_mouseout_listener =
+                    EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">&quot;mouseout&quot;</span>, <span class="kw">move </span>|event| {
+                        color_on_mouseout.emit(event.clone())
+                    });
+
+                <span class="kw">let </span>popup_on_mouseover = popup_on_mouseover.clone();
+                <span class="kw">let </span>popup_on_mouseover_listener =
+                    EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">&quot;mouseover&quot;</span>, <span class="kw">move </span>|event| {
+                        popup_on_mouseover.emit(event.clone())
+                    });
+
+                <span class="kw">let </span>popup_on_mousemove = popup_on_mousemove.clone();
+                <span class="kw">let </span>popup_on_mousemove_listener =
+                    EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">&quot;mousemove&quot;</span>, <span class="kw">move </span>|event| {
+                        popup_on_mousemove.emit(event.clone())
+                    });
+
+                <span class="kw">let </span>popup_on_mouseout = popup_on_mouseout.clone();
+                <span class="kw">let </span>popup_on_mouseout_listener =
+                    EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">&quot;mouseout&quot;</span>, <span class="kw">move </span>|event| {
+                        popup_on_mouseout.emit(event.clone())
+                    });
 
                 <span class="comment">// Save the event listeners.
-                </span>active_listeners.push(on_mouseover_listener);
-                active_listeners.push(on_mousemove_listener);
-                active_listeners.push(on_mouseout_listener);
+                </span>active_listeners.push(color_on_mouseover_listener);
+                active_listeners.push(color_on_mouseout_listener);
+                active_listeners.push(popup_on_mouseover_listener);
+                active_listeners.push(popup_on_mousemove_listener);
+                active_listeners.push(popup_on_mouseout_listener);
             }
         }
 
@@ -772,7 +858,6 @@
 
     <span class="doccomment">/// Set a line to be inactive.
     </span><span class="kw">pub fn </span>set_inactive(path: <span class="kw-2">&amp;</span>HtmlElement) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt; {
-        path.style().set_property(<span class="string">&quot;cursor&quot;</span>, <span class="string">&quot;auto&quot;</span>)<span class="question-mark">?</span>;
         <span class="self">Self</span>::set_color(path, INACTIVE_COLOR)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
@@ -780,7 +865,6 @@
 
     <span class="doccomment">/// Set a line to be active and unhovered.
     </span><span class="kw">pub fn </span>set_active_unhovered(path: <span class="kw-2">&amp;</span>HtmlElement) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt; {
-        path.style().set_property(<span class="string">&quot;cursor&quot;</span>, <span class="string">&quot;pointer&quot;</span>)<span class="question-mark">?</span>;
         <span class="self">Self</span>::set_color(path, ACTIVE_UNHOVERED_COLOR)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
