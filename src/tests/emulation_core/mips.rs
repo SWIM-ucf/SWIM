@@ -1261,7 +1261,7 @@ pub mod dmul_dmulu {
     }
 }
 
-pub mod ddiv {
+pub mod ddiv_ddivu {
     use super::*;
 
     #[test]
@@ -1322,6 +1322,30 @@ pub mod ddiv {
         // While the actual result is -50,775,223,724,555,519.333333....
         // the decimal portion is truncated.
         assert_eq!(datapath.registers.gpr[7] as i64, -50_775_223_724_555_519); // $a3
+    }
+
+    #[test]
+    fn ddivu_positive_result() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // ddivu rd, rs, rt
+        // ddivu $s2, $s0, $s1
+        // ddivu 18, 16, 17
+        // GPR[rd] <- divide.unsigned(GPR[rs], GPR[rt])
+        //                      opcode  rs    rt    rd          funct
+        //                      SPECIAL $s0   $s1   $s2   DDIVU SOP37
+        //                              16    17    18
+        let instruction: u32 = 0b000000_10000_10001_10010_00010_011111;
+
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.registers.gpr[16] = 10_213_202_487_240; // $s0
+        datapath.registers.gpr[17] = 11; // $s1
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[18], 928_472_953_385); // $s2
+        Ok(())
     }
 }
 
