@@ -925,6 +925,7 @@ impl MipsDatapath {
                         }
                     },
                     FUNCT_SOP33 | FUNCT_SOP37 => match self.state.shamt as u8 {
+                        // ENC_DIVU == ENC_DDIVU
                         ENC_DIVU => AluControl::DivisionUnsigned,
                         _ => {
                             unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
