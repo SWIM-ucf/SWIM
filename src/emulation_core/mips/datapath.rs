@@ -937,6 +937,7 @@ impl MipsDatapath {
                         }
                     },
                     FUNCT_SOP31 | FUNCT_SOP35 => match self.state.shamt as u8 {
+                        // ENC_MULU == ENC_DMULU
                         ENC_MULU => AluControl::MultiplicationUnsigned,
                         _ => {
                             unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
