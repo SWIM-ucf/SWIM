@@ -1092,7 +1092,7 @@ pub mod dadd_daddu {
     }
 }
 
-pub mod dsub {
+pub mod dsub_dsubu {
     use super::*;
 
     #[test]
@@ -1122,6 +1122,27 @@ pub mod dsub {
         datapath.execute_instruction();
 
         assert_eq!(datapath.registers.gpr[19], 4_669_680_037_183_490); // $s5
+    }
+
+    #[test]
+    fn dsubu_positive_result() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // dsubu rd, rs, rt
+        // dsubu $s2, $s0, $s1
+        // GPR[18] <- GPR[16] - GPR[17]
+        //                      SPECIAL rs    rt    rd    0     DSUBU
+        //                              16    17    18
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101111;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.registers.gpr[16] = 92_975_612_771_919; // $s0
+        datapath.registers.gpr[17] = 13_810_775_572_047; // $s1
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[18], 79_164_837_199_872); // $s2
+        Ok(())
     }
 }
 
