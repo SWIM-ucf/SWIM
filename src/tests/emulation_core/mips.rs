@@ -1146,7 +1146,7 @@ pub mod dsub_dsubu {
     }
 }
 
-pub mod dmul {
+pub mod dmul_dmulu {
     use super::*;
 
     #[test]
@@ -1235,6 +1235,29 @@ pub mod dmul {
         // (110 11000111 10110001 01001110 10000100 [00110100 01101011 00001011 00010110 11011010 00010011 11111000 11111000])
         // The result should instead truncate to the lower 64 bits.
         assert_eq!(datapath.registers.gpr[18], 3_777_124_905_256_220_920); // $s2
+    }
+
+    #[test]
+    fn dmulu_positive_result() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // dmulu rd, rs, rt
+        // dmulu $s2, $s0, $s1
+        // dmulu 18, 16, 17
+        // GPR[rd] <- lo_doubleword(multiply.unsigned(GPR[rs] * GPR[rt]))
+        //                      opcode  rs    rt    rd          funct
+        //                      SPECIAL $s0   $s1   $s2   DMULU SOP35
+        //                              16    17    18
+        let instruction: u32 = 0b000000_10000_10001_10010_00010_011101;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.registers.gpr[16] = 17_592_186_044_416; // $s0
+        datapath.registers.gpr[17] = 1_000; // $s1
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[18], 17_592_186_044_416_000); // $s2
+        Ok(())
     }
 }
 
