@@ -118,6 +118,9 @@
 <a href="#118" id="118">118</a>
 <a href="#119" id="119">119</a>
 <a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::control_signals::RegWidth;
 
 <span class="kw">pub const </span>FUNCT_ADD: u8 = <span class="number">0b100000</span>;
@@ -128,7 +131,9 @@
 <span class="kw">pub const </span>FUNCT_SLTU: u8 = <span class="number">0b101011</span>;
 
 <span class="kw">pub const </span>FUNCT_DADD: u8 = <span class="number">0b101100</span>;
+<span class="kw">pub const </span>FUNCT_DADDU: u8 = <span class="number">0b101101</span>;
 <span class="kw">pub const </span>FUNCT_DSUB: u8 = <span class="number">0b101110</span>;
+<span class="kw">pub const </span>FUNCT_DSUBU: u8 = <span class="number">0b101111</span>;
 
 <span class="doccomment">/// Used for `MUL` and `MUH`.
 </span><span class="kw">pub const </span>FUNCT_SOP30: u8 = <span class="number">0b011000</span>;
@@ -233,6 +238,7 @@
         FUNCT_ADD | FUNCT_SUB =&gt; <span class="prelude-val">Some</span>(RegWidth::Word),
         FUNCT_AND | FUNCT_OR | FUNCT_SLT | FUNCT_SLTU =&gt; <span class="prelude-val">Some</span>(RegWidth::DoubleWord),
         FUNCT_DADD | FUNCT_DSUB =&gt; <span class="prelude-val">Some</span>(RegWidth::DoubleWord),
+        FUNCT_DADDU | FUNCT_DSUBU =&gt; <span class="prelude-val">Some</span>(RegWidth::DoubleWord),
         FUNCT_SOP30 | FUNCT_SOP31 | FUNCT_SOP32 | FUNCT_SOP33 =&gt; <span class="prelude-val">Some</span>(RegWidth::Word),
         FUNCT_SOP34 | FUNCT_SOP35 | FUNCT_SOP36 | FUNCT_SOP37 =&gt; <span class="prelude-val">Some</span>(RegWidth::DoubleWord),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,

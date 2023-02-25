@@ -1133,6 +1133,8 @@
 <a href="#1133" id="1133">1133</a>
 <a href="#1134" id="1134">1134</a>
 <a href="#1135" id="1135">1135</a>
+<a href="#1136" id="1136">1136</a>
+<a href="#1137" id="1137">1137</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of a MIPS64 datapath.
 //!
 //! It is assumed that while moving through stages, only one
@@ -2047,8 +2049,8 @@
             AluOp::LeftShift16 =&gt; AluControl::LeftShift16,
             AluOp::UseFunctField =&gt; {
                 <span class="kw">match </span><span class="self">self</span>.state.funct <span class="kw">as </span>u8 {
-                    FUNCT_ADD | FUNCT_DADD =&gt; AluControl::Addition,
-                    FUNCT_SUB | FUNCT_DSUB =&gt; AluControl::Subtraction,
+                    FUNCT_ADD | FUNCT_DADD | FUNCT_DADDU =&gt; AluControl::Addition,
+                    FUNCT_SUB | FUNCT_DSUB | FUNCT_DSUBU =&gt; AluControl::Subtraction,
                     FUNCT_AND =&gt; AluControl::And,
                     FUNCT_OR =&gt; AluControl::Or,
                     FUNCT_SLT =&gt; AluControl::SetOnLessThanSigned,
@@ -2060,7 +2062,8 @@
                         }
                     },
                     FUNCT_SOP33 | FUNCT_SOP37 =&gt; <span class="kw">match </span><span class="self">self</span>.state.shamt <span class="kw">as </span>u8 {
-                        ENC_DIVU =&gt; AluControl::DivisionUnsigned,
+                        <span class="comment">// ENC_DIVU == ENC_DDIVU
+                        </span>ENC_DIVU =&gt; AluControl::DivisionUnsigned,
                         <span class="kw">_ </span>=&gt; {
                             <span class="macro">unimplemented!</span>(<span class="string">&quot;MIPS Release 6 encoding `{}` unsupported for this function code ({})&quot;</span>, <span class="self">self</span>.state.shamt, <span class="self">self</span>.state.funct);
                         }
@@ -2072,7 +2075,8 @@
                         }
                     },
                     FUNCT_SOP31 | FUNCT_SOP35 =&gt; <span class="kw">match </span><span class="self">self</span>.state.shamt <span class="kw">as </span>u8 {
-                        ENC_MULU =&gt; AluControl::MultiplicationUnsigned,
+                        <span class="comment">// ENC_MULU == ENC_DMULU
+                        </span>ENC_MULU =&gt; AluControl::MultiplicationUnsigned,
                         <span class="kw">_ </span>=&gt; {
                             <span class="macro">unimplemented!</span>(<span class="string">&quot;MIPS Release 6 encoding `{}` unsupported for this function code ({})&quot;</span>, <span class="self">self</span>.state.shamt, <span class="self">self</span>.state.funct);
                         }
