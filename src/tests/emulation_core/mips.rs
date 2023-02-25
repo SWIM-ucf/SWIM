@@ -1042,7 +1042,7 @@ pub mod ori {
     }
 }
 
-pub mod dadd {
+pub mod dadd_daddu {
     use super::*;
 
     #[test]
@@ -1068,6 +1068,27 @@ pub mod dadd {
         datapath.execute_instruction();
 
         assert_eq!(datapath.registers.gpr[2], 1_938_187_178_608); // $v0
+    }
+
+    #[test]
+    fn daddu_positive_result() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // daddu rd, rs, rt
+        // daddu $s2, $s0, $s1
+        // GPR[18] <- GPR[16] + GPR[17]
+        //                      SPECIAL rs    rt    rd    0     DADDU
+        //                              16    17    18
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101101;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.registers.gpr[16] = 1_069_193_590_294; // $s0
+        datapath.registers.gpr[17] = 34_359_738_368; // $s1
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[18], 1_103_553_328_662); // $s2
+        Ok(())
     }
 }
 
