@@ -440,7 +440,12 @@ impl MipsDatapath {
 
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
-        self.instruction = Instruction::from(self.state.instruction);
+        match Instruction::try_from(self.state.instruction) {
+            Ok(instruction) => self.instruction = instruction,
+            Err(message) => {
+                return;
+            }
+        }
 
         // Set the data lines based on the contents of the instruction.
         // Some lines will hold uninitialized values as a result.

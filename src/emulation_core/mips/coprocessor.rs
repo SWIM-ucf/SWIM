@@ -73,7 +73,9 @@ impl MipsFpCoprocessor {
     /// does not fetch instructions.
     pub fn set_instruction(&mut self, instruction_bits: u32) {
         self.state.instruction = instruction_bits;
-        self.instruction = Instruction::from(self.state.instruction);
+        if let Ok(instruction) = Instruction::try_from(self.state.instruction) {
+            self.instruction = instruction;
+        }
     }
 
     /// Decode an instruction into its individual fields.
