@@ -2821,3 +2821,37 @@ pub mod beq_tests {
         assert_eq!(datapath.registers.pc, 20);
     }
 }
+
+pub mod syscall {
+    use super::*;
+
+    #[test]
+    fn halts_on_syscall() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        assert!(!datapath.is_halted);
+
+        // This program doubles the value in $t1 and stops.
+
+        // $t1 = $t1 + $t1
+        //                      SPECIAL  t1    t1    t1  (shamt)  ADD
+        let instruction1: u32 = 0b000000_01001_01001_01001_00000_100000;
+        datapath.memory.store_word(0, instruction1)?;
+
+        // syscall
+        //                      SPECIAL       (code)         SYSCALL
+        let instruction2: u32 = 0b000000_00000000000000000000_001100;
+        datapath.memory.store_word(4, instruction2)?;
+
+        datapath.registers.gpr[9] = 5; // $t1
+
+        // Execute 2 instructions.
+        for _ in 0..2 {
+            datapath.execute_instruction();
+        }
+
+        assert_eq!(datapath.registers.gpr[9], 10); // $t1
+        assert!(datapath.is_halted);
+        Ok(())
+    }
+}
