@@ -13,6 +13,7 @@ pub struct MipsFpCoprocessor {
     instruction: Instruction,
     pub signals: FpuControlSignals,
     pub state: FpuState,
+    pub is_halted: bool,
 
     pub fpr: [u64; 32],
     pub condition_code: u64,
@@ -60,6 +61,11 @@ impl MipsFpCoprocessor {
 
     pub fn stage_writeback(&mut self) {
         self.register_write();
+    }
+
+    /// Handle an otherwise irrecoverable error within the datapath.
+    pub fn error(&mut self, _message: &str) {
+        self.is_halted = true;
     }
 
     /// Set the internally-stored copy of the current instruction. This effectively
