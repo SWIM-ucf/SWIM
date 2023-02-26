@@ -159,7 +159,12 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             self.signals.fpu_reg_dst = FpuRegDst::Reg3;
-                            self.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
+                            self.signals.fpu_reg_width = match FpuRegWidth::from_fmt(r.fmt) {
+                                Ok(width) => width,
+                                Err(message) => {
+                                    FpuRegWidth::default()
+                                }
+                            };
                             self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
                         }
                         FUNCTION_SUB => {
@@ -171,7 +176,12 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             self.signals.fpu_reg_dst = FpuRegDst::Reg3;
-                            self.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
+                            self.signals.fpu_reg_width = match FpuRegWidth::from_fmt(r.fmt) {
+                                Ok(width) => width,
+                                Err(message) => {
+                                    FpuRegWidth::default()
+                                }
+                            };
                             self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
                         }
                         FUNCTION_MUL => {
@@ -183,7 +193,12 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             self.signals.fpu_reg_dst = FpuRegDst::Reg3;
-                            self.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
+                            self.signals.fpu_reg_width = match FpuRegWidth::from_fmt(r.fmt) {
+                                Ok(width) => width,
+                                Err(message) => {
+                                    FpuRegWidth::default()
+                                }
+                            };
                             self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
                         }
                         FUNCTION_DIV => {
@@ -195,7 +210,12 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             self.signals.fpu_reg_dst = FpuRegDst::Reg3;
-                            self.signals.fpu_reg_width = FpuRegWidth::from_fmt(r.fmt);
+                            self.signals.fpu_reg_width = match FpuRegWidth::from_fmt(r.fmt) {
+                                Ok(width) => width,
+                                Err(message) => {
+                                    FpuRegWidth::default()
+                                }
+                            };
                             self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
                         }
                         // Unrecognized format code. Perform no operation.
@@ -296,7 +316,12 @@ impl MipsFpCoprocessor {
                         }
                     },
                     fpu_branch: FpuBranch::NoBranch,
-                    fpu_reg_width: FpuRegWidth::from_fmt(c.fmt),
+                    fpu_reg_width: match FpuRegWidth::from_fmt(c.fmt) {
+                        Ok(width) => width,
+                        Err(message) => {
+                            FpuRegWidth::default()
+                        }
+                    },
                     fpu_reg_write: FpuRegWrite::NoWrite,
                     ..Default::default()
                 }
