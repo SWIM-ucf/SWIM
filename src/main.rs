@@ -85,7 +85,7 @@ fn app() -> Html {
     // the ability to access and change its contents be mutable.
     let datapath = use_state_eq(|| Rc::new(RefCell::new(MipsDatapath::default())));
 
-    // This is where code is assembled and loaded into the instruction core's memory.
+    // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
