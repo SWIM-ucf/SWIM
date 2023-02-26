@@ -1,5 +1,7 @@
 use super::control_signals::RegWidth;
 
+pub const FUNCT_SYSCALL: u8 = 0b001100;
+
 pub const FUNCT_ADD: u8 = 0b100000;
 pub const FUNCT_SUB: u8 = 0b100010;
 pub const FUNCT_AND: u8 = 0b100100;
@@ -112,6 +114,9 @@ pub const FMT_DOUBLE: u8 = 17;
 /// Returns [`None`] if the `funct` code is not supported.
 pub fn reg_width_by_funct(funct: u8) -> Option<RegWidth> {
     match funct {
+        // `syscall` does not have a register width associated with it,
+        // but is set for the purposes of a default signal value.
+        FUNCT_SYSCALL => Some(RegWidth::DoubleWord),
         FUNCT_ADD | FUNCT_SUB => Some(RegWidth::Word),
         FUNCT_AND | FUNCT_OR | FUNCT_SLT | FUNCT_SLTU => Some(RegWidth::DoubleWord),
         FUNCT_DADD | FUNCT_DSUB => Some(RegWidth::DoubleWord),
