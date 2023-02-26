@@ -276,8 +276,8 @@ fn app() -> Html {
                     // Top buttons
                     <div>
                         <button class="button" onclick={on_assemble_clicked}>{ "Assemble" }</button>
-                        <button class="button" onclick={on_execute_clicked}> { "Execute" }</button>
-                        <button class="button" onclick={on_execute_stage_clicked}> { "Execute Stage" }</button>
+                        <button class="button" onclick={on_execute_clicked} disabled={(*datapath).borrow().is_halted()}> { "Execute" }</button>
+                        <button class="button" onclick={on_execute_stage_clicked} disabled={(*datapath).borrow().is_halted()}> { "Execute Stage" }</button>
                         <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
                         <input type="button" value="Load File" onclick={upload_clicked_callback} />
                         <input type="button" value="Save to Clipboard" onclick={on_clipboard_clicked} />
