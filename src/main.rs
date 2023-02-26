@@ -85,8 +85,8 @@ fn app() -> Html {
     // the ability to access and change its contents be mutable.
     let datapath = use_state_eq(|| Rc::new(RefCell::new(MipsDatapath::default())));
 
-    // This is where we take the code and run it through the emulation core.
-    let on_load_clicked = {
+    // This is where code is assembled and loaded into the instruction core's memory.
+    let on_assemble_clicked = {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
@@ -275,7 +275,7 @@ fn app() -> Html {
                 <div style="flex-basis: 70%; display: flex; flex-direction: column; align-items: stretch;">
                     // Top buttons
                     <div>
-                        <button class="button" onclick={on_load_clicked}>{ "Assemble" }</button>
+                        <button class="button" onclick={on_assemble_clicked}>{ "Assemble" }</button>
                         <button class="button" onclick={on_execute_clicked}> { "Execute" }</button>
                         <button class="button" onclick={on_execute_stage_clicked}> { "Execute Stage" }</button>
                         <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
