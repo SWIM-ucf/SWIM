@@ -21,6 +21,8 @@
 //!   in terms of integer overflow. That is, if there is an overflow, the general-purpose
 //!   register will not be written to. `add` and `dadd` will continue to write on
 //!   overflow. `sub`, `dsub` will likewise continue to write on underflow.
+//! - Invalid instructions will cause the datapath to set the `is_halted` flag.
+//!   [`MipsDatapath::reset()`] should be used to un-set this.
 //! - 32-bit instructions are treated exclusively with 32 bits, and the upper 32
 //!   bits stored in a register are completely ignored in any of these cases. For
 //!   example, before an `add` instruction, it should be checked whether it is a
@@ -168,12 +170,6 @@ impl Stage {
     }
 }
 
-/// Handle an otherwise irrecoverable error within the datapath. At
-/// present, this is the equivalent of `panic!()`.
-pub fn error(message: &str) {
-    panic!("{}", message);
-}
-
 impl Default for MipsDatapath {
     fn default() -> Self {
         let mut datapath = MipsDatapath {
@@ -262,6 +258,11 @@ impl MipsDatapath {
         }
 
         Ok(())
+    }
+
+    /// Handle an otherwise irrecoverable error within the datapath.
+    pub fn error(&mut self, _message: &str) {
+        self.is_halted = true;
     }
 
     /// Stage 1 of 5: Instruction Fetch (IF)
@@ -424,7 +425,7 @@ impl MipsDatapath {
         self.state.instruction = match self.memory.load_word(self.registers.pc) {
             Ok(data) => data,
             Err(e) => {
-                error(e.as_str());
+                self.error(e.as_str());
                 0
             }
         }
@@ -443,6 +444,7 @@ impl MipsDatapath {
         match Instruction::try_from(self.state.instruction) {
             Ok(instruction) => self.instruction = instruction,
             Err(message) => {
+                self.error(&message);
                 return;
             }
         }
@@ -488,7 +490,7 @@ impl MipsDatapath {
             }
             Instruction::JType(i) => {
                 self.state.lower_26 = i.addr;
-            } // _ => unimplemented!(),
+            }
         }
     }
 
@@ -524,13 +526,15 @@ impl MipsDatapath {
 
         // The RegWidth signal might differ depending on the
         // specific R-type instruction.
-        match reg_width_by_funct(r.funct) {
-            Some(width) => self.signals.reg_width = width,
-            None => unimplemented!(
-                "funct code `{}` is unsupported for this opcode ({})",
-                r.funct,
-                r.op
-            ),
+        self.signals.reg_width = match reg_width_by_funct(r.funct) {
+            Some(width) => width,
+            None => {
+                self.error(&format!(
+                    "funct code `{}` is unsupported for this opcode ({})",
+                    r.funct, r.op
+                ));
+                RegWidth::default()
+            }
         }
     }
 
@@ -575,7 +579,10 @@ impl MipsDatapath {
                         ..Default::default()
                     }
                 }
-                _ => unimplemented!("rt field value `{}` for I-type opcode {}", i.rt, i.op),
+                _ => self.error(&format!(
+                    "rt field value `{}` for I-type opcode {}",
+                    i.rt, i.op
+                )),
             },
 
             OPCODE_ORI => {
@@ -745,7 +752,7 @@ impl MipsDatapath {
                 self.signals.reg_write = RegWrite::NoWrite;
             }
 
-            _ => unimplemented!("I-type instruction with opcode `{}`", i.op),
+            _ => self.error(&format!("I-type instruction with opcode `{}`", i.op)),
         }
     }
 
@@ -783,7 +790,7 @@ impl MipsDatapath {
                     ..Default::default()
                 }
             }
-            _ => unimplemented!("FPU I-type instruction with opcode `{}`", i.op),
+            _ => self.error(&format!("FPU I-type instruction with opcode `{}`", i.op)),
         }
     }
 
@@ -818,7 +825,7 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::DoubleWord;
                 self.signals.reg_write = RegWrite::YesWrite;
             }
-            _ => unimplemented!("J-type instruction with opcode `{}`", j.op),
+            _ => self.error(&format!("J-type instruction with opcode `{}`", j.op)),
         };
     }
 
@@ -876,10 +883,10 @@ impl MipsDatapath {
                     ..Default::default()
                 }
             }
-            _ => unimplemented!(
+            _ => self.error(&format!(
                 "FPU register-immediate instruction with sub code `{}`",
                 i.sub
-            ),
+            )),
         }
     }
 
@@ -957,31 +964,39 @@ impl MipsDatapath {
                     FUNCT_SOP32 | FUNCT_SOP36 => match self.state.shamt as u8 {
                         ENC_DIV => AluControl::DivisionSigned,
                         _ => {
-                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                            self.error(&format!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct));
+                            AluControl::default()
                         }
                     },
                     FUNCT_SOP33 | FUNCT_SOP37 => match self.state.shamt as u8 {
                         // ENC_DIVU == ENC_DDIVU
                         ENC_DIVU => AluControl::DivisionUnsigned,
                         _ => {
-                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                            self.error(&format!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct));
+                            AluControl::default()
                         }
                     },
                     FUNCT_SOP30 | FUNCT_SOP34 => match self.state.shamt as u8 {
                         ENC_MUL => AluControl::MultiplicationSigned,
                         _ => {
-                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                            self.error(&format!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct));
+                            AluControl::default()
                         }
                     },
                     FUNCT_SOP31 | FUNCT_SOP35 => match self.state.shamt as u8 {
                         // ENC_MULU == ENC_DMULU
                         ENC_MULU => AluControl::MultiplicationUnsigned,
                         _ => {
-                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                            self.error(&format!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct));
+                            AluControl::default()
                         }
                     },
                     _ => {
-                        unimplemented!("funct code `{}` is unsupported on ALU", self.state.funct);
+                        self.error(&format!(
+                            "funct code `{}` is unsupported on ALU",
+                            self.state.funct
+                        ));
+                        AluControl::default()
                     }
                 }
             }
