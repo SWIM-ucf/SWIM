@@ -97,7 +97,7 @@ fn app() -> Html {
 
                 // parses through the code to assemble the binary
                 let (_, assembled) = parser(text_model.get_value());
-                // log!(JsValue::from_str(&datapath.registers.to_string()));
+
                 // Load the binary into the datapath's memory
                 (*datapath)
                     .load_instructions(assembled)
@@ -160,10 +160,6 @@ fn app() -> Html {
                         .into(),
                 );
                 (*datapath).execute_instruction();
-                // log!("These are the arrays after the push");
-                // log!(new_decor_array.at(0));
-                // log!(old_decor_array.at(0));
-                // log!(JsValue::from_str(&datapath.registers.to_string()));
                 trigger.force_update();
                 new_decor_array.pop(); // done with the highlight, prepare for the next one.
             },
@@ -208,10 +204,6 @@ fn app() -> Html {
                         .into(),
                 );
                 (*datapath).reset();
-                // log!("The handle should still be there, no highlight");
-                // log!(old_decor_array.at(0));
-                // log!(new_decor_array.at(0));
-                // log!(JsValue::from_str(&datapath.registers.to_string()));
                 trigger.force_update();
             },
             (),
