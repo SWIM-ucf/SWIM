@@ -289,7 +289,12 @@ impl MipsFpCoprocessor {
                     cc: Cc::Cc0,
                     cc_write: CcWrite::YesWrite,
                     data_write: DataWrite::NoWrite,
-                    fpu_alu_op: FpuAluOp::from_function(c.function),
+                    fpu_alu_op: match FpuAluOp::from_function(c.function) {
+                        Ok(op) => op,
+                        Err(message) => {
+                            FpuAluOp::default()
+                        }
+                    },
                     fpu_branch: FpuBranch::NoBranch,
                     fpu_reg_width: FpuRegWidth::from_fmt(c.fmt),
                     fpu_reg_write: FpuRegWrite::NoWrite,
