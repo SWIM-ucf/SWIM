@@ -2829,7 +2829,7 @@ pub mod syscall {
     fn halts_on_syscall() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
 
-        assert!(!datapath.is_halted);
+        assert!(!datapath.is_halted());
 
         // This program doubles the value in $t1 and stops.
 
@@ -2851,7 +2851,7 @@ pub mod syscall {
         }
 
         assert_eq!(datapath.registers.gpr[9], 10); // $t1
-        assert!(datapath.is_halted);
+        assert!(datapath.is_halted());
         Ok(())
     }
 }
