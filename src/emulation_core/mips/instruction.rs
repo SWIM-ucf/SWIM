@@ -26,6 +26,27 @@ pub struct JType {
     pub addr: u32,
 }
 
+/// Syscall ("System Call") Instruction
+///
+/// ```text
+/// 31              26   25                                           6   5              0
+/// ┌──────────────────┬────────────────────────────────────────────────┬──────────────────┐
+/// │ opcode = SPECIAL │                     code                       │  funct = SYSCALL │
+/// │      000000      │                                                │      001100      │
+/// └──────────────────┴────────────────────────────────────────────────┴──────────────────┘
+///         6                                 20                                  6
+/// ```
+///
+/// - opcode: SPECIAL (`000000`)
+/// - code: Available for use as software parameters.
+/// - funct: SYSCALL (`001100`)
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct SyscallType {
+    pub op: u8,
+    pub code: u32,
+    pub funct: u8,
+}
+
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct FpuRType {
     pub op: u8,
@@ -85,6 +106,7 @@ pub enum Instruction {
     RType(RType),
     IType(IType),
     JType(JType),
+    SyscallType(SyscallType),
     FpuRType(FpuRType),
     FpuIType(FpuIType),
     FpuRegImmType(FpuRegImmType),
@@ -105,15 +127,27 @@ impl From<u32> for Instruction {
             // R-type instructions:
             // add, sub, mul, div
             // dadd, dsub, dmul, ddiv
-            // daddu
-            OPCODE_SPECIAL => Instruction::RType(RType {
-                op: ((value >> 26) & 0x3F) as u8,
-                rs: ((value >> 21) & 0x1F) as u8,
-                rt: ((value >> 16) & 0x1F) as u8,
-                rd: ((value >> 11) & 0x1F) as u8,
-                shamt: ((value >> 6) & 0x1F) as u8,
-                funct: (value & 0x3F) as u8,
-            }),
+            // daddu, dsubu, dmulu, ddivu
+            // Includes syscall.
+            OPCODE_SPECIAL => {
+                let funct = (value & 0x3F) as u8;
+
+                match funct {
+                    FUNCT_SYSCALL => Instruction::SyscallType(SyscallType {
+                        op: ((value >> 26) & 0x3F) as u8,
+                        code: ((value >> 6) & 0xFFFFF),
+                        funct: (value & 0x3F) as u8,
+                    }),
+                    _ => Instruction::RType(RType {
+                        op: ((value >> 26) & 0x3F) as u8,
+                        rs: ((value >> 21) & 0x1F) as u8,
+                        rt: ((value >> 16) & 0x1F) as u8,
+                        rd: ((value >> 11) & 0x1F) as u8,
+                        shamt: ((value >> 6) & 0x1F) as u8,
+                        funct: (value & 0x3F) as u8,
+                    }),
+                }
+            }
 
             // COP1 (coprocessor 1)
             OPCODE_COP1 => {

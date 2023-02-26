@@ -101,7 +101,10 @@ impl MipsFpCoprocessor {
                 self.state.function = c.function as u32;
             }
             // These types do not use the floating-point unit so they can be ignored.
-            Instruction::RType(_) | Instruction::IType(_) | Instruction::JType(_) => (),
+            Instruction::RType(_)
+            | Instruction::IType(_)
+            | Instruction::JType(_)
+            | Instruction::SyscallType(_) => (),
         }
     }
 
@@ -288,9 +291,10 @@ impl MipsFpCoprocessor {
                 }
             }
             // These types do not use the floating-point unit so they can be ignored.
-            Instruction::RType(_) | Instruction::IType(_) | Instruction::JType(_) => {
-                self.signals = FpuControlSignals::default()
-            }
+            Instruction::RType(_)
+            | Instruction::IType(_)
+            | Instruction::JType(_)
+            | Instruction::SyscallType(_) => self.signals = FpuControlSignals::default(),
         }
     }
 

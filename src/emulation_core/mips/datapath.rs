@@ -13,7 +13,10 @@
 //! version 6 specification for the sake of simplicity in a few places:
 //!
 //! - There is no exception handling, including that for integer overflow. (See
-//!   [`MipsDatapath::alu()`].)
+//!   [`MipsDatapath::alu()`] and the following bullet.)
+//! - The `syscall` instruction simply performs a no-operation instruction, except for
+//!   setting the boolean flag `is_halted`. To un-set this, [`MipsDatapath::reset()`]
+//!   should be used.
 //! - Only the `addi` and `daddi` instructions follow the proper MIPS specification
 //!   in terms of integer overflow. That is, if there is an overflow, the general-purpose
 //!   register will not be written to. `add` and `dadd` will continue to write on
@@ -57,6 +60,12 @@ pub struct MipsDatapath {
 
     /// The currently-active stage in the datapath.
     pub current_stage: Stage,
+
+    /// Boolean value that states whether the datapath has halted.
+    ///
+    /// This is set in the event of any `syscall` instruction. To unset this,
+    /// [`Self::reset()`] should be used.
+    pub is_halted: bool,
 }
 
 /// A collection of all the data lines and wires in the datapath.
@@ -176,6 +185,7 @@ impl Default for MipsDatapath {
             datapath_signals: DatapathSignals::default(),
             state: DatapathState::default(),
             current_stage: Stage::default(),
+            is_halted: false,
         };
 
         // Set the stack pointer ($sp) to initially start at the end
@@ -192,29 +202,28 @@ impl Datapath for MipsDatapath {
     type MemoryType = Memory;
 
     fn execute_instruction(&mut self) {
-        // If the last instruction has not finished, finish it instead.
-        if self.current_stage != Stage::InstructionFetch {
-            self.finish_instruction();
-            return;
+        loop {
+            // Stop early if the datapath has halted.
+            if self.is_halted {
+                break;
+            }
+
+            self.execute_stage();
+
+            // This instruction is finished when the datapath has returned
+            // to the IF stage.
+            if self.current_stage == Stage::InstructionFetch {
+                break;
+            }
         }
-
-        // IF
-        self.stage_instruction_fetch();
-
-        // ID
-        self.stage_instruction_decode();
-
-        // EX
-        self.stage_execute();
-
-        // MEM
-        self.stage_memory();
-
-        // WB
-        self.stage_writeback();
     }
 
     fn execute_stage(&mut self) {
+        // If the datapath is halted, do nothing.
+        if self.is_halted {
+            return;
+        }
+
         match self.current_stage {
             Stage::InstructionFetch => self.stage_instruction_fetch(),
             Stage::InstructionDecode => self.stage_instruction_decode(),
@@ -250,16 +259,6 @@ impl MipsDatapath {
         Ok(())
     }
 
-    /// Finish the current instruction within the datapath. If the
-    /// current stage is the first stage, do nothing as there is
-    /// nothing to finish, only to start. (Use [`execute_instruction()`][MipsDatapath::execute_instruction()]
-    /// in this case.)
-    fn finish_instruction(&mut self) {
-        while self.current_stage != Stage::InstructionFetch {
-            self.execute_stage();
-        }
-    }
-
     /// Stage 1 of 5: Instruction Fetch (IF)
     ///
     /// Fetch the current instruction based on the given PC and load it
@@ -276,6 +275,9 @@ impl MipsDatapath {
     /// Stage 2 of 5: Instruction Decode (ID)
     ///
     /// Parse the instruction, set control signals, and read registers.
+    ///
+    /// If the instruction is determined to be a `syscall`, immediately
+    /// finish the instruction and set the `is_halted` flag.
     fn stage_instruction_decode(&mut self) {
         self.instruction_decode();
         self.sign_extend();
@@ -290,6 +292,11 @@ impl MipsDatapath {
         self.coprocessor.stage_instruction_decode();
         self.coprocessor
             .set_data_from_main_processor(self.state.read_data_2);
+
+        // Finish this instruction out of the datapath and halt if this is a syscall.
+        if let Instruction::SyscallType(_) = self.instruction {
+            self.is_halted = true;
+        }
     }
 
     /// Stage 3 of 5: Execute (EX)
@@ -452,6 +459,15 @@ impl MipsDatapath {
                 self.state.rt = i.rt as u32;
                 self.state.rd = 0; // Not applicable
                 self.state.imm = 0; // Not applicable
+            }
+            Instruction::SyscallType(s) => {
+                self.state.funct = s.funct as u32;
+                // Not applicable:
+                self.state.rs = 0;
+                self.state.rt = 0;
+                self.state.rd = 0;
+                self.state.shamt = 0;
+                self.state.imm = 0;
             }
             // R-type and comparison FPU instructions exclusively use the
             // FPU, so these data lines do not need to be used.
@@ -878,7 +894,9 @@ impl MipsDatapath {
                 self.set_fpu_reg_imm_control_signals(i);
             }
             // Main processor does nothing.
-            Instruction::FpuRType(_) | Instruction::FpuCompareType(_) => {
+            Instruction::FpuRType(_)
+            | Instruction::FpuCompareType(_)
+            | Instruction::SyscallType(_) => {
                 self.signals = ControlSignals {
                     branch: Branch::NoBranch,
                     jump: Jump::NoJump,
