@@ -164,6 +164,7 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_reg_width = match FpuRegWidth::from_fmt(r.fmt) {
                                 Ok(width) => width,
                                 Err(message) => {
+                                    self.error(&message);
                                     FpuRegWidth::default()
                                 }
                             };
@@ -181,6 +182,7 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_reg_width = match FpuRegWidth::from_fmt(r.fmt) {
                                 Ok(width) => width,
                                 Err(message) => {
+                                    self.error(&message);
                                     FpuRegWidth::default()
                                 }
                             };
@@ -198,6 +200,7 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_reg_width = match FpuRegWidth::from_fmt(r.fmt) {
                                 Ok(width) => width,
                                 Err(message) => {
+                                    self.error(&message);
                                     FpuRegWidth::default()
                                 }
                             };
@@ -215,16 +218,23 @@ impl MipsFpCoprocessor {
                             self.signals.fpu_reg_width = match FpuRegWidth::from_fmt(r.fmt) {
                                 Ok(width) => width,
                                 Err(message) => {
+                                    self.error(&message);
                                     FpuRegWidth::default()
                                 }
                             };
                             self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
                         }
                         // Unrecognized format code. Perform no operation.
-                        _ => unimplemented!("COP1 instruction with function code `{}`", r.function),
+                        _ => self.error(&format!(
+                            "COP1 instruction with function code `{}`",
+                            r.function
+                        )),
                     },
                     // Unrecognized opcode. Perform no operation.
-                    _ => unimplemented!("Unsupported opcode `{}` for FPU R-type instruction", r.op),
+                    _ => self.error(&format!(
+                        "Unsupported opcode `{}` for FPU R-type instruction",
+                        r.op
+                    )),
                 }
             }
             Instruction::FpuIType(i) => match i.op {
@@ -250,7 +260,10 @@ impl MipsFpCoprocessor {
                         ..Default::default()
                     }
                 }
-                _ => unimplemented!("Unsupported opcode `{}` for FPU I-type instruction", i.op),
+                _ => self.error(&format!(
+                    "Unsupported opcode `{}` for FPU I-type instruction",
+                    i.op
+                )),
             },
             Instruction::FpuRegImmType(i) => match i.sub {
                 SUB_MT => {
@@ -301,10 +314,10 @@ impl MipsFpCoprocessor {
                         ..Default::default()
                     }
                 }
-                _ => unimplemented!(
+                _ => self.error(&format!(
                     "Unsupported sub code `{}` for FPU register-immediate instruction",
                     i.sub
-                ),
+                )),
             },
             Instruction::FpuCompareType(c) => {
                 self.signals = FpuControlSignals {
@@ -314,6 +327,7 @@ impl MipsFpCoprocessor {
                     fpu_alu_op: match FpuAluOp::from_function(c.function) {
                         Ok(op) => op,
                         Err(message) => {
+                            self.error(&message);
                             FpuAluOp::default()
                         }
                     },
@@ -321,6 +335,7 @@ impl MipsFpCoprocessor {
                     fpu_reg_width: match FpuRegWidth::from_fmt(c.fmt) {
                         Ok(width) => width,
                         Err(message) => {
+                            self.error(&message);
                             FpuRegWidth::default()
                         }
                     },
@@ -402,7 +417,13 @@ impl MipsFpCoprocessor {
             },
             // No operation.
             FpuAluOp::Slt | FpuAluOp::Snge | FpuAluOp::Sle | FpuAluOp::Sngt => 0,
-            _ => unimplemented!(),
+            _ => {
+                self.error(&format!(
+                    "Unsupported operation in FPU `{:?}`",
+                    self.signals.fpu_alu_op
+                ));
+                0
+            }
         };
     }
 
@@ -438,7 +459,13 @@ impl MipsFpCoprocessor {
                 FpuRegWidth::DoubleWord => !input1_f64.ge(&input2_f64) as u64,
             },
             FpuAluOp::Addition | FpuAluOp::Subtraction | FpuAluOp::Division => 0, // No operation
-            _ => unimplemented!(),
+            _ => {
+                self.error(&format!(
+                    "Unsupported operation in comparator `{:?}`",
+                    self.signals.fpu_alu_op
+                ));
+                0
+            }
         }
     }
 
