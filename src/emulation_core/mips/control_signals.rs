@@ -506,13 +506,11 @@ pub mod floating_point {
     impl FpuRegWidth {
         /// Get the corresponding [`FpuRegWidth`] control signal based on
         /// the `fmt` field in an instruction.
-        pub fn from_fmt(fmt: u8) -> Self {
+        pub fn from_fmt(fmt: u8) -> Result<Self, String> {
             match fmt {
-                FMT_SINGLE => Self::Word,
-                FMT_DOUBLE => Self::DoubleWord,
-                _ => {
-                    unimplemented!("`{}` is an invalid fmt value", fmt);
-                }
+                FMT_SINGLE => Ok(Self::Word),
+                FMT_DOUBLE => Ok(Self::DoubleWord),
+                _ => Err(format!("`{fmt}` is an invalid fmt value")),
             }
         }
     }
