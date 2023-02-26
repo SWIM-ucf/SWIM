@@ -119,9 +119,11 @@ impl Default for Instruction {
     }
 }
 
-impl From<u32> for Instruction {
+impl TryFrom<u32> for Instruction {
+    type Error = String;
+
     /// Based on the opcode, convert a binary instruction into a struct representation.
-    fn from(value: u32) -> Self {
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
         let op = (value >> 26) as u8;
         match op {
             // R-type instructions:
@@ -133,19 +135,19 @@ impl From<u32> for Instruction {
                 let funct = (value & 0x3F) as u8;
 
                 match funct {
-                    FUNCT_SYSCALL => Instruction::SyscallType(SyscallType {
+                    FUNCT_SYSCALL => Ok(Instruction::SyscallType(SyscallType {
                         op: ((value >> 26) & 0x3F) as u8,
                         code: ((value >> 6) & 0xFFFFF),
                         funct: (value & 0x3F) as u8,
-                    }),
-                    _ => Instruction::RType(RType {
+                    })),
+                    _ => Ok(Instruction::RType(RType {
                         op: ((value >> 26) & 0x3F) as u8,
                         rs: ((value >> 21) & 0x1F) as u8,
                         rt: ((value >> 16) & 0x1F) as u8,
                         rd: ((value >> 11) & 0x1F) as u8,
                         shamt: ((value >> 6) & 0x1F) as u8,
                         funct: (value & 0x3F) as u8,
-                    }),
+                    })),
                 }
             }
 
@@ -162,31 +164,29 @@ impl From<u32> for Instruction {
                         match function {
                             // add.fmt, sub.fmt, mul.fmt, div.fmt
                             FUNCTION_ADD | FUNCTION_SUB | FUNCTION_MUL | FUNCTION_DIV => {
-                                Instruction::FpuRType(FpuRType {
+                                Ok(Instruction::FpuRType(FpuRType {
                                     op: ((value >> 26) & 0x3F) as u8,
                                     fmt: ((value >> 21) & 0x1F) as u8,
                                     ft: ((value >> 16) & 0x1F) as u8,
                                     fs: ((value >> 11) & 0x1F) as u8,
                                     fd: ((value >> 6) & 0x1F) as u8,
                                     function: (value & 0x3F) as u8,
-                                })
+                                }))
                             }
                             // Comparison instructions:
                             // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
                             FUNCTION_C_EQ | FUNCTION_C_LT | FUNCTION_C_NGE | FUNCTION_C_LE
-                            | FUNCTION_C_NGT => Instruction::FpuCompareType(FpuCompareType {
+                            | FUNCTION_C_NGT => Ok(Instruction::FpuCompareType(FpuCompareType {
                                 op: ((value >> 26) & 0x3F) as u8,
                                 fmt: ((value >> 21) & 0x1F) as u8,
                                 ft: ((value >> 16) & 0x1F) as u8,
                                 fs: ((value >> 11) & 0x1F) as u8,
                                 cc: ((value >> 8) & 0x7) as u8,
                                 function: (value & 0x3F) as u8,
-                            }),
-                            _ => unimplemented!(
-                                "function `{}` not supported for opcode {}",
-                                function,
-                                op
-                            ),
+                            })),
+                            _ => Err(format!(
+                                "function `{function}` not supported for opcode {op}"
+                            )),
                         }
                     }
 
@@ -195,42 +195,43 @@ impl From<u32> for Instruction {
                     // Move word from coprocessor 1 (mfc1)
                     // Move doubleword from coprocessor 1 (dmfc1)
                     SUB_MT | SUB_DMT | SUB_MF | SUB_DMF => {
-                        Instruction::FpuRegImmType(FpuRegImmType {
+                        Ok(Instruction::FpuRegImmType(FpuRegImmType {
                             op: ((value >> 26) & 0x3F) as u8,
                             sub: ((value >> 21) & 0x1F) as u8,
                             rt: ((value >> 16) & 0x1F) as u8,
                             fs: ((value >> 11) & 0x1F) as u8,
-                        })
+                        }))
                     }
 
-                    _ => unimplemented!("sub code `{}` not supported for opcode {}", sub, op),
+                    _ => Err(format!("sub code `{sub}` not supported for opcode {op}")),
                 }
             }
 
             // I-Type instructions:
             OPCODE_ADDI | OPCODE_ADDIU | OPCODE_DADDI | OPCODE_DADDIU | OPCODE_LW | OPCODE_SW
             | OPCODE_LUI | OPCODE_ORI | OPCODE_ANDI | OPCODE_REGIMM | OPCODE_BEQ | OPCODE_BNE => {
-                Instruction::IType(IType {
+                Ok(Instruction::IType(IType {
                     op: ((value >> 26) & 0x3F) as u8,
                     rs: ((value >> 21) & 0x1F) as u8,
                     rt: ((value >> 16) & 0x1F) as u8,
                     immediate: (value & 0xFFFF) as u16,
-                })
+                }))
             }
 
             // Store/load word to Coprocessor 1
-            OPCODE_SWC1 | OPCODE_LWC1 => Instruction::FpuIType(FpuIType {
+            OPCODE_SWC1 | OPCODE_LWC1 => Ok(Instruction::FpuIType(FpuIType {
                 op: ((value >> 26) & 0x3F) as u8,
                 base: ((value >> 21) & 0x1F) as u8,
                 ft: ((value >> 16) & 0x1F) as u8,
                 offset: (value & 0xFFFF) as u16,
-            }),
+            })),
 
-            OPCODE_J | OPCODE_JAL => Instruction::JType(JType {
+            OPCODE_J | OPCODE_JAL => Ok(Instruction::JType(JType {
                 op: ((value >> 26) & 0x3F) as u8,
                 addr: value & 0x03ffffff,
-            }),
-            _ => unimplemented!("opcode `{}` not supported", op),
+            })),
+
+            _ => Err(format!("opcode `{op}` not supported")),
         }
     }
 }
