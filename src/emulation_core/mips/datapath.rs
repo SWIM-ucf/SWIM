@@ -67,7 +67,7 @@ pub struct MipsDatapath {
     ///
     /// This is set in the event of any `syscall` instruction. To unset this,
     /// [`Self::reset()`] should be used.
-    pub is_halted: bool,
+    is_halted: bool,
 }
 
 /// A collection of all the data lines and wires in the datapath.
@@ -242,6 +242,10 @@ impl Datapath for MipsDatapath {
 
     fn get_memory(&self) -> &Self::MemoryType {
         &self.memory
+    }
+
+    fn is_halted(&self) -> bool {
+        self.is_halted
     }
 
     fn reset(&mut self) {
