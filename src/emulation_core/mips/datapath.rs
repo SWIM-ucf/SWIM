@@ -203,6 +203,11 @@ impl Datapath for MipsDatapath {
 
     fn execute_instruction(&mut self) {
         loop {
+            // If the FPU has halted, reflect this in the main unit.
+            if self.coprocessor.is_halted {
+                self.is_halted = true;
+            }
+
             // Stop early if the datapath has halted.
             if self.is_halted {
                 break;
