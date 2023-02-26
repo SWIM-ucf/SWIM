@@ -9,7 +9,9 @@ use emulation_core::mips::datapath::MipsDatapath;
 use gloo::{console::log, file::FileList};
 use monaco::{
     api::TextModel,
-    sys::editor::{IEditorMinimapOptions, IStandaloneEditorConstructionOptions, IEditorScrollbarOptions},
+    sys::editor::{
+        IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions,
+    },
     yew::CodeEditor,
 };
 use parser::parser_assembler_main::parser;
