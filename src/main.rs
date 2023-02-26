@@ -345,7 +345,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
 }
 
 /**********************  "Console" Component **********************/
-#[derive(Properties, PartialEq)]
+#[derive(PartialEq, Properties)]
 pub struct Consoleprops {
     pub parsermsg: String,
 }

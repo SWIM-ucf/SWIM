@@ -57,7 +57,7 @@ pub struct FpuRType {
     pub function: u8,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct FpuIType {
     pub op: u8,
     pub base: u8,
@@ -83,7 +83,7 @@ pub struct FpuIType {
 /// - sub: Operation subcode field for COP1 register immediate-mode instructions.
 /// - rt: CPU register - can be either source or destination.
 /// - fs: FPU register - can be either source or destination.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct FpuRegImmType {
     pub op: u8,
     pub sub: u8,
@@ -91,7 +91,7 @@ pub struct FpuRegImmType {
     pub fs: u8,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct FpuCompareType {
     pub op: u8,
     pub fmt: u8,

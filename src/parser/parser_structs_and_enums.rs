@@ -1,7 +1,7 @@
 pub mod instruction_tokenization {
     use std::default::Default;
 
-    #[derive(Default, Debug, Clone, PartialEq, Eq)]
+    #[derive(Clone, Debug, Default, Eq, PartialEq)]
     ///Wrapper for all information gathered in the Parser/Assembler about the written program.
     pub struct ProgramInfo {
         pub monaco_line_info: Vec<MonacoLineInfo>,
@@ -11,14 +11,14 @@ pub mod instruction_tokenization {
         pub data: Vec<Data>,
     }
 
-    #[derive(Default, Debug, Clone, PartialEq, Eq)]
+    #[derive(Clone, Debug, Default, Eq, PartialEq)]
     pub struct MonacoLineInfo {
         pub mouse_hover_string: String,
         pub error_start_end_columns: Vec<(u32, u32)>,
     }
 
     ///A collection of all relevant information found about an instruction in the Parser/Assembler
-    #[derive(Default, Debug, Clone, PartialEq, Eq)]
+    #[derive(Clone, Debug, Default, Eq, PartialEq)]
     pub struct Instruction {
         pub operator: Token,
         pub operands: Vec<Token>,
@@ -30,7 +30,7 @@ pub mod instruction_tokenization {
     }
 
     ///A collection of all relevant information found about a variable in the Parser/Assembler
-    #[derive(Default, Debug, Clone, PartialEq, Eq)]
+    #[derive(Clone, Debug, Default, Eq, PartialEq)]
     pub struct Data {
         pub data_number: u32,
         pub line_number: u32,
@@ -40,27 +40,27 @@ pub mod instruction_tokenization {
         pub data_entries_and_values: Vec<(Token, u32)>,
     }
 
-    #[derive(Default, Debug, Clone, PartialEq, Eq)]
+    #[derive(Clone, Debug, Default, Eq, PartialEq)]
     pub struct Token {
         pub token_name: String,
         pub start_end_columns: (u32, u32),
         pub token_type: TokenType,
     }
 
-    #[derive(Debug, Clone, PartialEq, Eq)]
+    #[derive(Clone, Debug, Eq, PartialEq)]
     pub struct Line {
         pub line_number: u32,
         pub tokens: Vec<Token>,
     }
 
-    #[derive(Debug, Clone, PartialEq, Eq)]
+    #[derive(Clone, Debug, Eq, PartialEq)]
     pub struct Error {
         pub error_name: ErrorType,
         pub operand_number: Option<u8>,
         pub message: String,
     }
 
-    #[derive(Default, Debug, PartialEq, Eq, Clone)]
+    #[derive(Clone, Debug, Default, Eq, PartialEq)]
     pub enum TokenType {
         #[default]
         Unknown,
@@ -82,7 +82,7 @@ pub mod instruction_tokenization {
         Double,
     }
 
-    #[derive(Debug, PartialEq, Eq, Clone)]
+    #[derive(Clone, Debug, Eq, PartialEq)]
     pub enum ErrorType {
         UnsupportedInstruction, //valid MIPS64 instruction that is not supported by SWIM
         UnrecognizedGPRegister, //Given string does not match GP Register names
@@ -117,7 +117,7 @@ pub mod instruction_tokenization {
     }
 
     //This enum is just for the read_register_function to determine which register type it should expect
-    #[derive(PartialEq, Eq)]
+    #[derive(Eq, PartialEq)]
     pub enum RegisterType {
         GeneralPurpose,
         FloatingPoint,
