@@ -9,15 +9,14 @@ use levenshtein::levenshtein;
 use std::collections::HashMap;
 
 ///Takes the initial string of the program given by the editor and turns it into a vector of Line,
-/// a struct that holds tokens and the original line number, and finds the starting point for all comments.
-pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<[u32; 2]>) {
+/// a struct that holds tokens and the original line number.
+pub fn tokenize_program(program: String) -> Vec<Line> {
     let mut line_vec: Vec<Line> = Vec::new();
     let mut token: Token = Token {
         token_name: "".to_string(),
         starting_column: 0,
         token_type: Unknown,
     };
-    let mut comments: Vec<[u32; 2]> = Vec::new();
 
     for (i, line_of_program) in program.lines().enumerate() {
         let mut line_of_tokens = Line {
@@ -29,7 +28,6 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<[u32; 2]>) {
         let mut check_escape = false;
         for (j, char) in line_of_program.chars().enumerate() {
             if char == '#' {
-                comments.push([i as u32, j as u32]);
                 break;
             };
             //is string is a flag to handle strings and read them in as a single token
@@ -102,7 +100,7 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<[u32; 2]>) {
         }
     }
 
-    (line_vec, comments)
+    line_vec
 }
 
 ///This function takes the vector of lines created by tokenize program and turns them into instructions

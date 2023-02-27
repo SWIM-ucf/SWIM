@@ -663,7 +663,7 @@ mod helper_functions {
     pub fn instruction_parser(mut file_string: String) -> Vec<Instruction> {
         file_string = file_string.to_lowercase();
 
-        let (lines, _comments) = tokenize_program(file_string);
+        let lines = tokenize_program(file_string);
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
         assemble_data_binary(&mut data);
@@ -681,8 +681,7 @@ fn create_binary_vec_works_with_data() {
     let mut program_info = ProgramInfo::default();
     let file_string =
         ".data\nlabel: .ascii \"this is a string\"\n.text\nlw $t1, label".to_lowercase();
-    let (lines, comments) = tokenize_program(file_string);
-    program_info.comments_line_and_column = comments;
+    let lines = tokenize_program(file_string);
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -707,8 +706,7 @@ fn create_binary_vec_works_with_data() {
 fn read_instructions_recognizes_valid_but_unsupported_instructions() {
     let mut program_info = ProgramInfo::default();
     let file_string = "jalr $t1, $t2\ndsrav $t1, $t2, $t3".to_lowercase();
-    let (lines, comments) = tokenize_program(file_string);
-    program_info.comments_line_and_column = comments;
+    let lines = tokenize_program(file_string);
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
