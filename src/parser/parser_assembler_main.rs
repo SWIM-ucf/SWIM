@@ -11,7 +11,7 @@ use std::collections::HashMap;
 pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
     let mut program_info = ProgramInfo::default();
     file_string = file_string.to_lowercase();
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,

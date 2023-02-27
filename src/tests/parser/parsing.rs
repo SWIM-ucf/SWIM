@@ -19,7 +19,7 @@ use std::collections::HashMap;
 
 #[test]
 fn tokenize_program_works_basic_version() {
-    let result = tokenize_program("This line\nThis second line\nHere's a third!".to_string());
+    let result = tokenize_program("This line\nThis second line\nHere's a third!".to_string()).0;
 
     let i_0_t_0 = Token {
         token_name: "This".to_string(),
@@ -83,7 +83,7 @@ fn tokenize_program_works_basic_version() {
 
 #[test]
 fn tokenize_program_handles_no_spaces_between_commas() {
-    let result = tokenize_program("add $t1, $t2, $t3\nsub $s1,$s2,$s3\n".to_string());
+    let result = tokenize_program("add $t1, $t2, $t3\nsub $s1,$s2,$s3\n".to_string()).0;
 
     let i_0_t_0 = Token {
         token_name: "add".to_string(),
@@ -144,7 +144,7 @@ fn tokenize_program_handles_no_spaces_between_commas() {
 
 #[test]
 fn tokenize_program_handles_comma_after_space() {
-    let result = tokenize_program("add $t1 , $t2, $t3\n".to_string());
+    let result = tokenize_program("add $t1 , $t2, $t3\n".to_string()).0;
 
     let i_0_t_0 = Token {
         token_name: "add".to_string(),
@@ -180,7 +180,8 @@ fn tokenize_program_ignores_comments() {
     let results = tokenize_program(
         "This Line\n#this line is a comment\nbut_this_isn't\nthis#has a comment in the middle\n"
             .to_string(),
-    );
+    )
+    .0;
 
     let i_0_t_0 = Token {
         token_name: "This".to_string(),
@@ -219,14 +220,14 @@ fn tokenize_program_ignores_comments() {
 
 #[test]
 fn tokenize_program_recognizes_comments() {
-    let results = tokenize_program("Addi $t1, $t2, 300\n# this is a comment\nadd $t1, $t2, $t3\n#I'm making a note here. Huge comment".to_string());
+    let results = tokenize_program("Addi $t1, $t2, 300\n# this is a comment\nadd $t1, $t2, $t3\n#I'm making a note here. Huge comment".to_string()).0;
     assert_eq!(results[0].line_number, 0);
-    assert_eq!(results[1].line_number,2)
+    assert_eq!(results[1].line_number, 2)
 }
 
 #[test]
 fn tokenize_program_recognizes_comments_middle_of_line() {
-    let results = tokenize_program("Addi $t1, $t2, 300 # this is a comment\nadd $t1, $t2, $t3#I'm making a note here. Huge comment".to_string());
+    let results = tokenize_program("Addi $t1, $t2, 300 # this is a comment\nadd $t1, $t2, $t3#I'm making a note here. Huge comment".to_string()).0;
 
     assert_eq!(results[0].line_number, 0);
     assert_eq!(results[1].line_number, 1);
@@ -234,7 +235,7 @@ fn tokenize_program_recognizes_comments_middle_of_line() {
 
 #[test]
 fn tokenize_program_reads_ascii_properly() {
-    let result = tokenize_program(".data\nlabel: .ascii \"this is a string\"".to_string());
+    let result = tokenize_program(".data\nlabel: .ascii \"this is a string\"".to_string()).0;
 
     assert_eq!(result[1].tokens[2].token_name, "\"this is a string\"");
 }
@@ -242,7 +243,7 @@ fn tokenize_program_reads_ascii_properly() {
 #[test]
 fn separate_data_and_text_works_basic_version() {
     let lines =
-        tokenize_program("add $t1, $t2, $t3\nlw $t1, 400($t1)\naddi $t1, 100".to_string());
+        tokenize_program("add $t1, $t2, $t3\nlw $t1, 400($t1)\naddi $t1, 100".to_string()).0;
     let result = separate_data_and_text(lines.clone());
 
     let mut instruction_0 = Instruction {
@@ -284,7 +285,7 @@ fn separate_data_and_text_works_basic_version() {
 
 #[test]
 fn separate_data_and_text_generates_error_on_missing_commas_text() {
-    let lines = tokenize_program("add $t1, $t2, $t3\nlw $t1 400($t2)".to_string());
+    let lines = tokenize_program("add $t1, $t2, $t3\nlw $t1 400($t2)".to_string()).0;
     let result = separate_data_and_text(lines);
     let correct_error = Error {
         error_name: MissingComma,
@@ -298,7 +299,8 @@ fn separate_data_and_text_generates_error_on_missing_commas_text() {
 fn separate_data_and_text_works_on_line_label() {
     let lines = tokenize_program(
         "add $t1, $t2, $t3\nLoad_from_memory: lw $t1, 400($t1)\naddi $t1, 100".to_string(),
-    );
+    )
+    .0;
     let result = separate_data_and_text(lines.clone());
 
     let mut instruction_0 = Instruction {
@@ -348,7 +350,8 @@ fn separate_data_and_text_works_on_line_label() {
 fn separate_data_and_text_works_off_line_label() {
     let lines = tokenize_program(
         "add $t1, $t2, $t3\nLoad_from_memory:\nlw $t1, 400($t1)\naddi $t1, 100".to_string(),
-    );
+    )
+    .0;
     let result = separate_data_and_text(lines.clone());
 
     let mut instruction_0 = Instruction {
@@ -396,8 +399,7 @@ fn separate_data_and_text_works_off_line_label() {
 
 #[test]
 fn separate_data_and_text_recognizes_text() {
-    let lines =
-        tokenize_program(".text\nadd $t1, $t2, $t3\nlw $t1, 400($t1)\n".to_string());
+    let lines = tokenize_program(".text\nadd $t1, $t2, $t3\nlw $t1, 400($t1)\n".to_string()).0;
     let result = separate_data_and_text(lines.clone());
 
     let mut correct_result: Vec<Instruction> = vec![
@@ -432,7 +434,7 @@ fn separate_data_and_text_recognizes_data_and_text_interspersed() {
     let lines = tokenize_program(
         ".data\nword1: .word 32\n.text\nadd $t1, $t2, $t3\n.data\nword2: .word 1,2,3\n.text\nlw $t1, 400($t1)\n"
             .to_string(),
-    );
+    ).0;
     let result = separate_data_and_text(lines.clone());
 
     let mut correct_result: (Vec<Instruction>, Vec<Data>) = (
@@ -501,7 +503,7 @@ fn separate_data_and_text_recognizes_ascii_data() {
     let lines = tokenize_program(
         ".data\nword: .ascii \"this is a string\"\nword2: .word 1,2,3\n.text\nadd $t1, $t2, $t3\nlw $t1, 400($t1)\n"
             .to_string(),
-    );
+    ).0;
     let result = separate_data_and_text(lines.clone());
 
     let mut correct_result: (Vec<Instruction>, Vec<Data>) = (
@@ -570,7 +572,8 @@ fn separate_data_and_text_recognizes_data_and_text() {
     let lines = tokenize_program(
         ".data\nword1: .word 32\nword2: .word 1,2,3\n.text\nadd $t1, $t2, $t3\nlw $t1, 400($t1)\n"
             .to_string(),
-    );
+    )
+    .0;
     let result = separate_data_and_text(lines.clone());
 
     let mut correct_result: (Vec<Instruction>, Vec<Data>) = (
@@ -637,22 +640,21 @@ fn separate_data_and_text_recognizes_data_and_text() {
 #[test]
 fn build_instruction_list_generates_error_on_double_label() {
     let lines =
-        tokenize_program("lw $t1, 400($zero)\nLabel1:\nLabel2: add $t1, $t2, $t3\n".to_string());
+        tokenize_program("lw $t1, 400($zero)\nLabel1:\nLabel2: add $t1, $t2, $t3\n".to_string()).0;
     let result = separate_data_and_text(lines);
     assert_eq!(result.0[1].errors[0].error_name, LabelAssignmentError);
 }
 
 #[test]
 fn build_instruction_list_generates_error_on_label_on_last_line() {
-    let lines =
-        tokenize_program("lw $t1, 400($zero)\nadd $t1, $t2, $t3\nlabel:\n".to_string());
+    let lines = tokenize_program("lw $t1, 400($zero)\nadd $t1, $t2, $t3\nlabel:\n".to_string()).0;
     let result = separate_data_and_text(lines);
     assert_eq!(result.0[2].errors[0].error_name, LabelAssignmentError);
 }
 
 #[test]
 fn create_label_map_generates_map_on_no_errors() {
-    let lines = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
+    let lines = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string()).0;
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
 
@@ -667,7 +669,7 @@ fn create_label_map_generates_map_on_no_errors() {
 
 #[test]
 fn create_label_map_recognizes_data_labels() {
-    let lines = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\n".to_string());
+    let lines = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\n".to_string()).0;
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
     assemble_data_binary(&mut data);
     expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
@@ -683,7 +685,7 @@ fn create_label_map_recognizes_data_labels() {
 
 #[test]
 fn create_label_map_recognizes_data_labels_and_text_together() {
-    let lines = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\ninstruction: sub $t1, $t2, $t3\n".to_string());
+    let lines = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\ninstruction: sub $t1, $t2, $t3\n".to_string()).0;
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
     assemble_data_binary(&mut data);
     expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
@@ -700,7 +702,7 @@ fn create_label_map_recognizes_data_labels_and_text_together() {
 
 #[test]
 fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name() {
-    let lines = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string());
+    let lines = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string()).0;
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data);
 
@@ -722,7 +724,7 @@ fn complete_lw_sw_pseudo_instructions_works() {
 
     let file_string = ".data\nlabel: .word 100\n.text\nlw $t1, label\nsw $t1, label".to_string();
 
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -850,7 +852,7 @@ fn complete_lw_sw_pseudo_instructions_doesnt_break_with_empty_instruction_list()
 
     let file_string = ".data\nlabel: .word 100\n.text\nlw $t1, label\nsw $t1, label".to_string();
 
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -869,7 +871,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi() {
 
     let file_string = "subi $t1, $t2, 100\nsw $t1, label".to_string();
 
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -948,7 +950,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_muli() {
 
     let file_string = "muli $t1, $t2, 100\nsw $t1, label".to_string();
 
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -1027,7 +1029,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_divi() {
 
     let file_string = "divi $t1, 100\nsw $t1, label".to_string();
 
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -1101,7 +1103,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dsubi() {
 
     let file_string = "dsubi $t1, $t2, 100\nsw $t1, label".to_string();
 
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -1180,7 +1182,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuli() {
 
     let file_string = "dmuli $t1, $t2, 100\nsw $t1, label".to_string();
 
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -1259,7 +1261,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
 
     let file_string = "ddivi $t1, 100\nsw $t1, label".to_string();
 
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -1333,7 +1335,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgt() {
 
     let file_string = "sgt $t1, $t2, $t3\nsw $t1, label".to_string();
 
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -1380,7 +1382,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgtu() {
 
     let file_string = "sgtu $t1, $t2, $t3\nsw $t1, label".to_string();
 
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -1427,7 +1429,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_seq() {
 
     let file_string = "seq $t1, $t2, $t3\nsw $t1, label".to_string();
 
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -1538,7 +1540,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sne() {
 
     let file_string = "sne $t1, $t2, $t3\nsw $t1, label".to_string();
 
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -1617,7 +1619,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sle() {
 
     let file_string = "sle $t1, $t2, $t3\nsw $t1, label".to_string();
 
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -1729,7 +1731,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sleu() {
 
     let file_string = "sleu $t1, $t2, $t3\nsw $t1, label".to_string();
 
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -1841,7 +1843,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sge() {
 
     let file_string = "sge $t1, $t2, $t3\nsw $t1, label".to_string();
 
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -1951,7 +1953,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sge() {
 fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
     let mut program_info = ProgramInfo::default();
     let file_string = "sgeu $t1, $t2, $t3\nsw $t1, label".to_string();
-    let lines = tokenize_program(file_string);
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -1961,7 +1963,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
     let mut correct_program_info = ProgramInfo::default();
     let correct_string =
         "sltu $t1, $t2, $t3\naddi $t1, $t1, 1\nandi $t1, $t1, 1\nsw $t1, label".to_string();
-    let correct_lines = tokenize_program(correct_string);
+    let correct_lines = tokenize_program(correct_string).0;
     (correct_program_info.instructions, correct_program_info.data) =
         separate_data_and_text(correct_lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
