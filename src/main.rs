@@ -7,7 +7,7 @@ pub mod ui;
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
 use gloo::{console::log, file::FileList};
-use js_sys::{Array, Object};
+use js_sys::{Object};
 use monaco::{
     api::TextModel,
     sys::editor::{
@@ -49,7 +49,7 @@ fn app() -> Html {
     // Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
     let delta_decor = monaco::sys::editor::IModelDecorationOptions::default();
-    let decor_array = use_state_eq(|| js_sys::Array::new());
+    let decor_array = use_state_eq(js_sys::Array::new);
     log!("This is the array when the app loads");
     log!((*decor_array).at(0));
 
