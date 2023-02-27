@@ -25,6 +25,8 @@ use wasm_bindgen::{JsCast, JsValue};
 use yew::prelude::*;
 use yew::{html, Html, Properties};
 
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{print_vec_of_instructions, ProgramInfo};
+
 #[function_component(App)]
 fn app() -> Html {
     // This contains the binary representation of "ori $s0, $zero, 12345", which
@@ -53,6 +55,8 @@ fn app() -> Html {
     // messages via logs and the registers will be stored
     // in a custom-built register viewer.
     let parser_text_output = use_state_eq(String::new);
+    let memory_text_output = use_state_eq(String::new);
+    let proinfo = use_state_eq(|| Rc::new(RefCell::new(ProgramInfo::default())));
 
     // Since we want the Datapath to be independent from all the
     // events within the app, we will create it when the app loads. This is also done
@@ -88,6 +92,18 @@ fn app() -> Html {
                 trigger.force_update();
             },
             text_model,
+        )
+    };
+
+    let on_memory_loaded_click = {
+        let text_model = Rc::clone(&text_model);
+        let datapath = Rc::clone(&datapath);
+        let memory_text_output = memory_text_output.clone();
+        use_callback(
+            move |_, text_model| {
+                let mut datapath = (*datapath).borrow_mut();
+                memory_text_output.set(datapath.memory.to_string());
+            }, (),
         )
     };
 
@@ -141,11 +157,31 @@ fn app() -> Html {
     // Currently, it is tied to a button with placeholder text. The goal is to have
     // this action take place when the Text Model changes and output the messages provided
     // by the parser.
-    let on_error_clicked = {
+    let on_assembly_error_pressed = {
         let parser_text_output = parser_text_output.clone();
+        let text_model = Rc::clone(&text_model);
+        let proinfo = Rc::clone(&proinfo);
         use_callback(
             move |_, _| {
-                parser_text_output.set("Arial".to_string());
+                let text_model = (*text_model).borrow_mut();
+                let (tmi, _) = parser(text_model.get_value());
+
+                //TODO: get the errors out of instructions and data
+                let instructions = tmi.instructions;
+                let data = tmi.data;
+                let comments_line_and_column = tmi.comments_line_and_column;
+                let directives = tmi.directives;
+                //let error_list = Vec::new();
+                
+
+                //TODO: refer to print string
+                /*for i in instructions.into_iter(){
+
+                }*/
+                parser_text_output.set(hello_string(&ProgramInfo { instructions: (instructions), data: (data), 
+                    comments_line_and_column: (comments_line_and_column), directives: (directives) }));
+
+                //print_vec_of_instructions(instructions);
             },
             (),
         )
@@ -199,16 +235,16 @@ fn app() -> Html {
                         <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
                         <input type="button" value="Load File" onclick={upload_clicked_callback} />
                         <SwimEditor text_model={(*text_model).borrow().clone()} />
-                        <button onclick={on_error_clicked}>{ "Click" }</button>
+                        <button onclick={on_assembly_error_pressed}>{ "Click" }</button>
                         <div class="tab">
                             <button class="tabs" style="width: 10%;"
                             >{"Console"}</button>
                             <button class="tabs" style="width: 10%;"
                             >{"Datapath"}</button>
-                            <button class="tabs" style="width: 10%;"
+                            <button class="tabs" onclick={on_memory_loaded_click} style="width: 10%;"
                             >{"Memory"}</button>
                         </div>
-                        <Console parsermsg={(*parser_text_output).clone()}/>
+                        <Console parsermsg={(*parser_text_output).clone()} memorymsg={(*memory_text_output).clone()}/>
                         <VisualDatapath datapath={(*datapath.borrow()).clone()} svg_path={"static/datapath.svg"} />
                     </div>
                     // Pass in register data from emu core
@@ -217,6 +253,10 @@ fn app() -> Html {
             </div>
         </>
     }
+}
+
+fn hello_string(x: &ProgramInfo) -> String {
+    "hello world".to_string()
 }
 
 /**********************  Editor Component **********************/
