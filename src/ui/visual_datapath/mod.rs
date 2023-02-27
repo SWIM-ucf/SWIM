@@ -92,12 +92,12 @@ impl Component for VisualDatapath {
         });
 
         if first_render {
-            self.initialize();
+            self.initialize(current_stage, ctx.props().datapath.clone());
         } else {
             let result = Self::highlight_stage(
-                ctx.props().datapath.clone(),
                 &get_g_elements(),
                 current_stage,
+                ctx.props().datapath.clone(),
             );
 
             // Capture new event listeners.
@@ -152,7 +152,7 @@ impl VisualDatapath {
     /// circumvented by creating an event listener on the `<object>` element for the
     /// "load" event, which will guarantee when that virtual DOM is actually ready
     /// to be manipulated.
-    pub fn initialize(&mut self) {
+    pub fn initialize(&mut self, current_stage: String, datapath: MipsDatapath) {
         let on_load = Callback::from(move |_| {
             let nodes = get_g_elements();
 
@@ -181,11 +181,23 @@ impl VisualDatapath {
                     });
                 }
             });
+
+            Self::highlight_stage(&nodes, current_stage.clone(), datapath.clone())
         });
+
+        let active_listeners = Rc::clone(&self.active_listeners);
 
         // Attach the on load listener.
         let on_load_listener = EventListener::new(&get_datapath_root(), "load", move |event| {
-            on_load.emit(event.clone());
+            let result = on_load.emit(event.clone());
+
+            // Capture the new event listeners.
+            let mut active_listeners = (*active_listeners).borrow_mut();
+            if let Ok(new_listeners) = result {
+                for l in new_listeners {
+                    (*active_listeners).push(l);
+                }
+            }
         });
 
         // Capture the "load" event listener.
@@ -194,10 +206,9 @@ impl VisualDatapath {
         (*active_listeners).push(on_load_listener);
     }
 
-    /// Highlight and enable interactivity for all lines in a given stage.
+    /// Highlight the current stage and enable interactivity for all lines.
     ///
-    /// Consequently un-highlights for all other lines. (Disabling interactivity
-    /// for other lines is done within [`Self::changed()`].)
+    /// Consequently un-highlights for all other lines not in the current stage.
     ///
     /// Takes as input a reference to an [`HtmlCollection`] that contains all the `<g>` elements
     /// of the SVG diagram.
@@ -212,48 +223,63 @@ impl VisualDatapath {
     /// If successful, returns a [`Vec<EventListener>`] containing the new event
     /// listeners generated.
     pub fn highlight_stage(
-        datapath: MipsDatapath,
         nodes: &HtmlCollection,
         stage: String,
+        datapath: MipsDatapath,
     ) -> Result<Vec<EventListener>, JsValue> {
         let mut active_listeners: Vec<EventListener> = vec![];
 
         do_over_html_collection(nodes, |element| {
-            if !element.has_attribute("data-stage") {
-                // Do nothing if the line has no defined stage.
-            } else if element.get_attribute("data-stage").unwrap() == stage {
-                // This is an element we want. Highlight it.
-                if let Ok(listeners) = Self::activate_element(datapath.clone(), element) {
+            if element.has_attribute("data-stage") {
+                let is_in_current_stage = element.get_attribute("data-stage").unwrap() == stage;
+                if let Ok(listeners) =
+                    Self::enable_interactivity(element, datapath.clone(), is_in_current_stage)
+                {
                     for l in listeners {
                         active_listeners.push(l);
                     }
                 }
-            } else {
-                // Not an element we want. Stop highlighting it.
-                Self::deactivate_element(element).ok();
             }
         });
 
         Ok(active_listeners)
     }
 
-    /// Activates a given `<g>` element.
+    /// Enables interactivity for a given `<g>` element. This includes both the popup
+    /// and coloring functionality.
+    ///
+    /// `is_active` indicates whether a given element is in the current stage.
     ///
     /// If successful, returns a [`Vec<EventListener>`] containing the newly created event listeners.
-    pub fn activate_element(
-        datapath: MipsDatapath,
+    pub fn enable_interactivity(
         element: &Element,
+        datapath: MipsDatapath,
+        is_active: bool,
     ) -> Result<Vec<EventListener>, JsValue> {
-        // Callback to execute if a line is hovered over.
-        let on_mouseover = Callback::from(move |event: web_sys::Event| {
+        // Color a line when hovering.
+        let color_on_mouseover = Callback::from(move |event: Event| {
+            let target = event.target().unwrap().unchecked_into::<HtmlElement>();
+            Self::set_active_hovered(&target).ok();
+        });
+
+        // Color a line (a different color) when no longer hovering.
+        let color_on_mouseout = Callback::from(move |event: Event| {
+            let target = event.target().unwrap().unchecked_into::<HtmlElement>();
+            if is_active {
+                Self::set_active_unhovered(&target).ok();
+            } else {
+                Self::set_inactive(&target).ok();
+            }
+        });
+
+        // Show the popup when hovering.
+        let popup_on_mouseover = Callback::from(move |event: web_sys::Event| {
             let event = event.unchecked_into::<MouseEvent>();
 
             // Get relevant elements.
             let target = event.target().unwrap().unchecked_into::<HtmlElement>();
             let popup = get_popup_element();
             let datapath_position = get_datapath_position();
-
-            Self::set_active_hovered(&target).ok();
 
             // Show popup.
             let variable = target
@@ -279,8 +305,8 @@ impl VisualDatapath {
                 .ok();
         });
 
-        // Callback to execute if the mouse moves while hovered on an element.
-        let on_mousemove = Callback::from(move |event: Event| {
+        // Move the popup if the mouse moves while still hovering.
+        let popup_on_mousemove = Callback::from(move |event: Event| {
             let event = event.unchecked_into::<MouseEvent>();
 
             let popup = get_popup_element();
@@ -303,15 +329,9 @@ impl VisualDatapath {
                 .ok();
         });
 
-        // Callback to execute if the mouse stops hovering over an element.
-        let on_mouseout = Callback::from(move |event: Event| {
-            // Get relevant elements.
-            let target = event.target().unwrap().unchecked_into::<HtmlElement>();
+        // Hide the popup when no longer hovering.
+        let popup_on_mouseout = Callback::from(move |_| {
             let popup = get_popup_element();
-
-            Self::set_active_unhovered(&target).ok();
-
-            // Hide popup.
             popup.style().set_property("display", "none").ok();
         });
 
@@ -323,31 +343,55 @@ impl VisualDatapath {
         for i in 0..children.length() {
             let path = children.item(i).unwrap().unchecked_into::<HtmlElement>();
 
-            Self::set_active_unhovered(&path)?;
+            // Set the initial path color.
+            if is_active {
+                Self::set_active_unhovered(&path)?;
+            } else {
+                Self::set_inactive(&path)?;
+            }
 
             if path.tag_name() == "path" {
-                // Attach mouseover listener.
-                let on_mouseover = on_mouseover.clone();
-                let on_mouseover_listener = EventListener::new(&path, "mouseover", move |event| {
-                    on_mouseover.emit(event.clone())
-                });
+                // Set the initial state of this path:
+                // Make the mouse look like a hand when the path is hovered.
+                path.style().set_property("cursor", "pointer")?;
 
-                // Attach mousemove listener.
-                let on_mousemove = on_mousemove.clone();
-                let on_mousemove_listener = EventListener::new(&path, "mousemove", move |event| {
-                    on_mousemove.emit(event.clone())
-                });
+                // Attach all the event listeners.
+                let color_on_mouseover = color_on_mouseover.clone();
+                let color_on_mouseover_listener =
+                    EventListener::new(&path, "mouseover", move |event| {
+                        color_on_mouseover.emit(event.clone())
+                    });
 
-                // Attach mouseout listener.
-                let on_mouseout = on_mouseout.clone();
-                let on_mouseout_listener = EventListener::new(&path, "mouseout", move |event| {
-                    on_mouseout.emit(event.clone())
-                });
+                let color_on_mouseout = color_on_mouseout.clone();
+                let color_on_mouseout_listener =
+                    EventListener::new(&path, "mouseout", move |event| {
+                        color_on_mouseout.emit(event.clone())
+                    });
+
+                let popup_on_mouseover = popup_on_mouseover.clone();
+                let popup_on_mouseover_listener =
+                    EventListener::new(&path, "mouseover", move |event| {
+                        popup_on_mouseover.emit(event.clone())
+                    });
+
+                let popup_on_mousemove = popup_on_mousemove.clone();
+                let popup_on_mousemove_listener =
+                    EventListener::new(&path, "mousemove", move |event| {
+                        popup_on_mousemove.emit(event.clone())
+                    });
+
+                let popup_on_mouseout = popup_on_mouseout.clone();
+                let popup_on_mouseout_listener =
+                    EventListener::new(&path, "mouseout", move |event| {
+                        popup_on_mouseout.emit(event.clone())
+                    });
 
                 // Save the event listeners.
-                active_listeners.push(on_mouseover_listener);
-                active_listeners.push(on_mousemove_listener);
-                active_listeners.push(on_mouseout_listener);
+                active_listeners.push(color_on_mouseover_listener);
+                active_listeners.push(color_on_mouseout_listener);
+                active_listeners.push(popup_on_mouseover_listener);
+                active_listeners.push(popup_on_mousemove_listener);
+                active_listeners.push(popup_on_mouseout_listener);
             }
         }
 
@@ -369,7 +413,6 @@ impl VisualDatapath {
 
     /// Set a line to be inactive.
     pub fn set_inactive(path: &HtmlElement) -> Result<(), JsValue> {
-        path.style().set_property("cursor", "auto")?;
         Self::set_color(path, INACTIVE_COLOR)?;
 
         Ok(())
@@ -377,7 +420,6 @@ impl VisualDatapath {
 
     /// Set a line to be active and unhovered.
     pub fn set_active_unhovered(path: &HtmlElement) -> Result<(), JsValue> {
-        path.style().set_property("cursor", "pointer")?;
         Self::set_color(path, ACTIVE_UNHOVERED_COLOR)?;
 
         Ok(())

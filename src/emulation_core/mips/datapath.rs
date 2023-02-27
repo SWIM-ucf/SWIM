@@ -912,8 +912,8 @@ impl MipsDatapath {
             AluOp::LeftShift16 => AluControl::LeftShift16,
             AluOp::UseFunctField => {
                 match self.state.funct as u8 {
-                    FUNCT_ADD | FUNCT_DADD => AluControl::Addition,
-                    FUNCT_SUB | FUNCT_DSUB => AluControl::Subtraction,
+                    FUNCT_ADD | FUNCT_DADD | FUNCT_DADDU => AluControl::Addition,
+                    FUNCT_SUB | FUNCT_DSUB | FUNCT_DSUBU => AluControl::Subtraction,
                     FUNCT_AND => AluControl::And,
                     FUNCT_OR => AluControl::Or,
                     FUNCT_SLT => AluControl::SetOnLessThanSigned,
@@ -925,6 +925,7 @@ impl MipsDatapath {
                         }
                     },
                     FUNCT_SOP33 | FUNCT_SOP37 => match self.state.shamt as u8 {
+                        // ENC_DIVU == ENC_DDIVU
                         ENC_DIVU => AluControl::DivisionUnsigned,
                         _ => {
                             unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
@@ -937,6 +938,7 @@ impl MipsDatapath {
                         }
                     },
                     FUNCT_SOP31 | FUNCT_SOP35 => match self.state.shamt as u8 {
+                        // ENC_MULU == ENC_DMULU
                         ENC_MULU => AluControl::MultiplicationUnsigned,
                         _ => {
                             unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
