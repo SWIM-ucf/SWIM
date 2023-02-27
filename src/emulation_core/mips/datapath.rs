@@ -303,7 +303,10 @@ impl MipsDatapath {
 
     fn calc_relative_pc_branch(&mut self) {
         self.state.sign_extend_shift_left_by_2 = self.state.sign_extend << 2;
-        self.state.relative_pc_branch = self.state.sign_extend_shift_left_by_2.wrapping_add(self.state.pc_plus_4);
+        self.state.relative_pc_branch = self
+            .state
+            .sign_extend_shift_left_by_2
+            .wrapping_add(self.state.pc_plus_4);
     }
 
     // if Branch::YesBranch && AluZ::YesZero
@@ -1076,10 +1079,14 @@ impl MipsDatapath {
         // control signal.
         match self.signals.reg_width {
             RegWidth::Word => {
-                self.memory.store_word(address, self.state.write_data as u32).ok();
+                self.memory
+                    .store_word(address, self.state.write_data as u32)
+                    .ok();
             }
             RegWidth::DoubleWord => {
-                self.memory.store_double_word(address, self.state.write_data).ok();
+                self.memory
+                    .store_double_word(address, self.state.write_data)
+                    .ok();
             }
         };
     }
