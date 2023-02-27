@@ -180,8 +180,8 @@ fn app() -> Html {
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
 
-        let new_decor_array = new_decor_array.clone();
-        let old_decor_array = old_decor_array.clone();
+        let new_decor_array = new_decor_array;
+        let old_decor_array = old_decor_array;
 
         use_callback(
             move |_, _| {
