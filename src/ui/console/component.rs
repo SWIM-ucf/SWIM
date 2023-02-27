@@ -14,7 +14,7 @@ pub struct Consoleprops {
 #[function_component(Console)]
 pub fn console(props: &Consoleprops) -> Html {
     let parser_text_output = use_state_eq(String::new);
-    // let switch_flag = use_state_eq(|| 0);
+    let switch_flag = use_state_eq(|| 0);
     // let on_switch_clicked_0 = {
     //     let switch_flag = switch_flag.clone();
     //     use_callback(

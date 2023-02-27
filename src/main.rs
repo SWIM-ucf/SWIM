@@ -235,13 +235,13 @@ fn app() -> Html {
                         <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
                         <input type="button" value="Load File" onclick={upload_clicked_callback} />
                         <SwimEditor text_model={(*text_model).borrow().clone()} />
-                        <button onclick={on_assembly_error_pressed}>{ "Click" }</button>
+                        //<button onclick={on_assembly_error_pressed}>{ "Click" }</button>
                         <div class="tab">
-                            <button class="tabs" style="width: 10%;"
+                            <button class="tabs1" onclick={on_assembly_error_pressed} style="width: 10%;"
                             >{"Console"}</button>
-                            <button class="tabs" style="width: 10%;"
+                            <button class="tabs1" style="width: 10%;"
                             >{"Datapath"}</button>
-                            <button class="tabs" onclick={on_memory_loaded_click} style="width: 10%;"
+                            <button class="tabs1" onclick={on_memory_loaded_click} style="width: 10%;"
                             >{"Memory"}</button>
                         </div>
                         <Console parsermsg={(*parser_text_output).clone()} memorymsg={(*memory_text_output).clone()}/>
