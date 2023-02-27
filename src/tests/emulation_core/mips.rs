@@ -6,7 +6,7 @@ use crate::emulation_core::mips::registers::GpRegisterType;
 
 pub mod api {
     use super::*;
-    use crate::parser::parser_main::parser;
+    use crate::parser::parser_assembler_main::parser;
 
     #[test]
     fn reset_datapath() -> Result<(), String> {
@@ -584,7 +584,6 @@ pub mod slt {
 
         datapath.execute_instruction();
 
-        // $zero should still contain 0.
         assert_eq!(datapath.registers[GpRegisterType::S2], 1);
     }
 
@@ -605,7 +604,6 @@ pub mod slt {
 
         datapath.execute_instruction();
 
-        // $zero should still contain 0.
         assert_eq!(datapath.registers[GpRegisterType::S2], 0);
     }
 
@@ -626,7 +624,6 @@ pub mod slt {
 
         datapath.execute_instruction();
 
-        // $zero should still contain 0.
         assert_eq!(datapath.registers[GpRegisterType::S2], 1);
     }
 }
@@ -651,7 +648,6 @@ pub mod sltu {
 
         datapath.execute_instruction();
 
-        // $zero should still contain 0.
         assert_eq!(datapath.registers[GpRegisterType::S2], 1);
     }
 
@@ -672,7 +668,6 @@ pub mod sltu {
 
         datapath.execute_instruction();
 
-        // $zero should still contain 0.
         assert_eq!(datapath.registers[GpRegisterType::S2], 0);
     }
 
@@ -693,7 +688,6 @@ pub mod sltu {
 
         datapath.execute_instruction();
 
-        // $zero should still contain 0.
         assert_eq!(datapath.registers[GpRegisterType::S2], 0);
     }
 }
@@ -738,7 +732,7 @@ pub mod andi {
         //         $t0:  00111010 11011110 01101000 10110001
         // AND  12,345:                    00110000 00111001
         // =================================================
-        // 987,658,425:  00000000 00000000 00100000 00110001
+        //       8,241:  00000000 00000000 00100000 00110001
 
         assert_eq!(datapath.registers.gpr[16], 0x2031); // $s0
     }
@@ -750,7 +744,7 @@ pub mod addi_addiu {
     fn addi_simple_test() {
         let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x1
+        // $s0 = $t0 + 0x4
         //                       addi    $t0   $s0          4
         let instruction: u32 = 0b001000_01000_10000_0000000000000100;
         datapath
@@ -779,8 +773,7 @@ pub mod addi_addiu {
         datapath.registers[GpRegisterType::S0] = 123;
         datapath.execute_instruction();
 
-        // if there is an overflow, $s0 should not change.
-        // For the addiu instruction, $s0 would change on overflow, it would become 3.
+        // If there is an overflow on addi, $s0 should not change.
         assert_eq!(datapath.registers[GpRegisterType::S0], 123);
     }
 
@@ -822,7 +815,7 @@ pub mod addi_addiu {
     fn addiu_simple_test() {
         let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x1
+        // $s0 = $t0 + 0x4
         //                       addiu    $t0   $s0          4
         let instruction: u32 = 0b001001_01000_10000_0000000000000100;
         datapath
@@ -840,8 +833,8 @@ pub mod addi_addiu {
     fn addiu_overflow_test() {
         let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x1
-        //                       addiu    $t0   $s0          1
+        // $s0 = $t0 + 0x4
+        //                       addiu    $t0   $s0          4
         let instruction: u32 = 0b001001_01000_10000_0000000000000100;
         datapath
             .memory
@@ -851,7 +844,6 @@ pub mod addi_addiu {
         datapath.registers[GpRegisterType::S0] = 123;
         datapath.execute_instruction();
 
-        // if there is an overflow, $s0 should not change.
         // For the addiu instruction, $s0 would change on overflow, it would become 3.
         assert_eq!(datapath.registers[GpRegisterType::S0], 3);
     }
@@ -880,7 +872,7 @@ pub mod daddi_and_daddiu {
     fn daddi_simple_test() {
         let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x1
+        // $s0 = $t0 + 0x4
         //                       daddi    $t0   $s0          4
         let instruction: u32 = 0b011000_01000_10000_0000000000000100;
         datapath
@@ -900,7 +892,7 @@ pub mod daddi_and_daddiu {
 
         // $s0 = $t0 + 0x1
         //                       daddi    $t0   $s0          1
-        let instruction: u32 = 0b011000_01000_10000_0000000000000100;
+        let instruction: u32 = 0b011000_01000_10000_0000000000000001;
         datapath
             .memory
             .store_word(0, instruction)
@@ -952,7 +944,7 @@ pub mod daddi_and_daddiu {
     fn daddiu_simple_test() {
         let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x1
+        // $s0 = $t0 + 0x4
         //                       daddiu    $t0   $s0          4
         let instruction: u32 = 0b011001_01000_10000_0000000000000100;
         datapath
@@ -970,8 +962,8 @@ pub mod daddi_and_daddiu {
     fn daddiu_overflow_test() {
         let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x1
-        //                       daddiu    $t0   $s0          1
+        // $s0 = $t0 + 0x4
+        //                       daddiu    $t0   $s0          4
         let instruction: u32 = 0b011001_01000_10000_0000000000000100;
         datapath
             .memory
@@ -1050,7 +1042,7 @@ pub mod ori {
     }
 }
 
-pub mod dadd {
+pub mod dadd_daddu {
     use super::*;
 
     #[test]
@@ -1077,39 +1069,30 @@ pub mod dadd {
 
         assert_eq!(datapath.registers.gpr[2], 1_938_187_178_608); // $v0
     }
+
+    #[test]
+    fn daddu_positive_result() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // daddu rd, rs, rt
+        // daddu $s2, $s0, $s1
+        // GPR[18] <- GPR[16] + GPR[17]
+        //                      SPECIAL rs    rt    rd    0     DADDU
+        //                              16    17    18
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101101;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.registers.gpr[16] = 1_069_193_590_294; // $s0
+        datapath.registers.gpr[17] = 34_359_738_368; // $s1
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[18], 1_103_553_328_662); // $s2
+        Ok(())
+    }
 }
 
-#[test]
-fn dsub_registers_positive_result() {
-    let mut datapath = MipsDatapath::default();
-    assert_eq!(datapath.registers.pc, 0);
-    // dsub rd, rs, rt
-    // dsub $s5, $s4, $s3
-    // GPR[rd] <- GPR[rs] - GPR[rt]
-    // GPR[$s5] <- GPR[$s4] - GPR[$s3]
-    // GPR[19] <- GPR[18] - GPR[17]
-    //                      SPECIAL rs    rt    rd    0     funct
-    //                              $s4   $s3   $s5         DSUB
-    //                              18    17    19
-    let instruction: u32 = 0b000000_10010_10001_10011_00000_101110;
-
-    datapath
-        .memory
-        .store_word(0, instruction)
-        .expect("Failed to store instruction.");
-
-    // Assume registers $s3 and $s4 contain numbers larger than 32 bits,
-    // but smaller than 64 bits.
-    datapath.registers.gpr[18] = 4_833_323_886_298_794; // $s4
-    datapath.registers.gpr[17] = 163_643_849_115_304; // $s3
-
-    datapath.execute_instruction();
-    assert_eq!(datapath.registers.pc, 4);
-
-    assert_eq!(datapath.registers.gpr[19], 4_669_680_037_183_490); // $s5
-}
-
-pub mod dsub {
+pub mod dsub_dsubu {
     use super::*;
 
     #[test]
@@ -1140,9 +1123,30 @@ pub mod dsub {
 
         assert_eq!(datapath.registers.gpr[19], 4_669_680_037_183_490); // $s5
     }
+
+    #[test]
+    fn dsubu_positive_result() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // dsubu rd, rs, rt
+        // dsubu $s2, $s0, $s1
+        // GPR[18] <- GPR[16] - GPR[17]
+        //                      SPECIAL rs    rt    rd    0     DSUBU
+        //                              16    17    18
+        let instruction: u32 = 0b000000_10000_10001_10010_00000_101111;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.registers.gpr[16] = 92_975_612_771_919; // $s0
+        datapath.registers.gpr[17] = 13_810_775_572_047; // $s1
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[18], 79_164_837_199_872); // $s2
+        Ok(())
+    }
 }
 
-pub mod dmul {
+pub mod dmul_dmulu {
     use super::*;
 
     #[test]
@@ -1232,9 +1236,32 @@ pub mod dmul {
         // The result should instead truncate to the lower 64 bits.
         assert_eq!(datapath.registers.gpr[18], 3_777_124_905_256_220_920); // $s2
     }
+
+    #[test]
+    fn dmulu_positive_result() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // dmulu rd, rs, rt
+        // dmulu $s2, $s0, $s1
+        // dmulu 18, 16, 17
+        // GPR[rd] <- lo_doubleword(multiply.unsigned(GPR[rs] * GPR[rt]))
+        //                      opcode  rs    rt    rd          funct
+        //                      SPECIAL $s0   $s1   $s2   DMULU SOP35
+        //                              16    17    18
+        let instruction: u32 = 0b000000_10000_10001_10010_00010_011101;
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.registers.gpr[16] = 17_592_186_044_416; // $s0
+        datapath.registers.gpr[17] = 1_000; // $s1
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[18], 17_592_186_044_416_000); // $s2
+        Ok(())
+    }
 }
 
-pub mod ddiv {
+pub mod ddiv_ddivu {
     use super::*;
 
     #[test]
@@ -1295,6 +1322,30 @@ pub mod ddiv {
         // While the actual result is -50,775,223,724,555,519.333333....
         // the decimal portion is truncated.
         assert_eq!(datapath.registers.gpr[7] as i64, -50_775_223_724_555_519); // $a3
+    }
+
+    #[test]
+    fn ddivu_positive_result() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // ddivu rd, rs, rt
+        // ddivu $s2, $s0, $s1
+        // ddivu 18, 16, 17
+        // GPR[rd] <- divide.unsigned(GPR[rs], GPR[rt])
+        //                      opcode  rs    rt    rd          funct
+        //                      SPECIAL $s0   $s1   $s2   DDIVU SOP37
+        //                              16    17    18
+        let instruction: u32 = 0b000000_10000_10001_10010_00010_011111;
+
+        datapath.memory.store_word(0, instruction)?;
+
+        datapath.registers.gpr[16] = 10_213_202_487_240; // $s0
+        datapath.registers.gpr[17] = 11; // $s1
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.gpr[18], 928_472_953_385); // $s2
+        Ok(())
     }
 }
 

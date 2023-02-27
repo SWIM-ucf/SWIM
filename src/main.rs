@@ -15,7 +15,7 @@ use monaco::{
     },
     yew::{CodeEditor, CodeEditorLink},
 };
-use parser::parser_main::parser;
+use parser::parser_assembler_main::parser;
 use std::{cell::RefCell, rc::Rc};
 use stylist::css;
 use wasm_bindgen_futures::spawn_local;
@@ -23,6 +23,7 @@ use web_sys::HtmlInputElement;
 //use stylist::yew::*;
 use ui::console::component::Console;
 use ui::regview::component::Regview;
+use ui::visual_datapath::VisualDatapath;
 use wasm_bindgen::{JsCast, JsValue};
 use yew::prelude::*;
 use yew::{html, Html, Properties};
@@ -33,6 +34,14 @@ fn app() -> Html {
     // stores 12345 in register $s0.
     let code = String::from("ori $s0, $zero, 12345\n");
     let language = String::from("mips");
+
+    let mut switch_view = 0;
+    true.then(|| {
+        switch_view += 1;
+    });
+    false.then(|| {
+        switch_view += 1;
+    });
 
     // This is the initial text model with default text contents. The
     // use_state_eq hook is created so that the component can be updated
@@ -52,6 +61,29 @@ fn app() -> Html {
     let decor_array = use_state_eq(js_sys::Array::new);
     log!("This is the array when the app loads");
     log!((*decor_array).at(0));
+    let new_decor_array = js_sys::Array::new();
+    let old_decor_array = js_sys::Array::new();
+
+    // Setting up the options/parameters which
+    // will highlight the executed line.
+    // Currently, just highlights the first line as
+    // a proof of concept.
+    // Hit Assemble, then Execute to see the line highlight.
+    // Hit Reset to see the line not highlighted.
+    let curr_range = monaco::sys::Range::new(1.0, 0.0, 1.0, 0.0);
+    let range_js = curr_range
+        .dyn_into::<JsValue>()
+        .expect("Range is not found.");
+    delta_decor.set_is_whole_line(true.into());
+    delta_decor.set_inline_class_name("myInlineDecoration".into());
+
+    // element to be stored in the Decoration array (keep this)
+    let highlight_line: monaco::sys::editor::IModelDeltaDecoration = Object::new().unchecked_into();
+    highlight_line.set_options(&delta_decor);
+    highlight_line.set_range(&monaco::sys::IRange::from(range_js));
+    let highlight_js = highlight_line
+        .dyn_into::<JsValue>()
+        .expect("Highlight is not found.");
 
     // TODO: Output will be stored in two ways, the first would be the parser's
     // messages via logs and the registers will be stored
@@ -66,7 +98,7 @@ fn app() -> Html {
     let datapath = use_state_eq(|| Rc::new(RefCell::new(MipsDatapath::default())));
 
     // This is where we take the code and run it through the emulation core
-    let on_assemble_clicked = {
+    let on_load_clicked = {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
@@ -96,9 +128,8 @@ fn app() -> Html {
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
 
-        let decor_array = decor_array.clone();
-        log!("This is the array before the push");
-        log!((*decor_array).at(0));
+        let new_decor_array = new_decor_array.clone();
+        let old_decor_array = old_decor_array.clone();
 
         use_callback(
             move |_, _| {
@@ -106,32 +137,35 @@ fn app() -> Html {
 
                 let text_model = (*text_model).borrow_mut();
                 let curr_model = text_model.as_ref();
-                // Setting up the options/parameters which
-                // will highlight the executed line.
-                // Currently, just highlights the first line as
-                // a proof of concept.
-                let curr_range = monaco::sys::Range::new(1.0, 0.0, 1.0, 0.0);
-                let range_js = curr_range
-                    .dyn_into::<JsValue>()
-                    .expect("Range is not found.");
-                delta_decor.set_is_whole_line(true.into());
-                delta_decor.set_inline_class_name("myInlineDecoration".into());
-
-                // element to be stored in the Decoration array (keep this)
-                let highlight_line: monaco::sys::editor::IModelDeltaDecoration =
-                    Object::new().unchecked_into();
-                highlight_line.set_options(&delta_decor);
-                highlight_line.set_range(&monaco::sys::IRange::from(range_js));
-                let highlight_js = highlight_line
-                    .dyn_into::<JsValue>()
-                    .expect("Highlight is not found.");
-                decor_array.push(&highlight_js); // create a function to do this
-                (*curr_model).delta_decorations(&js_sys::Array::new(), &decor_array, None);
+                // log!("These are the arrays before the push");
+                // log!(new_decor_array.at(0));
+                // log!(old_decor_array.at(0));
+                new_decor_array.push(&highlight_js);
+                //it may look ugly, but it makes sense. Uncomment debug statements to see why.
+                old_decor_array.set(
+                    0,
+                    (*curr_model)
+                        .delta_decorations(&old_decor_array, &new_decor_array, None)
+                        .into(),
+                );
                 (*datapath).execute_instruction();
-                log!("This is the array after the push");
-                log!((*decor_array).at(0));
-                log!((*curr_model).delta_decorations(&js_sys::Array::new(), &decor_array, None));
+                // log!("These are the arrays after the push");
+                // log!(new_decor_array.at(0));
+                // log!(old_decor_array.at(0));
                 // log!(JsValue::from_str(&datapath.registers.to_string()));
+                trigger.force_update();
+            },
+            (),
+        )
+    };
+
+    let on_execute_stage_clicked = {
+        let datapath = Rc::clone(&datapath);
+        let trigger = use_force_update();
+        use_callback(
+            move |_, _| {
+                let mut datapath = (*datapath).borrow_mut();
+                (*datapath).execute_stage();
                 trigger.force_update();
             },
             (),
@@ -145,15 +179,26 @@ fn app() -> Html {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
+
+        let new_decor_array = new_decor_array.clone();
+        let old_decor_array = old_decor_array.clone();
+
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
                 let text_model = (*text_model).borrow_mut();
                 let curr_model = text_model.as_ref();
-                (*curr_model).delta_decorations(&decor_array, &js_sys::Array::new(), None);
+                new_decor_array.pop();
+                old_decor_array.set(
+                    0,
+                    (*curr_model)
+                        .delta_decorations(&old_decor_array, &new_decor_array, None)
+                        .into(),
+                );
                 (*datapath).reset();
-                log!("The handle should still be there, no highlight");
-                log!((*decor_array).at(0));
+                // log!("The handle should still be there, no highlight");
+                // log!(old_decor_array.at(0));
+                // log!(new_decor_array.at(0));
                 // log!(JsValue::from_str(&datapath.registers.to_string()));
                 trigger.force_update();
             },
@@ -208,19 +253,38 @@ fn app() -> Html {
     };
 
     html! {
-        <div>
-            <button onclick={on_assemble_clicked}>{ "Assemble" }</button>
-            <button onclick={on_execute_clicked}> { "Execute" }</button>
-            <button onclick={on_reset_clicked}>{ "Reset" }</button>
-            // button tied to the input file element, which is hidden to be more clean
-            <input type="button" value="Load File" onclick={upload_clicked_callback} />
-            <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
-            // Pass in register data from emu core
-            <Regview gp={(*datapath).borrow().registers}/>
-            <SwimEditor link={codelink.clone()} text_model={(*text_model).borrow().clone()} />
-            <button onclick={on_error_clicked}>{ "Click" }</button>
-            <Console parsermsg={(*parser_text_output).clone()}/>
-        </div>
+        <>
+            <div style="display: flex; flex-direction: column;">
+                <div>
+                    //<h1>{"Welcome to SWIM"}</h1>
+                    // button tied to the input file element, which is hidden to be more clean
+                    <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
+                </div>
+                <div style="display: flex">
+                    <div style="width: 70%">
+                        <button class="button" onclick={on_load_clicked}>{ "Assemble" }</button>
+                        <button class="button" onclick={on_execute_clicked}> { "Execute" }</button>
+                        <button class="button" onclick={on_execute_stage_clicked}> { "Execute Stage" }</button>
+                        <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
+                        <input type="button" value="Load File" onclick={upload_clicked_callback} />
+                        <SwimEditor link={codelink.clone()} text_model={(*text_model).borrow().clone()} />
+                        <button onclick={on_error_clicked}>{ "Click" }</button>
+                        <div class="tab">
+                            <button class="tabs" style="width: 10%;"
+                            >{"Console"}</button>
+                            <button class="tabs" style="width: 10%;"
+                            >{"Datapath"}</button>
+                            <button class="tabs" style="width: 10%;"
+                            >{"Memory"}</button>
+                        </div>
+                        <Console parsermsg={(*parser_text_output).clone()}/>
+                        <VisualDatapath datapath={(*datapath.borrow()).clone()} svg_path={"static/datapath.svg"} />
+                    </div>
+                    // Pass in register data from emu core
+                    <Regview gp={(*datapath).borrow().registers} fp={(*datapath).borrow().coprocessor.fpr}/>
+                </div>
+            </div>
+        </>
     }
 }
 
@@ -253,7 +317,7 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 #[function_component]
 pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     html! {
-        <CodeEditor classes={css!(r#"height: 70vh; width: 79vw;"#)} link={props.link.clone()} options={get_options()} model={props.text_model.clone()} />
+        <CodeEditor classes={css!(r#"height: 70vh; width: 100%;"#)} options={get_options()} link={props.link.clone()} model={props.text_model.clone()} />
     }
 }
 
@@ -285,32 +349,6 @@ pub fn on_upload_file_clicked() {
     });
     // log!(JsValue::from("After click"));
 }
-
-// /**********************  Objects for SWIM ***********************/
-// // IMPORTANT!!! Since we're not using any external JS for the project,
-// // wasm-bindgen is not needed for this. Otherwise, read
-// // https://rustwasm.github.io/wasm-bindgen/reference/attributes/on-rust-exports/getter-and-setter.html
-
-// // Specifically for CurrExecHighlight Decoration
-// pub struct CurrExecHighlight {
-//     decoration: Array
-// }
-
-// impl CurrExecHighlight {
-//     pub fn new(decoration: Array) -> CurrExecHighlight {
-//         CurrExecHighlight { decoration: Array::new() }
-//     }
-
-//     // setter
-//     pub fn set_decoration(&self) -> () {
-//         self.decoration.set(0, JsValue {idx: val, _marker: val})
-//     }
-
-//     // getter
-//     pub fn get_decoration(&self) -> () {
-//         self.decoration.get(0);
-//     }
-// }
 
 fn main() {
     yew::Renderer::<App>::new().render();

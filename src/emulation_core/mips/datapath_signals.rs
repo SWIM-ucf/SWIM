@@ -1,7 +1,7 @@
 //! Internal datapath signals.
 
 // The random mid-datapath-signals
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub struct DatapathSignals {
     pub alu_z: AluZ,
     pub cpu_branch: CpuBranch,
@@ -10,7 +10,7 @@ pub struct DatapathSignals {
 }
 
 /// The Z like comming off the main ALU
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum AluZ {
     /// alut_result is not zero
     #[default]
@@ -23,7 +23,7 @@ pub enum AluZ {
 /// CPU branch signal
 ///
 /// This signal is set in the EX stage
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum CpuBranch {
     /// (branch control signal != YesBranch) || (AluZ != YesZero)
     #[default]
@@ -47,7 +47,7 @@ pub enum CpuBranch {
 ///
 /// This signal is set in the MEM stage.
 /// GeneralBranch = CpuBranch | FpuBranch
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub enum GeneralBranch {
     #[default]
     NoBranch = 0,
