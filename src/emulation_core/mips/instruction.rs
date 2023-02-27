@@ -80,7 +80,7 @@ pub struct FpuCompareType {
     pub function: u8,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Instruction {
     RType(RType),
     IType(IType),
@@ -105,6 +105,7 @@ impl From<u32> for Instruction {
             // R-type instructions:
             // add, sub, mul, div
             // dadd, dsub, dmul, ddiv
+            // daddu
             OPCODE_SPECIAL => Instruction::RType(RType {
                 op: ((value >> 26) & 0x3F) as u8,
                 rs: ((value >> 21) & 0x1F) as u8,

@@ -15,14 +15,15 @@ use monaco::{
     },
     yew::{CodeEditor, CodeEditorLink},
 };
-use parser::parser_main::parser;
+use parser::parser_assembler_main::parser;
 use std::{cell::RefCell, rc::Rc};
 use stylist::css;
 use wasm_bindgen_futures::spawn_local;
-use web_sys::HtmlInputElement;
+use web_sys::{HtmlInputElement};
 //use stylist::yew::*;
 use ui::console::component::Console;
 use ui::regview::component::Regview;
+use ui::visual_datapath::VisualDatapath;
 use wasm_bindgen::{JsCast, JsValue};
 use yew::prelude::*;
 use yew::{html, Html, Properties};
@@ -33,6 +34,14 @@ fn app() -> Html {
     // stores 12345 in register $s0.
     let code = String::from("ori $s0, $zero, 12345\n");
     let language = String::from("mips");
+
+    let mut switch_view = 0;
+    true.then(|| {
+        switch_view += 1;
+    });
+    false.then(|| {
+        switch_view += 1;
+    });
 
     // This is the initial text model with default text contents. The
     // use_state_eq hook is created so that the component can be updated
@@ -45,7 +54,6 @@ fn app() -> Html {
 
     // Link to the Yew Editor Component, if not used by the end of the project remove it.
     let codelink = CodeEditorLink::default();
-
 
 
     // Setup the array that would store decorations applied to the
@@ -92,7 +100,7 @@ fn app() -> Html {
     let datapath = use_state_eq(|| Rc::new(RefCell::new(MipsDatapath::default())));
 
     // This is where we take the code and run it through the emulation core
-    let on_assemble_clicked = {
+    let on_load_clicked = {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
@@ -142,6 +150,19 @@ fn app() -> Html {
                 // log!(new_decor_array.at(0));
                 // log!(old_decor_array.at(0));
                 // log!(JsValue::from_str(&datapath.registers.to_string()));
+                trigger.force_update();
+            },
+            (),
+        )
+    };
+
+    let on_execute_stage_clicked = {
+        let datapath = Rc::clone(&datapath);
+        let trigger = use_force_update();
+        use_callback(
+            move |_, _| {
+                let mut datapath = (*datapath).borrow_mut();
+                (*datapath).execute_stage();
                 trigger.force_update();
             },
             (),
@@ -224,19 +245,38 @@ fn app() -> Html {
     };
 
     html! {
-        <div>
-            <button onclick={on_assemble_clicked}>{ "Assemble" }</button>
-            <button onclick={on_execute_clicked}> { "Execute" }</button>
-            <button onclick={on_reset_clicked}>{ "Reset" }</button>
-            // button tied to the input file element, which is hidden to be more clean
-            <input type="button" value="Load File" onclick={upload_clicked_callback} />
-            <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
-            // Pass in register data from emu core
-            <Regview gp={(*datapath).borrow().registers}/>
-            <SwimEditor link={codelink.clone()} text_model={(*text_model).borrow().clone()} />
-            <button onclick={on_error_clicked}>{ "Click" }</button>
-            <Console parsermsg={(*parser_text_output).clone()}/>
-        </div>
+        <>
+            <div style="display: flex; flex-direction: column;">
+                <div>
+                    //<h1>{"Welcome to SWIM"}</h1>
+                    // button tied to the input file element, which is hidden to be more clean
+                    <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
+                </div>
+                <div style="display: flex">
+                    <div style="width: 70%">
+                        <button class="button" onclick={on_load_clicked}>{ "Assemble" }</button>
+                        <button class="button" onclick={on_execute_clicked}> { "Execute" }</button>
+                        <button class="button" onclick={on_execute_stage_clicked}> { "Execute Stage" }</button>
+                        <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
+                        <input type="button" value="Load File" onclick={upload_clicked_callback} />
+                        <SwimEditor link={codelink.clone()} text_model={(*text_model).borrow().clone()} />
+                        <button onclick={on_error_clicked}>{ "Click" }</button>
+                        <div class="tab">
+                            <button class="tabs" style="width: 10%;"
+                            >{"Console"}</button>
+                            <button class="tabs" style="width: 10%;"
+                            >{"Datapath"}</button>
+                            <button class="tabs" style="width: 10%;"
+                            >{"Memory"}</button>
+                        </div>
+                        <Console parsermsg={(*parser_text_output).clone()}/>
+                        <VisualDatapath datapath={(*datapath.borrow()).clone()} svg_path={"static/datapath.svg"} />
+                    </div>
+                    // Pass in register data from emu core
+                    <Regview gp={(*datapath).borrow().registers} fp={(*datapath).borrow().coprocessor.fpr}/>
+                </div>
+            </div>
+        </>
     }
 }
 
@@ -269,7 +309,7 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 #[function_component]
 pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     html! {
-        <CodeEditor classes={css!(r#"height: 70vh; width: 79vw;"#)} link={props.link.clone()} options={get_options()} model={props.text_model.clone()} />
+        <CodeEditor classes={css!(r#"height: 70vh; width: 100%;"#)} options={get_options()} link={props.link.clone()} model={props.text_model.clone()} />
     }
 }
 

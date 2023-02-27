@@ -8,7 +8,7 @@ use super::instruction::Instruction;
 ///
 /// Different from the main processor, much of the functionality of the coprocessor
 /// is controlled remotely using its available API calls.
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub struct MipsFpCoprocessor {
     instruction: Instruction,
     pub signals: FpuControlSignals,
@@ -19,25 +19,25 @@ pub struct MipsFpCoprocessor {
     data: u64,
 }
 
-#[derive(Default, PartialEq)]
+#[derive(Clone, Default, PartialEq)]
 pub struct FpuState {
-    instruction: u32,
-    op: u32,
-    fmt: u32,
-    fs: u32,
-    ft: u32,
-    fd: u32,
-    function: u32,
+    pub instruction: u32,
+    pub op: u32,
+    pub fmt: u32,
+    pub fs: u32,
+    pub ft: u32,
+    pub fd: u32,
+    pub function: u32,
 
-    data_from_main_processor: u64,
-    fp_register_data_from_main_processor: u64,
-    read_data_1: u64,
-    read_data_2: u64,
+    pub data_from_main_processor: u64,
+    pub fp_register_data_from_main_processor: u64,
+    pub read_data_1: u64,
+    pub read_data_2: u64,
     /// Data line that goes from `Read Data 2` to the multiplexer in the main processor
     /// controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
-    fp_register_to_memory: u64,
-    alu_result: u64,
-    comparator_result: u64,
+    pub fp_register_to_memory: u64,
+    pub alu_result: u64,
+    pub comparator_result: u64,
 }
 
 impl MipsFpCoprocessor {
@@ -146,7 +146,7 @@ impl MipsFpCoprocessor {
                             self.signals.cc_write = CcWrite::NoWrite;
                             self.signals.data_src = DataSrc::FloatingPointUnit;
                             self.signals.data_write = DataWrite::NoWrite;
-                            self.signals.fpu_alu_op = FpuAluOp::AdditionOrEqual;
+                            self.signals.fpu_alu_op = FpuAluOp::Addition;
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             self.signals.fpu_reg_dst = FpuRegDst::Reg3;
@@ -170,7 +170,7 @@ impl MipsFpCoprocessor {
                             self.signals.cc_write = CcWrite::NoWrite;
                             self.signals.data_src = DataSrc::FloatingPointUnit;
                             self.signals.data_write = DataWrite::NoWrite;
-                            self.signals.fpu_alu_op = FpuAluOp::MultiplicationOrSlt;
+                            self.signals.fpu_alu_op = FpuAluOp::MultiplicationOrEqual;
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             self.signals.fpu_reg_dst = FpuRegDst::Reg3;
@@ -182,7 +182,7 @@ impl MipsFpCoprocessor {
                             self.signals.cc_write = CcWrite::NoWrite;
                             self.signals.data_src = DataSrc::FloatingPointUnit;
                             self.signals.data_write = DataWrite::NoWrite;
-                            self.signals.fpu_alu_op = FpuAluOp::DivisionOrSle;
+                            self.signals.fpu_alu_op = FpuAluOp::Division;
                             self.signals.fpu_branch = FpuBranch::NoBranch;
                             self.signals.fpu_mem_to_reg = FpuMemToReg::UseDataWrite;
                             self.signals.fpu_reg_dst = FpuRegDst::Reg3;
@@ -330,7 +330,7 @@ impl MipsFpCoprocessor {
         }
 
         self.state.alu_result = match self.signals.fpu_alu_op {
-            FpuAluOp::AdditionOrEqual => match self.signals.fpu_reg_width {
+            FpuAluOp::Addition => match self.signals.fpu_reg_width {
                 FpuRegWidth::Word => f32::to_bits(input1_f32 + input2_f32) as u64,
                 FpuRegWidth::DoubleWord => f64::to_bits(input1_f64 + input2_f64),
             },
@@ -338,11 +338,11 @@ impl MipsFpCoprocessor {
                 FpuRegWidth::Word => f32::to_bits(input1_f32 - input2_f32) as u64,
                 FpuRegWidth::DoubleWord => f64::to_bits(input1_f64 - input2_f64),
             },
-            FpuAluOp::MultiplicationOrSlt => match self.signals.fpu_reg_width {
+            FpuAluOp::MultiplicationOrEqual => match self.signals.fpu_reg_width {
                 FpuRegWidth::Word => f32::to_bits(input1_f32 * input2_f32) as u64,
                 FpuRegWidth::DoubleWord => f64::to_bits(input1_f64 * input2_f64),
             },
-            FpuAluOp::DivisionOrSle => match self.signals.fpu_reg_width {
+            FpuAluOp::Division => match self.signals.fpu_reg_width {
                 FpuRegWidth::Word => {
                     if input2_f32 == 0f32 {
                         f32::to_bits(0f32) as u64
@@ -359,7 +359,7 @@ impl MipsFpCoprocessor {
                 }
             },
             // No operation.
-            FpuAluOp::Sngt | FpuAluOp::Snge => 0,
+            FpuAluOp::Slt | FpuAluOp::Snge | FpuAluOp::Sle | FpuAluOp::Sngt => 0,
             _ => unimplemented!(),
         };
     }
@@ -375,15 +375,15 @@ impl MipsFpCoprocessor {
         let input2_f64 = f64::from_bits(input2);
 
         self.state.comparator_result = match self.signals.fpu_alu_op {
-            FpuAluOp::AdditionOrEqual => match self.signals.fpu_reg_width {
+            FpuAluOp::MultiplicationOrEqual => match self.signals.fpu_reg_width {
                 FpuRegWidth::Word => (input1_f32 == input2_f32) as u64,
                 FpuRegWidth::DoubleWord => (input1_f64 == input2_f64) as u64,
             },
-            FpuAluOp::MultiplicationOrSlt => match self.signals.fpu_reg_width {
+            FpuAluOp::Slt => match self.signals.fpu_reg_width {
                 FpuRegWidth::Word => (input1_f32 < input2_f32) as u64,
                 FpuRegWidth::DoubleWord => (input1_f64 < input2_f64) as u64,
             },
-            FpuAluOp::DivisionOrSle => match self.signals.fpu_reg_width {
+            FpuAluOp::Sle => match self.signals.fpu_reg_width {
                 FpuRegWidth::Word => (input1_f32 <= input2_f32) as u64,
                 FpuRegWidth::DoubleWord => (input1_f64 <= input2_f64) as u64,
             },
@@ -395,7 +395,7 @@ impl MipsFpCoprocessor {
                 FpuRegWidth::Word => !input1_f32.ge(&input2_f32) as u64,
                 FpuRegWidth::DoubleWord => !input1_f64.ge(&input2_f64) as u64,
             },
-            FpuAluOp::Subtraction => 0, // No operation
+            FpuAluOp::Addition | FpuAluOp::Subtraction | FpuAluOp::Division => 0, // No operation
             _ => unimplemented!(),
         }
     }
