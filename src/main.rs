@@ -7,7 +7,7 @@ pub mod ui;
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
 use gloo::{console::log, file::FileList};
-use js_sys::{Object};
+use js_sys::Object;
 use monaco::{
     api::TextModel,
     sys::editor::{
@@ -19,7 +19,7 @@ use parser::parser_assembler_main::parser;
 use std::{cell::RefCell, rc::Rc};
 use stylist::css;
 use wasm_bindgen_futures::spawn_local;
-use web_sys::{HtmlInputElement};
+use web_sys::HtmlInputElement;
 //use stylist::yew::*;
 use ui::console::component::Console;
 use ui::regview::component::Regview;
@@ -55,7 +55,6 @@ fn app() -> Html {
     // Link to the Yew Editor Component, if not used by the end of the project remove it.
     let codelink = CodeEditorLink::default();
 
-
     // Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
     let delta_decor = monaco::sys::editor::IModelDecorationOptions::default();
@@ -76,16 +75,12 @@ fn app() -> Html {
     delta_decor.set_inline_class_name("myInlineDecoration".into());
 
     // element to be stored in the Decoration array (keep this)
-    let highlight_line: monaco::sys::editor::IModelDeltaDecoration =
-        Object::new().unchecked_into();
+    let highlight_line: monaco::sys::editor::IModelDeltaDecoration = Object::new().unchecked_into();
     highlight_line.set_options(&delta_decor);
     highlight_line.set_range(&monaco::sys::IRange::from(range_js));
     let highlight_js = highlight_line
         .dyn_into::<JsValue>()
         .expect("Highlight is not found.");
-
-
-
 
     // TODO: Output will be stored in two ways, the first would be the parser's
     // messages via logs and the registers will be stored
@@ -144,7 +139,12 @@ fn app() -> Html {
                 // log!(old_decor_array.at(0));
                 new_decor_array.push(&highlight_js);
                 //it may look ugly, but it makes sense. Uncomment debug statements to see why.
-                old_decor_array.set(0, (*curr_model).delta_decorations(&old_decor_array, &new_decor_array, None).into()); 
+                old_decor_array.set(
+                    0,
+                    (*curr_model)
+                        .delta_decorations(&old_decor_array, &new_decor_array, None)
+                        .into(),
+                );
                 (*datapath).execute_instruction();
                 // log!("These are the arrays after the push");
                 // log!(new_decor_array.at(0));
@@ -186,7 +186,12 @@ fn app() -> Html {
                 let text_model = (*text_model).borrow_mut();
                 let curr_model = text_model.as_ref();
                 new_decor_array.pop();
-                old_decor_array.set(0, (*curr_model).delta_decorations(&old_decor_array, &new_decor_array, None).into());
+                old_decor_array.set(
+                    0,
+                    (*curr_model)
+                        .delta_decorations(&old_decor_array, &new_decor_array, None)
+                        .into(),
+                );
                 (*datapath).reset();
                 // log!("The handle should still be there, no highlight");
                 // log!(old_decor_array.at(0));
