@@ -1146,6 +1146,7 @@
 <a href="#1146" id="1146">1146</a>
 <a href="#1147" id="1147">1147</a>
 <a href="#1148" id="1148">1148</a>
+<a href="#1149" id="1149">1149</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of a MIPS64 datapath.
 //!
 //! It is assumed that while moving through stages, only one
@@ -1228,30 +1229,30 @@
     /// before the `DataWrite` multiplexer in the main processor.
     </span><span class="kw">pub </span>data_result: u64,
 
-    <span class="doccomment">/// *Jump address line.* The line the will carry the combination of
-    /// the high 32 + 4 bits and pc, and the lower_26_for_jump_line bits shifted
-    /// left by 2.
+    <span class="doccomment">/// *Jump address line.* This line carries the concatenation of
+    /// the high 36 bits of the PC, and `lower_26_shifted_left_by_2`.
     </span><span class="kw">pub </span>jump_address: u64,
 
-    <span class="doccomment">/// *Jump 26 bit line.* The low 26 bits of the instruction reserved
-    /// for possible use by the J instruction
+    <span class="doccomment">/// *Jump 26 bit line.* The lower 26 bits of the instruction reserved
+    /// for the location used by a J-type instruction.
     </span><span class="kw">pub </span>lower_26: u32,
 
-    <span class="doccomment">/// *Lower 26 &lt;&lt; 2 line.* This line carries the low 28 bits for the
-    /// jump address
+    <span class="doccomment">/// *Lower 26 &lt;&lt; 2 line.* This line carries the lower 28 bits of the
+    /// jump address.
     </span><span class="kw">pub </span>lower_26_shifted_left_by_2: u32,
 
-    <span class="doccomment">/// bla bla bal
+    <span class="doccomment">/// *Data line.* Determines the next value of the PC, given that the
+    /// current instruction is not a jump.
     </span><span class="kw">pub </span>mem_mux1_to_mem_mux2: u64,
 
     <span class="doccomment">/// *Data line.* The data retrieved from memory. Initialized after
     /// the Memory stage.
     </span><span class="kw">pub </span>memory_data: u64,
 
-    <span class="doccomment">/// *New PC line.* In the WB stage this line is written to registers.pc
+    <span class="doccomment">/// *New PC line.* In the WB stage, this line is written to the PC.
     </span><span class="kw">pub </span>new_pc: u64,
 
-    <span class="doccomment">/// *PC + 4 line.* Yeah, just PC + 4
+    <span class="doccomment">/// *Data line.* Contains PC + 4.
     </span><span class="kw">pub </span>pc_plus_4: u64,
 
     <span class="doccomment">/// *Data line.* Data read from the register file based on the `rs`
@@ -1268,17 +1269,18 @@
     /// processor and the main processor register file.
     </span><span class="kw">pub </span>register_write_data: u64,
 
-    <span class="doccomment">/// *Relative PC branch address line
+    <span class="doccomment">/// *Data line.* New PC value used if branching is set for an instruction.
     </span><span class="kw">pub </span>relative_pc_branch: u64,
 
     <span class="doccomment">/// *Data line.* The instruction&#39;s immediate value sign-extended to
     /// 64 bits. Initialized after the Instruction Decode stage.
     </span><span class="kw">pub </span>sign_extend: u64,
 
-    <span class="doccomment">/// *Data line.* The sign_extend line but shifted left by two
+    <span class="doccomment">/// *Data line.* The `sign_extend` line, shifted left by two bits.
     </span><span class="kw">pub </span>sign_extend_shift_left_by_2: u64,
 
-    <span class="kw">pub </span>write_data: u64,
+    <span class="doccomment">/// *Data line.* The data that will be written to memory.
+    </span><span class="kw">pub </span>write_data: u64,
 }
 
 <span class="doccomment">/// The possible stages the datapath could be in during execution.
