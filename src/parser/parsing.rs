@@ -1188,7 +1188,7 @@ pub fn suggest_error_corrections(
                 }
                 LabelNotFound => {
                     if labels.is_empty() {
-                        error.message = "There is no recognized labelled memory".to_string();
+                        error.message = "There is no recognized labelled memory.".to_string();
                         continue;
                     }
 
