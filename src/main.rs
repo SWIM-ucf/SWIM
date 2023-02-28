@@ -128,14 +128,12 @@ fn app() -> Html {
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
 
-        let new_decor_array = new_decor_array.clone();
-        let old_decor_array = old_decor_array.clone();
-
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
-
                 let text_model = (*text_model).borrow_mut();
+                let new_decor_array = new_decor_array.clone();
+                let old_decor_array = old_decor_array.clone();
                 let curr_model = text_model.as_ref();
                 // log!("These are the arrays before the push");
                 // log!(new_decor_array.at(0));
@@ -180,14 +178,13 @@ fn app() -> Html {
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
 
-        let new_decor_array = new_decor_array;
-        let old_decor_array = old_decor_array;
-
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
                 let text_model = (*text_model).borrow_mut();
                 let curr_model = text_model.as_ref();
+                let new_decor_array = new_decor_array.clone();
+                let old_decor_array = old_decor_array.clone();
                 new_decor_array.pop();
                 old_decor_array.set(
                     0,
