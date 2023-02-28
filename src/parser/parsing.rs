@@ -20,7 +20,7 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<String>) {
     let mut lines_in_monaco: Vec<String> = Vec::new();
 
     for (i, line_of_program) in program.lines().enumerate() {
-        lines_in_monaco.push(line_of_program.clone().to_string());
+        lines_in_monaco.push(line_of_program.parse().unwrap());
 
         let mut line_of_tokens = Line {
             line_number: i as u32,
@@ -982,16 +982,18 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     }
 
     //if there aren't any instructions, add a syscall to monaco's updated string so the emulation core does not try to run data as an instruction
-    if instructions.is_empty(){
+    if instructions.is_empty() {
         updated_monaco_string.insert(0, "syscall".to_string());
-    } else{
+    } else {
         let last_instruction = instructions.last().unwrap();
         //if the last instruction in monaco is not a syscall, add it in
         if last_instruction.operator.token_name != "syscall" {
-            updated_monaco_string.insert(last_instruction.line_number as usize + 1, "syscall".to_string());
+            updated_monaco_string.insert(
+                last_instruction.line_number as usize + 1,
+                "syscall".to_string(),
+            );
         }
     }
-
 }
 
 ///Create_label_map builds a hashmap of addresses for labels in memory
@@ -1052,7 +1054,7 @@ pub fn create_label_map(
 pub fn complete_lw_sw_pseudo_instructions(
     instructions: &mut Vec<Instruction>,
     labels: &HashMap<String, u32>,
-    _updated_monaco_strings: &mut Vec<String>,
+    _updated_monaco_strings: &mut [String],
 ) {
     if instructions.len() < 2 {
         return;
