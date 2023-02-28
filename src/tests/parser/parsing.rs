@@ -903,10 +903,11 @@ fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_if_it_i
         &mut result,
     );
 
-    let mut correct_result: Vec<String> = Vec::new();
-    correct_result.push("addi $t1, $t2, 100".to_string());
-    correct_result.push("sw $t1, label".to_string());
-    correct_result.push("syscall".to_string());
+    let correct_result: Vec<String> = vec![
+        "addi $t1, $t2, 100".to_string(),
+        "sw $t1, label".to_string(),
+        "syscall".to_string(),
+    ];
     assert_eq!(result, correct_result);
 }
 
@@ -923,12 +924,13 @@ fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_begi
         &mut result,
     );
 
-    let mut correct_result: Vec<String> = Vec::new();
-    correct_result.push(".text".to_string());
-    correct_result.push("syscall".to_string());
-    correct_result.push(".data".to_string());
-    correct_result.push("word .word 100".to_string());
-    correct_result.push("other .byte 'a','a'".to_string());
+    let correct_result: Vec<String> = vec![
+        ".text".to_string(),
+        "syscall".to_string(),
+        ".data".to_string(),
+        "word .word 100".to_string(),
+        "other .byte 'a','a'".to_string(),
+    ];
 
     assert_eq!(result, correct_result);
 }
@@ -946,16 +948,17 @@ fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_after_f
         &mut result,
     );
 
-    let mut correct_result: Vec<String> = Vec::new();
-    correct_result.push(".data".to_string());
-    correct_result.push("word .word 100".to_string());
-    correct_result.push(".text".to_string());
-    correct_result.push("syscall".to_string());
-    correct_result.push(".data".to_string());
-    correct_result.push("other .byte 'a','a'".to_string());
-    correct_result.push(".text".to_string());
-    correct_result.push(".data".to_string());
-    correct_result.push("final: .space 10".to_string());
+    let correct_result: Vec<String> = vec![
+        ".data".to_string(),
+        "word .word 100".to_string(),
+        ".text".to_string(),
+        "syscall".to_string(),
+        ".data".to_string(),
+        "other .byte 'a','a'".to_string(),
+        ".text".to_string(),
+        ".data".to_string(),
+        "final: .space 10".to_string(),
+    ];
 
     assert_eq!(result, correct_result);
 }
@@ -973,10 +976,8 @@ fn expand_pseudo_instructions_and_assign_instruction_number_does_not_add_syscall
         &mut result,
     );
 
-    let mut correct_result: Vec<String> = Vec::new();
-    correct_result.push("addi $t1, $t2, 100".to_string());
-    correct_result.push("sw $t1, label".to_string());
-    correct_result.push("syscall".to_string());
+    let correct_result: Vec<String> = vec!["addi $t1, $t2, 100".to_string(), "sw $t1, label".to_string(), "syscall".to_string(), ];
+
     assert_eq!(result, correct_result);
 }
 
@@ -993,12 +994,7 @@ fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_prop
         &mut result,
     );
 
-    let mut correct_result: Vec<String> = Vec::new();
-    correct_result.push("addi $t1, $t2, 100".to_string());
-    correct_result.push("sw $t1, label".to_string());
-    correct_result.push("syscall".to_string());
-    correct_result.push(".data".to_string());
-    correct_result.push(" word: .word 100".to_string());
+    let correct_result: Vec<String> = vec!["addi $t1, $t2, 100".to_string(), "sw $t1, label".to_string(), "syscall".to_string(), ".data".to_string(), " word: .word 100".to_string()];
 
     assert_eq!(result, correct_result);
 }
