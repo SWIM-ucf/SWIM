@@ -665,7 +665,11 @@ mod helper_functions {
 
         let (lines, mut updated_monaco_strings) = tokenize_program(file_string);
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
-        expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data, &mut updated_monaco_strings);
+        expand_pseudo_instructions_and_assign_instruction_numbers(
+            &mut instruction_list,
+            &data,
+            &mut updated_monaco_strings,
+        );
         assemble_data_binary(&mut data);
 
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
@@ -692,10 +696,14 @@ fn create_binary_vec_works_with_data() {
 
     let labels: HashMap<String, u32> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
-    complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels, &mut updated_monaco_string);
+    complete_lw_sw_pseudo_instructions(
+        &mut program_info.instructions,
+        &labels,
+        &mut updated_monaco_string,
+    );
     read_instructions(&mut program_info.instructions, &labels);
 
-    let result = create_binary_vec(program_info.instructions.clone(), vec_of_data);
+    let result = create_binary_vec(program_info.instructions.clone(), vec_of_data, &mut updated_monaco_string);
 
     assert_eq!(result[2], 0b01110100011010000110100101110011);
     assert_eq!(result[3], 0b00100000011010010111001100100000);
@@ -717,7 +725,11 @@ fn read_instructions_recognizes_valid_but_unsupported_instructions() {
 
     let labels: HashMap<String, u32> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
-    complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels, &mut updated_monaco_string);
+    complete_lw_sw_pseudo_instructions(
+        &mut program_info.instructions,
+        &labels,
+        &mut updated_monaco_string,
+    );
     read_instructions(&mut program_info.instructions, &labels);
 
     assert_eq!(

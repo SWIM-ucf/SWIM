@@ -656,7 +656,11 @@ fn build_instruction_list_generates_error_on_label_on_last_line() {
 fn create_label_map_generates_map_on_no_errors() {
     let (lines, mut updated_monaco_string) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
-    expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data, &mut updated_monaco_string);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut instruction_list,
+        &data,
+        &mut updated_monaco_string,
+    );
 
     let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
@@ -672,7 +676,11 @@ fn create_label_map_recognizes_data_labels() {
     let (lines, mut updated_monaco_string) = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\n".to_string());
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
     assemble_data_binary(&mut data);
-    expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data, &mut updated_monaco_string);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut instruction_list,
+        &data,
+        &mut updated_monaco_string,
+    );
     let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
     let mut correct_map: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
@@ -688,7 +696,11 @@ fn create_label_map_recognizes_data_labels_and_text_together() {
     let (lines, mut updated_monaco_string) = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\ninstruction: sub $t1, $t2, $t3\n".to_string());
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
     assemble_data_binary(&mut data);
-    expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data, &mut updated_monaco_string);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut instruction_list,
+        &data,
+        &mut updated_monaco_string,
+    );
     let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
     let mut correct_map: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
@@ -704,7 +716,11 @@ fn create_label_map_recognizes_data_labels_and_text_together() {
 fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name() {
     let (lines, mut updated_monaco_string) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string());
     let (mut instruction_list, mut data) = separate_data_and_text(lines);
-    expand_pseudo_instructions_and_assign_instruction_numbers(&mut instruction_list, &data, &mut updated_monaco_string);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut instruction_list,
+        &data,
+        &mut updated_monaco_string,
+    );
 
     let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
@@ -735,7 +751,11 @@ fn complete_lw_sw_pseudo_instructions_works() {
     let labels: HashMap<String, u32> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
 
-    complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels, &mut updated_monaco_string);
+    complete_lw_sw_pseudo_instructions(
+        &mut program_info.instructions,
+        &labels,
+        &mut updated_monaco_string,
+    );
 
     assert_eq!(
         program_info.instructions[0],
@@ -864,7 +884,11 @@ fn complete_lw_sw_pseudo_instructions_doesnt_break_with_empty_instruction_list()
     let labels: HashMap<String, u32> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
 
-    complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels, &mut updated_monaco_string);
+    complete_lw_sw_pseudo_instructions(
+        &mut program_info.instructions,
+        &labels,
+        &mut updated_monaco_string,
+    );
 }
 
 #[test]

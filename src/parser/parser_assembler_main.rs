@@ -21,7 +21,11 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
     let vec_of_data = assemble_data_binary(&mut program_info.data);
     let labels: HashMap<String, u32> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
-    complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels, &mut updated_monaco_strings);
+    complete_lw_sw_pseudo_instructions(
+        &mut program_info.instructions,
+        &labels,
+        &mut updated_monaco_strings,
+    );
     read_instructions(&mut program_info.instructions, &labels);
 
     suggest_error_corrections(
@@ -30,9 +34,15 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
         &labels,
     );
 
-   for entry in updated_monaco_strings{
-       program_info.updated_monaco_string.push_str(entry.as_str());
-   }
+    let binary = create_binary_vec(
+        program_info.instructions.clone(),
+        vec_of_data,
+        &mut updated_monaco_strings,
+    );
+
+    for entry in updated_monaco_strings {
+        program_info.updated_monaco_string.push_str(entry.as_str());
+    }
 
     for (i, instruction) in program_info.instructions.clone().into_iter().enumerate() {
         program_info
@@ -40,10 +50,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
             .push((i as u32, instruction.line_number));
     }
 
-    (
-        program_info.clone(),
-        create_binary_vec(program_info.instructions.clone(), vec_of_data),
-    )
+    (program_info.clone(), binary)
 }
 
 ///Takes the vector of instructions and assembles the binary for them.
@@ -667,7 +674,8 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 //our support for syscall is limited. It is simply there to end emulation
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
                 instruction.binary = append_binary(instruction.binary, 0b00000000000000000000, 20); //stub of code
-                instruction.binary = append_binary(instruction.binary, 0b001100, 6); //syscall
+                instruction.binary = append_binary(instruction.binary, 0b001100, 6);
+                //syscall
             }
 
             _ => {
@@ -1153,7 +1161,7 @@ pub fn append_binary(mut first: u32, mut second: u32, shift_amount: u8) -> u32 {
 }
 
 ///Creates a vector of u32 from the data found in the parser / assembler to put into memory.
-pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8>) -> Vec<u32> {
+pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8>, _updated_monaco_strings: &mut Vec<String>) -> Vec<u32> {
     //push all instructions
     let mut binary: Vec<u32> = Vec::new();
     for instruction in instructions {
