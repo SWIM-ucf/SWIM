@@ -976,7 +976,11 @@ fn expand_pseudo_instructions_and_assign_instruction_number_does_not_add_syscall
         &mut result,
     );
 
-    let correct_result: Vec<String> = vec!["addi $t1, $t2, 100".to_string(), "sw $t1, label".to_string(), "syscall".to_string(), ];
+    let correct_result: Vec<String> = vec![
+        "addi $t1, $t2, 100".to_string(),
+        "sw $t1, label".to_string(),
+        "syscall".to_string(),
+    ];
 
     assert_eq!(result, correct_result);
 }
@@ -994,7 +998,13 @@ fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_prop
         &mut result,
     );
 
-    let correct_result: Vec<String> = vec!["addi $t1, $t2, 100".to_string(), "sw $t1, label".to_string(), "syscall".to_string(), ".data".to_string(), " word: .word 100".to_string()];
+    let correct_result: Vec<String> = vec![
+        "addi $t1, $t2, 100".to_string(),
+        "sw $t1, label".to_string(),
+        "syscall".to_string(),
+        ".data".to_string(),
+        " word: .word 100".to_string(),
+    ];
 
     assert_eq!(result, correct_result);
 }
