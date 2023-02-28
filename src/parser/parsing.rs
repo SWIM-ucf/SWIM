@@ -3,28 +3,24 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType
     Label, Operator, Unknown,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, Instruction, Line, MonacoLineInfo, Token,
+    Data, Error, Instruction, Line, Token,
 };
 use levenshtein::levenshtein;
 use std::collections::HashMap;
 
 ///Takes the initial string of the program given by the editor and turns it into a vector of Line,
 /// a struct that holds tokens and the original line number.
-pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<MonacoLineInfo>) {
+pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<String>) {
     let mut line_vec: Vec<Line> = Vec::new();
     let mut token: Token = Token {
         token_name: "".to_string(),
         starting_column: 0,
         token_type: Unknown,
     };
-    let mut lines_in_monaco: Vec<MonacoLineInfo> = Vec::new();
+    let mut lines_in_monaco: Vec<String> = Vec::new();
 
     for (i, line_of_program) in program.lines().enumerate() {
-        lines_in_monaco.push(MonacoLineInfo {
-            mouse_hover_string: "".to_string(),
-            error_start_end_columns: vec![],
-            monaco_updated_string: line_of_program.to_string(),
-        });
+        lines_in_monaco.push(line_of_program.clone().to_string());
 
         let mut line_of_tokens = Line {
             line_number: i as u32,
@@ -278,10 +274,11 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
 ///Iterates through the instruction list and translates pseudo-instructions into real instructions.
 /// LW and SW with labelled memory are not completely translated in this step because they require
 /// the address of the labelled memory to be known which is not found until after all other pseudo-instructions
-/// have been translated.
+/// have been translated. Updated pseudo-instructions are added to updated_monaco_string to appear in the editor after assembly.
 pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     instructions: &mut Vec<Instruction>,
     data: &Vec<Data>,
+    _updated_monaco_string: &mut Vec<String>,
 ) {
     //figure out list of labels to be used for lw and sw labels
     let mut list_of_labels: Vec<String> = Vec::new();
@@ -1041,6 +1038,7 @@ pub fn create_label_map(
 pub fn complete_lw_sw_pseudo_instructions(
     instructions: &mut Vec<Instruction>,
     labels: &HashMap<String, u32>,
+    _updated_monaco_strings: &mut Vec<String>,
 ) {
     if instructions.len() < 2 {
         return;
