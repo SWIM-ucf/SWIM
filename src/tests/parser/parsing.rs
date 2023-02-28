@@ -911,7 +911,8 @@ fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_if_it_i
 }
 
 #[test]
-fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_beginning_if_no_instruction() {
+fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_beginning_if_no_instruction(
+) {
     let mut program_info = ProgramInfo::default();
     let file_string = ".data\nword .word 100\nother .byte 'a','a'\n".to_string();
     let (lines, mut result) = tokenize_program(file_string);
@@ -933,7 +934,8 @@ fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_begi
 }
 
 #[test]
-fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_after_first_instance_of_text() {
+fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_after_first_instance_of_text(
+) {
     let mut program_info = ProgramInfo::default();
     let file_string = ".data\nword .word 100\n.text\n.data\nother .byte 'a','a'\n.text\n.data\nfinal: .space 10\n".to_string();
     let (lines, mut result) = tokenize_program(file_string);
@@ -954,7 +956,6 @@ fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_after_f
     correct_result.push(".text".to_string());
     correct_result.push(".data".to_string());
     correct_result.push("final: .space 10".to_string());
-
 
     assert_eq!(result, correct_result);
 }
