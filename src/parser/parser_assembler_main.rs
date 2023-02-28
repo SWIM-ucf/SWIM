@@ -29,8 +29,10 @@ pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
         &labels,
     );
 
-    for (i, instruction) in program_info.instructions.into_iter().enumerate().clone(){
-        program_info.address_to_line_number.push((i as u32, instruction.line_number));
+    for (i, instruction) in program_info.instructions.clone().into_iter().enumerate() {
+        program_info
+            .address_to_line_number
+            .push((i as u32, instruction.line_number));
     }
 
     (
