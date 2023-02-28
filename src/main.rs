@@ -9,7 +9,9 @@ use emulation_core::mips::datapath::MipsDatapath;
 use gloo::{console::log, file::FileList};
 use monaco::{
     api::TextModel,
-    sys::editor::{IEditorMinimapOptions, IStandaloneEditorConstructionOptions},
+    sys::editor::{
+        IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions,
+    },
     yew::CodeEditor,
 };
 use parser::parser_assembler_main::parser;
@@ -276,6 +278,10 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
     let minimap = IEditorMinimapOptions::default();
     minimap.set_enabled(false.into());
     options.set_minimap(Some(&minimap));
+
+    let scrollbar = IEditorScrollbarOptions::default();
+    scrollbar.set_always_consume_mouse_wheel(false.into());
+    options.set_scrollbar(Some(&scrollbar));
 
     options
 }
