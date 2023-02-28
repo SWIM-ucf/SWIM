@@ -5,6 +5,7 @@ pub mod instruction_tokenization {
     ///Wrapper for all information gathered in the Parser/Assembler about the written program.
     pub struct ProgramInfo {
         pub monaco_line_info: Vec<MonacoLineInfo>,
+        pub address_to_line_number: Vec<(u32, u32)>,
         pub instructions: Vec<Instruction>,
         pub data: Vec<Data>,
     }
