@@ -7,7 +7,6 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::{
 };
 use levenshtein::levenshtein;
 use std::collections::HashMap;
-
 ///Takes the initial string of the program given by the editor and turns it into a vector of Line,
 /// a struct that holds tokens and the original line number.
 pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<String>) {
@@ -983,7 +982,23 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
     //if there aren't any instructions, add a syscall to monaco's updated string so the emulation core does not try to run data as an instruction
     if instructions.is_empty() {
-        updated_monaco_string.insert(0, "syscall".to_string());
+        //try to find an instance of .text
+        let mut text_index: Option<u32> = None;
+        for (i, mut line) in updated_monaco_string.clone().into_iter().enumerate(){
+            line = line.replace(" ", "");
+            line = line.replace("#", " ");
+            if line.starts_with(".text"){
+                text_index = Some(i as u32);
+                break;
+            }
+        }
+        //if there is no instance of .text, add the syscall to the top of Monaco
+        if text_index.is_none(){
+            updated_monaco_string.insert(0, ".text".to_string());
+            updated_monaco_string.insert(1, "syscall".to_string());
+        }else{ //if there was, add it immediately after .text
+            updated_monaco_string.insert(text_index.unwrap() as usize + 1, "syscall".to_string());
+        }
     } else {
         let last_instruction = instructions.last().unwrap();
         //if the last instruction in monaco is not a syscall, add it in

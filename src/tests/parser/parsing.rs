@@ -911,6 +911,55 @@ fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_if_it_i
 }
 
 #[test]
+fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_beginning_if_no_instruction() {
+    let mut program_info = ProgramInfo::default();
+    let file_string = ".data\nword .word 100\nother .byte 'a','a'\n".to_string();
+    let (lines, mut result) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut result,
+    );
+
+    let mut correct_result: Vec<String> = Vec::new();
+    correct_result.push(".text".to_string());
+    correct_result.push("syscall".to_string());
+    correct_result.push(".data".to_string());
+    correct_result.push("word .word 100".to_string());
+    correct_result.push("other .byte 'a','a'".to_string());
+
+    assert_eq!(result, correct_result);
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_after_first_instance_of_text() {
+    let mut program_info = ProgramInfo::default();
+    let file_string = ".data\nword .word 100\n.text\n.data\nother .byte 'a','a'\n.text\n.data\nfinal: .space 10\n".to_string();
+    let (lines, mut result) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut result,
+    );
+
+    let mut correct_result: Vec<String> = Vec::new();
+    correct_result.push(".data".to_string());
+    correct_result.push("word .word 100".to_string());
+    correct_result.push(".text".to_string());
+    correct_result.push("syscall".to_string());
+    correct_result.push(".data".to_string());
+    correct_result.push("other .byte 'a','a'".to_string());
+    correct_result.push(".text".to_string());
+    correct_result.push(".data".to_string());
+    correct_result.push("final: .space 10".to_string());
+
+
+    assert_eq!(result, correct_result);
+}
+
+#[test]
 fn expand_pseudo_instructions_and_assign_instruction_number_does_not_add_syscall_if_it_is_present()
 {
     let mut program_info = ProgramInfo::default();
