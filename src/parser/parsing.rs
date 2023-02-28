@@ -275,10 +275,11 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
 /// LW and SW with labelled memory are not completely translated in this step because they require
 /// the address of the labelled memory to be known which is not found until after all other pseudo-instructions
 /// have been translated. Updated pseudo-instructions are added to updated_monaco_string to appear in the editor after assembly.
+/// Also ensures a syscall is at the end of the program
 pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     instructions: &mut Vec<Instruction>,
     data: &Vec<Data>,
-    _updated_monaco_string: &mut Vec<String>,
+    updated_monaco_string: &mut Vec<String>,
 ) {
     //figure out list of labels to be used for lw and sw labels
     let mut list_of_labels: Vec<String> = Vec::new();
@@ -978,6 +979,18 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     for instruction in vec_of_added_instructions {
         instructions.insert(instruction.instruction_number as usize, instruction);
     }
+
+    //if there aren't any instructions, add a syscall to monaco's updated string so the emulation core does not try to run data as an instruction
+    if instructions.is_empty(){
+        updated_monaco_string.insert(0, "syscall".to_string());
+    } else{
+        let last_instruction = instructions.last().unwrap();
+        //if the last instruction in monaco is not a syscall, add it in
+        if last_instruction.binary != 0b00000000000000000000000000001100 {
+            updated_monaco_string.insert(last_instruction.line_number as usize + 1, "syscall".to_string());
+        }
+    }
+
 }
 
 ///Create_label_map builds a hashmap of addresses for labels in memory

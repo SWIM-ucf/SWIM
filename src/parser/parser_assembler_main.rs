@@ -36,9 +36,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
 
     let binary = create_binary_vec(
         program_info.instructions.clone(),
-        vec_of_data,
-        &mut updated_monaco_strings,
-    );
+        vec_of_data);
 
     for entry in updated_monaco_strings {
         program_info.updated_monaco_string.push_str(entry.as_str());
@@ -1161,7 +1159,7 @@ pub fn append_binary(mut first: u32, mut second: u32, shift_amount: u8) -> u32 {
 }
 
 ///Creates a vector of u32 from the data found in the parser / assembler to put into memory.
-pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8>, _updated_monaco_strings: &mut Vec<String>) -> Vec<u32> {
+pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8>) -> Vec<u32> {
     //push all instructions
     let mut binary: Vec<u32> = Vec::new();
     for instruction in instructions {
