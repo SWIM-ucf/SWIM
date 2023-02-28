@@ -11,8 +11,7 @@ use std::collections::HashMap;
 pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
     let mut program_info = ProgramInfo::default();
     file_string = file_string.to_lowercase();
-    let (lines, comments) = tokenize_program(file_string);
-    program_info.comments_line_and_column = comments;
+    let lines = tokenize_program(file_string).0;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
@@ -29,6 +28,12 @@ pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
         &mut program_info.data,
         &labels,
     );
+
+    for (i, instruction) in program_info.instructions.clone().into_iter().enumerate() {
+        program_info
+            .address_to_line_number
+            .push((i as u32, instruction.line_number));
+    }
 
     (
         program_info.clone(),

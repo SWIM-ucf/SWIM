@@ -4,10 +4,17 @@ pub mod instruction_tokenization {
     #[derive(Default, Debug, Clone, PartialEq, Eq)]
     ///Wrapper for all information gathered in the Parser/Assembler about the written program.
     pub struct ProgramInfo {
+        pub monaco_line_info: Vec<MonacoLineInfo>,
+        pub address_to_line_number: Vec<(u32, u32)>,
         pub instructions: Vec<Instruction>,
         pub data: Vec<Data>,
-        pub comments_line_and_column: Vec<[u32; 2]>,
-        pub directives: Vec<(Token, u32)>,
+    }
+
+    #[derive(Default, Debug, Clone, PartialEq, Eq)]
+    pub struct MonacoLineInfo {
+        pub mouse_hover_string: String,
+        pub error_start_end_columns: Vec<(u32, u32)>,
+        pub monaco_updated_string: String,
     }
 
     ///A collection of all relevant information found about an instruction in the Parser/Assembler
