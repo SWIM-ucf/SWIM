@@ -6,9 +6,7 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, Instruction, Line, ProgramInfo, Token,
-};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{Data, Error, Instruction, Line, ProgramInfo, Token};
 use crate::parser::parsing::{
     complete_lw_sw_pseudo_instructions, create_label_map,
     expand_pseudo_instructions_and_assign_instruction_numbers,
@@ -889,6 +887,68 @@ fn complete_lw_sw_pseudo_instructions_doesnt_break_with_empty_instruction_list()
         &labels,
         &mut updated_monaco_string,
     );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_if_it_is_missing(){
+    let mut program_info = ProgramInfo::default();
+    let file_string = "addi $t1, $t2, 100\nsw $t1, label".to_string();
+    let (lines, mut result) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut result,
+    );
+
+    let mut correct_result: Vec<String> = Vec::new();
+    correct_result.push("addi $t1, $t2, 100".to_string());
+    correct_result.push("sw $t1, label".to_string());
+    correct_result.push("syscall".to_string());
+    assert_eq!(result, correct_result);
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_number_does_not_add_syscall_if_it_is_present(){
+    let mut program_info = ProgramInfo::default();
+    let file_string = "addi $t1, $t2, 100\nsw $t1, label\nsyscall\n".to_string();
+    let (lines, mut result) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut result,
+    );
+
+
+    let mut correct_result: Vec<String> = Vec::new();
+    correct_result.push("addi $t1, $t2, 100".to_string());
+    correct_result.push("sw $t1, label".to_string());
+    correct_result.push("syscall".to_string());
+    assert_eq!(result, correct_result);
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_proper_spot_with_data_after(){
+    let mut program_info = ProgramInfo::default();
+    let file_string = "addi $t1, $t2, 100\nsw $t1, label\n.data\n word: .word 100\n".to_string();
+    let (lines, mut result) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut result,
+    );
+
+    let mut correct_result: Vec<String> = Vec::new();
+    correct_result.push("addi $t1, $t2, 100".to_string());
+    correct_result.push("sw $t1, label".to_string());
+    correct_result.push("syscall".to_string());
+    correct_result.push(".data".to_string());
+    correct_result.push(" word: .word 100".to_string());
+
+    assert_eq!(result, correct_result);
+
 }
 
 #[test]

@@ -40,6 +40,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
 
     for entry in updated_monaco_strings {
         program_info.updated_monaco_string.push_str(entry.as_str());
+        program_info.updated_monaco_string.push('\n');
     }
 
     for (i, instruction) in program_info.instructions.clone().into_iter().enumerate() {

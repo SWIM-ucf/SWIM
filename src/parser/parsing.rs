@@ -191,6 +191,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
 
             //simple statement to handle cases where the user doesn't finish instructions
             if operand_iterator >= lines[i].tokens.len() {
+                instruction_list.push(instruction.clone());
                 i += 1;
                 continue;
             }
@@ -986,7 +987,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     } else{
         let last_instruction = instructions.last().unwrap();
         //if the last instruction in monaco is not a syscall, add it in
-        if last_instruction.binary != 0b00000000000000000000000000001100 {
+        if last_instruction.operator.token_name != "syscall" {
             updated_monaco_string.insert(last_instruction.line_number as usize + 1, "syscall".to_string());
         }
     }
