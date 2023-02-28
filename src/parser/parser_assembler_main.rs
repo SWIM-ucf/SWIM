@@ -658,6 +658,12 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     Some(labels.clone()),
                 );
             }
+            "syscall" => {
+                //our support for syscall is limited. It is simply there to end emulation
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+                instruction.binary = append_binary(instruction.binary, 0b00000000000000000000, 20); //stub of code
+                instruction.binary = append_binary(instruction.binary, 0b001100, 6); //syscall
+            }
 
             _ => {
                 let unsupported_instructions = [
