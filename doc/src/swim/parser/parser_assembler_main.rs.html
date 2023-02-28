@@ -1173,6 +1173,22 @@
 <a href="#1173" id="1173">1173</a>
 <a href="#1174" id="1174">1174</a>
 <a href="#1175" id="1175">1175</a>
+<a href="#1176" id="1176">1176</a>
+<a href="#1177" id="1177">1177</a>
+<a href="#1178" id="1178">1178</a>
+<a href="#1179" id="1179">1179</a>
+<a href="#1180" id="1180">1180</a>
+<a href="#1181" id="1181">1181</a>
+<a href="#1182" id="1182">1182</a>
+<a href="#1183" id="1183">1183</a>
+<a href="#1184" id="1184">1184</a>
+<a href="#1185" id="1185">1185</a>
+<a href="#1186" id="1186">1186</a>
+<a href="#1187" id="1187">1187</a>
+<a href="#1188" id="1188">1188</a>
+<a href="#1189" id="1189">1189</a>
+<a href="#1190" id="1190">1190</a>
+<a href="#1191" id="1191">1191</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::assembling::{assemble_data_binary, read_operands};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::OperandType::<span class="kw-2">*</span>;
@@ -1183,19 +1199,24 @@
 
 <span class="doccomment">///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
-</span><span class="kw">pub fn </span>parser(<span class="kw-2">mut </span>file_string: String) -&gt; (ProgramInfo, Vec&lt;u32&gt;) {
+</span><span class="kw">pub fn </span>parser(file_string: String) -&gt; (ProgramInfo, Vec&lt;u32&gt;) {
     <span class="kw">let </span><span class="kw-2">mut </span>program_info = ProgramInfo::default();
-    file_string = file_string.to_lowercase();
-    <span class="kw">let </span>lines = tokenize_program(file_string).<span class="number">0</span>;
+
+    <span class="kw">let </span>(lines, <span class="kw-2">mut </span>updated_monaco_strings) = tokenize_program(file_string);
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         <span class="kw-2">&amp;mut </span>program_info.instructions,
         <span class="kw-2">&amp;</span>program_info.data,
+        <span class="kw-2">&amp;mut </span>updated_monaco_strings,
     );
     <span class="kw">let </span>vec_of_data = assemble_data_binary(<span class="kw-2">&amp;mut </span>program_info.data);
     <span class="kw">let </span>labels: HashMap&lt;String, u32&gt; =
         create_label_map(<span class="kw-2">&amp;mut </span>program_info.instructions, <span class="kw-2">&amp;mut </span>program_info.data);
-    complete_lw_sw_pseudo_instructions(<span class="kw-2">&amp;mut </span>program_info.instructions, <span class="kw-2">&amp;</span>labels);
+    complete_lw_sw_pseudo_instructions(
+        <span class="kw-2">&amp;mut </span>program_info.instructions,
+        <span class="kw-2">&amp;</span>labels,
+        <span class="kw-2">&amp;mut </span>updated_monaco_strings,
+    );
     read_instructions(<span class="kw-2">&amp;mut </span>program_info.instructions, <span class="kw-2">&amp;</span>labels);
 
     suggest_error_corrections(
@@ -1204,16 +1225,20 @@
         <span class="kw-2">&amp;</span>labels,
     );
 
+    <span class="kw">let </span>binary = create_binary_vec(program_info.instructions.clone(), vec_of_data);
+
+    <span class="kw">for </span>entry <span class="kw">in </span>updated_monaco_strings {
+        program_info.updated_monaco_string.push_str(entry.as_str());
+        program_info.updated_monaco_string.push(<span class="string">&#39;\n&#39;</span>);
+    }
+
     <span class="kw">for </span>(i, instruction) <span class="kw">in </span>program_info.instructions.clone().into_iter().enumerate() {
         program_info
             .address_to_line_number
             .push((i <span class="kw">as </span>u32, instruction.line_number));
     }
 
-    (
-        program_info.clone(),
-        create_binary_vec(program_info.instructions.clone(), vec_of_data),
-    )
+    (program_info.clone(), binary)
 }
 
 <span class="doccomment">///Takes the vector of instructions and assembles the binary for them.
@@ -1833,6 +1858,13 @@
                     <span class="prelude-val">Some</span>(labels.clone()),
                 );
             }
+            <span class="string">&quot;syscall&quot; </span>=&gt; {
+                <span class="comment">//our support for syscall is limited. It is simply there to end emulation
+                </span>instruction.binary = append_binary(instruction.binary, <span class="number">0b000000</span>, <span class="number">6</span>); <span class="comment">//special
+                </span>instruction.binary = append_binary(instruction.binary, <span class="number">0b00000000000000000000</span>, <span class="number">20</span>); <span class="comment">//stub of code
+                </span>instruction.binary = append_binary(instruction.binary, <span class="number">0b001100</span>, <span class="number">6</span>);
+                <span class="comment">//syscall
+            </span>}
 
             <span class="kw">_ </span>=&gt; {
                 <span class="kw">let </span>unsupported_instructions = [

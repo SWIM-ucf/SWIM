@@ -165,6 +165,7 @@
 <a href="#165" id="165">165</a>
 <a href="#166" id="166">166</a>
 <a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>instruction_tokenization {
     <span class="kw">use </span>std::default::Default;
 
@@ -173,6 +174,7 @@
     </span><span class="kw">pub struct </span>ProgramInfo {
         <span class="kw">pub </span>monaco_line_info: Vec&lt;MonacoLineInfo&gt;,
         <span class="kw">pub </span>address_to_line_number: Vec&lt;(u32, u32)&gt;,
+        <span class="kw">pub </span>updated_monaco_string: String,
         <span class="kw">pub </span>instructions: Vec&lt;Instruction&gt;,
         <span class="kw">pub </span>data: Vec&lt;Data&gt;,
     }
