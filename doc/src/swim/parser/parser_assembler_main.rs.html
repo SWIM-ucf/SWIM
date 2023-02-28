@@ -1168,6 +1168,11 @@
 <a href="#1168" id="1168">1168</a>
 <a href="#1169" id="1169">1169</a>
 <a href="#1170" id="1170">1170</a>
+<a href="#1171" id="1171">1171</a>
+<a href="#1172" id="1172">1172</a>
+<a href="#1173" id="1173">1173</a>
+<a href="#1174" id="1174">1174</a>
+<a href="#1175" id="1175">1175</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::assembling::{assemble_data_binary, read_operands};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::OperandType::<span class="kw-2">*</span>;
@@ -1181,8 +1186,7 @@
 </span><span class="kw">pub fn </span>parser(<span class="kw-2">mut </span>file_string: String) -&gt; (ProgramInfo, Vec&lt;u32&gt;) {
     <span class="kw">let </span><span class="kw-2">mut </span>program_info = ProgramInfo::default();
     file_string = file_string.to_lowercase();
-    <span class="kw">let </span>(lines, comments) = tokenize_program(file_string);
-    program_info.comments_line_and_column = comments;
+    <span class="kw">let </span>lines = tokenize_program(file_string).<span class="number">0</span>;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         <span class="kw-2">&amp;mut </span>program_info.instructions,
@@ -1199,6 +1203,12 @@
         <span class="kw-2">&amp;mut </span>program_info.data,
         <span class="kw-2">&amp;</span>labels,
     );
+
+    <span class="kw">for </span>(i, instruction) <span class="kw">in </span>program_info.instructions.clone().into_iter().enumerate() {
+        program_info
+            .address_to_line_number
+            .push((i <span class="kw">as </span>u32, instruction.line_number));
+    }
 
     (
         program_info.clone(),

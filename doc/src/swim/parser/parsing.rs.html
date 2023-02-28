@@ -1262,28 +1262,39 @@
 <a href="#1262" id="1262">1262</a>
 <a href="#1263" id="1263">1263</a>
 <a href="#1264" id="1264">1264</a>
+<a href="#1265" id="1265">1265</a>
+<a href="#1266" id="1266">1266</a>
+<a href="#1267" id="1267">1267</a>
+<a href="#1268" id="1268">1268</a>
+<a href="#1269" id="1269">1269</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
 };
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, Instruction, Line, Token,
+    Data, Error, Instruction, Line, MonacoLineInfo, Token,
 };
 <span class="kw">use </span>levenshtein::levenshtein;
 <span class="kw">use </span>std::collections::HashMap;
 
 <span class="doccomment">///Takes the initial string of the program given by the editor and turns it into a vector of Line,
-/// a struct that holds tokens and the original line number, and finds the starting point for all comments.
-</span><span class="kw">pub fn </span>tokenize_program(program: String) -&gt; (Vec&lt;Line&gt;, Vec&lt;[u32; <span class="number">2</span>]&gt;) {
+/// a struct that holds tokens and the original line number.
+</span><span class="kw">pub fn </span>tokenize_program(program: String) -&gt; (Vec&lt;Line&gt;, Vec&lt;MonacoLineInfo&gt;) {
     <span class="kw">let </span><span class="kw-2">mut </span>line_vec: Vec&lt;Line&gt; = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>token: Token = Token {
         token_name: <span class="string">&quot;&quot;</span>.to_string(),
         starting_column: <span class="number">0</span>,
         token_type: Unknown,
     };
-    <span class="kw">let </span><span class="kw-2">mut </span>comments: Vec&lt;[u32; <span class="number">2</span>]&gt; = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>lines_in_monaco: Vec&lt;MonacoLineInfo&gt; = Vec::new();
 
     <span class="kw">for </span>(i, line_of_program) <span class="kw">in </span>program.lines().enumerate() {
+        lines_in_monaco.push(MonacoLineInfo {
+            mouse_hover_string: <span class="string">&quot;&quot;</span>.to_string(),
+            error_start_end_columns: <span class="macro">vec!</span>[],
+            monaco_updated_string: line_of_program.to_string(),
+        });
+
         <span class="kw">let </span><span class="kw-2">mut </span>line_of_tokens = Line {
             line_number: i <span class="kw">as </span>u32,
 
@@ -1293,7 +1304,6 @@
         <span class="kw">let </span><span class="kw-2">mut </span>check_escape = <span class="bool-val">false</span>;
         <span class="kw">for </span>(j, char) <span class="kw">in </span>line_of_program.chars().enumerate() {
             <span class="kw">if </span>char == <span class="string">&#39;#&#39; </span>{
-                comments.push([i <span class="kw">as </span>u32, j <span class="kw">as </span>u32]);
                 <span class="kw">break</span>;
             };
             <span class="comment">//is string is a flag to handle strings and read them in as a single token
@@ -1366,7 +1376,7 @@
         }
     }
 
-    (line_vec, comments)
+    (line_vec, lines_in_monaco)
 }
 
 <span class="doccomment">///This function takes the vector of lines created by tokenize program and turns them into instructions

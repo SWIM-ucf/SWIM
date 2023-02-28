@@ -158,16 +158,30 @@
 <a href="#158" id="158">158</a>
 <a href="#159" id="159">159</a>
 <a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>instruction_tokenization {
     <span class="kw">use </span>std::default::Default;
 
     <span class="attr">#[derive(Default, Debug, Clone, PartialEq, Eq)]
     </span><span class="doccomment">///Wrapper for all information gathered in the Parser/Assembler about the written program.
     </span><span class="kw">pub struct </span>ProgramInfo {
+        <span class="kw">pub </span>monaco_line_info: Vec&lt;MonacoLineInfo&gt;,
+        <span class="kw">pub </span>address_to_line_number: Vec&lt;(u32, u32)&gt;,
         <span class="kw">pub </span>instructions: Vec&lt;Instruction&gt;,
         <span class="kw">pub </span>data: Vec&lt;Data&gt;,
-        <span class="kw">pub </span>comments_line_and_column: Vec&lt;[u32; <span class="number">2</span>]&gt;,
-        <span class="kw">pub </span>directives: Vec&lt;(Token, u32)&gt;,
+    }
+
+    <span class="attr">#[derive(Default, Debug, Clone, PartialEq, Eq)]
+    </span><span class="kw">pub struct </span>MonacoLineInfo {
+        <span class="kw">pub </span>mouse_hover_string: String,
+        <span class="kw">pub </span>error_start_end_columns: Vec&lt;(u32, u32)&gt;,
+        <span class="kw">pub </span>monaco_updated_string: String,
     }
 
     <span class="doccomment">///A collection of all relevant information found about an instruction in the Parser/Assembler
