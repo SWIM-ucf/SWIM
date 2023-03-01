@@ -1232,10 +1232,10 @@
         program_info.updated_monaco_string.push(<span class="string">&#39;\n&#39;</span>);
     }
 
-    <span class="kw">for </span>(i, instruction) <span class="kw">in </span>program_info.instructions.clone().into_iter().enumerate() {
+    <span class="kw">for </span>instruction <span class="kw">in </span>program_info.instructions.clone() {
         program_info
             .address_to_line_number
-            .push((i <span class="kw">as </span>u32, instruction.line_number));
+            .push(instruction.line_number);
     }
 
     (program_info.clone(), binary)

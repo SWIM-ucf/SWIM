@@ -173,7 +173,7 @@
     </span><span class="doccomment">///Wrapper for all information gathered in the Parser/Assembler about the written program.
     </span><span class="kw">pub struct </span>ProgramInfo {
         <span class="kw">pub </span>monaco_line_info: Vec&lt;MonacoLineInfo&gt;,
-        <span class="kw">pub </span>address_to_line_number: Vec&lt;(u32, u32)&gt;,
+        <span class="kw">pub </span>address_to_line_number: Vec&lt;u32&gt;,
         <span class="kw">pub </span>updated_monaco_string: String,
         <span class="kw">pub </span>instructions: Vec&lt;Instruction&gt;,
         <span class="kw">pub </span>data: Vec&lt;Data&gt;,
