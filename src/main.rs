@@ -21,7 +21,6 @@ use web_sys::HtmlInputElement;
 //use stylist::yew::*;
 use ui::console::component::Console;
 use ui::regview::component::Regview;
-use ui::visual_datapath::VisualDatapath;
 use wasm_bindgen::{JsCast, JsValue};
 use yew::prelude::*;
 use yew::{html, Html, Properties};
@@ -188,7 +187,7 @@ fn app() -> Html {
         <>
             // button tied to the input file element, which is hidden to be more clean
             <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
-            <div style="display: flex; flex-direction: row; flex-wrap: nowrap; height: 100vh; padding: 8px;">
+            <div style="display: flex; flex-direction: row; flex-wrap: nowrap; height: 100vh; padding: 8px; gap: 8px;">
                 // Left column
                 <div style="flex-basis: 70%; display: flex; flex-direction: column; align-items: stretch;">
                     // Top buttons
@@ -201,28 +200,21 @@ fn app() -> Html {
                     </div>
 
                     // Editor
-                    <div style="flex-basis: 50%;">
+                    <div style="flex-grow: 1; min-height: 4em;">
                         <SwimEditor text_model={(*text_model).borrow().clone()} />
                     </div>
 
-                    // Console buttons
                     <div>
                         <button onclick={on_error_clicked}>{ "Click" }</button>
                     </div>
-                    <div class="tabs">
-                        <button class="tab">{"Console"}</button>
-                        <button class="tab">{"Datapath"}</button>
-                        <button class="tab">{"Memory"}</button>
-                    </div>
 
                     // Console
-                    <Console parsermsg={(*parser_text_output).clone()}/>
+                    <Console parsermsg={(*parser_text_output).clone()} datapath={(*datapath.borrow()).clone()}/>
                 </div>
 
                 // Right column
                 <Regview gp={(*datapath).borrow().registers} fp={(*datapath).borrow().coprocessor.fpr}/>
             </div>
-            <VisualDatapath datapath={(*datapath.borrow()).clone()} svg_path={"static/datapath.svg"} />
         </>
     }
 }

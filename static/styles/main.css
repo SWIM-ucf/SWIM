@@ -10,6 +10,23 @@ body {
   min-width: 100%;
 }
 
+/****** Console ******/
+.console {
+  border: 2px solid black;
+  background-color: #b9cceb;
+  color: #000000;
+  overflow-y: auto;
+  flex-basis: 50%;
+}
+
+.datapath-wrapper {
+  flex-grow: 1.4;
+  border: 2px solid black;
+  overflow: auto;
+  width: 100%;
+  flex-basis: 50%;
+}
+
 /****** Register View ******/
 .table-wrapper {
   border: 1px solid black;
