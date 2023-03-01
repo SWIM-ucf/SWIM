@@ -209,10 +209,10 @@ fn app() -> Html {
                     <div>
                         <button onclick={on_error_clicked}>{ "Click" }</button>
                     </div>
-                    <div class="tab">
-                        <button class="tabs">{"Console"}</button>
-                        <button class="tabs">{"Datapath"}</button>
-                        <button class="tabs">{"Memory"}</button>
+                    <div class="tabs">
+                        <button class="tab">{"Console"}</button>
+                        <button class="tab">{"Datapath"}</button>
+                        <button class="tab">{"Memory"}</button>
                     </div>
 
                     // Console

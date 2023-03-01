@@ -1,4 +1,4 @@
-.tabs {
+.tab {
     background-color: white;
     border: 1px solid black;
     padding: 2px 16px 2px 16px;
@@ -9,11 +9,11 @@
     opacity: 0.6;
     transition-duration: 0.3s;
 }
-.tabs:hover {
+.tab:hover {
     opacity: 1;
     background-color: gray;
 }
-.tabs:focus {
+.tab:focus {
     background-color: #2e2b2b;
     color: white;
 }
