@@ -2,14 +2,14 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, Instruction, Line, Token,
-};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{Data, Error, Instruction, Line, MonacoLineInfo, Token};
 use levenshtein::levenshtein;
 use std::collections::HashMap;
 ///Takes the initial string of the program given by the editor and turns it into a vector of Line,
 /// a struct that holds tokens and the original line number.
-pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<String>) {
+pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<String>, Vec<MonacoLineInfo>) {
+    let mut monaco_line_info_vec: Vec<MonacoLineInfo> = Vec::new();
+
     let mut line_vec: Vec<Line> = Vec::new();
     let mut token: Token = Token {
         token_name: "".to_string(),
@@ -19,6 +19,11 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<String>) {
     let mut lines_in_monaco: Vec<String> = Vec::new();
 
     for (i, line_of_program) in program.lines().enumerate() {
+        monaco_line_info_vec.push(MonacoLineInfo{
+            mouse_hover_string: "".to_string(),
+            error_start_end_columns: vec![],
+        });
+
         lines_in_monaco.push(line_of_program.parse().unwrap());
 
         let mut line_of_tokens = Line {
@@ -102,7 +107,7 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<String>) {
         }
     }
 
-    (line_vec, lines_in_monaco)
+    (line_vec, lines_in_monaco, monaco_line_info_vec)
 }
 
 ///This function takes the vector of lines created by tokenize program and turns them into instructions

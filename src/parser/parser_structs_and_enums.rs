@@ -15,7 +15,6 @@ pub mod instruction_tokenization {
     pub struct MonacoLineInfo {
         pub mouse_hover_string: String,
         pub error_start_end_columns: Vec<(u32, u32)>,
-        pub monaco_updated_string: String,
     }
 
     ///A collection of all relevant information found about an instruction in the Parser/Assembler
