@@ -95,12 +95,6 @@
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
 </pre><pre class="rust"><code><span class="kw">use </span>gloo::console::log;
 <span class="kw">use </span>yew::prelude::<span class="kw-2">*</span>;
 
@@ -119,35 +113,27 @@
 }
 
 <span class="comment">//Convert register to html through iterator
-</span><span class="kw">pub fn </span>gen_reg_html(gp: GpRegisters) -&gt; Html {
+</span><span class="kw">pub fn </span>generate_gpr_rows(gp: GpRegisters) -&gt; Html {
     gp.into_iter()
         .map(|(register, data)| {
             <span class="macro">html! </span>{
-                &lt;tr style=<span class="string">&quot;border: 1px solid black;&quot;</span>&gt;
-                    &lt;td style=<span class="string">&quot;border: 1px solid black;&quot;</span>&gt;
-                        {register}
-                    &lt;/td&gt;
-                    &lt;td style=<span class="string">&quot;border: 1px solid black;&quot;</span>&gt;
-                        {data.to_string()}
-                    &lt;/td&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;{register}&lt;/td&gt;
+                    &lt;td&gt;{data.to_string()}&lt;/td&gt;
                 &lt;/tr&gt;
             }
         })
         .collect::&lt;Html&gt;()
 }
 
-<span class="kw">pub fn </span>fp_reg(fp: [u64; <span class="number">32</span>]) -&gt; Html {
+<span class="kw">pub fn </span>generate_fpr_rows(fp: [u64; <span class="number">32</span>]) -&gt; Html {
     fp.iter()
         .enumerate()
         .map(|(register, data)| {
             <span class="macro">html! </span>{
-                &lt;tr style=<span class="string">&quot;border: 1px solid black;&quot;</span>&gt;
-                    &lt;td style=<span class="string">&quot;border: 1px solid black;&quot;</span>&gt;
-                        {register}
-                    &lt;/td&gt;
-                    &lt;td style=<span class="string">&quot;border: 1px solid black;&quot;</span>&gt;
-                        {data.to_string()}
-                    &lt;/td&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;F{register}&quot;</span>)}&lt;/td&gt;
+                    &lt;td&gt;{data.to_string()}&lt;/td&gt;
                 &lt;/tr&gt;
             }
         })
@@ -181,27 +167,29 @@
     };
     <span class="macro">log!</span>(<span class="string">&quot;This is &quot;</span>, <span class="kw-2">*</span>switch_flag);
     <span class="macro">html! </span>{
-        &lt;&gt;
-            &lt;div style=<span class="string">&quot;width: 28%&quot;</span>&gt;
-                &lt;div class=<span class="string">&quot;tab&quot;</span>&gt;
-                    &lt;button class=<span class="string">&quot;tabs&quot; </span>style=<span class="string">&quot;width: 50%;&quot;
-                    </span>onclick={on_switch_clicked_true.clone()}&gt;{<span class="string">&quot;GP&quot;</span>}&lt;/button&gt;
-                    &lt;button class=<span class="string">&quot;tabs&quot; </span>style=<span class="string">&quot;width: 50%;&quot;
-                    </span>onclick={on_switch_clicked_false.clone()}&gt;{<span class="string">&quot;FP&quot;</span>}&lt;/button&gt;
-                &lt;/div&gt;
-                &lt;table style=<span class="string">&quot;width: 100%; height: 100%; border: 1px solid black; background-color: white&quot;</span>&gt;
-                    &lt;tr style=<span class="string">&quot;border: 1px solid black;&quot;</span>&gt;
-                        &lt;th style=<span class="string">&quot;border: 1px solid black;&quot;</span>&gt;{<span class="string">&quot;Register Name&quot;</span>}&lt;/th&gt;
-                        &lt;th style=<span class="string">&quot;border: 1px solid black;&quot;</span>&gt;{<span class="string">&quot;Data&quot;</span>}&lt;/th&gt;
-                    &lt;/tr&gt;
-                    <span class="kw">if </span><span class="kw-2">*</span>switch_flag{
-                        {gen_reg_html(props.gp)}
-                    } <span class="kw">else </span>{
-                        {fp_reg(props.fp)}
-                    }
+        &lt;div style=<span class="string">&quot;flex-grow: 1; margin: 0 0 0 8px; display: flex; flex-direction: column; flex-wrap: nowrap;&quot;</span>&gt;
+            &lt;div class=<span class="string">&quot;tabs&quot; </span>style=<span class="string">&quot;margin-bottom: 4px;&quot;</span>&gt;
+                &lt;button class=<span class="string">&quot;tab&quot; </span>style=<span class="string">&quot;width: 50%;&quot; </span>onclick={on_switch_clicked_true.clone()}&gt;{<span class="string">&quot;GP&quot;</span>}&lt;/button&gt;
+                &lt;button class=<span class="string">&quot;tab&quot; </span>style=<span class="string">&quot;width: 50%;&quot; </span>onclick={on_switch_clicked_false.clone()}&gt;{<span class="string">&quot;FP&quot;</span>}&lt;/button&gt;
+            &lt;/div&gt;
+            &lt;div class=<span class="string">&quot;table-wrapper&quot;</span>&gt;
+                &lt;table&gt;
+                    &lt;thead&gt;
+                        &lt;tr&gt;
+                            &lt;th&gt;{<span class="string">&quot;Register Name&quot;</span>}&lt;/th&gt;
+                            &lt;th&gt;{<span class="string">&quot;Data&quot;</span>}&lt;/th&gt;
+                        &lt;/tr&gt;
+                    &lt;/thead&gt;
+                    &lt;tbody&gt;
+                        <span class="kw">if </span><span class="kw-2">*</span>switch_flag{
+                            {generate_gpr_rows(props.gp)}
+                        } <span class="kw">else </span>{
+                            {generate_fpr_rows(props.fp)}
+                        }
+                    &lt;/tbody&gt;
                 &lt;/table&gt;
             &lt;/div&gt;
-        &lt;/&gt;
+        &lt;/div&gt;
     }
 }
 </code></pre></div>

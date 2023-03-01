@@ -25,9 +25,6 @@
 <a href="#25" id="25">25</a>
 <a href="#26" id="26">26</a>
 <a href="#27" id="27">27</a>
-<a href="#28" id="28">28</a>
-<a href="#29" id="29">29</a>
-<a href="#30" id="30">30</a>
 </pre><pre class="rust"><code><span class="kw">use </span>yew::prelude::<span class="kw-2">*</span>;
 
 <span class="attr">#[derive(Properties, PartialEq)]
@@ -49,12 +46,9 @@
     };*/
     </span><span class="macro">html! </span>{
         &lt;&gt;
-            <span class="comment">// &lt;div style=&quot;width: 80.4%; height: 17vh; border: 1px solid black;&quot;&gt;&lt;/div&gt;
-            </span>&lt;div style=<span class="string">&quot;height: 17vh; border: 2px solid black; background-color: #b9cceb; color: #000000;&quot;</span>&gt;
-                <span class="comment">//&lt;button class=&quot;button&quot; onclick={on_error_clicked}&gt;{ &quot;Click&quot; }&lt;/button&gt;
-                </span>&lt;p&gt;{ props.parsermsg.clone() }&lt;/p&gt;
-                <span class="comment">//&lt;p&gt;{ &quot;&gt;&quot; }&lt;/p&gt;
-            </span>&lt;/div&gt;
+            &lt;div style=<span class="string">&quot;flex-basis: 50%; border: 2px solid black; background-color: #b9cceb; color: #000000; overflow-y: auto;&quot;</span>&gt;
+                { props.parsermsg.clone() }
+            &lt;/div&gt;
         &lt;/&gt;
     }
 }

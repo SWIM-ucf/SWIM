@@ -285,6 +285,12 @@
 <a href="#285" id="285">285</a>
 <a href="#286" id="286">286</a>
 <a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attr">#[cfg(test)]
@@ -303,7 +309,6 @@
 };
 <span class="kw">use </span>parser::parser_assembler_main::parser;
 <span class="kw">use </span>std::{cell::RefCell, rc::Rc};
-<span class="kw">use </span>stylist::css;
 <span class="kw">use </span>wasm_bindgen_futures::spawn_local;
 <span class="kw">use </span>web_sys::HtmlInputElement;
 <span class="comment">//use stylist::yew::*;
@@ -474,36 +479,43 @@
 
     <span class="macro">html! </span>{
         &lt;&gt;
-            &lt;div style=<span class="string">&quot;display: flex; flex-direction: column;&quot;</span>&gt;
-                &lt;div&gt;
-                    <span class="comment">//&lt;h1&gt;{&quot;Welcome to SWIM&quot;}&lt;/h1&gt;
-                    // button tied to the input file element, which is hidden to be more clean
-                    </span>&lt;input <span class="kw">type</span>=<span class="string">&quot;file&quot; </span>id=<span class="string">&quot;file_input&quot; </span>style=<span class="string">&quot;display: none;&quot; </span>accept=<span class="string">&quot;.txt,.asm,.mips&quot; </span>onchange={file_picked_callback} /&gt;
-                &lt;/div&gt;
-                &lt;div style=<span class="string">&quot;display: flex&quot;</span>&gt;
-                    &lt;div style=<span class="string">&quot;width: 70%&quot;</span>&gt;
+            <span class="comment">// button tied to the input file element, which is hidden to be more clean
+            </span>&lt;input <span class="kw">type</span>=<span class="string">&quot;file&quot; </span>id=<span class="string">&quot;file_input&quot; </span>style=<span class="string">&quot;display: none;&quot; </span>accept=<span class="string">&quot;.txt,.asm,.mips&quot; </span>onchange={file_picked_callback} /&gt;
+            &lt;div style=<span class="string">&quot;display: flex; flex-direction: row; flex-wrap: nowrap; height: 100vh; padding: 8px;&quot;</span>&gt;
+                <span class="comment">// Left column
+                </span>&lt;div style=<span class="string">&quot;flex-basis: 70%; display: flex; flex-direction: column; align-items: stretch;&quot;</span>&gt;
+                    <span class="comment">// Top buttons
+                    </span>&lt;div&gt;
                         &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_load_clicked}&gt;{ <span class="string">&quot;Assemble&quot; </span>}&lt;/button&gt;
                         &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_execute_clicked}&gt; { <span class="string">&quot;Execute&quot; </span>}&lt;/button&gt;
                         &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_execute_stage_clicked}&gt; { <span class="string">&quot;Execute Stage&quot; </span>}&lt;/button&gt;
                         &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_reset_clicked}&gt;{ <span class="string">&quot;Reset&quot; </span>}&lt;/button&gt;
                         &lt;input <span class="kw">type</span>=<span class="string">&quot;button&quot; </span>value=<span class="string">&quot;Load File&quot; </span>onclick={upload_clicked_callback} /&gt;
-                        &lt;SwimEditor text_model={(<span class="kw-2">*</span>text_model).borrow().clone()} /&gt;
-                        &lt;button onclick={on_error_clicked}&gt;{ <span class="string">&quot;Click&quot; </span>}&lt;/button&gt;
-                        &lt;div class=<span class="string">&quot;tab&quot;</span>&gt;
-                            &lt;button class=<span class="string">&quot;tabs&quot; </span>style=<span class="string">&quot;width: 10%;&quot;
-                            </span>&gt;{<span class="string">&quot;Console&quot;</span>}&lt;/button&gt;
-                            &lt;button class=<span class="string">&quot;tabs&quot; </span>style=<span class="string">&quot;width: 10%;&quot;
-                            </span>&gt;{<span class="string">&quot;Datapath&quot;</span>}&lt;/button&gt;
-                            &lt;button class=<span class="string">&quot;tabs&quot; </span>style=<span class="string">&quot;width: 10%;&quot;
-                            </span>&gt;{<span class="string">&quot;Memory&quot;</span>}&lt;/button&gt;
-                        &lt;/div&gt;
-                        &lt;Console parsermsg={(<span class="kw-2">*</span>parser_text_output).clone()}/&gt;
-                        &lt;VisualDatapath datapath={(<span class="kw-2">*</span>datapath.borrow()).clone()} svg_path={<span class="string">&quot;static/datapath.svg&quot;</span>} /&gt;
                     &lt;/div&gt;
-                    <span class="comment">// Pass in register data from emu core
-                    </span>&lt;Regview gp={(<span class="kw-2">*</span>datapath).borrow().registers} fp={(<span class="kw-2">*</span>datapath).borrow().coprocessor.fpr}/&gt;
+
+                    <span class="comment">// Editor
+                    </span>&lt;div style=<span class="string">&quot;flex-basis: 50%;&quot;</span>&gt;
+                        &lt;SwimEditor text_model={(<span class="kw-2">*</span>text_model).borrow().clone()} /&gt;
+                    &lt;/div&gt;
+
+                    <span class="comment">// Console buttons
+                    </span>&lt;div&gt;
+                        &lt;button onclick={on_error_clicked}&gt;{ <span class="string">&quot;Click&quot; </span>}&lt;/button&gt;
+                    &lt;/div&gt;
+                    &lt;div class=<span class="string">&quot;tabs&quot;</span>&gt;
+                        &lt;button class=<span class="string">&quot;tab&quot;</span>&gt;{<span class="string">&quot;Console&quot;</span>}&lt;/button&gt;
+                        &lt;button class=<span class="string">&quot;tab&quot;</span>&gt;{<span class="string">&quot;Datapath&quot;</span>}&lt;/button&gt;
+                        &lt;button class=<span class="string">&quot;tab&quot;</span>&gt;{<span class="string">&quot;Memory&quot;</span>}&lt;/button&gt;
+                    &lt;/div&gt;
+
+                    <span class="comment">// Console
+                    </span>&lt;Console parsermsg={(<span class="kw-2">*</span>parser_text_output).clone()}/&gt;
                 &lt;/div&gt;
+
+                <span class="comment">// Right column
+                </span>&lt;Regview gp={(<span class="kw-2">*</span>datapath).borrow().registers} fp={(<span class="kw-2">*</span>datapath).borrow().coprocessor.fpr}/&gt;
             &lt;/div&gt;
+            &lt;VisualDatapath datapath={(<span class="kw-2">*</span>datapath.borrow()).clone()} svg_path={<span class="string">&quot;static/datapath.svg&quot;</span>} /&gt;
         &lt;/&gt;
     }
 }
@@ -536,7 +548,7 @@
 <span class="attr">#[function_component]
 </span><span class="kw">pub fn </span>SwimEditor(props: <span class="kw-2">&amp;</span>SwimEditorProps) -&gt; Html {
     <span class="macro">html! </span>{
-        &lt;CodeEditor classes={<span class="macro">css!</span>(<span class="string">r#&quot;height: 70vh; width: 100%;&quot;#</span>)} options={get_options()} model={props.text_model.clone()} /&gt;
+        &lt;CodeEditor classes={<span class="string">&quot;editor&quot;</span>} options={get_options()} model={props.text_model.clone()} /&gt;
     }
 }
 

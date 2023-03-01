@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["fp_reg",""],["gen_reg_html",""]],"struct":[["Regview",""],["Regviewprops",""],["Viewswitch",""]]};
+window.SIDEBAR_ITEMS = {"fn":[["generate_fpr_rows",""],["generate_gpr_rows",""]],"struct":[["Regview",""],["Regviewprops",""],["Viewswitch",""]]};
