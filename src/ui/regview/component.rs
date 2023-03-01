@@ -70,8 +70,8 @@ pub fn regview(props: &Regviewprops) -> Html {
     };
     log!("This is ", *switch_flag);
     html! {
-        <div style="flex-grow: 1; margin: 0 0 0 8px; display: flex; flex-direction: column; flex-wrap: nowrap;">
-            <div class="tabs" style="margin-bottom: 4px;">
+        <div style="flex-grow: 1; gap: 8px; display: flex; flex-direction: column; flex-wrap: nowrap;">
+            <div class="tabs">
                 <button class="tab" style="width: 50%;" onclick={on_switch_clicked_true.clone()}>{"GP"}</button>
                 <button class="tab" style="width: 50%;" onclick={on_switch_clicked_false.clone()}>{"FP"}</button>
             </div>
