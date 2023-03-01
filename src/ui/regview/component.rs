@@ -35,7 +35,7 @@ pub fn generate_fpr_rows(fp: [u64; 32]) -> Html {
         .map(|(register, data)| {
             html! {
                 <tr>
-                    <td>{register}</td>
+                    <td>{format!("F{register}")}</td>
                     <td>{data.to_string()}</td>
                 </tr>
             }
