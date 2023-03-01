@@ -179,7 +179,7 @@ impl VisualDatapath {
                     do_over_html_collection_safe(&paths, |item| {
                         if let Some(path) = item {
                             // Allow the path to have event listeners.
-                            path.set_attribute("pointer-events", "stroke").ok();
+                            path.set_attribute("pointer-events", "auto").ok();
 
                             if path.tag_name() == "ellipse" {
                                 // Remove the large <rect> surrounding the ellipse. It covers up elements and is stupid.
