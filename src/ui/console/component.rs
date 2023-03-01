@@ -60,21 +60,8 @@ pub fn console(props: &Consoleprops) -> Html {
     }; */
     html! {
         <>
-            // <div style="width: 80.4%; height: 17vh; border: 1px solid black;"></div>
-            <div style="height: 17vh; border: 2px solid black; background-color: #b9cceb; color: #000000;">
-                //<button class="button" onclick={on_error_clicked}>{ "Click" }</button>
-                //<p>{ print_Str(return_String(""), "here") }</p>
-                // <div class="tab">
-                //     <button class="tabs" onclick={on_switch_clicked_0} style="width: 10%;"
-                //     >{"Console"}</button>
-                //     <button class="tabs" onclick={on_switch_clicked_1} style="width: 10%;"
-                //     >{"Datapath"}</button>
-                //     <button class="tabs" onclick={on_switch_clicked_2} style="width: 10%;"
-                //     >{"Memory"}</button>
-                // </div>
-                <p>{ props.parsermsg.clone() }</p>
-                <p>{ props.memorymsg.clone() }</p>
-                //<p>{ ">" }</p>
+            <div style="flex-basis: 50%; border: 2px solid black; background-color: #b9cceb; color: #000000; overflow-y: auto;">
+                { props.parsermsg.clone() }
             </div>
         </>
     }
