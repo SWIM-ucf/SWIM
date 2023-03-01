@@ -279,7 +279,6 @@ impl VisualDatapath {
             // Get relevant elements.
             let target = event.target().unwrap().unchecked_into::<HtmlElement>();
             let popup = get_popup_element();
-            let datapath_position = get_datapath_position();
 
             // Show popup.
             let variable = target
@@ -288,21 +287,22 @@ impl VisualDatapath {
                 .get_attribute("data-variable")
                 .unwrap_or_default();
             populate_popup_information(&datapath, &variable);
+
+            // Calculate popup position.
+            let mouse_position = get_datapath_iframe_mouse_position(event);
+            let popup_size = (popup.offset_width(), popup.offset_height());
+            let popup_position =
+                calculate_popup_position(mouse_position, popup_size, get_window_size());
+
+            popup
+                .style()
+                .set_property("left", &format!("{}px", popup_position.0))
+                .ok();
+            popup
+                .style()
+                .set_property("top", &format!("{}px", popup_position.1))
+                .ok();
             popup.style().set_property("display", "block").ok();
-            popup
-                .style()
-                .set_property(
-                    "left",
-                    &format!("{}px", datapath_position.0 + event.client_x() + 20),
-                )
-                .ok();
-            popup
-                .style()
-                .set_property(
-                    "top",
-                    &format!("{}px", datapath_position.1 + event.client_y() + 20),
-                )
-                .ok();
         });
 
         // Move the popup if the mouse moves while still hovering.
@@ -310,22 +310,21 @@ impl VisualDatapath {
             let event = event.unchecked_into::<MouseEvent>();
 
             let popup = get_popup_element();
-            let datapath_position = get_datapath_position();
+
+            // Calculate popup position.
+            let mouse_position = get_datapath_iframe_mouse_position(event);
+            let popup_size = (popup.offset_width(), popup.offset_height());
+            let popup_position =
+                calculate_popup_position(mouse_position, popup_size, get_window_size());
 
             // Move popup.
             popup
                 .style()
-                .set_property(
-                    "left",
-                    &format!("{}px", datapath_position.0 + event.client_x() + 20),
-                )
+                .set_property("left", &format!("{}px", popup_position.0))
                 .ok();
             popup
                 .style()
-                .set_property(
-                    "top",
-                    &format!("{}px", datapath_position.1 + event.client_y() + 20),
-                )
+                .set_property("top", &format!("{}px", popup_position.1))
                 .ok();
         });
 
