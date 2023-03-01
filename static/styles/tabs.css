@@ -1,6 +1,7 @@
 .tabs {
     background-color: white;
     border: 1px solid black;
+    padding: 2px 16px 2px 16px;
     color: black;
     text-align: center;
     display: inline-block;
