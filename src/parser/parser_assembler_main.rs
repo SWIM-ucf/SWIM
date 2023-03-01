@@ -8,19 +8,24 @@ use std::collections::HashMap;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
-pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
+pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
     let mut program_info = ProgramInfo::default();
-    file_string = file_string.to_lowercase();
-    let lines = tokenize_program(file_string).0;
+
+    let (lines, mut updated_monaco_strings) = tokenize_program(file_string);
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
+        &mut updated_monaco_strings,
     );
     let vec_of_data = assemble_data_binary(&mut program_info.data);
     let labels: HashMap<String, u32> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
-    complete_lw_sw_pseudo_instructions(&mut program_info.instructions, &labels);
+    complete_lw_sw_pseudo_instructions(
+        &mut program_info.instructions,
+        &labels,
+        &mut updated_monaco_strings,
+    );
     read_instructions(&mut program_info.instructions, &labels);
 
     suggest_error_corrections(
@@ -29,16 +34,20 @@ pub fn parser(mut file_string: String) -> (ProgramInfo, Vec<u32>) {
         &labels,
     );
 
+    let binary = create_binary_vec(program_info.instructions.clone(), vec_of_data);
+
+    for entry in updated_monaco_strings {
+        program_info.updated_monaco_string.push_str(entry.as_str());
+        program_info.updated_monaco_string.push('\n');
+    }
+
     for (i, instruction) in program_info.instructions.clone().into_iter().enumerate() {
         program_info
             .address_to_line_number
             .push((i as u32, instruction.line_number));
     }
 
-    (
-        program_info.clone(),
-        create_binary_vec(program_info.instructions.clone(), vec_of_data),
-    )
+    (program_info.clone(), binary)
 }
 
 ///Takes the vector of instructions and assembles the binary for them.
@@ -657,6 +666,13 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![1],
                     Some(labels.clone()),
                 );
+            }
+            "syscall" => {
+                //our support for syscall is limited. It is simply there to end emulation
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+                instruction.binary = append_binary(instruction.binary, 0b00000000000000000000, 20); //stub of code
+                instruction.binary = append_binary(instruction.binary, 0b001100, 6);
+                //syscall
             }
 
             _ => {

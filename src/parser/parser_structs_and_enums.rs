@@ -6,6 +6,7 @@ pub mod instruction_tokenization {
     pub struct ProgramInfo {
         pub monaco_line_info: Vec<MonacoLineInfo>,
         pub address_to_line_number: Vec<(u32, u32)>,
+        pub updated_monaco_string: String,
         pub instructions: Vec<Instruction>,
         pub data: Vec<Data>,
     }
