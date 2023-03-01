@@ -45,10 +45,19 @@ pub struct VisualDatapathProps {
     ///
     /// For example, "`static/datapath.svg`".
     pub svg_path: String,
+
+    pub size: Option<DatapathSize>,
 }
 
 pub struct VisualDatapath {
     active_listeners: Rc<RefCell<Vec<EventListener>>>,
+}
+
+#[derive(Clone, Copy, Default, PartialEq)]
+pub enum DatapathSize {
+    Big,
+    #[default]
+    Small,
 }
 
 impl Component for VisualDatapath {
@@ -62,9 +71,16 @@ impl Component for VisualDatapath {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
+        // Set the size of the datapath based on props.
+        let size = ctx.props().size.unwrap_or_default();
+        let size_class = match size {
+            DatapathSize::Big => "big-datapath",
+            DatapathSize::Small => "small-datapath",
+        };
+
         html! {
             <>
-                <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID}></object>
+                <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID} class={size_class}></object>
                 <div id="popup">
                     <h1 class="title">{ "[Title]" }</h1>
                     <p class="description">{ "[Description]" }</p>
