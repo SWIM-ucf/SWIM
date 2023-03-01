@@ -16,7 +16,7 @@ pub struct Viewswitch {
 }
 
 //Convert register to html through iterator
-pub fn gen_reg_html(gp: GpRegisters) -> Html {
+pub fn generate_gpr_rows(gp: GpRegisters) -> Html {
     gp.into_iter()
         .map(|(register, data)| {
             html! {
@@ -29,7 +29,7 @@ pub fn gen_reg_html(gp: GpRegisters) -> Html {
         .collect::<Html>()
 }
 
-pub fn fp_reg(fp: [u64; 32]) -> Html {
+pub fn generate_fpr_rows(fp: [u64; 32]) -> Html {
     fp.iter()
         .enumerate()
         .map(|(register, data)| {
@@ -85,9 +85,9 @@ pub fn regview(props: &Regviewprops) -> Html {
                     </thead>
                     <tbody>
                         if *switch_flag{
-                            {gen_reg_html(props.gp)}
+                            {generate_gpr_rows(props.gp)}
                         } else {
-                            {fp_reg(props.fp)}
+                            {generate_fpr_rows(props.fp)}
                         }
                     </tbody>
                 </table>
