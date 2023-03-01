@@ -13,7 +13,6 @@ body {
 /****** Register View ******/
 .table-wrapper {
   border: 1px solid black;
-  height: 100%;
   overflow-y: auto;
 }
 
