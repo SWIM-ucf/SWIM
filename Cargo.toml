@@ -22,6 +22,7 @@ wasm-bindgen = "0.2.83"
 wasm-bindgen-futures = "0.4.33"
 web-sys = {version = "0.3.60", features = ["CssStyleDeclaration", "Event", "HtmlCollection", "HtmlElement", "HtmlInputElement", "HtmlObjectElement", "SvgElement"]}
 yew = {version = "0.20.0", features = ["csr"] }
+yew-hooks = "0.2.0"
 bounce = "0.5.0"
 log = "0.4.17"
 
