@@ -443,6 +443,21 @@
 <a href="#443" id="443">443</a>
 <a href="#444" id="444">444</a>
 <a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
 </pre><pre class="rust"><code><span class="doccomment">//! The visual datapath component.
 //!
 //! This component operates largely in JS-land, manipulating the page&#39;s DOM directly.
@@ -490,10 +505,19 @@
     ///
     /// For example, &quot;`static/datapath.svg`&quot;.
     </span><span class="kw">pub </span>svg_path: String,
+
+    <span class="kw">pub </span>size: <span class="prelude-ty">Option</span>&lt;DatapathSize&gt;,
 }
 
 <span class="kw">pub struct </span>VisualDatapath {
     active_listeners: Rc&lt;RefCell&lt;Vec&lt;EventListener&gt;&gt;&gt;,
+}
+
+<span class="attr">#[derive(Clone, Copy, Default, PartialEq)]
+</span><span class="kw">pub enum </span>DatapathSize {
+    Big,
+    <span class="attr">#[default]
+    </span>Small,
 }
 
 <span class="kw">impl </span>Component <span class="kw">for </span>VisualDatapath {
@@ -507,9 +531,16 @@
     }
 
     <span class="kw">fn </span>view(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>Context&lt;<span class="self">Self</span>&gt;) -&gt; Html {
+        <span class="comment">// Set the size of the datapath based on props.
+        </span><span class="kw">let </span>size = ctx.props().size.unwrap_or_default();
+        <span class="kw">let </span>size_class = <span class="kw">match </span>size {
+            DatapathSize::Big =&gt; <span class="string">&quot;big-datapath&quot;</span>,
+            DatapathSize::Small =&gt; <span class="string">&quot;small-datapath&quot;</span>,
+        };
+
         <span class="macro">html! </span>{
             &lt;&gt;
-                &lt;object data={ctx.props().svg_path.clone()} <span class="kw">type</span>=<span class="string">&quot;image/svg+xml&quot; </span>id={DATAPATH_ID}&gt;&lt;/object&gt;
+                &lt;object data={ctx.props().svg_path.clone()} <span class="kw">type</span>=<span class="string">&quot;image/svg+xml&quot; </span>id={DATAPATH_ID} class={size_class}&gt;&lt;/object&gt;
                 &lt;div id=<span class="string">&quot;popup&quot;</span>&gt;
                     &lt;h1 class=<span class="string">&quot;title&quot;</span>&gt;{ <span class="string">&quot;[Title]&quot; </span>}&lt;/h1&gt;
                     &lt;p class=<span class="string">&quot;description&quot;</span>&gt;{ <span class="string">&quot;[Description]&quot; </span>}&lt;/p&gt;
@@ -608,7 +639,7 @@
                     do_over_html_collection_safe(<span class="kw-2">&amp;</span>paths, |item| {
                         <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = item {
                             <span class="comment">// Allow the path to have event listeners.
-                            </span>path.set_attribute(<span class="string">&quot;pointer-events&quot;</span>, <span class="string">&quot;stroke&quot;</span>).ok();
+                            </span>path.set_attribute(<span class="string">&quot;pointer-events&quot;</span>, <span class="string">&quot;auto&quot;</span>).ok();
 
                             <span class="kw">if </span>path.tag_name() == <span class="string">&quot;ellipse&quot; </span>{
                                 <span class="comment">// Remove the large &lt;rect&gt; surrounding the ellipse. It covers up elements and is stupid.
@@ -724,7 +755,6 @@
             <span class="comment">// Get relevant elements.
             </span><span class="kw">let </span>target = event.target().unwrap().unchecked_into::&lt;HtmlElement&gt;();
             <span class="kw">let </span>popup = get_popup_element();
-            <span class="kw">let </span>datapath_position = get_datapath_position();
 
             <span class="comment">// Show popup.
             </span><span class="kw">let </span>variable = target
@@ -733,21 +763,22 @@
                 .get_attribute(<span class="string">&quot;data-variable&quot;</span>)
                 .unwrap_or_default();
             populate_popup_information(<span class="kw-2">&amp;</span>datapath, <span class="kw-2">&amp;</span>variable);
+
+            <span class="comment">// Calculate popup position.
+            </span><span class="kw">let </span>mouse_position = get_datapath_iframe_mouse_position(event);
+            <span class="kw">let </span>popup_size = (popup.offset_width(), popup.offset_height());
+            <span class="kw">let </span>popup_position =
+                calculate_popup_position(mouse_position, popup_size, get_window_size());
+
+            popup
+                .style()
+                .set_property(<span class="string">&quot;left&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}px&quot;</span>, popup_position.<span class="number">0</span>))
+                .ok();
+            popup
+                .style()
+                .set_property(<span class="string">&quot;top&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}px&quot;</span>, popup_position.<span class="number">1</span>))
+                .ok();
             popup.style().set_property(<span class="string">&quot;display&quot;</span>, <span class="string">&quot;block&quot;</span>).ok();
-            popup
-                .style()
-                .set_property(
-                    <span class="string">&quot;left&quot;</span>,
-                    <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}px&quot;</span>, datapath_position.<span class="number">0 </span>+ event.client_x() + <span class="number">20</span>),
-                )
-                .ok();
-            popup
-                .style()
-                .set_property(
-                    <span class="string">&quot;top&quot;</span>,
-                    <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}px&quot;</span>, datapath_position.<span class="number">1 </span>+ event.client_y() + <span class="number">20</span>),
-                )
-                .ok();
         });
 
         <span class="comment">// Move the popup if the mouse moves while still hovering.
@@ -755,22 +786,21 @@
             <span class="kw">let </span>event = event.unchecked_into::&lt;MouseEvent&gt;();
 
             <span class="kw">let </span>popup = get_popup_element();
-            <span class="kw">let </span>datapath_position = get_datapath_position();
+
+            <span class="comment">// Calculate popup position.
+            </span><span class="kw">let </span>mouse_position = get_datapath_iframe_mouse_position(event);
+            <span class="kw">let </span>popup_size = (popup.offset_width(), popup.offset_height());
+            <span class="kw">let </span>popup_position =
+                calculate_popup_position(mouse_position, popup_size, get_window_size());
 
             <span class="comment">// Move popup.
             </span>popup
                 .style()
-                .set_property(
-                    <span class="string">&quot;left&quot;</span>,
-                    <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}px&quot;</span>, datapath_position.<span class="number">0 </span>+ event.client_x() + <span class="number">20</span>),
-                )
+                .set_property(<span class="string">&quot;left&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}px&quot;</span>, popup_position.<span class="number">0</span>))
                 .ok();
             popup
                 .style()
-                .set_property(
-                    <span class="string">&quot;top&quot;</span>,
-                    <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}px&quot;</span>, datapath_position.<span class="number">1 </span>+ event.client_y() + <span class="number">20</span>),
-                )
+                .set_property(<span class="string">&quot;top&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}px&quot;</span>, popup_position.<span class="number">1</span>))
                 .ok();
         });
 

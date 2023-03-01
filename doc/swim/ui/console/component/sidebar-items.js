@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Console",""],["Consoleprops",""]]};
+window.SIDEBAR_ITEMS = {"enum":[["TabState",""]],"struct":[["Console",""],["Consoleprops",""]]};

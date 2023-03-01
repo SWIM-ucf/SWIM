@@ -1,0 +1,64 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A hook that tracks a queue and provides methods to modify it."><meta name="keywords" content="rust, rustlang, rust-lang, use_queue"><title>use_queue in yew_hooks - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../yew_hooks/index.html"><div class="logo-container"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../yew_hooks/index.html"><div class="logo-container"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></div></a><div class="sidebar-elems"><h2><a href="index.html">In yew_hooks</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Function <a href="index.html">yew_hooks</a>::<wbr><a class="fn" href="#">use_queue</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/yew_hooks/hooks/use_queue.rs.html#146">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><div class="item-decl"><pre class="rust fn"><code>pub fn use_queue&lt;'hook, T&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;initial_value: <a class="struct" href="https://doc.rust-lang.org/1.67.1/alloc/collections/vec_deque/struct.VecDeque.html" title="struct alloc::collections::vec_deque::VecDeque">VecDeque</a>&lt;T&gt;<br>) -&gt; impl 'hook + <a class="trait" href="../yew/functional/hooks/trait.Hook.html" title="trait yew::functional::hooks::Hook">Hook</a>&lt;Output = <a class="struct" href="prelude/struct.UseQueueHandle.html" title="struct yew_hooks::prelude::UseQueueHandle">UseQueueHandle</a>&lt;T&gt;&gt;<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: 'static + 'hook,</span></code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A hook that tracks a queue and provides methods to modify it.</p>
+<h2 id="example"><a href="#example">Example</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>yew_hooks::prelude::<span class="kw-2">*</span>;
+
+<span class="attr">#[function_component(UseQueue)]
+</span><span class="kw">fn </span>queue() -&gt; Html {
+    <span class="kw">let </span>queue = use_queue(VecDeque::from([<span class="string">&quot;Mercury&quot;</span>, <span class="string">&quot;Venus&quot;</span>, <span class="string">&quot;Earth&quot;</span>, <span class="string">&quot;Mars&quot;</span>]));
+
+    <span class="kw">let </span>onset = {
+        <span class="kw">let </span>queue = queue.clone();
+        Callback::from(<span class="kw">move </span>|<span class="kw">_</span>| queue.set(VecDeque::from([<span class="string">&quot;Moon&quot;</span>, <span class="string">&quot;Earth&quot;</span>])))
+    };
+    <span class="kw">let </span>onpush_back = {
+        <span class="kw">let </span>queue = queue.clone();
+        Callback::from(<span class="kw">move </span>|<span class="kw">_</span>| {
+            queue.push_back(<span class="string">&quot;Jupiter&quot;</span>);
+        })
+    };
+    <span class="kw">let </span>onpop_front = {
+        <span class="kw">let </span>queue = queue.clone();
+        Callback::from(<span class="kw">move </span>|<span class="kw">_</span>| {
+            <span class="kw">let _ </span>= queue.pop_front();
+        })
+    };
+    <span class="kw">let </span>onretain = {
+        <span class="kw">let </span>queue = queue.clone();
+        Callback::from(<span class="kw">move </span>|<span class="kw">_</span>| queue.retain(|v| v.contains(<span class="string">&#39;a&#39;</span>)))
+    };
+    <span class="kw">let </span>onclear = {
+        <span class="kw">let </span>queue = queue.clone();
+        Callback::from(<span class="kw">move </span>|<span class="kw">_</span>| queue.clear())
+    };
+
+    <span class="macro">html! </span>{
+        &lt;div&gt;
+            &lt;button onclick={onset}&gt;{ <span class="string">&quot;Set&quot; </span>}&lt;/button&gt;
+            &lt;button onclick={onpush_back}&gt;{ <span class="string">&quot;Push back&quot; </span>}&lt;/button&gt;
+            &lt;button onclick={onpop_front}&gt;{ <span class="string">&quot;Pop front&quot; </span>}&lt;/button&gt;
+            &lt;button onclick={onretain}&gt;{ <span class="string">&quot;Retain&quot; </span>}&lt;/button&gt;
+            &lt;button onclick={onclear}&gt;{ <span class="string">&quot;Clear all&quot; </span>}&lt;/button&gt;
+            &lt;p&gt;
+                &lt;b&gt;{ <span class="string">&quot;Current value: &quot; </span>}&lt;/b&gt;
+            &lt;/p&gt;
+            {
+                <span class="kw">for </span>queue.current().iter().map(|v| {
+                    <span class="macro">html! </span>{
+                        &lt;p&gt;&lt;b&gt;{ v }&lt;/b&gt;&lt;/p&gt;
+                    }
+                })
+            }
+        &lt;/div&gt;
+    }
+}</code></pre></div>
+<h2 id="note"><a href="#note">Note</a></h2>
+<p>When used in function components and hooks, this hook is equivalent to:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">pub fn </span>use_queue&lt;T&gt;(initial_value: VecDeque&lt;T&gt;) -&gt; UseQueueHandle&lt;T&gt;
+<span class="kw">where
+    </span>T: <span class="lifetime">&#39;static</span>,
+{
+    <span class="comment">/* implementation omitted */
+</span>}
+</code></pre></div>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="yew_hooks" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
