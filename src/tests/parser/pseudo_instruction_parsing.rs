@@ -1,910 +1,1543 @@
 use std::collections::HashMap;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{Data, Error, Instruction, MonacoLineInfo, Token};
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::IncorrectNumberOfOperands;
+use crate::parser::assembling::assemble_data_binary;
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{Instruction, ProgramInfo, Token};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Operator;
+use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
+use crate::parser::pseudo_instruction_parsing::{complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers};
 
-///Iterates through the instruction list and translates pseudo-instructions into real instructions.
-/// LW and SW with labelled memory are not completely translated in this step because they require
-/// the address of the labelled memory to be known which is not found until after all other pseudo-instructions
-/// have been translated. Updated pseudo-instructions are added to updated_monaco_string to appear in the editor after assembly.
-/// Also ensures a syscall is at the end of the program
-pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
-    instructions: &mut Vec<Instruction>,
-    data: &Vec<Data>,
-    updated_monaco_strings: &mut Vec<String>,
-    monaco_line_info: &mut [MonacoLineInfo],
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_if_it_is_missing() {
+    let mut program_info = ProgramInfo::default();
+    let file_string = "addi $t1, $t2, 100\nsw $t1, label".to_string();
+    let (lines, mut result, mut monaco_line_info_vec) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut result,
+        &mut monaco_line_info_vec,
+    );
+
+    let correct_result: Vec<String> = vec![
+        "addi $t1, $t2, 100".to_string(),
+        "sw $t1, label".to_string(),
+        "syscall".to_string(),
+    ];
+    assert_eq!(result, correct_result);
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_beginning_if_no_instruction(
 ) {
-    //figure out list of labels to be used for lw and sw labels
-    let mut list_of_labels: Vec<String> = Vec::new();
-    for instruction in instructions.clone() {
-        if instruction.label.is_some() {
-            list_of_labels.push(instruction.clone().label.unwrap().0.token_name);
-        }
-    }
-    for data in data {
-        list_of_labels.push(data.label.token_name.clone());
-    }
+    let mut program_info = ProgramInfo::default();
+    let file_string = ".data\nword .word 100\nother .byte 'a','a'\n".to_string();
+    let (lines, mut result, mut monaco_line_info_vec) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut result,
+        &mut monaco_line_info_vec,
+    );
 
-    //vec_of_added_instructions is needed because of rust ownership rules. It will not let us
-    //insert into instruction_list while instruction_list is being iterated over.
-    let mut vec_of_added_instructions: Vec<Instruction> = Vec::new();
+    let correct_result: Vec<String> = vec![
+        ".text".to_string(),
+        "syscall".to_string(),
+        ".data".to_string(),
+        "word .word 100".to_string(),
+        "other .byte 'a','a'".to_string(),
+    ];
 
-    //iterate through every instruction and check that the operator is a pseudo-instruction
-    for (i, mut instruction) in &mut instructions.iter_mut().enumerate() {
-        instruction.instruction_number = (i + vec_of_added_instructions.len()) as u32;
-        match &*instruction.operator.token_name {
-            "li" => {
-                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "li is a pseudo-instruction.\nli regA, immediate =>\n\tori $regA, $zero, immediate\n"
-                        .to_string();
+    assert_eq!(result, correct_result);
+}
 
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error{
-                        error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
-                        message: "".to_string()
-                    });
-                    continue;
-                }
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_after_first_instance_of_text(
+) {
+    let mut program_info = ProgramInfo::default();
+    let file_string = ".data\nword .word 100\n.text\n.data\nother .byte 'a','a'\n.text\n.data\nfinal: .space 10\n".to_string();
+    let (lines, mut result, mut monaco_line_info_vec) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut result,
+        &mut monaco_line_info_vec,
+    );
 
-                instruction.operator.token_name = "ori".to_string();
+    let correct_result: Vec<String> = vec![
+        ".data".to_string(),
+        "word .word 100".to_string(),
+        ".text".to_string(),
+        "syscall".to_string(),
+        ".data".to_string(),
+        "other .byte 'a','a'".to_string(),
+        ".text".to_string(),
+        ".data".to_string(),
+        "final: .space 10".to_string(),
+    ];
 
-                instruction.operands.push(Token {
-                    token_name: "$zero".to_string(),
+    assert_eq!(result, correct_result);
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_number_does_not_add_syscall_if_it_is_present()
+{
+    let mut program_info = ProgramInfo::default();
+    let file_string = "addi $t1, $t2, 100\nsw $t1, label\nsyscall\n".to_string();
+    let (lines, mut result, mut monaco_line_info_vec) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut result,
+        &mut monaco_line_info_vec,
+    );
+
+    let correct_result: Vec<String> = vec![
+        "addi $t1, $t2, 100".to_string(),
+        "sw $t1, label".to_string(),
+        "syscall".to_string(),
+    ];
+
+    assert_eq!(result, correct_result);
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_proper_spot_with_data_after(
+) {
+    let mut program_info = ProgramInfo::default();
+    let file_string = "addi $t1, $t2, 100\nsw $t1, label\n.data\n word: .word 100\n".to_string();
+    let (lines, mut result, mut monaco_line_info_vec) = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut result,
+        &mut monaco_line_info_vec,
+    );
+
+    let correct_result: Vec<String> = vec![
+        "addi $t1, $t2, 100".to_string(),
+        "sw $t1, label".to_string(),
+        "syscall".to_string(),
+        ".data".to_string(),
+        " word: .word 100".to_string(),
+    ];
+
+    assert_eq!(result, correct_result);
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "subi $t1, $t2, 100\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                start_end_columns: (0, 0),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
                     start_end_columns: (0, 0),
                     token_type: Default::default(),
-                });
-            }
-            "seq" => {
-                //seq $regA, $regB, $regC turns into:
-                //sub $regA, $regB, $regC
-                //ori $at, $zero, 1
-                //sltu $regA, $regA, $at
-                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "seq is a pseudo-instruction.\nseq $regA, $regB, $regC =>\n\tsub $regA, $regB, $regC\n\tori $at, $zero, 1\n\tsltu $regA, $regA, $at\n"
-                        .to_string();
-
-                //make sure there are the correct number operands
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
-                        error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
-                        message: "".to_string()
-                    });
-                    continue;
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    start_end_columns: (9, 13),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    start_end_columns: (16, 18),
+                    token_type: Default::default(),
                 }
-                //sub the two registers to find the difference
-                let mut extra_instruction = instruction.clone();
-                extra_instruction.operator.token_name = "sub".to_string();
-                extra_instruction.operator.start_end_columns = (0,0);
-                vec_of_added_instructions.push(extra_instruction);
-
-                //put a 1 in $at
-                let extra_instruction_2 = Instruction {
-                    operator: Token {
-                        token_name: "ori".to_string(),
-                        start_end_columns: (0, 0),
-                        token_type: Operator,
-                    },
-                    operands: vec![
-                        Token {
-                            token_name: "$at".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: "$zero".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: "1".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                    ],
-                    binary: 0,
-                    instruction_number: instruction.instruction_number + 1,
-                    line_number: 0,
-                    errors: vec![],
-                    label: None,
-                };
-                vec_of_added_instructions.push(extra_instruction_2);
-
-                //set r0 to 1 if r1 - r2 == 0
-                instruction.operator.token_name = "sltu".to_string();
-                instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
-                instruction.operands[2].token_name = "$at".to_string();
-                instruction.operands[2].start_end_columns = (0, 0);
-                instruction.instruction_number += 2;
-            }
-            "sne" => {
-                //sne $regA, $regB, $regC turns into:
-                //sub $regA, $regB, $regC
-                //sltu $regA, $zero, $regA
-
-                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "sne is a pseudo-instruction.\nsne $regA, $regB, $regC =>\n\tsub $regA, $regB, $regC\n\tsltu $regA, $zero, $regA\n"
-                        .to_string();
-
-                //make sure there are enough operands
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
-                        error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
-                        message: "".to_string()
-                    });
-                    continue;
-                }
-                //sub the two registers to find the difference
-                let mut extra_instruction = instruction.clone();
-                extra_instruction.operator.token_name = "sub".to_string();
-                extra_instruction.line_number = 0;
-                vec_of_added_instructions.push(extra_instruction);
-
-                //set r0 to 1 if r1 - r2 != 0
-                instruction.operator.token_name = "sltu".to_string();
-                instruction.operands[1].token_name = "$zero".to_string();
-                instruction.operands[1].start_end_columns = (0, 0);
-                instruction.operands[2].token_name = instruction.operands[0].token_name.clone();
-                instruction.operands[2].start_end_columns = (0, 0);
-                instruction.instruction_number += 1;
-            }
-            "sle" => {
-                //sle $regA, $regB, $regC is translated to:
-                // slt $regA, $regC, $regB
-                // addi $regA, $regA, 1
-                // andi $regA, $regA, 1
-
-                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "sle is a pseudo-instruction.\nsle $regA, $regB, $regC =>\n\tslt $regA, $regC, $regB\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n"
-                        .to_string();
-
-                //make sure there are enough operands
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
-                        error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
-                        message: "".to_string()
-                    });
-                    continue;
-                }
-
-                //slt
-                let mut extra_instruction = instruction.clone();
-                let temp = extra_instruction.operands[1].clone();
-                extra_instruction.operands[1] = extra_instruction.operands[2].clone();
-                extra_instruction.operands[1].start_end_columns = (0, 0);
-                extra_instruction.operands[2] = temp.clone();
-                extra_instruction.operands[2].start_end_columns = (0, 0);
-                extra_instruction.operator.token_name = "slt".to_string();
-                extra_instruction.line_number = 0;
-                vec_of_added_instructions.push(extra_instruction);
-
-                //addi
-                let extra_instruction_2 = Instruction {
-                    operator: Token {
-                        token_name: "addi".to_string(),
-                        start_end_columns: (0, 0),
-                        token_type: Operator,
-                    },
-                    operands: vec![
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: "1".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                    ],
-                    binary: 0,
-                    instruction_number: instruction.instruction_number + 1,
-                    line_number: 0,
-                    errors: vec![],
-                    label: None,
-                };
-                vec_of_added_instructions.push(extra_instruction_2);
-
-                //andi
-                instruction.operator.token_name = "andi".to_string();
-                instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
-                instruction.operands[2].token_name = "1".to_string();
-                instruction.instruction_number += 2;
-            }
-            "sleu" => {
-                //sleu $regA, $regB, $regC is translated to:
-                // sltu $regA, $regC, $regB
-                // addi $regA, $regA, 1
-                // andi $regA, $regA, 1
-
-                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "sleu is a pseudo-instruction.\nsleu $regA, $regB, $regC =>\n\tsltu $regA, $regC, $regB\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n"
-                        .to_string();
-
-                //make sure there are enough operands
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
-                        error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
-                        message: "".to_string()
-                    });
-                    continue;
-                }
-
-                //sltu
-                let mut extra_instruction = instruction.clone();
-                let temp = extra_instruction.operands[1].clone();
-                extra_instruction.operands[1] = extra_instruction.operands[2].clone();
-                extra_instruction.operands[2] = temp.clone();
-                extra_instruction.operator.token_name = "sltu".to_string();
-                extra_instruction.line_number = 0;
-                vec_of_added_instructions.push(extra_instruction);
-
-                //addi
-                let extra_instruction_2 = Instruction {
-                    operator: Token {
-                        token_name: "addi".to_string(),
-                        start_end_columns: (0, 0),
-                        token_type: Operator,
-                    },
-                    operands: vec![
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: "1".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                    ],
-                    binary: 0,
-                    instruction_number: instruction.instruction_number + 1,
-                    line_number: 0,
-                    errors: vec![],
-                    label: None,
-                };
-                vec_of_added_instructions.push(extra_instruction_2);
-
-                //andi
-                instruction.operator.token_name = "andi".to_string();
-                instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
-                instruction.operands[2].token_name = "1".to_string();
-                instruction.instruction_number += 2;
-            }
-            "sgt" => {
-                //sgt $regA, $regB, $regC is translated to:
-                // slt $regA, $regC, $regB
-
-                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "sgt is a pseudo-instruction.\nsgt $regA, $regB, $regC =>\n\tslt $regA, $regC, $regB\n"
-                        .to_string();
-
-                //make sure that there actually is a third operand
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
-                        error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
-                        message: "".to_string()
-                    });
-                    continue;
-                }
-                let temp = instruction.operands[1].clone();
-                instruction.operands[1] = instruction.operands[2].clone();
-                instruction.operands[1].start_end_columns = (0, 0);
-                instruction.operands[2] = temp.clone();
-                instruction.operator.token_name = "slt".to_string();
-            }
-            "sgtu" => {
-                //sgtu $regA, $regB, $regC is translated to:
-                // sltu $regA, $regC, $regB
-
-                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "sgtu is a pseudo-instruction.\nsgtu $regA, $regB, $regC =>\n\tsltu $regA, $regC, $regB\n"
-                        .to_string();
-
-                //make sure that there actually is a third operand
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
-                        error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
-                        message: "".to_string()
-                    });
-                    continue;
-                }
-                let temp = instruction.operands[1].clone();
-                instruction.operands[1] = instruction.operands[2].clone();
-                instruction.operands[1].start_end_columns = (0, 0);
-                instruction.operands[2] = temp.clone();
-                instruction.operator.token_name = "sltu".to_string();
-            }
-            "sge" => {
-                //sge $regA, $regB, $regC is translated to:
-                // slt $regA, $regB, $regC
-                // addi $regA, $regA, 1
-                // andi $regA, $regA, 1
-
-                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "sge is a pseudo-instruction.\nsge $regA, $regB, $regC =>\n\tslt $regA, $regB, $regC\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n"
-                        .to_string();
-
-                //make sure there are enough operands
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
-                        error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
-                        message: "".to_string()
-                    });
-                    continue;
-                }
-
-                //slt
-                let mut extra_instruction = instruction.clone();
-                extra_instruction.operator.token_name = "slt".to_string();
-                extra_instruction.line_number = 0;
-                vec_of_added_instructions.push(extra_instruction);
-
-                //addi
-                let extra_instruction_2 = Instruction {
-                    operator: Token {
-                        token_name: "addi".to_string(),
-                        start_end_columns: (0, 0),
-                        token_type: Operator,
-                    },
-                    operands: vec![
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: "1".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                    ],
-                    binary: 0,
-                    instruction_number: instruction.instruction_number + 1,
-                    line_number: 0,
-                    errors: vec![],
-                    label: None,
-                };
-                vec_of_added_instructions.push(extra_instruction_2);
-
-                //andi
-                instruction.operator.token_name = "andi".to_string();
-                instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
-                instruction.operands[2].token_name = "1".to_string();
-                instruction.instruction_number += 2;
-            }
-            "sgeu" => {
-                //sgeu $regA, $regB, $regC is translated to:
-                // sltu $regA, $regC, $regB
-                // addi $regA, $regA, 1
-                // andi $regA, $regA, 1
-
-                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "sgeu is a pseudo-instruction.\nsgeu $regA, $regB, $regC =>\n\tsltu $regA, $regB, $regC\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n"
-                        .to_string();
-
-                //make sure there are enough operands
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
-                        error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
-                        message: "".to_string()
-                    });
-                    continue;
-                }
-
-                //sltu
-                let mut extra_instruction = instruction.clone();
-                extra_instruction.operator.token_name = "sltu".to_string();
-                extra_instruction.line_number = 0;
-                vec_of_added_instructions.push(extra_instruction);
-
-                //addi
-                let extra_instruction_2 = Instruction {
-                    operator: Token {
-                        token_name: "addi".to_string(),
-                        start_end_columns: (0, 0),
-                        token_type: Operator,
-                    },
-                    operands: vec![
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: "1".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                    ],
-                    binary: 0,
-                    instruction_number: instruction.instruction_number + 1,
-                    line_number: 0,
-                    errors: vec![],
-                    label: None,
-                };
-                vec_of_added_instructions.push(extra_instruction_2);
-
-                //andi
-                instruction.operator.token_name = "andi".to_string();
-                instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
-                instruction.operands[2].token_name = "1".to_string();
-                instruction.instruction_number += 2;
-            }
-            "lw" | "sw" => {
-                //lw $regA, label is translated to:
-                //lui $at, label
-                //lw $regA, lower16($at)
-
-                if instruction.operands.len() > 1
-                    && list_of_labels.contains(&instruction.operands[1].token_name)
-                {
-                    //make sure there are enough operands
-                    if instruction.operands.len() != 2 {
-                        instruction.errors.push(Error{
-                            error_name: IncorrectNumberOfOperands,
-                            operand_number: None,
-                            message: "".to_string()
-                        });
-                        continue;
-                    }
-
-                    //create mouse hover message dependent on lw / sw
-                    if instruction.operator.token_name == "lw" {
-                        monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                            "lw $regA, label is a pseudo-instruction.\nlw $regA, label =>\n\tlui $at, label\n\tlw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address.\n"
-                                .to_string();
-                    } else {
-                        monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                            "sw $regA, label is a pseudo-instruction.\nsw $regA, label =>\n\tlui $at, label\n\tsw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address.\n"
-                                .to_string();
-                    }
-
-                    let extra_instruction = Instruction {
-                        operator: Token {
-                            token_name: "lui".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Operator,
-                        },
-                        operands: vec![
-                            Token {
-                                token_name: "$at".to_string(),
-                                start_end_columns: (0, 0),
-                                token_type: Default::default(),
-                            },
-                            Token {
-                                token_name: instruction.operands[1].token_name.clone(),
-                                start_end_columns: (0, 0),
-                                token_type: Default::default(),
-                            },
-                        ],
-                        binary: 0,
-                        instruction_number: instruction.instruction_number,
-                        line_number: 0,
-                        errors: vec![],
-                        label: None,
-                    };
-                    vec_of_added_instructions.push(extra_instruction);
-                    instruction.operands[1].token_name = "$at".to_string();
-                    instruction.instruction_number += 1;
-                }
-            }
-            "subi" => {
-                //subi $regA, $regB, immediate is translated to:
-                //ori $at, $zero, immediate
-                //sub $regA, $regB, $at
-
-                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at\n"
-                        .to_string();
-
-                //make sure there are enough operands
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
-                        error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
-                        message: "".to_string()
-                    });
-                    continue;
-                }
-                let extra_instruction = Instruction {
-                    operator: Token {
-                        token_name: "ori".to_string(),
-                        start_end_columns: (0, 0),
-                        token_type: Operator,
-                    },
-                    operands: vec![
-                        Token {
-                            token_name: "$at".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: "$zero".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[2].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                    ],
-                    binary: 0,
-                    instruction_number: instruction.instruction_number,
-                    line_number: 0,
-                    errors: vec![],
-                    label: None,
-                };
-                vec_of_added_instructions.push(extra_instruction);
-                //adjust subi for the added instruction
-                instruction.operator.token_name = "sub".to_string();
-                instruction.operands[2].token_name = "$at".to_string();
-                instruction.instruction_number += 1;
-            }
-            "dsubi" => {
-                //dsubi $regA, $regB, immediate is translated to:
-                //ori $at, $zero, immediate
-                //dsub $regA, $regB, $at
-
-                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "dsubi $regA, $regB, immediate is a pseudo-instruction.\ndsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdsub $regA, $regB, $at\n"
-                        .to_string();
-
-                //make sure there are the right number of operands
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
-                        error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
-                        message: "".to_string()
-                    });
-                    continue;
-                }
-                let extra_instruction = Instruction {
-                    operator: Token {
-                        token_name: "ori".to_string(),
-                        start_end_columns: (0, 0),
-                        token_type: Operator,
-                    },
-                    operands: vec![
-                        Token {
-                            token_name: "$at".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: "$zero".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[2].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                    ],
-                    binary: 0,
-                    instruction_number: instruction.instruction_number,
-                    line_number: 0,
-                    errors: vec![],
-                    label: None,
-                };
-                vec_of_added_instructions.push(extra_instruction);
-                //adjust subi for the added instruction
-                instruction.operator.token_name = "dsub".to_string();
-                instruction.operands[2].token_name = "$at".to_string();
-                instruction.instruction_number += 1;
-            }
-            "dsubiu" => {}
-            "muli" => {
-                //muli $regA, $regB, immediate is translated to:
-                //ori $at, $zero, immediate
-                //mul $regA, $regB, $at
-
-                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "muli $regA, $regB, immediate is a pseudo-instruction.\nmuli $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tmul $regA, $regB, $at\n"
-                        .to_string();
-
-                //make sure the are the right number of operands
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
-                        error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
-                        message: "".to_string()
-                    });
-                    continue;
-                }
-                let extra_instruction = Instruction {
-                    operator: Token {
-                        token_name: "ori".to_string(),
-                        start_end_columns: (0, 0),
-                        token_type: Operator,
-                    },
-                    operands: vec![
-                        Token {
-                            token_name: "$at".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: "$zero".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[2].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                    ],
-                    binary: 0,
-                    instruction_number: instruction.instruction_number,
-                    line_number: 0,
-                    errors: vec![],
-                    label: None,
-                };
-                vec_of_added_instructions.push(extra_instruction);
-                //adjust subi for the added instruction
-                instruction.operator.token_name = "mul".to_string();
-                instruction.operands[2].token_name = "$at".to_string();
-                instruction.instruction_number += 1;
-            }
-            "dmuli" => {
-                //dmuli $regA, $regB, immediate is translated to:
-                //ori $at, $zero, immediate
-                //dmul $regA, $regB, $at
-
-                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "dmuli $regA, $regB, immediate is a pseudo-instruction.\ndmuli $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdmul $regA, $regB, $at\n"
-                        .to_string();
-
-                //make sure the are the right number of operands
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
-                        error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
-                        message: "".to_string()
-                    });
-                    continue;
-                }
-                let extra_instruction = Instruction {
-                    operator: Token {
-                        token_name: "ori".to_string(),
-                        start_end_columns: (0, 0),
-                        token_type: Operator,
-                    },
-                    operands: vec![
-                        Token {
-                            token_name: "$at".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: "$zero".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[2].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                    ],
-                    binary: 0,
-                    instruction_number: instruction.instruction_number,
-                    line_number: 0,
-                    errors: vec![],
-                    label: None,
-                };
-                vec_of_added_instructions.push(extra_instruction);
-                //adjust subi for the added instruction
-                instruction.operator.token_name = "dmul".to_string();
-                instruction.operands[2].token_name = "$at".to_string();
-                instruction.instruction_number += 1;
-            }
-            "dmuliu" => {}
-            "divi" => {
-                //divi $regA, immediate is translated to:
-                //ori $at, $zero, immediate
-                //div $regA, $at
-
-                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "divi $regA, immediate is a pseudo-instruction.\ndivi $regA, immediate =>\n\tori $at, $zero, immediate\n\tdiv $regA, $at\n"
-                        .to_string();
-
-                //make sure the are the right number of operands a second operand
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error{
-                        error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
-                        message: "".to_string()
-                    });
-                    continue;
-                }
-                let extra_instruction = Instruction {
-                    operator: Token {
-                        token_name: "ori".to_string(),
-                        start_end_columns: (0, 0),
-                        token_type: Operator,
-                    },
-                    operands: vec![
-                        Token {
-                            token_name: "$at".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: "$zero".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[1].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                    ],
-                    binary: 0,
-                    instruction_number: instruction.instruction_number,
-                    line_number: 0,
-                    errors: vec![],
-                    label: None,
-                };
-                vec_of_added_instructions.push(extra_instruction);
-                //adjust subi for the added instruction
-                instruction.operator.token_name = "div".to_string();
-                instruction.operands[1].token_name = "$at".to_string();
-                instruction.instruction_number += 1;
-            }
-            "ddivi" => {
-                //ddivi $regA, immediate is translated to:
-                //ori $at, $zero, immediate
-                //ddiv $regA, $at
-
-                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "ddivi $regA, immediate is a pseudo-instruction.\nddivi $regA, immediate =>\n\tori $at, $zero, immediate\n\tddiv $regA, $at\n"
-                        .to_string();
-
-                //make sure the are the right number of operands
-                if instruction.operands.len() != 2 {
-                    continue;
-                }
-                let extra_instruction = Instruction {
-                    operator: Token {
-                        token_name: "ori".to_string(),
-                        start_end_columns: (0, 0),
-                        token_type: Operator,
-                    },
-                    operands: vec![
-                        Token {
-                            token_name: "$at".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: "$zero".to_string(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[1].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                    ],
-                    binary: 0,
-                    instruction_number: instruction.instruction_number,
-                    line_number: 0,
-                    errors: vec![],
-                    label: None,
-                };
-                vec_of_added_instructions.push(extra_instruction);
-                //adjust subi for the added instruction
-                instruction.operator.token_name = "ddiv".to_string();
-                instruction.operands[1].token_name = "$at".to_string();
-                instruction.instruction_number += 1;
-            }
-            "ddiviu" => {}
-            _ => {}
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
         }
-    }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "sub".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    start_end_columns: (9, 12),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (14, 16),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
 
-    //insert all new new instructions
-    for instruction in vec_of_added_instructions {
-        instructions.insert(instruction.instruction_number as usize, instruction);
-    }
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_muli() {
+    let mut program_info = ProgramInfo::default();
 
-    //if there aren't any instructions, add a syscall to monaco's updated string so the emulation core does not try to run data as an instruction
-    if instructions.is_empty() {
-        //try to find an instance of .text
-        let mut text_index: Option<u32> = None;
-        for (i, mut line) in updated_monaco_strings.clone().into_iter().enumerate() {
-            line = line.replace(' ', "");
-            line = line.replace('#', " ");
-            if line.starts_with(".text") {
-                text_index = Some(i as u32);
-                break;
-            }
+    let file_string = "muli $t1, $t2, 100\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    start_end_columns: (9, 13),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    start_end_columns: (16, 18),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
         }
-        if let Some(..) = text_index {
-            //add syscall after first index of .text if it exists
-            updated_monaco_strings.insert(text_index.unwrap() as usize + 1, "syscall".to_string());
-        } else {
-            //otherwise, add it at the beginning of monaco
-            updated_monaco_strings.insert(0, ".text".to_string());
-            updated_monaco_strings.insert(1, "syscall".to_string());
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "mul".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    start_end_columns: (9, 12),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (14, 16),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
         }
-    } else {
-        let last_instruction = instructions.last().unwrap();
-        //if the last instruction in monaco is not a syscall, add it in
-        if last_instruction.operator.token_name != "syscall" {
-            updated_monaco_strings.insert(
-                last_instruction.line_number as usize + 1,
-                "syscall".to_string(),
-            );
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_divi() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "divi $t1, 100\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    start_end_columns: (9, 14),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    start_end_columns: (16, 18),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
         }
-    }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "div".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (9, 11),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dsubi() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "dsubi $t1, $t2, 100\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    start_end_columns: (9, 14),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    start_end_columns: (16, 18),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "dsub".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    start_end_columns: (10, 13),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (15, 17),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuli() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "dmuli $t1, $t2, 100\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    start_end_columns: (9, 14),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    start_end_columns: (16, 18),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "dmul".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    start_end_columns: (10, 13),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (15, 17),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "ddivi $t1, 100\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    start_end_columns: (9, 14),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    start_end_columns: (16, 18),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "ddiv".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (10, 12),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgt() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "sgt $t1, $t2, $t3\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "slt".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t3".to_string(),
+                    start_end_columns: (9, 12),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    start_end_columns: (14, 16),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgtu() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "sgtu $t1, $t2, $t3\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "sltu".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t3".to_string(),
+                    start_end_columns: (10, 12),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    start_end_columns: (14, 16),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_seq() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "seq $t1, $t2, $t3\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "sub".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    start_end_columns: (9, 12),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t3".to_string(),
+                    start_end_columns: (14, 16),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    start_end_columns: (9, 14),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "1".to_string(),
+                    start_end_columns: (16, 16),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[2],
+        Instruction {
+            operator: Token {
+                token_name: "sltu".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (10, 13),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (15, 17),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 2,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sne() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "sne $t1, $t2, $t3\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "sub".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    start_end_columns: (9, 12),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t3".to_string(),
+                    start_end_columns: (14, 16),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "sltu".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    start_end_columns: (9, 14),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (16, 18),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sle() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "sle $t1, $t2, $t3\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "slt".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t3".to_string(),
+                    start_end_columns: (9, 12),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    start_end_columns: (14, 16),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "addi".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (10, 13),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "1".to_string(),
+                    start_end_columns: (15, 15),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+
+    assert_eq!(
+        program_info.instructions[2],
+        Instruction {
+            operator: Token {
+                token_name: "andi".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (10, 13),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "1".to_string(),
+                    start_end_columns: (15, 15),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 2,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sleu() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "sleu $t1, $t2, $t3\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "sltu".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t3".to_string(),
+                    start_end_columns: (10, 13),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    start_end_columns: (15, 17),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "addi".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (10, 13),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "1".to_string(),
+                    start_end_columns: (15, 15),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+
+    assert_eq!(
+        program_info.instructions[2],
+        Instruction {
+            operator: Token {
+                token_name: "andi".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (10, 13),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "1".to_string(),
+                    start_end_columns: (15, 15),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 2,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sge() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "sge $t1, $t2, $t3\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "slt".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    start_end_columns: (9, 12),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t3".to_string(),
+                    start_end_columns: (14, 16),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "addi".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (10, 13),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "1".to_string(),
+                    start_end_columns: (15, 15),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+
+    assert_eq!(
+        program_info.instructions[2],
+        Instruction {
+            operator: Token {
+                token_name: "andi".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (10, 13),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "1".to_string(),
+                    start_end_columns: (15, 15),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 2,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
+    let mut program_info = ProgramInfo::default();
+    let file_string = "sgeu $t1, $t2, $t3\nsw $t1, label".to_string();
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    let mut correct_program_info = ProgramInfo::default();
+    let correct_string =
+        "sltu $t1, $t2, $t3\naddi $t1, $t1, 1\nandi $t1, $t1, 1\nsw $t1, label".to_string();
+    let (correct_lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(correct_string);
+    (correct_program_info.instructions, correct_program_info.data) =
+        separate_data_and_text(correct_lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut correct_program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    //    assert_eq!(correct_program_info.instructions, program_info.instructions);
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "sltu".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    start_end_columns: (10, 13),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t3".to_string(),
+                    start_end_columns: (15, 17),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "addi".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (10, 13),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "1".to_string(),
+                    start_end_columns: (15, 15),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+
+    assert_eq!(
+        program_info.instructions[2],
+        Instruction {
+            operator: Token {
+                token_name: "andi".to_string(),
+                start_end_columns: (0, 3),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (10, 13),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "1".to_string(),
+                    start_end_columns: (15, 15),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 2,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
 }
 
 
-///the second part of completing pseudo-instructions. LW and SW with labels requires the address of the label to be known,
-/// the second part of this must occur after the label hashmap is completed.
-pub fn complete_lw_sw_pseudo_instructions(
-    instructions: &mut Vec<Instruction>,
-    labels: &HashMap<String, u32>,
-    _updated_monaco_strings: &mut [String],
-) {
-    if instructions.len() < 2 {
-        return;
-    }
-    for mut index in 0..(instructions.len() - 1) {
-        if instructions[index].operator.token_name == "lui"
-            && instructions[index].operands.len() > 1
-            && labels.contains_key(&*instructions[index].operands[1].token_name)
-            && (instructions[index + 1].operator.token_name == "sw"
-            || instructions[index + 1].operator.token_name == "lw")
-        {
-            //upper 16 bits are stored in $at using lui
-            let address = *labels
-                .get(&*instructions[index].operands[1].token_name)
-                .unwrap();
-            instructions[index].operands[1].token_name = (address >> 16).to_string();
-            index += 1;
+#[test]
+fn complete_lw_sw_pseudo_instructions_works() {
+    let mut program_info = ProgramInfo::default();
 
-            //lower 16 bits are stored as the offset for the load/store operation
-            let lower_16_bits = address as u16;
-            let mut memory_operand = lower_16_bits.to_string();
-            memory_operand.push_str("($at)");
-            instructions[index].operands[1].token_name = memory_operand;
+    let file_string = ".data\nlabel: .word 100\n.text\nlw $t1, label\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+    let _vec_of_data = assemble_data_binary(&mut program_info.data);
+    let labels: HashMap<String, u32> =
+        create_label_map(&mut program_info.instructions, &mut program_info.data);
+
+    complete_lw_sw_pseudo_instructions(
+        &mut program_info.instructions,
+        &labels,
+        &mut updated_monaco_string,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "lui".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "0".to_string(),
+                    start_end_columns: (9, 9),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
         }
-    }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "lw".to_string(),
+                start_end_columns: (0, 1),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (3, 6),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "16($at)".to_string(),
+                    start_end_columns: (8, 14),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 3,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[2],
+        Instruction {
+            operator: Token {
+                token_name: "lui".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (4, 7),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "0".to_string(),
+                    start_end_columns: (9, 9),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 2,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[3],
+        Instruction {
+            operator: Token {
+                token_name: "sw".to_string(),
+                start_end_columns: (0, 1),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (3, 5),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "16($at)".to_string(),
+                    start_end_columns: (8, 14),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 3,
+            line_number: 4,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn complete_lw_sw_pseudo_instructions_doesnt_break_with_empty_instruction_list() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = ".data\nlabel: .word 100\n.text\nlw $t1, label\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+    let _vec_of_data = assemble_data_binary(&mut program_info.data);
+    let labels: HashMap<String, u32> =
+        create_label_map(&mut program_info.instructions, &mut program_info.data);
+
+    complete_lw_sw_pseudo_instructions(
+        &mut program_info.instructions,
+        &labels,
+        &mut updated_monaco_string,
+    );
 }

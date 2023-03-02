@@ -177,7 +177,7 @@ mod read_label_absolute_tests {
         create_label_map, separate_data_and_text, tokenize_program,
     };
     use std::collections::HashMap;
-    use crate::tests::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
+    use crate::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
 
     #[test]
     fn read_label_absolute_returns_address_of_instruction() {
@@ -221,7 +221,7 @@ mod read_label_relative_tests {
         create_label_map, separate_data_and_text, tokenize_program,
     };
     use std::collections::HashMap;
-    use crate::tests::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
+    use crate::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
 
     #[test]
     fn read_label_relative_returns_correct_value_for_instruction_above_current() {

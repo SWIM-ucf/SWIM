@@ -626,7 +626,7 @@ use crate::parser::parsing::{
     separate_data_and_text, tokenize_program,
 };
 use std::collections::HashMap;
-use crate::tests::parser::pseudo_instruction_parsing::{complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers};
+use crate::parser::pseudo_instruction_parsing::{complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers};
 
 #[test]
 fn place_binary_in_middle_of_another_works() {
@@ -659,7 +659,7 @@ mod helper_functions {
         separate_data_and_text, tokenize_program,
     };
     use std::collections::HashMap;
-    use crate::tests::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
+    use crate::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
 
     pub fn instruction_parser(mut file_string: String) -> Vec<Instruction> {
         file_string = file_string.to_lowercase();
