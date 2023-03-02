@@ -615,7 +615,6 @@ mod read_instructions_tests {
     }
 }
 
-use crate::parser;
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::{
     create_binary_vec, place_binary_in_middle_of_another, read_instructions,
@@ -623,11 +622,11 @@ use crate::parser::parser_assembler_main::{
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::UnsupportedInstruction;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
 use crate::parser::parsing::{
-    complete_lw_sw_pseudo_instructions, create_label_map,
-    expand_pseudo_instructions_and_assign_instruction_numbers, separate_data_and_text,
-    tokenize_program,
+    create_label_map,
+    separate_data_and_text, tokenize_program,
 };
 use std::collections::HashMap;
+use crate::tests::parser::pseudo_instruction_parsing::{complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers};
 
 #[test]
 fn place_binary_in_middle_of_another_works() {
@@ -656,10 +655,11 @@ mod helper_functions {
     use crate::parser::parser_assembler_main::read_instructions;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::Instruction;
     use crate::parser::parsing::{
-        create_label_map, expand_pseudo_instructions_and_assign_instruction_numbers,
+        create_label_map,
         separate_data_and_text, tokenize_program,
     };
     use std::collections::HashMap;
+    use crate::tests::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
 
     pub fn instruction_parser(mut file_string: String) -> Vec<Instruction> {
         file_string = file_string.to_lowercase();

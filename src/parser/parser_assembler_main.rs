@@ -5,6 +5,7 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramIn
 use crate::parser::parser_structs_and_enums::instruction_tokenization::*;
 use crate::parser::parsing::*;
 use std::collections::HashMap;
+use crate::tests::parser::pseudo_instruction_parsing::{complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers};
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.

@@ -9,13 +9,11 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
     Data, Error, Instruction, Line, ProgramInfo, Token,
 };
-use crate::parser::parsing::{
-    complete_lw_sw_pseudo_instructions, create_label_map,
-    expand_pseudo_instructions_and_assign_instruction_numbers,
-};
+use crate::parser::parsing::{create_label_map};
 #[cfg(test)]
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
 use std::collections::HashMap;
+use crate::tests::parser::pseudo_instruction_parsing::{complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers};
 
 #[test]
 fn tokenize_program_works_basic_version() {
