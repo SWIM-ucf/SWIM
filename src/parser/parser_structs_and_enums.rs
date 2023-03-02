@@ -43,7 +43,7 @@ pub mod instruction_tokenization {
     #[derive(Default, Debug, Clone, PartialEq, Eq)]
     pub struct Token {
         pub token_name: String,
-        pub starting_column: u32,
+        pub start_end_columns: (u32, u32),
         pub token_type: TokenType,
     }
 
