@@ -17,13 +17,11 @@ use monaco::{
 };
 use parser::parser_assembler_main::parser;
 use std::{cell::RefCell, rc::Rc};
-use stylist::css;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
 //use stylist::yew::*;
 use ui::console::component::Console;
 use ui::regview::component::Regview;
-use ui::visual_datapath::VisualDatapath;
 use wasm_bindgen::{JsCast, JsValue};
 use yew::prelude::*;
 use yew::{html, Html, Properties};
@@ -254,35 +252,35 @@ fn app() -> Html {
 
     html! {
         <>
-            <div style="display: flex; flex-direction: column;">
-                <div>
-                    //<h1>{"Welcome to SWIM"}</h1>
-                    // button tied to the input file element, which is hidden to be more clean
-                    <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
-                </div>
-                <div style="display: flex">
-                    <div style="width: 70%">
+            // button tied to the input file element, which is hidden to be more clean
+            <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
+            <div style="display: flex; flex-direction: row; flex-wrap: nowrap; height: 100vh; padding: 8px; gap: 8px;">
+                // Left column
+                <div style="flex-basis: 70%; display: flex; flex-direction: column; align-items: stretch;">
+                    // Top buttons
+                    <div>
                         <button class="button" onclick={on_load_clicked}>{ "Assemble" }</button>
                         <button class="button" onclick={on_execute_clicked}> { "Execute" }</button>
                         <button class="button" onclick={on_execute_stage_clicked}> { "Execute Stage" }</button>
                         <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
                         <input type="button" value="Load File" onclick={upload_clicked_callback} />
-                        <SwimEditor link={codelink.clone()} text_model={(*text_model).borrow().clone()} />
-                        <button onclick={on_error_clicked}>{ "Click" }</button>
-                        <div class="tab">
-                            <button class="tabs" style="width: 10%;"
-                            >{"Console"}</button>
-                            <button class="tabs" style="width: 10%;"
-                            >{"Datapath"}</button>
-                            <button class="tabs" style="width: 10%;"
-                            >{"Memory"}</button>
-                        </div>
-                        <Console parsermsg={(*parser_text_output).clone()}/>
-                        <VisualDatapath datapath={(*datapath.borrow()).clone()} svg_path={"static/datapath.svg"} />
                     </div>
-                    // Pass in register data from emu core
-                    <Regview gp={(*datapath).borrow().registers} fp={(*datapath).borrow().coprocessor.fpr}/>
+
+                    // Editor
+                    <div style="flex-grow: 1; min-height: 4em;">
+                        <SwimEditor text_model={(*text_model).borrow().clone()} link={codelink.clone()} />
+                    </div>
+
+                    <div>
+                        <button onclick={on_error_clicked}>{ "Click" }</button>
+                    </div>
+
+                    // Console
+                    <Console parsermsg={(*parser_text_output).clone()} datapath={(*datapath.borrow()).clone()}/>
                 </div>
+
+                // Right column
+                <Regview gp={(*datapath).borrow().registers} fp={(*datapath).borrow().coprocessor.fpr}/>
             </div>
         </>
     }
@@ -317,7 +315,7 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 #[function_component]
 pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     html! {
-        <CodeEditor classes={css!(r#"height: 70vh; width: 100%;"#)} options={get_options()} link={props.link.clone()} model={props.text_model.clone()} />
+        <CodeEditor classes={"editor"} options={get_options()} model={props.text_model.clone()} link={props.link.clone()} />
     }
 }
 

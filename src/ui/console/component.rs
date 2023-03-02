@@ -1,29 +1,88 @@
+use wasm_bindgen::JsCast;
+use web_sys::HtmlElement;
 use yew::prelude::*;
+use yew_hooks::prelude::*;
+
+use crate::emulation_core::mips::datapath::MipsDatapath;
+use crate::ui::visual_datapath::{DatapathSize, VisualDatapath};
 
 #[derive(Properties, PartialEq)]
 pub struct Consoleprops {
+    pub datapath: MipsDatapath,
     pub parsermsg: String,
+}
+
+#[derive(Default, PartialEq)]
+enum TabState {
+    #[default]
+    Console,
+    Datapath,
+    Memory,
 }
 
 #[function_component(Console)]
 pub fn console(props: &Consoleprops) -> Html {
-    /*let parser_text_output = use_state_eq(String::new);
-    let on_error_clicked = {
-        let parser_text_output = parser_text_output.clone();
-        use_callback(
-            move |_, _| {
-                parser_text_output.set("Arial".to_string());
-            },
-            (),
-        )
-    };*/
+    let active_tab = use_state_eq(TabState::default);
+    let zoom_datapath = use_bool_toggle(false);
+
+    let change_tab = {
+        let active_tab = active_tab.clone();
+
+        Callback::from(move |event: MouseEvent| {
+            let target = event.target().unwrap().dyn_into::<HtmlElement>().unwrap();
+            let tab_name = target
+                .get_attribute("label")
+                .unwrap_or(String::from("console"));
+
+            let new_tab = match tab_name.as_str() {
+                "console" => TabState::Console,
+                "datapath" => TabState::Datapath,
+                "memory" => TabState::Memory,
+                _ => TabState::default(),
+            };
+
+            active_tab.set(new_tab);
+        })
+    };
+
+    let toggle_zoom = {
+        let zoom_datapath = zoom_datapath.clone();
+
+        Callback::from(move |_| {
+            zoom_datapath.toggle();
+        })
+    };
+
+    let datapath_size = match *zoom_datapath {
+        true => DatapathSize::Big,
+        false => DatapathSize::Small,
+    };
+
     html! {
         <>
-            // <div style="width: 80.4%; height: 17vh; border: 1px solid black;"></div>
-            <div style="height: 17vh; border: 2px solid black; background-color: #b9cceb; color: #000000;">
-                //<button class="button" onclick={on_error_clicked}>{ "Click" }</button>
-                <p>{ props.parsermsg.clone() }</p>
-                //<p>{ ">" }</p>
+            if *active_tab == TabState::Console {
+                <div class="console">
+                    { props.parsermsg.clone() }
+                </div>
+            } else if *active_tab == TabState::Datapath {
+                <div class="datapath-wrapper">
+                    <VisualDatapath datapath={props.datapath.clone()} svg_path={"static/datapath.svg"} size={datapath_size} />
+                </div>
+            } else {
+                <div class="console">
+                    { "Memory" }
+                </div>
+            }
+
+            // Console buttons
+            <div class="tabs">
+                <button class="tab" label="console" onclick={change_tab.clone()}>{"Console"}</button>
+                <button class="tab" label="datapath" onclick={change_tab.clone()}>{"Datapath"}</button>
+                <button class="tab" label="memory" onclick={change_tab.clone()}>{"Memory"}</button>
+
+                if *active_tab == TabState::Datapath {
+                    <button onclick={toggle_zoom}>{"Toggle Zoom"}</button>
+                }
             </div>
         </>
     }
