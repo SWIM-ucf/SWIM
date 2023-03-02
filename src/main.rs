@@ -70,9 +70,6 @@ fn app() -> Html {
     delta_decor.set_is_whole_line(true.into());
     delta_decor.set_inline_class_name("myInlineDecoration".into());
 
-    
-
-
     // TODO: Output will be stored in two ways, the first would be the parser's
     // messages via logs and the registers will be stored
     // in a custom-built register viewer.
@@ -123,20 +120,21 @@ fn app() -> Html {
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
                 let text_model = (*text_model).borrow_mut();
-                
+
                 // Pull ProgramInfo from the parser
                 let (programinfo, _) = parser(text_model.get_value());
                 // Get the current line and convert it to f64
                 let list_of_line_numbers = programinfo.address_to_line_number;
                 let index = datapath.registers.pc as usize / 4;
-                let curr_line = *list_of_line_numbers.get(index).unwrap() as f64;
+                let curr_line = *list_of_line_numbers.get(index).unwrap() as f64 + 1.0; // add one to account for the editor's line numbers
 
                 // Setup the range
                 let curr_model = text_model.as_ref();
                 let curr_range = monaco::sys::Range::new(curr_line, 0.0, curr_line, 0.0);
 
                 // element to be stored in the Decoration array to highlight the line
-                let highlight_line: monaco::sys::editor::IModelDeltaDecoration = Object::new().unchecked_into();
+                let highlight_line: monaco::sys::editor::IModelDeltaDecoration =
+                    Object::new().unchecked_into();
                 highlight_line.set_options(&delta_decor);
                 let range_js = curr_range
                     .dyn_into::<JsValue>()
@@ -145,6 +143,7 @@ fn app() -> Html {
                 let highlight_js = highlight_line
                     .dyn_into::<JsValue>()
                     .expect("Highlight is not found.");
+
                 // log!("These are the arrays before the push");
                 // log!(new_decor_array.at(0));
                 // log!(old_decor_array.at(0));
@@ -162,7 +161,7 @@ fn app() -> Html {
                 // log!(old_decor_array.at(0));
                 // log!(JsValue::from_str(&datapath.registers.to_string()));
                 trigger.force_update();
-                new_decor_array.pop();// done with the highlight, prepare for the next one.
+                new_decor_array.pop(); // done with the highlight, prepare for the next one.
             },
             (),
         )
