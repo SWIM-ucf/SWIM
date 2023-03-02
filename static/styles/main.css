@@ -9,6 +9,10 @@ body {
   min-height: 100%;
   min-width: 100%;
 }
+.myInlineDecoration {
+	color: rgb(49, 212, 144) !important;
+	font-weight: bold;
+}
 
 /****** Console ******/
 .console {
