@@ -283,6 +283,84 @@
 <a href="#283" id="283">283</a>
 <a href="#284" id="284">284</a>
 <a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attr">#[cfg(test)]
@@ -292,12 +370,13 @@
 <span class="kw">use </span>emulation_core::datapath::Datapath;
 <span class="kw">use </span>emulation_core::mips::datapath::MipsDatapath;
 <span class="kw">use </span>gloo::{console::log, file::FileList};
+<span class="kw">use </span>js_sys::Object;
 <span class="kw">use </span>monaco::{
     api::TextModel,
     sys::editor::{
         IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions,
     },
-    yew::CodeEditor,
+    yew::{CodeEditor, CodeEditorLink},
 };
 <span class="kw">use </span>parser::parser_assembler_main::parser;
 <span class="kw">use </span>std::{cell::RefCell, rc::Rc};
@@ -334,6 +413,26 @@
         ))
     });
 
+    <span class="comment">// Link to the Yew Editor Component, if not used by the end of the project remove it.
+    </span><span class="kw">let </span>codelink = CodeEditorLink::default();
+
+    <span class="comment">// Setup the array that would store decorations applied to the
+    // text model and initialize the options for it.
+    </span><span class="kw">let </span>delta_decor = monaco::sys::editor::IModelDecorationOptions::default();
+    <span class="kw">let </span>decor_array = use_state_eq(js_sys::Array::new);
+    <span class="macro">log!</span>(<span class="string">&quot;This is the array when the app loads&quot;</span>);
+    <span class="macro">log!</span>((<span class="kw-2">*</span>decor_array).at(<span class="number">0</span>));
+    <span class="kw">let </span>new_decor_array = js_sys::Array::new();
+    <span class="kw">let </span>old_decor_array = js_sys::Array::new();
+
+    <span class="comment">// Setting up the options/parameters which
+    // will highlight the executed line.
+    // The delta decor does not need to be change,
+    // the only parameter that will need to be changed is
+    // the range.
+    </span>delta_decor.set_is_whole_line(<span class="bool-val">true</span>.into());
+    delta_decor.set_inline_class_name(<span class="string">&quot;myInlineDecoration&quot;</span>.into());
+
     <span class="comment">// TODO: Output will be stored in two ways, the first would be the parser&#39;s
     // messages via logs and the registers will be stored
     // in a custom-built register viewer.
@@ -358,19 +457,13 @@
 
                 <span class="comment">// parses through the code to assemble the binary
                 </span><span class="kw">let </span>(<span class="kw">_</span>, assembled) = parser(text_model.get_value());
-
-                <span class="comment">// Log initial state of registers in console. (Should all be zero.)
-                // NOTE: We are planning on creating a function that makes viewing
-                // register data easier. For now, this is manually accessing register data
-                // and formatting them all into strings.
-                </span><span class="macro">log!</span>(JsValue::from_str(<span class="kw-2">&amp;</span>datapath.registers.to_string()));
-
-                <span class="comment">// load the binary into the datapath&#39;s memory
+                <span class="comment">// log!(JsValue::from_str(&amp;datapath.registers.to_string()));
+                // Load the binary into the datapath&#39;s memory
                 </span>(<span class="kw-2">*</span>datapath)
                     .load_instructions(assembled)
                     .expect(<span class="string">&quot;Memory could not be loaded&quot;</span>);
-                <span class="macro">log!</span>(datapath.memory.to_string());
-                trigger.force_update();
+                <span class="comment">//log!(datapath.memory.to_string());
+                </span>trigger.force_update();
             },
             text_model,
         )
@@ -379,15 +472,60 @@
     <span class="comment">// This is where the code will get executed. If you execute further
     // than when the code ends, the program crashes.
     </span><span class="kw">let </span>on_execute_clicked = {
+        <span class="kw">let </span>text_model = Rc::clone(<span class="kw-2">&amp;</span>text_model);
         <span class="kw">let </span>datapath = Rc::clone(<span class="kw-2">&amp;</span>datapath);
         <span class="kw">let </span>trigger = use_force_update();
+
+        <span class="kw">let </span>new_decor_array = new_decor_array.clone();
+        <span class="kw">let </span>old_decor_array = old_decor_array.clone();
+
         use_callback(
             <span class="kw">move </span>|<span class="kw">_</span>, <span class="kw">_</span>| {
                 <span class="kw">let </span><span class="kw-2">mut </span>datapath = (<span class="kw-2">*</span>datapath).borrow_mut();
+                <span class="kw">let </span>text_model = (<span class="kw-2">*</span>text_model).borrow_mut();
+
+                <span class="comment">// Pull ProgramInfo from the parser
+                </span><span class="kw">let </span>(programinfo, <span class="kw">_</span>) = parser(text_model.get_value());
+                <span class="comment">// Get the current line and convert it to f64
+                </span><span class="kw">let </span>list_of_line_numbers = programinfo.address_to_line_number;
+                <span class="kw">let </span>index = datapath.registers.pc <span class="kw">as </span>usize / <span class="number">4</span>;
+                <span class="kw">let </span>curr_line = <span class="kw-2">*</span>list_of_line_numbers.get(index).unwrap() <span class="kw">as </span>f64 + <span class="number">1.0</span>; <span class="comment">// add one to account for the editor&#39;s line numbers
+
+                // Setup the range
+                </span><span class="kw">let </span>curr_model = text_model.as_ref();
+                <span class="kw">let </span>curr_range = monaco::sys::Range::new(curr_line, <span class="number">0.0</span>, curr_line, <span class="number">0.0</span>);
+
+                <span class="comment">// element to be stored in the Decoration array to highlight the line
+                </span><span class="kw">let </span>highlight_line: monaco::sys::editor::IModelDeltaDecoration =
+                    Object::new().unchecked_into();
+                highlight_line.set_options(<span class="kw-2">&amp;</span>delta_decor);
+                <span class="kw">let </span>range_js = curr_range
+                    .dyn_into::&lt;JsValue&gt;()
+                    .expect(<span class="string">&quot;Range is not found.&quot;</span>);
+                highlight_line.set_range(<span class="kw-2">&amp;</span>monaco::sys::IRange::from(range_js));
+                <span class="kw">let </span>highlight_js = highlight_line
+                    .dyn_into::&lt;JsValue&gt;()
+                    .expect(<span class="string">&quot;Highlight is not found.&quot;</span>);
+
+                <span class="comment">// log!(&quot;These are the arrays before the push&quot;);
+                // log!(new_decor_array.at(0));
+                // log!(old_decor_array.at(0));
+                </span>new_decor_array.push(<span class="kw-2">&amp;</span>highlight_js);
+                <span class="comment">// it may look ugly, but it makes sense. Uncomment debug statements to see why.
+                </span>old_decor_array.set(
+                    <span class="number">0</span>,
+                    (<span class="kw-2">*</span>curr_model)
+                        .delta_decorations(<span class="kw-2">&amp;</span>old_decor_array, <span class="kw-2">&amp;</span>new_decor_array, <span class="prelude-val">None</span>)
+                        .into(),
+                );
                 (<span class="kw-2">*</span>datapath).execute_instruction();
-                <span class="macro">log!</span>(JsValue::from_str(<span class="kw-2">&amp;</span>datapath.registers.to_string()));
-                trigger.force_update();
-            },
+                <span class="comment">// log!(&quot;These are the arrays after the push&quot;);
+                // log!(new_decor_array.at(0));
+                // log!(old_decor_array.at(0));
+                // log!(JsValue::from_str(&amp;datapath.registers.to_string()));
+                </span>trigger.force_update();
+                new_decor_array.pop(); <span class="comment">// done with the highlight, prepare for the next one.
+            </span>},
             (),
         )
     };
@@ -409,14 +547,31 @@
     // programs since if the user continues to execute, the whole application will
     // crash.
     </span><span class="kw">let </span>on_reset_clicked = {
+        <span class="kw">let </span>text_model = Rc::clone(<span class="kw-2">&amp;</span>text_model);
         <span class="kw">let </span>datapath = Rc::clone(<span class="kw-2">&amp;</span>datapath);
         <span class="kw">let </span>trigger = use_force_update();
+
+        <span class="kw">let </span>new_decor_array = new_decor_array;
+        <span class="kw">let </span>old_decor_array = old_decor_array;
+
         use_callback(
             <span class="kw">move </span>|<span class="kw">_</span>, <span class="kw">_</span>| {
                 <span class="kw">let </span><span class="kw-2">mut </span>datapath = (<span class="kw-2">*</span>datapath).borrow_mut();
+                <span class="kw">let </span>text_model = (<span class="kw-2">*</span>text_model).borrow_mut();
+                <span class="kw">let </span>curr_model = text_model.as_ref();
+                new_decor_array.pop();
+                old_decor_array.set(
+                    <span class="number">0</span>,
+                    (<span class="kw-2">*</span>curr_model)
+                        .delta_decorations(<span class="kw-2">&amp;</span>old_decor_array, <span class="kw-2">&amp;</span>new_decor_array, <span class="prelude-val">None</span>)
+                        .into(),
+                );
                 (<span class="kw-2">*</span>datapath).reset();
-                <span class="macro">log!</span>(JsValue::from_str(<span class="kw-2">&amp;</span>datapath.registers.to_string()));
-                trigger.force_update();
+                <span class="comment">// log!(&quot;The handle should still be there, no highlight&quot;);
+                // log!(old_decor_array.at(0));
+                // log!(new_decor_array.at(0));
+                // log!(JsValue::from_str(&amp;datapath.registers.to_string()));
+                </span>trigger.force_update();
             },
             (),
         )
@@ -486,7 +641,7 @@
 
                     <span class="comment">// Editor
                     </span>&lt;div style=<span class="string">&quot;flex-grow: 1; min-height: 4em;&quot;</span>&gt;
-                        &lt;SwimEditor text_model={(<span class="kw-2">*</span>text_model).borrow().clone()} /&gt;
+                        &lt;SwimEditor text_model={(<span class="kw-2">*</span>text_model).borrow().clone()} link={codelink.clone()} /&gt;
                     &lt;/div&gt;
 
                     &lt;div&gt;
@@ -508,7 +663,8 @@
 
 </span><span class="attr">#[derive(PartialEq, Properties)]
 </span><span class="kw">pub struct </span>SwimEditorProps {
-    text_model: TextModel,
+    <span class="kw">pub </span>text_model: TextModel,
+    <span class="kw">pub </span>link: CodeEditorLink,
 }
 
 <span class="kw">fn </span>get_options() -&gt; IStandaloneEditorConstructionOptions {
@@ -532,7 +688,7 @@
 <span class="attr">#[function_component]
 </span><span class="kw">pub fn </span>SwimEditor(props: <span class="kw-2">&amp;</span>SwimEditorProps) -&gt; Html {
     <span class="macro">html! </span>{
-        &lt;CodeEditor classes={<span class="string">&quot;editor&quot;</span>} options={get_options()} model={props.text_model.clone()} /&gt;
+        &lt;CodeEditor classes={<span class="string">&quot;editor&quot;</span>} options={get_options()} model={props.text_model.clone()} link={props.link.clone()} /&gt;
     }
 }
 
@@ -542,7 +698,7 @@
     <span class="kw">pub </span>parsermsg: String,
 }
 
-<span class="comment">/**********************  File I/O Functions **********************/
+<span class="comment">/**********************  File I/O Function ***********************/
 </span><span class="kw">pub fn </span>on_upload_file_clicked() {
     <span class="comment">// log!(JsValue::from(&quot;Upload clicked!&quot;));
 
