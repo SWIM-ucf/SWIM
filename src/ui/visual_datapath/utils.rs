@@ -1,8 +1,8 @@
 //! Helpful common functions used for the visual datapath.
 
-use gloo::utils::document;
+use gloo::utils::{document, window};
 use wasm_bindgen::JsCast;
-use web_sys::{Element, HtmlCollection, HtmlElement, HtmlObjectElement};
+use web_sys::{Element, HtmlCollection, HtmlElement, HtmlObjectElement, MouseEvent};
 
 use crate::emulation_core::{datapath::VisualDatapath, mips::datapath::MipsDatapath};
 
@@ -38,11 +38,70 @@ pub fn get_g_elements() -> HtmlCollection {
         .children()
 }
 
+/// Returns the size of the browser window in pixels.
+pub fn get_window_size() -> (i32, i32) {
+    (
+        window().inner_width().unwrap().as_f64().unwrap() as i32,
+        window().inner_height().unwrap().as_f64().unwrap() as i32,
+    )
+}
+
 /// Returns the relative coordinates of the `<object>` element to the page.
 pub fn get_datapath_position() -> (i32, i32) {
     let datapath_root = get_datapath_root();
 
     (datapath_root.offset_left(), datapath_root.offset_top())
+}
+
+/// Given a [`MouseEvent`] inside the datapath `<object>` element, returns
+/// the coordinates of the mouse on the full screen.
+///
+/// This coordinate is highly dependent on the implementation and structure
+/// of the page. This should be considered more like a macro than a re-usable
+/// function.
+pub fn get_datapath_iframe_mouse_position(event: MouseEvent) -> (i32, i32) {
+    let datapath_position = get_datapath_position();
+
+    let datapath_wrapper = gloo::utils::document()
+        .query_selector(".datapath-wrapper")
+        .unwrap()
+        .unwrap()
+        .unchecked_into::<HtmlElement>();
+    let scroll_position = (
+        datapath_wrapper.scroll_left(),
+        datapath_wrapper.scroll_top(),
+    );
+
+    (
+        event.client_x() + datapath_position.0 - scroll_position.0,
+        event.client_y() + datapath_position.1 - scroll_position.1,
+    )
+}
+
+/// Given the mouse location, the size of the popup, and the window size,
+/// return the coordinates of the top left corner of where the popup should go.
+pub fn calculate_popup_position(
+    mouse_position: (i32, i32),
+    popup_size: (i32, i32),
+    window_size: (i32, i32),
+) -> (i32, i32) {
+    // The horizontal and vertical distance that the popup should be from the mouse.
+    const MOUSE_GAP: i32 = 20;
+
+    // As a start, try to put the popup to the lower-right of the mouse.
+    let mut position = (mouse_position.0 + MOUSE_GAP, mouse_position.1 + MOUSE_GAP);
+
+    // If the popup gets cut off at the bottom, go to the upper-right of the mouse instead.
+    if position.1 + popup_size.1 > window_size.1 {
+        position = (position.0, mouse_position.1 - popup_size.1 - MOUSE_GAP);
+    }
+
+    // If the popup gets cut off at the right, force the x-position against the side of the screen.
+    if position.0 + popup_size.0 > window_size.0 {
+        position = (window_size.0 - popup_size.0, position.1);
+    }
+
+    position
 }
 
 /// Perform some function over an [`HtmlCollection`], assuming each element

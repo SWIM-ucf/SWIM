@@ -41,10 +41,10 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
         program_info.updated_monaco_string.push('\n');
     }
 
-    for (i, instruction) in program_info.instructions.clone().into_iter().enumerate() {
+    for instruction in program_info.instructions.clone() {
         program_info
             .address_to_line_number
-            .push((i as u32, instruction.line_number));
+            .push(instruction.line_number);
     }
 
     (program_info.clone(), binary)
