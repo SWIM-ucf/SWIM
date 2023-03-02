@@ -1043,13 +1043,13 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi() {
         Instruction {
             operator: Token {
                 token_name: "ori".to_string(),
-                start_end_columns: (0, 2),
+                start_end_columns: (0, 0),
                 token_type: Operator,
             },
             operands: vec![
                 Token {
                     token_name: "$at".to_string(),
-                    start_end_columns: (4, 6),
+                    start_end_columns: (0, 0),
                     token_type: Default::default(),
                 },
                 Token {

@@ -10,14 +10,17 @@ use std::collections::HashMap;
 /// program and builds the binary of the instructions while cataloging any errors that are found.
 pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
     let mut program_info = ProgramInfo::default();
-    let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) =
+    let (lines, mut updated_monaco_strings, monaco_line_info_vec) =
         tokenize_program(file_string);
+
+    program_info.monaco_line_info = monaco_line_info_vec;
+
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
         &mut updated_monaco_strings,
-        &mut monaco_line_info_vec,
+        &mut program_info.monaco_line_info,
     );
     let vec_of_data = assemble_data_binary(&mut program_info.data);
     let labels: HashMap<String, u32> =

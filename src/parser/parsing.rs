@@ -294,7 +294,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     instructions: &mut Vec<Instruction>,
     data: &Vec<Data>,
     updated_monaco_strings: &mut Vec<String>,
-    monaco_line_info_vec: &mut Vec<MonacoLineInfo>,
+    monaco_line_info: &mut Vec<MonacoLineInfo>,
 ) {
     //figure out list of labels to be used for lw and sw labels
     let mut list_of_labels: Vec<String> = Vec::new();
@@ -315,7 +315,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
         instruction.instruction_number = (i + vec_of_added_instructions.len()) as u32;
         match &*instruction.operator.token_name {
             "li" => {
-                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "li is a pseudo-instruction.\nli regA, immediate =>\n\tori $regA, $zero, immediate"
                         .to_string();
 
@@ -332,7 +332,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //sub $regA, $regB, $regC
                 //ori $at, $zero, 1
                 //sltu $regA, $regA, $at
-                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "seq is a pseudo-instruction.\nseq $regA, $regB, $regC =>\n\tsub $regA, $regB, $regC\n\tori $at, $zero, 1\n\tsltu $regA, $regA, $at"
                         .to_string();
 
@@ -361,12 +361,12 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                         },
                         Token {
                             token_name: "$zero".to_string(),
-                            start_end_columns: (9, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: "1".to_string(),
-                            start_end_columns: (16, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                     ],
@@ -381,19 +381,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //set r0 to 1 if r1 - r2 == 0
                 instruction.operator.token_name = "sltu".to_string();
                 instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
-                instruction.operands[1].start_end_columns = (
-                    instruction.operands[0].start_end_columns.0
-                        + instruction.operands[0].token_name.len() as u32
-                        + 2,
-                    0,
-                );
+                instruction.operands[1].start_end_columns = (0, 0);
                 instruction.operands[2].token_name = "$at".to_string();
-                instruction.operands[2].start_end_columns = (
-                    instruction.operands[1].start_end_columns.0
-                        + instruction.operands[1].token_name.len() as u32
-                        + 2,
-                    0,
-                );
+                instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
             }
             "sne" => {
@@ -401,7 +391,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //sub $regA, $regB, $regC
                 //sltu $regA, $zero, $regA
 
-                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "sne is a pseudo-instruction.\nsne $regA, $regB, $regC =>\n\tsub $regA, $regB, $regC\n\tsltu $regA, $zero, $regA"
                         .to_string();
 
@@ -418,19 +408,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //set r0 to 1 if r1 - r2 != 0
                 instruction.operator.token_name = "sltu".to_string();
                 instruction.operands[1].token_name = "$zero".to_string();
-                instruction.operands[1].start_end_columns = (
-                    instruction.operands[0].start_end_columns.0
-                        + instruction.operands[0].token_name.len() as u32
-                        + 2,
-                    0,
-                );
+                instruction.operands[1].start_end_columns = (0,0);
                 instruction.operands[2].token_name = instruction.operands[0].token_name.clone();
-                instruction.operands[2].start_end_columns = (
-                    instruction.operands[1].start_end_columns.0
-                        + instruction.operands[1].token_name.len() as u32
-                        + 2,
-                    0,
-                );
+                instruction.operands[2].start_end_columns = (0,0);
                 instruction.instruction_number += 1;
             }
             "sle" => {
@@ -439,7 +419,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 // addi $regA, $regA, 1
                 // andi $regA, $regA, 1
 
-                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "sle is a pseudo-instruction.\nsle $regA, $regB, $regC =>\n\tslt $regA, $regC, $regB\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1"
                         .to_string();
 
@@ -452,12 +432,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 let mut extra_instruction = instruction.clone();
                 let temp = extra_instruction.operands[1].clone();
                 extra_instruction.operands[1] = extra_instruction.operands[2].clone();
-                extra_instruction.operands[1].start_end_columns = temp.start_end_columns;
+                extra_instruction.operands[1].start_end_columns = (0,0);
                 extra_instruction.operands[2] = temp.clone();
-                extra_instruction.operands[2].start_end_columns = (
-                    temp.start_end_columns.0 + temp.token_name.len() as u32 + 2,
-                    0,
-                );
+                extra_instruction.operands[2].start_end_columns = (0,0);
                 extra_instruction.operator.token_name = "slt".to_string();
                 extra_instruction.line_number = 0;
                 vec_of_added_instructions.push(extra_instruction);
@@ -472,23 +449,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     operands: vec![
                         Token {
                             token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (5, 0),
+                            start_end_columns: (0,0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (
-                                (instruction.operands[0].token_name.len() + 7) as u32,
-                                0,
-                            ),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: "1".to_string(),
-                            start_end_columns: (
-                                (instruction.operands[0].token_name.len() * 2 + 9) as u32,
-                                0,
-                            ),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                     ],
@@ -512,7 +483,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 // addi $regA, $regA, 1
                 // andi $regA, $regA, 1
 
-                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "sleu is a pseudo-instruction.\nsleu $regA, $regB, $regC =>\n\tsltu $regA, $regC, $regB\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1"
                         .to_string();
 
@@ -540,23 +511,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     operands: vec![
                         Token {
                             token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (5, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (
-                                (instruction.operands[0].token_name.len() + 7) as u32,
-                                0,
-                            ),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: "1".to_string(),
-                            start_end_columns: (
-                                (instruction.operands[0].token_name.len() * 2 + 9) as u32,
-                                0,
-                            ),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                     ],
@@ -578,7 +543,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //sgt $regA, $regB, $regC is translated to:
                 // slt $regA, $regC, $regB
 
-                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "sgt is a pseudo-instruction.\nsgt $regA, $regB, $regC =>\n\tslt $regA, $regC, $regB"
                         .to_string();
 
@@ -588,7 +553,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 }
                 let temp = instruction.operands[1].clone();
                 instruction.operands[1] = instruction.operands[2].clone();
-                instruction.operands[1].start_end_columns = temp.start_end_columns;
+                instruction.operands[1].start_end_columns = (0,0);
                 instruction.operands[2] = temp.clone();
                 instruction.operator.token_name = "slt".to_string();
             }
@@ -596,7 +561,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //sgtu $regA, $regB, $regC is translated to:
                 // sltu $regA, $regC, $regB
 
-                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "sgtu is a pseudo-instruction.\nsgtu $regA, $regB, $regC =>\n\tsltu $regA, $regC, $regB"
                         .to_string();
 
@@ -606,7 +571,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 }
                 let temp = instruction.operands[1].clone();
                 instruction.operands[1] = instruction.operands[2].clone();
-                instruction.operands[1].start_end_columns = temp.start_end_columns;
+                instruction.operands[1].start_end_columns = (0,0);
                 instruction.operands[2] = temp.clone();
                 instruction.operator.token_name = "sltu".to_string();
             }
@@ -616,7 +581,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 // addi $regA, $regA, 1
                 // andi $regA, $regA, 1
 
-                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "sge is a pseudo-instruction.\nsge $regA, $regB, $regC =>\n\tslt $regA, $regB, $regC\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1"
                         .to_string();
 
@@ -641,23 +606,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     operands: vec![
                         Token {
                             token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (5, 0),
+                            start_end_columns: (0,0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (
-                                (instruction.operands[0].token_name.len() + 7) as u32,
-                                0,
-                            ),
+                            start_end_columns: (0,0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: "1".to_string(),
-                            start_end_columns: (
-                                (instruction.operands[0].token_name.len() * 2 + 9) as u32,
-                                0,
-                            ),
+                            start_end_columns: (0,0),
                             token_type: Default::default(),
                         },
                     ],
@@ -681,7 +640,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 // addi $regA, $regA, 1
                 // andi $regA, $regA, 1
 
-                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "sgeu is a pseudo-instruction.\nsgeu $regA, $regB, $regC =>\n\tsltu $regA, $regB, $regC\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1"
                         .to_string();
 
@@ -706,23 +665,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     operands: vec![
                         Token {
                             token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (5, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (
-                                (instruction.operands[0].token_name.len() + 7) as u32,
-                                0,
-                            ),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: "1".to_string(),
-                            start_end_columns: (
-                                (instruction.operands[0].token_name.len() * 2 + 9) as u32,
-                                0,
-                            ),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                     ],
@@ -750,11 +703,11 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 {
                     //create mouse hover message dependent on lw / sw
                     if instruction.operator.token_name == "lw" {
-                        monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                        monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                             "lw $regA, label is a pseudo-instruction.\nlw $regA, label =>\n\tlui $at, label\n\tlw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address."
                                 .to_string();
                     } else {
-                        monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                        monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                             "sw $regA, label is a pseudo-instruction.\nsw $regA, label =>\n\tlui $at, label\n\tsw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address."
                                 .to_string();
                     }
@@ -768,12 +721,12 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                         operands: vec![
                             Token {
                                 token_name: "$at".to_string(),
-                                start_end_columns: (4, 0),
+                                start_end_columns: (0, 0),
                                 token_type: Default::default(),
                             },
                             Token {
                                 token_name: instruction.operands[1].token_name.clone(),
-                                start_end_columns: (9, 0),
+                                start_end_columns: (0, 0),
                                 token_type: Default::default(),
                             },
                         ],
@@ -793,7 +746,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //ori $at, $zero, immediate
                 //sub $regA, $regB, $at
 
-                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at"
                         .to_string();
 
@@ -810,17 +763,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     operands: vec![
                         Token {
                             token_name: "$at".to_string(),
-                            start_end_columns: (4, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: "$zero".to_string(),
-                            start_end_columns: (9, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: instruction.operands[2].token_name.clone(),
-                            start_end_columns: (16, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                     ],
@@ -841,7 +794,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //ori $at, $zero, immediate
                 //dsub $regA, $regB, $at
 
-                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "dsubi $regA, $regB, immediate is a pseudo-instruction.\ndsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdsub $regA, $regB, $at"
                         .to_string();
 
@@ -858,17 +811,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     operands: vec![
                         Token {
                             token_name: "$at".to_string(),
-                            start_end_columns: (4, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: "$zero".to_string(),
-                            start_end_columns: (9, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: instruction.operands[2].token_name.clone(),
-                            start_end_columns: (16, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                     ],
@@ -890,7 +843,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //ori $at, $zero, immediate
                 //mul $regA, $regB, $at
 
-                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "muli $regA, $regB, immediate is a pseudo-instruction.\nmuli $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tmul $regA, $regB, $at"
                         .to_string();
 
@@ -907,17 +860,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     operands: vec![
                         Token {
                             token_name: "$at".to_string(),
-                            start_end_columns: (4, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: "$zero".to_string(),
-                            start_end_columns: (9, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: instruction.operands[2].token_name.clone(),
-                            start_end_columns: (16, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                     ],
@@ -938,7 +891,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //ori $at, $zero, immediate
                 //dmul $regA, $regB, $at
 
-                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "dmuli $regA, $regB, immediate is a pseudo-instruction.\ndmuli $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdmul $regA, $regB, $at"
                         .to_string();
 
@@ -955,17 +908,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     operands: vec![
                         Token {
                             token_name: "$at".to_string(),
-                            start_end_columns: (4, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: "$zero".to_string(),
-                            start_end_columns: (9, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: instruction.operands[2].token_name.clone(),
-                            start_end_columns: (16, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                     ],
@@ -987,7 +940,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //ori $at, $zero, immediate
                 //div $regA, $at
 
-                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "divi $regA, immediate is a pseudo-instruction.\ndivi $regA, immediate =>\n\tori $at, $zero, immediate\n\tdiv $regA, $at"
                         .to_string();
 
@@ -1004,17 +957,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     operands: vec![
                         Token {
                             token_name: "$at".to_string(),
-                            start_end_columns: (4, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: "$zero".to_string(),
-                            start_end_columns: (9, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: instruction.operands[1].token_name.clone(),
-                            start_end_columns: (16, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                     ],
@@ -1035,10 +988,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //ori $at, $zero, immediate
                 //ddiv $regA, $at
 
-                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "ddivi $regA, immediate is a pseudo-instruction.\nddivi $regA, immediate =>\n\tori $at, $zero, immediate\n\tddiv $regA, $at"
                         .to_string();
-
 
                 //make sure that there actually is a second operand
                 if instruction.operands.len() < 2 {
@@ -1053,17 +1005,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     operands: vec![
                         Token {
                             token_name: "$at".to_string(),
-                            start_end_columns: (4, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: "$zero".to_string(),
-                            start_end_columns: (9, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: instruction.operands[1].token_name.clone(),
-                            start_end_columns: (16, 0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                     ],

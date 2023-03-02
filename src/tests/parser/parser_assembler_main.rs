@@ -627,6 +627,7 @@ use crate::parser::parsing::{
     tokenize_program,
 };
 use std::collections::HashMap;
+use crate::parser;
 
 #[test]
 fn place_binary_in_middle_of_another_works() {
@@ -746,4 +747,13 @@ fn read_instructions_recognizes_valid_but_unsupported_instructions() {
         program_info.instructions[1].errors[0].error_name,
         UnsupportedInstruction
     );
+}
+
+#[test]
+fn parser_outputs_line_hover_info_for_pseudo_instructions(){
+    let result = parser("subi: subi $t1, $t2, 100\nlw $t1, subi".to_string()).0.monaco_line_info;
+
+    for entry in result{
+        println!("{}", entry.mouse_hover_string);
+    }
 }
