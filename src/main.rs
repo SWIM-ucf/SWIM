@@ -6,26 +6,26 @@ pub mod ui;
 
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
-use gloo::{console::log, file::FileList};
+use gloo::{console::log, dialogs::alert, file::FileList};
+use js_sys::Object;
 use monaco::{
     api::TextModel,
     sys::editor::{
         IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions,
     },
-    yew::CodeEditor,
+    yew::{CodeEditor, CodeEditorLink},
 };
 use parser::parser_assembler_main::parser;
 use std::{cell::RefCell, rc::Rc};
-use stylist::css;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
 //use stylist::yew::*;
 use ui::console::component::Console;
 use ui::regview::component::Regview;
-use ui::visual_datapath::VisualDatapath;
 use wasm_bindgen::{JsCast, JsValue};
 use yew::prelude::*;
 use yew::{html, Html, Properties};
+use yew_hooks::prelude::*;
 
 #[function_component(App)]
 fn app() -> Html {
@@ -51,6 +51,28 @@ fn app() -> Html {
         ))
     });
 
+    // Link to the Yew Editor Component, if not used by the end of the project remove it.
+    let codelink = CodeEditorLink::default();
+
+    let clipboard = use_clipboard();
+
+    // Setup the array that would store decorations applied to the
+    // text model and initialize the options for it.
+    let delta_decor = monaco::sys::editor::IModelDecorationOptions::default();
+    let decor_array = use_state_eq(js_sys::Array::new);
+    log!("This is the array when the app loads");
+    log!((*decor_array).at(0));
+    let new_decor_array = js_sys::Array::new();
+    let old_decor_array = js_sys::Array::new();
+
+    // Setting up the options/parameters which
+    // will highlight the executed line.
+    // The delta decor does not need to be change,
+    // the only parameter that will need to be changed is
+    // the range.
+    delta_decor.set_is_whole_line(true.into());
+    delta_decor.set_inline_class_name("myInlineDecoration".into());
+
     // TODO: Output will be stored in two ways, the first would be the parser's
     // messages via logs and the registers will be stored
     // in a custom-built register viewer.
@@ -63,7 +85,7 @@ fn app() -> Html {
     // the ability to access and change its contents be mutable.
     let datapath = use_state_eq(|| Rc::new(RefCell::new(MipsDatapath::default())));
 
-    // This is where we take the code and run it through the emulation core
+    // This is where we take the code and run it through the emulation core.
     let on_load_clicked = {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
@@ -75,18 +97,12 @@ fn app() -> Html {
 
                 // parses through the code to assemble the binary
                 let (_, assembled) = parser(text_model.get_value());
-
-                // Log initial state of registers in console. (Should all be zero.)
-                // NOTE: We are planning on creating a function that makes viewing
-                // register data easier. For now, this is manually accessing register data
-                // and formatting them all into strings.
-                log!(JsValue::from_str(&datapath.registers.to_string()));
-
-                // load the binary into the datapath's memory
+                // log!(JsValue::from_str(&datapath.registers.to_string()));
+                // Load the binary into the datapath's memory
                 (*datapath)
                     .load_instructions(assembled)
                     .expect("Memory could not be loaded");
-                log!(datapath.memory.to_string());
+                //log!(datapath.memory.to_string());
                 trigger.force_update();
             },
             text_model,
@@ -94,16 +110,62 @@ fn app() -> Html {
     };
 
     // This is where the code will get executed. If you execute further
-    // than when the code ends, the program crashes.
+    // than when the code ends, the program crashes. As you execute the
+    // code, the currently executed line is highlighted.
     let on_execute_clicked = {
+        let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
+
+        let new_decor_array = new_decor_array.clone();
+        let old_decor_array = old_decor_array.clone();
+
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
+                let text_model = (*text_model).borrow_mut();
+
+                // Pull ProgramInfo from the parser
+                let (programinfo, _) = parser(text_model.get_value());
+                // Get the current line and convert it to f64
+                let list_of_line_numbers = programinfo.address_to_line_number;
+                let index = datapath.registers.pc as usize / 4;
+                let curr_line = *list_of_line_numbers.get(index).unwrap() as f64 + 1.0; // add one to account for the editor's line numbers
+
+                // Setup the range
+                let curr_model = text_model.as_ref();
+                let curr_range = monaco::sys::Range::new(curr_line, 0.0, curr_line, 0.0);
+
+                // element to be stored in the Decoration array to highlight the line
+                let highlight_line: monaco::sys::editor::IModelDeltaDecoration =
+                    Object::new().unchecked_into();
+                highlight_line.set_options(&delta_decor);
+                let range_js = curr_range
+                    .dyn_into::<JsValue>()
+                    .expect("Range is not found.");
+                highlight_line.set_range(&monaco::sys::IRange::from(range_js));
+                let highlight_js = highlight_line
+                    .dyn_into::<JsValue>()
+                    .expect("Highlight is not found.");
+
+                // log!("These are the arrays before the push");
+                // log!(new_decor_array.at(0));
+                // log!(old_decor_array.at(0));
+                new_decor_array.push(&highlight_js);
+                // it may look ugly, but it makes sense. Uncomment debug statements to see why.
+                old_decor_array.set(
+                    0,
+                    (*curr_model)
+                        .delta_decorations(&old_decor_array, &new_decor_array, None)
+                        .into(),
+                );
                 (*datapath).execute_instruction();
-                log!(JsValue::from_str(&datapath.registers.to_string()));
+                // log!("These are the arrays after the push");
+                // log!(new_decor_array.at(0));
+                // log!(old_decor_array.at(0));
+                // log!(JsValue::from_str(&datapath.registers.to_string()));
                 trigger.force_update();
+                new_decor_array.pop(); // done with the highlight, prepare for the next one.
             },
             (),
         )
@@ -124,19 +186,46 @@ fn app() -> Html {
 
     // This is how we will reset the datapath. This is the only method to "halt"
     // programs since if the user continues to execute, the whole application will
-    // crash.
+    // crash. This will also clear any highlight on the editor.
     let on_reset_clicked = {
+        let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
+
+        let new_decor_array = new_decor_array;
+        let old_decor_array = old_decor_array;
+
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
+                let text_model = (*text_model).borrow_mut();
+                let curr_model = text_model.as_ref();
+                new_decor_array.pop();
+                old_decor_array.set(
+                    0,
+                    (*curr_model)
+                        .delta_decorations(&old_decor_array, &new_decor_array, None)
+                        .into(),
+                );
                 (*datapath).reset();
-                log!(JsValue::from_str(&datapath.registers.to_string()));
+                // log!("The handle should still be there, no highlight");
+                // log!(old_decor_array.at(0));
+                // log!(new_decor_array.at(0));
+                // log!(JsValue::from_str(&datapath.registers.to_string()));
                 trigger.force_update();
             },
             (),
         )
+    };
+
+    let on_clipboard_clicked = {
+        let text_model = Rc::clone(&text_model);
+        let clipboard = clipboard;
+        Callback::from(move |_: _| {
+            let text_model = (*text_model).borrow_mut();
+            clipboard.write_text(text_model.get_value());
+            alert("Your code is saved to the clipboard.\nPaste it onto a text file to save it.\n(Ctrl/Cmd + V)");
+        })
     };
 
     // This is where the parser will output its error messages to the user.
@@ -187,35 +276,36 @@ fn app() -> Html {
 
     html! {
         <>
-            <div style="display: flex; flex-direction: column;">
-                <div>
-                    //<h1>{"Welcome to SWIM"}</h1>
-                    // button tied to the input file element, which is hidden to be more clean
-                    <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
-                </div>
-                <div style="display: flex">
-                    <div style="width: 70%">
+            // button tied to the input file element, which is hidden to be more clean
+            <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
+            <div style="display: flex; flex-direction: row; flex-wrap: nowrap; height: 100vh; padding: 8px; gap: 8px;">
+                // Left column
+                <div style="flex-basis: 70%; display: flex; flex-direction: column; align-items: stretch;">
+                    // Top buttons
+                    <div>
                         <button class="button" onclick={on_load_clicked}>{ "Assemble" }</button>
                         <button class="button" onclick={on_execute_clicked}> { "Execute" }</button>
                         <button class="button" onclick={on_execute_stage_clicked}> { "Execute Stage" }</button>
                         <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
                         <input type="button" value="Load File" onclick={upload_clicked_callback} />
-                        <SwimEditor text_model={(*text_model).borrow().clone()} />
-                        <button onclick={on_error_clicked}>{ "Click" }</button>
-                        <div class="tab">
-                            <button class="tabs" style="width: 10%;"
-                            >{"Console"}</button>
-                            <button class="tabs" style="width: 10%;"
-                            >{"Datapath"}</button>
-                            <button class="tabs" style="width: 10%;"
-                            >{"Memory"}</button>
-                        </div>
-                        <Console parsermsg={(*parser_text_output).clone()}/>
-                        <VisualDatapath datapath={(*datapath.borrow()).clone()} svg_path={"static/datapath.svg"} />
+                        <input type="button" value="Save to Clipboard" onclick={on_clipboard_clicked} />
                     </div>
-                    // Pass in register data from emu core
-                    <Regview gp={(*datapath).borrow().registers} fp={(*datapath).borrow().coprocessor.fpr}/>
+
+                    // Editor
+                    <div style="flex-grow: 1; min-height: 4em;">
+                        <SwimEditor text_model={(*text_model).borrow().clone()} link={codelink.clone()} />
+                    </div>
+
+                    <div>
+                        <button onclick={on_error_clicked}>{ "Click" }</button>
+                    </div>
+
+                    // Console
+                    <Console parsermsg={(*parser_text_output).clone()} datapath={(*datapath.borrow()).clone()}/>
                 </div>
+
+                // Right column
+                <Regview gp={(*datapath).borrow().registers} fp={(*datapath).borrow().coprocessor.fpr}/>
             </div>
         </>
     }
@@ -225,7 +315,8 @@ fn app() -> Html {
 
 #[derive(PartialEq, Properties)]
 pub struct SwimEditorProps {
-    text_model: TextModel,
+    pub text_model: TextModel,
+    pub link: CodeEditorLink,
 }
 
 fn get_options() -> IStandaloneEditorConstructionOptions {
@@ -249,7 +340,7 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 #[function_component]
 pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     html! {
-        <CodeEditor classes={css!(r#"height: 70vh; width: 100%;"#)} options={get_options()} model={props.text_model.clone()} />
+        <CodeEditor classes={"editor"} options={get_options()} model={props.text_model.clone()} link={props.link.clone()} />
     }
 }
 
@@ -259,7 +350,7 @@ pub struct Consoleprops {
     pub parsermsg: String,
 }
 
-/**********************  File I/O Functions **********************/
+/**********************  File I/O Function ***********************/
 pub fn on_upload_file_clicked() {
     // log!(JsValue::from("Upload clicked!"));
 

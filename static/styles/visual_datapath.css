@@ -1,3 +1,11 @@
+.small-datapath {
+  width: 100%;
+}
+
+.big-datapath {
+  width: auto;
+}
+
 #popup {
   display: none;
   position: absolute;

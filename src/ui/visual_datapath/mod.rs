@@ -45,10 +45,19 @@ pub struct VisualDatapathProps {
     ///
     /// For example, "`static/datapath.svg`".
     pub svg_path: String,
+
+    pub size: Option<DatapathSize>,
 }
 
 pub struct VisualDatapath {
     active_listeners: Rc<RefCell<Vec<EventListener>>>,
+}
+
+#[derive(Clone, Copy, Default, PartialEq)]
+pub enum DatapathSize {
+    Big,
+    #[default]
+    Small,
 }
 
 impl Component for VisualDatapath {
@@ -62,9 +71,16 @@ impl Component for VisualDatapath {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
+        // Set the size of the datapath based on props.
+        let size = ctx.props().size.unwrap_or_default();
+        let size_class = match size {
+            DatapathSize::Big => "big-datapath",
+            DatapathSize::Small => "small-datapath",
+        };
+
         html! {
             <>
-                <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID}></object>
+                <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID} class={size_class}></object>
                 <div id="popup">
                     <h1 class="title">{ "[Title]" }</h1>
                     <p class="description">{ "[Description]" }</p>
@@ -163,7 +179,7 @@ impl VisualDatapath {
                     do_over_html_collection_safe(&paths, |item| {
                         if let Some(path) = item {
                             // Allow the path to have event listeners.
-                            path.set_attribute("pointer-events", "stroke").ok();
+                            path.set_attribute("pointer-events", "auto").ok();
 
                             if path.tag_name() == "ellipse" {
                                 // Remove the large <rect> surrounding the ellipse. It covers up elements and is stupid.
@@ -279,7 +295,6 @@ impl VisualDatapath {
             // Get relevant elements.
             let target = event.target().unwrap().unchecked_into::<HtmlElement>();
             let popup = get_popup_element();
-            let datapath_position = get_datapath_position();
 
             // Show popup.
             let variable = target
@@ -288,21 +303,22 @@ impl VisualDatapath {
                 .get_attribute("data-variable")
                 .unwrap_or_default();
             populate_popup_information(&datapath, &variable);
+
+            // Calculate popup position.
+            let mouse_position = get_datapath_iframe_mouse_position(event);
+            let popup_size = (popup.offset_width(), popup.offset_height());
+            let popup_position =
+                calculate_popup_position(mouse_position, popup_size, get_window_size());
+
+            popup
+                .style()
+                .set_property("left", &format!("{}px", popup_position.0))
+                .ok();
+            popup
+                .style()
+                .set_property("top", &format!("{}px", popup_position.1))
+                .ok();
             popup.style().set_property("display", "block").ok();
-            popup
-                .style()
-                .set_property(
-                    "left",
-                    &format!("{}px", datapath_position.0 + event.client_x() + 20),
-                )
-                .ok();
-            popup
-                .style()
-                .set_property(
-                    "top",
-                    &format!("{}px", datapath_position.1 + event.client_y() + 20),
-                )
-                .ok();
         });
 
         // Move the popup if the mouse moves while still hovering.
@@ -310,22 +326,21 @@ impl VisualDatapath {
             let event = event.unchecked_into::<MouseEvent>();
 
             let popup = get_popup_element();
-            let datapath_position = get_datapath_position();
+
+            // Calculate popup position.
+            let mouse_position = get_datapath_iframe_mouse_position(event);
+            let popup_size = (popup.offset_width(), popup.offset_height());
+            let popup_position =
+                calculate_popup_position(mouse_position, popup_size, get_window_size());
 
             // Move popup.
             popup
                 .style()
-                .set_property(
-                    "left",
-                    &format!("{}px", datapath_position.0 + event.client_x() + 20),
-                )
+                .set_property("left", &format!("{}px", popup_position.0))
                 .ok();
             popup
                 .style()
-                .set_property(
-                    "top",
-                    &format!("{}px", datapath_position.1 + event.client_y() + 20),
-                )
+                .set_property("top", &format!("{}px", popup_position.1))
                 .ok();
         });
 

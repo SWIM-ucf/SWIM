@@ -16,35 +16,27 @@ pub struct Viewswitch {
 }
 
 //Convert register to html through iterator
-pub fn gen_reg_html(gp: GpRegisters) -> Html {
+pub fn generate_gpr_rows(gp: GpRegisters) -> Html {
     gp.into_iter()
         .map(|(register, data)| {
             html! {
-                <tr style="border: 1px solid black;">
-                    <td style="border: 1px solid black;">
-                        {register}
-                    </td>
-                    <td style="border: 1px solid black;">
-                        {data.to_string()}
-                    </td>
+                <tr>
+                    <td>{register}</td>
+                    <td>{data.to_string()}</td>
                 </tr>
             }
         })
         .collect::<Html>()
 }
 
-pub fn fp_reg(fp: [u64; 32]) -> Html {
+pub fn generate_fpr_rows(fp: [u64; 32]) -> Html {
     fp.iter()
         .enumerate()
         .map(|(register, data)| {
             html! {
-                <tr style="border: 1px solid black;">
-                    <td style="border: 1px solid black;">
-                        {register}
-                    </td>
-                    <td style="border: 1px solid black;">
-                        {data.to_string()}
-                    </td>
+                <tr>
+                    <td>{format!("F{register}")}</td>
+                    <td>{data.to_string()}</td>
                 </tr>
             }
         })
@@ -78,26 +70,28 @@ pub fn regview(props: &Regviewprops) -> Html {
     };
     log!("This is ", *switch_flag);
     html! {
-        <>
-            <div style="width: 28%">
-                <div class="tab">
-                    <button class="tabs" style="width: 50%;"
-                    onclick={on_switch_clicked_true.clone()}>{"GP"}</button>
-                    <button class="tabs" style="width: 50%;"
-                    onclick={on_switch_clicked_false.clone()}>{"FP"}</button>
-                </div>
-                <table style="width: 100%; height: 100%; border: 1px solid black; background-color: white">
-                    <tr style="border: 1px solid black;">
-                        <th style="border: 1px solid black;">{"Register Name"}</th>
-                        <th style="border: 1px solid black;">{"Data"}</th>
-                    </tr>
-                    if *switch_flag{
-                        {gen_reg_html(props.gp)}
-                    } else {
-                        {fp_reg(props.fp)}
-                    }
+        <div style="flex-grow: 1; gap: 8px; display: flex; flex-direction: column; flex-wrap: nowrap;">
+            <div class="tabs">
+                <button class="tab" style="width: 50%;" onclick={on_switch_clicked_true.clone()}>{"GP"}</button>
+                <button class="tab" style="width: 50%;" onclick={on_switch_clicked_false.clone()}>{"FP"}</button>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{"Register Name"}</th>
+                            <th>{"Data"}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        if *switch_flag{
+                            {generate_gpr_rows(props.gp)}
+                        } else {
+                            {generate_fpr_rows(props.fp)}
+                        }
+                    </tbody>
                 </table>
             </div>
-        </>
+        </div>
     }
 }
