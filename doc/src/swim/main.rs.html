@@ -361,6 +361,21 @@
 <a href="#361" id="361">361</a>
 <a href="#362" id="362">362</a>
 <a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attr">#[cfg(test)]
@@ -369,7 +384,7 @@
 
 <span class="kw">use </span>emulation_core::datapath::Datapath;
 <span class="kw">use </span>emulation_core::mips::datapath::MipsDatapath;
-<span class="kw">use </span>gloo::{console::log, file::FileList};
+<span class="kw">use </span>gloo::{console::log, dialogs::alert, file::FileList};
 <span class="kw">use </span>js_sys::Object;
 <span class="kw">use </span>monaco::{
     api::TextModel,
@@ -388,6 +403,7 @@
 <span class="kw">use </span>wasm_bindgen::{JsCast, JsValue};
 <span class="kw">use </span>yew::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>yew::{html, Html, Properties};
+<span class="kw">use </span>yew_hooks::prelude::<span class="kw-2">*</span>;
 
 <span class="attr">#[function_component(App)]
 </span><span class="kw">fn </span>app() -&gt; Html {
@@ -415,6 +431,8 @@
 
     <span class="comment">// Link to the Yew Editor Component, if not used by the end of the project remove it.
     </span><span class="kw">let </span>codelink = CodeEditorLink::default();
+
+    <span class="kw">let </span>clipboard = use_clipboard();
 
     <span class="comment">// Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
@@ -445,7 +463,7 @@
     // the ability to access and change its contents be mutable.
     </span><span class="kw">let </span>datapath = use_state_eq(|| Rc::new(RefCell::new(MipsDatapath::default())));
 
-    <span class="comment">// This is where we take the code and run it through the emulation core
+    <span class="comment">// This is where we take the code and run it through the emulation core.
     </span><span class="kw">let </span>on_load_clicked = {
         <span class="kw">let </span>text_model = Rc::clone(<span class="kw-2">&amp;</span>text_model);
         <span class="kw">let </span>datapath = Rc::clone(<span class="kw-2">&amp;</span>datapath);
@@ -470,7 +488,8 @@
     };
 
     <span class="comment">// This is where the code will get executed. If you execute further
-    // than when the code ends, the program crashes.
+    // than when the code ends, the program crashes. As you execute the
+    // code, the currently executed line is highlighted.
     </span><span class="kw">let </span>on_execute_clicked = {
         <span class="kw">let </span>text_model = Rc::clone(<span class="kw-2">&amp;</span>text_model);
         <span class="kw">let </span>datapath = Rc::clone(<span class="kw-2">&amp;</span>datapath);
@@ -545,7 +564,7 @@
 
     <span class="comment">// This is how we will reset the datapath. This is the only method to &quot;halt&quot;
     // programs since if the user continues to execute, the whole application will
-    // crash.
+    // crash. This will also clear any highlight on the editor.
     </span><span class="kw">let </span>on_reset_clicked = {
         <span class="kw">let </span>text_model = Rc::clone(<span class="kw-2">&amp;</span>text_model);
         <span class="kw">let </span>datapath = Rc::clone(<span class="kw-2">&amp;</span>datapath);
@@ -575,6 +594,16 @@
             },
             (),
         )
+    };
+
+    <span class="kw">let </span>on_clipboard_clicked = {
+        <span class="kw">let </span>text_model = Rc::clone(<span class="kw-2">&amp;</span>text_model);
+        <span class="kw">let </span>clipboard = clipboard;
+        Callback::from(<span class="kw">move </span>|<span class="kw">_</span>: <span class="kw">_</span>| {
+            <span class="kw">let </span>text_model = (<span class="kw-2">*</span>text_model).borrow_mut();
+            clipboard.write_text(text_model.get_value());
+            alert(<span class="string">&quot;Your code is saved to the clipboard.\nPaste it onto a text file to save it.\n(Ctrl/Cmd + V)&quot;</span>);
+        })
     };
 
     <span class="comment">// This is where the parser will output its error messages to the user.
@@ -637,6 +666,7 @@
                         &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_execute_stage_clicked}&gt; { <span class="string">&quot;Execute Stage&quot; </span>}&lt;/button&gt;
                         &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_reset_clicked}&gt;{ <span class="string">&quot;Reset&quot; </span>}&lt;/button&gt;
                         &lt;input <span class="kw">type</span>=<span class="string">&quot;button&quot; </span>value=<span class="string">&quot;Load File&quot; </span>onclick={upload_clicked_callback} /&gt;
+                        &lt;input <span class="kw">type</span>=<span class="string">&quot;button&quot; </span>value=<span class="string">&quot;Save to Clipboard&quot; </span>onclick={on_clipboard_clicked} /&gt;
                     &lt;/div&gt;
 
                     <span class="comment">// Editor
