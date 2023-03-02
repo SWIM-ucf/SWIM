@@ -6,7 +6,7 @@ pub mod ui;
 
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
-use gloo::{console::log, file::FileList};
+use gloo::{console::log, file::FileList, dialogs::alert};
 use js_sys::Object;
 use monaco::{
     api::TextModel,
@@ -25,6 +25,7 @@ use ui::regview::component::Regview;
 use wasm_bindgen::{JsCast, JsValue};
 use yew::prelude::*;
 use yew::{html, Html, Properties};
+use yew_hooks::prelude::*;
 
 #[function_component(App)]
 fn app() -> Html {
@@ -52,6 +53,8 @@ fn app() -> Html {
 
     // Link to the Yew Editor Component, if not used by the end of the project remove it.
     let codelink = CodeEditorLink::default();
+
+    let clipboard = use_clipboard();
 
     // Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
@@ -82,7 +85,7 @@ fn app() -> Html {
     // the ability to access and change its contents be mutable.
     let datapath = use_state_eq(|| Rc::new(RefCell::new(MipsDatapath::default())));
 
-    // This is where we take the code and run it through the emulation core
+    // This is where we take the code and run it through the emulation core.
     let on_load_clicked = {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
@@ -107,7 +110,8 @@ fn app() -> Html {
     };
 
     // This is where the code will get executed. If you execute further
-    // than when the code ends, the program crashes.
+    // than when the code ends, the program crashes. As you execute the
+    // code, the currently executed line is highlighted.
     let on_execute_clicked = {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
@@ -182,7 +186,7 @@ fn app() -> Html {
 
     // This is how we will reset the datapath. This is the only method to "halt"
     // programs since if the user continues to execute, the whole application will
-    // crash.
+    // crash. This will also clear any highlight on the editor.
     let on_reset_clicked = {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
@@ -212,6 +216,16 @@ fn app() -> Html {
             },
             (),
         )
+    };
+
+    let on_clipboard_clicked = {
+        let text_model = Rc::clone(&text_model);
+        let clipboard = clipboard.clone();
+        Callback::from(move |_: _| {
+            let text_model = (*text_model).borrow_mut();
+            clipboard.write_text(text_model.get_value().to_owned());
+            alert("Your code is saved to the clipboard.\nPaste it onto a text file to save it.\n(Ctrl/Cmd + V)");
+        })
     };
 
     // This is where the parser will output its error messages to the user.
@@ -274,6 +288,7 @@ fn app() -> Html {
                         <button class="button" onclick={on_execute_stage_clicked}> { "Execute Stage" }</button>
                         <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
                         <input type="button" value="Load File" onclick={upload_clicked_callback} />
+                        <input type="button" value="Save to Clipboard" onclick={on_clipboard_clicked} />
                     </div>
 
                     // Editor
