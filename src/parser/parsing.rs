@@ -284,7 +284,8 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
 pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     instructions: &mut Vec<Instruction>,
     data: &Vec<Data>,
-    updated_monaco_string: &mut Vec<String>,
+    updated_monaco_strings: &mut Vec<String>,
+    monaco_line_info_vec: &mut Vec<MonacoLineInfo>,
 ) {
     //figure out list of labels to be used for lw and sw labels
     let mut list_of_labels: Vec<String> = Vec::new();
@@ -312,6 +313,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     starting_column: 0,
                     token_type: Default::default(),
                 });
+
+                monaco_line_info_vec[instruction.line_number as usize].mouse_hover_string = "li is a pseudo-instruction.\nli reg1, immediate => ori reg1, $zero, immediate".to_string();
+
             }
             "seq" => {
                 //seq $regA, $regB, $regC turns into:
@@ -989,7 +993,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     if instructions.is_empty() {
         //try to find an instance of .text
         let mut text_index: Option<u32> = None;
-        for (i, mut line) in updated_monaco_string.clone().into_iter().enumerate() {
+        for (i, mut line) in updated_monaco_strings.clone().into_iter().enumerate() {
             line = line.replace(' ', "");
             line = line.replace('#', " ");
             if line.starts_with(".text") {
@@ -999,17 +1003,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
         }
         if let Some(..) = text_index {
             //add syscall after first index of .text if it exists
-            updated_monaco_string.insert(text_index.unwrap() as usize + 1, "syscall".to_string());
+            updated_monaco_strings.insert(text_index.unwrap() as usize + 1, "syscall".to_string());
         } else {
             //otherwise, add it at the beginning of monaco
-            updated_monaco_string.insert(0, ".text".to_string());
-            updated_monaco_string.insert(1, "syscall".to_string());
+            updated_monaco_strings.insert(0, ".text".to_string());
+            updated_monaco_strings.insert(1, "syscall".to_string());
         }
     } else {
         let last_instruction = instructions.last().unwrap();
         //if the last instruction in monaco is not a syscall, add it in
         if last_instruction.operator.token_name != "syscall" {
-            updated_monaco_string.insert(
+            updated_monaco_strings.insert(
                 last_instruction.line_number as usize + 1,
                 "syscall".to_string(),
             );
