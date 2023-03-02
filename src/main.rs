@@ -6,7 +6,7 @@ pub mod ui;
 
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
-use gloo::{console::log, file::FileList, dialogs::alert};
+use gloo::{console::log, dialogs::alert, file::FileList};
 use js_sys::Object;
 use monaco::{
     api::TextModel,
