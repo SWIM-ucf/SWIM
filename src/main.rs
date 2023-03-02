@@ -64,24 +64,14 @@ fn app() -> Html {
 
     // Setting up the options/parameters which
     // will highlight the executed line.
-    // Currently, just highlights the first line as
-    // a proof of concept.
-    // Hit Assemble, then Execute to see the line highlight.
-    // Hit Reset to see the line not highlighted.
-    let curr_range = monaco::sys::Range::new(1.0, 0.0, 1.0, 0.0);
-    let range_js = curr_range
-        .dyn_into::<JsValue>()
-        .expect("Range is not found.");
+    // The delta decor does not need to be change,
+    // the only parameter that will need to be changed is
+    // the range.
     delta_decor.set_is_whole_line(true.into());
     delta_decor.set_inline_class_name("myInlineDecoration".into());
 
-    // element to be stored in the Decoration array (keep this)
-    let highlight_line: monaco::sys::editor::IModelDeltaDecoration = Object::new().unchecked_into();
-    highlight_line.set_options(&delta_decor);
-    highlight_line.set_range(&monaco::sys::IRange::from(range_js));
-    let highlight_js = highlight_line
-        .dyn_into::<JsValue>()
-        .expect("Highlight is not found.");
+    
+
 
     // TODO: Output will be stored in two ways, the first would be the parser's
     // messages via logs and the registers will be stored
@@ -132,14 +122,34 @@ fn app() -> Html {
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
-
                 let text_model = (*text_model).borrow_mut();
+                
+                // Pull ProgramInfo from the parser
+                let (programinfo, _) = parser(text_model.get_value());
+                // Get the current line and convert it to f64
+                let list_of_line_numbers = programinfo.address_to_line_number;
+                let index = datapath.registers.pc as usize / 4;
+                let curr_line = *list_of_line_numbers.get(index).unwrap() as f64;
+
+                // Setup the range
                 let curr_model = text_model.as_ref();
+                let curr_range = monaco::sys::Range::new(curr_line, 0.0, curr_line, 0.0);
+
+                // element to be stored in the Decoration array to highlight the line
+                let highlight_line: monaco::sys::editor::IModelDeltaDecoration = Object::new().unchecked_into();
+                highlight_line.set_options(&delta_decor);
+                let range_js = curr_range
+                    .dyn_into::<JsValue>()
+                    .expect("Range is not found.");
+                highlight_line.set_range(&monaco::sys::IRange::from(range_js));
+                let highlight_js = highlight_line
+                    .dyn_into::<JsValue>()
+                    .expect("Highlight is not found.");
                 // log!("These are the arrays before the push");
                 // log!(new_decor_array.at(0));
                 // log!(old_decor_array.at(0));
                 new_decor_array.push(&highlight_js);
-                //it may look ugly, but it makes sense. Uncomment debug statements to see why.
+                // it may look ugly, but it makes sense. Uncomment debug statements to see why.
                 old_decor_array.set(
                     0,
                     (*curr_model)
@@ -152,6 +162,7 @@ fn app() -> Html {
                 // log!(old_decor_array.at(0));
                 // log!(JsValue::from_str(&datapath.registers.to_string()));
                 trigger.force_update();
+                new_decor_array.pop();// done with the highlight, prepare for the next one.
             },
             (),
         )
