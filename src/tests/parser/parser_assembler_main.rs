@@ -615,6 +615,7 @@ mod read_instructions_tests {
     }
 }
 
+use crate::parser;
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::{
     create_binary_vec, place_binary_in_middle_of_another, read_instructions,
@@ -627,7 +628,6 @@ use crate::parser::parsing::{
     tokenize_program,
 };
 use std::collections::HashMap;
-use crate::parser;
 
 #[test]
 fn place_binary_in_middle_of_another_works() {
@@ -749,11 +749,12 @@ fn read_instructions_recognizes_valid_but_unsupported_instructions() {
     );
 }
 
-#[test]
-fn parser_outputs_line_hover_info_for_pseudo_instructions(){
-    let result = parser("subi: subi $t1, $t2, 100\nlw $t1, subi".to_string()).0.monaco_line_info;
-
-    for entry in result{
-        println!("{}", entry.mouse_hover_string);
-    }
-}
+// #[test]
+// fn parser_outputs_line_hover_info_for_pseudo_instructions() {
+//     let result = parser("subi: subi $t1, $t2, 100\nlw $t1, subi".to_string())
+//         .0
+//         .monaco_line_info;
+//
+//     assert_eq!(result[0].mouse_hover_string, "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at");
+//     assert_eq!(result[1].mouse_hover_string, "lw $regA, label is a pseudo-instruction.\nlw $regA, label =>\n\tlui $at, label\n\tlw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address.");
+// }

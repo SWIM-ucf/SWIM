@@ -271,20 +271,6 @@ pub fn read_memory_address(
     (immediate_results.0, register_results.0, None)
 }
 
-//this function takes the string representation of the binary of the instruction and converts it into an int
-pub fn _convert_to_u32(binary_as_string: String) -> u32 {
-    let mut instruction_integer: u32 = 0;
-
-    //converts instruction from string representation of binary to the unsigned 32 bit integer representation of it.
-    for (i, char) in binary_as_string.chars().rev().enumerate() {
-        let bit = char as u32 - '0' as u32;
-        let exponential_multiplier = 2_u32.pow(i as u32);
-        instruction_integer += bit * exponential_multiplier;
-    }
-
-    instruction_integer
-}
-
 ///read_register takes the string of the register name, the token number the register is from the corresponding instruction
 ///and the expected register type. It calls the corresponding functions holding the match cases for the different register types.
 pub fn read_register(

@@ -316,7 +316,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
         match &*instruction.operator.token_name {
             "li" => {
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "li is a pseudo-instruction.\nli regA, immediate =>\n\tori $regA, $zero, immediate"
+                    "li is a pseudo-instruction.\nli regA, immediate =>\n\tori $regA, $zero, immediate\n"
                         .to_string();
 
                 instruction.operator.token_name = "ori".to_string();
@@ -333,7 +333,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //ori $at, $zero, 1
                 //sltu $regA, $regA, $at
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "seq is a pseudo-instruction.\nseq $regA, $regB, $regC =>\n\tsub $regA, $regB, $regC\n\tori $at, $zero, 1\n\tsltu $regA, $regA, $at"
+                    "seq is a pseudo-instruction.\nseq $regA, $regB, $regC =>\n\tsub $regA, $regB, $regC\n\tori $at, $zero, 1\n\tsltu $regA, $regA, $at\n"
                         .to_string();
 
                 //make sure there are enough operands
@@ -392,7 +392,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //sltu $regA, $zero, $regA
 
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "sne is a pseudo-instruction.\nsne $regA, $regB, $regC =>\n\tsub $regA, $regB, $regC\n\tsltu $regA, $zero, $regA"
+                    "sne is a pseudo-instruction.\nsne $regA, $regB, $regC =>\n\tsub $regA, $regB, $regC\n\tsltu $regA, $zero, $regA\n"
                         .to_string();
 
                 //make sure there are enough operands
@@ -408,9 +408,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //set r0 to 1 if r1 - r2 != 0
                 instruction.operator.token_name = "sltu".to_string();
                 instruction.operands[1].token_name = "$zero".to_string();
-                instruction.operands[1].start_end_columns = (0,0);
+                instruction.operands[1].start_end_columns = (0, 0);
                 instruction.operands[2].token_name = instruction.operands[0].token_name.clone();
-                instruction.operands[2].start_end_columns = (0,0);
+                instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
             }
             "sle" => {
@@ -420,7 +420,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 // andi $regA, $regA, 1
 
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "sle is a pseudo-instruction.\nsle $regA, $regB, $regC =>\n\tslt $regA, $regC, $regB\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1"
+                    "sle is a pseudo-instruction.\nsle $regA, $regB, $regC =>\n\tslt $regA, $regC, $regB\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n"
                         .to_string();
 
                 //make sure there are enough operands
@@ -432,9 +432,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 let mut extra_instruction = instruction.clone();
                 let temp = extra_instruction.operands[1].clone();
                 extra_instruction.operands[1] = extra_instruction.operands[2].clone();
-                extra_instruction.operands[1].start_end_columns = (0,0);
+                extra_instruction.operands[1].start_end_columns = (0, 0);
                 extra_instruction.operands[2] = temp.clone();
-                extra_instruction.operands[2].start_end_columns = (0,0);
+                extra_instruction.operands[2].start_end_columns = (0, 0);
                 extra_instruction.operator.token_name = "slt".to_string();
                 extra_instruction.line_number = 0;
                 vec_of_added_instructions.push(extra_instruction);
@@ -449,7 +449,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     operands: vec![
                         Token {
                             token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0,0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
@@ -484,7 +484,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 // andi $regA, $regA, 1
 
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "sleu is a pseudo-instruction.\nsleu $regA, $regB, $regC =>\n\tsltu $regA, $regC, $regB\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1"
+                    "sleu is a pseudo-instruction.\nsleu $regA, $regB, $regC =>\n\tsltu $regA, $regC, $regB\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n"
                         .to_string();
 
                 //make sure there are enough operands
@@ -544,7 +544,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 // slt $regA, $regC, $regB
 
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "sgt is a pseudo-instruction.\nsgt $regA, $regB, $regC =>\n\tslt $regA, $regC, $regB"
+                    "sgt is a pseudo-instruction.\nsgt $regA, $regB, $regC =>\n\tslt $regA, $regC, $regB\n"
                         .to_string();
 
                 //make sure that there actually is a third operand
@@ -553,7 +553,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 }
                 let temp = instruction.operands[1].clone();
                 instruction.operands[1] = instruction.operands[2].clone();
-                instruction.operands[1].start_end_columns = (0,0);
+                instruction.operands[1].start_end_columns = (0, 0);
                 instruction.operands[2] = temp.clone();
                 instruction.operator.token_name = "slt".to_string();
             }
@@ -562,7 +562,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 // sltu $regA, $regC, $regB
 
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "sgtu is a pseudo-instruction.\nsgtu $regA, $regB, $regC =>\n\tsltu $regA, $regC, $regB"
+                    "sgtu is a pseudo-instruction.\nsgtu $regA, $regB, $regC =>\n\tsltu $regA, $regC, $regB\n"
                         .to_string();
 
                 //make sure that there actually is a third operand
@@ -571,7 +571,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 }
                 let temp = instruction.operands[1].clone();
                 instruction.operands[1] = instruction.operands[2].clone();
-                instruction.operands[1].start_end_columns = (0,0);
+                instruction.operands[1].start_end_columns = (0, 0);
                 instruction.operands[2] = temp.clone();
                 instruction.operator.token_name = "sltu".to_string();
             }
@@ -582,7 +582,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 // andi $regA, $regA, 1
 
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "sge is a pseudo-instruction.\nsge $regA, $regB, $regC =>\n\tslt $regA, $regB, $regC\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1"
+                    "sge is a pseudo-instruction.\nsge $regA, $regB, $regC =>\n\tslt $regA, $regB, $regC\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n"
                         .to_string();
 
                 //make sure there are enough operands
@@ -606,17 +606,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     operands: vec![
                         Token {
                             token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0,0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0,0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                         Token {
                             token_name: "1".to_string(),
-                            start_end_columns: (0,0),
+                            start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
                     ],
@@ -641,7 +641,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 // andi $regA, $regA, 1
 
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "sgeu is a pseudo-instruction.\nsgeu $regA, $regB, $regC =>\n\tsltu $regA, $regB, $regC\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1"
+                    "sgeu is a pseudo-instruction.\nsgeu $regA, $regB, $regC =>\n\tsltu $regA, $regB, $regC\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n"
                         .to_string();
 
                 //make sure there are enough operands
@@ -704,11 +704,11 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     //create mouse hover message dependent on lw / sw
                     if instruction.operator.token_name == "lw" {
                         monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                            "lw $regA, label is a pseudo-instruction.\nlw $regA, label =>\n\tlui $at, label\n\tlw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address."
+                            "lw $regA, label is a pseudo-instruction.\nlw $regA, label =>\n\tlui $at, label\n\tlw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address.\n"
                                 .to_string();
                     } else {
                         monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                            "sw $regA, label is a pseudo-instruction.\nsw $regA, label =>\n\tlui $at, label\n\tsw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address."
+                            "sw $regA, label is a pseudo-instruction.\nsw $regA, label =>\n\tlui $at, label\n\tsw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address.\n"
                                 .to_string();
                     }
 
@@ -747,7 +747,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //sub $regA, $regB, $at
 
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at"
+                    "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at\n"
                         .to_string();
 
                 //make sure that there actually is a third operand
@@ -795,7 +795,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //dsub $regA, $regB, $at
 
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "dsubi $regA, $regB, immediate is a pseudo-instruction.\ndsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdsub $regA, $regB, $at"
+                    "dsubi $regA, $regB, immediate is a pseudo-instruction.\ndsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdsub $regA, $regB, $at\n"
                         .to_string();
 
                 //make sure that there actually is a third operand
@@ -844,7 +844,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //mul $regA, $regB, $at
 
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "muli $regA, $regB, immediate is a pseudo-instruction.\nmuli $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tmul $regA, $regB, $at"
+                    "muli $regA, $regB, immediate is a pseudo-instruction.\nmuli $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tmul $regA, $regB, $at\n"
                         .to_string();
 
                 //make sure that there actually is a third operand
@@ -892,7 +892,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //dmul $regA, $regB, $at
 
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "dmuli $regA, $regB, immediate is a pseudo-instruction.\ndmuli $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdmul $regA, $regB, $at"
+                    "dmuli $regA, $regB, immediate is a pseudo-instruction.\ndmuli $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdmul $regA, $regB, $at\n"
                         .to_string();
 
                 //make sure that there actually is a third operand
@@ -941,7 +941,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //div $regA, $at
 
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "divi $regA, immediate is a pseudo-instruction.\ndivi $regA, immediate =>\n\tori $at, $zero, immediate\n\tdiv $regA, $at"
+                    "divi $regA, immediate is a pseudo-instruction.\ndivi $regA, immediate =>\n\tori $at, $zero, immediate\n\tdiv $regA, $at\n"
                         .to_string();
 
                 //make sure that there actually is a second operand
@@ -989,7 +989,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //ddiv $regA, $at
 
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
-                    "ddivi $regA, immediate is a pseudo-instruction.\nddivi $regA, immediate =>\n\tori $at, $zero, immediate\n\tddiv $regA, $at"
+                    "ddivi $regA, immediate is a pseudo-instruction.\nddivi $regA, immediate =>\n\tori $at, $zero, immediate\n\tddiv $regA, $at\n"
                         .to_string();
 
                 //make sure that there actually is a second operand
@@ -1165,157 +1165,167 @@ pub fn suggest_error_corrections(
     instructions: &mut [Instruction],
     data: &mut [Data],
     labels: &HashMap<String, u32>,
+    monaco_line_info: &mut [MonacoLineInfo],
 ) {
     //go through each error in the instructions and suggest a correction
     for instruction in instructions {
-        for error in &mut instruction.errors {
-            match error.error_name {
-                UnsupportedInstruction => {
-                    error.message =
-                        "While this is a valid instruction, it is not currently supported by SWIM"
-                            .to_string();
-                }
-                UnrecognizedGPRegister => {
-                    let gp_registers = [
-                        "$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3", "$t0", "$t1",
-                        "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$s0", "$s1", "$s2", "$s3",
-                        "$s4", "$s5", "$s6", "$s7", "$t8", "$t9", "$k0", "$k1", "$gp", "$sp",
-                        "$fp", "$ra", "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9",
-                        "r10", "r11", "r12", "r13", "r14", "r15", "r16", "r17", "r18", "r19",
-                        "r20", "r21", "r22", "r23", "r24", "r25", "r26", "r27", "r28", "r29",
-                        "r30", "r31",
-                    ];
+        if instruction.errors.is_empty(){
+            monaco_line_info[instruction.line_number as usize].mouse_hover_string.push_str(&"Binary: ");
+            monaco_line_info[instruction.line_number as usize].mouse_hover_string.push_str(&*format!("{:032b}", instruction.binary));
+            monaco_line_info[instruction.line_number as usize].mouse_hover_string.push('\n');
 
-                    let given_string =
-                        &instruction.operands[error.operand_number.unwrap() as usize].token_name;
-                    let mut closest: (usize, String) = (usize::MAX, "".to_string());
-
-                    for register in gp_registers {
-                        if levenshtein(given_string, register) < closest.0 {
-                            closest.0 = levenshtein(given_string, register);
-                            closest.1 = register.to_string();
-                        }
-                    }
-
-                    let mut suggestion = "A valid, similar register is: ".to_string();
-                    suggestion.push_str(&closest.1);
-                    suggestion.push('.');
-                    error.message = suggestion;
-                }
-                UnrecognizedFPRegister => {
-                    let fp_registers = [
-                        "$f0", "$f1", "$f2", "$f3", "$f4", "$f5", "$f6", "$f7", "$f8", "$f9",
-                        "$f10", "$f11", "$f12", "$f13", "$f14", "$f15", "$f16", "$f17", "$f18",
-                        "$f19", "$f20", "$f21", "$f22", "$f23", "$f24", "$f25", "$f26", "$f27",
-                        "$f28", "$f29", "$f30", "$f31",
-                    ];
-
-                    let given_string =
-                        &instruction.operands[error.operand_number.unwrap() as usize].token_name;
-                    let mut closest: (usize, String) = (usize::MAX, "".to_string());
-
-                    for register in fp_registers {
-                        if levenshtein(given_string, register) < closest.0 {
-                            closest.0 = levenshtein(given_string, register);
-                            closest.1 = register.to_string();
-                        }
-                    }
-
-                    let mut suggestion = "A valid, similar register is: ".to_string();
-                    suggestion.push_str(&closest.1);
-                    suggestion.push('.');
-                    error.message = suggestion;
-                }
-                UnrecognizedInstruction => {
-                    let recognized_instructions = [
-                        "add", "sub", "mul", "div", "lw", "sw", "lui", "aui", "andi", "ori",
-                        "addi", "dadd", "dsub", "dmul", "ddiv", "or", "and", "add.s", "add.d",
-                        "sub.s", "sub.d", "mul.s", "mul.d", "div.s", "div.d", "dahi", "dati",
-                        "daddiu", "slt", "sltu", "swc1", "lwc1", "mtc1", "dmtc1", "mfc1", "dmfc1",
-                        "j", "beq", "bne", "c.eq.s", "c.eq.d", "c.lt.s", "c.le.s", "c.le.d",
-                        "c.ngt.s", "c.ngt.d", "c.nge.s", "c.nge.d", "bc1t", "bc1f",
-                    ];
-
-                    let given_string = &instruction.operator.token_name;
-                    let mut closest: (usize, String) = (usize::MAX, "".to_string());
-
-                    for instruction in recognized_instructions {
-                        if levenshtein(given_string, instruction) < closest.0 {
-                            closest.0 = levenshtein(given_string, instruction);
-                            closest.1 = instruction.to_string();
-                        }
-                    }
-
-                    let mut suggestion = "A valid, similar instruction is: ".to_string();
-                    suggestion.push_str(&closest.1);
-                    suggestion.push('.');
-                    error.message = suggestion;
-                }
-                IncorrectRegisterTypeGP => {
-                    error.message = "Expected FP register but received GP register.".to_string();
-                }
-                IncorrectRegisterTypeFP => {
-                    error.message = "Expected GP register but received FP register.".to_string();
-                }
-                MissingComma => {
-                    error.message =
-                        "Operand expected to end with a comma but it does not.".to_string()
-                }
-                ImmediateOutOfBounds => {
-                    error.message = "Immediate value given cannot be expressed in the available number of bits.".to_string();
-                }
-                NonIntImmediate => {
-                    error.message =
-                        "The given string cannot be recognized as an integer.".to_string();
-                }
-                NonFloatImmediate => {
-                    error.message = "The given string cannot be recognized as a float.".to_string();
-                }
-                InvalidMemorySyntax => {
-                    error.message = "The given string for memory does not match syntax of \"offset(base)\" or \"label\"".to_string();
-                }
-                IncorrectNumberOfOperands => {
-                    error.message = "The given number of operands does not match the number expected for the given instruction.".to_string();
-                }
-                LabelMultipleDefinition => {
-                    error.message =
-                        "The given label name is already used elsewhere in the project."
-                            .to_string();
-                }
-                LabelNotFound => {
-                    if labels.is_empty() {
-                        error.message = "There is no recognized labelled memory.".to_string();
-                        continue;
-                    }
-
-                    let given_string =
-                        &instruction.operands[error.operand_number.unwrap() as usize].token_name;
-                    let mut closest: (usize, String) = (usize::MAX, "".to_string());
-
-                    for label in labels {
-                        if levenshtein(given_string, label.0) < closest.0 {
-                            closest.0 = levenshtein(given_string, label.0);
-                            closest.1 = label.0.to_string();
-                        }
-                    }
-
-                    let mut suggestion = "A valid, similar label is: ".to_string();
-                    suggestion.push_str(&closest.1);
-                    suggestion.push('.');
-                    error.message = suggestion;
-                }
-                ImproperlyFormattedASCII => {
-                    error.message =
-                        "Token recognized as ASCII does not start and or end with \".".to_string();
-                }
-                ImproperlyFormattedChar => {
-                    error.message = "Token recognized as a char does not end with ' or is larger than a single char.".to_string();
-                }
-                _ => {
-                    error.message = "PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH AN INSTRUCTION.".to_string();
-                }
-            }
         }
+         else {
+             for error in &mut instruction.errors {
+                 match error.error_name {
+                     UnsupportedInstruction => {
+                         error.message =
+                             "While this is a valid instruction, it is not currently supported by SWIM\n"
+                                 .to_string();
+                     }
+                     UnrecognizedGPRegister => {
+                         let gp_registers = [
+                             "$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3", "$t0", "$t1",
+                             "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$s0", "$s1", "$s2", "$s3",
+                             "$s4", "$s5", "$s6", "$s7", "$t8", "$t9", "$k0", "$k1", "$gp", "$sp",
+                             "$fp", "$ra", "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9",
+                             "r10", "r11", "r12", "r13", "r14", "r15", "r16", "r17", "r18", "r19",
+                             "r20", "r21", "r22", "r23", "r24", "r25", "r26", "r27", "r28", "r29",
+                             "r30", "r31",
+                         ];
+
+                         let given_string =
+                             &instruction.operands[error.operand_number.unwrap() as usize].token_name;
+                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
+
+                         for register in gp_registers {
+                             if levenshtein(given_string, register) < closest.0 {
+                                 closest.0 = levenshtein(given_string, register);
+                                 closest.1 = register.to_string();
+                             }
+                         }
+
+                         let mut suggestion = "A valid, similar register is: ".to_string();
+                         suggestion.push_str(&closest.1);
+                         suggestion.push_str(&".\n");
+                         error.message = suggestion;
+                     }
+                     UnrecognizedFPRegister => {
+                         let fp_registers = [
+                             "$f0", "$f1", "$f2", "$f3", "$f4", "$f5", "$f6", "$f7", "$f8", "$f9",
+                             "$f10", "$f11", "$f12", "$f13", "$f14", "$f15", "$f16", "$f17", "$f18",
+                             "$f19", "$f20", "$f21", "$f22", "$f23", "$f24", "$f25", "$f26", "$f27",
+                             "$f28", "$f29", "$f30", "$f31",
+                         ];
+
+                         let given_string =
+                             &instruction.operands[error.operand_number.unwrap() as usize].token_name;
+                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
+
+                         for register in fp_registers {
+                             if levenshtein(given_string, register) < closest.0 {
+                                 closest.0 = levenshtein(given_string, register);
+                                 closest.1 = register.to_string();
+                             }
+                         }
+
+                         let mut suggestion = "A valid, similar register is: ".to_string();
+                         suggestion.push_str(&closest.1);
+                         suggestion.push_str(".\n");
+                         error.message = suggestion;
+                     }
+                     UnrecognizedInstruction => {
+                         let recognized_instructions = [
+                             "add", "sub", "mul", "div", "lw", "sw", "lui", "aui", "andi", "ori",
+                             "addi", "dadd", "dsub", "dmul", "ddiv", "or", "and", "add.s", "add.d",
+                             "sub.s", "sub.d", "mul.s", "mul.d", "div.s", "div.d", "dahi", "dati",
+                             "daddiu", "slt", "sltu", "swc1", "lwc1", "mtc1", "dmtc1", "mfc1", "dmfc1",
+                             "j", "beq", "bne", "c.eq.s", "c.eq.d", "c.lt.s", "c.le.s", "c.le.d",
+                             "c.ngt.s", "c.ngt.d", "c.nge.s", "c.nge.d", "bc1t", "bc1f",
+                         ];
+
+                         let given_string = &instruction.operator.token_name;
+                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
+
+                         for instruction in recognized_instructions {
+                             if levenshtein(given_string, instruction) < closest.0 {
+                                 closest.0 = levenshtein(given_string, instruction);
+                                 closest.1 = instruction.to_string();
+                             }
+                         }
+
+                         let mut suggestion = "A valid, similar instruction is: ".to_string();
+                         suggestion.push_str(&closest.1);
+                         suggestion.push_str(".\n");
+                         error.message = suggestion;
+                     }
+                     IncorrectRegisterTypeGP => {
+                         error.message = "Expected FP register but received GP register.\n".to_string();
+                     }
+                     IncorrectRegisterTypeFP => {
+                         error.message = "Expected GP register but received FP register.\n".to_string();
+                     }
+                     MissingComma => {
+                         error.message =
+                             "Operand expected to end with a comma but it does not.\n".to_string()
+                     }
+                     ImmediateOutOfBounds => {
+                         error.message = "Immediate value given cannot be expressed in the available number of bits.\n".to_string();
+                     }
+                     NonIntImmediate => {
+                         error.message =
+                             "The given string cannot be recognized as an integer.\n".to_string();
+                     }
+                     NonFloatImmediate => {
+                         error.message = "The given string cannot be recognized as a float.\n".to_string();
+                     }
+                     InvalidMemorySyntax => {
+                         error.message = "The given string for memory does not match syntax of \"offset(base)\" or \"label\".\n".to_string();
+                     }
+                     IncorrectNumberOfOperands => {
+                         error.message = "The given number of operands does not match the number expected for the given instruction.\n".to_string();
+                     }
+                     LabelMultipleDefinition => {
+                         error.message =
+                             "The given label name is already used elsewhere in the project.\n"
+                                 .to_string();
+                     }
+                     LabelNotFound => {
+                         if labels.is_empty() {
+                             error.message = "There is no recognized labelled memory.\n".to_string();
+                             continue;
+                         }
+
+                         let given_string =
+                             &instruction.operands[error.operand_number.unwrap() as usize].token_name;
+                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
+
+                         for label in labels {
+                             if levenshtein(given_string, label.0) < closest.0 {
+                                 closest.0 = levenshtein(given_string, label.0);
+                                 closest.1 = label.0.to_string();
+                             }
+                         }
+
+                         let mut suggestion = "A valid, similar label is: ".to_string();
+                         suggestion.push_str(&closest.1);
+                         suggestion.push_str(".\n");
+                         error.message = suggestion;
+                     }
+                     ImproperlyFormattedASCII => {
+                         error.message =
+                             "Token recognized as ASCII does not start and or end with \".\n".to_string();
+                     }
+                     ImproperlyFormattedChar => {
+                         error.message = "Token recognized as a char does not end with ' or is larger than a single char.\n".to_string();
+                     }
+                     _ => {
+                         error.message = "PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH AN INSTRUCTION.\n".to_string();
+                     }
+                 }
+                 monaco_line_info[instruction.line_number as usize].mouse_hover_string.push_str(&error.message.clone());
+             }
+         }
     }
 
     //go through each error in the data and suggest a correction
@@ -1340,21 +1350,22 @@ pub fn suggest_error_corrections(
 
                     let mut suggestion = "A valid, similar data type is: ".to_string();
                     suggestion.push_str(&closest.1);
-                    suggestion.push('.');
+                    suggestion.push_str(".\n");
                     error.message = suggestion;
                 }
                 LabelAssignmentError => {
-                    error.message = "A label is specified but it is not followed by data or an instruction committed to memory.".to_string();
+                    error.message = "A label is specified but it is not followed by data or an instruction committed to memory.\n".to_string();
                 }
                 LabelMultipleDefinition => {
                     error.message =
-                        "The given label name is already used elsewhere in the project."
+                        "The given label name is already used elsewhere in the project.\n"
                             .to_string();
                 }
                 _ => {
-                    error.message = "PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.".to_string();
+                    error.message = "PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n".to_string();
                 }
             }
+            monaco_line_info[datum.line_number as usize].mouse_hover_string.push_str(&error.message.clone());
         }
     }
 }

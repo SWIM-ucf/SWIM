@@ -1,27 +1,5 @@
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
-
-mod convert_to_u32_tests {
-    use crate::parser::assembling::_convert_to_u32;
-
-    #[test]
-    fn convert_to_u32_returns_correct_value_on_zeros() {
-        let result = _convert_to_u32("00000".to_string());
-        assert_eq!(result, 0);
-    }
-
-    #[test]
-    fn convert_to_u32_returns_correct_value_on_32_bit_long_string() {
-        let result = _convert_to_u32("11111111111111111111111111111111".to_string());
-        assert_eq!(result, 4294967295);
-    }
-
-    #[test]
-    fn convert_to_u32_returns_correct_value_for_an_actual_instruction() {
-        let result = _convert_to_u32("10001101010010010000000000000100".to_string());
-        assert_eq!(result, 2370371588);
-    }
-}
 mod read_register_tests {
     use crate::parser::assembling::read_register;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
