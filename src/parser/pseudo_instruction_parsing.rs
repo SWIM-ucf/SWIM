@@ -734,7 +734,6 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                             token_type: Default::default(),
                         },
                         instruction.operands[1].clone(),
-
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
@@ -745,9 +744,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 vec_of_added_instructions.push(extra_instruction);
                 //adjust subi for the added instruction
                 instruction.operator.token_name = "div".to_string();
-                instruction.operator.start_end_columns = (0,0);
+                instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[1].token_name = "$at".to_string();
-                instruction.operands[1].start_end_columns = (0,0);
+                instruction.operands[1].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
             }
             "ddivi" => {
@@ -780,7 +779,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                             start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
-                        instruction.operands[1].clone()
+                        instruction.operands[1].clone(),
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
@@ -791,9 +790,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 vec_of_added_instructions.push(extra_instruction);
                 //adjust subi for the added instruction
                 instruction.operator.token_name = "ddiv".to_string();
-                instruction.operator.start_end_columns = (0,0);
+                instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[1].token_name = "$at".to_string();
-                instruction.operands[1].start_end_columns = (0,0);
+                instruction.operands[1].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
             }
             "ddiviu" => {}
@@ -860,7 +859,7 @@ pub fn complete_lw_sw_pseudo_instructions(
                 .get(&*instructions[index].operands[1].token_name)
                 .unwrap();
             instructions[index].operands[1].token_name = (address >> 16).to_string();
-            instructions[index].operands[1].start_end_columns = (0,0);
+            instructions[index].operands[1].start_end_columns = (0, 0);
             index += 1;
 
             //lower 16 bits are stored as the offset for the load/store operation
