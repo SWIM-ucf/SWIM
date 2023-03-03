@@ -1,7 +1,9 @@
-use std::collections::HashMap;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{Data, Error, Instruction, MonacoLineInfo, Token};
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::IncorrectNumberOfOperands;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Operator;
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{
+    Data, Error, Instruction, MonacoLineInfo, Token,
+};
+use std::collections::HashMap;
 
 ///Iterates through the instruction list and translates pseudo-instructions into real instructions.
 /// LW and SW with labelled memory are not completely translated in this step because they require
@@ -39,10 +41,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                         .to_string();
 
                 if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error{
+                    instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         operand_number: None,
-                        message: "".to_string()
+                        message: "".to_string(),
                     });
                     continue;
                 }
@@ -66,17 +68,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //make sure there are the correct number operands
                 if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
+                    instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         operand_number: None,
-                        message: "".to_string()
+                        message: "".to_string(),
                     });
                     continue;
                 }
                 //sub the two registers to find the difference
                 let mut extra_instruction = instruction.clone();
                 extra_instruction.operator.token_name = "sub".to_string();
-                extra_instruction.operator.start_end_columns = (0,0);
+                extra_instruction.operator.start_end_columns = (0, 0);
                 vec_of_added_instructions.push(extra_instruction);
 
                 //put a 1 in $at
@@ -113,7 +115,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //set r0 to 1 if r1 - r2 == 0
                 instruction.operator.token_name = "sltu".to_string();
-                instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands[1] = instruction.operands[0].clone();
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
@@ -129,25 +132,25 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //make sure there are enough operands
                 if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
+                    instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         operand_number: None,
-                        message: "".to_string()
+                        message: "".to_string(),
                     });
                     continue;
                 }
                 //sub the two registers to find the difference
                 let mut extra_instruction = instruction.clone();
                 extra_instruction.operator.token_name = "sub".to_string();
-                extra_instruction.line_number = 0;
+                extra_instruction.operator.start_end_columns = (0, 0);
                 vec_of_added_instructions.push(extra_instruction);
 
                 //set r0 to 1 if r1 - r2 != 0
                 instruction.operator.token_name = "sltu".to_string();
+                instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[1].token_name = "$zero".to_string();
                 instruction.operands[1].start_end_columns = (0, 0);
-                instruction.operands[2].token_name = instruction.operands[0].token_name.clone();
-                instruction.operands[2].start_end_columns = (0, 0);
+                instruction.operands[2] = instruction.operands[0].clone();
                 instruction.instruction_number += 1;
             }
             "sle" => {
@@ -162,10 +165,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //make sure there are enough operands
                 if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
+                    instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         operand_number: None,
-                        message: "".to_string()
+                        message: "".to_string(),
                     });
                     continue;
                 }
@@ -174,11 +177,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 let mut extra_instruction = instruction.clone();
                 let temp = extra_instruction.operands[1].clone();
                 extra_instruction.operands[1] = extra_instruction.operands[2].clone();
-                extra_instruction.operands[1].start_end_columns = (0, 0);
                 extra_instruction.operands[2] = temp.clone();
-                extra_instruction.operands[2].start_end_columns = (0, 0);
                 extra_instruction.operator.token_name = "slt".to_string();
-                extra_instruction.line_number = 0;
+                extra_instruction.operator.start_end_columns = (0, 0);
                 vec_of_added_instructions.push(extra_instruction);
 
                 //addi
@@ -189,16 +190,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                         token_type: Operator,
                     },
                     operands: vec![
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
+                        instruction.operands[0].clone(),
+                        instruction.operands[0].clone(),
                         Token {
                             token_name: "1".to_string(),
                             start_end_columns: (0, 0),
@@ -215,15 +208,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //andi
                 instruction.operator.token_name = "andi".to_string();
-                instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands[1] = instruction.operands[0].clone();
                 instruction.operands[2].token_name = "1".to_string();
+                instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
             }
             "sleu" => {
                 //sleu $regA, $regB, $regC is translated to:
-                // sltu $regA, $regC, $regB
-                // addi $regA, $regA, 1
-                // andi $regA, $regA, 1
+                //sltu $regA, $regC, $regB
+                //addi $regA, $regA, 1
+                //andi $regA, $regA, 1
 
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "sleu is a pseudo-instruction.\nsleu $regA, $regB, $regC =>\n\tsltu $regA, $regC, $regB\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n"
@@ -231,10 +226,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //make sure there are enough operands
                 if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
+                    instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         operand_number: None,
-                        message: "".to_string()
+                        message: "".to_string(),
                     });
                     continue;
                 }
@@ -245,7 +240,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 extra_instruction.operands[1] = extra_instruction.operands[2].clone();
                 extra_instruction.operands[2] = temp.clone();
                 extra_instruction.operator.token_name = "sltu".to_string();
-                extra_instruction.line_number = 0;
+                extra_instruction.operator.start_end_columns = (0, 0);
                 vec_of_added_instructions.push(extra_instruction);
 
                 //addi
@@ -256,16 +251,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                         token_type: Operator,
                     },
                     operands: vec![
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
+                        instruction.operands[0].clone(),
+                        instruction.operands[0].clone(),
                         Token {
                             token_name: "1".to_string(),
                             start_end_columns: (0, 0),
@@ -282,8 +269,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //andi
                 instruction.operator.token_name = "andi".to_string();
-                instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands[1] = instruction.operands[0].clone();
                 instruction.operands[2].token_name = "1".to_string();
+                instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
             }
             "sgt" => {
@@ -296,18 +285,18 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //make sure that there actually is a third operand
                 if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
+                    instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         operand_number: None,
-                        message: "".to_string()
+                        message: "".to_string(),
                     });
                     continue;
                 }
                 let temp = instruction.operands[1].clone();
                 instruction.operands[1] = instruction.operands[2].clone();
-                instruction.operands[1].start_end_columns = (0, 0);
                 instruction.operands[2] = temp.clone();
                 instruction.operator.token_name = "slt".to_string();
+                instruction.operator.start_end_columns = (0, 0);
             }
             "sgtu" => {
                 //sgtu $regA, $regB, $regC is translated to:
@@ -319,18 +308,18 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //make sure that there actually is a third operand
                 if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
+                    instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         operand_number: None,
-                        message: "".to_string()
+                        message: "".to_string(),
                     });
                     continue;
                 }
                 let temp = instruction.operands[1].clone();
                 instruction.operands[1] = instruction.operands[2].clone();
-                instruction.operands[1].start_end_columns = (0, 0);
                 instruction.operands[2] = temp.clone();
                 instruction.operator.token_name = "sltu".to_string();
+                instruction.operator.start_end_columns = (0, 0);
             }
             "sge" => {
                 //sge $regA, $regB, $regC is translated to:
@@ -344,10 +333,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //make sure there are enough operands
                 if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
+                    instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         operand_number: None,
-                        message: "".to_string()
+                        message: "".to_string(),
                     });
                     continue;
                 }
@@ -355,7 +344,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //slt
                 let mut extra_instruction = instruction.clone();
                 extra_instruction.operator.token_name = "slt".to_string();
-                extra_instruction.line_number = 0;
+                extra_instruction.operator.start_end_columns = (0, 0);
                 vec_of_added_instructions.push(extra_instruction);
 
                 //addi
@@ -366,16 +355,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                         token_type: Operator,
                     },
                     operands: vec![
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
+                        instruction.operands[0].clone(),
+                        instruction.operands[0].clone(),
                         Token {
                             token_name: "1".to_string(),
                             start_end_columns: (0, 0),
@@ -392,8 +373,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //andi
                 instruction.operator.token_name = "andi".to_string();
-                instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands[1] = instruction.operands[0].clone();
                 instruction.operands[2].token_name = "1".to_string();
+                instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
             }
             "sgeu" => {
@@ -408,10 +391,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //make sure there are enough operands
                 if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
+                    instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         operand_number: None,
-                        message: "".to_string()
+                        message: "".to_string(),
                     });
                     continue;
                 }
@@ -419,7 +402,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //sltu
                 let mut extra_instruction = instruction.clone();
                 extra_instruction.operator.token_name = "sltu".to_string();
-                extra_instruction.line_number = 0;
+                extra_instruction.operator.start_end_columns = (0, 0);
                 vec_of_added_instructions.push(extra_instruction);
 
                 //addi
@@ -430,16 +413,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                         token_type: Operator,
                     },
                     operands: vec![
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
-                        Token {
-                            token_name: instruction.operands[0].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
+                        instruction.operands[0].clone(),
+                        instruction.operands[0].clone(),
                         Token {
                             token_name: "1".to_string(),
                             start_end_columns: (0, 0),
@@ -456,8 +431,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //andi
                 instruction.operator.token_name = "andi".to_string();
-                instruction.operands[1].token_name = instruction.operands[0].token_name.clone();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands[1] = instruction.operands[0].clone();
                 instruction.operands[2].token_name = "1".to_string();
+                instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
             }
             "lw" | "sw" => {
@@ -470,10 +447,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 {
                     //make sure there are enough operands
                     if instruction.operands.len() != 2 {
-                        instruction.errors.push(Error{
+                        instruction.errors.push(Error {
                             error_name: IncorrectNumberOfOperands,
                             operand_number: None,
-                            message: "".to_string()
+                            message: "".to_string(),
                         });
                         continue;
                     }
@@ -501,11 +478,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                                 start_end_columns: (0, 0),
                                 token_type: Default::default(),
                             },
-                            Token {
-                                token_name: instruction.operands[1].token_name.clone(),
-                                start_end_columns: (0, 0),
-                                token_type: Default::default(),
-                            },
+                            instruction.operands[1].clone(),
                         ],
                         binary: 0,
                         instruction_number: instruction.instruction_number,
@@ -515,6 +488,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     };
                     vec_of_added_instructions.push(extra_instruction);
                     instruction.operands[1].token_name = "$at".to_string();
+                    instruction.operands[1].start_end_columns = (0, 0);
                     instruction.instruction_number += 1;
                 }
             }
@@ -529,10 +503,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //make sure there are enough operands
                 if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
+                    instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         operand_number: None,
-                        message: "".to_string()
+                        message: "".to_string(),
                     });
                     continue;
                 }
@@ -553,11 +527,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                             start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
-                        Token {
-                            token_name: instruction.operands[2].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
+                        instruction.operands[2].clone(),
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
@@ -568,7 +538,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 vec_of_added_instructions.push(extra_instruction);
                 //adjust subi for the added instruction
                 instruction.operator.token_name = "sub".to_string();
+                instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[2].token_name = "$at".to_string();
+                instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
             }
             "dsubi" => {
@@ -582,10 +554,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //make sure there are the right number of operands
                 if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
+                    instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         operand_number: None,
-                        message: "".to_string()
+                        message: "".to_string(),
                     });
                     continue;
                 }
@@ -606,11 +578,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                             start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
-                        Token {
-                            token_name: instruction.operands[2].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
+                        instruction.operands[2].clone(),
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
@@ -621,7 +589,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 vec_of_added_instructions.push(extra_instruction);
                 //adjust subi for the added instruction
                 instruction.operator.token_name = "dsub".to_string();
+                instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[2].token_name = "$at".to_string();
+                instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
             }
             "dsubiu" => {}
@@ -636,10 +606,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //make sure the are the right number of operands
                 if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
+                    instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         operand_number: None,
-                        message: "".to_string()
+                        message: "".to_string(),
                     });
                     continue;
                 }
@@ -660,11 +630,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                             start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
-                        Token {
-                            token_name: instruction.operands[2].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
+                        instruction.operands[2].clone(),
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
@@ -675,7 +641,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 vec_of_added_instructions.push(extra_instruction);
                 //adjust subi for the added instruction
                 instruction.operator.token_name = "mul".to_string();
+                instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[2].token_name = "$at".to_string();
+                instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
             }
             "dmuli" => {
@@ -689,10 +657,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //make sure the are the right number of operands
                 if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error{
+                    instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         operand_number: None,
-                        message: "".to_string()
+                        message: "".to_string(),
                     });
                     continue;
                 }
@@ -713,11 +681,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                             start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
-                        Token {
-                            token_name: instruction.operands[2].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
+                        instruction.operands[2].clone(),
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
@@ -728,7 +692,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 vec_of_added_instructions.push(extra_instruction);
                 //adjust subi for the added instruction
                 instruction.operator.token_name = "dmul".to_string();
+                instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[2].token_name = "$at".to_string();
+                instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
             }
             "dmuliu" => {}
@@ -743,10 +709,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 //make sure the are the right number of operands a second operand
                 if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error{
+                    instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         operand_number: None,
-                        message: "".to_string()
+                        message: "".to_string(),
                     });
                     continue;
                 }
@@ -767,11 +733,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                             start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
-                        Token {
-                            token_name: instruction.operands[1].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
+                        instruction.operands[1].clone(),
+
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
@@ -782,7 +745,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 vec_of_added_instructions.push(extra_instruction);
                 //adjust subi for the added instruction
                 instruction.operator.token_name = "div".to_string();
+                instruction.operator.start_end_columns = (0,0);
                 instruction.operands[1].token_name = "$at".to_string();
+                instruction.operands[1].start_end_columns = (0,0);
                 instruction.instruction_number += 1;
             }
             "ddivi" => {
@@ -815,11 +780,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                             start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
-                        Token {
-                            token_name: instruction.operands[1].token_name.clone(),
-                            start_end_columns: (0, 0),
-                            token_type: Default::default(),
-                        },
+                        instruction.operands[1].clone()
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
@@ -830,7 +791,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 vec_of_added_instructions.push(extra_instruction);
                 //adjust subi for the added instruction
                 instruction.operator.token_name = "ddiv".to_string();
+                instruction.operator.start_end_columns = (0,0);
                 instruction.operands[1].token_name = "$at".to_string();
+                instruction.operands[1].start_end_columns = (0,0);
                 instruction.instruction_number += 1;
             }
             "ddiviu" => {}
@@ -875,7 +838,6 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     }
 }
 
-
 ///the second part of completing pseudo-instructions. LW and SW with labels requires the address of the label to be known,
 /// the second part of this must occur after the label hashmap is completed.
 pub fn complete_lw_sw_pseudo_instructions(
@@ -891,13 +853,14 @@ pub fn complete_lw_sw_pseudo_instructions(
             && instructions[index].operands.len() > 1
             && labels.contains_key(&*instructions[index].operands[1].token_name)
             && (instructions[index + 1].operator.token_name == "sw"
-            || instructions[index + 1].operator.token_name == "lw")
+                || instructions[index + 1].operator.token_name == "lw")
         {
             //upper 16 bits are stored in $at using lui
             let address = *labels
                 .get(&*instructions[index].operands[1].token_name)
                 .unwrap();
             instructions[index].operands[1].token_name = (address >> 16).to_string();
+            instructions[index].operands[1].start_end_columns = (0,0);
             index += 1;
 
             //lower 16 bits are stored as the offset for the load/store operation
@@ -905,6 +868,7 @@ pub fn complete_lw_sw_pseudo_instructions(
             let mut memory_operand = lower_16_bits.to_string();
             memory_operand.push_str("($at)");
             instructions[index].operands[1].token_name = memory_operand;
+            instructions[index].operands[1].start_end_columns = (0, 0);
         }
     }
 }

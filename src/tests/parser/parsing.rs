@@ -7,13 +7,13 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType
     Label, Operator, Unknown,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, Instruction, Line, ProgramInfo, Token,
+    Data, Error, Instruction, Line, Token,
 };
-use crate::parser::parsing::{create_label_map};
+use crate::parser::parsing::create_label_map;
 #[cfg(test)]
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
+use crate::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
 use std::collections::HashMap;
-use crate::parser::pseudo_instruction_parsing::{complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers};
 
 #[test]
 fn tokenize_program_works_basic_version() {
@@ -743,15 +743,15 @@ fn suggest_error_corrections_works_with_various_gp_registers() {
 
     assert_eq!(
         result[0].errors[0].message,
-        "A valid, similar register is: $t3."
+        "A valid, similar register is: $t3.\n"
     );
     assert_eq!(
         result[1].errors[0].message,
-        "A valid, similar register is: $at."
+        "A valid, similar register is: $at.\n"
     );
     assert_eq!(
         result[1].errors[1].message,
-        "A valid, similar register is: r0."
+        "A valid, similar register is: r0.\n"
     );
 }
 
@@ -763,19 +763,19 @@ fn suggest_error_corrections_works_with_various_fp_registers() {
 
     assert_eq!(
         result[0].errors[0].message,
-        "A valid, similar register is: $f3."
+        "A valid, similar register is: $f3.\n"
     );
     assert_eq!(
         result[1].errors[0].message,
-        "A valid, similar register is: $f0."
+        "A valid, similar register is: $f0.\n"
     );
     assert_eq!(
         result[1].errors[1].message,
-        "A valid, similar register is: $f2."
+        "A valid, similar register is: $f2.\n"
     );
     assert_eq!(
         result[1].errors[2].message,
-        "A valid, similar register is: $f0."
+        "A valid, similar register is: $f0.\n"
     );
 }
 
@@ -788,11 +788,11 @@ fn suggest_error_corrections_works_with_labels() {
 
     assert_eq!(
         result[0].errors[0].message,
-        "A valid, similar label is: table."
+        "A valid, similar label is: table.\n"
     );
     assert_eq!(
         result[3].errors[0].message,
-        "A valid, similar label is: label."
+        "A valid, similar label is: label.\n"
     );
 }
 
@@ -803,7 +803,7 @@ fn suggest_error_corrections_works_with_labels_when_no_labels_specified() {
         .instructions;
     assert_eq!(
         result[1].errors[0].message,
-        "There is no recognized labelled memory."
+        "There is no recognized labelled memory.\n"
     );
 }
 
@@ -815,15 +815,15 @@ fn suggest_error_corrections_works_with_instructions() {
 
     assert_eq!(
         result[0].errors[0].message,
-        "A valid, similar instruction is: sub."
+        "A valid, similar instruction is: sub.\n"
     );
     assert_eq!(
         result[1].errors[0].message,
-        "A valid, similar instruction is: lw."
+        "A valid, similar instruction is: lw.\n"
     );
     assert_eq!(
         result[2].errors[0].message,
-        "A valid, similar instruction is: c.eq.d."
+        "A valid, similar instruction is: c.eq.d.\n"
     );
 }
 
@@ -838,14 +838,14 @@ fn suggest_error_corrections_works_with_data_types() {
 
     assert_eq!(
         result[0].errors[0].message,
-        "A valid, similar data type is: .word."
+        "A valid, similar data type is: .word.\n"
     );
     assert_eq!(
         result[1].errors[0].message,
-        "A valid, similar data type is: .byte."
+        "A valid, similar data type is: .byte.\n"
     );
     assert_eq!(
         result[2].errors[0].message,
-        "A valid, similar data type is: .double."
+        "A valid, similar data type is: .double.\n"
     );
 }

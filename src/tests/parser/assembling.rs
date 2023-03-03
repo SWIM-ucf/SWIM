@@ -173,11 +173,9 @@ mod append_instruction_component_tests {
 mod read_label_absolute_tests {
     use crate::parser::assembling::read_label_absolute;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::LabelNotFound;
-    use crate::parser::parsing::{
-        create_label_map, separate_data_and_text, tokenize_program,
-    };
-    use std::collections::HashMap;
+    use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
     use crate::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
+    use std::collections::HashMap;
 
     #[test]
     fn read_label_absolute_returns_address_of_instruction() {
@@ -217,11 +215,9 @@ mod read_label_absolute_tests {
 
 mod read_label_relative_tests {
     use crate::parser::assembling::read_label_relative;
-    use crate::parser::parsing::{
-        create_label_map, separate_data_and_text, tokenize_program,
-    };
-    use std::collections::HashMap;
+    use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
     use crate::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
+    use std::collections::HashMap;
 
     #[test]
     fn read_label_relative_returns_correct_value_for_instruction_above_current() {
