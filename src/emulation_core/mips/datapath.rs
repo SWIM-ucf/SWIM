@@ -14,15 +14,10 @@
 //!
 //! - There is no exception handling, including that for integer overflow. (See
 //!   [`MipsDatapath::alu()`] and the following bullet.)
-//! - The `syscall` instruction simply performs a no-operation instruction, except for
-//!   setting the boolean flag `is_halted`. To un-set this, [`MipsDatapath::reset()`]
-//!   should be used.
 //! - Only the `addi` and `daddi` instructions follow the proper MIPS specification
 //!   in terms of integer overflow. That is, if there is an overflow, the general-purpose
 //!   register will not be written to. `add` and `dadd` will continue to write on
 //!   overflow. `sub`, `dsub` will likewise continue to write on underflow.
-//! - Invalid instructions will cause the datapath to set the `is_halted` flag.
-//!   [`MipsDatapath::reset()`] should be used to un-set this.
 //! - 32-bit instructions are treated exclusively with 32 bits, and the upper 32
 //!   bits stored in a register are completely ignored in any of these cases. For
 //!   example, before an `add` instruction, it should be checked whether it is a
@@ -40,6 +35,14 @@
 //!   version 5. In version 6, `lui` is an assembly idiom for "add upper immediate" (`aui`)
 //!   with `rs` = 0. However, `aui` is not officially supported nor tested in this
 //!   datapath.
+//!
+//! # Notes on `is_halted`
+//!
+//! - The datapath starts with the `is_halted` flag set.
+//! - [`MipsDatapath::initialize()`] should be used to un-set `is_halted`.
+//! - The `syscall` instruction simply performs a no-operation instruction, except for
+//!   setting the boolean flag `is_halted`.
+//! - Invalid instructions will cause the datapath to set the `is_halted` flag.
 
 use super::super::datapath::Datapath;
 use super::constants::*;
@@ -66,7 +69,7 @@ pub struct MipsDatapath {
     /// Boolean value that states whether the datapath has halted.
     ///
     /// This is set in the event of any `syscall` instruction. To unset this,
-    /// [`Self::reset()`] should be used.
+    /// [`Self::initialize()`] should be used.
     is_halted: bool,
 }
 
@@ -181,7 +184,7 @@ impl Default for MipsDatapath {
             datapath_signals: DatapathSignals::default(),
             state: DatapathState::default(),
             current_stage: Stage::default(),
-            is_halted: false,
+            is_halted: true,
         };
 
         // Set the stack pointer ($sp) to initially start at the end
@@ -254,9 +257,19 @@ impl Datapath for MipsDatapath {
 }
 
 impl MipsDatapath {
+    /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
+    /// flag. If the process fails, an [`Err`] is returned.
+    pub fn initialize(&mut self, instructions: Vec<u32>) -> Result<(), String> {
+        self.reset();
+        self.load_instructions(instructions)?;
+        self.is_halted = false;
+
+        Ok(())
+    }
+
     /// Load a vector of 32-bit instructions into memory. If the process fails,
-    /// from a lack of space or otherwise, an Err is returned.
-    pub fn load_instructions(&mut self, instructions: Vec<u32>) -> Result<(), String> {
+    /// from a lack of space or otherwise, an [`Err`] is returned.
+    fn load_instructions(&mut self, instructions: Vec<u32>) -> Result<(), String> {
         for (i, data) in instructions.iter().enumerate() {
             self.memory.store_word((i as u64) * 4, *data)?
         }
