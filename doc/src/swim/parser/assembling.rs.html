@@ -623,20 +623,6 @@
 <a href="#623" id="623">623</a>
 <a href="#624" id="624">624</a>
 <a href="#625" id="625">625</a>
-<a href="#626" id="626">626</a>
-<a href="#627" id="627">627</a>
-<a href="#628" id="628">628</a>
-<a href="#629" id="629">629</a>
-<a href="#630" id="630">630</a>
-<a href="#631" id="631">631</a>
-<a href="#632" id="632">632</a>
-<a href="#633" id="633">633</a>
-<a href="#634" id="634">634</a>
-<a href="#635" id="635">635</a>
-<a href="#636" id="636">636</a>
-<a href="#637" id="637">637</a>
-<a href="#638" id="638">638</a>
-<a href="#639" id="639">639</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_assembler_main::append_binary;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     ImmediateOutOfBounds, ImproperlyFormattedASCII, ImproperlyFormattedChar,
@@ -908,20 +894,6 @@
 
     <span class="comment">//if the function reaches here and hasn&#39;t already returned, there aren&#39;t any errors
     </span>(immediate_results.<span class="number">0</span>, register_results.<span class="number">0</span>, <span class="prelude-val">None</span>)
-}
-
-<span class="comment">//this function takes the string representation of the binary of the instruction and converts it into an int
-</span><span class="kw">pub fn </span>_convert_to_u32(binary_as_string: String) -&gt; u32 {
-    <span class="kw">let </span><span class="kw-2">mut </span>instruction_integer: u32 = <span class="number">0</span>;
-
-    <span class="comment">//converts instruction from string representation of binary to the unsigned 32 bit integer representation of it.
-    </span><span class="kw">for </span>(i, char) <span class="kw">in </span>binary_as_string.chars().rev().enumerate() {
-        <span class="kw">let </span>bit = char <span class="kw">as </span>u32 - <span class="string">&#39;0&#39; </span><span class="kw">as </span>u32;
-        <span class="kw">let </span>exponential_multiplier = <span class="number">2_u32</span>.pow(i <span class="kw">as </span>u32);
-        instruction_integer += bit * exponential_multiplier;
-    }
-
-    instruction_integer
 }
 
 <span class="doccomment">///read_register takes the string of the register name, the token number the register is from the corresponding instruction
