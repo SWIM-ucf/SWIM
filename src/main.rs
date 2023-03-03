@@ -100,7 +100,7 @@ fn app() -> Html {
 
                 // Load the binary into the datapath's memory
                 (*datapath)
-                    .load_instructions(assembled)
+                    .initialize(assembled)
                     .expect("Memory could not be loaded");
                 //log!(datapath.memory.to_string());
                 trigger.force_update();
