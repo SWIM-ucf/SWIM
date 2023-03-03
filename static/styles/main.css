@@ -20,6 +20,8 @@ body {
   background-color: #b9cceb;
   color: #000000;
   overflow-y: auto;
+  overflow-wrap: break-word;
+  word-break: break-all;
   flex-basis: 50%;
 }
 
