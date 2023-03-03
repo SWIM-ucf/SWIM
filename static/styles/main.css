@@ -22,6 +22,10 @@ body {
   overflow-y: auto;
   overflow-wrap: break-word;
   word-break: break-all;
+  padding-top: 25px;
+  padding-right: 25px;
+  padding-bottom: 25px;
+  padding-left: 25px;
   flex-basis: 50%;
 }
 

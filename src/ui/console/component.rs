@@ -108,6 +108,6 @@ pub fn console(props: &Consoleprops) -> Html {
     }
 }
 
-fn hello_string(x: &ProgramInfo) -> String {
+fn hello_string(_x: &ProgramInfo) -> String {
     return "hello world".to_string();
 }
