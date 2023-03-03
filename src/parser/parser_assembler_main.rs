@@ -12,7 +12,6 @@ use std::collections::HashMap;
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
 pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
-
     let mut program_info = ProgramInfo::default();
     let (lines, mut updated_monaco_strings, monaco_line_info_vec) = tokenize_program(file_string);
 
