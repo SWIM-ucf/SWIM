@@ -4,19 +4,25 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandTy
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::*;
 use crate::parser::parsing::*;
+use crate::parser::pseudo_instruction_parsing::{
+    complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers,
+};
 use std::collections::HashMap;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
 pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
     let mut program_info = ProgramInfo::default();
+    let (lines, mut updated_monaco_strings, monaco_line_info_vec) = tokenize_program(file_string);
 
-    let (lines, mut updated_monaco_strings) = tokenize_program(file_string);
+    program_info.monaco_line_info = monaco_line_info_vec;
+
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
         &mut updated_monaco_strings,
+        &mut program_info.monaco_line_info,
     );
     let vec_of_data = assemble_data_binary(&mut program_info.data);
     let labels: HashMap<String, u32> =
@@ -32,6 +38,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
         &mut program_info.instructions,
         &mut program_info.data,
         &labels,
+        &mut program_info.monaco_line_info,
     );
 
     let binary = create_binary_vec(program_info.instructions.clone(), vec_of_data);

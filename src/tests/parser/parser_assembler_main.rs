@@ -621,10 +621,9 @@ use crate::parser::parser_assembler_main::{
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::UnsupportedInstruction;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
-use crate::parser::parsing::{
-    complete_lw_sw_pseudo_instructions, create_label_map,
-    expand_pseudo_instructions_and_assign_instruction_numbers, separate_data_and_text,
-    tokenize_program,
+use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
+use crate::parser::pseudo_instruction_parsing::{
+    complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers,
 };
 use std::collections::HashMap;
 
@@ -654,21 +653,21 @@ mod helper_functions {
     use crate::parser::assembling::assemble_data_binary;
     use crate::parser::parser_assembler_main::read_instructions;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::Instruction;
-    use crate::parser::parsing::{
-        create_label_map, expand_pseudo_instructions_and_assign_instruction_numbers,
-        separate_data_and_text, tokenize_program,
-    };
+    use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
+    use crate::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
     use std::collections::HashMap;
 
     pub fn instruction_parser(mut file_string: String) -> Vec<Instruction> {
         file_string = file_string.to_lowercase();
 
-        let (lines, mut updated_monaco_strings) = tokenize_program(file_string);
+        let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) =
+            tokenize_program(file_string);
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
             &mut updated_monaco_strings,
+            &mut monaco_line_info_vec,
         );
         assemble_data_binary(&mut data);
 
@@ -685,12 +684,14 @@ fn create_binary_vec_works_with_data() {
     let mut program_info = ProgramInfo::default();
     let file_string =
         ".data\nlabel: .ascii \"this is a string\"\n.text\nlw $t1, label".to_lowercase();
-    let (lines, mut updated_monaco_string) = tokenize_program(file_string);
+    let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
-        &mut updated_monaco_string,
+        &mut updated_monaco_strings,
+        &mut monaco_line_info_vec,
     );
     let vec_of_data = assemble_data_binary(&mut program_info.data);
 
@@ -699,7 +700,7 @@ fn create_binary_vec_works_with_data() {
     complete_lw_sw_pseudo_instructions(
         &mut program_info.instructions,
         &labels,
-        &mut updated_monaco_string,
+        &mut updated_monaco_strings,
     );
     read_instructions(&mut program_info.instructions, &labels);
 
@@ -715,12 +716,14 @@ fn create_binary_vec_works_with_data() {
 fn read_instructions_recognizes_valid_but_unsupported_instructions() {
     let mut program_info = ProgramInfo::default();
     let file_string = "jalr $t1, $t2\ndsrav $t1, $t2, $t3".to_lowercase();
-    let (lines, mut updated_monaco_string) = tokenize_program(file_string);
+    let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
-        &mut updated_monaco_string,
+        &mut updated_monaco_strings,
+        &mut monaco_line_info_vec,
     );
 
     let labels: HashMap<String, u32> =
@@ -728,7 +731,7 @@ fn read_instructions_recognizes_valid_but_unsupported_instructions() {
     complete_lw_sw_pseudo_instructions(
         &mut program_info.instructions,
         &labels,
-        &mut updated_monaco_string,
+        &mut updated_monaco_strings,
     );
     read_instructions(&mut program_info.instructions, &labels);
 
@@ -741,3 +744,13 @@ fn read_instructions_recognizes_valid_but_unsupported_instructions() {
         UnsupportedInstruction
     );
 }
+
+// #[test]
+// fn parser_outputs_line_hover_info_for_pseudo_instructions() {
+//     let result = parser("subi: subi $t1, $t2, 100\nlw $t1, subi".to_string())
+//         .0
+//         .monaco_line_info;
+//
+//     assert_eq!(result[0].mouse_hover_string, "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at");
+//     assert_eq!(result[1].mouse_hover_string, "lw $regA, label is a pseudo-instruction.\nlw $regA, label =>\n\tlui $at, label\n\tlw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address.");
+// }

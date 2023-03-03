@@ -1,27 +1,5 @@
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
-
-mod convert_to_u32_tests {
-    use crate::parser::assembling::_convert_to_u32;
-
-    #[test]
-    fn convert_to_u32_returns_correct_value_on_zeros() {
-        let result = _convert_to_u32("00000".to_string());
-        assert_eq!(result, 0);
-    }
-
-    #[test]
-    fn convert_to_u32_returns_correct_value_on_32_bit_long_string() {
-        let result = _convert_to_u32("11111111111111111111111111111111".to_string());
-        assert_eq!(result, 4294967295);
-    }
-
-    #[test]
-    fn convert_to_u32_returns_correct_value_for_an_actual_instruction() {
-        let result = _convert_to_u32("10001101010010010000000000000100".to_string());
-        assert_eq!(result, 2370371588);
-    }
-}
 mod read_register_tests {
     use crate::parser::assembling::read_register;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
@@ -195,20 +173,19 @@ mod append_instruction_component_tests {
 mod read_label_absolute_tests {
     use crate::parser::assembling::read_label_absolute;
     use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::LabelNotFound;
-    use crate::parser::parsing::{
-        create_label_map, expand_pseudo_instructions_and_assign_instruction_numbers,
-        separate_data_and_text, tokenize_program,
-    };
+    use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
+    use crate::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
     use std::collections::HashMap;
 
     #[test]
     fn read_label_absolute_returns_address_of_instruction() {
-        let (lines, mut updated_monaco_strings) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
             &mut updated_monaco_strings,
+            &mut monaco_line_info_vec,
         );
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
@@ -220,12 +197,13 @@ mod read_label_absolute_tests {
 
     #[test]
     fn read_label_absolute_returns_error_if_label_cannot_be_found() {
-        let (lines, mut updated_monaco_strings) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, #t2, $t3\nsave_to_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, #t2, $t3\nsave_to_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
             &mut updated_monaco_strings,
+            &mut monaco_line_info_vec,
         );
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
@@ -237,20 +215,19 @@ mod read_label_absolute_tests {
 
 mod read_label_relative_tests {
     use crate::parser::assembling::read_label_relative;
-    use crate::parser::parsing::{
-        create_label_map, expand_pseudo_instructions_and_assign_instruction_numbers,
-        separate_data_and_text, tokenize_program,
-    };
+    use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
+    use crate::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
     use std::collections::HashMap;
 
     #[test]
     fn read_label_relative_returns_correct_value_for_instruction_above_current() {
-        let (lines, mut updated_monaco_strings) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
             &mut updated_monaco_strings,
+            &mut monaco_line_info_vec,
         );
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
@@ -262,12 +239,13 @@ mod read_label_relative_tests {
 
     #[test]
     fn read_label_relative_returns_correct_value_for_instruction_below_current() {
-        let (lines, mut updated_monaco_strings) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
             &mut updated_monaco_strings,
+            &mut monaco_line_info_vec,
         );
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
