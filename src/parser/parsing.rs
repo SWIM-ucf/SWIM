@@ -150,7 +150,8 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 if instruction.label.is_some() {
                     instruction.errors.push(Error {
                         error_name: LabelAssignmentError,
-                        operand_number: None,
+                        token_causing_error: instruction.label.unwrap().0.token_name.to_string(),
+                        start_end_columns: instruction.label.unwrap().0.start_end_columns,
                         message: "".to_string(),
                     })
                     //if the above error doesn't occur, we can push the label to the instruction struct.
@@ -165,7 +166,8 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                     if i == (lines.len() - 1) {
                         instruction.errors.push(Error {
                             error_name: LabelAssignmentError,
-                            operand_number: None,
+                            token_causing_error: instruction.label.unwrap().0.token_name.to_string(),
+                            start_end_columns: instruction.label.unwrap().0.start_end_columns,
                             message: "".to_string(),
                         });
                         instruction_list.push(instruction.clone());
@@ -183,7 +185,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 instruction.operator = lines[i].tokens[0].clone();
             }
 
-            let first_operand_index = operand_iterator;
+            let _first_operand_index = operand_iterator;
 
             //push all operands to the instruction operand vec that will have commas
             while operand_iterator < (lines[i].tokens.len() - 1) {
@@ -192,7 +194,8 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 } else {
                     instruction.errors.push(Error {
                         error_name: MissingComma,
-                        operand_number: Some((operand_iterator - first_operand_index) as u8),
+                        token_causing_error: lines[i].tokens[operand_iterator].token_name.to_string(),
+                        start_end_columns: lines[i].tokens[operand_iterator].start_end_columns,
                         message: "".to_string(),
                     })
                 }
@@ -232,7 +235,8 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
             } else {
                 data.errors.push(Error {
                     error_name: ImproperlyFormattedLabel,
-                    operand_number: Some(0),
+                    token_causing_error: lines[i].tokens[0].token_name.to_string(),
+                    start_end_columns: lines[i].tokens[0].start_end_columns,
                     message: "".to_string(),
                 });
                 lines[i].tokens[0].token_type = Label;
@@ -243,7 +247,8 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
             if lines[i].tokens.len() < 2 {
                 data.errors.push(Error {
                     error_name: ImproperlyFormattedData,
-                    operand_number: None,
+                    token_causing_error: "".to_string(),
+                    start_end_columns: (lines[i].tokens[0].start_end_columns.0, lines[i].tokens.last().unwrap().start_end_columns.1), //the entire length of the line
                     message: "".to_string(),
                 });
                 i += 1;
@@ -253,8 +258,8 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
             //the second token on the line is the data type
             data.data_type = lines[i].tokens[1].clone();
 
-            let mut value_iterator = 2;
-            let first_value_index = value_iterator;
+            let mut _value_iterator = 2;
+            let _first_value_index = value_iterator;
 
             //push all values to the data vec that will have commas
             while value_iterator < (lines[i].tokens.len() - 1) {
@@ -263,7 +268,8 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 } else {
                     instruction.errors.push(Error {
                         error_name: MissingComma,
-                        operand_number: Some((value_iterator - first_value_index) as u8),
+                        token_causing_error: lines[i].tokens[value_iterator].token_name.to_string(),
+                        start_end_columns: lines[i].tokens[value_iterator].start_end_columns,
                         message: "".to_string(),
                     })
                 }
@@ -297,7 +303,8 @@ pub fn create_label_map(
             if labels.contains_key(&*instruction.label.clone().unwrap().0.token_name) {
                 instruction.errors.push(Error {
                     error_name: LabelMultipleDefinition,
-                    operand_number: None,
+                    token_causing_error: instruction.label.unwrap().0.token_name.to_string(),
+                    start_end_columns: instruction.label.unwrap().0.start_end_columns,
                     message: "".to_string(),
                 });
                 //otherwise, it is inserted
@@ -318,12 +325,13 @@ pub fn create_label_map(
         0
     };
 
-    for (i, data) in data_list.iter_mut().enumerate() {
+    for (_i, data) in data_list.iter_mut().enumerate() {
         //if the given label name is already used, an error is generated
         if labels.contains_key(&*data.label.clone().token_name) {
             data.errors.push(Error {
                 error_name: LabelMultipleDefinition,
-                operand_number: Some(i as u8),
+                token_causing_error: data.label.token_name.to_string(),
+                start_end_columns: data.label.start_end_columns,
                 message: "".to_string(),
             });
             //otherwise, it is inserted
@@ -348,6 +356,7 @@ pub fn suggest_error_corrections(
 ) {
     //go through each error in the instructions and suggest a correction
     for instruction in instructions {
+        //if there are no errors, instead push the binary of the instruction to mouse hover
         if instruction.errors.is_empty() {
             monaco_line_info[instruction.line_number as usize]
                 .mouse_hover_string
@@ -377,9 +386,8 @@ pub fn suggest_error_corrections(
                             "r29", "r30", "r31",
                         ];
 
-                        let given_string = &instruction.operands
-                            [error.operand_number.unwrap() as usize]
-                            .token_name;
+
+                        let given_string = &error.token_causing_error;
                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
 
                         for register in gp_registers {
@@ -402,9 +410,7 @@ pub fn suggest_error_corrections(
                             "$f28", "$f29", "$f30", "$f31",
                         ];
 
-                        let given_string = &instruction.operands
-                            [error.operand_number.unwrap() as usize]
-                            .token_name;
+                        let given_string = &error.token_causing_error;
                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
 
                         for register in fp_registers {
@@ -484,9 +490,7 @@ pub fn suggest_error_corrections(
                             continue;
                         }
 
-                        let given_string = &instruction.operands
-                            [error.operand_number.unwrap() as usize]
-                            .token_name;
+                        let given_string = &error.token_causing_error;
                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
 
                         for label in labels {

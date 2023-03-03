@@ -32,7 +32,8 @@ pub fn read_operands(
     if instruction.operands.len() != expected_operands.len() {
         instruction.errors.push(Error {
             error_name: IncorrectNumberOfOperands,
-            operand_number: None,
+            token_causing_error: instruction.operator.token_name.clone(),
+            start_end_columns: instruction.operator.start_end_columns,
             message: "".to_string(),
         });
         return instruction;
@@ -62,8 +63,11 @@ pub fn read_operands(
                 instruction.operands[i].token_type = TokenType::RegisterGP;
                 bit_lengths.push(5);
 
-                let register_results =
-                    read_register(&instruction.operands[i].token_name, i as u8, GeneralPurpose);
+                let register_results = read_register(
+                    &instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                    GeneralPurpose,
+                );
 
                 binary_representation.push(register_results.0);
                 if register_results.1.is_some() {
@@ -75,7 +79,7 @@ pub fn read_operands(
                 bit_lengths.push(16);
 
                 let immediate_results =
-                    read_immediate(&instruction.operands[i].token_name, i as u8, 16);
+                    read_immediate(&instruction.operands[i].token_name, instruction.operands[i].start_end_columns, 16);
 
                 binary_representation.push(immediate_results.0);
                 if immediate_results.1.is_some() {
@@ -89,8 +93,10 @@ pub fn read_operands(
                 bit_lengths.push(5);
                 //memory address works a bit differently because it really amounts to two operands: the offset and base
                 //meaning there are two values to push and the possibility of errors on both operands
-                let memory_results =
-                    read_memory_address(&instruction.operands[i].token_name, i as u8);
+                let memory_results = read_memory_address(
+                    &instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                );
 
                 binary_representation.push(memory_results.0);
                 binary_representation.push(memory_results.1);
@@ -104,8 +110,11 @@ pub fn read_operands(
                 instruction.operands[i].token_type = TokenType::RegisterFP;
 
                 bit_lengths.push(5);
-                let register_results =
-                    read_register(&instruction.operands[i].token_name, i as u8, FloatingPoint);
+                let register_results = read_register(
+                    &instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                    FloatingPoint,
+                );
 
                 binary_representation.push(register_results.0);
                 if register_results.1.is_some() {
@@ -118,7 +127,7 @@ pub fn read_operands(
                 bit_lengths.push(26);
                 let label_absolute_results = read_label_absolute(
                     &instruction.operands[i].token_name,
-                    i as i32,
+                    instruction.operands[i].start_end_columns,
                     labels.clone(),
                 );
 
@@ -133,7 +142,7 @@ pub fn read_operands(
                 bit_lengths.push(16);
                 let label_relative_results = read_label_relative(
                     &instruction.operands[i].token_name,
-                    i as i32,
+                    instruction.operands[i].start_end_columns,
                     instruction.instruction_number,
                     labels.clone(),
                 );
@@ -160,7 +169,7 @@ pub fn read_operands(
 /// The value represents instruction numbers NOT bytes.
 pub fn read_label_relative(
     given_label: &str,
-    operand_number: i32,
+    start_end_columns: (u32, u32),
     current_instruction_number: u32,
     labels: HashMap<String, u32>,
 ) -> (u32, Option<Error>) {
@@ -171,7 +180,8 @@ pub fn read_label_relative(
             0,
             Some(Error {
                 error_name: LabelNotFound,
-                operand_number: Some(operand_number as u8),
+                token_causing_error: given_label.to_string(),
+                start_end_columns,
                 message: "".to_string(),
             }),
         );
@@ -187,7 +197,7 @@ pub fn read_label_relative(
 /// This value corresponds to instruction number, NOT byte address.
 pub fn read_label_absolute(
     given_label: &str,
-    operand_number: i32,
+    start_end_columns: (u32, u32),
     labels: HashMap<String, u32>,
 ) -> (u32, Option<Error>) {
     let result = labels.get(given_label);
@@ -196,7 +206,8 @@ pub fn read_label_absolute(
             0,
             Some(Error {
                 error_name: LabelNotFound,
-                operand_number: Some(operand_number as u8),
+                token_causing_error: given_label.to_string(),
+                start_end_columns,
                 message: "".to_string(),
             }),
         );
@@ -208,7 +219,7 @@ pub fn read_label_absolute(
 /// If the string given matches a label, that address is returned instead
 pub fn read_memory_address(
     orig_string: &str,
-    operand_number: u8,
+    start_end_columns: (u32, u32),
 ) -> (u32, u32, Option<Vec<Error>>) {
     //the indices of the open and close parentheses are checked.
     //If either are missing or they are in the wrong order, an error is returned
@@ -220,7 +231,8 @@ pub fn read_memory_address(
             0,
             Some(vec![Error {
                 error_name: InvalidMemorySyntax,
-                operand_number: Some(operand_number),
+                token_causing_error: orig_string.to_string(),
+                start_end_columns,
                 message: "".to_string(),
             }]),
         );
@@ -238,7 +250,8 @@ pub fn read_memory_address(
             0,
             Some(vec![Error {
                 error_name: InvalidMemorySyntax,
-                operand_number: Some(operand_number),
+                token_causing_error: orig_string.to_string(),
+                start_end_columns,
                 message: "".to_string(),
             }]),
         );
@@ -251,8 +264,8 @@ pub fn read_memory_address(
 
     //offset is an immediate while base is a register so the read functions for those operands
     //will confirm they are properly formatted
-    let immediate_results = read_immediate(offset_str, operand_number, 16);
-    let register_results = read_register(&cleaned_base, operand_number, GeneralPurpose);
+    let immediate_results = read_immediate(offset_str, start_end_columns, 16);
+    let register_results = read_register(&cleaned_base, start_end_columns, GeneralPurpose);
 
     //any errors found in the read_immediate or read_register functions are collected into a vec
     //if there were any errors, those are returned
@@ -275,7 +288,7 @@ pub fn read_memory_address(
 ///and the expected register type. It calls the corresponding functions holding the match cases for the different register types.
 pub fn read_register(
     register: &str,
-    operand_number: u8,
+    start_end_columns: (u32, u32),
     register_type: RegisterType,
 ) -> (u32, Option<Error>) {
     if register_type == GeneralPurpose {
@@ -288,7 +301,8 @@ pub fn read_register(
                 0,
                 Some(Error {
                     error_name: IncorrectRegisterTypeFP,
-                    operand_number: Some(operand_number),
+                    token_causing_error: register.to_string(),
+                    start_end_columns,
                     message: "".to_string(),
                 }),
             )
@@ -297,7 +311,8 @@ pub fn read_register(
                 0,
                 Some(Error {
                     error_name: UnrecognizedGPRegister,
-                    operand_number: Some(operand_number),
+                    token_causing_error: register.to_string(),
+                    start_end_columns,
                     message: "".to_string(),
                 }),
             )
@@ -312,7 +327,8 @@ pub fn read_register(
                 0,
                 Some(Error {
                     error_name: IncorrectRegisterTypeGP,
-                    operand_number: Some(operand_number),
+                    token_causing_error: register.to_string(),
+                    start_end_columns,
                     message: "".to_string(),
                 }),
             )
@@ -321,7 +337,8 @@ pub fn read_register(
                 0,
                 Some(Error {
                     error_name: UnrecognizedFPRegister,
-                    operand_number: Some(operand_number),
+                    token_causing_error: register.to_string(),
+                    start_end_columns,
                     message: "".to_string(),
                 }),
             )
@@ -419,7 +436,11 @@ pub fn match_fp_register(register: &str) -> Option<u32> {
 ///This function takes a string representation of an immediate value and the number of bits available to represent it
 /// and attempts to translate it to an actual integer. If the value cannot be cast to int or is too big to be represented
 /// by the available bits, an error is returned.
-pub fn read_immediate(given_text: &str, operand_number: u8, num_bits: u32) -> (u32, Option<Error>) {
+pub fn read_immediate(
+    given_text: &str,
+    start_end_columns: (u32, u32),
+    num_bits: u32,
+) -> (u32, Option<Error>) {
     //attempts to cast the text into a large int
     let parse_results = given_text.parse::<i32>();
 
@@ -429,7 +450,8 @@ pub fn read_immediate(given_text: &str, operand_number: u8, num_bits: u32) -> (u
             0,
             Some(Error {
                 error_name: NonIntImmediate,
-                operand_number: Some(operand_number),
+                token_causing_error: given_text.to_string(),
+                start_end_columns,
                 message: "".to_string(),
             }),
         );
@@ -446,7 +468,8 @@ pub fn read_immediate(given_text: &str, operand_number: u8, num_bits: u32) -> (u
             0,
             Some(Error {
                 error_name: ImmediateOutOfBounds,
-                operand_number: Some(operand_number),
+                token_causing_error: given_text.to_string(),
+                start_end_columns,
                 message: "".to_string(),
             }),
         );
@@ -458,12 +481,12 @@ pub fn read_immediate(given_text: &str, operand_number: u8, num_bits: u32) -> (u
 ///Takes the data list and finds the actual values for each data entry that will be put into memory
 pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
     let mut vec_of_data: Vec<u8> = Vec::new();
-    for data_entry in data_list.iter_mut() {
-        data_entry.data_number = vec_of_data.len() as u32;
-        match &*data_entry.data_type.token_name {
+    for datum in data_list.iter_mut() {
+        datum.data_number = vec_of_data.len() as u32;
+        match &*datum.data_type.token_name {
             ".ascii" => {
                 //pushes a string of characters to memory
-                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                for (i, value) in datum.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = ASCII;
                     let chars = value.0.token_name.as_bytes();
                     if chars[0] == b'\"' && chars[chars.len() - 1] == b'\"' && chars.len() > 2 {
@@ -471,9 +494,10 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                             vec_of_data.push(*char);
                         }
                     } else {
-                        data_entry.errors.push(Error {
+                        datum.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
-                            operand_number: Some(i as u8),
+                            token_causing_error: datum.data_entries_and_values[i].0.token_name.clone(),
+                            start_end_columns: datum.data_entries_and_values[i].0.start_end_columns,
                             message: "".to_string(),
                         });
                     }
@@ -481,7 +505,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
             }
             ".asciiz" => {
                 //same as ascii but pushes a \0 to memory as well
-                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                for (i, value) in datum.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = ASCII;
                     let chars = value.0.token_name.as_bytes();
                     if chars[0] == b'\"' && chars[chars.len() - 1] == b'\"' && chars.len() > 2 {
@@ -489,9 +513,10 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                             vec_of_data.push(*char);
                         }
                     } else {
-                        data_entry.errors.push(Error {
+                        datum.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
-                            operand_number: Some(i as u8),
+                            token_causing_error: datum.data_entries_and_values[i].0.token_name.to_string(),
+                            start_end_columns: datum.data_entries_and_values[i].0.start_end_columns,
                             message: "".to_string(),
                         });
                     }
@@ -499,14 +524,17 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                 vec_of_data.push(0);
             }
             ".byte" => {
-                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                for (i, value) in datum.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Byte;
                     //this if block handles chars
                     if value.0.token_name.starts_with('\'') {
                         if value.0.token_name.len() != 3 || !value.0.token_name.ends_with('\'') {
-                            data_entry.errors.push(Error {
+                            datum.errors.push(Error {
                                 error_name: ImproperlyFormattedChar,
-                                operand_number: Some(i as u8),
+                                token_causing_error: datum.data_entries_and_values[i].0.token_name.to_string(),
+                                start_end_columns: datum.data_entries_and_values[i]
+                                    .0
+                                    .start_end_columns,
                                 message: "".to_string(),
                             });
                         } else {
@@ -517,17 +545,17 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                         }
                     } else {
                         //otherwise we can assume it is an int
-                        let immediate_results = read_immediate(&value.0.token_name, i as u8, 8);
+                        let immediate_results = read_immediate(&value.0.token_name, value.0.start_end_columns, 8);
                         vec_of_data.push(immediate_results.0 as u8);
                         if immediate_results.1.is_some() {
-                            data_entry.errors.push(immediate_results.1.unwrap());
+                            datum.errors.push(immediate_results.1.unwrap());
                         }
                     }
                 }
             }
             ".double" => {
                 //pushes the given 64 bit float values
-                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                for (i, value) in datum.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Float;
                     let parse_results = value.0.token_name.parse::<f64>();
                     if let Ok(..) = parse_results {
@@ -541,9 +569,10 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                         vec_of_data.push((float_bits >> 8) as u8);
                         vec_of_data.push(float_bits as u8);
                     } else {
-                        data_entry.errors.push(Error {
+                        datum.errors.push(Error {
                             error_name: NonFloatImmediate,
-                            operand_number: Some(i as u8),
+                            token_causing_error: datum.data_entries_and_values[i].0.token_name.to_string(),
+                            start_end_columns: datum.data_entries_and_values[i].0.start_end_columns,
                             message: "".to_string(),
                         })
                     }
@@ -551,7 +580,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
             }
             ".float" => {
                 //pushes the given 32 bit float values
-                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                for (i, value) in datum.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Float;
                     let parse_results = value.0.token_name.parse::<f32>();
                     if let Ok(..) = parse_results {
@@ -561,9 +590,10 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                         vec_of_data.push((float_bits >> 8) as u8);
                         vec_of_data.push(float_bits as u8);
                     } else {
-                        data_entry.errors.push(Error {
+                        datum.errors.push(Error {
                             error_name: NonFloatImmediate,
-                            operand_number: Some(i as u8),
+                            token_causing_error: datum.data_entries_and_values[i].0.token_name.to_string(),
+                            start_end_columns: datum.data_entries_and_values[i].0.start_end_columns,
                             message: "".to_string(),
                         })
                     }
@@ -571,23 +601,31 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
             }
             ".half" => {
                 //half words are 16 bits each. The vec is of u32s so 2 half words are in each u32
-                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                for (i, value) in datum.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Half;
-                    let immediate_results = read_immediate(&value.0.token_name, i as u8, 16);
+                    let immediate_results = read_immediate(
+                        &value.0.token_name,
+                        datum.data_entries_and_values[i].0.start_end_columns,
+                        16,
+                    );
 
                     vec_of_data.push((immediate_results.0 >> 8) as u8);
                     vec_of_data.push(immediate_results.0 as u8);
 
                     if immediate_results.1.is_some() {
-                        data_entry.errors.push(immediate_results.1.unwrap());
+                        datum.errors.push(immediate_results.1.unwrap());
                     }
                 }
             }
             ".space" => {
                 //pushes specified number of empty bytes
-                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                for (i, value) in datum.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Space;
-                    let immediate_results = read_immediate(&value.0.token_name, i as u8, 32);
+                    let immediate_results = read_immediate(
+                        &value.0.token_name,
+                        datum.data_entries_and_values[i].0.start_end_columns,
+                        32,
+                    );
                     value.1 = immediate_results.0;
 
                     for _i in 0..immediate_results.0 {
@@ -595,16 +633,20 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     }
 
                     if immediate_results.1.is_some() {
-                        data_entry.errors.push(immediate_results.1.unwrap());
+                        datum.errors.push(immediate_results.1.unwrap());
                     }
                 }
             }
             ".word" => {
-                for (i, value) in data_entry.data_entries_and_values.iter_mut().enumerate() {
+                for (i, value) in datum.data_entries_and_values.iter_mut().enumerate() {
                     value.0.token_type = Word;
-                    let immediate_results = read_immediate(&value.0.token_name, i as u8, 32);
+                    let immediate_results = read_immediate(
+                        &value.0.token_name,
+                        datum.data_entries_and_values[i].0.start_end_columns,
+                        32,
+                    );
                     if immediate_results.1.is_some() {
-                        data_entry.errors.push(immediate_results.1.unwrap());
+                        datum.errors.push(immediate_results.1.unwrap());
                     }
 
                     //push all four bytes of the word to the vector
@@ -614,9 +656,10 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     vec_of_data.push(immediate_results.0 as u8);
                 }
             }
-            _ => data_entry.errors.push(Error {
+            _ => datum.errors.push(Error {
                 error_name: UnrecognizedDataType,
-                operand_number: None,
+                token_causing_error: datum.data_type.token_name.to_string(),
+                start_end_columns: datum.data_type.start_end_columns,
                 message: "".to_string(),
             }),
         }

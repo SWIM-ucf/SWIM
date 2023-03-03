@@ -1111,13 +1111,15 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 if unsupported_instructions.contains(&&*instruction.operator.token_name) {
                     instruction.errors.push(Error {
                         error_name: UnsupportedInstruction,
-                        operand_number: None,
+                        token_causing_error: instruction.operator.token_name.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     })
                 } else {
                     instruction.errors.push(Error {
                         error_name: UnrecognizedInstruction,
-                        operand_number: None,
+                        token_causing_error: instruction.operator.token_name.clone(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     });
                 }

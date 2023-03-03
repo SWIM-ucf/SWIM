@@ -56,7 +56,8 @@ pub mod instruction_tokenization {
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct Error {
         pub error_name: ErrorType,
-        pub operand_number: Option<u8>,
+        pub token_causing_error: String,
+        pub start_end_columns: (u32, u32),
         pub message: String,
     }
 
