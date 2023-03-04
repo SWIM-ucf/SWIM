@@ -95,7 +95,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::emulation_core::mips::datapath::MipsDatapath;
 <span class="kw">use </span><span class="kw">crate</span>::ui::visual_datapath::{DatapathSize, VisualDatapath};
 
-<span class="attr">#[derive(Properties, PartialEq)]
+<span class="attr">#[derive(PartialEq, Properties)]
 </span><span class="kw">pub struct </span>Consoleprops {
     <span class="kw">pub </span>datapath: MipsDatapath,
     <span class="kw">pub </span>parsermsg: String,

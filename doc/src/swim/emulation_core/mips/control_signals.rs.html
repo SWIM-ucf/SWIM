@@ -526,8 +526,6 @@
 <a href="#526" id="526">526</a>
 <a href="#527" id="527">527</a>
 <a href="#528" id="528">528</a>
-<a href="#529" id="529">529</a>
-<a href="#530" id="530">530</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Internal datapath control signals.
 
 /// Full collection of control signals.
@@ -916,7 +914,7 @@
     ///
     /// *Implementation note:* The bits set for the comparator are intended to match
     /// the bits used in the `cond` field of a `c.cond.fmt` instruction.
-    </span><span class="attr">#[derive(Clone, Default, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Debug, Default, PartialEq)]
     </span><span class="kw">pub enum </span>FpuAluOp {
         <span class="attr">#[default]
         </span><span class="doccomment">/// `_0000` (0):
@@ -963,14 +961,14 @@
 
     <span class="kw">impl </span>FpuAluOp {
         <span class="doccomment">/// Get the corresponding control signal given a function code.
-        </span><span class="kw">pub fn </span>from_function(function: u8) -&gt; <span class="self">Self </span>{
+        </span><span class="kw">pub fn </span>from_function(function: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, String&gt; {
             <span class="kw">match </span>function {
-                FUNCTION_C_EQ =&gt; <span class="self">Self</span>::MultiplicationOrEqual,
-                FUNCTION_C_LT =&gt; <span class="self">Self</span>::Slt,
-                FUNCTION_C_NGE =&gt; <span class="self">Self</span>::Snge,
-                FUNCTION_C_LE =&gt; <span class="self">Self</span>::Sle,
-                FUNCTION_C_NGT =&gt; <span class="self">Self</span>::Sngt,
-                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unsupported function code `{function}`&quot;</span>),
+                FUNCTION_C_EQ =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::MultiplicationOrEqual),
+                FUNCTION_C_LT =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Slt),
+                FUNCTION_C_NGE =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Snge),
+                FUNCTION_C_LE =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Sle),
+                FUNCTION_C_NGT =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Sngt),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Unsupported function code `{function}`&quot;</span>)),
             }
         }
     }
@@ -1036,13 +1034,11 @@
     <span class="kw">impl </span>FpuRegWidth {
         <span class="doccomment">/// Get the corresponding [`FpuRegWidth`] control signal based on
         /// the `fmt` field in an instruction.
-        </span><span class="kw">pub fn </span>from_fmt(fmt: u8) -&gt; <span class="self">Self </span>{
+        </span><span class="kw">pub fn </span>from_fmt(fmt: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, String&gt; {
             <span class="kw">match </span>fmt {
-                FMT_SINGLE =&gt; <span class="self">Self</span>::Word,
-                FMT_DOUBLE =&gt; <span class="self">Self</span>::DoubleWord,
-                <span class="kw">_ </span>=&gt; {
-                    <span class="macro">unimplemented!</span>(<span class="string">&quot;`{}` is an invalid fmt value&quot;</span>, fmt);
-                }
+                FMT_SINGLE =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Word),
+                FMT_DOUBLE =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::DoubleWord),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;`{fmt}` is an invalid fmt value&quot;</span>)),
             }
         }
     }

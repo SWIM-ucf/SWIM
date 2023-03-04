@@ -101,13 +101,13 @@
 <span class="kw">use </span><span class="kw">crate</span>::emulation_core::mips::registers::GpRegisters;
 
 <span class="comment">// datapath.coprocessor.fpr
-</span><span class="attr">#[derive(Properties, PartialEq)]
+</span><span class="attr">#[derive(PartialEq, Properties)]
 </span><span class="kw">pub struct </span>Regviewprops {
     <span class="kw">pub </span>gp: GpRegisters,
     <span class="kw">pub </span>fp: [u64; <span class="number">32</span>],
 }
 
-<span class="attr">#[derive(Properties, PartialEq)]
+<span class="attr">#[derive(PartialEq, Properties)]
 </span><span class="kw">pub struct </span>Viewswitch {
     <span class="kw">pub </span>switch_view: bool,
 }

@@ -1147,6 +1147,66 @@
 <a href="#1147" id="1147">1147</a>
 <a href="#1148" id="1148">1148</a>
 <a href="#1149" id="1149">1149</a>
+<a href="#1150" id="1150">1150</a>
+<a href="#1151" id="1151">1151</a>
+<a href="#1152" id="1152">1152</a>
+<a href="#1153" id="1153">1153</a>
+<a href="#1154" id="1154">1154</a>
+<a href="#1155" id="1155">1155</a>
+<a href="#1156" id="1156">1156</a>
+<a href="#1157" id="1157">1157</a>
+<a href="#1158" id="1158">1158</a>
+<a href="#1159" id="1159">1159</a>
+<a href="#1160" id="1160">1160</a>
+<a href="#1161" id="1161">1161</a>
+<a href="#1162" id="1162">1162</a>
+<a href="#1163" id="1163">1163</a>
+<a href="#1164" id="1164">1164</a>
+<a href="#1165" id="1165">1165</a>
+<a href="#1166" id="1166">1166</a>
+<a href="#1167" id="1167">1167</a>
+<a href="#1168" id="1168">1168</a>
+<a href="#1169" id="1169">1169</a>
+<a href="#1170" id="1170">1170</a>
+<a href="#1171" id="1171">1171</a>
+<a href="#1172" id="1172">1172</a>
+<a href="#1173" id="1173">1173</a>
+<a href="#1174" id="1174">1174</a>
+<a href="#1175" id="1175">1175</a>
+<a href="#1176" id="1176">1176</a>
+<a href="#1177" id="1177">1177</a>
+<a href="#1178" id="1178">1178</a>
+<a href="#1179" id="1179">1179</a>
+<a href="#1180" id="1180">1180</a>
+<a href="#1181" id="1181">1181</a>
+<a href="#1182" id="1182">1182</a>
+<a href="#1183" id="1183">1183</a>
+<a href="#1184" id="1184">1184</a>
+<a href="#1185" id="1185">1185</a>
+<a href="#1186" id="1186">1186</a>
+<a href="#1187" id="1187">1187</a>
+<a href="#1188" id="1188">1188</a>
+<a href="#1189" id="1189">1189</a>
+<a href="#1190" id="1190">1190</a>
+<a href="#1191" id="1191">1191</a>
+<a href="#1192" id="1192">1192</a>
+<a href="#1193" id="1193">1193</a>
+<a href="#1194" id="1194">1194</a>
+<a href="#1195" id="1195">1195</a>
+<a href="#1196" id="1196">1196</a>
+<a href="#1197" id="1197">1197</a>
+<a href="#1198" id="1198">1198</a>
+<a href="#1199" id="1199">1199</a>
+<a href="#1200" id="1200">1200</a>
+<a href="#1201" id="1201">1201</a>
+<a href="#1202" id="1202">1202</a>
+<a href="#1203" id="1203">1203</a>
+<a href="#1204" id="1204">1204</a>
+<a href="#1205" id="1205">1205</a>
+<a href="#1206" id="1206">1206</a>
+<a href="#1207" id="1207">1207</a>
+<a href="#1208" id="1208">1208</a>
+<a href="#1209" id="1209">1209</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of a MIPS64 datapath.
 //!
 //! It is assumed that while moving through stages, only one
@@ -1162,7 +1222,7 @@
 //! version 6 specification for the sake of simplicity in a few places:
 //!
 //! - There is no exception handling, including that for integer overflow. (See
-//!   [`MipsDatapath::alu()`].)
+//!   [`MipsDatapath::alu()`] and the following bullet.)
 //! - Only the `addi` and `daddi` instructions follow the proper MIPS specification
 //!   in terms of integer overflow. That is, if there is an overflow, the general-purpose
 //!   register will not be written to. `add` and `dadd` will continue to write on
@@ -1184,6 +1244,14 @@
 //!   version 5. In version 6, `lui` is an assembly idiom for &quot;add upper immediate&quot; (`aui`)
 //!   with `rs` = 0. However, `aui` is not officially supported nor tested in this
 //!   datapath.
+//!
+//! # Notes on `is_halted`
+//!
+//! - The datapath starts with the `is_halted` flag set.
+//! - [`MipsDatapath::initialize()`] should be used to un-set `is_halted`.
+//! - The `syscall` instruction simply performs a no-operation instruction, except for
+//!   setting the boolean flag `is_halted`.
+//! - Invalid instructions will cause the datapath to set the `is_halted` flag.
 
 </span><span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::datapath::Datapath;
 <span class="kw">use </span><span class="kw">super</span>::constants::<span class="kw-2">*</span>;
@@ -1193,7 +1261,7 @@
 <span class="kw">use super</span>::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 
 <span class="doccomment">/// An implementation of a datapath for the MIPS64 ISA.
-</span><span class="attr">#[derive(PartialEq, Clone)]
+</span><span class="attr">#[derive(Clone, PartialEq)]
 </span><span class="kw">pub struct </span>MipsDatapath {
     <span class="kw">pub </span>registers: GpRegisters,
     <span class="kw">pub </span>memory: Memory,
@@ -1206,6 +1274,12 @@
 
     <span class="doccomment">/// The currently-active stage in the datapath.
     </span><span class="kw">pub </span>current_stage: Stage,
+
+    <span class="doccomment">/// Boolean value that states whether the datapath has halted.
+    ///
+    /// This is set in the event of any `syscall` instruction. To unset this,
+    /// [`Self::initialize()`] should be used.
+    </span>is_halted: bool,
 }
 
 <span class="doccomment">/// A collection of all the data lines and wires in the datapath.
@@ -1284,7 +1358,7 @@
 }
 
 <span class="doccomment">/// The possible stages the datapath could be in during execution.
-</span><span class="attr">#[derive(Default, Copy, Clone, Eq, PartialEq)]
+</span><span class="attr">#[derive(Clone, Copy, Default, Eq, PartialEq)]
 </span><span class="kw">pub enum </span>Stage {
     <span class="attr">#[default]
     </span>InstructionFetch,
@@ -1308,12 +1382,6 @@
     }
 }
 
-<span class="doccomment">/// Handle an otherwise irrecoverable error within the datapath. At
-/// present, this is the equivalent of `panic!()`.
-</span><span class="kw">pub fn </span>error(message: <span class="kw-2">&amp;</span>str) {
-    <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, message);
-}
-
 <span class="kw">impl </span>Default <span class="kw">for </span>MipsDatapath {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>datapath = MipsDatapath {
@@ -1325,6 +1393,7 @@
             datapath_signals: DatapathSignals::default(),
             state: DatapathState::default(),
             current_stage: Stage::default(),
+            is_halted: <span class="bool-val">true</span>,
         };
 
         <span class="comment">// Set the stack pointer ($sp) to initially start at the end
@@ -1341,29 +1410,33 @@
     <span class="kw">type </span>MemoryType = Memory;
 
     <span class="kw">fn </span>execute_instruction(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="comment">// If the last instruction has not finished, finish it instead.
-        </span><span class="kw">if </span><span class="self">self</span>.current_stage != Stage::InstructionFetch {
-            <span class="self">self</span>.finish_instruction();
-            <span class="kw">return</span>;
+        <span class="kw">loop </span>{
+            <span class="comment">// If the FPU has halted, reflect this in the main unit.
+            </span><span class="kw">if </span><span class="self">self</span>.coprocessor.is_halted {
+                <span class="self">self</span>.is_halted = <span class="bool-val">true</span>;
+            }
+
+            <span class="comment">// Stop early if the datapath has halted.
+            </span><span class="kw">if </span><span class="self">self</span>.is_halted {
+                <span class="kw">break</span>;
+            }
+
+            <span class="self">self</span>.execute_stage();
+
+            <span class="comment">// This instruction is finished when the datapath has returned
+            // to the IF stage.
+            </span><span class="kw">if </span><span class="self">self</span>.current_stage == Stage::InstructionFetch {
+                <span class="kw">break</span>;
+            }
         }
-
-        <span class="comment">// IF
-        </span><span class="self">self</span>.stage_instruction_fetch();
-
-        <span class="comment">// ID
-        </span><span class="self">self</span>.stage_instruction_decode();
-
-        <span class="comment">// EX
-        </span><span class="self">self</span>.stage_execute();
-
-        <span class="comment">// MEM
-        </span><span class="self">self</span>.stage_memory();
-
-        <span class="comment">// WB
-        </span><span class="self">self</span>.stage_writeback();
     }
 
     <span class="kw">fn </span>execute_stage(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// If the datapath is halted, do nothing.
+        </span><span class="kw">if </span><span class="self">self</span>.is_halted {
+            <span class="kw">return</span>;
+        }
+
         <span class="kw">match </span><span class="self">self</span>.current_stage {
             Stage::InstructionFetch =&gt; <span class="self">self</span>.stage_instruction_fetch(),
             Stage::InstructionDecode =&gt; <span class="self">self</span>.stage_instruction_decode(),
@@ -1383,15 +1456,29 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.memory
     }
 
+    <span class="kw">fn </span>is_halted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.is_halted
+    }
+
     <span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         std::mem::take(<span class="self">self</span>);
     }
 }
 
 <span class="kw">impl </span>MipsDatapath {
+    <span class="doccomment">/// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
+    /// flag. If the process fails, an [`Err`] is returned.
+    </span><span class="kw">pub fn </span>initialize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, instructions: Vec&lt;u32&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt; {
+        <span class="self">self</span>.reset();
+        <span class="self">self</span>.load_instructions(instructions)<span class="question-mark">?</span>;
+        <span class="self">self</span>.is_halted = <span class="bool-val">false</span>;
+
+        <span class="prelude-val">Ok</span>(())
+    }
+
     <span class="doccomment">/// Load a vector of 32-bit instructions into memory. If the process fails,
-    /// from a lack of space or otherwise, an Err is returned.
-    </span><span class="kw">pub fn </span>load_instructions(<span class="kw-2">&amp;mut </span><span class="self">self</span>, instructions: Vec&lt;u32&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt; {
+    /// from a lack of space or otherwise, an [`Err`] is returned.
+    </span><span class="kw">fn </span>load_instructions(<span class="kw-2">&amp;mut </span><span class="self">self</span>, instructions: Vec&lt;u32&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt; {
         <span class="kw">for </span>(i, data) <span class="kw">in </span>instructions.iter().enumerate() {
             <span class="self">self</span>.memory.store_word((i <span class="kw">as </span>u64) * <span class="number">4</span>, <span class="kw-2">*</span>data)<span class="question-mark">?
         </span>}
@@ -1399,14 +1486,9 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Finish the current instruction within the datapath. If the
-    /// current stage is the first stage, do nothing as there is
-    /// nothing to finish, only to start. (Use [`execute_instruction()`][MipsDatapath::execute_instruction()]
-    /// in this case.)
-    </span><span class="kw">fn </span>finish_instruction(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">while </span><span class="self">self</span>.current_stage != Stage::InstructionFetch {
-            <span class="self">self</span>.execute_stage();
-        }
+    <span class="doccomment">/// Handle an otherwise irrecoverable error within the datapath.
+    </span><span class="kw">pub fn </span>error(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _message: <span class="kw-2">&amp;</span>str) {
+        <span class="self">self</span>.is_halted = <span class="bool-val">true</span>;
     }
 
     <span class="doccomment">/// Stage 1 of 5: Instruction Fetch (IF)
@@ -1425,6 +1507,9 @@
     <span class="doccomment">/// Stage 2 of 5: Instruction Decode (ID)
     ///
     /// Parse the instruction, set control signals, and read registers.
+    ///
+    /// If the instruction is determined to be a `syscall`, immediately
+    /// finish the instruction and set the `is_halted` flag.
     </span><span class="kw">fn </span>stage_instruction_decode(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.instruction_decode();
         <span class="self">self</span>.sign_extend();
@@ -1439,6 +1524,11 @@
         <span class="self">self</span>.coprocessor.stage_instruction_decode();
         <span class="self">self</span>.coprocessor
             .set_data_from_main_processor(<span class="self">self</span>.state.read_data_2);
+
+        <span class="comment">// Finish this instruction out of the datapath and halt if this is a syscall.
+        </span><span class="kw">if let </span>Instruction::SyscallType(<span class="kw">_</span>) = <span class="self">self</span>.instruction {
+            <span class="self">self</span>.is_halted = <span class="bool-val">true</span>;
+        }
     }
 
     <span class="doccomment">/// Stage 3 of 5: Execute (EX)
@@ -1561,7 +1651,7 @@
         <span class="self">self</span>.state.instruction = <span class="kw">match </span><span class="self">self</span>.memory.load_word(<span class="self">self</span>.registers.pc) {
             <span class="prelude-val">Ok</span>(data) =&gt; data,
             <span class="prelude-val">Err</span>(e) =&gt; {
-                error(e.as_str());
+                <span class="self">self</span>.error(e.as_str());
                 <span class="number">0
             </span>}
         }
@@ -1577,7 +1667,13 @@
 
     </span><span class="doccomment">/// Decode an instruction into its individual fields.
     </span><span class="kw">fn </span>instruction_decode(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.instruction = Instruction::from(<span class="self">self</span>.state.instruction);
+        <span class="kw">match </span>Instruction::try_from(<span class="self">self</span>.state.instruction) {
+            <span class="prelude-val">Ok</span>(instruction) =&gt; <span class="self">self</span>.instruction = instruction,
+            <span class="prelude-val">Err</span>(message) =&gt; {
+                <span class="self">self</span>.error(<span class="kw-2">&amp;</span>message);
+                <span class="kw">return</span>;
+            }
+        }
 
         <span class="comment">// Set the data lines based on the contents of the instruction.
         // Some lines will hold uninitialized values as a result.
@@ -1602,6 +1698,15 @@
                 <span class="self">self</span>.state.rd = <span class="number">0</span>; <span class="comment">// Not applicable
                 </span><span class="self">self</span>.state.imm = <span class="number">0</span>; <span class="comment">// Not applicable
             </span>}
+            Instruction::SyscallType(s) =&gt; {
+                <span class="self">self</span>.state.funct = s.funct <span class="kw">as </span>u32;
+                <span class="comment">// Not applicable:
+                </span><span class="self">self</span>.state.rs = <span class="number">0</span>;
+                <span class="self">self</span>.state.rt = <span class="number">0</span>;
+                <span class="self">self</span>.state.rd = <span class="number">0</span>;
+                <span class="self">self</span>.state.shamt = <span class="number">0</span>;
+                <span class="self">self</span>.state.imm = <span class="number">0</span>;
+            }
             <span class="comment">// R-type and comparison FPU instructions exclusively use the
             // FPU, so these data lines do not need to be used.
             </span>Instruction::FpuRType(<span class="kw">_</span>) | Instruction::FpuCompareType(<span class="kw">_</span>) =&gt; (),
@@ -1611,8 +1716,8 @@
             }
             Instruction::JType(i) =&gt; {
                 <span class="self">self</span>.state.lower_26 = i.addr;
-            } <span class="comment">// _ =&gt; unimplemented!(),
-        </span>}
+            }
+        }
     }
 
     <span class="kw">fn </span>shift_lower_26_left_by_2(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
@@ -1647,13 +1752,15 @@
 
         <span class="comment">// The RegWidth signal might differ depending on the
         // specific R-type instruction.
-        </span><span class="kw">match </span>reg_width_by_funct(r.funct) {
-            <span class="prelude-val">Some</span>(width) =&gt; <span class="self">self</span>.signals.reg_width = width,
-            <span class="prelude-val">None </span>=&gt; <span class="macro">unimplemented!</span>(
-                <span class="string">&quot;funct code `{}` is unsupported for this opcode ({})&quot;</span>,
-                r.funct,
-                r.op
-            ),
+        </span><span class="self">self</span>.signals.reg_width = <span class="kw">match </span>reg_width_by_funct(r.funct) {
+            <span class="prelude-val">Some</span>(width) =&gt; width,
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="self">self</span>.error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                    <span class="string">&quot;funct code `{}` is unsupported for this opcode ({})&quot;</span>,
+                    r.funct, r.op
+                ));
+                RegWidth::default()
+            }
         }
     }
 
@@ -1698,7 +1805,10 @@
                         ..Default::default()
                     }
                 }
-                <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;rt field value `{}` for I-type opcode {}&quot;</span>, i.rt, i.op),
+                <span class="kw">_ </span>=&gt; <span class="self">self</span>.error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                    <span class="string">&quot;rt field value `{}` for I-type opcode {}&quot;</span>,
+                    i.rt, i.op
+                )),
             },
 
             OPCODE_ORI =&gt; {
@@ -1868,7 +1978,7 @@
                 <span class="self">self</span>.signals.reg_write = RegWrite::NoWrite;
             }
 
-            <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;I-type instruction with opcode `{}`&quot;</span>, i.op),
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;I-type instruction with opcode `{}`&quot;</span>, i.op)),
         }
     }
 
@@ -1906,7 +2016,7 @@
                     ..Default::default()
                 }
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;FPU I-type instruction with opcode `{}`&quot;</span>, i.op),
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;FPU I-type instruction with opcode `{}`&quot;</span>, i.op)),
         }
     }
 
@@ -1941,7 +2051,7 @@
                 <span class="self">self</span>.signals.reg_width = RegWidth::DoubleWord;
                 <span class="self">self</span>.signals.reg_write = RegWrite::YesWrite;
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;J-type instruction with opcode `{}`&quot;</span>, j.op),
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;J-type instruction with opcode `{}`&quot;</span>, j.op)),
         };
     }
 
@@ -1999,10 +2109,10 @@
                     ..Default::default()
                 }
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
                 <span class="string">&quot;FPU register-immediate instruction with sub code `{}`&quot;</span>,
                 i.sub
-            ),
+            )),
         }
     }
 
@@ -2027,7 +2137,9 @@
                 <span class="self">self</span>.set_fpu_reg_imm_control_signals(i);
             }
             <span class="comment">// Main processor does nothing.
-            </span>Instruction::FpuRType(<span class="kw">_</span>) | Instruction::FpuCompareType(<span class="kw">_</span>) =&gt; {
+            </span>Instruction::FpuRType(<span class="kw">_</span>)
+            | Instruction::FpuCompareType(<span class="kw">_</span>)
+            | Instruction::SyscallType(<span class="kw">_</span>) =&gt; {
                 <span class="self">self</span>.signals = ControlSignals {
                     branch: Branch::NoBranch,
                     jump: Jump::NoJump,
@@ -2078,31 +2190,39 @@
                     FUNCT_SOP32 | FUNCT_SOP36 =&gt; <span class="kw">match </span><span class="self">self</span>.state.shamt <span class="kw">as </span>u8 {
                         ENC_DIV =&gt; AluControl::DivisionSigned,
                         <span class="kw">_ </span>=&gt; {
-                            <span class="macro">unimplemented!</span>(<span class="string">&quot;MIPS Release 6 encoding `{}` unsupported for this function code ({})&quot;</span>, <span class="self">self</span>.state.shamt, <span class="self">self</span>.state.funct);
+                            <span class="self">self</span>.error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;MIPS Release 6 encoding `{}` unsupported for this function code ({})&quot;</span>, <span class="self">self</span>.state.shamt, <span class="self">self</span>.state.funct));
+                            AluControl::default()
                         }
                     },
                     FUNCT_SOP33 | FUNCT_SOP37 =&gt; <span class="kw">match </span><span class="self">self</span>.state.shamt <span class="kw">as </span>u8 {
                         <span class="comment">// ENC_DIVU == ENC_DDIVU
                         </span>ENC_DIVU =&gt; AluControl::DivisionUnsigned,
                         <span class="kw">_ </span>=&gt; {
-                            <span class="macro">unimplemented!</span>(<span class="string">&quot;MIPS Release 6 encoding `{}` unsupported for this function code ({})&quot;</span>, <span class="self">self</span>.state.shamt, <span class="self">self</span>.state.funct);
+                            <span class="self">self</span>.error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;MIPS Release 6 encoding `{}` unsupported for this function code ({})&quot;</span>, <span class="self">self</span>.state.shamt, <span class="self">self</span>.state.funct));
+                            AluControl::default()
                         }
                     },
                     FUNCT_SOP30 | FUNCT_SOP34 =&gt; <span class="kw">match </span><span class="self">self</span>.state.shamt <span class="kw">as </span>u8 {
                         ENC_MUL =&gt; AluControl::MultiplicationSigned,
                         <span class="kw">_ </span>=&gt; {
-                            <span class="macro">unimplemented!</span>(<span class="string">&quot;MIPS Release 6 encoding `{}` unsupported for this function code ({})&quot;</span>, <span class="self">self</span>.state.shamt, <span class="self">self</span>.state.funct);
+                            <span class="self">self</span>.error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;MIPS Release 6 encoding `{}` unsupported for this function code ({})&quot;</span>, <span class="self">self</span>.state.shamt, <span class="self">self</span>.state.funct));
+                            AluControl::default()
                         }
                     },
                     FUNCT_SOP31 | FUNCT_SOP35 =&gt; <span class="kw">match </span><span class="self">self</span>.state.shamt <span class="kw">as </span>u8 {
                         <span class="comment">// ENC_MULU == ENC_DMULU
                         </span>ENC_MULU =&gt; AluControl::MultiplicationUnsigned,
                         <span class="kw">_ </span>=&gt; {
-                            <span class="macro">unimplemented!</span>(<span class="string">&quot;MIPS Release 6 encoding `{}` unsupported for this function code ({})&quot;</span>, <span class="self">self</span>.state.shamt, <span class="self">self</span>.state.funct);
+                            <span class="self">self</span>.error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;MIPS Release 6 encoding `{}` unsupported for this function code ({})&quot;</span>, <span class="self">self</span>.state.shamt, <span class="self">self</span>.state.funct));
+                            AluControl::default()
                         }
                     },
                     <span class="kw">_ </span>=&gt; {
-                        <span class="macro">unimplemented!</span>(<span class="string">&quot;funct code `{}` is unsupported on ALU&quot;</span>, <span class="self">self</span>.state.funct);
+                        <span class="self">self</span>.error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                            <span class="string">&quot;funct code `{}` is unsupported on ALU&quot;</span>,
+                            <span class="self">self</span>.state.funct
+                        ));
+                        AluControl::default()
                     }
                 }
             }

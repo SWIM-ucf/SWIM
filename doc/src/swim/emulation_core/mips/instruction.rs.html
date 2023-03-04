@@ -200,6 +200,41 @@
 <a href="#200" id="200">200</a>
 <a href="#201" id="201">201</a>
 <a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Abstract representation of an instruction.
 
 </span><span class="kw">use </span><span class="kw">super</span>::constants::<span class="kw-2">*</span>;
@@ -228,6 +263,27 @@
     <span class="kw">pub </span>addr: u32,
 }
 
+<span class="doccomment">/// Syscall (&quot;System Call&quot;) Instruction
+///
+/// ```text
+/// 31              26   25                                           6   5              0
+/// ┌──────────────────┬────────────────────────────────────────────────┬──────────────────┐
+/// │ opcode = SPECIAL │                     code                       │  funct = SYSCALL │
+/// │      000000      │                                                │      001100      │
+/// └──────────────────┴────────────────────────────────────────────────┴──────────────────┘
+///         6                                 20                                  6
+/// ```
+///
+/// - opcode: SPECIAL (`000000`)
+/// - code: Available for use as software parameters.
+/// - funct: SYSCALL (`001100`)
+</span><span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq)]
+</span><span class="kw">pub struct </span>SyscallType {
+    <span class="kw">pub </span>op: u8,
+    <span class="kw">pub </span>code: u32,
+    <span class="kw">pub </span>funct: u8,
+}
+
 <span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq)]
 </span><span class="kw">pub struct </span>FpuRType {
     <span class="kw">pub </span>op: u8,
@@ -238,7 +294,7 @@
     <span class="kw">pub </span>function: u8,
 }
 
-<span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
+<span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
 </span><span class="kw">pub struct </span>FpuIType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>base: u8,
@@ -264,7 +320,7 @@
 /// - sub: Operation subcode field for COP1 register immediate-mode instructions.
 /// - rt: CPU register - can be either source or destination.
 /// - fs: FPU register - can be either source or destination.
-</span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
+</span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
 </span><span class="kw">pub struct </span>FpuRegImmType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>sub: u8,
@@ -272,7 +328,7 @@
     <span class="kw">pub </span>fs: u8,
 }
 
-<span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
+<span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
 </span><span class="kw">pub struct </span>FpuCompareType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>fmt: u8,
@@ -287,6 +343,7 @@
     RType(RType),
     IType(IType),
     JType(JType),
+    SyscallType(SyscallType),
     FpuRType(FpuRType),
     FpuIType(FpuIType),
     FpuRegImmType(FpuRegImmType),
@@ -299,23 +356,37 @@
     }
 }
 
-<span class="kw">impl </span>From&lt;u32&gt; <span class="kw">for </span>Instruction {
+<span class="kw">impl </span>TryFrom&lt;u32&gt; <span class="kw">for </span>Instruction {
+    <span class="kw">type </span>Error = String;
+
     <span class="doccomment">/// Based on the opcode, convert a binary instruction into a struct representation.
-    </span><span class="kw">fn </span>from(value: u32) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>try_from(value: u32) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>op = (value &gt;&gt; <span class="number">26</span>) <span class="kw">as </span>u8;
         <span class="kw">match </span>op {
             <span class="comment">// R-type instructions:
             // add, sub, mul, div
             // dadd, dsub, dmul, ddiv
-            // daddu
-            </span>OPCODE_SPECIAL =&gt; Instruction::RType(RType {
-                op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
-                rs: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                rt: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                rd: ((value &gt;&gt; <span class="number">11</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                shamt: ((value &gt;&gt; <span class="number">6</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                funct: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
-            }),
+            // daddu, dsubu, dmulu, ddivu
+            // Includes syscall.
+            </span>OPCODE_SPECIAL =&gt; {
+                <span class="kw">let </span>funct = (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8;
+
+                <span class="kw">match </span>funct {
+                    FUNCT_SYSCALL =&gt; <span class="prelude-val">Ok</span>(Instruction::SyscallType(SyscallType {
+                        op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
+                        code: ((value &gt;&gt; <span class="number">6</span>) &amp; <span class="number">0xFFFFF</span>),
+                        funct: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
+                    })),
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(Instruction::RType(RType {
+                        op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
+                        rs: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
+                        rt: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
+                        rd: ((value &gt;&gt; <span class="number">11</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
+                        shamt: ((value &gt;&gt; <span class="number">6</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
+                        funct: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
+                    })),
+                }
+            }
 
             <span class="comment">// COP1 (coprocessor 1)
             </span>OPCODE_COP1 =&gt; {
@@ -330,31 +401,29 @@
                         <span class="kw">match </span>function {
                             <span class="comment">// add.fmt, sub.fmt, mul.fmt, div.fmt
                             </span>FUNCTION_ADD | FUNCTION_SUB | FUNCTION_MUL | FUNCTION_DIV =&gt; {
-                                Instruction::FpuRType(FpuRType {
+                                <span class="prelude-val">Ok</span>(Instruction::FpuRType(FpuRType {
                                     op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                                     fmt: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                                     ft: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                                     fs: ((value &gt;&gt; <span class="number">11</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                                     fd: ((value &gt;&gt; <span class="number">6</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                                     function: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
-                                })
+                                }))
                             }
                             <span class="comment">// Comparison instructions:
                             // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
                             </span>FUNCTION_C_EQ | FUNCTION_C_LT | FUNCTION_C_NGE | FUNCTION_C_LE
-                            | FUNCTION_C_NGT =&gt; Instruction::FpuCompareType(FpuCompareType {
+                            | FUNCTION_C_NGT =&gt; <span class="prelude-val">Ok</span>(Instruction::FpuCompareType(FpuCompareType {
                                 op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                                 fmt: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                                 ft: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                                 fs: ((value &gt;&gt; <span class="number">11</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                                 cc: ((value &gt;&gt; <span class="number">8</span>) &amp; <span class="number">0x7</span>) <span class="kw">as </span>u8,
                                 function: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
-                            }),
-                            <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(
-                                <span class="string">&quot;function `{}` not supported for opcode {}&quot;</span>,
-                                function,
-                                op
-                            ),
+                            })),
+                            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
+                                <span class="string">&quot;function `{function}` not supported for opcode {op}&quot;
+                            </span>)),
                         }
                     }
 
@@ -363,42 +432,43 @@
                     // Move word from coprocessor 1 (mfc1)
                     // Move doubleword from coprocessor 1 (dmfc1)
                     </span>SUB_MT | SUB_DMT | SUB_MF | SUB_DMF =&gt; {
-                        Instruction::FpuRegImmType(FpuRegImmType {
+                        <span class="prelude-val">Ok</span>(Instruction::FpuRegImmType(FpuRegImmType {
                             op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                             sub: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                             rt: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                             fs: ((value &gt;&gt; <span class="number">11</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                        })
+                        }))
                     }
 
-                    <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;sub code `{}` not supported for opcode {}&quot;</span>, sub, op),
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;sub code `{sub}` not supported for opcode {op}&quot;</span>)),
                 }
             }
 
             <span class="comment">// I-Type instructions:
             </span>OPCODE_ADDI | OPCODE_ADDIU | OPCODE_DADDI | OPCODE_DADDIU | OPCODE_LW | OPCODE_SW
             | OPCODE_LUI | OPCODE_ORI | OPCODE_ANDI | OPCODE_REGIMM | OPCODE_BEQ | OPCODE_BNE =&gt; {
-                Instruction::IType(IType {
+                <span class="prelude-val">Ok</span>(Instruction::IType(IType {
                     op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                     rs: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                     rt: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                     immediate: (value &amp; <span class="number">0xFFFF</span>) <span class="kw">as </span>u16,
-                })
+                }))
             }
 
             <span class="comment">// Store/load word to Coprocessor 1
-            </span>OPCODE_SWC1 | OPCODE_LWC1 =&gt; Instruction::FpuIType(FpuIType {
+            </span>OPCODE_SWC1 | OPCODE_LWC1 =&gt; <span class="prelude-val">Ok</span>(Instruction::FpuIType(FpuIType {
                 op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                 base: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                 ft: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                 offset: (value &amp; <span class="number">0xFFFF</span>) <span class="kw">as </span>u16,
-            }),
+            })),
 
-            OPCODE_J | OPCODE_JAL =&gt; Instruction::JType(JType {
+            OPCODE_J | OPCODE_JAL =&gt; <span class="prelude-val">Ok</span>(Instruction::JType(JType {
                 op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                 addr: value &amp; <span class="number">0x03ffffff</span>,
-            }),
-            <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;opcode `{}` not supported&quot;</span>, op),
+            })),
+
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;opcode `{op}` not supported&quot;</span>)),
         }
     }
 }

@@ -368,14 +368,6 @@
 <a href="#368" id="368">368</a>
 <a href="#369" id="369">369</a>
 <a href="#370" id="370">370</a>
-<a href="#371" id="371">371</a>
-<a href="#372" id="372">372</a>
-<a href="#373" id="373">373</a>
-<a href="#374" id="374">374</a>
-<a href="#375" id="375">375</a>
-<a href="#376" id="376">376</a>
-<a href="#377" id="377">377</a>
-<a href="#378" id="378">378</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attr">#[cfg(test)]
@@ -463,8 +455,8 @@
     // the ability to access and change its contents be mutable.
     </span><span class="kw">let </span>datapath = use_state_eq(|| Rc::new(RefCell::new(MipsDatapath::default())));
 
-    <span class="comment">// This is where we take the code and run it through the emulation core.
-    </span><span class="kw">let </span>on_load_clicked = {
+    <span class="comment">// This is where code is assembled and loaded into the emulation core&#39;s memory.
+    </span><span class="kw">let </span>on_assemble_clicked = {
         <span class="kw">let </span>text_model = Rc::clone(<span class="kw-2">&amp;</span>text_model);
         <span class="kw">let </span>datapath = Rc::clone(<span class="kw-2">&amp;</span>datapath);
         <span class="kw">let </span>trigger = use_force_update();
@@ -475,10 +467,10 @@
 
                 <span class="comment">// parses through the code to assemble the binary
                 </span><span class="kw">let </span>(<span class="kw">_</span>, assembled) = parser(text_model.get_value());
-                <span class="comment">// log!(JsValue::from_str(&amp;datapath.registers.to_string()));
-                // Load the binary into the datapath&#39;s memory
+
+                <span class="comment">// Load the binary into the datapath&#39;s memory
                 </span>(<span class="kw-2">*</span>datapath)
-                    .load_instructions(assembled)
+                    .initialize(assembled)
                     .expect(<span class="string">&quot;Memory could not be loaded&quot;</span>);
                 <span class="comment">//log!(datapath.memory.to_string());
                 </span>trigger.force_update();
@@ -538,11 +530,7 @@
                         .into(),
                 );
                 (<span class="kw-2">*</span>datapath).execute_instruction();
-                <span class="comment">// log!(&quot;These are the arrays after the push&quot;);
-                // log!(new_decor_array.at(0));
-                // log!(old_decor_array.at(0));
-                // log!(JsValue::from_str(&amp;datapath.registers.to_string()));
-                </span>trigger.force_update();
+                trigger.force_update();
                 new_decor_array.pop(); <span class="comment">// done with the highlight, prepare for the next one.
             </span>},
             (),
@@ -586,11 +574,7 @@
                         .into(),
                 );
                 (<span class="kw-2">*</span>datapath).reset();
-                <span class="comment">// log!(&quot;The handle should still be there, no highlight&quot;);
-                // log!(old_decor_array.at(0));
-                // log!(new_decor_array.at(0));
-                // log!(JsValue::from_str(&amp;datapath.registers.to_string()));
-                </span>trigger.force_update();
+                trigger.force_update();
             },
             (),
         )
@@ -661,9 +645,9 @@
                 </span>&lt;div style=<span class="string">&quot;flex-basis: 70%; display: flex; flex-direction: column; align-items: stretch;&quot;</span>&gt;
                     <span class="comment">// Top buttons
                     </span>&lt;div&gt;
-                        &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_load_clicked}&gt;{ <span class="string">&quot;Assemble&quot; </span>}&lt;/button&gt;
-                        &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_execute_clicked}&gt; { <span class="string">&quot;Execute&quot; </span>}&lt;/button&gt;
-                        &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_execute_stage_clicked}&gt; { <span class="string">&quot;Execute Stage&quot; </span>}&lt;/button&gt;
+                        &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_assemble_clicked}&gt;{ <span class="string">&quot;Assemble&quot; </span>}&lt;/button&gt;
+                        &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_execute_clicked} disabled={(<span class="kw-2">*</span>datapath).borrow().is_halted()}&gt; { <span class="string">&quot;Execute&quot; </span>}&lt;/button&gt;
+                        &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_execute_stage_clicked} disabled={(<span class="kw-2">*</span>datapath).borrow().is_halted()}&gt; { <span class="string">&quot;Execute Stage&quot; </span>}&lt;/button&gt;
                         &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_reset_clicked}&gt;{ <span class="string">&quot;Reset&quot; </span>}&lt;/button&gt;
                         &lt;input <span class="kw">type</span>=<span class="string">&quot;button&quot; </span>value=<span class="string">&quot;Load File&quot; </span>onclick={upload_clicked_callback} /&gt;
                         &lt;input <span class="kw">type</span>=<span class="string">&quot;button&quot; </span>value=<span class="string">&quot;Save to Clipboard&quot; </span>onclick={on_clipboard_clicked} /&gt;
@@ -723,7 +707,7 @@
 }
 
 <span class="comment">/**********************  &quot;Console&quot; Component **********************/
-</span><span class="attr">#[derive(Properties, PartialEq)]
+</span><span class="attr">#[derive(PartialEq, Properties)]
 </span><span class="kw">pub struct </span>Consoleprops {
     <span class="kw">pub </span>parsermsg: String,
 }

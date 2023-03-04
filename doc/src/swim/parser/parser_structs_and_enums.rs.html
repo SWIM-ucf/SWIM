@@ -168,7 +168,7 @@
 </pre><pre class="rust"><code><span class="kw">pub mod </span>instruction_tokenization {
     <span class="kw">use </span>std::default::Default;
 
-    <span class="attr">#[derive(Default, Debug, Clone, PartialEq, Eq)]
+    <span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
     </span><span class="doccomment">///Wrapper for all information gathered in the Parser/Assembler about the written program.
     </span><span class="kw">pub struct </span>ProgramInfo {
         <span class="kw">pub </span>monaco_line_info: Vec&lt;MonacoLineInfo&gt;,
@@ -178,14 +178,14 @@
         <span class="kw">pub </span>data: Vec&lt;Data&gt;,
     }
 
-    <span class="attr">#[derive(Default, Debug, Clone, PartialEq, Eq)]
+    <span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
     </span><span class="kw">pub struct </span>MonacoLineInfo {
         <span class="kw">pub </span>mouse_hover_string: String,
         <span class="kw">pub </span>error_start_end_columns: Vec&lt;(u32, u32)&gt;,
     }
 
     <span class="doccomment">///A collection of all relevant information found about an instruction in the Parser/Assembler
-    </span><span class="attr">#[derive(Default, Debug, Clone, PartialEq, Eq)]
+    </span><span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
     </span><span class="kw">pub struct </span>Instruction {
         <span class="kw">pub </span>operator: Token,
         <span class="kw">pub </span>operands: Vec&lt;Token&gt;,
@@ -197,7 +197,7 @@
     }
 
     <span class="doccomment">///A collection of all relevant information found about a variable in the Parser/Assembler
-    </span><span class="attr">#[derive(Default, Debug, Clone, PartialEq, Eq)]
+    </span><span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
     </span><span class="kw">pub struct </span>Data {
         <span class="kw">pub </span>data_number: u32,
         <span class="kw">pub </span>line_number: u32,
@@ -207,27 +207,27 @@
         <span class="kw">pub </span>data_entries_and_values: Vec&lt;(Token, u32)&gt;,
     }
 
-    <span class="attr">#[derive(Default, Debug, Clone, PartialEq, Eq)]
+    <span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
     </span><span class="kw">pub struct </span>Token {
         <span class="kw">pub </span>token_name: String,
         <span class="kw">pub </span>start_end_columns: (u32, u32),
         <span class="kw">pub </span>token_type: TokenType,
     }
 
-    <span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
+    <span class="attr">#[derive(Clone, Debug, Eq, PartialEq)]
     </span><span class="kw">pub struct </span>Line {
         <span class="kw">pub </span>line_number: u32,
         <span class="kw">pub </span>tokens: Vec&lt;Token&gt;,
     }
 
-    <span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
+    <span class="attr">#[derive(Clone, Debug, Eq, PartialEq)]
     </span><span class="kw">pub struct </span>Error {
         <span class="kw">pub </span>error_name: ErrorType,
         <span class="kw">pub </span>operand_number: <span class="prelude-ty">Option</span>&lt;u8&gt;,
         <span class="kw">pub </span>message: String,
     }
 
-    <span class="attr">#[derive(Default, Debug, PartialEq, Eq, Clone)]
+    <span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
     </span><span class="kw">pub enum </span>TokenType {
         <span class="attr">#[default]
         </span>Unknown,
@@ -249,7 +249,7 @@
         Double,
     }
 
-    <span class="attr">#[derive(Debug, PartialEq, Eq, Clone)]
+    <span class="attr">#[derive(Clone, Debug, Eq, PartialEq)]
     </span><span class="kw">pub enum </span>ErrorType {
         UnsupportedInstruction, <span class="comment">//valid MIPS64 instruction that is not supported by SWIM
         </span>UnrecognizedGPRegister, <span class="comment">//Given string does not match GP Register names
@@ -284,7 +284,7 @@
     }
 
     <span class="comment">//This enum is just for the read_register_function to determine which register type it should expect
-    </span><span class="attr">#[derive(PartialEq, Eq)]
+    </span><span class="attr">#[derive(Eq, PartialEq)]
     </span><span class="kw">pub enum </span>RegisterType {
         GeneralPurpose,
         FloatingPoint,

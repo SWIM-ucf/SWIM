@@ -62,6 +62,12 @@
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
 <a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Module for the API of a generic datapath.
 
 /// A generic datapath.
@@ -94,12 +100,14 @@
     <span class="doccomment">/// Execute a single instruction based on the current state of the
     /// datapath. Should the datapath support stages, if the datapath is
     /// midway through a stage, the current instruction will be finished
-    /// instead of executing a new instruction.
+    /// instead of executing a new instruction. Should the datapath be in
+    /// a &quot;halted&quot; state, behavior is undefined.
     </span><span class="kw">fn </span>execute_instruction(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
 
     <span class="doccomment">/// Execute a single stage of execution based on the current state of
     /// the datapath. Should the datapath not support stages, assume the
-    /// same behavior as [`Self::execute_instruction()`].
+    /// same behavior as [`Self::execute_instruction()`]. Should the
+    /// datapath be in a &quot;halted&quot; state, behavior is undefined.
     </span><span class="kw">fn </span>execute_stage(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
 
     <span class="doccomment">/// Retrieve the data in the register indicated by the provided enum.
@@ -109,6 +117,10 @@
 
     <span class="doccomment">/// Retrieve all memory as-is.
     </span><span class="kw">fn </span>get_memory(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::MemoryType;
+
+    <span class="doccomment">/// Returns if the datapath is in a &quot;halted&quot; or &quot;stopped&quot; state. This may
+    /// be true in the case where an error had occurred previously.
+    </span><span class="kw">fn </span>is_halted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Restore the datapath to its default state.
     </span><span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
