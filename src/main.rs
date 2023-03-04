@@ -12,6 +12,7 @@ use monaco::{
     api::TextModel,
     sys::editor::{
         IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions,
+        ISuggestOptions,
     },
     yew::{CodeEditor, CodeEditorLink},
 };
@@ -333,6 +334,14 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
     let scrollbar = IEditorScrollbarOptions::default();
     scrollbar.set_always_consume_mouse_wheel(false.into());
     options.set_scrollbar(Some(&scrollbar));
+
+    let suggest = ISuggestOptions::default();
+    suggest.set_show_keywords(false.into());
+    suggest.set_show_variables(false.into());
+    suggest.set_show_icons(false.into());
+    suggest.set_show_words(false.into());
+    suggest.set_filter_graceful(false.into());
+    options.set_suggest(Some(&suggest));
 
     options
 }
