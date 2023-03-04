@@ -155,6 +155,12 @@ impl VisualDatapath for MipsDatapath {
                 value: self.state.new_pc,
                 bits: 64,
             },
+            "ra_id" => LineInformation {
+                title: String::from("RA id code"),
+                description: String::from("This 5 bit value is the idenifcation code for the RA register, register $31"),
+                value: 31,
+                bits: 5,
+            },
             "relative_pc_branch" => LineInformation {
                 title: String::from("Relative PC Branch"),
                 description: String::from("The PC relative branch address"),
@@ -173,6 +179,127 @@ impl VisualDatapath for MipsDatapath {
                 value: self.state.new_pc,
                 bits: 64,
             },
+            "write_register_destination" => LineInformation {
+                title: String::from("Write Register Destination"),
+                description: String::from("This line carries a 5 bit register code"),
+                value: self.state.write_register_destination as u64,
+                bits: 64,
+            },
+
+
+            // Floating point datalines:
+            "fpu_data" => LineInformation {
+                title: String::from("FPU Data"),
+                description: String::from("The data comming off the FPU data register"),
+                value: self.coprocessor.state.fmt as u64,
+                bits: 64,
+            },
+            "fpu_data_writeback" => LineInformation {
+                title: String::from("FPU Data Writeback"),
+                description: String::from("The data comming off the FPU data register, possibly sign extended"),
+                value: self.coprocessor.state.data_writeback,
+                bits: 64,
+            },
+
+            "fpu_fmt" => LineInformation {
+                title: String::from("Instruction [25-21] (fmt)"),
+                description: String::from("The fpu fmt field"),
+                value: self.coprocessor.state.fmt as u64,
+                bits: 5,
+            },
+            "fpu_fs" => LineInformation {
+                title: String::from("Instruction [15-11] (fs)"),
+                description: String::from("The fpu fs field"),
+                value: self.coprocessor.state.fs as u64,
+                bits: 5,
+            },
+            "fpu_ft" => LineInformation {
+                title: String::from("Instruction [20-16] (ft)"),
+                description: String::from("The fpu ft field"),
+                value: self.coprocessor.state.ft as u64,
+                bits: 5,
+            },
+            "fpu_fd" => LineInformation {
+                title: String::from("Instruction [10-6] (fd)"),
+                description: String::from("The fpu fd field"),
+                value: self.coprocessor.state.fd as u64,
+                bits: 5,
+            },
+            "fpu_function" => LineInformation {
+                title: String::from("Instruction [5-0] (function)"),
+                description: String::from("The fpu function field"),
+                value: self.coprocessor.state.function as u64,
+                bits: 5,
+            },
+
+
+            "fpu_data_from_main_processor" => LineInformation {
+                title: String::from("fpu_data_from_main_processor"),
+                description: String::from("This line carries the info Read Data 1 into the FPU"),
+                value: self.coprocessor.state.data_from_main_processor,
+                bits: 64,
+            },
+            "fpu_destination" => LineInformation {
+                title: String::from("fpu_destination"),
+                description: String::from("Either fs, ft, or fd, picked by FpuRegDst signal"),
+                value: self.coprocessor.state.destination as u64,
+                bits: 5,
+            },
+            "fpu_fp_register_data_from_main_processor" => LineInformation {
+                title: String::from("fpu_fp_register_data_from_main_processor"),
+                description: String::from("This line carries write data from the CPU to the FPU"),
+                value: self.coprocessor.state.fp_register_data_from_main_processor,
+                bits: 64,
+            },
+            "fpu_read_data_1" => LineInformation {
+                title: String::from("FPU Read Data 1"),
+                description: String::from("The data read from the FPU fs register"),
+                value: self.coprocessor.state.read_data_1,
+                bits: 64,
+            },
+            "fpu_read_data_2" => LineInformation {
+                title: String::from("FPU Read Data 2"),
+                description: String::from("This data is comes from one of 3 fpu registers, fs, ft, or fd"),
+                value: self.coprocessor.state.read_data_2,
+                bits: 64,
+            },
+            "fpu_register_write_data" => LineInformation {
+                title: String::from("FPU Register Write Data"),
+                description: String::from("The FPU Register Write Data"),
+                value: self.coprocessor.state.register_write_data,
+                bits: 64,
+            },
+            "fpu_register_write_mux_to_mux" => LineInformation {
+                title: String::from("FPU Register Write Mux to Mux"),
+                description: String::from("Move data from one mux to the next"),
+                value: self.coprocessor.state.register_write_mux_to_mux,
+                bits: 64,
+            },
+            "fpu_sign_extend_data" => LineInformation {
+                title: String::from("FPU Sign Extended Data"),
+                description: String::from("Basically the data from the fpu data register but sign extended"),
+                value: self.coprocessor.state.sign_extend_data,
+                bits: 64,
+            },
+            "fpu_fp_register_to_memory" => LineInformation {
+                title: String::from("fpu_fp_register_to_memory"),
+                description: String::from("Basically FPU Read Data 2 but re-named"),
+                value: self.coprocessor.state.fp_register_to_memory,
+                bits: 64,
+            },
+            "fpu_alu_result" => LineInformation {
+                title: String::from("fpu_alu_result"),
+                description: String::from("fpu_alu_result"),
+                value: self.coprocessor.state.alu_result,
+                bits: 64,
+            },
+            "fpu_comparator_result" => LineInformation {
+                title: String::from("fpu_comparator_result"),
+                description: String::from(""),
+                value: self.coprocessor.state.comparator_result,
+                bits: 64,
+            },
+
             _ => LineInformation {
                 title: String::from("[Title]"),
                 description: String::from("[Description]"),
