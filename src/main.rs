@@ -163,6 +163,9 @@ fn app() -> Html {
                 // log!(old_decor_array.at(0));
                 trigger.force_update();
                 new_decor_array.pop(); // done with the highlight, prepare for the next one.
+                // log!("These are the arrays after the pop");
+                // log!(new_decor_array.at(0));
+                // log!(old_decor_array.at(0));
             },
             (),
         )
