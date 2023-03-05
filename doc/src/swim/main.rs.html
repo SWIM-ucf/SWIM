@@ -368,6 +368,18 @@
 <a href="#368" id="368">368</a>
 <a href="#369" id="369">369</a>
 <a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attr">#[cfg(test)]
@@ -376,12 +388,13 @@
 
 <span class="kw">use </span>emulation_core::datapath::Datapath;
 <span class="kw">use </span>emulation_core::mips::datapath::MipsDatapath;
-<span class="kw">use </span>gloo::{console::log, dialogs::alert, file::FileList};
+<span class="kw">use </span>gloo::{dialogs::alert, file::FileList};
 <span class="kw">use </span>js_sys::Object;
 <span class="kw">use </span>monaco::{
     api::TextModel,
     sys::editor::{
         IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions,
+        ISuggestOptions,
     },
     yew::{CodeEditor, CodeEditorLink},
 };
@@ -429,9 +442,6 @@
     <span class="comment">// Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
     </span><span class="kw">let </span>delta_decor = monaco::sys::editor::IModelDecorationOptions::default();
-    <span class="kw">let </span>decor_array = use_state_eq(js_sys::Array::new);
-    <span class="macro">log!</span>(<span class="string">&quot;This is the array when the app loads&quot;</span>);
-    <span class="macro">log!</span>((<span class="kw-2">*</span>decor_array).at(<span class="number">0</span>));
     <span class="kw">let </span>new_decor_array = js_sys::Array::new();
     <span class="kw">let </span>old_decor_array = js_sys::Array::new();
 
@@ -530,8 +540,14 @@
                         .into(),
                 );
                 (<span class="kw-2">*</span>datapath).execute_instruction();
-                trigger.force_update();
+                <span class="comment">// log!(&quot;These are the arrays after the push&quot;);
+                // log!(new_decor_array.at(0));
+                // log!(old_decor_array.at(0));
+                </span>trigger.force_update();
                 new_decor_array.pop(); <span class="comment">// done with the highlight, prepare for the next one.
+                                       // log!(&quot;These are the arrays after the pop&quot;);
+                                       // log!(new_decor_array.at(0));
+                                       // log!(old_decor_array.at(0));
             </span>},
             (),
         )
@@ -695,6 +711,14 @@
     <span class="kw">let </span>scrollbar = IEditorScrollbarOptions::default();
     scrollbar.set_always_consume_mouse_wheel(<span class="bool-val">false</span>.into());
     options.set_scrollbar(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>scrollbar));
+
+    <span class="kw">let </span>suggest = ISuggestOptions::default();
+    suggest.set_show_keywords(<span class="bool-val">false</span>.into());
+    suggest.set_show_variables(<span class="bool-val">false</span>.into());
+    suggest.set_show_icons(<span class="bool-val">false</span>.into());
+    suggest.set_show_words(<span class="bool-val">false</span>.into());
+    suggest.set_filter_graceful(<span class="bool-val">false</span>.into());
+    options.set_suggest(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>suggest));
 
     options
 }
