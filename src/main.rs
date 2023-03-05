@@ -6,12 +6,13 @@ pub mod ui;
 
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
-use gloo::{console::log, dialogs::alert, file::FileList};
+use gloo::{dialogs::alert, file::FileList};
 use js_sys::Object;
 use monaco::{
     api::TextModel,
     sys::editor::{
         IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions,
+        ISuggestOptions,
     },
     yew::{CodeEditor, CodeEditorLink},
 };
@@ -189,8 +190,14 @@ fn app() -> Html {
                         .into(),
                 );
                 (*datapath).execute_instruction();
+                // log!("These are the arrays after the push");
+                // log!(new_decor_array.at(0));
+                // log!(old_decor_array.at(0));
                 trigger.force_update();
                 new_decor_array.pop(); // done with the highlight, prepare for the next one.
+                                       // log!("These are the arrays after the pop");
+                                       // log!(new_decor_array.at(0));
+                                       // log!(old_decor_array.at(0));
             },
             (),
         )
@@ -354,6 +361,14 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
     let scrollbar = IEditorScrollbarOptions::default();
     scrollbar.set_always_consume_mouse_wheel(false.into());
     options.set_scrollbar(Some(&scrollbar));
+
+    let suggest = ISuggestOptions::default();
+    suggest.set_show_keywords(false.into());
+    suggest.set_show_variables(false.into());
+    suggest.set_show_icons(false.into());
+    suggest.set_show_words(false.into());
+    suggest.set_filter_graceful(false.into());
+    options.set_suggest(Some(&suggest));
 
     options
 }
