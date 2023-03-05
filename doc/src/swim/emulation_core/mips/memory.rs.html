@@ -132,7 +132,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>output = String::new();
 
         <span class="kw">for </span>byte <span class="kw">in </span><span class="self">self</span>.memory.iter() {
-            output.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{byte:x}&quot;</span>));
+            output.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{byte:02x}&quot;</span>));
         }
 
         output

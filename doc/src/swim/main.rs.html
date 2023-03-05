@@ -658,7 +658,7 @@
             </span>&lt;input <span class="kw">type</span>=<span class="string">&quot;file&quot; </span>id=<span class="string">&quot;file_input&quot; </span>style=<span class="string">&quot;display: none;&quot; </span>accept=<span class="string">&quot;.txt,.asm,.mips&quot; </span>onchange={file_picked_callback} /&gt;
             &lt;div style=<span class="string">&quot;display: flex; flex-direction: row; flex-wrap: nowrap; height: 100vh; padding: 8px; gap: 8px;&quot;</span>&gt;
                 <span class="comment">// Left column
-                </span>&lt;div style=<span class="string">&quot;flex-basis: 70%; display: flex; flex-direction: column; align-items: stretch;&quot;</span>&gt;
+                </span>&lt;div style=<span class="string">&quot;flex-basis: 70%; display: flex; flex-direction: column; align-items: stretch; min-width: 0;&quot;</span>&gt;
                     <span class="comment">// Top buttons
                     </span>&lt;div&gt;
                         &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_assemble_clicked}&gt;{ <span class="string">&quot;Assemble&quot; </span>}&lt;/button&gt;
