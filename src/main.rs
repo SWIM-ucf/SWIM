@@ -128,7 +128,7 @@ fn app() -> Html {
                 (*datapath)
                     .initialize(assembled)
                     .expect("Memory could not be loaded");
-                log!(datapath.memory.to_string());
+                //log!(datapath.memory.to_string());
                 trigger.force_update();
                 new_decor_array.pop();
             },
@@ -154,6 +154,8 @@ fn app() -> Html {
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
                 let text_model = (*text_model).borrow_mut();
+
+                (*datapath).execute_instruction();
 
                 // Pull ProgramInfo from the parser
                 let (programinfo, _) = parser(text_model.get_value());
@@ -189,7 +191,6 @@ fn app() -> Html {
                         .delta_decorations(&old_decor_array, &new_decor_array, None)
                         .into(),
                 );
-                (*datapath).execute_instruction();
                 // log!("These are the arrays after the push");
                 // log!(new_decor_array.at(0));
                 // log!(old_decor_array.at(0));
