@@ -287,7 +287,8 @@ fn separate_data_and_text_generates_error_on_missing_commas_text() {
     let result = separate_data_and_text(lines);
     let correct_error = Error {
         error_name: MissingComma,
-        operand_number: Some(0),
+        token_causing_error: "$t1".to_string(),
+        start_end_columns: (3, 5),
         message: "".to_string(),
     };
     assert_eq!(correct_error, result.0[1].errors[0]);

@@ -7,6 +7,7 @@ pub mod instruction_tokenization {
         pub monaco_line_info: Vec<MonacoLineInfo>,
         pub address_to_line_number: Vec<u32>,
         pub updated_monaco_string: String,
+        pub console_out_post_assembly: String,
         pub instructions: Vec<Instruction>,
         pub data: Vec<Data>,
     }
@@ -56,7 +57,8 @@ pub mod instruction_tokenization {
     #[derive(Clone, Debug, Eq, PartialEq)]
     pub struct Error {
         pub error_name: ErrorType,
-        pub operand_number: Option<u8>,
+        pub token_causing_error: String,
+        pub start_end_columns: (u32, u32),
         pub message: String,
     }
 
