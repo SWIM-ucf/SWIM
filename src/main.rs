@@ -54,7 +54,7 @@ fn app() -> Html {
 
     // Link to the Yew Editor Component, if not used by the end of the project remove it.
     let codelink = CodeEditorLink::default();
-    
+
     // For the clipboard callback from yew_hooks
     let clipboard = use_clipboard();
 
@@ -198,7 +198,7 @@ fn app() -> Html {
         )
     };
 
-    // This is how we will reset the datapath. 
+    // This is how we will reset the datapath.
     // This will also clear any highlight on the editor.
     let on_reset_clicked = {
         let text_model = Rc::clone(&text_model);
