@@ -30,12 +30,14 @@ pub trait Datapath {
     /// Execute a single instruction based on the current state of the
     /// datapath. Should the datapath support stages, if the datapath is
     /// midway through a stage, the current instruction will be finished
-    /// instead of executing a new instruction.
+    /// instead of executing a new instruction. Should the datapath be in
+    /// a "halted" state, behavior is undefined.
     fn execute_instruction(&mut self);
 
     /// Execute a single stage of execution based on the current state of
     /// the datapath. Should the datapath not support stages, assume the
-    /// same behavior as [`Self::execute_instruction()`].
+    /// same behavior as [`Self::execute_instruction()`]. Should the
+    /// datapath be in a "halted" state, behavior is undefined.
     fn execute_stage(&mut self);
 
     /// Retrieve the data in the register indicated by the provided enum.
@@ -45,6 +47,10 @@ pub trait Datapath {
 
     /// Retrieve all memory as-is.
     fn get_memory(&self) -> &Self::MemoryType;
+
+    /// Returns if the datapath is in a "halted" or "stopped" state. This may
+    /// be true in the case where an error had occurred previously.
+    fn is_halted(&self) -> bool;
 
     /// Restore the datapath to its default state.
     fn reset(&mut self);

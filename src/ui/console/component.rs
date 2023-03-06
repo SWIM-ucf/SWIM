@@ -10,7 +10,7 @@ use crate::ui::visual_datapath::{DatapathSize, VisualDatapath};
 use crate::parser::parser_assembler_main::parser;
 use std::{cell::RefCell, rc::Rc};
 
-#[derive(Properties, PartialEq)]
+#[derive(PartialEq, Properties)]
 pub struct Consoleprops {
     pub datapath: MipsDatapath,
     pub parsermsg: String,

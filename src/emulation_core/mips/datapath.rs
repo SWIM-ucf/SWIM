@@ -13,7 +13,7 @@
 //! version 6 specification for the sake of simplicity in a few places:
 //!
 //! - There is no exception handling, including that for integer overflow. (See
-//!   [`MipsDatapath::alu()`].)
+//!   [`MipsDatapath::alu()`] and the following bullet.)
 //! - Only the `addi` and `daddi` instructions follow the proper MIPS specification
 //!   in terms of integer overflow. That is, if there is an overflow, the general-purpose
 //!   register will not be written to. `add` and `dadd` will continue to write on
@@ -35,6 +35,14 @@
 //!   version 5. In version 6, `lui` is an assembly idiom for "add upper immediate" (`aui`)
 //!   with `rs` = 0. However, `aui` is not officially supported nor tested in this
 //!   datapath.
+//!
+//! # Notes on `is_halted`
+//!
+//! - The datapath starts with the `is_halted` flag set.
+//! - [`MipsDatapath::initialize()`] should be used to un-set `is_halted`.
+//! - The `syscall` instruction simply performs a no-operation instruction, except for
+//!   setting the boolean flag `is_halted`.
+//! - Invalid instructions will cause the datapath to set the `is_halted` flag.
 
 use super::super::datapath::Datapath;
 use super::constants::*;
@@ -44,7 +52,7 @@ use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 
 /// An implementation of a datapath for the MIPS64 ISA.
-#[derive(PartialEq, Clone)]
+#[derive(Clone, PartialEq)]
 pub struct MipsDatapath {
     pub registers: GpRegisters,
     pub memory: Memory,
@@ -57,6 +65,12 @@ pub struct MipsDatapath {
 
     /// The currently-active stage in the datapath.
     pub current_stage: Stage,
+
+    /// Boolean value that states whether the datapath has halted.
+    ///
+    /// This is set in the event of any `syscall` instruction. To unset this,
+    /// [`Self::initialize()`] should be used.
+    is_halted: bool,
 }
 
 /// A collection of all the data lines and wires in the datapath.
@@ -135,7 +149,7 @@ pub struct DatapathState {
 }
 
 /// The possible stages the datapath could be in during execution.
-#[derive(Default, Copy, Clone, Eq, PartialEq)]
+#[derive(Clone, Copy, Default, Eq, PartialEq)]
 pub enum Stage {
     #[default]
     InstructionFetch,
@@ -159,12 +173,6 @@ impl Stage {
     }
 }
 
-/// Handle an otherwise irrecoverable error within the datapath. At
-/// present, this is the equivalent of `panic!()`.
-pub fn error(message: &str) {
-    panic!("{}", message);
-}
-
 impl Default for MipsDatapath {
     fn default() -> Self {
         let mut datapath = MipsDatapath {
@@ -176,6 +184,7 @@ impl Default for MipsDatapath {
             datapath_signals: DatapathSignals::default(),
             state: DatapathState::default(),
             current_stage: Stage::default(),
+            is_halted: true,
         };
 
         // Set the stack pointer ($sp) to initially start at the end
@@ -192,29 +201,33 @@ impl Datapath for MipsDatapath {
     type MemoryType = Memory;
 
     fn execute_instruction(&mut self) {
-        // If the last instruction has not finished, finish it instead.
-        if self.current_stage != Stage::InstructionFetch {
-            self.finish_instruction();
-            return;
+        loop {
+            // If the FPU has halted, reflect this in the main unit.
+            if self.coprocessor.is_halted {
+                self.is_halted = true;
+            }
+
+            // Stop early if the datapath has halted.
+            if self.is_halted {
+                break;
+            }
+
+            self.execute_stage();
+
+            // This instruction is finished when the datapath has returned
+            // to the IF stage.
+            if self.current_stage == Stage::InstructionFetch {
+                break;
+            }
         }
-
-        // IF
-        self.stage_instruction_fetch();
-
-        // ID
-        self.stage_instruction_decode();
-
-        // EX
-        self.stage_execute();
-
-        // MEM
-        self.stage_memory();
-
-        // WB
-        self.stage_writeback();
     }
 
     fn execute_stage(&mut self) {
+        // If the datapath is halted, do nothing.
+        if self.is_halted {
+            return;
+        }
+
         match self.current_stage {
             Stage::InstructionFetch => self.stage_instruction_fetch(),
             Stage::InstructionDecode => self.stage_instruction_decode(),
@@ -234,15 +247,29 @@ impl Datapath for MipsDatapath {
         &self.memory
     }
 
+    fn is_halted(&self) -> bool {
+        self.is_halted
+    }
+
     fn reset(&mut self) {
         std::mem::take(self);
     }
 }
 
 impl MipsDatapath {
+    /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
+    /// flag. If the process fails, an [`Err`] is returned.
+    pub fn initialize(&mut self, instructions: Vec<u32>) -> Result<(), String> {
+        self.reset();
+        self.load_instructions(instructions)?;
+        self.is_halted = false;
+
+        Ok(())
+    }
+
     /// Load a vector of 32-bit instructions into memory. If the process fails,
-    /// from a lack of space or otherwise, an Err is returned.
-    pub fn load_instructions(&mut self, instructions: Vec<u32>) -> Result<(), String> {
+    /// from a lack of space or otherwise, an [`Err`] is returned.
+    fn load_instructions(&mut self, instructions: Vec<u32>) -> Result<(), String> {
         for (i, data) in instructions.iter().enumerate() {
             self.memory.store_word((i as u64) * 4, *data)?
         }
@@ -250,14 +277,9 @@ impl MipsDatapath {
         Ok(())
     }
 
-    /// Finish the current instruction within the datapath. If the
-    /// current stage is the first stage, do nothing as there is
-    /// nothing to finish, only to start. (Use [`execute_instruction()`][MipsDatapath::execute_instruction()]
-    /// in this case.)
-    fn finish_instruction(&mut self) {
-        while self.current_stage != Stage::InstructionFetch {
-            self.execute_stage();
-        }
+    /// Handle an otherwise irrecoverable error within the datapath.
+    pub fn error(&mut self, _message: &str) {
+        self.is_halted = true;
     }
 
     /// Stage 1 of 5: Instruction Fetch (IF)
@@ -276,6 +298,9 @@ impl MipsDatapath {
     /// Stage 2 of 5: Instruction Decode (ID)
     ///
     /// Parse the instruction, set control signals, and read registers.
+    ///
+    /// If the instruction is determined to be a `syscall`, immediately
+    /// finish the instruction and set the `is_halted` flag.
     fn stage_instruction_decode(&mut self) {
         self.instruction_decode();
         self.sign_extend();
@@ -290,6 +315,11 @@ impl MipsDatapath {
         self.coprocessor.stage_instruction_decode();
         self.coprocessor
             .set_data_from_main_processor(self.state.read_data_2);
+
+        // Finish this instruction out of the datapath and halt if this is a syscall.
+        if let Instruction::SyscallType(_) = self.instruction {
+            self.is_halted = true;
+        }
     }
 
     /// Stage 3 of 5: Execute (EX)
@@ -412,7 +442,7 @@ impl MipsDatapath {
         self.state.instruction = match self.memory.load_word(self.registers.pc) {
             Ok(data) => data,
             Err(e) => {
-                error(e.as_str());
+                self.error(e.as_str());
                 0
             }
         }
@@ -428,7 +458,13 @@ impl MipsDatapath {
 
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
-        self.instruction = Instruction::from(self.state.instruction);
+        match Instruction::try_from(self.state.instruction) {
+            Ok(instruction) => self.instruction = instruction,
+            Err(message) => {
+                self.error(&message);
+                return;
+            }
+        }
 
         // Set the data lines based on the contents of the instruction.
         // Some lines will hold uninitialized values as a result.
@@ -453,6 +489,15 @@ impl MipsDatapath {
                 self.state.rd = 0; // Not applicable
                 self.state.imm = 0; // Not applicable
             }
+            Instruction::SyscallType(s) => {
+                self.state.funct = s.funct as u32;
+                // Not applicable:
+                self.state.rs = 0;
+                self.state.rt = 0;
+                self.state.rd = 0;
+                self.state.shamt = 0;
+                self.state.imm = 0;
+            }
             // R-type and comparison FPU instructions exclusively use the
             // FPU, so these data lines do not need to be used.
             Instruction::FpuRType(_) | Instruction::FpuCompareType(_) => (),
@@ -462,7 +507,7 @@ impl MipsDatapath {
             }
             Instruction::JType(i) => {
                 self.state.lower_26 = i.addr;
-            } // _ => unimplemented!(),
+            }
         }
     }
 
@@ -498,13 +543,15 @@ impl MipsDatapath {
 
         // The RegWidth signal might differ depending on the
         // specific R-type instruction.
-        match reg_width_by_funct(r.funct) {
-            Some(width) => self.signals.reg_width = width,
-            None => unimplemented!(
-                "funct code `{}` is unsupported for this opcode ({})",
-                r.funct,
-                r.op
-            ),
+        self.signals.reg_width = match reg_width_by_funct(r.funct) {
+            Some(width) => width,
+            None => {
+                self.error(&format!(
+                    "funct code `{}` is unsupported for this opcode ({})",
+                    r.funct, r.op
+                ));
+                RegWidth::default()
+            }
         }
     }
 
@@ -549,7 +596,10 @@ impl MipsDatapath {
                         ..Default::default()
                     }
                 }
-                _ => unimplemented!("rt field value `{}` for I-type opcode {}", i.rt, i.op),
+                _ => self.error(&format!(
+                    "rt field value `{}` for I-type opcode {}",
+                    i.rt, i.op
+                )),
             },
 
             OPCODE_ORI => {
@@ -719,7 +769,7 @@ impl MipsDatapath {
                 self.signals.reg_write = RegWrite::NoWrite;
             }
 
-            _ => unimplemented!("I-type instruction with opcode `{}`", i.op),
+            _ => self.error(&format!("I-type instruction with opcode `{}`", i.op)),
         }
     }
 
@@ -757,7 +807,7 @@ impl MipsDatapath {
                     ..Default::default()
                 }
             }
-            _ => unimplemented!("FPU I-type instruction with opcode `{}`", i.op),
+            _ => self.error(&format!("FPU I-type instruction with opcode `{}`", i.op)),
         }
     }
 
@@ -792,7 +842,7 @@ impl MipsDatapath {
                 self.signals.reg_width = RegWidth::DoubleWord;
                 self.signals.reg_write = RegWrite::YesWrite;
             }
-            _ => unimplemented!("J-type instruction with opcode `{}`", j.op),
+            _ => self.error(&format!("J-type instruction with opcode `{}`", j.op)),
         };
     }
 
@@ -850,10 +900,10 @@ impl MipsDatapath {
                     ..Default::default()
                 }
             }
-            _ => unimplemented!(
+            _ => self.error(&format!(
                 "FPU register-immediate instruction with sub code `{}`",
                 i.sub
-            ),
+            )),
         }
     }
 
@@ -878,7 +928,9 @@ impl MipsDatapath {
                 self.set_fpu_reg_imm_control_signals(i);
             }
             // Main processor does nothing.
-            Instruction::FpuRType(_) | Instruction::FpuCompareType(_) => {
+            Instruction::FpuRType(_)
+            | Instruction::FpuCompareType(_)
+            | Instruction::SyscallType(_) => {
                 self.signals = ControlSignals {
                     branch: Branch::NoBranch,
                     jump: Jump::NoJump,
@@ -929,31 +981,39 @@ impl MipsDatapath {
                     FUNCT_SOP32 | FUNCT_SOP36 => match self.state.shamt as u8 {
                         ENC_DIV => AluControl::DivisionSigned,
                         _ => {
-                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                            self.error(&format!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct));
+                            AluControl::default()
                         }
                     },
                     FUNCT_SOP33 | FUNCT_SOP37 => match self.state.shamt as u8 {
                         // ENC_DIVU == ENC_DDIVU
                         ENC_DIVU => AluControl::DivisionUnsigned,
                         _ => {
-                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                            self.error(&format!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct));
+                            AluControl::default()
                         }
                     },
                     FUNCT_SOP30 | FUNCT_SOP34 => match self.state.shamt as u8 {
                         ENC_MUL => AluControl::MultiplicationSigned,
                         _ => {
-                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                            self.error(&format!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct));
+                            AluControl::default()
                         }
                     },
                     FUNCT_SOP31 | FUNCT_SOP35 => match self.state.shamt as u8 {
                         // ENC_MULU == ENC_DMULU
                         ENC_MULU => AluControl::MultiplicationUnsigned,
                         _ => {
-                            unimplemented!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct);
+                            self.error(&format!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct));
+                            AluControl::default()
                         }
                     },
                     _ => {
-                        unimplemented!("funct code `{}` is unsupported on ALU", self.state.funct);
+                        self.error(&format!(
+                            "funct code `{}` is unsupported on ALU",
+                            self.state.funct
+                        ));
+                        AluControl::default()
                     }
                 }
             }

@@ -386,7 +386,7 @@ pub mod floating_point {
     ///
     /// *Implementation note:* The bits set for the comparator are intended to match
     /// the bits used in the `cond` field of a `c.cond.fmt` instruction.
-    #[derive(Clone, Default, PartialEq)]
+    #[derive(Clone, Debug, Default, PartialEq)]
     pub enum FpuAluOp {
         #[default]
         /// `_0000` (0):
@@ -433,14 +433,14 @@ pub mod floating_point {
 
     impl FpuAluOp {
         /// Get the corresponding control signal given a function code.
-        pub fn from_function(function: u8) -> Self {
+        pub fn from_function(function: u8) -> Result<Self, String> {
             match function {
-                FUNCTION_C_EQ => Self::MultiplicationOrEqual,
-                FUNCTION_C_LT => Self::Slt,
-                FUNCTION_C_NGE => Self::Snge,
-                FUNCTION_C_LE => Self::Sle,
-                FUNCTION_C_NGT => Self::Sngt,
-                _ => panic!("Unsupported function code `{function}`"),
+                FUNCTION_C_EQ => Ok(Self::MultiplicationOrEqual),
+                FUNCTION_C_LT => Ok(Self::Slt),
+                FUNCTION_C_NGE => Ok(Self::Snge),
+                FUNCTION_C_LE => Ok(Self::Sle),
+                FUNCTION_C_NGT => Ok(Self::Sngt),
+                _ => Err(format!("Unsupported function code `{function}`")),
             }
         }
     }
@@ -506,13 +506,11 @@ pub mod floating_point {
     impl FpuRegWidth {
         /// Get the corresponding [`FpuRegWidth`] control signal based on
         /// the `fmt` field in an instruction.
-        pub fn from_fmt(fmt: u8) -> Self {
+        pub fn from_fmt(fmt: u8) -> Result<Self, String> {
             match fmt {
-                FMT_SINGLE => Self::Word,
-                FMT_DOUBLE => Self::DoubleWord,
-                _ => {
-                    unimplemented!("`{}` is an invalid fmt value", fmt);
-                }
+                FMT_SINGLE => Ok(Self::Word),
+                FMT_DOUBLE => Ok(Self::DoubleWord),
+                _ => Err(format!("`{fmt}` is an invalid fmt value")),
             }
         }
     }

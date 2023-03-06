@@ -4,13 +4,13 @@ use yew::prelude::*;
 use crate::emulation_core::mips::registers::GpRegisters;
 
 // datapath.coprocessor.fpr
-#[derive(Properties, PartialEq)]
+#[derive(PartialEq, Properties)]
 pub struct Regviewprops {
     pub gp: GpRegisters,
     pub fp: [u64; 32],
 }
 
-#[derive(Properties, PartialEq)]
+#[derive(PartialEq, Properties)]
 pub struct Viewswitch {
     pub switch_view: bool,
 }
