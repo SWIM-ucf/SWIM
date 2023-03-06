@@ -563,6 +563,44 @@
 <a href="#563" id="563">563</a>
 <a href="#564" id="564">564</a>
 <a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
@@ -712,10 +750,11 @@
             <span class="kw">if </span>lines[i].tokens[<span class="number">0</span>].token_name.ends_with(<span class="string">&#39;:&#39;</span>) {
                 <span class="comment">//if the instruction already has a label at this point, that means that the user wrote a label on a line on its
                 //own and then wrote another label on the next line without ever finishing the first
-                </span><span class="kw">if </span>instruction.label.is_some() {
+                </span><span class="kw">if </span>instruction.label.clone().is_some() {
                     instruction.errors.push(Error {
                         error_name: LabelAssignmentError,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: lines[i].tokens[<span class="number">0</span>].token_name.clone(),
+                        start_end_columns: lines[i].tokens[<span class="number">0</span>].start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     })
                     <span class="comment">//if the above error doesn&#39;t occur, we can push the label to the instruction struct.
@@ -730,7 +769,8 @@
                     </span><span class="kw">if </span>i == (lines.len() - <span class="number">1</span>) {
                         instruction.errors.push(Error {
                             error_name: LabelAssignmentError,
-                            operand_number: <span class="prelude-val">None</span>,
+                            token_causing_error: lines[i].tokens[<span class="number">0</span>].token_name.clone(),
+                            start_end_columns: lines[i].tokens[<span class="number">0</span>].start_end_columns,
                             message: <span class="string">&quot;&quot;</span>.to_string(),
                         });
                         instruction_list.push(instruction.clone());
@@ -748,7 +788,7 @@
                 instruction.operator = lines[i].tokens[<span class="number">0</span>].clone();
             }
 
-            <span class="kw">let </span>first_operand_index = operand_iterator;
+            <span class="kw">let </span>_first_operand_index = operand_iterator;
 
             <span class="comment">//push all operands to the instruction operand vec that will have commas
             </span><span class="kw">while </span>operand_iterator &lt; (lines[i].tokens.len() - <span class="number">1</span>) {
@@ -757,7 +797,10 @@
                 } <span class="kw">else </span>{
                     instruction.errors.push(Error {
                         error_name: MissingComma,
-                        operand_number: <span class="prelude-val">Some</span>((operand_iterator - first_operand_index) <span class="kw">as </span>u8),
+                        token_causing_error: lines[i].tokens[operand_iterator]
+                            .token_name
+                            .to_string(),
+                        start_end_columns: lines[i].tokens[operand_iterator].start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     })
                 }
@@ -797,7 +840,8 @@
             } <span class="kw">else </span>{
                 data.errors.push(Error {
                     error_name: ImproperlyFormattedLabel,
-                    operand_number: <span class="prelude-val">Some</span>(<span class="number">0</span>),
+                    token_causing_error: lines[i].tokens[<span class="number">0</span>].token_name.to_string(),
+                    start_end_columns: lines[i].tokens[<span class="number">0</span>].start_end_columns,
                     message: <span class="string">&quot;&quot;</span>.to_string(),
                 });
                 lines[i].tokens[<span class="number">0</span>].token_type = Label;
@@ -808,8 +852,12 @@
             </span><span class="kw">if </span>lines[i].tokens.len() &lt; <span class="number">2 </span>{
                 data.errors.push(Error {
                     error_name: ImproperlyFormattedData,
-                    operand_number: <span class="prelude-val">None</span>,
-                    message: <span class="string">&quot;&quot;</span>.to_string(),
+                    token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                    start_end_columns: (
+                        lines[i].tokens[<span class="number">0</span>].start_end_columns.<span class="number">0</span>,
+                        lines[i].tokens.last().unwrap().start_end_columns.<span class="number">1</span>,
+                    ), <span class="comment">//the entire length of the line
+                    </span>message: <span class="string">&quot;&quot;</span>.to_string(),
                 });
                 i += <span class="number">1</span>;
                 <span class="kw">continue</span>;
@@ -819,7 +867,6 @@
             </span>data.data_type = lines[i].tokens[<span class="number">1</span>].clone();
 
             <span class="kw">let </span><span class="kw-2">mut </span>value_iterator = <span class="number">2</span>;
-            <span class="kw">let </span>first_value_index = value_iterator;
 
             <span class="comment">//push all values to the data vec that will have commas
             </span><span class="kw">while </span>value_iterator &lt; (lines[i].tokens.len() - <span class="number">1</span>) {
@@ -828,7 +875,8 @@
                 } <span class="kw">else </span>{
                     instruction.errors.push(Error {
                         error_name: MissingComma,
-                        operand_number: <span class="prelude-val">Some</span>((value_iterator - first_value_index) <span class="kw">as </span>u8),
+                        token_causing_error: lines[i].tokens[value_iterator].token_name.to_string(),
+                        start_end_columns: lines[i].tokens[value_iterator].start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     })
                 }
@@ -862,7 +910,14 @@
             </span><span class="kw">if </span>labels.contains_key(<span class="kw-2">&amp;*</span>instruction.label.clone().unwrap().<span class="number">0</span>.token_name) {
                 instruction.errors.push(Error {
                     error_name: LabelMultipleDefinition,
-                    operand_number: <span class="prelude-val">None</span>,
+                    token_causing_error: instruction
+                        .label
+                        .clone()
+                        .unwrap()
+                        .<span class="number">0
+                        </span>.token_name
+                        .to_string(),
+                    start_end_columns: instruction.label.clone().unwrap().<span class="number">0</span>.start_end_columns,
                     message: <span class="string">&quot;&quot;</span>.to_string(),
                 });
                 <span class="comment">//otherwise, it is inserted
@@ -883,12 +938,13 @@
         <span class="number">0
     </span>};
 
-    <span class="kw">for </span>(i, data) <span class="kw">in </span>data_list.iter_mut().enumerate() {
+    <span class="kw">for </span>(_i, data) <span class="kw">in </span>data_list.iter_mut().enumerate() {
         <span class="comment">//if the given label name is already used, an error is generated
         </span><span class="kw">if </span>labels.contains_key(<span class="kw-2">&amp;*</span>data.label.clone().token_name) {
             data.errors.push(Error {
                 error_name: LabelMultipleDefinition,
-                operand_number: <span class="prelude-val">Some</span>(i <span class="kw">as </span>u8),
+                token_causing_error: data.label.token_name.to_string(),
+                start_end_columns: data.label.start_end_columns,
                 message: <span class="string">&quot;&quot;</span>.to_string(),
             });
             <span class="comment">//otherwise, it is inserted
@@ -904,16 +960,19 @@
 }
 
 <span class="doccomment">///Goes through each error found in the parsing &amp; assembling process and suggests to the user a way of
-/// correcting the error.
+/// correcting the error. This error message is attached to the corresponding instruction or data and monaco line info, and
+/// compiled into a string to be output to the console and returns that
 </span><span class="kw">pub fn </span>suggest_error_corrections(
     instructions: <span class="kw-2">&amp;mut </span>[Instruction],
     data: <span class="kw-2">&amp;mut </span>[Data],
     labels: <span class="kw-2">&amp;</span>HashMap&lt;String, u32&gt;,
     monaco_line_info: <span class="kw-2">&amp;mut </span>[MonacoLineInfo],
-) {
+) -&gt; String {
+    <span class="kw">let </span><span class="kw-2">mut </span>console_out_string: String = <span class="string">&quot;&quot;</span>.to_string();
     <span class="comment">//go through each error in the instructions and suggest a correction
     </span><span class="kw">for </span>instruction <span class="kw">in </span>instructions {
-        <span class="kw">if </span>instruction.errors.is_empty() {
+        <span class="comment">//if there are no errors, instead push the binary of the instruction to mouse hover
+        </span><span class="kw">if </span>instruction.errors.is_empty() {
             monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
                 .mouse_hover_string
                 .push_str(<span class="string">&quot;Binary: &quot;</span>);
@@ -942,9 +1001,7 @@
                             <span class="string">&quot;r29&quot;</span>, <span class="string">&quot;r30&quot;</span>, <span class="string">&quot;r31&quot;</span>,
                         ];
 
-                        <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>instruction.operands
-                            [error.operand_number.unwrap() <span class="kw">as </span>usize]
-                            .token_name;
+                        <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>error.token_causing_error;
                         <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">&quot;&quot;</span>.to_string());
 
                         <span class="kw">for </span>register <span class="kw">in </span>gp_registers {
@@ -967,9 +1024,7 @@
                             <span class="string">&quot;$f28&quot;</span>, <span class="string">&quot;$f29&quot;</span>, <span class="string">&quot;$f30&quot;</span>, <span class="string">&quot;$f31&quot;</span>,
                         ];
 
-                        <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>instruction.operands
-                            [error.operand_number.unwrap() <span class="kw">as </span>usize]
-                            .token_name;
+                        <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>error.token_causing_error;
                         <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">&quot;&quot;</span>.to_string());
 
                         <span class="kw">for </span>register <span class="kw">in </span>fp_registers {
@@ -1049,9 +1104,7 @@
                             <span class="kw">continue</span>;
                         }
 
-                        <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>instruction.operands
-                            [error.operand_number.unwrap() <span class="kw">as </span>usize]
-                            .token_name;
+                        <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>error.token_causing_error;
                         <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">&quot;&quot;</span>.to_string());
 
                         <span class="kw">for </span>label <span class="kw">in </span>labels {
@@ -1081,6 +1134,15 @@
                 monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
                     .mouse_hover_string
                     .push_str(<span class="kw-2">&amp;</span>error.message.clone());
+
+                console_out_string.push_str(<span class="string">&quot;Error on line &quot;</span>);
+                console_out_string.push_str(<span class="kw-2">&amp;</span>instruction.line_number.to_string());
+                console_out_string.push_str(<span class="string">&quot; with token \&quot;&quot;</span>);
+                console_out_string.push_str(<span class="kw-2">&amp;</span>error.token_causing_error);
+                console_out_string.push_str(<span class="string">&quot;\&quot;\n&quot;</span>);
+                console_out_string.push_str(
+                    <span class="kw-2">&amp;</span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string,
+                );
             }
         }
     }
@@ -1125,8 +1187,22 @@
             monaco_line_info[datum.line_number <span class="kw">as </span>usize]
                 .mouse_hover_string
                 .push_str(<span class="kw-2">&amp;</span>error.message.clone());
+
+            console_out_string.push_str(<span class="string">&quot;Error on line &quot;</span>);
+            console_out_string.push_str(<span class="kw-2">&amp;</span>datum.line_number.to_string());
+            console_out_string.push_str(<span class="string">&quot; with token \&quot;&quot;</span>);
+            console_out_string.push_str(<span class="kw-2">&amp;</span>error.token_causing_error);
+            console_out_string.push_str(<span class="string">&quot;\&quot;\n&quot;</span>);
+            console_out_string
+                .push_str(<span class="kw-2">&amp;</span>monaco_line_info[datum.line_number <span class="kw">as </span>usize].mouse_hover_string);
         }
     }
+
+    <span class="kw">if </span>console_out_string.is_empty() {
+        console_out_string = <span class="string">&quot;Program assembled successfully!&quot;</span>.to_string();
+    }
+
+    console_out_string
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="swim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>

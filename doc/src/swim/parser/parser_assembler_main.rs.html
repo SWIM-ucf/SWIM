@@ -1196,6 +1196,8 @@
 <a href="#1196" id="1196">1196</a>
 <a href="#1197" id="1197">1197</a>
 <a href="#1198" id="1198">1198</a>
+<a href="#1199" id="1199">1199</a>
+<a href="#1200" id="1200">1200</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::assembling::{assemble_data_binary, read_operands};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::OperandType::<span class="kw-2">*</span>;
@@ -1232,7 +1234,7 @@
     );
     read_instructions(<span class="kw-2">&amp;mut </span>program_info.instructions, <span class="kw-2">&amp;</span>labels);
 
-    suggest_error_corrections(
+    program_info.console_out_post_assembly = suggest_error_corrections(
         <span class="kw-2">&amp;mut </span>program_info.instructions,
         <span class="kw-2">&amp;mut </span>program_info.data,
         <span class="kw-2">&amp;</span>labels,
@@ -2309,13 +2311,15 @@
                 <span class="kw">if </span>unsupported_instructions.contains(&amp;&amp;<span class="kw-2">*</span>instruction.operator.token_name) {
                     instruction.errors.push(Error {
                         error_name: UnsupportedInstruction,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: instruction.operator.token_name.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     })
                 } <span class="kw">else </span>{
                     instruction.errors.push(Error {
                         error_name: UnrecognizedInstruction,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: instruction.operator.token_name.clone(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     });
                 }

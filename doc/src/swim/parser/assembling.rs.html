@@ -623,6 +623,42 @@
 <a href="#623" id="623">623</a>
 <a href="#624" id="624">624</a>
 <a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_assembler_main::append_binary;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     ImmediateOutOfBounds, ImproperlyFormattedASCII, ImproperlyFormattedChar,
@@ -657,7 +693,8 @@
     </span><span class="kw">if </span>instruction.operands.len() != expected_operands.len() {
         instruction.errors.push(Error {
             error_name: IncorrectNumberOfOperands,
-            operand_number: <span class="prelude-val">None</span>,
+            token_causing_error: instruction.operator.token_name.clone(),
+            start_end_columns: instruction.operator.start_end_columns,
             message: <span class="string">&quot;&quot;</span>.to_string(),
         });
         <span class="kw">return </span>instruction;
@@ -687,8 +724,11 @@
                 instruction.operands[i].token_type = TokenType::RegisterGP;
                 bit_lengths.push(<span class="number">5</span>);
 
-                <span class="kw">let </span>register_results =
-                    read_register(<span class="kw-2">&amp;</span>instruction.operands[i].token_name, i <span class="kw">as </span>u8, GeneralPurpose);
+                <span class="kw">let </span>register_results = read_register(
+                    <span class="kw-2">&amp;</span>instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                    GeneralPurpose,
+                );
 
                 binary_representation.push(register_results.<span class="number">0</span>);
                 <span class="kw">if </span>register_results.<span class="number">1</span>.is_some() {
@@ -699,8 +739,11 @@
                 instruction.operands[i].token_type = TokenType::Immediate;
                 bit_lengths.push(<span class="number">16</span>);
 
-                <span class="kw">let </span>immediate_results =
-                    read_immediate(<span class="kw-2">&amp;</span>instruction.operands[i].token_name, i <span class="kw">as </span>u8, <span class="number">16</span>);
+                <span class="kw">let </span>immediate_results = read_immediate(
+                    <span class="kw-2">&amp;</span>instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                    <span class="number">16</span>,
+                );
 
                 binary_representation.push(immediate_results.<span class="number">0</span>);
                 <span class="kw">if </span>immediate_results.<span class="number">1</span>.is_some() {
@@ -714,8 +757,10 @@
                 bit_lengths.push(<span class="number">5</span>);
                 <span class="comment">//memory address works a bit differently because it really amounts to two operands: the offset and base
                 //meaning there are two values to push and the possibility of errors on both operands
-                </span><span class="kw">let </span>memory_results =
-                    read_memory_address(<span class="kw-2">&amp;</span>instruction.operands[i].token_name, i <span class="kw">as </span>u8);
+                </span><span class="kw">let </span>memory_results = read_memory_address(
+                    <span class="kw-2">&amp;</span>instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                );
 
                 binary_representation.push(memory_results.<span class="number">0</span>);
                 binary_representation.push(memory_results.<span class="number">1</span>);
@@ -729,8 +774,11 @@
                 instruction.operands[i].token_type = TokenType::RegisterFP;
 
                 bit_lengths.push(<span class="number">5</span>);
-                <span class="kw">let </span>register_results =
-                    read_register(<span class="kw-2">&amp;</span>instruction.operands[i].token_name, i <span class="kw">as </span>u8, FloatingPoint);
+                <span class="kw">let </span>register_results = read_register(
+                    <span class="kw-2">&amp;</span>instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                    FloatingPoint,
+                );
 
                 binary_representation.push(register_results.<span class="number">0</span>);
                 <span class="kw">if </span>register_results.<span class="number">1</span>.is_some() {
@@ -743,7 +791,7 @@
                 bit_lengths.push(<span class="number">26</span>);
                 <span class="kw">let </span>label_absolute_results = read_label_absolute(
                     <span class="kw-2">&amp;</span>instruction.operands[i].token_name,
-                    i <span class="kw">as </span>i32,
+                    instruction.operands[i].start_end_columns,
                     labels.clone(),
                 );
 
@@ -758,7 +806,7 @@
                 bit_lengths.push(<span class="number">16</span>);
                 <span class="kw">let </span>label_relative_results = read_label_relative(
                     <span class="kw-2">&amp;</span>instruction.operands[i].token_name,
-                    i <span class="kw">as </span>i32,
+                    instruction.operands[i].start_end_columns,
                     instruction.instruction_number,
                     labels.clone(),
                 );
@@ -785,7 +833,7 @@
 /// The value represents instruction numbers NOT bytes.
 </span><span class="kw">pub fn </span>read_label_relative(
     given_label: <span class="kw-2">&amp;</span>str,
-    operand_number: i32,
+    start_end_columns: (u32, u32),
     current_instruction_number: u32,
     labels: HashMap&lt;String, u32&gt;,
 ) -&gt; (u32, <span class="prelude-ty">Option</span>&lt;Error&gt;) {
@@ -796,7 +844,8 @@
             <span class="number">0</span>,
             <span class="prelude-val">Some</span>(Error {
                 error_name: LabelNotFound,
-                operand_number: <span class="prelude-val">Some</span>(operand_number <span class="kw">as </span>u8),
+                token_causing_error: given_label.to_string(),
+                start_end_columns,
                 message: <span class="string">&quot;&quot;</span>.to_string(),
             }),
         );
@@ -812,7 +861,7 @@
 /// This value corresponds to instruction number, NOT byte address.
 </span><span class="kw">pub fn </span>read_label_absolute(
     given_label: <span class="kw-2">&amp;</span>str,
-    operand_number: i32,
+    start_end_columns: (u32, u32),
     labels: HashMap&lt;String, u32&gt;,
 ) -&gt; (u32, <span class="prelude-ty">Option</span>&lt;Error&gt;) {
     <span class="kw">let </span>result = labels.get(given_label);
@@ -821,7 +870,8 @@
             <span class="number">0</span>,
             <span class="prelude-val">Some</span>(Error {
                 error_name: LabelNotFound,
-                operand_number: <span class="prelude-val">Some</span>(operand_number <span class="kw">as </span>u8),
+                token_causing_error: given_label.to_string(),
+                start_end_columns,
                 message: <span class="string">&quot;&quot;</span>.to_string(),
             }),
         );
@@ -833,7 +883,7 @@
 /// If the string given matches a label, that address is returned instead
 </span><span class="kw">pub fn </span>read_memory_address(
     orig_string: <span class="kw-2">&amp;</span>str,
-    operand_number: u8,
+    start_end_columns: (u32, u32),
 ) -&gt; (u32, u32, <span class="prelude-ty">Option</span>&lt;Vec&lt;Error&gt;&gt;) {
     <span class="comment">//the indices of the open and close parentheses are checked.
     //If either are missing or they are in the wrong order, an error is returned
@@ -845,7 +895,8 @@
             <span class="number">0</span>,
             <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[Error {
                 error_name: InvalidMemorySyntax,
-                operand_number: <span class="prelude-val">Some</span>(operand_number),
+                token_causing_error: orig_string.to_string(),
+                start_end_columns,
                 message: <span class="string">&quot;&quot;</span>.to_string(),
             }]),
         );
@@ -863,7 +914,8 @@
             <span class="number">0</span>,
             <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[Error {
                 error_name: InvalidMemorySyntax,
-                operand_number: <span class="prelude-val">Some</span>(operand_number),
+                token_causing_error: orig_string.to_string(),
+                start_end_columns,
                 message: <span class="string">&quot;&quot;</span>.to_string(),
             }]),
         );
@@ -876,8 +928,8 @@
 
     <span class="comment">//offset is an immediate while base is a register so the read functions for those operands
     //will confirm they are properly formatted
-    </span><span class="kw">let </span>immediate_results = read_immediate(offset_str, operand_number, <span class="number">16</span>);
-    <span class="kw">let </span>register_results = read_register(<span class="kw-2">&amp;</span>cleaned_base, operand_number, GeneralPurpose);
+    </span><span class="kw">let </span>immediate_results = read_immediate(offset_str, start_end_columns, <span class="number">16</span>);
+    <span class="kw">let </span>register_results = read_register(<span class="kw-2">&amp;</span>cleaned_base, start_end_columns, GeneralPurpose);
 
     <span class="comment">//any errors found in the read_immediate or read_register functions are collected into a vec
     //if there were any errors, those are returned
@@ -900,7 +952,7 @@
 ///and the expected register type. It calls the corresponding functions holding the match cases for the different register types.
 </span><span class="kw">pub fn </span>read_register(
     register: <span class="kw-2">&amp;</span>str,
-    operand_number: u8,
+    start_end_columns: (u32, u32),
     register_type: RegisterType,
 ) -&gt; (u32, <span class="prelude-ty">Option</span>&lt;Error&gt;) {
     <span class="kw">if </span>register_type == GeneralPurpose {
@@ -913,7 +965,8 @@
                 <span class="number">0</span>,
                 <span class="prelude-val">Some</span>(Error {
                     error_name: IncorrectRegisterTypeFP,
-                    operand_number: <span class="prelude-val">Some</span>(operand_number),
+                    token_causing_error: register.to_string(),
+                    start_end_columns,
                     message: <span class="string">&quot;&quot;</span>.to_string(),
                 }),
             )
@@ -922,7 +975,8 @@
                 <span class="number">0</span>,
                 <span class="prelude-val">Some</span>(Error {
                     error_name: UnrecognizedGPRegister,
-                    operand_number: <span class="prelude-val">Some</span>(operand_number),
+                    token_causing_error: register.to_string(),
+                    start_end_columns,
                     message: <span class="string">&quot;&quot;</span>.to_string(),
                 }),
             )
@@ -937,7 +991,8 @@
                 <span class="number">0</span>,
                 <span class="prelude-val">Some</span>(Error {
                     error_name: IncorrectRegisterTypeGP,
-                    operand_number: <span class="prelude-val">Some</span>(operand_number),
+                    token_causing_error: register.to_string(),
+                    start_end_columns,
                     message: <span class="string">&quot;&quot;</span>.to_string(),
                 }),
             )
@@ -946,7 +1001,8 @@
                 <span class="number">0</span>,
                 <span class="prelude-val">Some</span>(Error {
                     error_name: UnrecognizedFPRegister,
-                    operand_number: <span class="prelude-val">Some</span>(operand_number),
+                    token_causing_error: register.to_string(),
+                    start_end_columns,
                     message: <span class="string">&quot;&quot;</span>.to_string(),
                 }),
             )
@@ -1044,7 +1100,11 @@
 <span class="doccomment">///This function takes a string representation of an immediate value and the number of bits available to represent it
 /// and attempts to translate it to an actual integer. If the value cannot be cast to int or is too big to be represented
 /// by the available bits, an error is returned.
-</span><span class="kw">pub fn </span>read_immediate(given_text: <span class="kw-2">&amp;</span>str, operand_number: u8, num_bits: u32) -&gt; (u32, <span class="prelude-ty">Option</span>&lt;Error&gt;) {
+</span><span class="kw">pub fn </span>read_immediate(
+    given_text: <span class="kw-2">&amp;</span>str,
+    start_end_columns: (u32, u32),
+    num_bits: u32,
+) -&gt; (u32, <span class="prelude-ty">Option</span>&lt;Error&gt;) {
     <span class="comment">//attempts to cast the text into a large int
     </span><span class="kw">let </span>parse_results = given_text.parse::&lt;i32&gt;();
 
@@ -1054,7 +1114,8 @@
             <span class="number">0</span>,
             <span class="prelude-val">Some</span>(Error {
                 error_name: NonIntImmediate,
-                operand_number: <span class="prelude-val">Some</span>(operand_number),
+                token_causing_error: given_text.to_string(),
+                start_end_columns,
                 message: <span class="string">&quot;&quot;</span>.to_string(),
             }),
         );
@@ -1071,7 +1132,8 @@
             <span class="number">0</span>,
             <span class="prelude-val">Some</span>(Error {
                 error_name: ImmediateOutOfBounds,
-                operand_number: <span class="prelude-val">Some</span>(operand_number),
+                token_causing_error: given_text.to_string(),
+                start_end_columns,
                 message: <span class="string">&quot;&quot;</span>.to_string(),
             }),
         );
@@ -1083,12 +1145,12 @@
 <span class="doccomment">///Takes the data list and finds the actual values for each data entry that will be put into memory
 </span><span class="kw">pub fn </span>assemble_data_binary(data_list: <span class="kw-2">&amp;mut </span>[Data]) -&gt; Vec&lt;u8&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>vec_of_data: Vec&lt;u8&gt; = Vec::new();
-    <span class="kw">for </span>data_entry <span class="kw">in </span>data_list.iter_mut() {
-        data_entry.data_number = vec_of_data.len() <span class="kw">as </span>u32;
-        <span class="kw">match </span><span class="kw-2">&amp;*</span>data_entry.data_type.token_name {
+    <span class="kw">for </span>datum <span class="kw">in </span>data_list.iter_mut() {
+        datum.data_number = vec_of_data.len() <span class="kw">as </span>u32;
+        <span class="kw">match </span><span class="kw-2">&amp;*</span>datum.data_type.token_name {
             <span class="string">&quot;.ascii&quot; </span>=&gt; {
                 <span class="comment">//pushes a string of characters to memory
-                </span><span class="kw">for </span>(i, value) <span class="kw">in </span>data_entry.data_entries_and_values.iter_mut().enumerate() {
+                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
                     value.<span class="number">0</span>.token_type = ASCII;
                     <span class="kw">let </span>chars = value.<span class="number">0</span>.token_name.as_bytes();
                     <span class="kw">if </span>chars[<span class="number">0</span>] == <span class="string">b&#39;\&quot;&#39; </span>&amp;&amp; chars[chars.len() - <span class="number">1</span>] == <span class="string">b&#39;\&quot;&#39; </span>&amp;&amp; chars.len() &gt; <span class="number">2 </span>{
@@ -1096,9 +1158,10 @@
                             vec_of_data.push(<span class="kw-2">*</span>char);
                         }
                     } <span class="kw">else </span>{
-                        data_entry.errors.push(Error {
+                        datum.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
-                            operand_number: <span class="prelude-val">Some</span>(i <span class="kw">as </span>u8),
+                            token_causing_error: value.<span class="number">0</span>.token_name.clone(),
+                            start_end_columns: value.<span class="number">0</span>.start_end_columns,
                             message: <span class="string">&quot;&quot;</span>.to_string(),
                         });
                     }
@@ -1106,7 +1169,7 @@
             }
             <span class="string">&quot;.asciiz&quot; </span>=&gt; {
                 <span class="comment">//same as ascii but pushes a \0 to memory as well
-                </span><span class="kw">for </span>(i, value) <span class="kw">in </span>data_entry.data_entries_and_values.iter_mut().enumerate() {
+                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
                     value.<span class="number">0</span>.token_type = ASCII;
                     <span class="kw">let </span>chars = value.<span class="number">0</span>.token_name.as_bytes();
                     <span class="kw">if </span>chars[<span class="number">0</span>] == <span class="string">b&#39;\&quot;&#39; </span>&amp;&amp; chars[chars.len() - <span class="number">1</span>] == <span class="string">b&#39;\&quot;&#39; </span>&amp;&amp; chars.len() &gt; <span class="number">2 </span>{
@@ -1114,9 +1177,10 @@
                             vec_of_data.push(<span class="kw-2">*</span>char);
                         }
                     } <span class="kw">else </span>{
-                        data_entry.errors.push(Error {
+                        datum.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
-                            operand_number: <span class="prelude-val">Some</span>(i <span class="kw">as </span>u8),
+                            token_causing_error: value.<span class="number">0</span>.token_name.to_string(),
+                            start_end_columns: value.<span class="number">0</span>.start_end_columns,
                             message: <span class="string">&quot;&quot;</span>.to_string(),
                         });
                     }
@@ -1124,14 +1188,15 @@
                 vec_of_data.push(<span class="number">0</span>);
             }
             <span class="string">&quot;.byte&quot; </span>=&gt; {
-                <span class="kw">for </span>(i, value) <span class="kw">in </span>data_entry.data_entries_and_values.iter_mut().enumerate() {
+                <span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
                     value.<span class="number">0</span>.token_type = Byte;
                     <span class="comment">//this if block handles chars
                     </span><span class="kw">if </span>value.<span class="number">0</span>.token_name.starts_with(<span class="string">&#39;\&#39;&#39;</span>) {
                         <span class="kw">if </span>value.<span class="number">0</span>.token_name.len() != <span class="number">3 </span>|| !value.<span class="number">0</span>.token_name.ends_with(<span class="string">&#39;\&#39;&#39;</span>) {
-                            data_entry.errors.push(Error {
+                            datum.errors.push(Error {
                                 error_name: ImproperlyFormattedChar,
-                                operand_number: <span class="prelude-val">Some</span>(i <span class="kw">as </span>u8),
+                                token_causing_error: value.<span class="number">0</span>.token_name.clone().to_string(),
+                                start_end_columns: value.<span class="number">0</span>.start_end_columns,
                                 message: <span class="string">&quot;&quot;</span>.to_string(),
                             });
                         } <span class="kw">else </span>{
@@ -1142,17 +1207,18 @@
                         }
                     } <span class="kw">else </span>{
                         <span class="comment">//otherwise we can assume it is an int
-                        </span><span class="kw">let </span>immediate_results = read_immediate(<span class="kw-2">&amp;</span>value.<span class="number">0</span>.token_name, i <span class="kw">as </span>u8, <span class="number">8</span>);
+                        </span><span class="kw">let </span>immediate_results =
+                            read_immediate(<span class="kw-2">&amp;</span>value.<span class="number">0</span>.token_name, value.<span class="number">0</span>.start_end_columns, <span class="number">8</span>);
                         vec_of_data.push(immediate_results.<span class="number">0 </span><span class="kw">as </span>u8);
                         <span class="kw">if </span>immediate_results.<span class="number">1</span>.is_some() {
-                            data_entry.errors.push(immediate_results.<span class="number">1</span>.unwrap());
+                            datum.errors.push(immediate_results.<span class="number">1</span>.unwrap());
                         }
                     }
                 }
             }
             <span class="string">&quot;.double&quot; </span>=&gt; {
                 <span class="comment">//pushes the given 64 bit float values
-                </span><span class="kw">for </span>(i, value) <span class="kw">in </span>data_entry.data_entries_and_values.iter_mut().enumerate() {
+                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
                     value.<span class="number">0</span>.token_type = Float;
                     <span class="kw">let </span>parse_results = value.<span class="number">0</span>.token_name.parse::&lt;f64&gt;();
                     <span class="kw">if let </span><span class="prelude-val">Ok</span>(..) = parse_results {
@@ -1166,9 +1232,10 @@
                         vec_of_data.push((float_bits &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8);
                         vec_of_data.push(float_bits <span class="kw">as </span>u8);
                     } <span class="kw">else </span>{
-                        data_entry.errors.push(Error {
+                        datum.errors.push(Error {
                             error_name: NonFloatImmediate,
-                            operand_number: <span class="prelude-val">Some</span>(i <span class="kw">as </span>u8),
+                            token_causing_error: value.<span class="number">0</span>.token_name.to_string(),
+                            start_end_columns: value.<span class="number">0</span>.start_end_columns,
                             message: <span class="string">&quot;&quot;</span>.to_string(),
                         })
                     }
@@ -1176,7 +1243,7 @@
             }
             <span class="string">&quot;.float&quot; </span>=&gt; {
                 <span class="comment">//pushes the given 32 bit float values
-                </span><span class="kw">for </span>(i, value) <span class="kw">in </span>data_entry.data_entries_and_values.iter_mut().enumerate() {
+                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
                     value.<span class="number">0</span>.token_type = Float;
                     <span class="kw">let </span>parse_results = value.<span class="number">0</span>.token_name.parse::&lt;f32&gt;();
                     <span class="kw">if let </span><span class="prelude-val">Ok</span>(..) = parse_results {
@@ -1186,9 +1253,10 @@
                         vec_of_data.push((float_bits &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8);
                         vec_of_data.push(float_bits <span class="kw">as </span>u8);
                     } <span class="kw">else </span>{
-                        data_entry.errors.push(Error {
+                        datum.errors.push(Error {
                             error_name: NonFloatImmediate,
-                            operand_number: <span class="prelude-val">Some</span>(i <span class="kw">as </span>u8),
+                            token_causing_error: value.<span class="number">0</span>.token_name.to_string(),
+                            start_end_columns: value.<span class="number">0</span>.start_end_columns,
                             message: <span class="string">&quot;&quot;</span>.to_string(),
                         })
                     }
@@ -1196,23 +1264,25 @@
             }
             <span class="string">&quot;.half&quot; </span>=&gt; {
                 <span class="comment">//half words are 16 bits each. The vec is of u32s so 2 half words are in each u32
-                </span><span class="kw">for </span>(i, value) <span class="kw">in </span>data_entry.data_entries_and_values.iter_mut().enumerate() {
+                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
                     value.<span class="number">0</span>.token_type = Half;
-                    <span class="kw">let </span>immediate_results = read_immediate(<span class="kw-2">&amp;</span>value.<span class="number">0</span>.token_name, i <span class="kw">as </span>u8, <span class="number">16</span>);
+                    <span class="kw">let </span>immediate_results =
+                        read_immediate(<span class="kw-2">&amp;</span>value.<span class="number">0</span>.token_name, value.<span class="number">0</span>.start_end_columns, <span class="number">16</span>);
 
                     vec_of_data.push((immediate_results.<span class="number">0 </span>&gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8);
                     vec_of_data.push(immediate_results.<span class="number">0 </span><span class="kw">as </span>u8);
 
                     <span class="kw">if </span>immediate_results.<span class="number">1</span>.is_some() {
-                        data_entry.errors.push(immediate_results.<span class="number">1</span>.unwrap());
+                        datum.errors.push(immediate_results.<span class="number">1</span>.unwrap());
                     }
                 }
             }
             <span class="string">&quot;.space&quot; </span>=&gt; {
                 <span class="comment">//pushes specified number of empty bytes
-                </span><span class="kw">for </span>(i, value) <span class="kw">in </span>data_entry.data_entries_and_values.iter_mut().enumerate() {
+                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
                     value.<span class="number">0</span>.token_type = Space;
-                    <span class="kw">let </span>immediate_results = read_immediate(<span class="kw-2">&amp;</span>value.<span class="number">0</span>.token_name, i <span class="kw">as </span>u8, <span class="number">32</span>);
+                    <span class="kw">let </span>immediate_results =
+                        read_immediate(<span class="kw-2">&amp;</span>value.<span class="number">0</span>.token_name, value.<span class="number">0</span>.start_end_columns, <span class="number">32</span>);
                     value.<span class="number">1 </span>= immediate_results.<span class="number">0</span>;
 
                     <span class="kw">for </span>_i <span class="kw">in </span><span class="number">0</span>..immediate_results.<span class="number">0 </span>{
@@ -1220,16 +1290,17 @@
                     }
 
                     <span class="kw">if </span>immediate_results.<span class="number">1</span>.is_some() {
-                        data_entry.errors.push(immediate_results.<span class="number">1</span>.unwrap());
+                        datum.errors.push(immediate_results.<span class="number">1</span>.unwrap());
                     }
                 }
             }
             <span class="string">&quot;.word&quot; </span>=&gt; {
-                <span class="kw">for </span>(i, value) <span class="kw">in </span>data_entry.data_entries_and_values.iter_mut().enumerate() {
+                <span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
                     value.<span class="number">0</span>.token_type = Word;
-                    <span class="kw">let </span>immediate_results = read_immediate(<span class="kw-2">&amp;</span>value.<span class="number">0</span>.token_name, i <span class="kw">as </span>u8, <span class="number">32</span>);
+                    <span class="kw">let </span>immediate_results =
+                        read_immediate(<span class="kw-2">&amp;</span>value.<span class="number">0</span>.token_name, value.<span class="number">0</span>.start_end_columns, <span class="number">32</span>);
                     <span class="kw">if </span>immediate_results.<span class="number">1</span>.is_some() {
-                        data_entry.errors.push(immediate_results.<span class="number">1</span>.unwrap());
+                        datum.errors.push(immediate_results.<span class="number">1</span>.unwrap());
                     }
 
                     <span class="comment">//push all four bytes of the word to the vector
@@ -1239,9 +1310,10 @@
                     vec_of_data.push(immediate_results.<span class="number">0 </span><span class="kw">as </span>u8);
                 }
             }
-            <span class="kw">_ </span>=&gt; data_entry.errors.push(Error {
+            <span class="kw">_ </span>=&gt; datum.errors.push(Error {
                 error_name: UnrecognizedDataType,
-                operand_number: <span class="prelude-val">None</span>,
+                token_causing_error: datum.data_type.token_name.to_string(),
+                start_end_columns: datum.data_type.start_end_columns,
                 message: <span class="string">&quot;&quot;</span>.to_string(),
             }),
         }

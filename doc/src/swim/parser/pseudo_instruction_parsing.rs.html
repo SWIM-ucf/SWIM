@@ -871,6 +871,21 @@
 <a href="#871" id="871">871</a>
 <a href="#872" id="872">872</a>
 <a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::IncorrectNumberOfOperands;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Operator;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::{
@@ -916,7 +931,8 @@
                 <span class="kw">if </span>instruction.operands.len() != <span class="number">2 </span>{
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     });
                     <span class="kw">continue</span>;
@@ -943,7 +959,8 @@
                 </span><span class="kw">if </span>instruction.operands.len() != <span class="number">3 </span>{
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     });
                     <span class="kw">continue</span>;
@@ -1007,7 +1024,8 @@
                 </span><span class="kw">if </span>instruction.operands.len() != <span class="number">3 </span>{
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     });
                     <span class="kw">continue</span>;
@@ -1040,7 +1058,8 @@
                 </span><span class="kw">if </span>instruction.operands.len() != <span class="number">3 </span>{
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     });
                     <span class="kw">continue</span>;
@@ -1101,7 +1120,8 @@
                 </span><span class="kw">if </span>instruction.operands.len() != <span class="number">3 </span>{
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     });
                     <span class="kw">continue</span>;
@@ -1160,7 +1180,8 @@
                 </span><span class="kw">if </span>instruction.operands.len() != <span class="number">3 </span>{
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     });
                     <span class="kw">continue</span>;
@@ -1183,7 +1204,8 @@
                 </span><span class="kw">if </span>instruction.operands.len() != <span class="number">3 </span>{
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     });
                     <span class="kw">continue</span>;
@@ -1208,7 +1230,8 @@
                 </span><span class="kw">if </span>instruction.operands.len() != <span class="number">3 </span>{
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     });
                     <span class="kw">continue</span>;
@@ -1266,7 +1289,8 @@
                 </span><span class="kw">if </span>instruction.operands.len() != <span class="number">3 </span>{
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     });
                     <span class="kw">continue</span>;
@@ -1322,7 +1346,8 @@
                     </span><span class="kw">if </span>instruction.operands.len() != <span class="number">2 </span>{
                         instruction.errors.push(Error {
                             error_name: IncorrectNumberOfOperands,
-                            operand_number: <span class="prelude-val">None</span>,
+                            token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                            start_end_columns: instruction.operator.start_end_columns,
                             message: <span class="string">&quot;&quot;</span>.to_string(),
                         });
                         <span class="kw">continue</span>;
@@ -1378,7 +1403,8 @@
                 </span><span class="kw">if </span>instruction.operands.len() != <span class="number">3 </span>{
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     });
                     <span class="kw">continue</span>;
@@ -1429,7 +1455,8 @@
                 </span><span class="kw">if </span>instruction.operands.len() != <span class="number">3 </span>{
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     });
                     <span class="kw">continue</span>;
@@ -1481,7 +1508,8 @@
                 </span><span class="kw">if </span>instruction.operands.len() != <span class="number">3 </span>{
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     });
                     <span class="kw">continue</span>;
@@ -1532,7 +1560,8 @@
                 </span><span class="kw">if </span>instruction.operands.len() != <span class="number">3 </span>{
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     });
                     <span class="kw">continue</span>;
@@ -1584,7 +1613,8 @@
                 </span><span class="kw">if </span>instruction.operands.len() != <span class="number">2 </span>{
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: <span class="prelude-val">None</span>,
+                        token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: <span class="string">&quot;&quot;</span>.to_string(),
                     });
                     <span class="kw">continue</span>;
