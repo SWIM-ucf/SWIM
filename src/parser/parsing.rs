@@ -194,7 +194,9 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 } else {
                     instruction.errors.push(Error {
                         error_name: MissingComma,
-                        token_causing_error: lines[i].tokens[operand_iterator].token_name.to_string(),
+                        token_causing_error: lines[i].tokens[operand_iterator]
+                            .token_name
+                            .to_string(),
                         start_end_columns: lines[i].tokens[operand_iterator].start_end_columns,
                         message: "".to_string(),
                     })
@@ -248,7 +250,10 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 data.errors.push(Error {
                     error_name: ImproperlyFormattedData,
                     token_causing_error: "".to_string(),
-                    start_end_columns: (lines[i].tokens[0].start_end_columns.0, lines[i].tokens.last().unwrap().start_end_columns.1), //the entire length of the line
+                    start_end_columns: (
+                        lines[i].tokens[0].start_end_columns.0,
+                        lines[i].tokens.last().unwrap().start_end_columns.1,
+                    ), //the entire length of the line
                     message: "".to_string(),
                 });
                 i += 1;
@@ -302,7 +307,13 @@ pub fn create_label_map(
             if labels.contains_key(&*instruction.label.clone().unwrap().0.token_name) {
                 instruction.errors.push(Error {
                     error_name: LabelMultipleDefinition,
-                    token_causing_error: instruction.label.clone().unwrap().0.token_name.to_string(),
+                    token_causing_error: instruction
+                        .label
+                        .clone()
+                        .unwrap()
+                        .0
+                        .token_name
+                        .to_string(),
                     start_end_columns: instruction.label.clone().unwrap().0.start_end_columns,
                     message: "".to_string(),
                 });
@@ -386,7 +397,6 @@ pub fn suggest_error_corrections(
                             "r19", "r20", "r21", "r22", "r23", "r24", "r25", "r26", "r27", "r28",
                             "r29", "r30", "r31",
                         ];
-
 
                         let given_string = &error.token_causing_error;
                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
@@ -527,7 +537,9 @@ pub fn suggest_error_corrections(
                 console_out_string.push_str(" with token \"");
                 console_out_string.push_str(&error.token_causing_error);
                 console_out_string.push_str("\"\n");
-                console_out_string.push_str(&monaco_line_info[instruction.line_number as usize].mouse_hover_string);
+                console_out_string.push_str(
+                    &monaco_line_info[instruction.line_number as usize].mouse_hover_string,
+                );
             }
         }
     }
@@ -578,11 +590,12 @@ pub fn suggest_error_corrections(
             console_out_string.push_str(" with token \"");
             console_out_string.push_str(&error.token_causing_error);
             console_out_string.push_str("\"\n");
-            console_out_string.push_str(&monaco_line_info[datum.line_number as usize].mouse_hover_string);
+            console_out_string
+                .push_str(&monaco_line_info[datum.line_number as usize].mouse_hover_string);
         }
     }
 
-    if console_out_string.is_empty(){
+    if console_out_string.is_empty() {
         console_out_string = "Program assembled successfully!".to_string();
     }
 

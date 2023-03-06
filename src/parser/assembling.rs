@@ -78,8 +78,11 @@ pub fn read_operands(
                 instruction.operands[i].token_type = TokenType::Immediate;
                 bit_lengths.push(16);
 
-                let immediate_results =
-                    read_immediate(&instruction.operands[i].token_name, instruction.operands[i].start_end_columns, 16);
+                let immediate_results = read_immediate(
+                    &instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                    16,
+                );
 
                 binary_representation.push(immediate_results.0);
                 if immediate_results.1.is_some() {
@@ -486,7 +489,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
         match &*datum.data_type.token_name {
             ".ascii" => {
                 //pushes a string of characters to memory
-                for  value in datum.data_entries_and_values.iter_mut() {
+                for value in datum.data_entries_and_values.iter_mut() {
                     value.0.token_type = ASCII;
                     let chars = value.0.token_name.as_bytes();
                     if chars[0] == b'\"' && chars[chars.len() - 1] == b'\"' && chars.len() > 2 {
@@ -543,7 +546,8 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                         }
                     } else {
                         //otherwise we can assume it is an int
-                        let immediate_results = read_immediate(&value.0.token_name, value.0.start_end_columns, 8);
+                        let immediate_results =
+                            read_immediate(&value.0.token_name, value.0.start_end_columns, 8);
                         vec_of_data.push(immediate_results.0 as u8);
                         if immediate_results.1.is_some() {
                             datum.errors.push(immediate_results.1.unwrap());
@@ -601,11 +605,8 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                 //half words are 16 bits each. The vec is of u32s so 2 half words are in each u32
                 for value in datum.data_entries_and_values.iter_mut() {
                     value.0.token_type = Half;
-                    let immediate_results = read_immediate(
-                        &value.0.token_name,
-                        value.0.start_end_columns,
-                        16,
-                    );
+                    let immediate_results =
+                        read_immediate(&value.0.token_name, value.0.start_end_columns, 16);
 
                     vec_of_data.push((immediate_results.0 >> 8) as u8);
                     vec_of_data.push(immediate_results.0 as u8);
@@ -617,13 +618,10 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
             }
             ".space" => {
                 //pushes specified number of empty bytes
-                for value in datum.data_entries_and_values.iter_mut()  {
+                for value in datum.data_entries_and_values.iter_mut() {
                     value.0.token_type = Space;
-                    let immediate_results = read_immediate(
-                        &value.0.token_name,
-                        value.0.start_end_columns,
-                        32,
-                    );
+                    let immediate_results =
+                        read_immediate(&value.0.token_name, value.0.start_end_columns, 32);
                     value.1 = immediate_results.0;
 
                     for _i in 0..immediate_results.0 {
@@ -638,11 +636,8 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
             ".word" => {
                 for value in datum.data_entries_and_values.iter_mut() {
                     value.0.token_type = Word;
-                    let immediate_results = read_immediate(
-                        &value.0.token_name,
-                        value.0.start_end_columns,
-                        32,
-                    );
+                    let immediate_results =
+                        read_immediate(&value.0.token_name, value.0.start_end_columns, 32);
                     if immediate_results.1.is_some() {
                         datum.errors.push(immediate_results.1.unwrap());
                     }
