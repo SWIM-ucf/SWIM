@@ -54,7 +54,8 @@ fn app() -> Html {
 
     // Link to the Yew Editor Component, if not used by the end of the project remove it.
     let codelink = CodeEditorLink::default();
-
+    
+    // For the clipboard callback from yew_hooks
     let clipboard = use_clipboard();
 
     // Setup the array that would store decorations applied to the
@@ -63,7 +64,7 @@ fn app() -> Html {
     let old_decor_array = js_sys::Array::new();
 
     // Setting up the options/parameters which
-    // will highlight the executed line.
+    // will highlight the previously executed line.
     // The delta decor does not need to be changed,
     // the only parameter that will change is the range.
     let delta_decor = monaco::sys::editor::IModelDecorationOptions::default();
@@ -119,7 +120,7 @@ fn app() -> Html {
     // This is where the code will get executed. If you execute further
     // than when the code ends, the program crashes. This is remedied via the
     // syscall instruction, which will halt the datapath. As you execute the
-    // code, the currently executed line is highlighted.
+    // code, the previously executed line is highlighted.
     let on_execute_clicked = {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
@@ -197,9 +198,8 @@ fn app() -> Html {
         )
     };
 
-    // This is how we will reset the datapath. This is the only method to "halt"
-    // programs since if the user continues to execute, the whole application will
-    // crash. This will also clear any highlight on the editor.
+    // This is how we will reset the datapath. 
+    // This will also clear any highlight on the editor.
     let on_reset_clicked = {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
