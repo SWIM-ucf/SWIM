@@ -76,7 +76,7 @@ pub fn regview(props: &Regviewprops) -> Html {
                 <button class="tab" style="width: 50%;" onclick={on_switch_clicked_false.clone()}>{"FP"}</button>
             </div>
             <div class="table-wrapper">
-                <table>
+                <table style="background-color: #ffffff">
                     <thead>
                         <tr>
                             <th>{"Register Name"}</th>
