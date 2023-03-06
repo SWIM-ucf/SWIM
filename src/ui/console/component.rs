@@ -1,13 +1,13 @@
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
 use monaco::api::TextModel;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 use yew::prelude::*;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{ProgramInfo};
 use yew_hooks::prelude::*;
 
 use crate::emulation_core::mips::datapath::MipsDatapath;
-use crate::ui::visual_datapath::{DatapathSize, VisualDatapath};
 use crate::parser::parser_assembler_main::parser;
+use crate::ui::visual_datapath::{DatapathSize, VisualDatapath};
 use std::{cell::RefCell, rc::Rc};
 
 #[derive(PartialEq, Properties)]
@@ -41,6 +41,7 @@ pub fn console(props: &Consoleprops) -> Html {
     let address_to_line_number = tmi.address_to_line_number;
     let monaco_line_info = tmi.monaco_line_info;
     let updated_monaco_string = tmi.updated_monaco_string;
+    let console_out_post_assembly = tmi.console_out_post_assembly;
 
     let active_tab = use_state_eq(TabState::default);
     let zoom_datapath = use_bool_toggle(false);
@@ -81,8 +82,8 @@ pub fn console(props: &Consoleprops) -> Html {
             if *active_tab == TabState::Console {
                 <div class="console">
                     { hello_string(&ProgramInfo { instructions: (instructions), data: (data),
-                        address_to_line_number: (address_to_line_number), monaco_line_info: (monaco_line_info), 
-                        updated_monaco_string: (updated_monaco_string) })}
+                        address_to_line_number: (address_to_line_number), monaco_line_info: (monaco_line_info),
+                        updated_monaco_string: (updated_monaco_string), console_out_post_assembly: (console_out_post_assembly) })}
                 </div>
             } else if *active_tab == TabState::Datapath {
                 <div class="datapath-wrapper">
@@ -109,5 +110,5 @@ pub fn console(props: &Consoleprops) -> Html {
 }
 
 fn hello_string(_x: &ProgramInfo) -> String {
-    return "hello world".to_string();
+    "hello world".to_string()
 }

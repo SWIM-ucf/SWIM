@@ -267,15 +267,14 @@ fn app() -> Html {
     //             let address_to_line_number = tmi.address_to_line_number;
     //             let monaco_line_info = tmi.monaco_line_info;
     //             let updated_monaco_string = tmi.updated_monaco_string;
-                
+
     //             parser_text_output.set(hello_string(&ProgramInfo { instructions: (instructions), data: (data),
-    //                 address_to_line_number: (address_to_line_number), monaco_line_info: (monaco_line_info), 
+    //                 address_to_line_number: (address_to_line_number), monaco_line_info: (monaco_line_info),
     //                 updated_monaco_string: (updated_monaco_string) }));
     //             //TODO: refer to print string
     //             /*for i in instructions.into_iter(){
 
     //             }*/
-
     //             //print_vec_of_instructions(instructions);
     //         },
     //         (),
@@ -376,7 +375,7 @@ fn app() -> Html {
                     // </div>
 
                     // Console
-                    <Console parsermsg={(*parser_text_output).clone()} datapath={(*datapath.borrow()).clone()} 
+                    <Console parsermsg={(*parser_text_output).clone()} datapath={(*datapath.borrow()).clone()}
                     memorymsg={(*memory_text_output).clone()}/>
                 </div>
 
