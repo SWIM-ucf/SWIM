@@ -132,7 +132,7 @@ fn app() -> Html {
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
                 let text_model = (*text_model).borrow_mut();
-                
+
                 // Pull ProgramInfo from the parser
                 let (programinfo, _) = parser(text_model.get_value());
 
