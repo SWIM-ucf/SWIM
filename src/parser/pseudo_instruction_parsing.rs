@@ -492,7 +492,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                         ],
                         binary: 0,
                         instruction_number: instruction.instruction_number,
-                        line_number: 0,
+                        line_number: instruction.line_number,
                         errors: vec![],
                         label: None,
                     };
