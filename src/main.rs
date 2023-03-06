@@ -64,16 +64,13 @@ fn app() -> Html {
 
     // Setting up the options/parameters which
     // will highlight the executed line.
-    // The delta decor does not need to be change,
-    // the only parameter that will need to be changed is
-    // the range. Note: This would be the case, but since
-    // delta_decor has to be two different functions and
-    // the Copy trait is not applied there they need to
-    // be replicated in both.
+    // The delta decor does not need to be changed,
+    // the only parameter that will change is the range.
+    let delta_decor = monaco::sys::editor::IModelDecorationOptions::default();
+    delta_decor.set_is_whole_line(true.into());
+    delta_decor.set_inline_class_name("myInlineDecoration".into());
 
-    // TODO: Output will be stored in two ways, the first would be the parser's
-    // messages via logs and the registers will be stored
-    // in a custom-built register viewer.
+    // TODO: Output will be the parser's messages stored like logs.
     let parser_text_output = use_state_eq(String::new);
 
     // Since we want the Datapath to be independent from all the
@@ -91,33 +88,17 @@ fn app() -> Html {
 
         let new_decor_array = new_decor_array.clone();
         let old_decor_array = old_decor_array.clone();
-        let delta_decor = monaco::sys::editor::IModelDecorationOptions::default();
-        delta_decor.set_is_whole_line(true.into());
-        delta_decor.set_inline_class_name("myInlineDecoration".into());
+
         use_callback(
             move |_, text_model| {
                 let mut datapath = (*datapath).borrow_mut();
                 let text_model = (*text_model).borrow_mut();
 
-                // Pull ProgramInfo from the parser and parses through the code to assemble the binary
-                let (programinfo, assembled) = parser(text_model.get_value());
-                // Highlight the first line since the PC initializes on it.
-                let list_of_line_numbers = programinfo.address_to_line_number;
-                let index = datapath.registers.pc as usize / 4;
-                let curr_line = *list_of_line_numbers.get(index).unwrap() as f64 + 1.0; // add one to account for the editor's line numbers
+                // Parses through the code to assemble the binary
+                let (_, assembled) = parser(text_model.get_value());
+                // Acts like reset and clears the highlight
                 let curr_model = text_model.as_ref();
-                let curr_range = monaco::sys::Range::new(curr_line, 0.0, curr_line, 0.0);
-                let highlight_line: monaco::sys::editor::IModelDeltaDecoration =
-                    Object::new().unchecked_into();
-                highlight_line.set_options(&delta_decor);
-                let range_js = curr_range
-                    .dyn_into::<JsValue>()
-                    .expect("Range is not found.");
-                highlight_line.set_range(&monaco::sys::IRange::from(range_js));
-                let highlight_js = highlight_line
-                    .dyn_into::<JsValue>()
-                    .expect("Highlight is not found.");
-                new_decor_array.push(&highlight_js);
+                new_decor_array.pop();
                 old_decor_array.set(
                     0,
                     (*curr_model)
@@ -130,14 +111,14 @@ fn app() -> Html {
                     .expect("Memory could not be loaded");
                 //log!(datapath.memory.to_string());
                 trigger.force_update();
-                new_decor_array.pop();
             },
             text_model,
         )
     };
 
     // This is where the code will get executed. If you execute further
-    // than when the code ends, the program crashes. As you execute the
+    // than when the code ends, the program crashes. This is remedied via the
+    // syscall instruction, which will halt the datapath. As you execute the
     // code, the currently executed line is highlighted.
     let on_execute_clicked = {
         let text_model = Rc::clone(&text_model);
@@ -146,23 +127,19 @@ fn app() -> Html {
 
         let new_decor_array = new_decor_array.clone();
         let old_decor_array = old_decor_array.clone();
-        let delta_decor = monaco::sys::editor::IModelDecorationOptions::default();
-        delta_decor.set_is_whole_line(true.into());
-        delta_decor.set_inline_class_name("myInlineDecoration".into());
 
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
                 let text_model = (*text_model).borrow_mut();
-
-                (*datapath).execute_instruction();
-
+                
                 // Pull ProgramInfo from the parser
                 let (programinfo, _) = parser(text_model.get_value());
+
                 // Get the current line and convert it to f64
                 let list_of_line_numbers = programinfo.address_to_line_number;
                 let index = datapath.registers.pc as usize / 4;
-                let curr_line = *list_of_line_numbers.get(index).unwrap() as f64 + 1.0; // add one to account for the editor's line numbers
+                let curr_line = *list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0; // add one to account for the editor's line numbers
 
                 // Setup the range
                 let curr_model = text_model.as_ref();
@@ -194,11 +171,14 @@ fn app() -> Html {
                 // log!("These are the arrays after the push");
                 // log!(new_decor_array.at(0));
                 // log!(old_decor_array.at(0));
+                (*datapath).execute_instruction();
+                // done with the highlight, prepare for the next one.
+                new_decor_array.pop();
+                // log!("These are the arrays after the pop");
+                // log!(new_decor_array.at(0));
+                // log!(old_decor_array.at(0));
+
                 trigger.force_update();
-                new_decor_array.pop(); // done with the highlight, prepare for the next one.
-                                       // log!("These are the arrays after the pop");
-                                       // log!(new_decor_array.at(0));
-                                       // log!(old_decor_array.at(0));
             },
             (),
         )
