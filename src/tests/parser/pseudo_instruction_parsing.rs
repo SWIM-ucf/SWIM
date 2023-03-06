@@ -1431,7 +1431,7 @@ fn complete_lw_sw_pseudo_instructions_works() {
             ],
             binary: 0,
             instruction_number: 0,
-            line_number: 0,
+            line_number: 3,
             errors: vec![],
             label: None,
         }
@@ -1485,7 +1485,7 @@ fn complete_lw_sw_pseudo_instructions_works() {
             ],
             binary: 0,
             instruction_number: 2,
-            line_number: 0,
+            line_number: 4,
             errors: vec![],
             label: None,
         }
