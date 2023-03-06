@@ -156,7 +156,7 @@ impl VisualDatapath for MipsDatapath {
                 bits: 64,
             },
             "ra_id" => LineInformation {
-                title: String::from("RA id code"),
+                title: String::from("Return Address register index"),
                 description: String::from("This 5 bit value is the idenifcation code for the RA register, register $31"),
                 value: 31,
                 bits: 5,
@@ -183,7 +183,7 @@ impl VisualDatapath for MipsDatapath {
                 title: String::from("Write Register Destination"),
                 description: String::from("This line carries a 5 bit register code"),
                 value: self.state.write_register_destination as u64,
-                bits: 64,
+                bits: 5,
             },
 
 
@@ -265,13 +265,13 @@ impl VisualDatapath for MipsDatapath {
             },
             "fpu_register_write_data" => LineInformation {
                 title: String::from("FPU Register Write Data"),
-                description: String::from("The FPU Register Write Data"),
+                description: String::from("This data may potentialy be written to a register"),
                 value: self.coprocessor.state.register_write_data,
                 bits: 64,
             },
             "fpu_register_write_mux_to_mux" => LineInformation {
                 title: String::from("FPU Register Write Mux to Mux"),
-                description: String::from("Move data from one mux to the next"),
+                description: String::from("This data may potentialy go to the write_data line, depends on control flag to second mux "),
                 value: self.coprocessor.state.register_write_mux_to_mux,
                 bits: 64,
             },
@@ -288,14 +288,14 @@ impl VisualDatapath for MipsDatapath {
                 bits: 64,
             },
             "fpu_alu_result" => LineInformation {
-                title: String::from("fpu_alu_result"),
-                description: String::from("fpu_alu_result"),
+                title: String::from("Main FPU ALU Result"),
+                description: String::from("This is the result of the main FPU ALU"),
                 value: self.coprocessor.state.alu_result,
                 bits: 64,
             },
             "fpu_comparator_result" => LineInformation {
-                title: String::from("fpu_comparator_result"),
-                description: String::from(""),
+                title: String::from("FPU Comparator Result"),
+                description: String::from("The comparator result, goes to the comparator result internal register"),
                 value: self.coprocessor.state.comparator_result,
                 bits: 64,
             },
