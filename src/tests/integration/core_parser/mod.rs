@@ -2,6 +2,7 @@ use crate::emulation_core::datapath::Datapath;
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::parser::parser_assembler_main::parser;
 
+pub mod basic_immediate;
 pub mod basic_operations;
 
 #[test]
