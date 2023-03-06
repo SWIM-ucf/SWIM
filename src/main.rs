@@ -289,7 +289,7 @@ fn app() -> Html {
             <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
             <div style="display: flex; flex-direction: row; flex-wrap: nowrap; height: 100vh; padding: 8px; gap: 8px;">
                 // Left column
-                <div style="flex-basis: 70%; display: flex; flex-direction: column; align-items: stretch;">
+                <div style="flex-basis: 70%; display: flex; flex-direction: column; align-items: stretch; min-width: 0;">
                     // Top buttons
                     <div>
                         <button class="button" onclick={on_assemble_clicked}>{ "Assemble" }</button>
