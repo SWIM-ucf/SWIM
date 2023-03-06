@@ -15,7 +15,7 @@ add $s1, $s0, $s0"#,
 
     // Parse instructions and load into emulation core memory.
     let (_, instruction_bits) = parser(instructions);
-    datapath.load_instructions(instruction_bits)?;
+    datapath.initialize(instruction_bits)?;
 
     // Execute 2 instructions.
     for _ in 0..2 {
@@ -54,7 +54,7 @@ dati r1, 43982"#,
 
     // Parse instructions and load into emulation core memory.
     let (_, instruction_bits) = parser(instructions);
-    datapath.load_instructions(instruction_bits)?;
+    datapath.initialize(instruction_bits)?;
 
     // Execute 4 instructions.
     for _ in 0..4 {

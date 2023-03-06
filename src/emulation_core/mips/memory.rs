@@ -21,7 +21,7 @@ impl ToString for Memory {
         let mut output = String::new();
 
         for byte in self.memory.iter() {
-            output.push_str(&format!("{byte:x}"));
+            output.push_str(&format!("{byte:02x}"));
         }
 
         output
