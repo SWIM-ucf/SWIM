@@ -147,11 +147,11 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
             if lines[i].tokens[0].token_name.ends_with(':') {
                 //if the instruction already has a label at this point, that means that the user wrote a label on a line on its
                 //own and then wrote another label on the next line without ever finishing the first
-                if instruction.label.is_some() {
+                if instruction.label.clone().is_some() {
                     instruction.errors.push(Error {
                         error_name: LabelAssignmentError,
-                        token_causing_error: instruction.label.unwrap().0.token_name.to_string(),
-                        start_end_columns: instruction.label.unwrap().0.start_end_columns,
+                        token_causing_error: lines[i].tokens[0].token_name.clone(),
+                        start_end_columns: lines[i].tokens[0].start_end_columns,
                         message: "".to_string(),
                     })
                     //if the above error doesn't occur, we can push the label to the instruction struct.
@@ -166,8 +166,8 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                     if i == (lines.len() - 1) {
                         instruction.errors.push(Error {
                             error_name: LabelAssignmentError,
-                            token_causing_error: instruction.label.unwrap().0.token_name.to_string(),
-                            start_end_columns: instruction.label.unwrap().0.start_end_columns,
+                            token_causing_error: lines[i].tokens[0].token_name.clone(),
+                            start_end_columns: lines[i].tokens[0].start_end_columns,
                             message: "".to_string(),
                         });
                         instruction_list.push(instruction.clone());
@@ -258,8 +258,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
             //the second token on the line is the data type
             data.data_type = lines[i].tokens[1].clone();
 
-            let mut _value_iterator = 2;
-            let _first_value_index = value_iterator;
+            let mut value_iterator = 2;
 
             //push all values to the data vec that will have commas
             while value_iterator < (lines[i].tokens.len() - 1) {
@@ -303,8 +302,8 @@ pub fn create_label_map(
             if labels.contains_key(&*instruction.label.clone().unwrap().0.token_name) {
                 instruction.errors.push(Error {
                     error_name: LabelMultipleDefinition,
-                    token_causing_error: instruction.label.unwrap().0.token_name.to_string(),
-                    start_end_columns: instruction.label.unwrap().0.start_end_columns,
+                    token_causing_error: instruction.label.clone().unwrap().0.token_name.to_string(),
+                    start_end_columns: instruction.label.clone().unwrap().0.start_end_columns,
                     message: "".to_string(),
                 });
                 //otherwise, it is inserted
@@ -347,13 +346,15 @@ pub fn create_label_map(
 }
 
 ///Goes through each error found in the parsing & assembling process and suggests to the user a way of
-/// correcting the error.
+/// correcting the error. This error message is attached to the corresponding instruction or data and monaco line info, and
+/// compiled into a string to be output to the console and returns that
 pub fn suggest_error_corrections(
     instructions: &mut [Instruction],
     data: &mut [Data],
     labels: &HashMap<String, u32>,
     monaco_line_info: &mut [MonacoLineInfo],
-) {
+) -> String {
+    let mut console_out_string: String = "".to_string();
     //go through each error in the instructions and suggest a correction
     for instruction in instructions {
         //if there are no errors, instead push the binary of the instruction to mouse hover
@@ -520,6 +521,13 @@ pub fn suggest_error_corrections(
                 monaco_line_info[instruction.line_number as usize]
                     .mouse_hover_string
                     .push_str(&error.message.clone());
+
+                console_out_string.push_str("Error on line ");
+                console_out_string.push_str(&instruction.line_number.to_string());
+                console_out_string.push_str(" with token \"");
+                console_out_string.push_str(&error.token_causing_error);
+                console_out_string.push_str("\"\n");
+                console_out_string.push_str(&monaco_line_info[instruction.line_number as usize].mouse_hover_string);
             }
         }
     }
@@ -564,6 +572,19 @@ pub fn suggest_error_corrections(
             monaco_line_info[datum.line_number as usize]
                 .mouse_hover_string
                 .push_str(&error.message.clone());
+
+            console_out_string.push_str("Error on line ");
+            console_out_string.push_str(&datum.line_number.to_string());
+            console_out_string.push_str(" with token \"");
+            console_out_string.push_str(&error.token_causing_error);
+            console_out_string.push_str("\"\n");
+            console_out_string.push_str(&monaco_line_info[datum.line_number as usize].mouse_hover_string);
         }
     }
+
+    if console_out_string.is_empty(){
+        console_out_string = "Program assembled successfully!".to_string();
+    }
+
+    console_out_string
 }

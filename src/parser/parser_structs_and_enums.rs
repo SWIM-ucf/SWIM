@@ -7,6 +7,7 @@ pub mod instruction_tokenization {
         pub monaco_line_info: Vec<MonacoLineInfo>,
         pub address_to_line_number: Vec<u32>,
         pub updated_monaco_string: String,
+        pub console_out_post_assembly: String,
         pub instructions: Vec<Instruction>,
         pub data: Vec<Data>,
     }
