@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["component",""]]};
+window.SIDEBAR_ITEMS = {"mod":[["component",""],["helper",""]]};
