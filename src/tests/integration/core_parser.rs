@@ -65,3 +65,32 @@ dati r1, 43982"#,
 
     Ok(())
 }
+
+#[test]
+// Basic program that adds two numbers then multiplies that result by 2.
+// The parser should add a `syscall` instruction at the end of the program
+// and automatically halt.
+fn syscall_to_stop() -> Result<(), String> {
+    let mut datapath = MipsDatapath::default();
+
+    let instructions = String::from(
+        r#"ori r5, $zero, 4321
+ori r6, $zero, 5678
+dadd r7, r5, r6
+dmuli r8, r7, 2"#,
+    );
+
+    let (_, instruction_bits) = parser(instructions);
+    datapath.initialize(instruction_bits)?;
+
+    while !datapath.is_halted() {
+        datapath.execute_instruction();
+    }
+
+    assert_eq!(datapath.registers.gpr[5], 4321);
+    assert_eq!(datapath.registers.gpr[6], 5678);
+    assert_eq!(datapath.registers.gpr[7], 9999); // 4321 + 5678
+    assert_eq!(datapath.registers.gpr[8], 19998); // 9999 * 2
+
+    Ok(())
+}
