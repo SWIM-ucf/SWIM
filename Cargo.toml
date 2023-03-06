@@ -28,3 +28,6 @@ log = "0.4.17"
 
 # Parser / Assembler
 levenshtein = "1.0.5"
+
+# Tests
+akin = "0.4"
