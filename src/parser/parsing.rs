@@ -408,7 +408,9 @@ pub fn suggest_error_corrections(
                             }
                         }
 
-                        let mut suggestion = "GP register is not recognized. A valid, similar register is: ".to_string();
+                        let mut suggestion =
+                            "GP register is not recognized. A valid, similar register is: "
+                                .to_string();
                         suggestion.push_str(&closest.1);
                         suggestion.push_str(".\n");
                         error.message = suggestion;
@@ -431,7 +433,9 @@ pub fn suggest_error_corrections(
                             }
                         }
 
-                        let mut suggestion = "FP register is not recognized. A valid, similar register is: ".to_string();
+                        let mut suggestion =
+                            "FP register is not recognized. A valid, similar register is: "
+                                .to_string();
                         suggestion.push_str(&closest.1);
                         suggestion.push_str(".\n");
                         error.message = suggestion;
@@ -495,6 +499,9 @@ pub fn suggest_error_corrections(
                             "The given label name is already used elsewhere in the project.\n"
                                 .to_string();
                     }
+                    LabelAssignmentError => {
+                        error.message = "A label is specified but it is not followed by data or an instruction committed to memory.\n".to_string();
+                    }
                     LabelNotFound => {
                         if labels.is_empty() {
                             error.message = "There is no recognized labelled memory.\n".to_string();
@@ -520,10 +527,26 @@ pub fn suggest_error_corrections(
                         error.message = "PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH AN INSTRUCTION.\n".to_string();
                     }
                 }
+
+                //push the message to mouse hover string
                 monaco_line_info[instruction.line_number as usize]
                     .mouse_hover_string
                     .push_str(&error.message.clone());
 
+                //add the error to monaco_line_info
+                if error.error_name == LabelAssignmentError
+                    || error.error_name == LabelMultipleDefinition
+                {
+                    monaco_line_info[instruction.label.clone().unwrap().1 as usize]
+                        .error_start_end_columns
+                        .push(error.start_end_columns);
+                } else {
+                    monaco_line_info[instruction.line_number as usize]
+                        .error_start_end_columns
+                        .push(error.start_end_columns);
+                }
+
+                //push a message about the error to the string for console
                 console_out_string.push_str(&error.error_name.to_string());
                 console_out_string.push_str(" on line ");
                 console_out_string.push_str(&instruction.line_number.to_string());
@@ -531,9 +554,7 @@ pub fn suggest_error_corrections(
                 console_out_string.push_str(&error.token_causing_error);
                 console_out_string.push_str("\"\n");
                 console_out_string.push_str(&error.message);
-                console_out_string.push_str("\n");
-
-
+                console_out_string.push('\n');
             }
         }
     }
@@ -603,21 +624,24 @@ pub fn suggest_error_corrections(
                 .mouse_hover_string
                 .push_str(&error.message.clone());
 
+            //add the error to monaco_line_info
+            monaco_line_info[datum.line_number as usize]
+                .error_start_end_columns
+                .push(error.start_end_columns);
+
             console_out_string.push_str(&error.error_name.to_string());
             console_out_string.push_str(" on line ");
             console_out_string.push_str(&datum.line_number.to_string());
             console_out_string.push_str(" with token \"");
             console_out_string.push_str(&error.token_causing_error);
             console_out_string.push_str("\"\n");
-            console_out_string
-                .push_str(&error.message.clone());
-            console_out_string.push_str("\n");
-
+            console_out_string.push_str(&error.message.clone());
+            console_out_string.push('\n');
         }
     }
 
     if console_out_string.is_empty() {
-      return "Program assembled successfully!".to_string();
+        return "Program assembled successfully!".to_string();
     }
 
     console_out_string

@@ -28,7 +28,7 @@ pub mod instruction_tokenization {
         pub instruction_number: u32,
         pub line_number: u32,
         pub errors: Vec<Error>,
-        pub label: Option<(Token, u32)>,
+        pub label: Option<(Token, u32)>, //label.1 refers to the line number the label is on
     }
 
     ///A collection of all relevant information found about a variable in the Parser/Assembler
@@ -112,7 +112,8 @@ pub mod instruction_tokenization {
     impl fmt::Display for ErrorType {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
             write!(f, "{:?}", self)
-        }}
+        }
+    }
 
     //this enum is used for the fn read_operands to choose the types of operands expected for an instruction type
     pub enum OperandType {

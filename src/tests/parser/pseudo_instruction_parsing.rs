@@ -1,6 +1,8 @@
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Operator;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{Instruction, print_vec_of_instructions, ProgramInfo, Token};
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{
+    print_vec_of_instructions, Instruction, ProgramInfo, Token,
+};
 use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
 use crate::parser::pseudo_instruction_parsing::{
     complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers,
@@ -1383,7 +1385,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
 }
 
 #[test]
-fn complete_lw_sw_pseudo_isntructions_works_multiple_using_same_label(){
+fn complete_lw_sw_pseudo_isntructions_works_multiple_using_same_label() {
     let mut program_info = ProgramInfo::default();
 
     let file_string = ".data\nlabel: .word 100\n.text\nlw $t1, label\nlw $t2, label".to_string();
