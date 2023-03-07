@@ -1,7 +1,7 @@
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Operator;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Instruction, ProgramInfo, Token,
+    print_vec_of_instructions, Instruction, ProgramInfo, Token,
 };
 use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
 use crate::parser::pseudo_instruction_parsing::{
@@ -1382,6 +1382,34 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
             label: None,
         }
     );
+}
+
+#[test]
+fn complete_lw_sw_pseudo_isntructions_works_multiple_using_same_label() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = ".data\nlabel: .word 100\n.text\nlw $t1, label\nlw $t2, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+    let _vec_of_data = assemble_data_binary(&mut program_info.data);
+    let labels: HashMap<String, u32> =
+        create_label_map(&mut program_info.instructions, &mut program_info.data);
+
+    complete_lw_sw_pseudo_instructions(
+        &mut program_info.instructions,
+        &labels,
+        &mut updated_monaco_string,
+    );
+
+    print_vec_of_instructions(program_info.instructions.clone());
 }
 
 #[test]

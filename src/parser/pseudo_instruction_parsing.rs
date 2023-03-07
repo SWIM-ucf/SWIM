@@ -109,7 +109,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number + 1,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -204,7 +204,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number + 1,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -266,7 +266,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number + 1,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -373,7 +373,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number + 1,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -432,7 +432,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number + 1,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -542,7 +542,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -594,7 +594,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -647,7 +647,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -699,7 +699,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -752,7 +752,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -798,7 +798,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
