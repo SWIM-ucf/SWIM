@@ -167,8 +167,16 @@
 <a href="#167" id="167">167</a>
 <a href="#168" id="168">168</a>
 <a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>instruction_tokenization {
     <span class="kw">use </span>std::default::Default;
+    <span class="kw">use </span>std::fmt;
 
     <span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
     </span><span class="doccomment">///Wrapper for all information gathered in the Parser/Assembler about the written program.
@@ -196,8 +204,8 @@
         <span class="kw">pub </span>instruction_number: u32,
         <span class="kw">pub </span>line_number: u32,
         <span class="kw">pub </span>errors: Vec&lt;Error&gt;,
-        <span class="kw">pub </span>label: <span class="prelude-ty">Option</span>&lt;(Token, u32)&gt;,
-    }
+        <span class="kw">pub </span>label: <span class="prelude-ty">Option</span>&lt;(Token, u32)&gt;, <span class="comment">//label.1 refers to the line number the label is on
+    </span>}
 
     <span class="doccomment">///A collection of all relevant information found about a variable in the Parser/Assembler
     </span><span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -276,6 +284,12 @@
         </span>ImproperlyFormattedASCII, <span class="comment">//Token recognized as ASCII does not start and or end with &quot;
         </span>ImproperlyFormattedChar, <span class="comment">//Token recognized as a char does not end with &#39; or is larger than a single char
     </span>}
+
+    <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ErrorType {
+        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+            <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>)
+        }
+    }
 
     <span class="comment">//this enum is used for the fn read_operands to choose the types of operands expected for an instruction type
     </span><span class="kw">pub enum </span>OperandType {
