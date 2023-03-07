@@ -17,3 +17,11 @@
     background-color: #2e2b2b;
     color: white;
 }
+.tabs1:hover {
+    opacity: 1;
+    background-color: gray;
+}
+.tabs1:focus {
+    background-color: #2e2b2b;
+    color: white;
+}

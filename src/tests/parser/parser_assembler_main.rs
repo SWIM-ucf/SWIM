@@ -617,7 +617,7 @@ mod read_instructions_tests {
 
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::{
-    create_binary_vec, place_binary_in_middle_of_another, read_instructions,
+    create_binary_vec, parser, place_binary_in_middle_of_another, read_instructions,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::UnsupportedInstruction;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
@@ -743,6 +743,29 @@ fn read_instructions_recognizes_valid_but_unsupported_instructions() {
         program_info.instructions[1].errors[0].error_name,
         UnsupportedInstruction
     );
+}
+
+#[test]
+fn console_output_post_assembly_works_with_errors() {
+    let result = parser(
+        ".text\nadd $t1, $t2, 1235\n.data\nlabel: .ascii 100\n.text\nlw t1, address".to_string(),
+    )
+    .0
+    .console_out_post_assembly;
+
+    assert_eq!(result, "UnrecognizedGPRegister on line 1 with token \"1235\"\nGP register is not recognized. A valid, similar register is: r23.\n\nUnrecognizedGPRegister on line 5 with token \"t1\"\nGP register is not recognized. A valid, similar register is: $t1.\n\nInvalidMemorySyntax on line 5 with token \"address\"\nThe given string for memory does not match syntax of \"offset(base)\" or \"label\".\n\nImproperlyFormattedASCII on line 3 with token \"100\"\nToken recognized as ASCII does not start and or end with double quotes (\").\n\n")
+}
+
+#[test]
+fn console_output_post_assembly_works_with_no_errors() {
+    let result = parser(
+        ".text\nadd $t1, $t2, $t3\n.data\nlabel: .ascii \"string\"\n.text\nlw $t1, 40($t1)"
+            .to_string(),
+    )
+    .0
+    .console_out_post_assembly;
+
+    assert_eq!(result, "Program assembled successfully!".to_string());
 }
 
 // #[test]

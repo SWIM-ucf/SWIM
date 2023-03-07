@@ -1,15 +1,20 @@
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
+use monaco::api::TextModel;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
 use crate::emulation_core::mips::datapath::MipsDatapath;
+use crate::parser::parser_assembler_main::parser;
 use crate::ui::visual_datapath::{DatapathSize, VisualDatapath};
+use std::{cell::RefCell, rc::Rc};
 
 #[derive(PartialEq, Properties)]
 pub struct Consoleprops {
     pub datapath: MipsDatapath,
     pub parsermsg: String,
+    pub memorymsg: String,
 }
 
 #[derive(Default, PartialEq)]
@@ -22,12 +27,26 @@ enum TabState {
 
 #[function_component(Console)]
 pub fn console(props: &Consoleprops) -> Html {
+    let code = String::from("ori $s0, $zero, 12345\n");
+    let language = String::from("mips");
+    let text_model = use_state_eq(|| {
+        Rc::new(RefCell::new(
+            TextModel::create(&code, Some(&language), None).unwrap(),
+        ))
+    });
+    let text_model = (*text_model).borrow_mut();
+    let (tmi, _) = parser(text_model.get_value());
+    let instructions = tmi.instructions;
+    let data = tmi.data;
+    let address_to_line_number = tmi.address_to_line_number;
+    let monaco_line_info = tmi.monaco_line_info;
+    let updated_monaco_string = tmi.updated_monaco_string;
+    let console_out_post_assembly = tmi.console_out_post_assembly;
+
     let active_tab = use_state_eq(TabState::default);
     let zoom_datapath = use_bool_toggle(false);
-
     let change_tab = {
         let active_tab = active_tab.clone();
-
         Callback::from(move |event: MouseEvent| {
             let target = event.target().unwrap().dyn_into::<HtmlElement>().unwrap();
             let tab_name = target
@@ -62,7 +81,9 @@ pub fn console(props: &Consoleprops) -> Html {
         <>
             if *active_tab == TabState::Console {
                 <div class="console">
-                    { props.parsermsg.clone() }
+                    { hello_string(&ProgramInfo { instructions: (instructions), data: (data),
+                        address_to_line_number: (address_to_line_number), monaco_line_info: (monaco_line_info),
+                        updated_monaco_string: (updated_monaco_string), console_out_post_assembly: (console_out_post_assembly) })}
                 </div>
             } else if *active_tab == TabState::Datapath {
                 <div class="datapath-wrapper">
@@ -70,7 +91,7 @@ pub fn console(props: &Consoleprops) -> Html {
                 </div>
             } else {
                 <div class="console">
-                    { "Memory" }
+                    { props.datapath.memory.to_string() }
                 </div>
             }
 
@@ -86,4 +107,8 @@ pub fn console(props: &Consoleprops) -> Html {
             </div>
         </>
     }
+}
+
+fn hello_string(_x: &ProgramInfo) -> String {
+    "hello world".to_string()
 }

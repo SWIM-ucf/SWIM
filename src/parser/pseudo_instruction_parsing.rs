@@ -43,7 +43,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 2 {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     });
                     continue;
@@ -70,7 +71,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 3 {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     });
                     continue;
@@ -107,7 +109,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number + 1,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -134,7 +136,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 3 {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     });
                     continue;
@@ -167,7 +170,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 3 {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     });
                     continue;
@@ -200,7 +204,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number + 1,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -228,7 +232,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 3 {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     });
                     continue;
@@ -261,7 +266,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number + 1,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -287,7 +292,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 3 {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     });
                     continue;
@@ -310,7 +316,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 3 {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     });
                     continue;
@@ -335,7 +342,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 3 {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     });
                     continue;
@@ -365,7 +373,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number + 1,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -393,7 +401,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 3 {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     });
                     continue;
@@ -423,7 +432,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number + 1,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -449,7 +458,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     if instruction.operands.len() != 2 {
                         instruction.errors.push(Error {
                             error_name: IncorrectNumberOfOperands,
-                            operand_number: None,
+                            token_causing_error: "".to_string(),
+                            start_end_columns: instruction.operator.start_end_columns,
                             message: "".to_string(),
                         });
                         continue;
@@ -482,7 +492,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                         ],
                         binary: 0,
                         instruction_number: instruction.instruction_number,
-                        line_number: 0,
+                        line_number: instruction.line_number,
                         errors: vec![],
                         label: None,
                     };
@@ -505,7 +515,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 3 {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     });
                     continue;
@@ -531,7 +542,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -556,7 +567,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 3 {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     });
                     continue;
@@ -582,7 +594,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -608,7 +620,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 3 {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     });
                     continue;
@@ -634,7 +647,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -659,7 +672,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 3 {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     });
                     continue;
@@ -685,7 +699,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -711,7 +725,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 2 {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
-                        operand_number: None,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
                         message: "".to_string(),
                     });
                     continue;
@@ -737,7 +752,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };
@@ -783,7 +798,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
-                    line_number: 0,
+                    line_number: instruction.instruction_number,
                     errors: vec![],
                     label: None,
                 };

@@ -1,5 +1,6 @@
 pub mod instruction_tokenization {
     use std::default::Default;
+    use std::fmt;
 
     #[derive(Clone, Debug, Default, Eq, PartialEq)]
     ///Wrapper for all information gathered in the Parser/Assembler about the written program.
@@ -7,6 +8,7 @@ pub mod instruction_tokenization {
         pub monaco_line_info: Vec<MonacoLineInfo>,
         pub address_to_line_number: Vec<u32>,
         pub updated_monaco_string: String,
+        pub console_out_post_assembly: String,
         pub instructions: Vec<Instruction>,
         pub data: Vec<Data>,
     }
@@ -26,7 +28,7 @@ pub mod instruction_tokenization {
         pub instruction_number: u32,
         pub line_number: u32,
         pub errors: Vec<Error>,
-        pub label: Option<(Token, u32)>,
+        pub label: Option<(Token, u32)>, //label.1 refers to the line number the label is on
     }
 
     ///A collection of all relevant information found about a variable in the Parser/Assembler
@@ -56,7 +58,8 @@ pub mod instruction_tokenization {
     #[derive(Clone, Debug, Eq, PartialEq)]
     pub struct Error {
         pub error_name: ErrorType,
-        pub operand_number: Option<u8>,
+        pub token_causing_error: String,
+        pub start_end_columns: (u32, u32),
         pub message: String,
     }
 
@@ -104,6 +107,12 @@ pub mod instruction_tokenization {
         ImproperlyFormattedData, //Line of data does not contain the proper number of tokens
         ImproperlyFormattedASCII, //Token recognized as ASCII does not start and or end with "
         ImproperlyFormattedChar, //Token recognized as a char does not end with ' or is larger than a single char
+    }
+
+    impl fmt::Display for ErrorType {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            write!(f, "{:?}", self)
+        }
     }
 
     //this enum is used for the fn read_operands to choose the types of operands expected for an instruction type

@@ -287,7 +287,8 @@ fn separate_data_and_text_generates_error_on_missing_commas_text() {
     let result = separate_data_and_text(lines);
     let correct_error = Error {
         error_name: MissingComma,
-        operand_number: Some(0),
+        token_causing_error: "$t1".to_string(),
+        start_end_columns: (3, 5),
         message: "".to_string(),
     };
     assert_eq!(correct_error, result.0[1].errors[0]);
@@ -743,15 +744,15 @@ fn suggest_error_corrections_works_with_various_gp_registers() {
 
     assert_eq!(
         result[0].errors[0].message,
-        "A valid, similar register is: $t3.\n"
+        "GP register is not recognized. A valid, similar register is: $t3.\n"
     );
     assert_eq!(
         result[1].errors[0].message,
-        "A valid, similar register is: $at.\n"
+        "GP register is not recognized. A valid, similar register is: $at.\n"
     );
     assert_eq!(
         result[1].errors[1].message,
-        "A valid, similar register is: r0.\n"
+        "GP register is not recognized. A valid, similar register is: r0.\n"
     );
 }
 
@@ -763,19 +764,19 @@ fn suggest_error_corrections_works_with_various_fp_registers() {
 
     assert_eq!(
         result[0].errors[0].message,
-        "A valid, similar register is: $f3.\n"
+        "FP register is not recognized. A valid, similar register is: $f3.\n"
     );
     assert_eq!(
         result[1].errors[0].message,
-        "A valid, similar register is: $f0.\n"
+        "FP register is not recognized. A valid, similar register is: $f0.\n"
     );
     assert_eq!(
         result[1].errors[1].message,
-        "A valid, similar register is: $f2.\n"
+        "FP register is not recognized. A valid, similar register is: $f2.\n"
     );
     assert_eq!(
         result[1].errors[2].message,
-        "A valid, similar register is: $f0.\n"
+        "FP register is not recognized. A valid, similar register is: $f0.\n"
     );
 }
 
