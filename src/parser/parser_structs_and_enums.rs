@@ -1,5 +1,6 @@
 pub mod instruction_tokenization {
     use std::default::Default;
+    use std::fmt;
 
     #[derive(Clone, Debug, Default, Eq, PartialEq)]
     ///Wrapper for all information gathered in the Parser/Assembler about the written program.
@@ -107,6 +108,11 @@ pub mod instruction_tokenization {
         ImproperlyFormattedASCII, //Token recognized as ASCII does not start and or end with "
         ImproperlyFormattedChar, //Token recognized as a char does not end with ' or is larger than a single char
     }
+
+    impl fmt::Display for ErrorType {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            write!(f, "{:?}", self)
+        }}
 
     //this enum is used for the fn read_operands to choose the types of operands expected for an instruction type
     pub enum OperandType {
