@@ -606,7 +606,58 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
             }
-            "dsubiu" => {}
+            "dsubiu" => {
+                //dsubiu $regA, $regB, immediate is translated to:
+                //ori $at, $zero, immediate
+                //dsubu $regA, $regB, $at
+
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
+                    "dsubiu $regA, $regB, immediate is a pseudo-instruction.\ndsubiu $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdsubu $regA, $regB, $at\n"
+                        .to_string();
+
+                //make sure there are the right number of operands
+                if instruction.operands.len() != 3 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+                let extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "$at".to_string(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "$zero".to_string(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                        instruction.operands[2].clone(),
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number,
+                    line_number: instruction.instruction_number,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction);
+                //adjust subi for the added instruction
+                instruction.operator.token_name = "dsubu".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands[2].token_name = "$at".to_string();
+                instruction.operands[2].start_end_columns = (0, 0);
+                instruction.instruction_number += 1;
+            }
             "muli" => {
                 //muli $regA, $regB, immediate is translated to:
                 //ori $at, $zero, immediate
@@ -711,7 +762,58 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
             }
-            "dmuliu" => {}
+            "dmuliu" => {
+                //dmuliu $regA, $regB, immediate is translated to:
+                //ori $at, $zero, immediate
+                //dmulu $regA, $regB, $at
+
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
+                    "dmuliu $regA, $regB, immediate is a pseudo-instruction.\ndmuliu $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdmulu $regA, $regB, $at\n"
+                        .to_string();
+
+                //make sure the are the right number of operands
+                if instruction.operands.len() != 3 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+                let extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "$at".to_string(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "$zero".to_string(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                        instruction.operands[2].clone(),
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number,
+                    line_number: instruction.instruction_number,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction);
+                //adjust subi for the added instruction
+                instruction.operator.token_name = "dmulu".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands[2].token_name = "$at".to_string();
+                instruction.operands[2].start_end_columns = (0, 0);
+                instruction.instruction_number += 1;
+            }
             "divi" => {
                 //divi $regA, immediate is translated to:
                 //ori $at, $zero, immediate
@@ -810,7 +912,52 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[1].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
             }
-            "ddiviu" => {}
+            "ddiviu" => {
+                //ddiviu $regA, immediate is translated to:
+                //ori $at, $zero, immediate
+                //ddivu $regA, $at
+
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
+                    "ddiviu $regA, immediate is a pseudo-instruction.\nddiviu $regA, immediate =>\n\tori $at, $zero, immediate\n\tddivu $regA, $at\n"
+                        .to_string();
+
+                //make sure the are the right number of operands
+                if instruction.operands.len() != 2 {
+                    continue;
+                }
+                let extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "$at".to_string(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "$zero".to_string(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                        instruction.operands[1].clone(),
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number,
+                    line_number: instruction.instruction_number,
+                    errors: vec![],
+                    label: None,
+                };
+                vec_of_added_instructions.push(extra_instruction);
+                //adjust subi for the added instruction
+                instruction.operator.token_name = "ddivu".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands[1].token_name = "$at".to_string();
+                instruction.operands[1].start_end_columns = (0, 0);
+                instruction.instruction_number += 1;
+            }
             _ => {}
         }
     }
