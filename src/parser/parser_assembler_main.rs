@@ -386,6 +386,62 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     None,
                 );
             }
+            "daddu" => {
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
+                instruction.binary = append_binary(instruction.binary, 0b101101, 6); //daddu
+            }
+            "dsubu" => {
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
+                instruction.binary = append_binary(instruction.binary, 0b101111, 6); //dsubu
+            }
+            "dmulu" => {
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+
+                instruction.binary = append_binary(instruction.binary, 0b00010, 5); //dmulu
+                instruction.binary = append_binary(instruction.binary, 0b011101, 6); //sop35
+            }
+            "ddivu" => {
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP],
+                    vec![1, 2],
+                    None,
+                );
+
+
+                instruction.binary = append_binary(instruction.binary, 0b0000000000, 10); //0
+                instruction.binary = append_binary(instruction.binary, 0b011111, 6); //DDIVU
+            }
             "slt" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
 
@@ -678,8 +734,7 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 //our support for syscall is limited. It is simply there to end emulation
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
                 instruction.binary = append_binary(instruction.binary, 0b00000000000000000000, 20); //stub of code
-                instruction.binary = append_binary(instruction.binary, 0b001100, 6);
-                //syscall
+                instruction.binary = append_binary(instruction.binary, 0b001100, 6); //syscall
             }
 
             _ => {
