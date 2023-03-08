@@ -440,6 +440,7 @@ pub fn suggest_error_corrections(
                             "daddiu", "slt", "sltu", "swc1", "lwc1", "mtc1", "dmtc1", "mfc1",
                             "dmfc1", "j", "beq", "bne", "c.eq.s", "c.eq.d", "c.lt.s", "c.le.s",
                             "c.le.d", "c.ngt.s", "c.ngt.d", "c.nge.s", "c.nge.d", "bc1t", "bc1f",
+                            "syscall", "daddu", "dsubu", "ddivu", "dmulu",
                         ];
 
                         let given_string = &instruction.operator.token_name;
@@ -540,7 +541,7 @@ pub fn suggest_error_corrections(
                 console_out_string.push_str(&format!(
                     "{} on line {} with token \"{}\"\n{}\n",
                     &error.error_name.to_string(),
-                    &instruction.line_number.to_string(),
+                    &(instruction.line_number + 1).to_string(),
                     &error.token_causing_error,
                     &error.message
                 ));

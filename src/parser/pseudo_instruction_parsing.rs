@@ -32,7 +32,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     let mut vec_of_added_instructions: Vec<Instruction> = Vec::new();
 
     //iterate through every instruction and check if the operator is a pseudo-instruction
-    //let mut num_lines_added = 0;
+    let mut num_lines_added: usize = 0;
     for (i, mut instruction) in &mut instructions.iter_mut().enumerate() {
         instruction.instruction_number = (i + vec_of_added_instructions.len()) as u32;
         match &*instruction.operator.token_name {
@@ -547,15 +547,22 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     errors: vec![],
                     label: None,
                 };
+                updated_monaco_strings.insert(
+                    instruction.line_number as usize + num_lines_added,
+                    format!(
+                        "ori $at, {}",
+                        extra_instruction.operands[1].token_name.clone()
+                    ),
+                );
+                num_lines_added += 1;
                 vec_of_added_instructions.push(extra_instruction);
+
                 //adjust subi for the added instruction
                 instruction.operator.token_name = "sub".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
-
-                // updated_monaco_strings.insert((instruction.line_number + num_lines_added) as usize, format!());
             }
             "dsubi" => {
                 //dsubi $regA, $regB, immediate is translated to:
@@ -1008,7 +1015,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
         //if the last instruction in monaco is not a syscall, add it in to updated_monaco_strings and to instructions
         if last_instruction.operator.token_name != "syscall" {
             updated_monaco_strings.insert(
-                last_instruction.line_number as usize + 1,
+                last_instruction.line_number as usize + num_lines_added as usize + 1,
                 "syscall".to_string(),
             );
 
