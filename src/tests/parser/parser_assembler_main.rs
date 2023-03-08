@@ -805,7 +805,7 @@ fn console_output_post_assembly_works_with_errors() {
 }
 
 #[test]
-fn console_output_post_assembly_works_with_no_errors() {
+fn console_output_post_assembly_works_with_no_errors_present() {
     let result = parser(
         ".text\nadd $t1, $t2, $t3\n.data\nlabel: .ascii \"string\"\n.text\nlw $t1, 40($t1)"
             .to_string(),
