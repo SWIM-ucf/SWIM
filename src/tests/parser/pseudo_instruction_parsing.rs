@@ -134,6 +134,17 @@ fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_prop
 }
 
 #[test]
+fn add_syscall_to_program_info() {
+    let result = parser(".text\naddi $t1, $t2, $t3\nsyscall\n.data\n".to_string())
+        .0
+        .instructions;
+
+    for instr in result {
+        println!("{}", instr.operator.token_name);
+    }
+}
+
+#[test]
 fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi() {
     let mut program_info = ProgramInfo::default();
 
@@ -1721,7 +1732,7 @@ fn complete_lw_sw_pseudo_instructions_works() {
                     token_type: Default::default(),
                 },
                 Token {
-                    token_name: "16($at)".to_string(),
+                    token_name: "20($at)".to_string(),
                     start_end_columns: (0, 0),
                     token_type: Default::default(),
                 }
@@ -1775,7 +1786,7 @@ fn complete_lw_sw_pseudo_instructions_works() {
                     token_type: Default::default(),
                 },
                 Token {
-                    token_name: "16($at)".to_string(),
+                    token_name: "20($at)".to_string(),
                     start_end_columns: (0, 0),
                     token_type: Default::default(),
                 }

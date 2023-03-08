@@ -731,7 +731,7 @@ mod helper_functions {
 fn create_binary_vec_works_with_data() {
     let mut program_info = ProgramInfo::default();
     let file_string =
-        ".data\nlabel: .ascii \"this is a string\"\n.text\nlw $t1, label".to_lowercase();
+        ".data\nlabel: .ascii \"this is a string\"\n.text\nlw $t1, label\nsyscall".to_lowercase();
     let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) =
         tokenize_program(file_string);
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
@@ -754,10 +754,10 @@ fn create_binary_vec_works_with_data() {
 
     let result = create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
-    assert_eq!(result[2], 0b01110100011010000110100101110011);
-    assert_eq!(result[3], 0b00100000011010010111001100100000);
-    assert_eq!(result[4], 0b01100001001000000111001101110100);
-    assert_eq!(result[5], 0b01110010011010010110111001100111);
+    assert_eq!(result[3], 0b01110100011010000110100101110011);
+    assert_eq!(result[4], 0b00100000011010010111001100100000);
+    assert_eq!(result[5], 0b01100001001000000111001101110100);
+    assert_eq!(result[6], 0b01110010011010010110111001100111);
 }
 
 #[test]
