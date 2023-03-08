@@ -361,6 +361,54 @@ mod read_instructions_tests {
     }
 
     #[test]
+    fn read_instructions_daddu() {
+        let file_string = "daddu $t1, $t2, $t3".to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001010010110100100000101101
+        );
+    }
+
+    #[test]
+    fn read_instructions_dsubu() {
+        let file_string = "dsubu $t1, $t2, $t3".to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001010010110100100000101111
+        );
+    }
+
+    #[test]
+    fn read_instructions_dmulu() {
+        let file_string = "dmulu $t1, $t2, $t3".to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001010010110100100010011101
+        );
+    }
+
+    #[test]
+    fn read_instructions_ddivu() {
+        let file_string = "ddivu $t1, $t2".to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001001010100000000000011111
+        );
+    }
+
+    #[test]
     fn read_instructions_slt() {
         let file_string = "slt $t1, $t2, $s6".to_string();
 
@@ -753,7 +801,7 @@ fn console_output_post_assembly_works_with_errors() {
     .0
     .console_out_post_assembly;
 
-    print!("{}", result);
+    assert_eq!(result, "UnrecognizedGPRegister on line 1 with token \"1235\"\nGP register is not recognized. A valid, similar register is: r23.\n\nUnrecognizedGPRegister on line 5 with token \"t1\"\nGP register is not recognized. A valid, similar register is: $t1.\n\nInvalidMemorySyntax on line 5 with token \"address\"\nThe given string for memory does not match syntax of \"offset(base)\" or \"label\".\n\nImproperlyFormattedASCII on line 3 with token \"100\"\nToken recognized as ASCII does not start and or end with double quotes (\").\n\n")
 }
 
 #[test]

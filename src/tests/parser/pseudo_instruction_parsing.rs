@@ -1,7 +1,7 @@
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Operator;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Instruction, ProgramInfo, Token,
+    print_vec_of_instructions, Instruction, ProgramInfo, Token,
 };
 use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
 use crate::parser::pseudo_instruction_parsing::{
@@ -456,6 +456,88 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dsubi() {
 }
 
 #[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dsubiu() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "dsubiu $t1, $t2, 100\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                start_end_columns: (0, 0),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (0, 0),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    start_end_columns: (0, 0),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    start_end_columns: (17, 19),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "dsubu".to_string(),
+                start_end_columns: (0, 0),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (7, 10),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    start_end_columns: (12, 15),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (0, 0),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
 fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuli() {
     let mut program_info = ProgramInfo::default();
 
@@ -538,6 +620,88 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuli() {
 }
 
 #[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuliu() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "dmuliu $t1, $t2, 100\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                start_end_columns: (0, 0),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (0, 0),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    start_end_columns: (0, 0),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    start_end_columns: (17, 19),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "dmulu".to_string(),
+                start_end_columns: (0, 0),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (7, 10),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    start_end_columns: (12, 15),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (0, 0),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
 fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
     let mut program_info = ProgramInfo::default();
 
@@ -597,6 +761,83 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
                 Token {
                     token_name: "$t1".to_string(),
                     start_end_columns: (6, 9),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (0, 0),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 1,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddiviu() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "ddiviu $t1, 100\nsw $t1, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                start_end_columns: (0, 0),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$at".to_string(),
+                    start_end_columns: (0, 0),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    start_end_columns: (0, 0),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    start_end_columns: (12, 14),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+    assert_eq!(
+        program_info.instructions[1],
+        Instruction {
+            operator: Token {
+                token_name: "ddivu".to_string(),
+                start_end_columns: (0, 0),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (7, 10),
                     token_type: Default::default(),
                 },
                 Token {
@@ -1385,6 +1626,34 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
 }
 
 #[test]
+fn complete_lw_sw_pseudo_isntructions_works_multiple_using_same_label() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = ".data\nlabel: .word 100\n.text\nlw $t1, label\nlw $t2, label".to_string();
+
+    let (lines, mut updated_monaco_string, mut monaco_line_info_vec) =
+        tokenize_program(file_string);
+    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut updated_monaco_string,
+        &mut monaco_line_info_vec,
+    );
+    let _vec_of_data = assemble_data_binary(&mut program_info.data);
+    let labels: HashMap<String, u32> =
+        create_label_map(&mut program_info.instructions, &mut program_info.data);
+
+    complete_lw_sw_pseudo_instructions(
+        &mut program_info.instructions,
+        &labels,
+        &mut updated_monaco_string,
+    );
+
+    print_vec_of_instructions(program_info.instructions.clone());
+}
+
+#[test]
 fn complete_lw_sw_pseudo_instructions_works() {
     let mut program_info = ProgramInfo::default();
 
@@ -1431,7 +1700,7 @@ fn complete_lw_sw_pseudo_instructions_works() {
             ],
             binary: 0,
             instruction_number: 0,
-            line_number: 0,
+            line_number: 3,
             errors: vec![],
             label: None,
         }
@@ -1485,7 +1754,7 @@ fn complete_lw_sw_pseudo_instructions_works() {
             ],
             binary: 0,
             instruction_number: 2,
-            line_number: 0,
+            line_number: 4,
             errors: vec![],
             label: None,
         }
