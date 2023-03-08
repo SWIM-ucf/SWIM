@@ -8,6 +8,7 @@ use crate::parser::pseudo_instruction_parsing::{
     complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers,
 };
 use std::collections::HashMap;
+use crate::parser::parser_assembler_main::parser;
 
 #[test]
 fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_if_it_is_missing() {
@@ -1812,4 +1813,10 @@ fn complete_lw_sw_pseudo_instructions_doesnt_break_with_empty_instruction_list()
         &labels,
         &mut updated_monaco_string,
     );
+}
+
+#[test]
+fn expanded_pseudo_instructions_are_added_into_updated_monaco_string(){
+    let result = parser(".text\nlw $t1, memory\nsubi $t2, $t1, 100\n.data\nmemory: .word 200".to_string()).0.updated_monaco_string;
+    print!("{}", result);
 }

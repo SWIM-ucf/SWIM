@@ -1004,11 +1004,13 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 pub fn complete_lw_sw_pseudo_instructions(
     instructions: &mut Vec<Instruction>,
     labels: &HashMap<String, u32>,
-    _updated_monaco_strings: &mut [String],
+    updated_monaco_strings: &mut Vec<String>,
 ) {
     if instructions.len() < 2 {
         return;
     }
+
+    let mut num_lines_added = 0;
     for mut index in 0..(instructions.len() - 1) {
         if instructions[index].operator.token_name == "lui"
             && instructions[index].operands.len() > 1
@@ -1022,6 +1024,13 @@ pub fn complete_lw_sw_pseudo_instructions(
                 .unwrap();
             instructions[index].operands[1].token_name = (address >> 16).to_string();
             instructions[index].operands[1].start_end_columns = (0, 0);
+
+            //add lui instruction into the updated_monaco_strings
+            let mut lui = "lui $at, ".to_string();
+            lui.push_str(&(address >> 16).to_string());
+            updated_monaco_strings.insert(instructions[index].line_number as usize, lui);
+            num_lines_added += 1;
+
             index += 1;
 
             //lower 16 bits are stored as the offset for the load/store operation
@@ -1030,6 +1039,15 @@ pub fn complete_lw_sw_pseudo_instructions(
             memory_operand.push_str("($at)");
             instructions[index].operands[1].token_name = memory_operand;
             instructions[index].operands[1].start_end_columns = (0, 0);
+
+            //replace the load/store instruction in updated_monaco_strings with the hardware valid version
+            let mut updated_lw_sw = instructions[index].operator.token_name.clone();
+            updated_lw_sw.push(' ');
+            updated_lw_sw.push_str(&instructions[index].operands[0].token_name.clone());
+            updated_lw_sw.push_str(", ");
+            updated_lw_sw.push_str(&instructions[index].operands[1].token_name.clone());
+            updated_monaco_strings[instructions[index].line_number as usize + num_lines_added] = updated_lw_sw;
+
         }
     }
 }
