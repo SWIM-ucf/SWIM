@@ -685,9 +685,9 @@ fn create_label_map_recognizes_data_labels() {
     let results: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
     let mut correct_map: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
-    correct_map.insert("label".to_string(), 4);
-    correct_map.insert("label2".to_string(), 5);
-    correct_map.insert("label3".to_string(), 9);
+    correct_map.insert("label".to_string(), 8);
+    correct_map.insert("label2".to_string(), 9);
+    correct_map.insert("label3".to_string(), 13);
 
     assert_eq!(results, correct_map);
 }
@@ -707,9 +707,9 @@ fn create_label_map_recognizes_data_labels_and_text_together() {
 
     let mut correct_map: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
     correct_map.insert("instruction".to_string(), 4);
-    correct_map.insert("label".to_string(), 8);
-    correct_map.insert("label2".to_string(), 9);
-    correct_map.insert("label3".to_string(), 13);
+    correct_map.insert("label".to_string(), 12);
+    correct_map.insert("label2".to_string(), 13);
+    correct_map.insert("label3".to_string(), 17);
 
     assert_eq!(results, correct_map);
 }

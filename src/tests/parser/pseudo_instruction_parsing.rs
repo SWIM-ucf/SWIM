@@ -1,4 +1,5 @@
 use crate::parser::assembling::assemble_data_binary;
+use crate::parser::parser_assembler_main::parser;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Operator;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
     print_vec_of_instructions, Instruction, ProgramInfo, Token,
@@ -130,6 +131,17 @@ fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_prop
     ];
 
     assert_eq!(result, correct_result);
+}
+
+#[test]
+fn add_syscall_to_program_info() {
+    let result = parser(".text\naddi $t1, $t2, $t3\nsyscall\n.data\n".to_string())
+        .0
+        .instructions;
+
+    for instr in result {
+        println!("{}", instr.operator.token_name);
+    }
 }
 
 #[test]
@@ -1720,7 +1732,7 @@ fn complete_lw_sw_pseudo_instructions_works() {
                     token_type: Default::default(),
                 },
                 Token {
-                    token_name: "16($at)".to_string(),
+                    token_name: "20($at)".to_string(),
                     start_end_columns: (0, 0),
                     token_type: Default::default(),
                 }
@@ -1774,7 +1786,7 @@ fn complete_lw_sw_pseudo_instructions_works() {
                     token_type: Default::default(),
                 },
                 Token {
-                    token_name: "16($at)".to_string(),
+                    token_name: "20($at)".to_string(),
                     start_end_columns: (0, 0),
                     token_type: Default::default(),
                 }
@@ -1812,4 +1824,13 @@ fn complete_lw_sw_pseudo_instructions_doesnt_break_with_empty_instruction_list()
         &labels,
         &mut updated_monaco_string,
     );
+}
+
+#[test]
+fn expanded_pseudo_instructions_are_added_into_updated_monaco_string() {
+    let result =
+        parser(".text\nlw $t1, memory\nsubi $t2, $t1, 100\n.data\nmemory: .word 200".to_string())
+            .0
+            .updated_monaco_string;
+    print!("{}", result);
 }

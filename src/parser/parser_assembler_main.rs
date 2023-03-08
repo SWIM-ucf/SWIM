@@ -44,8 +44,9 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
     let binary = create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
     for entry in updated_monaco_strings {
-        program_info.updated_monaco_string.push_str(entry.as_str());
-        program_info.updated_monaco_string.push('\n');
+        program_info
+            .updated_monaco_string
+            .push_str(&format!("{}\n", entry.as_str()));
     }
 
     for instruction in program_info.instructions.clone() {
@@ -896,7 +897,6 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     "cvt.w.d",
                     "dclo",
                     "dclz",
-                    "ddivu",
                     "deret",
                     "dext",
                     "dextm",
@@ -909,7 +909,6 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     "divu",
                     "modu",
                     "dmod",
-                    "ddivu",
                     "dmodu",
                     "dmfc0",
                     "dmtc0",
@@ -930,7 +929,6 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     "dsrl",
                     "dsrl32",
                     "dsrlv",
-                    "dsubu",
                     "dvp",
                     "ehb",
                     "ei",
@@ -1041,7 +1039,6 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     "mulu",
                     "muhu",
                     "dmuh",
-                    "dmulu",
                     "dmuhu",
                     "mul.ps",
                     "mult",
@@ -1130,7 +1127,6 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     "swxc1",
                     "sync",
                     "synci",
-                    "syscall",
                     "teq",
                     "teqi",
                     "tge",
