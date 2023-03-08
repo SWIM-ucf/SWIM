@@ -31,7 +31,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     //insert into instruction_list while instruction_list is being iterated over.
     let mut vec_of_added_instructions: Vec<Instruction> = Vec::new();
 
-    //iterate through every instruction and check that the operator is a pseudo-instruction
+    //iterate through every instruction and check if the operator is a pseudo-instruction
+    let mut num_lines_added = 0;
     for (i, mut instruction) in &mut instructions.iter_mut().enumerate() {
         instruction.instruction_number = (i + vec_of_added_instructions.len()) as u32;
         match &*instruction.operator.token_name {
@@ -1041,13 +1042,14 @@ pub fn complete_lw_sw_pseudo_instructions(
             instructions[index].operands[1].start_end_columns = (0, 0);
 
             //replace the load/store instruction in updated_monaco_strings with the hardware valid version
-            let mut updated_lw_sw = instructions[index].operator.token_name.clone();
-            updated_lw_sw.push(' ');
-            updated_lw_sw.push_str(&instructions[index].operands[0].token_name.clone());
-            updated_lw_sw.push_str(", ");
-            updated_lw_sw.push_str(&instructions[index].operands[1].token_name.clone());
-            updated_monaco_strings[instructions[index].line_number as usize + num_lines_added] = updated_lw_sw;
-
+            let updated_lw_sw = format!(
+                "{} {}, {}",
+                instructions[index].operator.token_name.clone(),
+                &instructions[index].operands[0].token_name.clone(),
+                &instructions[index].operands[1].token_name.clone()
+            );
+            updated_monaco_strings[instructions[index].line_number as usize + num_lines_added] =
+                updated_lw_sw;
         }
     }
 }

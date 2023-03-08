@@ -370,15 +370,7 @@ pub fn suggest_error_corrections(
     for instruction in instructions {
         //if there are no errors, instead push the binary of the instruction to mouse hover
         if instruction.errors.is_empty() {
-            monaco_line_info[instruction.line_number as usize]
-                .mouse_hover_string
-                .push_str("Binary: ");
-            monaco_line_info[instruction.line_number as usize]
-                .mouse_hover_string
-                .push_str(&format!("{:032b}", instruction.binary));
-            monaco_line_info[instruction.line_number as usize]
-                .mouse_hover_string
-                .push('\n');
+            monaco_line_info[instruction.line_number as usize].mouse_hover_string.push_str(&format!("Binary: {:032b}\n", instruction.binary));
         } else {
             for error in &mut instruction.errors {
                 match error.error_name {
@@ -411,8 +403,7 @@ pub fn suggest_error_corrections(
                         let mut suggestion =
                             "GP register is not recognized. A valid, similar register is: "
                                 .to_string();
-                        suggestion.push_str(&closest.1);
-                        suggestion.push_str(".\n");
+                        suggestion.push_str(&format!("{}.\n", &closest.1));
                         error.message = suggestion;
                     }
                     UnrecognizedFPRegister => {
@@ -436,8 +427,7 @@ pub fn suggest_error_corrections(
                         let mut suggestion =
                             "FP register is not recognized. A valid, similar register is: "
                                 .to_string();
-                        suggestion.push_str(&closest.1);
-                        suggestion.push_str(".\n");
+                        suggestion.push_str(&format!("{}.\n", &closest.1));
                         error.message = suggestion;
                     }
                     UnrecognizedInstruction => {
@@ -461,8 +451,7 @@ pub fn suggest_error_corrections(
                         }
 
                         let mut suggestion = "A valid, similar instruction is: ".to_string();
-                        suggestion.push_str(&closest.1);
-                        suggestion.push_str(".\n");
+                        suggestion.push_str(&format!("{}.\n", &closest.1));
                         error.message = suggestion;
                     }
                     IncorrectRegisterTypeGP => {
@@ -519,8 +508,7 @@ pub fn suggest_error_corrections(
                         }
 
                         let mut suggestion = "A valid, similar label is: ".to_string();
-                        suggestion.push_str(&closest.1);
-                        suggestion.push_str(".\n");
+                        suggestion.push_str(&format!("{}.\n", &closest.1));
                         error.message = suggestion;
                     }
                     _ => {
@@ -547,14 +535,13 @@ pub fn suggest_error_corrections(
                 }
 
                 //push a message about the error to the string for console
-                console_out_string.push_str(&error.error_name.to_string());
-                console_out_string.push_str(" on line ");
-                console_out_string.push_str(&instruction.line_number.to_string());
-                console_out_string.push_str(" with token \"");
-                console_out_string.push_str(&error.token_causing_error);
-                console_out_string.push_str("\"\n");
-                console_out_string.push_str(&error.message);
-                console_out_string.push('\n');
+                console_out_string.push_str(&format!(
+                    "{} on line {} with token \"{}\"\n{}\n",
+                    &error.error_name.to_string(),
+                    &instruction.line_number.to_string(),
+                    &error.token_causing_error,
+                    &error.message
+                ));
             }
         }
     }
@@ -580,8 +567,7 @@ pub fn suggest_error_corrections(
                     }
 
                     let mut suggestion = "A valid, similar data type is: ".to_string();
-                    suggestion.push_str(&closest.1);
-                    suggestion.push_str(".\n");
+                    suggestion.push_str(&format!("{}.\n", &closest.1));
                     error.message = suggestion;
                 }
                 LabelAssignmentError => {
@@ -629,14 +615,13 @@ pub fn suggest_error_corrections(
                 .error_start_end_columns
                 .push(error.start_end_columns);
 
-            console_out_string.push_str(&error.error_name.to_string());
-            console_out_string.push_str(" on line ");
-            console_out_string.push_str(&datum.line_number.to_string());
-            console_out_string.push_str(" with token \"");
-            console_out_string.push_str(&error.token_causing_error);
-            console_out_string.push_str("\"\n");
-            console_out_string.push_str(&error.message.clone());
-            console_out_string.push('\n');
+            console_out_string.push_str(&format!(
+                "{} on line {} with token \"{}\"\n{}\n",
+                &error.error_name.to_string(),
+                &datum.line_number.to_string(),
+                error.token_causing_error,
+                error.message.clone()
+            ));
         }
     }
 

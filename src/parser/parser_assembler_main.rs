@@ -44,8 +44,9 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
     let binary = create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
     for entry in updated_monaco_strings {
-        program_info.updated_monaco_string.push_str(entry.as_str());
-        program_info.updated_monaco_string.push('\n');
+        program_info
+            .updated_monaco_string
+            .push_str(&format!("{}\n", entry.as_str()));
     }
 
     for instruction in program_info.instructions.clone() {
