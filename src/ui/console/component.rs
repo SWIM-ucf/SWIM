@@ -36,11 +36,11 @@ pub fn console(props: &Consoleprops) -> Html {
     });
     let text_model = (*text_model).borrow_mut();
     let (tmi, _) = parser(text_model.get_value());
-    let instructions = tmi.instructions;
-    let data = tmi.data;
-    let address_to_line_number = tmi.address_to_line_number;
-    let monaco_line_info = tmi.monaco_line_info;
-    let updated_monaco_string = tmi.updated_monaco_string;
+    // let instructions = tmi.instructions;
+    // let data = tmi.data;
+    // let address_to_line_number = tmi.address_to_line_number;
+    // let monaco_line_info = tmi.monaco_line_info;
+    // let updated_monaco_string = tmi.updated_monaco_string;
     let console_out_post_assembly = tmi.console_out_post_assembly;
 
     let active_tab = use_state_eq(TabState::default);
@@ -81,9 +81,7 @@ pub fn console(props: &Consoleprops) -> Html {
         <>
             if *active_tab == TabState::Console {
                 <div class="console">
-                    { hello_string(&ProgramInfo { instructions: (instructions), data: (data),
-                        address_to_line_number: (address_to_line_number), monaco_line_info: (monaco_line_info),
-                        updated_monaco_string: (updated_monaco_string), console_out_post_assembly: (console_out_post_assembly) })}
+                    { props.parsermsg.clone() }
                 </div>
             } else if *active_tab == TabState::Datapath {
                 <div class="datapath-wrapper">
@@ -109,6 +107,6 @@ pub fn console(props: &Consoleprops) -> Html {
     }
 }
 
-fn hello_string(_x: &ProgramInfo) -> String {
-    "hello world".to_string()
-}
+// fn hello_string(_x: &ProgramInfo) -> String {
+//     return ProgramInfo::console_out_post_assembly;
+// }
