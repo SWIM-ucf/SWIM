@@ -73,9 +73,6 @@ fn app() -> Html {
     delta_decor.set_is_whole_line(true.into());
     delta_decor.set_inline_class_name("myInlineDecoration".into());
 
-    // TODO: Output will be stored in two ways, the first would be the parser's
-    // messages via logs and the registers will be stored
-    // in a custom-built register viewer.
     let parser_text_output = use_state_eq(String::new);
     let memory_text_output = use_state_eq(String::new);
 
