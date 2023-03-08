@@ -291,7 +291,6 @@ fn app() -> Html {
     }
 }
 
-
 /**********************  Editor Component **********************/
 
 #[derive(PartialEq, Properties)]

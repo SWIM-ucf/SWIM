@@ -8,7 +8,6 @@ use yew_hooks::prelude::*;
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::ui::visual_datapath::{DatapathSize, VisualDatapath};
 
-
 #[derive(PartialEq, Properties)]
 pub struct Consoleprops {
     pub datapath: MipsDatapath,
