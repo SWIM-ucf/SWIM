@@ -370,7 +370,9 @@ pub fn suggest_error_corrections(
     for instruction in instructions {
         //if there are no errors, instead push the binary of the instruction to mouse hover
         if instruction.errors.is_empty() {
-            monaco_line_info[instruction.line_number as usize].mouse_hover_string.push_str(&format!("Binary: {:032b}\n", instruction.binary));
+            monaco_line_info[instruction.line_number as usize]
+                .mouse_hover_string
+                .push_str(&format!("Binary: {:032b}\n", instruction.binary));
         } else {
             for error in &mut instruction.errors {
                 match error.error_name {
