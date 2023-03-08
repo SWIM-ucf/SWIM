@@ -1015,7 +1015,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
         //if the last instruction in monaco is not a syscall, add it in to updated_monaco_strings and to instructions
         if last_instruction.operator.token_name != "syscall" {
             updated_monaco_strings.insert(
-                last_instruction.line_number as usize + num_lines_added as usize + 1,
+                last_instruction.line_number as usize + num_lines_added + 1,
                 "syscall".to_string(),
             );
 

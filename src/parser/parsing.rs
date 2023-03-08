@@ -621,7 +621,7 @@ pub fn suggest_error_corrections(
             console_out_string.push_str(&format!(
                 "{} on line {} with token \"{}\"\n{}\n",
                 &error.error_name.to_string(),
-                &datum.line_number.to_string(),
+                &(datum.line_number + 1).to_string(),
                 error.token_causing_error,
                 error.message.clone()
             ));
