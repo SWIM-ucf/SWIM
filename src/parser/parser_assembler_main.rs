@@ -44,8 +44,9 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
     let binary = create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
     for entry in updated_monaco_strings {
-        program_info.updated_monaco_string.push_str(entry.as_str());
-        program_info.updated_monaco_string.push('\n');
+        program_info
+            .updated_monaco_string
+            .push_str(&format!("{}\n", entry.as_str()));
     }
 
     for instruction in program_info.instructions.clone() {
@@ -385,6 +386,57 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![2, 1, 3],
                     None,
                 );
+            }
+            "daddu" => {
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
+                instruction.binary = append_binary(instruction.binary, 0b101101, 6);
+                //daddu
+            }
+            "dsubu" => {
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
+                instruction.binary = append_binary(instruction.binary, 0b101111, 6);
+                //dsubu
+            }
+            "dmulu" => {
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b00010, 5); //dmulu
+                instruction.binary = append_binary(instruction.binary, 0b011101, 6);
+                //sop35
+            }
+            "ddivu" => {
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+
+                read_operands(instruction, vec![RegisterGP, RegisterGP], vec![1, 2], None);
+
+                instruction.binary = append_binary(instruction.binary, 0b0000000000, 10); //0
+                instruction.binary = append_binary(instruction.binary, 0b011111, 6);
+                //DDIVU
             }
             "slt" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
@@ -845,7 +897,6 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     "cvt.w.d",
                     "dclo",
                     "dclz",
-                    "ddivu",
                     "deret",
                     "dext",
                     "dextm",
@@ -858,7 +909,6 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     "divu",
                     "modu",
                     "dmod",
-                    "ddivu",
                     "dmodu",
                     "dmfc0",
                     "dmtc0",
@@ -879,7 +929,6 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     "dsrl",
                     "dsrl32",
                     "dsrlv",
-                    "dsubu",
                     "dvp",
                     "ehb",
                     "ei",
@@ -990,7 +1039,6 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     "mulu",
                     "muhu",
                     "dmuh",
-                    "dmulu",
                     "dmuhu",
                     "mul.ps",
                     "mult",
@@ -1079,7 +1127,6 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     "swxc1",
                     "sync",
                     "synci",
-                    "syscall",
                     "teq",
                     "teqi",
                     "tge",

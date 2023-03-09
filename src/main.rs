@@ -10,9 +10,12 @@ use gloo::{dialogs::alert, file::FileList};
 use js_sys::Object;
 use monaco::{
     api::TextModel,
-    sys::editor::{
-        IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions,
-        ISuggestOptions,
+    sys::{
+        editor::{
+            IEditorMinimapOptions, IEditorScrollbarOptions, IMarkerData,
+            IStandaloneEditorConstructionOptions, ISuggestOptions,
+        },
+        MarkerSeverity,
     },
     yew::{CodeEditor, CodeEditorLink},
 };
@@ -73,11 +76,8 @@ fn app() -> Html {
     delta_decor.set_is_whole_line(true.into());
     delta_decor.set_inline_class_name("myInlineDecoration".into());
 
-    // TODO: Output will be the parser's messages stored like logs.
     let parser_text_output = use_state_eq(String::new);
     let memory_text_output = use_state_eq(String::new);
-    // let proinfo = use_state_eq(|| Rc::new(RefCell::new(ProgramInfo::default())));
-    // let switch_flag = use_state_eq(|| true);
 
     // Since we want the Datapath to be independent from all the
     // events within the app, we will create it when the app loads. This is also done
@@ -90,6 +90,7 @@ fn app() -> Html {
     let on_assemble_clicked = {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
+        let parser_text_output = parser_text_output.clone();
         let trigger = use_force_update();
 
         let new_decor_array = new_decor_array.clone();
@@ -99,9 +100,39 @@ fn app() -> Html {
             move |_, text_model| {
                 let mut datapath = (*datapath).borrow_mut();
                 let text_model = (*text_model).borrow_mut();
-
                 // Parses through the code to assemble the binary
-                let (_, assembled) = parser(text_model.get_value());
+                let (program_info, assembled) = parser(text_model.get_value());
+                parser_text_output.set(program_info.console_out_post_assembly);
+
+                let mut markers: Vec<IMarkerData> = vec![];
+
+                // Parse output from parser and create an instance of IMarkerData for each error.
+                for (line_number, line_information) in
+                    program_info.monaco_line_info.iter().enumerate()
+                {
+                    for (start_column, end_column) in &line_information.error_start_end_columns {
+                        let new_marker: IMarkerData = new_object().into();
+                        new_marker.set_message(&line_information.mouse_hover_string);
+                        new_marker.set_severity(MarkerSeverity::Error);
+                        new_marker.set_start_line_number((line_number + 1) as f64);
+                        new_marker.set_start_column((*start_column + 1) as f64);
+                        new_marker.set_end_line_number((line_number + 1) as f64);
+                        new_marker.set_end_column((*end_column + 2) as f64);
+                        markers.push(new_marker);
+                    }
+                }
+
+                // Convert Vec<IMarkerData> to Javascript array
+                let marker_jsarray = js_sys::Array::new();
+                for marker in markers {
+                    marker_jsarray.push(&marker);
+                }
+
+                monaco::sys::editor::set_model_markers(
+                    text_model.as_ref(),
+                    "owner",
+                    &marker_jsarray,
+                );
                 // Acts like reset and clears the highlight
                 let curr_model = text_model.as_ref();
                 new_decor_array.pop();
@@ -121,24 +152,6 @@ fn app() -> Html {
             text_model,
         )
     };
-
-    // let on_memory_loaded_click = {
-    //     let text_model = Rc::clone(&text_model);
-    //     let datapath = Rc::clone(&datapath);
-    //     let memory_text_output = memory_text_output.clone();
-    //     let switch_flag = switch_flag.clone();
-    //     use_callback(
-    //         move |_, switch_flag| {
-    //             let datapath = (*datapath).borrow_mut();
-    //             if **switch_flag != true {
-    //                 switch_flag.set(true);
-    //                 memory_text_output.set(datapath.memory.to_string());
-    //             } else {
-    //                 memory_text_output.set("".to_string());
-    //             }
-    //         }, switch_flag,
-    //     )
-    // };
 
     // This is where the code will get executed. If you execute further
     // than when the code ends, the program crashes. This is remedied via the
@@ -260,40 +273,6 @@ fn app() -> Html {
         })
     };
 
-    // This is where the parser will output its error messages to the user.
-    // Currently, it is tied to a button with placeholder text. The goal is to have
-    // this action take place when the Text Model changes and output the messages provided
-    // by the parser.
-    // let on_assembly_error_pressed = {
-    //     let parser_text_output = parser_text_output.clone();
-    //     let text_model = Rc::clone(&text_model);
-    //     //let proinfo = Rc::clone(&proinfo);
-    //     //let switch_flag = switch_flag.clone();
-    //     use_callback(
-    //         move |_, _| {
-    //             let text_model = (*text_model).borrow_mut();
-    //             let (tmi, _) = parser(text_model.get_value());
-
-    //             //TODO: get the errors out of instructions and data
-    //             let instructions = tmi.instructions;
-    //             let data = tmi.data;
-    //             let address_to_line_number = tmi.address_to_line_number;
-    //             let monaco_line_info = tmi.monaco_line_info;
-    //             let updated_monaco_string = tmi.updated_monaco_string;
-
-    //             parser_text_output.set(hello_string(&ProgramInfo { instructions: (instructions), data: (data),
-    //                 address_to_line_number: (address_to_line_number), monaco_line_info: (monaco_line_info),
-    //                 updated_monaco_string: (updated_monaco_string) }));
-    //             //TODO: refer to print string
-    //             /*for i in instructions.into_iter(){
-
-    //             }*/
-    //             //print_vec_of_instructions(instructions);
-    //         },
-    //         (),
-    //     )
-    // };
-
     // This is where we will have the user prompted to load in a file
     let upload_clicked_callback = use_callback(
         move |e: MouseEvent, _| {
@@ -326,41 +305,6 @@ fn app() -> Html {
         )
     };
 
-    // let switch_flag = use_state_eq(|| 0);
-    // let on_switch_clicked_0 = {
-    //     let switch_flag = switch_flag.clone();
-    //     use_callback(
-    //         move |_, switch_flag| {
-    //             if **switch_flag != 0 {
-    //                 switch_flag.set(0);
-    //             }
-    //         },
-    //         switch_flag,
-    //     )
-    // };
-    // let on_switch_clicked_1 = {
-    //     let switch_flag = switch_flag.clone();
-    //     use_callback(
-    //         move |_, switch_flag| {
-    //             if **switch_flag != 1 {
-    //                 switch_flag.set(1);
-    //             }
-    //         },
-    //         switch_flag,
-    //     )
-    // };
-    // let on_switch_clicked_2 = {
-    //     let switch_flag = switch_flag.clone();
-    //     use_callback(
-    //         move |_, switch_flag| {
-    //             if **switch_flag != 2 {
-    //                 switch_flag.set(2);
-    //             }
-    //         },
-    //         switch_flag,
-    //     )
-    // };
-    //log!("This tab is ", *switch_flag);
     html! {
         <>
             // button tied to the input file element, which is hidden to be more clean
@@ -383,10 +327,6 @@ fn app() -> Html {
                         <SwimEditor text_model={(*text_model).borrow().clone()} link={codelink.clone()} />
                     </div>
 
-                    // <div>
-                    //     <button onclick={on_assembly_error_pressed}>{ "Click" }</button>
-                    // </div>
-
                     // Console
                     <Console parsermsg={(*parser_text_output).clone()} datapath={(*datapath.borrow()).clone()}
                     memorymsg={(*memory_text_output).clone()}/>
@@ -399,9 +339,10 @@ fn app() -> Html {
     }
 }
 
-// fn hello_string(x: &ProgramInfo) -> String {
-//     return "hello world".to_string();
-// }
+/// Creates a new `JsValue`.
+fn new_object() -> JsValue {
+    js_sys::Object::new().into()
+}
 
 /**********************  Editor Component **********************/
 

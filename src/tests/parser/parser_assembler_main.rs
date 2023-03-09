@@ -361,6 +361,54 @@ mod read_instructions_tests {
     }
 
     #[test]
+    fn read_instructions_daddu() {
+        let file_string = "daddu $t1, $t2, $t3".to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001010010110100100000101101
+        );
+    }
+
+    #[test]
+    fn read_instructions_dsubu() {
+        let file_string = "dsubu $t1, $t2, $t3".to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001010010110100100000101111
+        );
+    }
+
+    #[test]
+    fn read_instructions_dmulu() {
+        let file_string = "dmulu $t1, $t2, $t3".to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001010010110100100010011101
+        );
+    }
+
+    #[test]
+    fn read_instructions_ddivu() {
+        let file_string = "ddivu $t1, $t2".to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001001010100000000000011111
+        );
+    }
+
+    #[test]
     fn read_instructions_slt() {
         let file_string = "slt $t1, $t2, $s6".to_string();
 
@@ -683,7 +731,7 @@ mod helper_functions {
 fn create_binary_vec_works_with_data() {
     let mut program_info = ProgramInfo::default();
     let file_string =
-        ".data\nlabel: .ascii \"this is a string\"\n.text\nlw $t1, label".to_lowercase();
+        ".data\nlabel: .ascii \"this is a string\"\n.text\nlw $t1, label\nsyscall".to_lowercase();
     let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) =
         tokenize_program(file_string);
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
@@ -706,10 +754,10 @@ fn create_binary_vec_works_with_data() {
 
     let result = create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
-    assert_eq!(result[2], 0b01110100011010000110100101110011);
-    assert_eq!(result[3], 0b00100000011010010111001100100000);
-    assert_eq!(result[4], 0b01100001001000000111001101110100);
-    assert_eq!(result[5], 0b01110010011010010110111001100111);
+    assert_eq!(result[3], 0b01110100011010000110100101110011);
+    assert_eq!(result[4], 0b00100000011010010111001100100000);
+    assert_eq!(result[5], 0b01100001001000000111001101110100);
+    assert_eq!(result[6], 0b01110010011010010110111001100111);
 }
 
 #[test]
@@ -753,11 +801,11 @@ fn console_output_post_assembly_works_with_errors() {
     .0
     .console_out_post_assembly;
 
-    assert_eq!(result, "UnrecognizedGPRegister on line 1 with token \"1235\"\nGP register is not recognized. A valid, similar register is: r23.\n\nUnrecognizedGPRegister on line 5 with token \"t1\"\nGP register is not recognized. A valid, similar register is: $t1.\n\nInvalidMemorySyntax on line 5 with token \"address\"\nThe given string for memory does not match syntax of \"offset(base)\" or \"label\".\n\nImproperlyFormattedASCII on line 3 with token \"100\"\nToken recognized as ASCII does not start and or end with double quotes (\").\n\n")
+    assert_eq!(result, "UnrecognizedGPRegister on line 2 with token \"1235\"\nGP register is not recognized. A valid, similar register is: r23.\n\nUnrecognizedGPRegister on line 6 with token \"t1\"\nGP register is not recognized. A valid, similar register is: $t1.\n\nInvalidMemorySyntax on line 6 with token \"address\"\nThe given string for memory does not match syntax of \"offset(base)\" or \"label\".\n\nImproperlyFormattedASCII on line 4 with token \"100\"\nToken recognized as ASCII does not start and or end with double quotes (\").\n\n")
 }
 
 #[test]
-fn console_output_post_assembly_works_with_no_errors() {
+fn console_output_post_assembly_works_with_no_errors_present() {
     let result = parser(
         ".text\nadd $t1, $t2, $t3\n.data\nlabel: .ascii \"string\"\n.text\nlw $t1, 40($t1)"
             .to_string(),
