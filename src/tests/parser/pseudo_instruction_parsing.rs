@@ -1832,5 +1832,5 @@ fn expanded_pseudo_instructions_are_added_into_updated_monaco_string() {
         parser(".text\nlw $t1, memory\nsubi $t2, $t1, 100\n.data\nmemory: .word 200".to_string())
             .0
             .updated_monaco_string;
-    print!("{}", result);
+    print!("{result}");
 }
