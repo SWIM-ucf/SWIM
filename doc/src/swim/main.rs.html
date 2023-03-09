@@ -364,6 +364,44 @@
 <a href="#364" id="364">364</a>
 <a href="#365" id="365">365</a>
 <a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attr">#[cfg(test)]
@@ -376,9 +414,12 @@
 <span class="kw">use </span>js_sys::Object;
 <span class="kw">use </span>monaco::{
     api::TextModel,
-    sys::editor::{
-        IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions,
-        ISuggestOptions,
+    sys::{
+        editor::{
+            IEditorMinimapOptions, IEditorScrollbarOptions, IMarkerData,
+            IStandaloneEditorConstructionOptions, ISuggestOptions,
+        },
+        MarkerSeverity,
     },
     yew::{CodeEditor, CodeEditorLink},
 };
@@ -459,10 +500,40 @@
             <span class="kw">move </span>|<span class="kw">_</span>, text_model| {
                 <span class="kw">let </span><span class="kw-2">mut </span>datapath = (<span class="kw-2">*</span>datapath).borrow_mut();
                 <span class="kw">let </span>text_model = (<span class="kw-2">*</span>text_model).borrow_mut();
-                <span class="kw">let </span>(tmi, <span class="kw">_</span>) = parser(text_model.get_value());
                 <span class="comment">// parses through the code to assemble the binary
-                </span><span class="kw">let </span>(<span class="kw">_</span>, assembled) = parser(text_model.get_value());
-                parser_text_output.set(tmi.console_out_post_assembly);
+                </span><span class="kw">let </span>(program_info, assembled) = parser(text_model.get_value());
+                parser_text_output.set(program_info.console_out_post_assembly);
+
+                <span class="kw">let </span><span class="kw-2">mut </span>markers: Vec&lt;IMarkerData&gt; = <span class="macro">vec!</span>[];
+
+                <span class="comment">// Parse output from parser and create an instance of IMarkerData for each error.
+                </span><span class="kw">for </span>(line_number, line_information) <span class="kw">in
+                    </span>program_info.monaco_line_info.iter().enumerate()
+                {
+                    <span class="kw">for </span>(start_column, end_column) <span class="kw">in </span><span class="kw-2">&amp;</span>line_information.error_start_end_columns {
+                        <span class="kw">let </span>new_marker: IMarkerData = new_object().into();
+                        new_marker.set_message(<span class="kw-2">&amp;</span>line_information.mouse_hover_string);
+                        new_marker.set_severity(MarkerSeverity::Error);
+                        new_marker.set_start_line_number((line_number + <span class="number">1</span>) <span class="kw">as </span>f64);
+                        new_marker.set_start_column((<span class="kw-2">*</span>start_column + <span class="number">1</span>) <span class="kw">as </span>f64);
+                        new_marker.set_end_line_number((line_number + <span class="number">1</span>) <span class="kw">as </span>f64);
+                        new_marker.set_end_column((<span class="kw-2">*</span>end_column + <span class="number">2</span>) <span class="kw">as </span>f64);
+                        markers.push(new_marker);
+                    }
+                }
+
+                <span class="comment">// Convert Vec&lt;IMarkerData&gt; to Javascript array
+                </span><span class="kw">let </span>marker_jsarray = js_sys::Array::new();
+                <span class="kw">for </span>marker <span class="kw">in </span>markers {
+                    marker_jsarray.push(<span class="kw-2">&amp;</span>marker);
+                }
+
+                monaco::sys::editor::set_model_markers(
+                    text_model.as_ref(),
+                    <span class="string">&quot;owner&quot;</span>,
+                    <span class="kw-2">&amp;</span>marker_jsarray,
+                );
+
                 <span class="comment">// Load the binary into the datapath&#39;s memory
                 </span>(<span class="kw-2">*</span>datapath)
                     .initialize(assembled)
@@ -655,6 +726,11 @@
             &lt;/div&gt;
         &lt;/&gt;
     }
+}
+
+<span class="doccomment">/// Creates a new `JsValue`.
+</span><span class="kw">fn </span>new_object() -&gt; JsValue {
+    js_sys::Object::new().into()
 }
 
 <span class="comment">/**********************  Editor Component **********************/
