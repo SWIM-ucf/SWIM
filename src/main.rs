@@ -13,9 +13,9 @@ use monaco::{
     sys::{
         editor::{
             IEditorMinimapOptions, IEditorScrollbarOptions, IMarkerData,
-            IStandaloneEditorConstructionOptions, ISuggestOptions,
+            IStandaloneEditorConstructionOptions, ISuggestOptions, IModelDeltaDecoration, IModelDecorationOptions,
         },
-        MarkerSeverity,
+        MarkerSeverity, IMarkdownString,
     },
     yew::{CodeEditor, CodeEditorLink},
 };
@@ -60,7 +60,7 @@ fn app() -> Html {
     // Link to the Yew Editor Component, if not used by the end of the project remove it.
     let codelink = CodeEditorLink::default();
 
-    let clipboard = use_clipboard();
+    
 
     // Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
@@ -96,7 +96,8 @@ fn app() -> Html {
             move |_, text_model| {
                 let mut datapath = (*datapath).borrow_mut();
                 let text_model = (*text_model).borrow_mut();
-                // parses through the code to assemble the binary
+                
+                // parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
                 let (program_info, assembled) = parser(text_model.get_value());
                 parser_text_output.set(program_info.console_out_post_assembly);
 
@@ -196,10 +197,11 @@ fn app() -> Html {
                 // log!(new_decor_array.at(0));
                 // log!(old_decor_array.at(0));
                 trigger.force_update();
-                new_decor_array.pop(); // done with the highlight, prepare for the next one.
-                                       // log!("These are the arrays after the pop");
-                                       // log!(new_decor_array.at(0));
-                                       // log!(old_decor_array.at(0));
+                // done with the highlight, prepare for the next one.
+                new_decor_array.pop(); 
+                // log!("These are the arrays after the pop");
+                // log!(new_decor_array.at(0));
+                // log!(old_decor_array.at(0));
             },
             (),
         )
@@ -250,12 +252,73 @@ fn app() -> Html {
 
     let on_clipboard_clicked = {
         let text_model = Rc::clone(&text_model);
-        let clipboard = clipboard;
+        let clipboard = use_clipboard();
         Callback::from(move |_: _| {
             let text_model = (*text_model).borrow_mut();
             clipboard.write_text(text_model.get_value());
             alert("Your code is saved to the clipboard.\nPaste it onto a text file to save it.\n(Ctrl/Cmd + V)");
         })
+    };
+
+    let on_hover_clicked = {
+        let text_model = Rc::clone(&text_model);
+        let trigger = use_force_update();
+        use_callback(
+            move |_, _| {
+            let text_model = (*text_model).borrow_mut();
+            let curr_model = text_model.as_ref();
+            let (program_info, _) = parser(text_model.get_value());
+
+            let mut decorations: Vec<IModelDeltaDecoration> = vec![];
+
+            // Parse output from parser and create an instance of IModelDeltaDecoration for each line.
+            for (line_number, line_information) in
+                program_info.monaco_line_info.iter().enumerate()
+            {
+                
+                    let decoration: IModelDeltaDecoration = new_object().into();
+                    
+                    let hover_range = monaco::sys::Range::new((line_number + 1) as f64, 0.0, (line_number + 1) as f64, 0.0);
+                    let hover_range_js = hover_range.dyn_into::<JsValue>().expect("Range is not found.");
+                    decoration.set_range(&monaco::sys::IRange::from(hover_range_js));
+
+                    let hover_opts: IModelDecorationOptions = new_object().into();
+                    let hover_message: IMarkdownString = new_object().into();
+                    js_sys::Reflect::set(&hover_message, &JsValue::from_str("value"), &JsValue::from_str(&line_information.mouse_hover_string),).unwrap();
+                    hover_opts.set_hover_message(&hover_message);
+                    decoration.set_options(&hover_opts);
+                    decorations.push(decoration);
+
+                    
+                    // new_marker.set_message(&line_information.mouse_hover_string);
+                    // new_marker.set_severity(MarkerSeverity::Error);
+                    // new_marker.set_start_line_number((line_number + 1) as f64);
+                    // new_marker.set_start_column((*start_column + 1) as f64);
+                    // new_marker.set_end_line_number((line_number + 1) as f64);
+                    // new_marker.set_end_column((*end_column + 2) as f64);
+                    // markers.push(new_marker);
+                 
+            }
+
+            // Convert Vec<IModelDeltaDecoration> to Javascript array
+            let hover_jsarray = js_sys::Array::new();
+            for decoration in decorations {
+                hover_jsarray.push(&decoration);
+            }
+
+            let hover_decor_array = js_sys::Array::new();
+            hover_decor_array.set(
+                0,
+                (*curr_model)
+                    .delta_decorations(&hover_decor_array, &hover_jsarray, None)
+                    .into(),
+            );
+            
+            trigger.force_update();
+
+            },
+            (),
+        ) 
     };
 
     // This is where we will have the user prompted to load in a file
@@ -305,6 +368,7 @@ fn app() -> Html {
                         <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
                         <input type="button" value="Load File" onclick={upload_clicked_callback} />
                         <input type="button" value="Save to Clipboard" onclick={on_clipboard_clicked} />
+                        <input type="button" value="Show Hovers" onclick={on_hover_clicked} />
                     </div>
 
                     // Editor
