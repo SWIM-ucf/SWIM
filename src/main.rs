@@ -6,7 +6,7 @@ pub mod ui;
 
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
-use gloo::{dialogs::alert, file::FileList};
+use gloo::{console::log, dialogs::alert, file::FileList};
 use js_sys::Object;
 use monaco::{
     api::TextModel,
@@ -274,8 +274,7 @@ fn app() -> Html {
             // Parse output from parser and create an instance of IModelDeltaDecoration for each line.
             for (line_number, line_information) in
                 program_info.monaco_line_info.iter().enumerate()
-            {
-                
+            {      
                     let decoration: IModelDeltaDecoration = new_object().into();
                     
                     let hover_range = monaco::sys::Range::new((line_number + 1) as f64, 0.0, (line_number + 1) as f64, 0.0);
@@ -283,21 +282,12 @@ fn app() -> Html {
                     decoration.set_range(&monaco::sys::IRange::from(hover_range_js));
 
                     let hover_opts: IModelDecorationOptions = new_object().into();
+                    hover_opts.set_is_whole_line(true.into());
                     let hover_message: IMarkdownString = new_object().into();
                     js_sys::Reflect::set(&hover_message, &JsValue::from_str("value"), &JsValue::from_str(&line_information.mouse_hover_string),).unwrap();
                     hover_opts.set_hover_message(&hover_message);
                     decoration.set_options(&hover_opts);
-                    decorations.push(decoration);
-
-                    
-                    // new_marker.set_message(&line_information.mouse_hover_string);
-                    // new_marker.set_severity(MarkerSeverity::Error);
-                    // new_marker.set_start_line_number((line_number + 1) as f64);
-                    // new_marker.set_start_column((*start_column + 1) as f64);
-                    // new_marker.set_end_line_number((line_number + 1) as f64);
-                    // new_marker.set_end_column((*end_column + 2) as f64);
-                    // markers.push(new_marker);
-                 
+                    decorations.push(decoration);      
             }
 
             // Convert Vec<IModelDeltaDecoration> to Javascript array
@@ -305,6 +295,9 @@ fn app() -> Html {
             for decoration in decorations {
                 hover_jsarray.push(&decoration);
             }
+
+            log!("This is the array after the push");
+            log!(hover_jsarray.clone());
 
             let hover_decor_array = js_sys::Array::new();
             hover_decor_array.set(
@@ -314,7 +307,21 @@ fn app() -> Html {
                     .into(),
             );
             
+
+            log!("These are the arrays after calling Delta Decorations");
+            log!(hover_jsarray.clone());
+            log!(hover_decor_array.at(0));
+            
             trigger.force_update();
+
+            // empty out the arrays and clear out delta_decorations
+            while hover_jsarray.length() != 0 {
+                hover_jsarray.pop();
+            }
+
+            log!("These are the arrays after calling popping the hover_jsarray");
+            log!(hover_jsarray.clone());
+            log!(hover_decor_array.at(0));
 
             },
             (),
