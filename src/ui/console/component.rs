@@ -8,7 +8,6 @@ use yew_hooks::prelude::*;
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::ui::visual_datapath::{DatapathSize, VisualDatapath};
 
-
 #[derive(PartialEq, Properties)]
 pub struct Consoleprops {
     pub datapath: MipsDatapath,
@@ -84,6 +83,11 @@ pub fn console(props: &Consoleprops) -> Html {
 
                 if *active_tab == TabState::Datapath {
                     <button onclick={toggle_zoom}>{"Toggle Zoom"}</button>
+                }
+                if *active_tab == TabState::Memory {
+                    <button>{"Dec"}</button>
+                    <button>{"Bin"}</button>
+                    <button>{"Hex"}</button>
                 }
             </div>
         </>
