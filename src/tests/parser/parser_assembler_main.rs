@@ -815,13 +815,3 @@ fn console_output_post_assembly_works_with_no_errors_present() {
 
     assert_eq!(result, "Program assembled successfully!".to_string());
 }
-
-// #[test]
-// fn parser_outputs_line_hover_info_for_pseudo_instructions() {
-//     let result = parser("subi: subi $t1, $t2, 100\nlw $t1, subi".to_string())
-//         .0
-//         .monaco_line_info;
-//
-//     assert_eq!(result[0].mouse_hover_string, "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at");
-//     assert_eq!(result[1].mouse_hover_string, "lw $regA, label is a pseudo-instruction.\nlw $regA, label =>\n\tlui $at, label\n\tlw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address.");
-// }

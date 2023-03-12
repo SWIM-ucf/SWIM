@@ -38,7 +38,7 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<String>, Vec<MonacoL
         let mut check_escape = false;
         //iterates through every character on each line of the program
         for (j, char) in line_of_program.chars().enumerate() {
-            token.start_end_columns.1 = j as u32;
+            token.start_end_columns.1 = j as u32 + 1;
             if char == '#' {
                 if j > 0 {
                     token.start_end_columns.1 -= 1;

@@ -21,43 +21,43 @@ fn tokenize_program_works_basic_version() {
 
     let i_0_t_0 = Token {
         token_name: "This".to_string(),
-        start_end_columns: (0, 3),
+        start_end_columns: (0, 4),
         token_type: Unknown,
     };
     let i_0_t_1 = Token {
         token_name: "line".to_string(),
-        start_end_columns: (5, 8),
+        start_end_columns: (5, 9),
         token_type: Unknown,
     };
 
     let i_1_t_0 = Token {
         token_name: "This".to_string(),
-        start_end_columns: (0, 3),
+        start_end_columns: (0, 4),
         token_type: Unknown,
     };
     let i_1_t_1 = Token {
         token_name: "second".to_string(),
-        start_end_columns: (5, 10),
+        start_end_columns: (5, 11),
         token_type: Unknown,
     };
     let i_1_t_2 = Token {
         token_name: "line".to_string(),
-        start_end_columns: (12, 15),
+        start_end_columns: (12, 16),
         token_type: Unknown,
     };
     let i_2_t_0 = Token {
         token_name: "Here's".to_string(),
-        start_end_columns: (0, 5),
+        start_end_columns: (0, 6),
         token_type: Unknown,
     };
     let i_2_t_1 = Token {
         token_name: "a".to_string(),
-        start_end_columns: (7, 7),
+        start_end_columns: (7, 8),
         token_type: Unknown,
     };
     let i_2_t_2 = Token {
         token_name: "third!".to_string(),
-        start_end_columns: (9, 14),
+        start_end_columns: (9, 15),
         token_type: Unknown,
     };
     let line_0 = Line {
@@ -85,44 +85,44 @@ fn tokenize_program_handles_no_spaces_between_commas() {
 
     let i_0_t_0 = Token {
         token_name: "add".to_string(),
-        start_end_columns: (0, 2),
+        start_end_columns: (0, 3),
         token_type: Unknown,
     };
     let i_0_t_1 = Token {
         token_name: "$t1,".to_string(),
-        start_end_columns: (4, 7),
+        start_end_columns: (4, 8),
         token_type: Unknown,
     };
 
     let i_0_t_2 = Token {
         token_name: "$t2,".to_string(),
-        start_end_columns: (9, 12),
+        start_end_columns: (9, 13),
         token_type: Unknown,
     };
     let i_0_t_3 = Token {
         token_name: "$t3".to_string(),
-        start_end_columns: (14, 16),
+        start_end_columns: (14, 17),
         token_type: Unknown,
     };
     let i_1_t_0 = Token {
         token_name: "sub".to_string(),
-        start_end_columns: (0, 2),
+        start_end_columns: (0, 3),
         token_type: Unknown,
     };
     let i_1_t_1 = Token {
         token_name: "$s1,".to_string(),
-        start_end_columns: (4, 7),
+        start_end_columns: (4, 8),
         token_type: Unknown,
     };
 
     let i_1_t_2 = Token {
         token_name: "$s2,".to_string(),
-        start_end_columns: (8, 11),
+        start_end_columns: (8, 12),
         token_type: Unknown,
     };
     let i_1_t_3 = Token {
         token_name: "$s3".to_string(),
-        start_end_columns: (12, 14),
+        start_end_columns: (12, 15),
         token_type: Unknown,
     };
 
@@ -146,22 +146,22 @@ fn tokenize_program_handles_comma_after_space() {
 
     let i_0_t_0 = Token {
         token_name: "add".to_string(),
-        start_end_columns: (0, 2),
+        start_end_columns: (0, 3),
         token_type: Unknown,
     };
     let i_0_t_1 = Token {
         token_name: "$t1,".to_string(),
-        start_end_columns: (4, 6),
+        start_end_columns: (4, 7),
         token_type: Unknown,
     };
     let i_0_t_2 = Token {
         token_name: "$t2,".to_string(),
-        start_end_columns: (10, 13),
+        start_end_columns: (10, 14),
         token_type: Unknown,
     };
     let i_0_t_3 = Token {
         token_name: "$t3".to_string(),
-        start_end_columns: (15, 17),
+        start_end_columns: (15, 18),
         token_type: Unknown,
     };
     let line_0 = Line {
@@ -183,12 +183,12 @@ fn tokenize_program_ignores_comments() {
 
     let i_0_t_0 = Token {
         token_name: "This".to_string(),
-        start_end_columns: (0, 3),
+        start_end_columns: (0, 4),
         token_type: Unknown,
     };
     let i_0_t_1 = Token {
         token_name: "Line".to_string(),
-        start_end_columns: (5, 8),
+        start_end_columns: (5, 9),
         token_type: Unknown,
     };
     let line_0 = Line {
@@ -199,7 +199,7 @@ fn tokenize_program_ignores_comments() {
         line_number: 2,
         tokens: vec![Token {
             token_name: "but_this_isn't".to_string(),
-            start_end_columns: (0, 13),
+            start_end_columns: (0, 14),
             token_type: Unknown,
         }],
     };
@@ -207,7 +207,7 @@ fn tokenize_program_ignores_comments() {
         line_number: 3,
         tokens: vec![Token {
             token_name: "this".to_string(),
-            start_end_columns: (0, 3),
+            start_end_columns: (0, 4),
             token_type: Unknown,
         }],
     };
@@ -288,7 +288,7 @@ fn separate_data_and_text_generates_error_on_missing_commas_text() {
     let correct_error = Error {
         error_name: MissingComma,
         token_causing_error: "$t1".to_string(),
-        start_end_columns: (3, 5),
+        start_end_columns: (3, 6),
         message: "".to_string(),
     };
     assert_eq!(correct_error, result.0[1].errors[0]);
@@ -318,7 +318,7 @@ fn separate_data_and_text_works_on_line_label() {
 
     let token = Token {
         token_name: "Load_from_memory".to_string(),
-        start_end_columns: (0, 16),
+        start_end_columns: (0, 17),
         token_type: Label,
     };
     let mut instruction_1 = Instruction {
@@ -369,7 +369,7 @@ fn separate_data_and_text_works_off_line_label() {
 
     let token = Token {
         token_name: "Load_from_memory".to_string(),
-        start_end_columns: (0, 16),
+        start_end_columns: (0, 17),
         token_type: Label,
     };
     let mut instruction_1 = Instruction {
