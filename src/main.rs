@@ -325,7 +325,6 @@ fn app() -> Html {
     }
 }
 
-
 /// Creates a new `JsValue`.
 fn new_object() -> JsValue {
     js_sys::Object::new().into()
