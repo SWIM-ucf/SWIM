@@ -38,7 +38,7 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<String>, Vec<MonacoL
         let mut check_escape = false;
         //iterates through every character on each line of the program
         for (j, char) in line_of_program.chars().enumerate() {
-            token.start_end_columns.1 = j as u32;
+            token.start_end_columns.1 = j as u32 + 1;
             if char == '#' {
                 if j > 0 {
                     token.start_end_columns.1 -= 1;
@@ -97,6 +97,7 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<String>, Vec<MonacoL
                         let length = line_of_tokens.tokens.len();
                         line_of_tokens.tokens[length - 1].token_name.push(char);
                     } else {
+                        token.start_end_columns.1 -= 1;
                         line_of_tokens.tokens.push(token.clone());
                     }
                     token.token_name = "".to_string();
@@ -372,13 +373,7 @@ pub fn suggest_error_corrections(
         if instruction.errors.is_empty() {
             monaco_line_info[instruction.line_number as usize]
                 .mouse_hover_string
-                .push_str("Binary: ");
-            monaco_line_info[instruction.line_number as usize]
-                .mouse_hover_string
-                .push_str(&format!("{:032b}", instruction.binary));
-            monaco_line_info[instruction.line_number as usize]
-                .mouse_hover_string
-                .push('\n');
+                .push_str(&format!("Binary: {:032b}\n", instruction.binary));
         } else {
             for error in &mut instruction.errors {
                 match error.error_name {
@@ -408,9 +403,10 @@ pub fn suggest_error_corrections(
                             }
                         }
 
-                        let mut suggestion = "A valid, similar register is: ".to_string();
-                        suggestion.push_str(&closest.1);
-                        suggestion.push_str(".\n");
+                        let mut suggestion =
+                            "GP register is not recognized. A valid, similar register is: "
+                                .to_string();
+                        suggestion.push_str(&format!("{}.\n", &closest.1));
                         error.message = suggestion;
                     }
                     UnrecognizedFPRegister => {
@@ -431,9 +427,10 @@ pub fn suggest_error_corrections(
                             }
                         }
 
-                        let mut suggestion = "A valid, similar register is: ".to_string();
-                        suggestion.push_str(&closest.1);
-                        suggestion.push_str(".\n");
+                        let mut suggestion =
+                            "FP register is not recognized. A valid, similar register is: "
+                                .to_string();
+                        suggestion.push_str(&format!("{}.\n", &closest.1));
                         error.message = suggestion;
                     }
                     UnrecognizedInstruction => {
@@ -444,6 +441,7 @@ pub fn suggest_error_corrections(
                             "daddiu", "slt", "sltu", "swc1", "lwc1", "mtc1", "dmtc1", "mfc1",
                             "dmfc1", "j", "beq", "bne", "c.eq.s", "c.eq.d", "c.lt.s", "c.le.s",
                             "c.le.d", "c.ngt.s", "c.ngt.d", "c.nge.s", "c.nge.d", "bc1t", "bc1f",
+                            "syscall", "daddu", "dsubu", "ddivu", "dmulu",
                         ];
 
                         let given_string = &instruction.operator.token_name;
@@ -457,8 +455,7 @@ pub fn suggest_error_corrections(
                         }
 
                         let mut suggestion = "A valid, similar instruction is: ".to_string();
-                        suggestion.push_str(&closest.1);
-                        suggestion.push_str(".\n");
+                        suggestion.push_str(&format!("{}.\n", &closest.1));
                         error.message = suggestion;
                     }
                     IncorrectRegisterTypeGP => {
@@ -495,6 +492,9 @@ pub fn suggest_error_corrections(
                             "The given label name is already used elsewhere in the project.\n"
                                 .to_string();
                     }
+                    LabelAssignmentError => {
+                        error.message = "A label is specified but it is not followed by data or an instruction committed to memory.\n".to_string();
+                    }
                     LabelNotFound => {
                         if labels.is_empty() {
                             error.message = "There is no recognized labelled memory.\n".to_string();
@@ -512,34 +512,40 @@ pub fn suggest_error_corrections(
                         }
 
                         let mut suggestion = "A valid, similar label is: ".to_string();
-                        suggestion.push_str(&closest.1);
-                        suggestion.push_str(".\n");
+                        suggestion.push_str(&format!("{}.\n", &closest.1));
                         error.message = suggestion;
-                    }
-                    ImproperlyFormattedASCII => {
-                        error.message =
-                            "Token recognized as ASCII does not start and or end with \".\n"
-                                .to_string();
-                    }
-                    ImproperlyFormattedChar => {
-                        error.message = "Token recognized as a char does not end with ' or is larger than a single char.\n".to_string();
                     }
                     _ => {
                         error.message = "PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH AN INSTRUCTION.\n".to_string();
                     }
                 }
+
+                //push the message to mouse hover string
                 monaco_line_info[instruction.line_number as usize]
                     .mouse_hover_string
                     .push_str(&error.message.clone());
 
-                console_out_string.push_str("Error on line ");
-                console_out_string.push_str(&instruction.line_number.to_string());
-                console_out_string.push_str(" with token \"");
-                console_out_string.push_str(&error.token_causing_error);
-                console_out_string.push_str("\"\n");
-                console_out_string.push_str(
-                    &monaco_line_info[instruction.line_number as usize].mouse_hover_string,
-                );
+                //add the error to monaco_line_info
+                if error.error_name == LabelAssignmentError
+                    || error.error_name == LabelMultipleDefinition
+                {
+                    monaco_line_info[instruction.label.clone().unwrap().1 as usize]
+                        .error_start_end_columns
+                        .push(error.start_end_columns);
+                } else {
+                    monaco_line_info[instruction.line_number as usize]
+                        .error_start_end_columns
+                        .push(error.start_end_columns);
+                }
+
+                //push a message about the error to the string for console
+                console_out_string.push_str(&format!(
+                    "{} on line {} with token \"{}\"\n{}\n",
+                    &error.error_name.to_string(),
+                    &(instruction.line_number + 1).to_string(),
+                    &error.token_causing_error,
+                    &error.message
+                ));
             }
         }
     }
@@ -565,8 +571,7 @@ pub fn suggest_error_corrections(
                     }
 
                     let mut suggestion = "A valid, similar data type is: ".to_string();
-                    suggestion.push_str(&closest.1);
-                    suggestion.push_str(".\n");
+                    suggestion.push_str(&format!("{}.\n", &closest.1));
                     error.message = suggestion;
                 }
                 LabelAssignmentError => {
@@ -577,6 +582,30 @@ pub fn suggest_error_corrections(
                         "The given label name is already used elsewhere in the project.\n"
                             .to_string();
                 }
+                ImmediateOutOfBounds => {
+                    error.message = "Immediate value given cannot be expressed in the available number of bits.\n".to_string();
+                }
+                ImproperlyFormattedASCII => {
+                    error.message =
+                        "Token recognized as ASCII does not start and or end with double quotes (\").\n"
+                            .to_string();
+                }
+                ImproperlyFormattedChar => {
+                    error.message = "Token recognized as a char does not end with ' or is larger than a single char.\n".to_string();
+                }
+                MissingComma => {
+                    error.message =
+                        "Operand expected to end with a comma but it does not.\n".to_string()
+                }
+                NonIntImmediate => {
+                    error.message =
+                        "The given string cannot be recognized as an integer.\n".to_string();
+                }
+                NonFloatImmediate => {
+                    error.message =
+                        "The given string cannot be recognized as a float.\n".to_string();
+                }
+
                 _ => {
                     error.message = "PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n".to_string();
                 }
@@ -585,18 +614,23 @@ pub fn suggest_error_corrections(
                 .mouse_hover_string
                 .push_str(&error.message.clone());
 
-            console_out_string.push_str("Error on line ");
-            console_out_string.push_str(&datum.line_number.to_string());
-            console_out_string.push_str(" with token \"");
-            console_out_string.push_str(&error.token_causing_error);
-            console_out_string.push_str("\"\n");
-            console_out_string
-                .push_str(&monaco_line_info[datum.line_number as usize].mouse_hover_string);
+            //add the error to monaco_line_info
+            monaco_line_info[datum.line_number as usize]
+                .error_start_end_columns
+                .push(error.start_end_columns);
+
+            console_out_string.push_str(&format!(
+                "{} on line {} with token \"{}\"\n{}\n",
+                &error.error_name.to_string(),
+                &(datum.line_number + 1).to_string(),
+                error.token_causing_error,
+                error.message.clone()
+            ));
         }
     }
 
     if console_out_string.is_empty() {
-        console_out_string = "Program assembled successfully!".to_string();
+        return "Program assembled successfully!".to_string();
     }
 
     console_out_string

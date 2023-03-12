@@ -10,9 +10,12 @@ use gloo::{dialogs::alert, file::FileList};
 use js_sys::Object;
 use monaco::{
     api::TextModel,
-    sys::editor::{
-        IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions,
-        ISuggestOptions,
+    sys::{
+        editor::{
+            IEditorMinimapOptions, IEditorScrollbarOptions, IMarkerData,
+            IStandaloneEditorConstructionOptions, ISuggestOptions,
+        },
+        MarkerSeverity,
     },
     yew::{CodeEditor, CodeEditorLink},
 };
@@ -93,10 +96,41 @@ fn app() -> Html {
             move |_, text_model| {
                 let mut datapath = (*datapath).borrow_mut();
                 let text_model = (*text_model).borrow_mut();
-                let (tmi, _) = parser(text_model.get_value());
+
                 // parses through the code to assemble the binary
-                let (_, assembled) = parser(text_model.get_value());
-                parser_text_output.set(tmi.console_out_post_assembly);
+                let (program_info, assembled) = parser(text_model.get_value());
+                parser_text_output.set(program_info.console_out_post_assembly);
+
+                let mut markers: Vec<IMarkerData> = vec![];
+
+                // Parse output from parser and create an instance of IMarkerData for each error.
+                for (line_number, line_information) in
+                    program_info.monaco_line_info.iter().enumerate()
+                {
+                    for (start_column, end_column) in &line_information.error_start_end_columns {
+                        let new_marker: IMarkerData = new_object().into();
+                        new_marker.set_message(&line_information.mouse_hover_string);
+                        new_marker.set_severity(MarkerSeverity::Error);
+                        new_marker.set_start_line_number((line_number + 1) as f64);
+                        new_marker.set_start_column((*start_column + 1) as f64);
+                        new_marker.set_end_line_number((line_number + 1) as f64);
+                        new_marker.set_end_column((*end_column + 2) as f64);
+                        markers.push(new_marker);
+                    }
+                }
+
+                // Convert Vec<IMarkerData> to Javascript array
+                let marker_jsarray = js_sys::Array::new();
+                for marker in markers {
+                    marker_jsarray.push(&marker);
+                }
+
+                monaco::sys::editor::set_model_markers(
+                    text_model.as_ref(),
+                    "owner",
+                    &marker_jsarray,
+                );
+
                 // Load the binary into the datapath's memory
                 (*datapath)
                     .initialize(assembled)
@@ -289,6 +323,12 @@ fn app() -> Html {
             </div>
         </>
     }
+}
+
+
+/// Creates a new `JsValue`.
+fn new_object() -> JsValue {
+    js_sys::Object::new().into()
 }
 
 /**********************  Editor Component **********************/
