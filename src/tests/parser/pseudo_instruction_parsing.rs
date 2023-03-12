@@ -181,7 +181,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi() {
                 },
                 Token {
                     token_name: "100".to_string(),
-                    start_end_columns: (15, 17),
+                    start_end_columns: (15, 18),
                     token_type: Default::default(),
                 }
             ],
@@ -203,12 +203,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (5, 8),
+                    start_end_columns: (5, 9),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t2".to_string(),
-                    start_end_columns: (10, 13),
+                    start_end_columns: (10, 14),
                     token_type: Default::default(),
                 },
                 Token {
@@ -263,7 +263,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_muli() {
                 },
                 Token {
                     token_name: "100".to_string(),
-                    start_end_columns: (15, 17),
+                    start_end_columns: (15, 18),
                     token_type: Default::default(),
                 }
             ],
@@ -285,12 +285,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_muli() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (5, 8),
+                    start_end_columns: (5, 9),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t2".to_string(),
-                    start_end_columns: (10, 13),
+                    start_end_columns: (10, 14),
                     token_type: Default::default(),
                 },
                 Token {
@@ -345,7 +345,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_divi() {
                 },
                 Token {
                     token_name: "100".to_string(),
-                    start_end_columns: (10, 12),
+                    start_end_columns: (10, 13),
                     token_type: Default::default(),
                 }
             ],
@@ -367,7 +367,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_divi() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (5, 8),
+                    start_end_columns: (5, 9),
                     token_type: Default::default(),
                 },
                 Token {
@@ -422,7 +422,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dsubi() {
                 },
                 Token {
                     token_name: "100".to_string(),
-                    start_end_columns: (16, 18),
+                    start_end_columns: (16, 19),
                     token_type: Default::default(),
                 }
             ],
@@ -444,12 +444,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dsubi() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (6, 9),
+                    start_end_columns: (6, 10),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t2".to_string(),
-                    start_end_columns: (11, 14),
+                    start_end_columns: (11, 15),
                     token_type: Default::default(),
                 },
                 Token {
@@ -504,7 +504,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dsubiu() {
                 },
                 Token {
                     token_name: "100".to_string(),
-                    start_end_columns: (17, 19),
+                    start_end_columns: (17, 20),
                     token_type: Default::default(),
                 }
             ],
@@ -526,12 +526,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dsubiu() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (7, 10),
+                    start_end_columns: (7, 11),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t2".to_string(),
-                    start_end_columns: (12, 15),
+                    start_end_columns: (12, 16),
                     token_type: Default::default(),
                 },
                 Token {
@@ -586,7 +586,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuli() {
                 },
                 Token {
                     token_name: "100".to_string(),
-                    start_end_columns: (16, 18),
+                    start_end_columns: (16, 19),
                     token_type: Default::default(),
                 }
             ],
@@ -608,12 +608,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuli() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (6, 9),
+                    start_end_columns: (6, 10),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t2".to_string(),
-                    start_end_columns: (11, 14),
+                    start_end_columns: (11, 15),
                     token_type: Default::default(),
                 },
                 Token {
@@ -668,7 +668,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuliu() {
                 },
                 Token {
                     token_name: "100".to_string(),
-                    start_end_columns: (17, 19),
+                    start_end_columns: (17, 20),
                     token_type: Default::default(),
                 }
             ],
@@ -690,12 +690,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuliu() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (7, 10),
+                    start_end_columns: (7, 11),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t2".to_string(),
-                    start_end_columns: (12, 15),
+                    start_end_columns: (12, 16),
                     token_type: Default::default(),
                 },
                 Token {
@@ -750,7 +750,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
                 },
                 Token {
                     token_name: "100".to_string(),
-                    start_end_columns: (11, 13),
+                    start_end_columns: (11, 14),
                     token_type: Default::default(),
                 }
             ],
@@ -772,7 +772,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (6, 9),
+                    start_end_columns: (6, 10),
                     token_type: Default::default(),
                 },
                 Token {
@@ -827,7 +827,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddiviu() {
                 },
                 Token {
                     token_name: "100".to_string(),
-                    start_end_columns: (12, 14),
+                    start_end_columns: (12, 15),
                     token_type: Default::default(),
                 }
             ],
@@ -849,7 +849,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddiviu() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (7, 10),
+                    start_end_columns: (7, 11),
                     token_type: Default::default(),
                 },
                 Token {
@@ -894,17 +894,17 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgt() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t3".to_string(),
-                    start_end_columns: (14, 16),
+                    start_end_columns: (14, 17),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t2".to_string(),
-                    start_end_columns: (9, 12),
+                    start_end_columns: (9, 13),
                     token_type: Default::default(),
                 }
             ],
@@ -944,17 +944,17 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgtu() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (5, 8),
+                    start_end_columns: (5, 9),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t3".to_string(),
-                    start_end_columns: (15, 17),
+                    start_end_columns: (15, 18),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t2".to_string(),
-                    start_end_columns: (10, 13),
+                    start_end_columns: (10, 14),
                     token_type: Default::default(),
                 }
             ],
@@ -994,17 +994,17 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_seq() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t2".to_string(),
-                    start_end_columns: (9, 12),
+                    start_end_columns: (9, 13),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t3".to_string(),
-                    start_end_columns: (14, 16),
+                    start_end_columns: (14, 17),
                     token_type: Default::default(),
                 }
             ],
@@ -1058,12 +1058,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_seq() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
@@ -1108,17 +1108,17 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sne() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t2".to_string(),
-                    start_end_columns: (9, 12),
+                    start_end_columns: (9, 13),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t3".to_string(),
-                    start_end_columns: (14, 16),
+                    start_end_columns: (14, 17),
                     token_type: Default::default(),
                 }
             ],
@@ -1140,7 +1140,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sne() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
@@ -1150,7 +1150,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sne() {
                 },
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 }
             ],
@@ -1190,17 +1190,17 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sle() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t3".to_string(),
-                    start_end_columns: (14, 16),
+                    start_end_columns: (14, 17),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t2".to_string(),
-                    start_end_columns: (9, 12),
+                    start_end_columns: (9, 13),
                     token_type: Default::default(),
                 }
             ],
@@ -1222,12 +1222,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sle() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
@@ -1255,12 +1255,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sle() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
@@ -1305,17 +1305,17 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sleu() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (5, 8),
+                    start_end_columns: (5, 9),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t3".to_string(),
-                    start_end_columns: (15, 17),
+                    start_end_columns: (15, 18),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t2".to_string(),
-                    start_end_columns: (10, 13),
+                    start_end_columns: (10, 14),
                     token_type: Default::default(),
                 }
             ],
@@ -1337,12 +1337,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sleu() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (5, 8),
+                    start_end_columns: (5, 9),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (5, 8),
+                    start_end_columns: (5, 9),
                     token_type: Default::default(),
                 },
                 Token {
@@ -1370,12 +1370,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sleu() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (5, 8),
+                    start_end_columns: (5, 9),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (5, 8),
+                    start_end_columns: (5, 9),
                     token_type: Default::default(),
                 },
                 Token {
@@ -1420,17 +1420,17 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sge() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t2".to_string(),
-                    start_end_columns: (9, 12),
+                    start_end_columns: (9, 13),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t3".to_string(),
-                    start_end_columns: (14, 16),
+                    start_end_columns: (14, 17),
                     token_type: Default::default(),
                 }
             ],
@@ -1452,12 +1452,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sge() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
@@ -1485,12 +1485,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sge() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (4, 7),
+                    start_end_columns: (4, 8),
                     token_type: Default::default(),
                 },
                 Token {
@@ -1549,17 +1549,17 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (5, 8),
+                    start_end_columns: (5, 9),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t2".to_string(),
-                    start_end_columns: (10, 13),
+                    start_end_columns: (10, 14),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t3".to_string(),
-                    start_end_columns: (15, 17),
+                    start_end_columns: (15, 18),
                     token_type: Default::default(),
                 }
             ],
@@ -1581,12 +1581,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (5, 8),
+                    start_end_columns: (5, 9),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (5, 8),
+                    start_end_columns: (5, 9),
                     token_type: Default::default(),
                 },
                 Token {
@@ -1614,12 +1614,12 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (5, 8),
+                    start_end_columns: (5, 9),
                     token_type: Default::default(),
                 },
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (5, 8),
+                    start_end_columns: (5, 9),
                     token_type: Default::default(),
                 },
                 Token {
@@ -1722,13 +1722,13 @@ fn complete_lw_sw_pseudo_instructions_works() {
         Instruction {
             operator: Token {
                 token_name: "lw".to_string(),
-                start_end_columns: (0, 1),
+                start_end_columns: (0, 2),
                 token_type: Operator,
             },
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (3, 6),
+                    start_end_columns: (3, 7),
                     token_type: Default::default(),
                 },
                 Token {
@@ -1776,13 +1776,13 @@ fn complete_lw_sw_pseudo_instructions_works() {
         Instruction {
             operator: Token {
                 token_name: "sw".to_string(),
-                start_end_columns: (0, 1),
+                start_end_columns: (0, 2),
                 token_type: Operator,
             },
             operands: vec![
                 Token {
                     token_name: "$t1".to_string(),
-                    start_end_columns: (3, 6),
+                    start_end_columns: (3, 7),
                     token_type: Default::default(),
                 },
                 Token {
