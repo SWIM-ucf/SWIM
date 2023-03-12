@@ -402,6 +402,7 @@
 <a href="#402" id="402">402</a>
 <a href="#403" id="403">403</a>
 <a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attr">#[cfg(test)]
@@ -500,6 +501,7 @@
             <span class="kw">move </span>|<span class="kw">_</span>, text_model| {
                 <span class="kw">let </span><span class="kw-2">mut </span>datapath = (<span class="kw-2">*</span>datapath).borrow_mut();
                 <span class="kw">let </span>text_model = (<span class="kw-2">*</span>text_model).borrow_mut();
+
                 <span class="comment">// parses through the code to assemble the binary
                 </span><span class="kw">let </span>(program_info, assembled) = parser(text_model.get_value());
                 parser_text_output.set(program_info.console_out_post_assembly);
