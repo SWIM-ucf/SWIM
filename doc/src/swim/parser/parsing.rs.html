@@ -634,6 +634,7 @@
 <a href="#634" id="634">634</a>
 <a href="#635" id="635">635</a>
 <a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
@@ -733,6 +734,7 @@
                         <span class="kw">let </span>length = line_of_tokens.tokens.len();
                         line_of_tokens.tokens[length - <span class="number">1</span>].token_name.push(char);
                     } <span class="kw">else </span>{
+                        token.start_end_columns.<span class="number">1 </span>-= <span class="number">1</span>;
                         line_of_tokens.tokens.push(token.clone());
                     }
                     token.token_name = <span class="string">&quot;&quot;</span>.to_string();
