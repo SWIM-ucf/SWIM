@@ -674,7 +674,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>check_escape = <span class="bool-val">false</span>;
         <span class="comment">//iterates through every character on each line of the program
         </span><span class="kw">for </span>(j, char) <span class="kw">in </span>line_of_program.chars().enumerate() {
-            token.start_end_columns.<span class="number">1 </span>= j <span class="kw">as </span>u32;
+            token.start_end_columns.<span class="number">1 </span>= j <span class="kw">as </span>u32 + <span class="number">1</span>;
             <span class="kw">if </span>char == <span class="string">&#39;#&#39; </span>{
                 <span class="kw">if </span>j &gt; <span class="number">0 </span>{
                     token.start_end_columns.<span class="number">1 </span>-= <span class="number">1</span>;
