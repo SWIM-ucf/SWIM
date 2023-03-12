@@ -97,6 +97,7 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<String>, Vec<MonacoL
                         let length = line_of_tokens.tokens.len();
                         line_of_tokens.tokens[length - 1].token_name.push(char);
                     } else {
+                        token.start_end_columns.1 -= 1;
                         line_of_tokens.tokens.push(token.clone());
                     }
                     token.token_name = "".to_string();

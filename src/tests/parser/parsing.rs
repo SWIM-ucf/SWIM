@@ -90,13 +90,13 @@ fn tokenize_program_handles_no_spaces_between_commas() {
     };
     let i_0_t_1 = Token {
         token_name: "$t1,".to_string(),
-        start_end_columns: (4, 8),
+        start_end_columns: (4, 7),
         token_type: Unknown,
     };
 
     let i_0_t_2 = Token {
         token_name: "$t2,".to_string(),
-        start_end_columns: (9, 13),
+        start_end_columns: (9, 12),
         token_type: Unknown,
     };
     let i_0_t_3 = Token {
@@ -111,13 +111,13 @@ fn tokenize_program_handles_no_spaces_between_commas() {
     };
     let i_1_t_1 = Token {
         token_name: "$s1,".to_string(),
-        start_end_columns: (4, 8),
+        start_end_columns: (4, 7),
         token_type: Unknown,
     };
 
     let i_1_t_2 = Token {
         token_name: "$s2,".to_string(),
-        start_end_columns: (8, 12),
+        start_end_columns: (8, 11),
         token_type: Unknown,
     };
     let i_1_t_3 = Token {
@@ -156,7 +156,7 @@ fn tokenize_program_handles_comma_after_space() {
     };
     let i_0_t_2 = Token {
         token_name: "$t2,".to_string(),
-        start_end_columns: (10, 14),
+        start_end_columns: (10, 13),
         token_type: Unknown,
     };
     let i_0_t_3 = Token {
