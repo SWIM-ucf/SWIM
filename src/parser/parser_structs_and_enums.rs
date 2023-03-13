@@ -57,7 +57,7 @@ pub mod instruction_tokenization {
                 recreated_string
                     .push_str(&format!("{}: ", self.label.clone().unwrap().0.token_name));
             }
-            recreated_string.push_str(&format!("{}", self.operator.token_name.clone()));
+            recreated_string.push_str(&self.operator.token_name.to_string());
 
             for operand in &self.operands {
                 recreated_string.push_str(&format!(" {},", operand.token_name.clone()));

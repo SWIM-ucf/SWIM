@@ -152,7 +152,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 let mut extra_instruction = instruction.clone();
                 extra_instruction.operator.token_name = "sub".to_string();
                 extra_instruction.operator.start_end_columns = (0, 0);
-                vec_of_added_instructions.push(extra_instruction);
+                vec_of_added_instructions.push(extra_instruction.clone());
 
                 //set r0 to 1 if r1 - r2 != 0
                 instruction.operator.token_name = "sltu".to_string();
@@ -161,6 +161,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[1].start_end_columns = (0, 0);
                 instruction.operands[2] = instruction.operands[0].clone();
                 instruction.instruction_number += 1;
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
+
             }
             "sle" => {
                 //sle $regA, $regB, $regC is translated to:
@@ -190,10 +193,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 extra_instruction.operands[2] = temp.clone();
                 extra_instruction.operator.token_name = "slt".to_string();
                 extra_instruction.operator.start_end_columns = (0, 0);
-                vec_of_added_instructions.push(extra_instruction);
+                vec_of_added_instructions.push(extra_instruction.clone());
 
                 //addi
-                let extra_instruction_2 = Instruction {
+                let mut extra_instruction_2 = Instruction {
                     operator: Token {
                         token_name: "addi".to_string(),
                         start_end_columns: (0, 0),
@@ -214,7 +217,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     errors: vec![],
                     label: None,
                 };
-                vec_of_added_instructions.push(extra_instruction_2);
+                vec_of_added_instructions.push(extra_instruction_2.clone());
 
                 //andi
                 instruction.operator.token_name = "andi".to_string();
@@ -223,6 +226,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].token_name = "1".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, &mut extra_instruction_2, instruction]);
+
             }
             "sleu" => {
                 //sleu $regA, $regB, $regC is translated to:
@@ -252,10 +258,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 extra_instruction.operands[2] = temp.clone();
                 extra_instruction.operator.token_name = "sltu".to_string();
                 extra_instruction.operator.start_end_columns = (0, 0);
-                vec_of_added_instructions.push(extra_instruction);
+                vec_of_added_instructions.push(extra_instruction.clone());
 
                 //addi
-                let extra_instruction_2 = Instruction {
+                let mut extra_instruction_2 = Instruction {
                     operator: Token {
                         token_name: "addi".to_string(),
                         start_end_columns: (0, 0),
@@ -276,7 +282,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     errors: vec![],
                     label: None,
                 };
-                vec_of_added_instructions.push(extra_instruction_2);
+                vec_of_added_instructions.push(extra_instruction_2.clone());
 
                 //andi
                 instruction.operator.token_name = "andi".to_string();
@@ -285,6 +291,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].token_name = "1".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, &mut extra_instruction_2, instruction]);
+
             }
             "sgt" => {
                 //sgt $regA, $regB, $regC is translated to:
@@ -309,6 +318,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2] = temp.clone();
                 instruction.operator.token_name = "slt".to_string();
                 instruction.operator.start_end_columns = (0, 0);
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![instruction]);
             }
             "sgtu" => {
                 //sgtu $regA, $regB, $regC is translated to:
@@ -333,6 +344,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2] = temp.clone();
                 instruction.operator.token_name = "sltu".to_string();
                 instruction.operator.start_end_columns = (0, 0);
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![instruction]);
+
             }
             "sge" => {
                 //sge $regA, $regB, $regC is translated to:
@@ -359,10 +373,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 let mut extra_instruction = instruction.clone();
                 extra_instruction.operator.token_name = "slt".to_string();
                 extra_instruction.operator.start_end_columns = (0, 0);
-                vec_of_added_instructions.push(extra_instruction);
+                vec_of_added_instructions.push(extra_instruction.clone());
 
                 //addi
-                let extra_instruction_2 = Instruction {
+                let mut extra_instruction_2 = Instruction {
                     operator: Token {
                         token_name: "addi".to_string(),
                         start_end_columns: (0, 0),
@@ -383,7 +397,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     errors: vec![],
                     label: None,
                 };
-                vec_of_added_instructions.push(extra_instruction_2);
+                vec_of_added_instructions.push(extra_instruction_2.clone());
 
                 //andi
                 instruction.operator.token_name = "andi".to_string();
@@ -392,6 +406,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].token_name = "1".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, &mut extra_instruction_2, instruction]);
+
             }
             "sgeu" => {
                 //sgeu $regA, $regB, $regC is translated to:
@@ -418,10 +435,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 let mut extra_instruction = instruction.clone();
                 extra_instruction.operator.token_name = "sltu".to_string();
                 extra_instruction.operator.start_end_columns = (0, 0);
-                vec_of_added_instructions.push(extra_instruction);
+                vec_of_added_instructions.push(extra_instruction.clone());
 
                 //addi
-                let extra_instruction_2 = Instruction {
+                let mut extra_instruction_2 = Instruction {
                     operator: Token {
                         token_name: "addi".to_string(),
                         start_end_columns: (0, 0),
@@ -442,7 +459,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     errors: vec![],
                     label: None,
                 };
-                vec_of_added_instructions.push(extra_instruction_2);
+                vec_of_added_instructions.push(extra_instruction_2.clone());
 
                 //andi
                 instruction.operator.token_name = "andi".to_string();
@@ -451,6 +468,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].token_name = "1".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, &mut extra_instruction_2, instruction]);
+
             }
             "lw" | "sw" => {
                 //lw $regA, label is translated to:
@@ -527,7 +547,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     });
                     continue;
                 }
-                let extra_instruction = Instruction {
+                let mut extra_instruction = Instruction {
                     operator: Token {
                         token_name: "ori".to_string(),
                         start_end_columns: (0, 0),
@@ -560,7 +580,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     ),
                 );
                 num_lines_added += 1;
-                vec_of_added_instructions.push(extra_instruction);
+                vec_of_added_instructions.push(extra_instruction.clone());
 
                 //adjust subi for the added instruction
                 instruction.operator.token_name = "sub".to_string();
@@ -568,6 +588,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
+
             }
             "dsubi" => {
                 //dsubi $regA, $regB, immediate is translated to:
@@ -588,7 +611,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     });
                     continue;
                 }
-                let extra_instruction = Instruction {
+                let mut extra_instruction = Instruction {
                     operator: Token {
                         token_name: "ori".to_string(),
                         start_end_columns: (0, 0),
@@ -613,13 +636,16 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     errors: vec![],
                     label: None,
                 };
-                vec_of_added_instructions.push(extra_instruction);
+                vec_of_added_instructions.push(extra_instruction.clone());
                 //adjust dsubi for the added instruction
                 instruction.operator.token_name = "dsub".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
+
             }
             "dsubiu" => {
                 //dsubiu $regA, $regB, immediate is translated to:
@@ -640,7 +666,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     });
                     continue;
                 }
-                let extra_instruction = Instruction {
+
+                let mut extra_instruction = Instruction {
                     operator: Token {
                         token_name: "ori".to_string(),
                         start_end_columns: (0, 0),
@@ -665,13 +692,16 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     errors: vec![],
                     label: None,
                 };
-                vec_of_added_instructions.push(extra_instruction);
+                vec_of_added_instructions.push(extra_instruction.clone());
+
                 //adjust subiu for the added instruction
                 instruction.operator.token_name = "dsubu".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "muli" => {
                 //muli $regA, $regB, immediate is translated to:
@@ -692,7 +722,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     });
                     continue;
                 }
-                let extra_instruction = Instruction {
+                let mut extra_instruction = Instruction {
                     operator: Token {
                         token_name: "ori".to_string(),
                         start_end_columns: (0, 0),
@@ -717,13 +747,16 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     errors: vec![],
                     label: None,
                 };
-                vec_of_added_instructions.push(extra_instruction);
+                vec_of_added_instructions.push(extra_instruction.clone());
+
                 //adjust muli for the added instruction
                 instruction.operator.token_name = "mul".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "dmuli" => {
                 //dmuli $regA, $regB, immediate is translated to:
@@ -744,7 +777,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     });
                     continue;
                 }
-                let extra_instruction = Instruction {
+                let mut extra_instruction = Instruction {
                     operator: Token {
                         token_name: "ori".to_string(),
                         start_end_columns: (0, 0),
@@ -769,13 +802,15 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     errors: vec![],
                     label: None,
                 };
-                vec_of_added_instructions.push(extra_instruction);
+                vec_of_added_instructions.push(extra_instruction.clone());
                 //adjust dmuli for the added instruction
                 instruction.operator.token_name = "dmul".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "dmuliu" => {
                 //dmuliu $regA, $regB, immediate is translated to:
@@ -796,7 +831,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     });
                     continue;
                 }
-                let extra_instruction = Instruction {
+                let mut extra_instruction = Instruction {
                     operator: Token {
                         token_name: "ori".to_string(),
                         start_end_columns: (0, 0),
@@ -821,13 +856,16 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     errors: vec![],
                     label: None,
                 };
-                vec_of_added_instructions.push(extra_instruction);
+                vec_of_added_instructions.push(extra_instruction.clone());
                 //adjust dmuliu for the added instruction
                 instruction.operator.token_name = "dmulu".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
+
             }
             "divi" => {
                 //divi $regA, immediate is translated to:
@@ -848,7 +886,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     });
                     continue;
                 }
-                let extra_instruction = Instruction {
+                let mut extra_instruction = Instruction {
                     operator: Token {
                         token_name: "ori".to_string(),
                         start_end_columns: (0, 0),
@@ -873,13 +911,16 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     errors: vec![],
                     label: None,
                 };
-                vec_of_added_instructions.push(extra_instruction);
+                vec_of_added_instructions.push(extra_instruction.clone());
                 //adjust divi for the added instruction
                 instruction.operator.token_name = "div".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[1].token_name = "$at".to_string();
                 instruction.operands[1].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
+
             }
             "ddivi" => {
                 //ddivi $regA, immediate is translated to:
@@ -894,7 +935,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 2 {
                     continue;
                 }
-                let extra_instruction = Instruction {
+                let mut extra_instruction = Instruction {
                     operator: Token {
                         token_name: "ori".to_string(),
                         start_end_columns: (0, 0),
@@ -919,13 +960,15 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     errors: vec![],
                     label: None,
                 };
-                vec_of_added_instructions.push(extra_instruction);
+                vec_of_added_instructions.push(extra_instruction.clone());
                 //adjust ddivi for the added instruction
                 instruction.operator.token_name = "ddiv".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[1].token_name = "$at".to_string();
                 instruction.operands[1].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "ddiviu" => {
                 //ddiviu $regA, immediate is translated to:
@@ -940,7 +983,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 if instruction.operands.len() != 2 {
                     continue;
                 }
-                let extra_instruction = Instruction {
+                let mut extra_instruction = Instruction {
                     operator: Token {
                         token_name: "ori".to_string(),
                         start_end_columns: (0, 0),
@@ -965,13 +1008,15 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     errors: vec![],
                     label: None,
                 };
-                vec_of_added_instructions.push(extra_instruction);
+                vec_of_added_instructions.push(extra_instruction.clone());
                 //adjust ddiviu for the added instruction
                 instruction.operator.token_name = "ddivu".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[1].token_name = "$at".to_string();
                 instruction.operands[1].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             _ => {}
         }

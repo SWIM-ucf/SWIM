@@ -24,7 +24,7 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<String>, Vec<MonacoL
     for (i, line_of_program) in program.lines().enumerate() {
         monaco_line_info_vec.push(MonacoLineInfo {
             mouse_hover_string: "".to_string(),
-            monaco_string: line_of_program.clone().to_string(),
+            monaco_string: line_of_program.to_string(),
             error_start_end_columns: vec![],
         });
 

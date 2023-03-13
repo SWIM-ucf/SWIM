@@ -1829,7 +1829,7 @@ fn complete_lw_sw_pseudo_instructions_doesnt_break_with_empty_instruction_list()
 #[test]
 fn expanded_pseudo_instructions_are_added_into_updated_monaco_string() {
     let result = parser(
-        ".text\nli $t1, 100\nlw $t1, memory\nsubi $t2, $t1, 100\n.data\nmemory: .word 200"
+        ".text\nli $t1, 100\nseq $t1, $t2, $t3\nsne $t1, $t2, $t3\nsle $t1, $t2, $t3\nsleu $t1, $t2, $t3\nsgt $t1, $t2, $t3\nsgtu $t1, $t2, $t3\nsge $t1, $t2, $t3\nsgeu $t1, $t2, $t3\nsubi $t1, $t2, 100\ndsubi $t1, $t2, 100\ndsubiu $t1, $t2, 100\nmuli $t1, $t2, 100\ndmuli $t1, $t2, 100\ndmuliu $t1, $t2, 100\ndivi $t1, 100\nddivi $t1, 100\nddiviu $t1, 100\nlw $t1, memory\n.data\nmemory: .word 200"
             .to_string(),
     )
     .0;
@@ -1837,5 +1837,5 @@ fn expanded_pseudo_instructions_are_added_into_updated_monaco_string() {
         println!("{}", line.monaco_string);
     }
 
-    println!("{}", result.updated_monaco_string);
+    //println!("{}", result.updated_monaco_string);
 }
