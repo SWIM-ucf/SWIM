@@ -179,12 +179,11 @@ mod read_label_absolute_tests {
 
     #[test]
     fn read_label_absolute_returns_address_of_instruction() {
-        let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (lines, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
-            &mut updated_monaco_strings,
             &mut monaco_line_info_vec,
         );
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
@@ -197,12 +196,11 @@ mod read_label_absolute_tests {
 
     #[test]
     fn read_label_absolute_returns_error_if_label_cannot_be_found() {
-        let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, #t2, $t3\nsave_to_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (lines, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, #t2, $t3\nsave_to_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
-            &mut updated_monaco_strings,
             &mut monaco_line_info_vec,
         );
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
@@ -221,12 +219,11 @@ mod read_label_relative_tests {
 
     #[test]
     fn read_label_relative_returns_correct_value_for_instruction_above_current() {
-        let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (lines, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
-            &mut updated_monaco_strings,
             &mut monaco_line_info_vec,
         );
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
@@ -239,12 +236,11 @@ mod read_label_relative_tests {
 
     #[test]
     fn read_label_relative_returns_correct_value_for_instruction_below_current() {
-        let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (lines, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
-            &mut updated_monaco_strings,
             &mut monaco_line_info_vec,
         );
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);

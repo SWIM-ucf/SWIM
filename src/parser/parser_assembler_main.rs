@@ -13,7 +13,7 @@ use std::collections::HashMap;
 /// program and builds the binary of the instructions while cataloging any errors that are found.
 pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
     let mut program_info = ProgramInfo::default();
-    let (lines, mut updated_monaco_strings, monaco_line_info_vec) = tokenize_program(file_string);
+    let (lines, monaco_line_info_vec) = tokenize_program(file_string);
 
     program_info.monaco_line_info = monaco_line_info_vec;
 
@@ -21,7 +21,6 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
-        &mut updated_monaco_strings,
         &mut program_info.monaco_line_info,
     );
     let vec_of_data = assemble_data_binary(&mut program_info.data);
@@ -30,7 +29,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
     complete_lw_sw_pseudo_instructions(
         &mut program_info.instructions,
         &labels,
-        &mut updated_monaco_strings,
+        &mut program_info.monaco_line_info,
     );
     read_instructions(&mut program_info.instructions, &labels);
 
@@ -43,10 +42,10 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
 
     let binary = create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
-    for entry in updated_monaco_strings {
+    for entry in &program_info.monaco_line_info {
         program_info
             .updated_monaco_string
-            .push_str(&format!("{}\n", entry.as_str()));
+            .push_str(&format!("{}\n", entry.monaco_string));
     }
 
     for instruction in program_info.instructions.clone() {

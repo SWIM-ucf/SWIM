@@ -16,7 +16,21 @@ pub mod instruction_tokenization {
     #[derive(Clone, Debug, Default, Eq, PartialEq)]
     pub struct MonacoLineInfo {
         pub mouse_hover_string: String,
+        pub monaco_string: String,
         pub error_start_end_columns: Vec<(u32, u32)>,
+    }
+
+    impl MonacoLineInfo {
+        pub fn update_pseudo_string(&mut self, expansion: Vec<&mut Instruction>) {
+            self.monaco_string.insert_str(0, "#Pseudo-Instruction: ");
+
+            for instruction in expansion {
+                self.monaco_string.push_str(&format!(
+                    "\n{} #Pseudo-Instruction Translation",
+                    instruction.recreate_string()
+                ));
+            }
+        }
     }
 
     ///A collection of all relevant information found about an instruction in the Parser/Assembler
@@ -29,6 +43,27 @@ pub mod instruction_tokenization {
         pub line_number: u32,
         pub errors: Vec<Error>,
         pub label: Option<(Token, u32)>, //label.1 refers to the line number the label is on
+    }
+
+    impl Instruction {
+        ///Takes the operator, operands, and label(optional) associated with an instruction and recreates the string version
+        pub fn recreate_string(&self) -> String {
+            let mut recreated_string = "".to_string();
+            //if the instruction had a label on the same line, start the string with that
+            if self.label.is_some() && self.label.clone().unwrap().1 == self.line_number {
+                recreated_string
+                    .push_str(&format!("{}: ", self.label.clone().unwrap().0.token_name));
+            }
+            recreated_string.push_str(&self.operator.token_name.to_string());
+
+            for operand in &self.operands {
+                recreated_string.push_str(&format!(" {},", operand.token_name.clone()));
+            }
+            //pop the extra comma
+            recreated_string.pop();
+
+            recreated_string
+        }
     }
 
     ///A collection of all relevant information found about a variable in the Parser/Assembler
