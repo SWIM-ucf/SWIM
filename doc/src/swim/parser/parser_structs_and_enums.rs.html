@@ -174,6 +174,41 @@
 <a href="#174" id="174">174</a>
 <a href="#175" id="175">175</a>
 <a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>instruction_tokenization {
     <span class="kw">use </span>std::default::Default;
     <span class="kw">use </span>std::fmt;
@@ -192,7 +227,21 @@
     <span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
     </span><span class="kw">pub struct </span>MonacoLineInfo {
         <span class="kw">pub </span>mouse_hover_string: String,
+        <span class="kw">pub </span>monaco_string: String,
         <span class="kw">pub </span>error_start_end_columns: Vec&lt;(u32, u32)&gt;,
+    }
+
+    <span class="kw">impl </span>MonacoLineInfo {
+        <span class="kw">pub fn </span>update_pseudo_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expansion: Vec&lt;<span class="kw-2">&amp;mut </span>Instruction&gt;) {
+            <span class="self">self</span>.monaco_string.insert_str(<span class="number">0</span>, <span class="string">&quot;#Pseudo-Instruction: &quot;</span>);
+
+            <span class="kw">for </span>instruction <span class="kw">in </span>expansion {
+                <span class="self">self</span>.monaco_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                    <span class="string">&quot;\n{} #Pseudo-Instruction Translation&quot;</span>,
+                    instruction.recreate_string()
+                ));
+            }
+        }
     }
 
     <span class="doccomment">///A collection of all relevant information found about an instruction in the Parser/Assembler
@@ -206,6 +255,27 @@
         <span class="kw">pub </span>errors: Vec&lt;Error&gt;,
         <span class="kw">pub </span>label: <span class="prelude-ty">Option</span>&lt;(Token, u32)&gt;, <span class="comment">//label.1 refers to the line number the label is on
     </span>}
+
+    <span class="kw">impl </span>Instruction {
+        <span class="doccomment">///Takes the operator, operands, and label(optional) associated with an instruction and recreates the string version
+        </span><span class="kw">pub fn </span>recreate_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+            <span class="kw">let </span><span class="kw-2">mut </span>recreated_string = <span class="string">&quot;&quot;</span>.to_string();
+            <span class="comment">//if the instruction had a label on the same line, start the string with that
+            </span><span class="kw">if </span><span class="self">self</span>.label.is_some() &amp;&amp; <span class="self">self</span>.label.clone().unwrap().<span class="number">1 </span>== <span class="self">self</span>.line_number {
+                recreated_string
+                    .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}: &quot;</span>, <span class="self">self</span>.label.clone().unwrap().<span class="number">0</span>.token_name));
+            }
+            recreated_string.push_str(<span class="kw-2">&amp;</span><span class="self">self</span>.operator.token_name.to_string());
+
+            <span class="kw">for </span>operand <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.operands {
+                recreated_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot; {},&quot;</span>, operand.token_name.clone()));
+            }
+            <span class="comment">//pop the extra comma
+            </span>recreated_string.pop();
+
+            recreated_string
+        }
+    }
 
     <span class="doccomment">///A collection of all relevant information found about a variable in the Parser/Assembler
     </span><span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
