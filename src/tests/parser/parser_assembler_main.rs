@@ -708,13 +708,11 @@ mod helper_functions {
     pub fn instruction_parser(mut file_string: String) -> Vec<Instruction> {
         file_string = file_string.to_lowercase();
 
-        let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) =
-            tokenize_program(file_string);
+        let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
         let (mut instruction_list, mut data) = separate_data_and_text(lines);
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
-            &mut updated_monaco_strings,
             &mut monaco_line_info_vec,
         );
         assemble_data_binary(&mut data);
@@ -732,23 +730,23 @@ fn create_binary_vec_works_with_data() {
     let mut program_info = ProgramInfo::default();
     let file_string =
         ".data\nlabel: .ascii \"this is a string\"\n.text\nlw $t1, label\nsyscall".to_lowercase();
-    let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) =
-        tokenize_program(file_string);
+    let (lines, monaco_line_info_vec) = tokenize_program(file_string);
+    program_info.monaco_line_info = monaco_line_info_vec;
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
-        &mut updated_monaco_strings,
-        &mut monaco_line_info_vec,
+        &mut program_info.monaco_line_info,
     );
     let vec_of_data = assemble_data_binary(&mut program_info.data);
 
     let labels: HashMap<String, u32> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
+
     complete_lw_sw_pseudo_instructions(
         &mut program_info.instructions,
         &labels,
-        &mut updated_monaco_strings,
+        &mut program_info.monaco_line_info,
     );
     read_instructions(&mut program_info.instructions, &labels);
 
@@ -764,13 +762,11 @@ fn create_binary_vec_works_with_data() {
 fn read_instructions_recognizes_valid_but_unsupported_instructions() {
     let mut program_info = ProgramInfo::default();
     let file_string = "jalr $t1, $t2\ndsrav $t1, $t2, $t3".to_lowercase();
-    let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) =
-        tokenize_program(file_string);
+    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
     (program_info.instructions, program_info.data) = separate_data_and_text(lines);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
-        &mut updated_monaco_strings,
         &mut monaco_line_info_vec,
     );
 
@@ -779,7 +775,7 @@ fn read_instructions_recognizes_valid_but_unsupported_instructions() {
     complete_lw_sw_pseudo_instructions(
         &mut program_info.instructions,
         &labels,
-        &mut updated_monaco_strings,
+        &mut program_info.monaco_line_info,
     );
     read_instructions(&mut program_info.instructions, &labels);
 

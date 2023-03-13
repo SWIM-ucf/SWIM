@@ -13,7 +13,6 @@ use std::collections::HashMap;
 pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     instructions: &mut Vec<Instruction>,
     data: &Vec<Data>,
-    updated_monaco_strings: &mut Vec<String>,
     monaco_line_info: &mut [MonacoLineInfo],
 ) {
     //figure out list of labels to be used for lw and sw labels
@@ -32,7 +31,6 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     let mut vec_of_added_instructions: Vec<Instruction> = Vec::new();
 
     //iterate through every instruction and check if the operator is a pseudo-instruction
-    let mut num_lines_added: usize = 0;
     for (i, mut instruction) in &mut instructions.iter_mut().enumerate() {
         instruction.instruction_number = (i + vec_of_added_instructions.len()) as u32;
         match &*instruction.operator.token_name {
@@ -59,7 +57,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     token_type: Default::default(),
                 });
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number as usize]
+                    .update_pseudo_string(vec![instruction]);
             }
             "seq" => {
                 //seq $regA, $regB, $regC turns into:
@@ -126,8 +125,11 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, &mut extra_instruction_2, instruction]);
-
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![
+                    &mut extra_instruction,
+                    &mut extra_instruction_2,
+                    instruction,
+                ]);
             }
             "sne" => {
                 //sne $regA, $regB, $regC turns into:
@@ -162,8 +164,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2] = instruction.operands[0].clone();
                 instruction.instruction_number += 1;
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
-
+                monaco_line_info[instruction.line_number as usize]
+                    .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "sle" => {
                 //sle $regA, $regB, $regC is translated to:
@@ -227,8 +229,11 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, &mut extra_instruction_2, instruction]);
-
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![
+                    &mut extra_instruction,
+                    &mut extra_instruction_2,
+                    instruction,
+                ]);
             }
             "sleu" => {
                 //sleu $regA, $regB, $regC is translated to:
@@ -292,8 +297,11 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, &mut extra_instruction_2, instruction]);
-
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![
+                    &mut extra_instruction,
+                    &mut extra_instruction_2,
+                    instruction,
+                ]);
             }
             "sgt" => {
                 //sgt $regA, $regB, $regC is translated to:
@@ -319,7 +327,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operator.token_name = "slt".to_string();
                 instruction.operator.start_end_columns = (0, 0);
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number as usize]
+                    .update_pseudo_string(vec![instruction]);
             }
             "sgtu" => {
                 //sgtu $regA, $regB, $regC is translated to:
@@ -345,8 +354,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operator.token_name = "sltu".to_string();
                 instruction.operator.start_end_columns = (0, 0);
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![instruction]);
-
+                monaco_line_info[instruction.line_number as usize]
+                    .update_pseudo_string(vec![instruction]);
             }
             "sge" => {
                 //sge $regA, $regB, $regC is translated to:
@@ -407,8 +416,11 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, &mut extra_instruction_2, instruction]);
-
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![
+                    &mut extra_instruction,
+                    &mut extra_instruction_2,
+                    instruction,
+                ]);
             }
             "sgeu" => {
                 //sgeu $regA, $regB, $regC is translated to:
@@ -469,8 +481,11 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, &mut extra_instruction_2, instruction]);
-
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![
+                    &mut extra_instruction,
+                    &mut extra_instruction_2,
+                    instruction,
+                ]);
             }
             "lw" | "sw" => {
                 //lw $regA, label is translated to:
@@ -572,14 +587,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     errors: vec![],
                     label: None,
                 };
-                updated_monaco_strings.insert(
-                    instruction.line_number as usize + num_lines_added,
-                    format!(
-                        "ori $at, {}",
-                        extra_instruction.operands[1].token_name.clone()
-                    ),
-                );
-                num_lines_added += 1;
+
                 vec_of_added_instructions.push(extra_instruction.clone());
 
                 //adjust subi for the added instruction
@@ -589,8 +597,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
-
+                monaco_line_info[instruction.line_number as usize]
+                    .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "dsubi" => {
                 //dsubi $regA, $regB, immediate is translated to:
@@ -644,8 +652,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
-
+                monaco_line_info[instruction.line_number as usize]
+                    .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "dsubiu" => {
                 //dsubiu $regA, $regB, immediate is translated to:
@@ -701,7 +709,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
+                monaco_line_info[instruction.line_number as usize]
+                    .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "muli" => {
                 //muli $regA, $regB, immediate is translated to:
@@ -756,7 +765,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
+                monaco_line_info[instruction.line_number as usize]
+                    .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "dmuli" => {
                 //dmuli $regA, $regB, immediate is translated to:
@@ -810,7 +820,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
+                monaco_line_info[instruction.line_number as usize]
+                    .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "dmuliu" => {
                 //dmuliu $regA, $regB, immediate is translated to:
@@ -864,8 +875,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
-
+                monaco_line_info[instruction.line_number as usize]
+                    .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "divi" => {
                 //divi $regA, immediate is translated to:
@@ -919,8 +930,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[1].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
-
+                monaco_line_info[instruction.line_number as usize]
+                    .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "ddivi" => {
                 //ddivi $regA, immediate is translated to:
@@ -968,7 +979,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[1].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
+                monaco_line_info[instruction.line_number as usize]
+                    .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "ddiviu" => {
                 //ddiviu $regA, immediate is translated to:
@@ -1016,7 +1028,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[1].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
 
-                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, instruction]);
+                monaco_line_info[instruction.line_number as usize]
+                    .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             _ => {}
         }
@@ -1031,7 +1044,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     if instructions.is_empty() {
         //try to find an instance of .text
         let mut text_index: Option<u32> = None;
-        for (i, mut line) in updated_monaco_strings.clone().into_iter().enumerate() {
+        for (i, monaco_line) in monaco_line_info.iter_mut().enumerate() {
+            let mut line = monaco_line.monaco_string.clone();
             line = line.replace(' ', "");
             line = line.replace('#', " ");
             if line.starts_with(".text") {
@@ -1041,11 +1055,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
         }
         if let Some(..) = text_index {
             //add syscall after first index of .text if it exists
-            updated_monaco_strings.insert(text_index.unwrap() as usize + 1, "syscall".to_string());
+            // updated_monaco_strings.insert(text_index.unwrap() as usize + 1, "syscall".to_string());
+            monaco_line_info[text_index.unwrap() as usize + 1]
+                .monaco_string
+                .insert_str(0, "syscall\n");
         } else {
             //otherwise, add it at the beginning of monaco
-            updated_monaco_strings.insert(0, ".text".to_string());
-            updated_monaco_strings.insert(1, "syscall".to_string());
+            // updated_monaco_strings.insert(0, ".text".to_string());
+            // updated_monaco_strings.insert(1, "syscall".to_string());
+            monaco_line_info[0]
+                .monaco_string
+                .insert_str(0, ".text\nsyscall\n");
         }
         instructions.push(Instruction {
             operator: Token {
@@ -1064,10 +1084,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
         let last_instruction = instructions.last().unwrap();
         //if the last instruction in monaco is not a syscall, add it in to updated_monaco_strings and to instructions
         if last_instruction.operator.token_name != "syscall" {
-            updated_monaco_strings.insert(
-                last_instruction.line_number as usize + num_lines_added + 1,
-                "syscall".to_string(),
-            );
+            monaco_line_info[last_instruction.line_number as usize]
+                .monaco_string
+                .push_str("\nsyscall");
 
             instructions.push(Instruction {
                 operator: Token {
@@ -1091,13 +1110,12 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 pub fn complete_lw_sw_pseudo_instructions(
     instructions: &mut Vec<Instruction>,
     labels: &HashMap<String, u32>,
-    updated_monaco_strings: &mut Vec<String>,
+    monaco_line_info: &mut [MonacoLineInfo],
 ) {
     if instructions.len() < 2 {
         return;
     }
 
-    let mut num_lines_added = 0;
     for mut index in 0..(instructions.len() - 1) {
         if instructions[index].operator.token_name == "lui"
             && instructions[index].operands.len() > 1
@@ -1112,12 +1130,6 @@ pub fn complete_lw_sw_pseudo_instructions(
             instructions[index].operands[1].token_name = (address >> 16).to_string();
             instructions[index].operands[1].start_end_columns = (0, 0);
 
-            //add lui instruction into the updated_monaco_strings
-            let mut lui = "lui $at, ".to_string();
-            lui.push_str(&(address >> 16).to_string());
-            updated_monaco_strings.insert(instructions[index].line_number as usize, lui);
-            num_lines_added += 1;
-
             index += 1;
 
             //lower 16 bits are stored as the offset for the load/store operation
@@ -1127,15 +1139,10 @@ pub fn complete_lw_sw_pseudo_instructions(
             instructions[index].operands[1].token_name = memory_operand;
             instructions[index].operands[1].start_end_columns = (0, 0);
 
-            //replace the load/store instruction in updated_monaco_strings with the hardware valid version
-            let updated_lw_sw = format!(
-                "{} {}, {}",
-                instructions[index].operator.token_name.clone(),
-                &instructions[index].operands[0].token_name.clone(),
-                &instructions[index].operands[1].token_name.clone()
-            );
-            updated_monaco_strings[instructions[index].line_number as usize + num_lines_added] =
-                updated_lw_sw;
+            monaco_line_info[instructions[index].line_number as usize].update_pseudo_string(vec![
+                &mut instructions.clone()[index - 1],
+                &mut instructions.clone()[index],
+            ]);
         }
     }
 }

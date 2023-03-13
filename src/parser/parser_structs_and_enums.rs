@@ -21,18 +21,15 @@ pub mod instruction_tokenization {
     }
 
     impl MonacoLineInfo {
-        pub fn update_pseudo_string (&mut self, expansion: Vec<&mut Instruction>){
-            self.monaco_string
-                .insert_str(0, "#Pseudo-Instruction: ");
+        pub fn update_pseudo_string(&mut self, expansion: Vec<&mut Instruction>) {
+            self.monaco_string.insert_str(0, "#Pseudo-Instruction: ");
 
             for instruction in expansion {
-                self.monaco_string
-                    .push_str(&format!(
-                        "\n{} #Pseudo-Instruction Translation",
-                        instruction.recreate_string()
-                    ));
+                self.monaco_string.push_str(&format!(
+                    "\n{} #Pseudo-Instruction Translation",
+                    instruction.recreate_string()
+                ));
             }
-
         }
     }
 
