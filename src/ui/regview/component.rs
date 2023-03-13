@@ -55,7 +55,7 @@ pub fn generate_gpr_rows_bin(gp: GpRegisters) -> Html {
             html! {
                 <tr>
                     <td>{register}</td>
-                    <td>{format!("0{data:b}").to_string()}</td>
+                    <td>{format!("{:#b}", data).to_string()}</td>
                 </tr>
             }
         })
@@ -94,7 +94,7 @@ pub fn generate_fpr_rows_bin(fp: [u64; 32]) -> Html {
             html! {
                 <tr>
                     <td>{format!("F{register}")}</td>
-                    <td>{format!("0{data:b}").to_string()}</td>
+                    <td>{format!("{:#b}", data).to_string()}</td>
                 </tr>
             }
         })
