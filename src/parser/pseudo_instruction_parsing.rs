@@ -58,6 +58,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     start_end_columns: (0, 0),
                     token_type: Default::default(),
                 });
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![instruction]);
             }
             "seq" => {
                 //seq $regA, $regB, $regC turns into:
@@ -82,10 +84,10 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 let mut extra_instruction = instruction.clone();
                 extra_instruction.operator.token_name = "sub".to_string();
                 extra_instruction.operator.start_end_columns = (0, 0);
-                vec_of_added_instructions.push(extra_instruction);
+                vec_of_added_instructions.push(extra_instruction.clone());
 
                 //put a 1 in $at
-                let extra_instruction_2 = Instruction {
+                let mut extra_instruction_2 = Instruction {
                     operator: Token {
                         token_name: "ori".to_string(),
                         start_end_columns: (0, 0),
@@ -114,7 +116,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     errors: vec![],
                     label: None,
                 };
-                vec_of_added_instructions.push(extra_instruction_2);
+                vec_of_added_instructions.push(extra_instruction_2.clone());
 
                 //set r0 to 1 if r1 - r2 == 0
                 instruction.operator.token_name = "sltu".to_string();
@@ -123,6 +125,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 2;
+
+                monaco_line_info[instruction.line_number as usize].update_pseudo_string(vec![&mut extra_instruction, &mut extra_instruction_2, instruction]);
+
             }
             "sne" => {
                 //sne $regA, $regB, $regC turns into:

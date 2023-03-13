@@ -1828,9 +1828,14 @@ fn complete_lw_sw_pseudo_instructions_doesnt_break_with_empty_instruction_list()
 
 #[test]
 fn expanded_pseudo_instructions_are_added_into_updated_monaco_string() {
-    let result =
-        parser(".text\nlw $t1, memory\nsubi $t2, $t1, 100\n.data\nmemory: .word 200".to_string())
-            .0
-            .updated_monaco_string;
-    print!("{result}");
+    let result = parser(
+        ".text\nli $t1, 100\nlw $t1, memory\nsubi $t2, $t1, 100\n.data\nmemory: .word 200"
+            .to_string(),
+    )
+    .0;
+    for line in result.monaco_line_info {
+        println!("{}", line.monaco_string);
+    }
+
+    println!("{}", result.updated_monaco_string);
 }
