@@ -1,7 +1,8 @@
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::parser;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Operator;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{Instruction, ProgramInfo, Token,
+use crate::parser::parser_structs_and_enums::instruction_tokenization::{
+    Instruction, ProgramInfo, Token,
 };
 use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
 use crate::parser::pseudo_instruction_parsing::{
