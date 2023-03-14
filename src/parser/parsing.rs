@@ -3,17 +3,16 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType
     Label, Operator, Unknown,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, Instruction, Line, MonacoLineInfo, Token,
+    Data, Error, Instruction, MonacoLineInfo, Token,
 };
 use levenshtein::levenshtein;
 use std::collections::HashMap;
 
 ///Takes the initial string of the program given by the editor and turns it into a vector of Line,
 /// a struct that holds tokens and the original line number.
-pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<MonacoLineInfo>) {
+pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
     let mut monaco_line_info_vec: Vec<MonacoLineInfo> = Vec::new();
 
-    let mut line_vec: Vec<Line> = Vec::new();
     let mut token: Token = Token {
         token_name: "".to_string(),
         start_end_columns: (0, 0),
@@ -21,18 +20,15 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<MonacoLineInfo>) {
     };
 
     for (i, line_of_program) in program.lines().enumerate() {
-        monaco_line_info_vec.push(MonacoLineInfo {
+        let mut line = MonacoLineInfo {
             mouse_hover_string: "".to_string(),
             updated_monaco_string: line_of_program.to_string(),
+            tokens: vec![],
+            line_number: i,
             error_start_end_columns: vec![],
             errors: vec![],
-        });
-
-        let mut line_of_tokens = Line {
-            line_number: i as u32,
-
-            tokens: vec![],
         };
+
         let mut is_string = false;
         let mut check_escape = false;
         //iterates through every character on each line of the program
@@ -81,7 +77,7 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<MonacoLineInfo>) {
                 }
             } else if char == '\"' {
                 if !token.token_name.is_empty() {
-                    line_of_tokens.tokens.push(token.clone());
+                    line.tokens.push(token.clone());
                 }
                 token.token_name = '\"'.to_string();
                 token.start_end_columns.0 = j as u32;
@@ -93,35 +89,34 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<MonacoLineInfo>) {
                 token.token_name.push(char);
                 if char == ',' {
                     if token.token_name.len() == 1 {
-                        let length = line_of_tokens.tokens.len();
-                        line_of_tokens.tokens[length - 1].token_name.push(char);
+                        let length = line.tokens.len();
+                        line.tokens[length - 1].token_name.push(char);
                     } else {
                         token.start_end_columns.1 -= 1;
-                        line_of_tokens.tokens.push(token.clone());
+                        line.tokens.push(token.clone());
                     }
                     token.token_name = "".to_string();
                 }
             } else if !token.token_name.is_empty() {
                 token.start_end_columns.1 -= 1;
-                line_of_tokens.tokens.push(token.clone());
+                line.tokens.push(token.clone());
                 token.token_name = "".to_string();
             }
         }
         if !token.token_name.is_empty() {
-            line_of_tokens.tokens.push(token.clone());
+            line.tokens.push(token.clone());
             token.token_name = "".to_string();
         }
-        if !line_of_tokens.tokens.is_empty() {
-            line_vec.push(line_of_tokens.clone());
-        }
+
+        monaco_line_info_vec.push(line);
     }
 
-    (line_vec, monaco_line_info_vec)
+    monaco_line_info_vec
 }
 
 ///This function takes the vector of lines created by tokenize program and turns them into instructions
 ///assigning labels, operators, operands, and line numbers and data assigning labels, data types, and values
-pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Data>) {
+pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instruction>, Vec<Data>) {
     let mut instruction_list: Vec<Instruction> = Vec::new();
     let mut instruction = Instruction::default();
     let mut data_list: Vec<Data> = Vec::new();
@@ -158,7 +153,8 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 } else {
                     lines[i].tokens[0].token_name.pop();
                     lines[i].tokens[0].token_type = Label;
-                    instruction.label = Some((lines[i].tokens[0].clone(), lines[i].line_number));
+                    instruction.label =
+                        Some((lines[i].tokens[0].clone(), lines[i].line_number as u32));
                 }
 
                 if lines[i].tokens.len() == 1 {
@@ -219,7 +215,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 .operands
                 .push(lines[i].tokens[operand_iterator].clone());
 
-            instruction.line_number = lines[i].line_number;
+            instruction.line_number = lines[i].line_number as u32;
 
             //push completed instruction to the instruction vec
             instruction_list.push(instruction.clone());
@@ -227,7 +223,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
         }
         //if not text, it must be data
         else {
-            data.line_number = lines[i].line_number;
+            data.line_number = lines[i].line_number as u32;
 
             //the first token should be the label name
             if lines[i].tokens[0].token_name.ends_with(':') {

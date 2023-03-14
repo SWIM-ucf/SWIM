@@ -708,8 +708,8 @@ mod helper_functions {
     pub fn instruction_parser(mut file_string: String) -> Vec<Instruction> {
         file_string = file_string.to_lowercase();
 
-        let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-        let (mut instruction_list, mut data) = separate_data_and_text(lines);
+        let mut monaco_line_info_vec = tokenize_program(file_string);
+        let (mut instruction_list, mut data) = separate_data_and_text(monaco_line_info_vec.clone());
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
@@ -730,9 +730,10 @@ fn create_binary_vec_works_with_data() {
     let mut program_info = ProgramInfo::default();
     let file_string =
         ".data\nlabel: .ascii \"this is a string\"\n.text\nlw $t1, label\nsyscall".to_lowercase();
-    let (lines, monaco_line_info_vec) = tokenize_program(file_string);
+    let monaco_line_info_vec = tokenize_program(file_string);
     program_info.monaco_line_info = monaco_line_info_vec;
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(program_info.monaco_line_info.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -762,8 +763,9 @@ fn create_binary_vec_works_with_data() {
 fn read_instructions_recognizes_valid_but_unsupported_instructions() {
     let mut program_info = ProgramInfo::default();
     let file_string = "jalr $t1, $t2\ndsrav $t1, $t2, $t3".to_lowercase();
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,

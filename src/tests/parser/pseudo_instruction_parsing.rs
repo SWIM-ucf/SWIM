@@ -84,8 +84,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi() {
 
     let file_string = "subi $t1, $t2, 100\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -164,8 +165,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_muli() {
 
     let file_string = "muli $t1, $t2, 100\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -244,8 +246,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_divi() {
 
     let file_string = "divi $t1, 100\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -319,8 +322,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dsubi() {
 
     let file_string = "dsubi $t1, $t2, 100\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -399,8 +403,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dsubiu() {
 
     let file_string = "dsubiu $t1, $t2, 100\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -479,8 +484,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuli() {
 
     let file_string = "dmuli $t1, $t2, 100\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -559,8 +565,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuliu() {
 
     let file_string = "dmuliu $t1, $t2, 100\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -639,8 +646,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
 
     let file_string = "ddivi $t1, 100\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -714,8 +722,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddiviu() {
 
     let file_string = "ddiviu $t1, 100\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -789,8 +798,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgt() {
 
     let file_string = "sgt $t1, $t2, $t3\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -837,8 +847,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgtu() {
 
     let file_string = "sgtu $t1, $t2, $t3\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -885,8 +896,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_seq() {
 
     let file_string = "seq $t1, $t2, $t3\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -997,8 +1009,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sne() {
 
     let file_string = "sne $t1, $t2, $t3\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -1077,8 +1090,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sle() {
 
     let file_string = "sle $t1, $t2, $t3\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -1190,8 +1204,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sleu() {
 
     let file_string = "sleu $t1, $t2, $t3\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -1303,8 +1318,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sge() {
 
     let file_string = "sge $t1, $t2, $t3\nsw $t1, label".to_string();
 
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -1414,8 +1430,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sge() {
 fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
     let mut program_info = ProgramInfo::default();
     let file_string = "sgeu $t1, $t2, $t3\nsw $t1, label".to_string();
-    let (lines, mut monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -1425,9 +1442,9 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
     let mut correct_program_info = ProgramInfo::default();
     let correct_string =
         "sltu $t1, $t2, $t3\naddi $t1, $t1, 1\nandi $t1, $t1, 1\nsw $t1, label".to_string();
-    let (correct_lines, mut monaco_line_info_vec) = tokenize_program(correct_string);
+    let mut monaco_line_info_vec = tokenize_program(correct_string);
     (correct_program_info.instructions, correct_program_info.data) =
-        separate_data_and_text(correct_lines);
+        separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut correct_program_info.instructions,
         &program_info.data,
@@ -1541,9 +1558,10 @@ fn complete_lw_sw_pseudo_instructions_works_multiple_using_same_label() {
 
     let file_string = ".data\nlabel: .word 100\n.text\nlw $t1, label\nlw $t2, label".to_string();
 
-    let (lines, monaco_line_info_vec) = tokenize_program(file_string);
+    let monaco_line_info_vec = tokenize_program(file_string);
     program_info.monaco_line_info = monaco_line_info_vec;
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(program_info.monaco_line_info.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -1675,9 +1693,9 @@ fn complete_lw_sw_pseudo_instructions_works() {
 
     let file_string = ".data\nlabel: .word 100\n.text\nlw $t1, label\nsw $t1, label".to_string();
 
-    let (lines, monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
-    program_info.monaco_line_info = monaco_line_info_vec;
+    program_info.monaco_line_info = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(program_info.monaco_line_info.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -1809,9 +1827,9 @@ fn complete_lw_sw_pseudo_instructions_doesnt_break_with_empty_instruction_list()
 
     let file_string = ".data\nlabel: .word 100\n.text\nlw $t1, label\nsw $t1, label".to_string();
 
-    let (lines, monaco_line_info_vec) = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
-    program_info.monaco_line_info = monaco_line_info_vec;
+    program_info.monaco_line_info = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(program_info.monaco_line_info.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,

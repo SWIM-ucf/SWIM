@@ -179,8 +179,8 @@ mod read_label_absolute_tests {
 
     #[test]
     fn read_label_absolute_returns_address_of_instruction() {
-        let (lines, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
-        let (mut instruction_list, mut data) = separate_data_and_text(lines);
+        let mut monaco_line_info_vec = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (mut instruction_list, mut data) = separate_data_and_text(monaco_line_info_vec.clone());
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
@@ -196,8 +196,8 @@ mod read_label_absolute_tests {
 
     #[test]
     fn read_label_absolute_returns_error_if_label_cannot_be_found() {
-        let (lines, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, #t2, $t3\nsave_to_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
-        let (mut instruction_list, mut data) = separate_data_and_text(lines);
+        let mut monaco_line_info_vec = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, #t2, $t3\nsave_to_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (mut instruction_list, mut data) = separate_data_and_text(monaco_line_info_vec.clone());
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
@@ -219,8 +219,8 @@ mod read_label_relative_tests {
 
     #[test]
     fn read_label_relative_returns_correct_value_for_instruction_above_current() {
-        let (lines, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
-        let (mut instruction_list, mut data) = separate_data_and_text(lines);
+        let mut monaco_line_info_vec = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (mut instruction_list, mut data) = separate_data_and_text(monaco_line_info_vec.clone());
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
@@ -236,8 +236,8 @@ mod read_label_relative_tests {
 
     #[test]
     fn read_label_relative_returns_correct_value_for_instruction_below_current() {
-        let (lines, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
-        let (mut instruction_list, mut data) = separate_data_and_text(lines);
+        let mut monaco_line_info_vec = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
+        let (mut instruction_list, mut data) = separate_data_and_text(monaco_line_info_vec.clone());
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
@@ -253,7 +253,7 @@ mod read_label_relative_tests {
 
 #[test]
 fn assemble_data_binary_works_one_word() {
-    let lines = tokenize_program(".data\nlabel: .word 200".to_string()).0;
+    let lines = tokenize_program(".data\nlabel: .word 200".to_string());
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 
@@ -265,7 +265,7 @@ fn assemble_data_binary_works_one_word() {
 
 #[test]
 fn assemble_data_binary_works_multiple_words() {
-    let lines = tokenize_program(".data\nlabel: .word 200, 45, -12".to_string()).0;
+    let lines = tokenize_program(".data\nlabel: .word 200, 45, -12".to_string());
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 
@@ -285,7 +285,7 @@ fn assemble_data_binary_works_multiple_words() {
 
 #[test]
 fn assemble_data_binary_works_half_words() {
-    let lines = tokenize_program(".data\nlabel: .half 200, 45, -12".to_string()).0;
+    let lines = tokenize_program(".data\nlabel: .half 200, 45, -12".to_string());
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 
@@ -300,7 +300,7 @@ fn assemble_data_binary_works_half_words() {
 
 #[test]
 fn assemble_data_binary_works_for_spaces() {
-    let lines = tokenize_program(".data\nlabel: .space 3, 1".to_string()).0;
+    let lines = tokenize_program(".data\nlabel: .space 3, 1".to_string());
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 
@@ -313,7 +313,7 @@ fn assemble_data_binary_works_for_spaces() {
 
 #[test]
 fn assemble_data_binary_works_for_int_bytes() {
-    let lines = tokenize_program(".data\nlabel: .byte 255, -128".to_string()).0;
+    let lines = tokenize_program(".data\nlabel: .byte 255, -128".to_string());
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 
@@ -323,7 +323,7 @@ fn assemble_data_binary_works_for_int_bytes() {
 
 #[test]
 fn assemble_data_binary_works_for_char_bytes() {
-    let lines = tokenize_program(".data\nlabel: .byte 'a', '?'".to_string()).0;
+    let lines = tokenize_program(".data\nlabel: .byte 'a', '?'".to_string());
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 
@@ -333,7 +333,7 @@ fn assemble_data_binary_works_for_char_bytes() {
 
 #[test]
 fn assemble_data_binary_works_for_ascii() {
-    let lines = tokenize_program(".data\nlabel: .ascii \"abc de\"".to_string()).0;
+    let lines = tokenize_program(".data\nlabel: .ascii \"abc de\"".to_string());
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 
@@ -347,7 +347,7 @@ fn assemble_data_binary_works_for_ascii() {
 
 #[test]
 fn assemble_data_binary_works_for_asciiz() {
-    let lines = tokenize_program(".data\nlabel: .asciiz \"abcde\"".to_string()).0;
+    let lines = tokenize_program(".data\nlabel: .asciiz \"abcde\"".to_string());
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 
@@ -361,7 +361,7 @@ fn assemble_data_binary_works_for_asciiz() {
 
 #[test]
 fn assemble_data_binary_works_for_float() {
-    let lines = tokenize_program(".data\nlabel: .float 0.234, -121.8, 20".to_string()).0;
+    let lines = tokenize_program(".data\nlabel: .float 0.234, -121.8, 20".to_string());
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 
@@ -381,7 +381,7 @@ fn assemble_data_binary_works_for_float() {
 
 #[test]
 fn assemble_data_binary_works_for_double() {
-    let lines = tokenize_program(".data\nlabel: .double 0.234, -121.8, 20".to_string()).0;
+    let lines = tokenize_program(".data\nlabel: .double 0.234, -121.8, 20".to_string());
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
 

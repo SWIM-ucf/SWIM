@@ -17,6 +17,8 @@ pub mod instruction_tokenization {
     pub struct MonacoLineInfo {
         pub mouse_hover_string: String,
         pub updated_monaco_string: String,
+        pub tokens: Vec<Token>,
+        pub line_number: usize,
         pub error_start_end_columns: Vec<(u32, u32)>,
         pub errors: Vec<Error>,
     }
@@ -84,12 +86,6 @@ pub mod instruction_tokenization {
         pub token_name: String,
         pub start_end_columns: (u32, u32),
         pub token_type: TokenType,
-    }
-
-    #[derive(Clone, Debug, Eq, PartialEq)]
-    pub struct Line {
-        pub line_number: u32,
-        pub tokens: Vec<Token>,
     }
 
     #[derive(Clone, Debug, Eq, PartialEq)]
