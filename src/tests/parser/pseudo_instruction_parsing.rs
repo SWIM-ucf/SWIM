@@ -1836,7 +1836,7 @@ fn expanded_pseudo_instructions_are_added_into_updated_monaco_string() {
     )
     .0;
     for line in result.monaco_line_info {
-        println!("{}", line.monaco_string);
+        println!("{}", line.updated_monaco_string);
     }
 
     //println!("{}", result.updated_monaco_string);

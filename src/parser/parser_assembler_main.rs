@@ -45,7 +45,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
     for entry in &program_info.monaco_line_info {
         program_info
             .updated_monaco_string
-            .push_str(&format!("{}\n", entry.monaco_string));
+            .push_str(&format!("{}\n", entry.updated_monaco_string));
     }
 
     for instruction in program_info.instructions.clone() {

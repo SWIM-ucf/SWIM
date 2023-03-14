@@ -16,16 +16,18 @@ pub mod instruction_tokenization {
     #[derive(Clone, Debug, Default, Eq, PartialEq)]
     pub struct MonacoLineInfo {
         pub mouse_hover_string: String,
-        pub monaco_string: String,
+        pub updated_monaco_string: String,
         pub error_start_end_columns: Vec<(u32, u32)>,
+        pub errors: Vec<Error>,
     }
 
     impl MonacoLineInfo {
         pub fn update_pseudo_string(&mut self, expansion: Vec<&mut Instruction>) {
-            self.monaco_string.insert_str(0, "#Pseudo-Instruction: ");
+            self.updated_monaco_string
+                .insert_str(0, "#Pseudo-Instruction: ");
 
             for instruction in expansion {
-                self.monaco_string.push_str(&format!(
+                self.updated_monaco_string.push_str(&format!(
                     "\n{} #Pseudo-Instruction Translation",
                     instruction.recreate_string()
                 ));
