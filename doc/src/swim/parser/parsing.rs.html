@@ -633,6 +633,24 @@
 <a href="#633" id="633">633</a>
 <a href="#634" id="634">634</a>
 <a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
@@ -658,8 +676,9 @@
     <span class="kw">for </span>(i, line_of_program) <span class="kw">in </span>program.lines().enumerate() {
         monaco_line_info_vec.push(MonacoLineInfo {
             mouse_hover_string: <span class="string">&quot;&quot;</span>.to_string(),
-            monaco_string: line_of_program.to_string(),
+            updated_monaco_string: line_of_program.to_string(),
             error_start_end_columns: <span class="macro">vec!</span>[],
+            errors: <span class="macro">vec!</span>[],
         });
 
         <span class="kw">let </span><span class="kw-2">mut </span>line_of_tokens = Line {
@@ -1149,7 +1168,7 @@
                         error.message = suggestion;
                     }
                     <span class="kw">_ </span>=&gt; {
-                        error.message = <span class="string">&quot;PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH AN INSTRUCTION.\n&quot;</span>.to_string();
+                        error.message = <span class="macro">format!</span>(<span class="string">&quot;{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH TEXT.\n&quot;</span>, error.error_name);
                     }
                 }
 
@@ -1162,13 +1181,25 @@
                 </span><span class="kw">if </span>error.error_name == LabelAssignmentError
                     || error.error_name == LabelMultipleDefinition
                 {
-                    monaco_line_info[instruction.label.clone().unwrap().<span class="number">1 </span><span class="kw">as </span>usize]
+                    <span class="comment">//todo remove following line once Jerrett has started referencing error and not just start_end_columns
+                    </span>monaco_line_info[instruction.label.clone().unwrap().<span class="number">1 </span><span class="kw">as </span>usize]
                         .error_start_end_columns
                         .push(error.start_end_columns);
+
+                    <span class="comment">//add error to monaco_line_info
+                    </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                        .errors
+                        .push(error.clone());
                 } <span class="kw">else </span>{
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                    <span class="comment">//todo remove following line once Jerrett has started referencing error and not just start_end_columns
+                    </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
                         .error_start_end_columns
                         .push(error.start_end_columns);
+
+                    <span class="comment">//add error to monaco_line_info
+                    </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                        .errors
+                        .push(error.clone());
                 }
 
                 <span class="comment">//push a message about the error to the string for console
@@ -1238,19 +1269,24 @@
                     error.message =
                         <span class="string">&quot;The given string cannot be recognized as a float.\n&quot;</span>.to_string();
                 }
-
+                ImproperlyFormattedLabel =&gt; {
+                    error.message =
+                        <span class="string">&quot;Label assignment recognized but does not end in a colon.\n&quot;</span>.to_string();
+                }
                 <span class="kw">_ </span>=&gt; {
-                    error.message = <span class="string">&quot;PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n&quot;</span>.to_string();
+                    error.message = <span class="macro">format!</span>(<span class="string">&quot;{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n&quot;</span>, error.error_name);
                 }
             }
-            monaco_line_info[datum.line_number <span class="kw">as </span>usize]
-                .mouse_hover_string
-                .push_str(<span class="kw-2">&amp;</span>error.message.clone());
 
-            <span class="comment">//add the error to monaco_line_info
+            <span class="comment">//todo remove following line once Jerrett has started referencing error and not just start_end_columns
             </span>monaco_line_info[datum.line_number <span class="kw">as </span>usize]
                 .error_start_end_columns
                 .push(error.start_end_columns);
+
+            <span class="comment">//add error to monaco_line_info
+            </span>monaco_line_info[datum.line_number <span class="kw">as </span>usize]
+                .errors
+                .push(error.clone());
 
             console_out_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
                 <span class="string">&quot;{} on line {} with token \&quot;{}\&quot;\n{}\n&quot;</span>,

@@ -2193,7 +2193,7 @@
         <span class="comment">//try to find an instance of .text
         </span><span class="kw">let </span><span class="kw-2">mut </span>text_index: <span class="prelude-ty">Option</span>&lt;u32&gt; = <span class="prelude-val">None</span>;
         <span class="kw">for </span>(i, monaco_line) <span class="kw">in </span>monaco_line_info.iter_mut().enumerate() {
-            <span class="kw">let </span><span class="kw-2">mut </span>line = monaco_line.monaco_string.clone();
+            <span class="kw">let </span><span class="kw-2">mut </span>line = monaco_line.updated_monaco_string.clone();
             line = line.replace(<span class="string">&#39; &#39;</span>, <span class="string">&quot;&quot;</span>);
             line = line.replace(<span class="string">&#39;#&#39;</span>, <span class="string">&quot; &quot;</span>);
             <span class="kw">if </span>line.starts_with(<span class="string">&quot;.text&quot;</span>) {
@@ -2205,14 +2205,14 @@
             <span class="comment">//add syscall after first index of .text if it exists
             // updated_monaco_strings.insert(text_index.unwrap() as usize + 1, &quot;syscall&quot;.to_string());
             </span>monaco_line_info[text_index.unwrap() <span class="kw">as </span>usize + <span class="number">1</span>]
-                .monaco_string
+                .updated_monaco_string
                 .insert_str(<span class="number">0</span>, <span class="string">&quot;syscall\n&quot;</span>);
         } <span class="kw">else </span>{
             <span class="comment">//otherwise, add it at the beginning of monaco
             // updated_monaco_strings.insert(0, &quot;.text&quot;.to_string());
             // updated_monaco_strings.insert(1, &quot;syscall&quot;.to_string());
             </span>monaco_line_info[<span class="number">0</span>]
-                .monaco_string
+                .updated_monaco_string
                 .insert_str(<span class="number">0</span>, <span class="string">&quot;.text\nsyscall\n&quot;</span>);
         }
         instructions.push(Instruction {
@@ -2233,7 +2233,7 @@
         <span class="comment">//if the last instruction in monaco is not a syscall, add it in to updated_monaco_strings and to instructions
         </span><span class="kw">if </span>last_instruction.operator.token_name != <span class="string">&quot;syscall&quot; </span>{
             monaco_line_info[last_instruction.line_number <span class="kw">as </span>usize]
-                .monaco_string
+                .updated_monaco_string
                 .push_str(<span class="string">&quot;\nsyscall&quot;</span>);
 
             instructions.push(Instruction {

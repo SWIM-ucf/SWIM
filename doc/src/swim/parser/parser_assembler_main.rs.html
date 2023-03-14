@@ -1291,7 +1291,7 @@
     <span class="kw">for </span>entry <span class="kw">in </span><span class="kw-2">&amp;</span>program_info.monaco_line_info {
         program_info
             .updated_monaco_string
-            .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}\n&quot;</span>, entry.monaco_string));
+            .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}\n&quot;</span>, entry.updated_monaco_string));
     }
 
     <span class="kw">for </span>instruction <span class="kw">in </span>program_info.instructions.clone() {

@@ -209,6 +209,8 @@
 <a href="#209" id="209">209</a>
 <a href="#210" id="210">210</a>
 <a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>instruction_tokenization {
     <span class="kw">use </span>std::default::Default;
     <span class="kw">use </span>std::fmt;
@@ -227,16 +229,18 @@
     <span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
     </span><span class="kw">pub struct </span>MonacoLineInfo {
         <span class="kw">pub </span>mouse_hover_string: String,
-        <span class="kw">pub </span>monaco_string: String,
+        <span class="kw">pub </span>updated_monaco_string: String,
         <span class="kw">pub </span>error_start_end_columns: Vec&lt;(u32, u32)&gt;,
+        <span class="kw">pub </span>errors: Vec&lt;Error&gt;,
     }
 
     <span class="kw">impl </span>MonacoLineInfo {
         <span class="kw">pub fn </span>update_pseudo_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expansion: Vec&lt;<span class="kw-2">&amp;mut </span>Instruction&gt;) {
-            <span class="self">self</span>.monaco_string.insert_str(<span class="number">0</span>, <span class="string">&quot;#Pseudo-Instruction: &quot;</span>);
+            <span class="self">self</span>.updated_monaco_string
+                .insert_str(<span class="number">0</span>, <span class="string">&quot;#Pseudo-Instruction: &quot;</span>);
 
             <span class="kw">for </span>instruction <span class="kw">in </span>expansion {
-                <span class="self">self</span>.monaco_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                <span class="self">self</span>.updated_monaco_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
                     <span class="string">&quot;\n{} #Pseudo-Instruction Translation&quot;</span>,
                     instruction.recreate_string()
                 ));
