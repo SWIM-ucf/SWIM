@@ -23,8 +23,9 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<MonacoLineInfo>) {
     for (i, line_of_program) in program.lines().enumerate() {
         monaco_line_info_vec.push(MonacoLineInfo {
             mouse_hover_string: "".to_string(),
-            monaco_string: line_of_program.to_string(),
+            updated_monaco_string: line_of_program.to_string(),
             error_start_end_columns: vec![],
+            errors: vec![],
         });
 
         let mut line_of_tokens = Line {
@@ -514,7 +515,7 @@ pub fn suggest_error_corrections(
                         error.message = suggestion;
                     }
                     _ => {
-                        error.message = "PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH AN INSTRUCTION.\n".to_string();
+                        error.message = format!("{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH TEXT.\n", error.error_name);
                     }
                 }
 
@@ -527,13 +528,25 @@ pub fn suggest_error_corrections(
                 if error.error_name == LabelAssignmentError
                     || error.error_name == LabelMultipleDefinition
                 {
+                    //todo remove following line once Jerrett has started referencing error and not just start_end_columns
                     monaco_line_info[instruction.label.clone().unwrap().1 as usize]
                         .error_start_end_columns
                         .push(error.start_end_columns);
+
+                    //add error to monaco_line_info
+                    monaco_line_info[instruction.line_number as usize]
+                        .errors
+                        .push(error.clone());
                 } else {
+                    //todo remove following line once Jerrett has started referencing error and not just start_end_columns
                     monaco_line_info[instruction.line_number as usize]
                         .error_start_end_columns
                         .push(error.start_end_columns);
+
+                    //add error to monaco_line_info
+                    monaco_line_info[instruction.line_number as usize]
+                        .errors
+                        .push(error.clone());
                 }
 
                 //push a message about the error to the string for console
@@ -603,19 +616,24 @@ pub fn suggest_error_corrections(
                     error.message =
                         "The given string cannot be recognized as a float.\n".to_string();
                 }
-
+                ImproperlyFormattedLabel => {
+                    error.message =
+                        "Label assignment recognized but does not end in a colon.\n".to_string();
+                }
                 _ => {
-                    error.message = "PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n".to_string();
+                    error.message = format!("{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n", error.error_name);
                 }
             }
-            monaco_line_info[datum.line_number as usize]
-                .mouse_hover_string
-                .push_str(&error.message.clone());
 
-            //add the error to monaco_line_info
+            //todo remove following line once Jerrett has started referencing error and not just start_end_columns
             monaco_line_info[datum.line_number as usize]
                 .error_start_end_columns
                 .push(error.start_end_columns);
+
+            //add error to monaco_line_info
+            monaco_line_info[datum.line_number as usize]
+                .errors
+                .push(error.clone());
 
             console_out_string.push_str(&format!(
                 "{} on line {} with token \"{}\"\n{}\n",

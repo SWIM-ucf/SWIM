@@ -1045,7 +1045,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
         //try to find an instance of .text
         let mut text_index: Option<u32> = None;
         for (i, monaco_line) in monaco_line_info.iter_mut().enumerate() {
-            let mut line = monaco_line.monaco_string.clone();
+            let mut line = monaco_line.updated_monaco_string.clone();
             line = line.replace(' ', "");
             line = line.replace('#', " ");
             if line.starts_with(".text") {
@@ -1057,14 +1057,14 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
             //add syscall after first index of .text if it exists
             // updated_monaco_strings.insert(text_index.unwrap() as usize + 1, "syscall".to_string());
             monaco_line_info[text_index.unwrap() as usize + 1]
-                .monaco_string
+                .updated_monaco_string
                 .insert_str(0, "syscall\n");
         } else {
             //otherwise, add it at the beginning of monaco
             // updated_monaco_strings.insert(0, ".text".to_string());
             // updated_monaco_strings.insert(1, "syscall".to_string());
             monaco_line_info[0]
-                .monaco_string
+                .updated_monaco_string
                 .insert_str(0, ".text\nsyscall\n");
         }
         instructions.push(Instruction {
@@ -1085,7 +1085,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
         //if the last instruction in monaco is not a syscall, add it in to updated_monaco_strings and to instructions
         if last_instruction.operator.token_name != "syscall" {
             monaco_line_info[last_instruction.line_number as usize]
-                .monaco_string
+                .updated_monaco_string
                 .push_str("\nsyscall");
 
             instructions.push(Instruction {

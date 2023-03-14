@@ -7,7 +7,7 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType
     Label, Operator, Unknown,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, Instruction, Line, Token,
+    Data, Error, ErrorType, Instruction, Line, Token,
 };
 use crate::parser::parsing::create_label_map;
 #[cfg(test)]
@@ -845,4 +845,52 @@ fn suggest_error_corrections_works_with_data_types() {
         result[2].errors[0].message,
         "A valid, similar data type is: .double.\n"
     );
+}
+
+#[test]
+fn suggest_error_suggestions_associates_error_with_monaco_line_info() {
+    let lines =
+        parser("ori $t1, 100, $t2\nlw $f1, 400($zero)\n.data\nword .wod \"a\"\n".to_string())
+            .0
+            .monaco_line_info;
+
+    let actual = Error {
+        error_name: ErrorType::UnrecognizedGPRegister,
+        token_causing_error: "100".to_string(),
+        start_end_columns: (9, 12),
+        message: "GP register is not recognized. A valid, similar register is: $v0.\n".to_string(),
+    };
+    assert_eq!(lines[0].errors[0], actual);
+
+    let actual = Error {
+        error_name: ErrorType::NonIntImmediate,
+        token_causing_error: "$t2".to_string(),
+        start_end_columns: (14, 17),
+        message: "The given string cannot be recognized as an integer.\n".to_string(),
+    };
+    assert_eq!(lines[0].errors[1], actual);
+
+    let actual = Error {
+        error_name: ErrorType::IncorrectRegisterTypeFP,
+        token_causing_error: "$f1".to_string(),
+        start_end_columns: (3, 6),
+        message: "Expected GP register but received FP register.\n".to_string(),
+    };
+    assert_eq!(lines[1].errors[0], actual);
+
+    let actual = Error {
+        error_name: ErrorType::ImproperlyFormattedLabel,
+        token_causing_error: "word".to_string(),
+        start_end_columns: (0, 4),
+        message: "Label assignment recognized but does not end in a colon.\n".to_string(),
+    };
+    assert_eq!(lines[3].errors[0], actual);
+
+    let actual = Error {
+        error_name: ErrorType::UnrecognizedDataType,
+        token_causing_error: ".wod".to_string(),
+        start_end_columns: (5, 9),
+        message: "A valid, similar data type is: .word.\n".to_string(),
+    };
+    assert_eq!(lines[3].errors[1], actual);
 }
