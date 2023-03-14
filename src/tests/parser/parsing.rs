@@ -7,7 +7,7 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType
     Label, Operator, Unknown,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, ErrorType, Instruction, Line, Token,
+    Data, Error, ErrorType, Instruction, MonacoLineInfo, Token,
 };
 use crate::parser::parsing::create_label_map;
 #[cfg(test)]
@@ -17,7 +17,7 @@ use std::collections::HashMap;
 
 #[test]
 fn tokenize_program_works_basic_version() {
-    let result = tokenize_program("This line\nThis second line\nHere's a third!".to_string()).0;
+    let result = tokenize_program("This line\nThis second line\nHere's a third!".to_string());
 
     let i_0_t_0 = Token {
         token_name: "This".to_string(),
@@ -60,19 +60,31 @@ fn tokenize_program_works_basic_version() {
         start_end_columns: (9, 15),
         token_type: Unknown,
     };
-    let line_0 = Line {
+    let line_0 = MonacoLineInfo {
+        mouse_hover_string: "".to_string(),
         line_number: 0,
+        error_start_end_columns: vec![],
         tokens: vec![i_0_t_0, i_0_t_1],
+        updated_monaco_string: "This line".to_string(),
+        errors: vec![],
     };
 
-    let line_1 = Line {
+    let line_1 = MonacoLineInfo {
+        mouse_hover_string: "".to_string(),
         line_number: 1,
+        error_start_end_columns: vec![],
         tokens: vec![i_1_t_0, i_1_t_1, i_1_t_2],
+        updated_monaco_string: "This second line".to_string(),
+        errors: vec![],
     };
 
-    let line_2 = Line {
+    let line_2 = MonacoLineInfo {
+        mouse_hover_string: "".to_string(),
         line_number: 2,
+        error_start_end_columns: vec![],
         tokens: vec![i_2_t_0, i_2_t_1, i_2_t_2],
+        updated_monaco_string: "Here's a third!".to_string(),
+        errors: vec![],
     };
 
     let correct_result = vec![line_0, line_1, line_2];
@@ -81,7 +93,7 @@ fn tokenize_program_works_basic_version() {
 
 #[test]
 fn tokenize_program_handles_no_spaces_between_commas() {
-    let result = tokenize_program("add $t1, $t2, $t3\nsub $s1,$s2,$s3\n".to_string()).0;
+    let result = tokenize_program("add $t1, $t2, $t3\nsub $s1,$s2,$s3\n".to_string());
 
     let i_0_t_0 = Token {
         token_name: "add".to_string(),
@@ -126,14 +138,22 @@ fn tokenize_program_handles_no_spaces_between_commas() {
         token_type: Unknown,
     };
 
-    let line_0 = Line {
+    let line_0 = MonacoLineInfo {
+        mouse_hover_string: "".to_string(),
         line_number: 0,
+        error_start_end_columns: vec![],
         tokens: vec![i_0_t_0, i_0_t_1, i_0_t_2, i_0_t_3],
+        updated_monaco_string: "add $t1, $t2, $t3".to_string(),
+        errors: vec![],
     };
 
-    let line_1 = Line {
+    let line_1 = MonacoLineInfo {
+        mouse_hover_string: "".to_string(),
         line_number: 1,
+        error_start_end_columns: vec![],
         tokens: vec![i_1_t_0, i_1_t_1, i_1_t_2, i_1_t_3],
+        updated_monaco_string: "sub $s1,$s2,$s3".to_string(),
+        errors: vec![],
     };
 
     let correct_result = vec![line_0, line_1];
@@ -142,7 +162,7 @@ fn tokenize_program_handles_no_spaces_between_commas() {
 
 #[test]
 fn tokenize_program_handles_comma_after_space() {
-    let result = tokenize_program("add $t1 , $t2, $t3\n".to_string()).0;
+    let result = tokenize_program("add $t1 , $t2, $t3\n".to_string());
 
     let i_0_t_0 = Token {
         token_name: "add".to_string(),
@@ -164,9 +184,13 @@ fn tokenize_program_handles_comma_after_space() {
         start_end_columns: (15, 18),
         token_type: Unknown,
     };
-    let line_0 = Line {
+    let line_0 = MonacoLineInfo {
+        mouse_hover_string: "".to_string(),
         line_number: 0,
+        error_start_end_columns: vec![],
         tokens: vec![i_0_t_0, i_0_t_1, i_0_t_2, i_0_t_3],
+        updated_monaco_string: "add $t1 , $t2, $t3".to_string(),
+        errors: vec![],
     };
 
     let correct_result = vec![line_0];
@@ -178,8 +202,7 @@ fn tokenize_program_ignores_comments() {
     let results = tokenize_program(
         "This Line\n#this line is a comment\nbut_this_isn't\nthis#has a comment in the middle\n"
             .to_string(),
-    )
-    .0;
+    );
 
     let i_0_t_0 = Token {
         token_name: "This".to_string(),
@@ -191,41 +214,61 @@ fn tokenize_program_ignores_comments() {
         start_end_columns: (5, 9),
         token_type: Unknown,
     };
-    let line_0 = Line {
+    let line_0 = MonacoLineInfo {
+        mouse_hover_string: "".to_string(),
         line_number: 0,
+        error_start_end_columns: vec![],
         tokens: vec![i_0_t_0, i_0_t_1],
+        updated_monaco_string: "This Line".to_string(),
+        errors: vec![],
     };
-    let line_2 = Line {
+    let line_1 = MonacoLineInfo {
+        mouse_hover_string: "".to_string(),
+        line_number: 1,
+        error_start_end_columns: vec![],
+        tokens: vec![],
+        updated_monaco_string: "#this line is a comment".to_string(),
+        errors: vec![],
+    };
+    let line_2 = MonacoLineInfo {
+        mouse_hover_string: "".to_string(),
         line_number: 2,
+        error_start_end_columns: vec![],
         tokens: vec![Token {
             token_name: "but_this_isn't".to_string(),
             start_end_columns: (0, 14),
             token_type: Unknown,
         }],
+        updated_monaco_string: "but_this_isn't".to_string(),
+        errors: vec![],
     };
-    let line_3 = Line {
+    let line_3 = MonacoLineInfo {
+        mouse_hover_string: "".to_string(),
         line_number: 3,
+        error_start_end_columns: vec![],
         tokens: vec![Token {
             token_name: "this".to_string(),
             start_end_columns: (0, 4),
             token_type: Unknown,
         }],
+        updated_monaco_string: "this#has a comment in the middle".to_string(),
+        errors: vec![],
     };
 
-    let correct_result = vec![line_0, line_2, line_3];
+    let correct_result = vec![line_0, line_1, line_2, line_3];
     assert_eq!(results, correct_result);
 }
 
 #[test]
 fn tokenize_program_recognizes_comments() {
-    let results = tokenize_program("Addi $t1, $t2, 300\n# this is a comment\nadd $t1, $t2, $t3\n#I'm making a note here. Huge comment".to_string()).0;
+    let results = tokenize_program("Addi $t1, $t2, 300\n# this is a comment\nadd $t1, $t2, $t3\n#I'm making a note here. Huge comment".to_string());
     assert_eq!(results[0].line_number, 0);
-    assert_eq!(results[1].line_number, 2)
+    assert_eq!(results[2].line_number, 2)
 }
 
 #[test]
 fn tokenize_program_recognizes_comments_middle_of_line() {
-    let results = tokenize_program("Addi $t1, $t2, 300 # this is a comment\nadd $t1, $t2, $t3#I'm making a note here. Huge comment".to_string()).0;
+    let results = tokenize_program("Addi $t1, $t2, 300 # this is a comment\nadd $t1, $t2, $t3#I'm making a note here. Huge comment".to_string());
 
     assert_eq!(results[0].line_number, 0);
     assert_eq!(results[1].line_number, 1);
@@ -233,15 +276,14 @@ fn tokenize_program_recognizes_comments_middle_of_line() {
 
 #[test]
 fn tokenize_program_reads_ascii_properly() {
-    let result = tokenize_program(".data\nlabel: .ascii \"this is a string\"".to_string()).0;
+    let result = tokenize_program(".data\nlabel: .ascii \"this is a string\"".to_string());
 
     assert_eq!(result[1].tokens[2].token_name, "\"this is a string\"");
 }
 
 #[test]
 fn separate_data_and_text_works_basic_version() {
-    let lines =
-        tokenize_program("add $t1, $t2, $t3\nlw $t1, 400($t1)\naddi $t1, 100".to_string()).0;
+    let lines = tokenize_program("add $t1, $t2, $t3\nlw $t1, 400($t1)\naddi $t1, 100".to_string());
     let result = separate_data_and_text(lines.clone());
 
     let mut instruction_0 = Instruction {
@@ -283,7 +325,7 @@ fn separate_data_and_text_works_basic_version() {
 
 #[test]
 fn separate_data_and_text_generates_error_on_missing_commas_text() {
-    let lines = tokenize_program("add $t1, $t2, $t3\nlw $t1 400($t2)".to_string()).0;
+    let lines = tokenize_program("add $t1, $t2, $t3\nlw $t1 400($t2)".to_string());
     let result = separate_data_and_text(lines);
     let correct_error = Error {
         error_name: MissingComma,
@@ -298,8 +340,7 @@ fn separate_data_and_text_generates_error_on_missing_commas_text() {
 fn separate_data_and_text_works_on_line_label() {
     let lines = tokenize_program(
         "add $t1, $t2, $t3\nLoad_from_memory: lw $t1, 400($t1)\naddi $t1, 100".to_string(),
-    )
-    .0;
+    );
     let result = separate_data_and_text(lines.clone());
 
     let mut instruction_0 = Instruction {
@@ -349,8 +390,7 @@ fn separate_data_and_text_works_on_line_label() {
 fn separate_data_and_text_works_off_line_label() {
     let lines = tokenize_program(
         "add $t1, $t2, $t3\nLoad_from_memory:\nlw $t1, 400($t1)\naddi $t1, 100".to_string(),
-    )
-    .0;
+    );
     let result = separate_data_and_text(lines.clone());
 
     let mut instruction_0 = Instruction {
@@ -398,7 +438,7 @@ fn separate_data_and_text_works_off_line_label() {
 
 #[test]
 fn separate_data_and_text_recognizes_text() {
-    let lines = tokenize_program(".text\nadd $t1, $t2, $t3\nlw $t1, 400($t1)\n".to_string()).0;
+    let lines = tokenize_program(".text\nadd $t1, $t2, $t3\nlw $t1, 400($t1)\n".to_string());
     let result = separate_data_and_text(lines.clone());
 
     let mut correct_result: Vec<Instruction> = vec![
@@ -431,9 +471,7 @@ fn separate_data_and_text_recognizes_text() {
 #[test]
 fn separate_data_and_text_recognizes_data_and_text_interspersed() {
     let lines = tokenize_program(
-        ".data\nword1: .word 32\n.text\nadd $t1, $t2, $t3\n.data\nword2: .word 1,2,3\n.text\nlw $t1, 400($t1)\n"
-            .to_string(),
-    ).0;
+        ".data\nword1: .word 32\n.text\nadd $t1, $t2, $t3\n.data\nword2: .word 1,2,3\n.text\nlw $t1, 400($t1)\n".to_string());
     let result = separate_data_and_text(lines.clone());
 
     let mut correct_result: (Vec<Instruction>, Vec<Data>) = (
@@ -502,7 +540,7 @@ fn separate_data_and_text_recognizes_ascii_data() {
     let lines = tokenize_program(
         ".data\nword: .ascii \"this is a string\"\nword2: .word 1,2,3\n.text\nadd $t1, $t2, $t3\nlw $t1, 400($t1)\n"
             .to_string(),
-    ).0;
+    );
     let result = separate_data_and_text(lines.clone());
 
     let mut correct_result: (Vec<Instruction>, Vec<Data>) = (
@@ -571,8 +609,7 @@ fn separate_data_and_text_recognizes_data_and_text() {
     let lines = tokenize_program(
         ".data\nword1: .word 32\nword2: .word 1,2,3\n.text\nadd $t1, $t2, $t3\nlw $t1, 400($t1)\n"
             .to_string(),
-    )
-    .0;
+    );
     let result = separate_data_and_text(lines.clone());
 
     let mut correct_result: (Vec<Instruction>, Vec<Data>) = (
@@ -639,22 +676,22 @@ fn separate_data_and_text_recognizes_data_and_text() {
 #[test]
 fn build_instruction_list_generates_error_on_double_label() {
     let lines =
-        tokenize_program("lw $t1, 400($zero)\nLabel1:\nLabel2: add $t1, $t2, $t3\n".to_string()).0;
+        tokenize_program("lw $t1, 400($zero)\nLabel1:\nLabel2: add $t1, $t2, $t3\n".to_string());
     let result = separate_data_and_text(lines);
     assert_eq!(result.0[1].errors[0].error_name, LabelAssignmentError);
 }
 
 #[test]
 fn build_instruction_list_generates_error_on_label_on_last_line() {
-    let lines = tokenize_program("lw $t1, 400($zero)\nadd $t1, $t2, $t3\nlabel:\n".to_string()).0;
+    let lines = tokenize_program("lw $t1, 400($zero)\nadd $t1, $t2, $t3\nlabel:\n".to_string());
     let result = separate_data_and_text(lines);
     assert_eq!(result.0[2].errors[0].error_name, LabelAssignmentError);
 }
 
 #[test]
 fn create_label_map_generates_map_on_no_errors() {
-    let (lines, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
-    let (mut instruction_list, mut data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
+    let (mut instruction_list, mut data) = separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut instruction_list,
         &data,
@@ -672,8 +709,8 @@ fn create_label_map_generates_map_on_no_errors() {
 
 #[test]
 fn create_label_map_recognizes_data_labels() {
-    let (lines, mut monaco_line_info_vec) = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\n".to_string());
-    let (mut instruction_list, mut data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\n".to_string());
+    let (mut instruction_list, mut data) = separate_data_and_text(monaco_line_info_vec.clone());
     assemble_data_binary(&mut data);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut instruction_list,
@@ -692,8 +729,8 @@ fn create_label_map_recognizes_data_labels() {
 
 #[test]
 fn create_label_map_recognizes_data_labels_and_text_together() {
-    let (lines, mut monaco_line_info_vec) = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\ninstruction: sub $t1, $t2, $t3\n".to_string());
-    let (mut instruction_list, mut data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\ninstruction: sub $t1, $t2, $t3\n".to_string());
+    let (mut instruction_list, mut data) = separate_data_and_text(monaco_line_info_vec.clone());
     assemble_data_binary(&mut data);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut instruction_list,
@@ -713,8 +750,8 @@ fn create_label_map_recognizes_data_labels_and_text_together() {
 
 #[test]
 fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name() {
-    let (lines, mut monaco_line_info_vec) = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string());
-    let (mut instruction_list, mut data) = separate_data_and_text(lines);
+    let mut monaco_line_info_vec = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string());
+    let (mut instruction_list, mut data) = separate_data_and_text(monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut instruction_list,
         &data,
