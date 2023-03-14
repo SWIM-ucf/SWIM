@@ -647,26 +647,21 @@
 <a href="#647" id="647">647</a>
 <a href="#648" id="648">648</a>
 <a href="#649" id="649">649</a>
-<a href="#650" id="650">650</a>
-<a href="#651" id="651">651</a>
-<a href="#652" id="652">652</a>
-<a href="#653" id="653">653</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
 };
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, Instruction, Line, MonacoLineInfo, Token,
+    Data, Error, Instruction, MonacoLineInfo, Token,
 };
 <span class="kw">use </span>levenshtein::levenshtein;
 <span class="kw">use </span>std::collections::HashMap;
 
 <span class="doccomment">///Takes the initial string of the program given by the editor and turns it into a vector of Line,
 /// a struct that holds tokens and the original line number.
-</span><span class="kw">pub fn </span>tokenize_program(program: String) -&gt; (Vec&lt;Line&gt;, Vec&lt;MonacoLineInfo&gt;) {
+</span><span class="kw">pub fn </span>tokenize_program(program: String) -&gt; Vec&lt;MonacoLineInfo&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>monaco_line_info_vec: Vec&lt;MonacoLineInfo&gt; = Vec::new();
 
-    <span class="kw">let </span><span class="kw-2">mut </span>line_vec: Vec&lt;Line&gt; = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>token: Token = Token {
         token_name: <span class="string">&quot;&quot;</span>.to_string(),
         start_end_columns: (<span class="number">0</span>, <span class="number">0</span>),
@@ -674,18 +669,15 @@
     };
 
     <span class="kw">for </span>(i, line_of_program) <span class="kw">in </span>program.lines().enumerate() {
-        monaco_line_info_vec.push(MonacoLineInfo {
+        <span class="kw">let </span><span class="kw-2">mut </span>line = MonacoLineInfo {
             mouse_hover_string: <span class="string">&quot;&quot;</span>.to_string(),
             updated_monaco_string: line_of_program.to_string(),
+            tokens: <span class="macro">vec!</span>[],
+            line_number: i,
             error_start_end_columns: <span class="macro">vec!</span>[],
             errors: <span class="macro">vec!</span>[],
-        });
-
-        <span class="kw">let </span><span class="kw-2">mut </span>line_of_tokens = Line {
-            line_number: i <span class="kw">as </span>u32,
-
-            tokens: <span class="macro">vec!</span>[],
         };
+
         <span class="kw">let </span><span class="kw-2">mut </span>is_string = <span class="bool-val">false</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>check_escape = <span class="bool-val">false</span>;
         <span class="comment">//iterates through every character on each line of the program
@@ -734,7 +726,7 @@
                 }
             } <span class="kw">else if </span>char == <span class="string">&#39;\&quot;&#39; </span>{
                 <span class="kw">if </span>!token.token_name.is_empty() {
-                    line_of_tokens.tokens.push(token.clone());
+                    line.tokens.push(token.clone());
                 }
                 token.token_name = <span class="string">&#39;\&quot;&#39;</span>.to_string();
                 token.start_end_columns.<span class="number">0 </span>= j <span class="kw">as </span>u32;
@@ -746,35 +738,34 @@
                 token.token_name.push(char);
                 <span class="kw">if </span>char == <span class="string">&#39;,&#39; </span>{
                     <span class="kw">if </span>token.token_name.len() == <span class="number">1 </span>{
-                        <span class="kw">let </span>length = line_of_tokens.tokens.len();
-                        line_of_tokens.tokens[length - <span class="number">1</span>].token_name.push(char);
+                        <span class="kw">let </span>length = line.tokens.len();
+                        line.tokens[length - <span class="number">1</span>].token_name.push(char);
                     } <span class="kw">else </span>{
                         token.start_end_columns.<span class="number">1 </span>-= <span class="number">1</span>;
-                        line_of_tokens.tokens.push(token.clone());
+                        line.tokens.push(token.clone());
                     }
                     token.token_name = <span class="string">&quot;&quot;</span>.to_string();
                 }
             } <span class="kw">else if </span>!token.token_name.is_empty() {
                 token.start_end_columns.<span class="number">1 </span>-= <span class="number">1</span>;
-                line_of_tokens.tokens.push(token.clone());
+                line.tokens.push(token.clone());
                 token.token_name = <span class="string">&quot;&quot;</span>.to_string();
             }
         }
         <span class="kw">if </span>!token.token_name.is_empty() {
-            line_of_tokens.tokens.push(token.clone());
+            line.tokens.push(token.clone());
             token.token_name = <span class="string">&quot;&quot;</span>.to_string();
         }
-        <span class="kw">if </span>!line_of_tokens.tokens.is_empty() {
-            line_vec.push(line_of_tokens.clone());
-        }
+
+        monaco_line_info_vec.push(line);
     }
 
-    (line_vec, monaco_line_info_vec)
+    monaco_line_info_vec
 }
 
 <span class="doccomment">///This function takes the vector of lines created by tokenize program and turns them into instructions
 ///assigning labels, operators, operands, and line numbers and data assigning labels, data types, and values
-</span><span class="kw">pub fn </span>separate_data_and_text(<span class="kw-2">mut </span>lines: Vec&lt;Line&gt;) -&gt; (Vec&lt;Instruction&gt;, Vec&lt;Data&gt;) {
+</span><span class="kw">pub fn </span>separate_data_and_text(<span class="kw-2">mut </span>lines: Vec&lt;MonacoLineInfo&gt;) -&gt; (Vec&lt;Instruction&gt;, Vec&lt;Data&gt;) {
     <span class="kw">let </span><span class="kw-2">mut </span>instruction_list: Vec&lt;Instruction&gt; = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>instruction = Instruction::default();
     <span class="kw">let </span><span class="kw-2">mut </span>data_list: Vec&lt;Data&gt; = Vec::new();
@@ -811,7 +802,8 @@
                 </span>} <span class="kw">else </span>{
                     lines[i].tokens[<span class="number">0</span>].token_name.pop();
                     lines[i].tokens[<span class="number">0</span>].token_type = Label;
-                    instruction.label = <span class="prelude-val">Some</span>((lines[i].tokens[<span class="number">0</span>].clone(), lines[i].line_number));
+                    instruction.label =
+                        <span class="prelude-val">Some</span>((lines[i].tokens[<span class="number">0</span>].clone(), lines[i].line_number <span class="kw">as </span>u32));
                 }
 
                 <span class="kw">if </span>lines[i].tokens.len() == <span class="number">1 </span>{
@@ -872,7 +864,7 @@
                 .operands
                 .push(lines[i].tokens[operand_iterator].clone());
 
-            instruction.line_number = lines[i].line_number;
+            instruction.line_number = lines[i].line_number <span class="kw">as </span>u32;
 
             <span class="comment">//push completed instruction to the instruction vec
             </span>instruction_list.push(instruction.clone());
@@ -880,7 +872,7 @@
         }
         <span class="comment">//if not text, it must be data
         </span><span class="kw">else </span>{
-            data.line_number = lines[i].line_number;
+            data.line_number = lines[i].line_number <span class="kw">as </span>u32;
 
             <span class="comment">//the first token should be the label name
             </span><span class="kw">if </span>lines[i].tokens[<span class="number">0</span>].token_name.ends_with(<span class="string">&#39;:&#39;</span>) {
