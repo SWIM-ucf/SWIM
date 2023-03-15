@@ -81,7 +81,7 @@ fn basic_div() -> Result<(), String> {
         datapath.execute_instruction();
     }
 
-    assert_eq!(datapath.registers.gpr[14], 255); // 51 / 5 (10.2 truncated to 10)
+    assert_eq!(datapath.registers.gpr[14], 10); // 51 / 5 (10.2 truncated to 10)
 
     Ok(())
 }
