@@ -138,9 +138,14 @@ pub fn read_instructions(
             "div" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
-                read_operands(instruction, vec![RegisterGP, RegisterGP], vec![1, 2], None);
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
 
-                instruction.binary = append_binary(instruction.binary, 0b0000000000, 10);
+                instruction.binary = append_binary(instruction.binary, 0b00010, 5);
                 instruction.binary = append_binary(instruction.binary, 0b011010, 6);
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb

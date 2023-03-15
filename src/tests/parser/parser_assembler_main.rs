@@ -63,13 +63,13 @@ mod read_instructions_tests {
 
     #[test]
     fn read_instructions_div() {
-        let file_string = "div $t1, $s6".to_string();
+        let file_string = "div $t1, $t1, $s6".to_string();
 
         let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00000001001101100000000000011010
+            0b00000001001101100100100010011010
         );
     }
 
