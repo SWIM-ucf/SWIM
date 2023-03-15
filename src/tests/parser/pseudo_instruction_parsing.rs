@@ -276,7 +276,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_divi() {
                 },
                 Token {
                     token_name: "100".to_string(),
-                    start_end_columns: (10, 13),
+                    start_end_columns: (15, 18),
                     token_type: Default::default(),
                 }
             ],
