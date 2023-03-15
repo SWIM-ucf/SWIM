@@ -244,7 +244,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_muli() {
 fn expand_pseudo_instructions_and_assign_instruction_numbers_works_divi() {
     let mut program_info = ProgramInfo::default();
 
-    let file_string = "divi $t1, 100\nsw $t1, label".to_string();
+    let file_string = "divi $t1, $t1, 100\nsw $t1, label".to_string();
 
     let mut monaco_line_info_vec = tokenize_program(file_string);
     (program_info.instructions, program_info.data) =
@@ -299,6 +299,11 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_divi() {
                 Token {
                     token_name: "$t1".to_string(),
                     start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (10, 13),
                     token_type: Default::default(),
                 },
                 Token {
