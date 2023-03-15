@@ -28,6 +28,8 @@
 //! - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
 //!   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
 //!   `bnezalc`, `beqc`, and `bovc` instructions.
+//! - This datapath implements `daddi` as it exists in MIPS64 version 5. This instruction
+//!   was deprecated in MIPS64 version 6.
 //! - Unlike the MIPS64 version 6 specification for the `jal` instruction, `PC + 4` is
 //!   stored in `GPR[31]`, *not* `PC + 8`, as there is no implementation of branch
 //!   delay slots.
