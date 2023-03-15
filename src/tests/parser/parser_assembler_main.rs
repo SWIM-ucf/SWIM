@@ -719,7 +719,7 @@ mod helper_functions {
 
         let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
 
-        read_instructions(&mut instruction_list, &labels);
+        read_instructions(&mut instruction_list, &labels, &mut monaco_line_info_vec);
 
         instruction_list
     }
@@ -749,7 +749,7 @@ fn create_binary_vec_works_with_data() {
         &labels,
         &mut program_info.monaco_line_info,
     );
-    read_instructions(&mut program_info.instructions, &labels);
+    read_instructions(&mut program_info.instructions, &labels, &mut program_info.monaco_line_info);
 
     let result = create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
@@ -779,7 +779,7 @@ fn read_instructions_recognizes_valid_but_unsupported_instructions() {
         &labels,
         &mut program_info.monaco_line_info,
     );
-    read_instructions(&mut program_info.instructions, &labels);
+    read_instructions(&mut program_info.instructions, &labels, &mut program_info.monaco_line_info);
 
     assert_eq!(
         program_info.instructions[0].errors[0].error_name,

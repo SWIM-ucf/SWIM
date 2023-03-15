@@ -32,7 +32,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
         &labels,
         &mut program_info.monaco_line_info,
     );
-    read_instructions(&mut program_info.instructions, &labels);
+    read_instructions(&mut program_info.instructions, &labels, &mut program_info.monaco_line_info);
 
     program_info.console_out_post_assembly = suggest_error_corrections(
         &mut program_info.instructions,
@@ -59,7 +59,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
 }
 
 ///Takes the vector of instructions and assembles the binary for them.
-pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<String, u32>) {
+pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<String, u32>, monaco_line_info: &mut [MonacoLineInfo]) {
     for mut instruction in &mut instruction_list.iter_mut() {
         //this match case is the heart of the parser and figures out which instruction type it is
         //then it can call the proper functions for that specific instruction
