@@ -115,7 +115,7 @@ pub fn read_instructions(
                 }
             }
             "mul" => {
-                instruction.binary = append_binary(instruction.binary, 0b011100, 6);
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
                 read_operands(
                     instruction,
@@ -124,8 +124,8 @@ pub fn read_instructions(
                     None,
                 );
 
-                instruction.binary = append_binary(instruction.binary, 0b00000, 5);
-                instruction.binary = append_binary(instruction.binary, 0b000010, 6);
+                instruction.binary = append_binary(instruction.binary, 0b00010, 5);
+                instruction.binary = append_binary(instruction.binary, 0b011000, 6);
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
