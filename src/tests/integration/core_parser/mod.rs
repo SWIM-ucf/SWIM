@@ -8,6 +8,7 @@ pub mod basic_immediate;
 pub mod basic_operations;
 pub mod conditions;
 pub mod double_arithmetic;
+pub mod double_immediate;
 
 #[test]
 fn add_register_plus_itself() -> Result<(), String> {
