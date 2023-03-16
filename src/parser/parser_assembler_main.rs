@@ -32,7 +32,11 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
         &labels,
         &mut program_info.monaco_line_info,
     );
-    read_instructions(&mut program_info.instructions, &labels, &mut program_info.monaco_line_info);
+    read_instructions(
+        &mut program_info.instructions,
+        &labels,
+        &mut program_info.monaco_line_info,
+    );
 
     program_info.console_out_post_assembly = suggest_error_corrections(
         &mut program_info.instructions,
@@ -59,7 +63,11 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
 }
 
 ///Takes the vector of instructions and assembles the binary for them.
-pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<String, u32>, monaco_line_info: &mut [MonacoLineInfo]) {
+pub fn read_instructions(
+    instruction_list: &mut [Instruction],
+    labels: &HashMap<String, u32>,
+    monaco_line_info: &mut [MonacoLineInfo],
+) {
     for mut instruction in &mut instruction_list.iter_mut() {
         //this match case is the heart of the parser and figures out which instruction type it is
         //then it can call the proper functions for that specific instruction
@@ -76,6 +84,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5);
                 instruction.binary = append_binary(instruction.binary, 0b100000, 6);
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "add rd, rs, rt\nAdds the 32-bit values in rs and rt, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if adding rs and rt causes a 32-bit overflow. However, SWIM places the result in rd, regardless.".to_string();
+                }
             }
             "sub" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
@@ -89,6 +105,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5);
                 instruction.binary = append_binary(instruction.binary, 0b100010, 6);
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "sub rd, rs, rt\nSubtracts the 32-bit value in rt from the 32-bit value in rd, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if subtracting rs and rt causes a 32-bit overflow. However, SWIM places the result in rd, regardless.".to_string();
+                }
             }
             "mul" => {
                 instruction.binary = append_binary(instruction.binary, 0b011100, 6);
@@ -102,6 +126,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5);
                 instruction.binary = append_binary(instruction.binary, 0b000010, 6);
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "mul rd, rs, rt\nMultiplies the signed 32-bit values in rs and rt, and places the lower 32 bits of the result in rd.".to_string();
+                }
             }
             "div" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
@@ -110,6 +142,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b0000000000, 10);
                 instruction.binary = append_binary(instruction.binary, 0b011010, 6);
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "div rd, rs, rt\nDivides the 32-bit value in rs by the 32-bit value in rt and places the 32-bit quotient into rd.".to_string();
+                }
             }
             "lw" => {
                 instruction.binary = append_binary(instruction.binary, 0b100011, 6);
@@ -120,6 +160,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![3, 1, 2],
                     None,
                 );
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "lw rt, offset(base)\nLoads the contents of the 32-bit at the specified memory address into rt.\nMemory address is calculated as the sum of offset and the contents of the base register.".to_string();
+                }
             }
             "sw" => {
                 instruction.binary = append_binary(instruction.binary, 0b101011, 6);
@@ -130,12 +178,28 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![3, 1, 2],
                     None,
                 );
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "sw rt, offset(base)\nStores the value of the lower 32-bits in rt at the specified memory address.\nMemory address is calculated as the sum of offset and the contents of the base register.".to_string();
+                }
             }
             "lui" => {
                 instruction.binary = append_binary(instruction.binary, 0b001111, 6);
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5);
 
                 read_operands(instruction, vec![RegisterGP, Immediate], vec![1, 2], None);
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "lui rt, immediate\nLoads the 16-bit immediate value shifted left by 16 into rt.".to_string();
+                }
             }
             "aui" => {
                 instruction.binary = append_binary(instruction.binary, 0b001111, 6);
@@ -146,6 +210,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![2, 1, 3],
                     None,
                 );
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "aui rt, rs, immediate\nAdds the sign-extended 16-bit immediate value shifted left by 16 to the contents of rs, and stores the result in rt.\nResult is sign-extended as if it is a 32-bit signed address.".to_string();
             }
             "andi" => {
                 instruction.binary = append_binary(instruction.binary, 0b001100, 6);
@@ -156,6 +223,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![2, 1, 3],
                     None,
                 );
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "andi rt, rs, immediate\nBitwise ands the contents of rs with the left zero-extended immediate value, and stores the result in rt.".to_string();
+                }
             }
             "ori" => {
                 instruction.binary = append_binary(instruction.binary, 0b001101, 6);
@@ -166,6 +241,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![2, 1, 3],
                     None,
                 );
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "ori rt, rs, immediate\nBitwise ors the contents of rs with the left zero-extended immediate value, and stores the result in rt.".to_string();
+                }
             }
             "addi" => {
                 instruction.binary = append_binary(instruction.binary, 0b001000, 6);
@@ -176,6 +259,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![2, 1, 3],
                     None,
                 );
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "addi rt, rs, immediate\nAdds the 32-bit value in rs and the 16-bit immediate, and places the result in rt.\nIn hardware implementations, the result is not placed in rt if adding rs and the immediate causes a 32-bit overflow. However, SWIM places the result in rd, regardless.".to_string();
+                }
             }
             "dadd" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
@@ -189,6 +280,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5);
                 instruction.binary = append_binary(instruction.binary, 0b101100, 6);
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "dadd rd, rs, rt\nAdds the 64-bit values in rs and rt, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if adding rs and rt causes a 64-bit overflow. However, SWIM places the result in rd, regardless.".to_string();
+                }
             }
             "dsub" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
@@ -202,6 +301,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5);
                 instruction.binary = append_binary(instruction.binary, 0b101110, 6);
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "dsub rd, rs, rt\nSubtracts the 64-bit values in rt from the 64-bit value in rs, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if subtracting rs and rt causes a 64-bit overflow. However, SWIM places the result in rd, regardless.".to_string();
+                }
             }
             "dmul" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
@@ -215,6 +322,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b00010, 5);
                 instruction.binary = append_binary(instruction.binary, 0b011100, 6);
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "dmul rd, rs, rt\nMultiplies the signed 64-bit values in rs and rt, and places the lower 64 bits of the result in rd.".to_string();
+                }
             }
             "ddiv" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
@@ -223,6 +338,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b0000000000, 10);
                 instruction.binary = append_binary(instruction.binary, 0b011110, 6);
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "ddiv rd, rs, rt\nDivides the 64-bit value in rs by the 64-bit value in rt and places the quotient into rd.\n".to_string();
+                }
             }
             "or" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
@@ -236,6 +359,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5);
                 instruction.binary = append_binary(instruction.binary, 0b100101, 6);
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "or rd, rs, rt\nBitwise ors the contents of rs with the contents of rt, and stores the result in rd.".to_string();
             }
             "and" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
@@ -249,6 +375,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5);
                 instruction.binary = append_binary(instruction.binary, 0b100100, 6);
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "and rd, rs, rt\nBitwise ands the contents of rs with the contents of rt, and stores the result in rd.".to_string();
             }
             "add.s" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -263,6 +392,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
                 //add
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "add.s fd, fs, ft\nAdds the single-precision values in ft and fs and stores the result in fd.".to_string();
             }
             "add.d" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -277,6 +409,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
                 //add
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "add.d fd, fs, ft\nAdds the double-precision values in ft and fs and stores the result in fd.".to_string();
             }
             "sub.s" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -291,6 +426,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b000001, 6);
                 //sub
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "sub.s fd, fs, ft\nSubtracts the single-precision value in ft from the single-precision value in fs, and places the result in fd.".to_string();
             }
             "sub.d" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -304,6 +442,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 );
 
                 instruction.binary = append_binary(instruction.binary, 0b000001, 6);
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "sub.d fd, fs, ft\nSubtracts the double-precision value in ft from the single-precision value in fs, and places the result in fd.".to_string();
             }
             "mul.s" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -318,6 +459,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b000010, 6);
                 //mul
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "mul.s fd, fs, ft\nMultiplies the single-precision values in ft and fs and stores the result in fd.".to_string();
             }
             "mul.d" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -332,6 +476,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b000010, 6);
                 //mul
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "mul.d fd, fs, ft\nMultiplies the double-precision values in ft and fs and stores the result in fd.".to_string();
             }
             "div.s" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -346,6 +493,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b000011, 6);
                 //div
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "div.s fd, fs, ft\nDivides the single-precision value in fs by the single-precision value in ft and stores the result in fd.".to_string();
             }
             "div.d" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -360,6 +510,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b000011, 6);
                 //div
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "div.d fd, fs, ft\nDivides the double-precision value in fs by the double-precision value in ft and stores the result in fd.".to_string();
             }
             "dahi" => {
                 instruction.binary = append_binary(instruction.binary, 0b000001, 6); //regimm
@@ -368,6 +521,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary =
                     place_binary_in_middle_of_another(instruction.binary, 0b00110, 5, 15);
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "dahi rs, immediate\nAdds the sign-extended 16-bit immediate value shifted left by 32 to the contents of rs, and stores the result in rs.".to_string();
             }
             "dati" => {
                 instruction.binary = append_binary(instruction.binary, 0b000001, 6); //regimm
@@ -376,6 +532,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary =
                     place_binary_in_middle_of_another(instruction.binary, 0b11110, 5, 15);
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "dati rs, immediate\nAdds the sign-extended 16-bit immediate value shifted left by 48 to the contents of rs, and stores the result in rs.".to_string();
             }
             "daddiu" => {
                 instruction.binary = append_binary(instruction.binary, 0b011001, 6); //daddiu
@@ -386,6 +545,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![2, 1, 3],
                     None,
                 );
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "daddiu rt, rs, immediate\nAdds the 64-bit value in rs and the 16-bit immediate, and places the result in rt.".to_string();
             }
             "daddu" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
@@ -400,6 +562,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
                 instruction.binary = append_binary(instruction.binary, 0b101101, 6);
                 //daddu
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "daddu rd, rs, rt\nAdds the 64-bit values in rs and rt, and places the result in rd.\nIgnores overflow.".to_string();
             }
             "dsubu" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
@@ -414,6 +579,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
                 instruction.binary = append_binary(instruction.binary, 0b101111, 6);
                 //dsubu
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "dsubu rd, rs, rt\nSubtracts the 64-bit values in rt from the 64-bit value in rs, and places the result in rd.\nIgnores overflow.".to_string();
+                }
             }
             "dmulu" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
@@ -428,6 +601,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b00010, 5); //dmulu
                 instruction.binary = append_binary(instruction.binary, 0b011101, 6);
                 //sop35
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "dmulu rd, rs, rt\nMultiplies the signed 64-bit values in rs and rt, and places the lower 64 bits of the result in rd.".to_string();
+                }
             }
             "ddivu" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
@@ -437,6 +618,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b0000000000, 10); //0
                 instruction.binary = append_binary(instruction.binary, 0b011111, 6);
                 //DDIVU
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "ddivu rd, rs, rt\nDivides the unsigned 64-bit value in rs by the unsigned 64-bit value in rt and places the quotient into rd.".to_string();
+                }
             }
             "slt" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
@@ -451,6 +640,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
                 instruction.binary = append_binary(instruction.binary, 0b101010, 6);
                 //slt
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "slt rd, rs, rt\nCompares the contents of rs and rt as signed integers and stores the value 1 in rd if rs is less than rt. Otherwise, stores the value 0 in rd.".to_string();
+                }
             }
             "sltu" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
@@ -465,6 +662,14 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
                 instruction.binary = append_binary(instruction.binary, 0b101011, 6);
                 //sltu
+
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number as usize]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "sltu rd, rs, rt\nCompares the contents of rs and rt as unsigned integers and stores the value 1 in rd if rs is less than rt. Otherwise, stores the value 0 in rd.".to_string();
+                }
             }
             "swc1" => {
                 instruction.binary = append_binary(instruction.binary, 0b111001, 6); //swc1
@@ -475,6 +680,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![3, 1, 2],
                     None,
                 );
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "swc1 ft, offset(base)\nStores the value of the lower 32 bits in ft at the specified memory address.\nMemory address is calculated as the sum of offset and the contents of the base register.".to_string();
             }
             "lwc1" => {
                 instruction.binary = append_binary(instruction.binary, 0b110001, 6); //lwc1
@@ -485,6 +693,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![3, 1, 2],
                     None,
                 );
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "lwc1 ft offset(base)\nLoads the contents of the 32-bit word at the specified memory address into ft.\nMemory address is calculated as the sum of offset and the contents of the base register.".to_string();
             }
             "mtc1" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -494,6 +705,11 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b00000000000, 11);
                 //0
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
+                    "mtc1 rt, fs\nMoves the lower 32 bits in rt into the lower 32 bits in fs."
+                        .to_string();
             }
             "dmtc1" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -503,6 +719,10 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b00000000000, 11);
                 //0
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
+                    "dmtc1 rt, fs\nMoves the doubleword contents in rt into fs.".to_string();
             }
             "mfc1" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -512,6 +732,10 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b00000000000, 11);
                 //0
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
+                    "mfc1 rt, fs\nSign-extends contents in fs and moves it into rt.".to_string();
             }
             "dmfc1" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -521,6 +745,10 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
 
                 instruction.binary = append_binary(instruction.binary, 0b00000000000, 11);
                 //0
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string =
+                    "dmfc1 rt, fs\nMoves the doubleword contents in fs into rt.".to_string();
             }
             "j" => {
                 instruction.binary = append_binary(instruction.binary, 0b000010, 6); //j
@@ -531,6 +759,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![1],
                     Some(labels.clone()),
                 );
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "j target\nMoves the program counter to point to the targeted instruction’s address.".to_string();
             }
             "beq" => {
                 instruction.binary = append_binary(instruction.binary, 0b000100, 6); //beq
@@ -541,6 +772,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![1, 2, 3],
                     Some(labels.clone()),
                 );
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "beq rs, rt, target\nCompares the contents of rs and rt and, if they are equal, moves the program counter to point to the targeted instruction’s address.".to_string();
             }
             "bne" => {
                 instruction.binary = append_binary(instruction.binary, 0b000101, 6); //bne
@@ -551,6 +785,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![1, 2, 3],
                     Some(labels.clone()),
                 );
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "bne rs, rt, target\nCompares the contents of rs and rt and, if they are not equal, moves the program counter to point to the targeted instruction’s address.".to_string();
             }
             "c.eq.s" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -566,6 +803,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1010, 4);
                 //EQ
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "c.eq.s fs, ft\nCompares the contents of fs and ft as single-precision floats and, if they are equal, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.".to_string();
             }
             "c.eq.d" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -581,6 +821,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1010, 4);
                 //EQ
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "c.eq.d fs, ft\nCompares the contents of fs and ft as double-precision floats and, if they are equal, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.".to_string();
             }
             "c.lt.s" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -596,6 +839,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1100, 4);
                 //lt
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "c.lt.s fs, ft\nCompares the contents of fs and ft as single-precision floats and, if the contents of fs is less than the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.".to_string();
             }
             "c.lt.d" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -611,6 +857,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1100, 4);
                 //lt
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "c.lt.d fs, ft\nCompares the contents of fs and ft as double-precision floats and, if the contents of fs is less than the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.".to_string();
             }
             "c.le.s" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -626,6 +875,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1110, 4);
                 //le
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "c.le.s fs, ft\nCompares the contents of fs and ft as single-precision floats and, if the contents of fs is less than or equal to the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.".to_string();
             }
             "c.le.d" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -641,6 +893,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1110, 4);
                 //le
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "c.le.d fs, ft\nCompares the contents of fs and ft as double-precision floats and, if the contents of fs is less than or equal to the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.".to_string();
             }
             "c.ngt.s" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -656,6 +911,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1111, 4);
                 //ngt
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "c.ngt.s fs, ft\nCompares the contents of fs and ft as single-precision floats and, if the contents of fs not greater than the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.".to_string();
             }
             "c.ngt.d" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -671,6 +929,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1111, 4);
                 //ngt
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "c.ngt.d fs, ft\nCompares the contents of fs and ft as double-precision floats and, if the contents of fs not greater than the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.".to_string();
             }
             "c.nge.s" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -686,6 +947,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1101, 4);
                 //nge
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "c.nge.d fs, ft\nCompares the contents of fs and ft as single-precision floats and, if the contents of fs not greater than or equal to the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.".to_string();
             }
             "c.nge.d" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -701,6 +965,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
                 instruction.binary = append_binary(instruction.binary, 0b1101, 4);
                 //nge
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "c.nge.d fs, ft\nCompares the contents of fs and ft as double-precision floats and, if the contents of fs not greater than or equal to the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.".to_string();
             }
             "bc1t" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -713,6 +980,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![1],
                     Some(labels.clone()),
                 );
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "bc1t target\nIf FPConditionCode is 1, moves the program counter to point to the targeted instruction’s address.".to_string();
             }
             "bc1f" => {
                 instruction.binary = append_binary(instruction.binary, 0b010001, 6); //cop1
@@ -725,6 +995,9 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                     vec![1],
                     Some(labels.clone()),
                 );
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number as usize].mouse_hover_string = "bc1t target\nIf FPConditionCode is , moves the program counter to point to the targeted instruction’s address.".to_string();
             }
             "syscall" => {
                 //our support for syscall is limited. It is simply there to end emulation
@@ -732,6 +1005,25 @@ pub fn read_instructions(instruction_list: &mut [Instruction], labels: &HashMap<
                 instruction.binary = append_binary(instruction.binary, 0b00000000000000000000, 20); //stub of code
                 instruction.binary = append_binary(instruction.binary, 0b001100, 6);
                 //syscall
+
+                //only adds mouse hover for syscall if the syscall was actually there already and not just inserted by the parser
+                if (!monaco_line_info[instruction.line_number as usize]
+                    .tokens
+                    .is_empty()
+                    && monaco_line_info[instruction.line_number as usize].tokens[0].token_name
+                        == "syscall")
+                    || (monaco_line_info[instruction.line_number as usize]
+                        .tokens
+                        .len()
+                        > 1
+                        && monaco_line_info[instruction.line_number as usize].tokens[0]
+                            .token_name
+                            .ends_with(':')
+                        && monaco_line_info[instruction.line_number as usize].tokens[1].token_name
+                            == "syscall")
+                {
+                    monaco_line_info[instruction.line_number as usize].mouse_hover_string = "syscall\nThis function is currently stubbed in SWIM. Normally, it reverts control back to the OS. SWIM uses it to effectively end the program.".to_string();
+                }
             }
 
             _ => {

@@ -749,7 +749,11 @@ fn create_binary_vec_works_with_data() {
         &labels,
         &mut program_info.monaco_line_info,
     );
-    read_instructions(&mut program_info.instructions, &labels, &mut program_info.monaco_line_info);
+    read_instructions(
+        &mut program_info.instructions,
+        &labels,
+        &mut program_info.monaco_line_info,
+    );
 
     let result = create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
@@ -761,25 +765,7 @@ fn create_binary_vec_works_with_data() {
 
 #[test]
 fn read_instructions_recognizes_valid_but_unsupported_instructions() {
-    let mut program_info = ProgramInfo::default();
-    let file_string = "jalr $t1, $t2\ndsrav $t1, $t2, $t3".to_lowercase();
-    let mut monaco_line_info_vec = tokenize_program(file_string);
-    (program_info.instructions, program_info.data) =
-        separate_data_and_text(monaco_line_info_vec.clone());
-    expand_pseudo_instructions_and_assign_instruction_numbers(
-        &mut program_info.instructions,
-        &program_info.data,
-        &mut monaco_line_info_vec,
-    );
-
-    let labels: HashMap<String, u32> =
-        create_label_map(&mut program_info.instructions, &mut program_info.data);
-    complete_lw_sw_pseudo_instructions(
-        &mut program_info.instructions,
-        &labels,
-        &mut program_info.monaco_line_info,
-    );
-    read_instructions(&mut program_info.instructions, &labels, &mut program_info.monaco_line_info);
+    let program_info = parser("jalr $t1, $t2\ndsrav $t1, $t2, $t3\n".to_string()).0;
 
     assert_eq!(
         program_info.instructions[0].errors[0].error_name,
