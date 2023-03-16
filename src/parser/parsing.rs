@@ -553,12 +553,16 @@ pub fn suggest_error_corrections(
 
     //special section to remove the syscall binary from mouse hover if syscall was added in by the parser since this would be added on to the mouse hover of a completely unrelated string
     let mut contains = false;
-    for token in monaco_line_info.last().unwrap().tokens.clone(){
-        if token.token_name == "syscall" {contains = true;}
+    for token in monaco_line_info.last().unwrap().tokens.clone() {
+        if token.token_name == "syscall" {
+            contains = true;
+        }
     }
-    let index = monaco_line_info.last().clone().unwrap().line_number;
+    let index = monaco_line_info.last().unwrap().line_number;
     if !contains {
-       monaco_line_info[index].mouse_hover_string = monaco_line_info[index].mouse_hover_string.replace("\nBinary: 00000000000000000000000000001100", "");
+        monaco_line_info[index].mouse_hover_string = monaco_line_info[index]
+            .mouse_hover_string
+            .replace("\nBinary: 00000000000000000000000000001100", "");
     }
 
     //go through each error in the data and suggest a correction

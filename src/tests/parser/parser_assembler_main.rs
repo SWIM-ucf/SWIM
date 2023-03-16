@@ -801,7 +801,7 @@ fn console_output_post_assembly_works_with_no_errors_present() {
 }
 
 #[test]
-fn mouse_hover_holds_information_about_valid_instructions(){
+fn mouse_hover_holds_information_about_valid_instructions() {
     let program_info = parser(".text\nori $t1, $t2, 100\nsyscall".to_string()).0;
 
     assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
@@ -809,7 +809,7 @@ fn mouse_hover_holds_information_about_valid_instructions(){
 }
 
 #[test]
-fn mouse_hover_holds_information_about_pseudo_instructions(){
+fn mouse_hover_holds_information_about_pseudo_instructions() {
     let program_info = parser(".text\nlabel: subi $t1, $t2, 100\nsyscall".to_string()).0;
 
     assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
@@ -817,17 +817,20 @@ fn mouse_hover_holds_information_about_pseudo_instructions(){
 }
 
 #[test]
-fn errors_do_not_go_into_mouse_hover(){
+fn errors_do_not_go_into_mouse_hover() {
     let program_info = parser(".text\nori $t1, $t2, $t3\nsyscall".to_string()).0;
 
     assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
     assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "ori rt, rs, immediate\nBitwise ors the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n");
-
 }
 
 #[test]
-fn syscall_message_and_binary_does_not_go_in_mouse_hover_if_the_syscall_was_added_by_parser(){
-    let monaco_line_info = parser(".text\nori $t1, $t2, 100\nlabel: subi $t1, $t2, 100\nadd $t1, $t2, $t3\n".to_string()).0.monaco_line_info;
+fn syscall_message_and_binary_does_not_go_in_mouse_hover_if_the_syscall_was_added_by_parser() {
+    let monaco_line_info = parser(
+        ".text\nori $t1, $t2, 100\nlabel: subi $t1, $t2, 100\nadd $t1, $t2, $t3\n".to_string(),
+    )
+    .0
+    .monaco_line_info;
 
     assert_eq!(monaco_line_info[0].mouse_hover_string, "");
     assert_eq!(monaco_line_info[1].mouse_hover_string, "ori rt, rs, immediate\nBitwise ors the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n\nBinary: 00110101010010010000000001100100");
@@ -836,12 +839,10 @@ fn syscall_message_and_binary_does_not_go_in_mouse_hover_if_the_syscall_was_adde
 
     let monaco_line_info = parser(".text".to_string()).0.monaco_line_info;
     assert_eq!(monaco_line_info[0].mouse_hover_string, "");
-
 }
 
 #[test]
-fn mouse_hover_holds_information_info_for_various_instruction_types(
-) {
+fn mouse_hover_holds_information_info_for_various_instruction_types() {
     let program_info = parser(
         ".text\nori $t1, $t2, 100\nlabel: subi $t1, $t2, 100\nadd $t1, $t2, $t3\nsyscall\n"
             .to_string(),
