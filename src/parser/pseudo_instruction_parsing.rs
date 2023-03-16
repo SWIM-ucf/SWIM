@@ -1045,41 +1045,50 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
         //try to find an instance of .text
         let mut text_index: Option<u32> = None;
         for (i, monaco_line) in monaco_line_info.iter_mut().enumerate() {
-            let mut line = monaco_line.updated_monaco_string.clone();
-            line = line.replace(' ', "");
-            line = line.replace('#', " ");
-            if line.starts_with(".text") {
+            if !monaco_line.tokens.is_empty() && monaco_line.tokens[0].token_name == ".text" {
                 text_index = Some(i as u32);
                 break;
             }
         }
         if let Some(..) = text_index {
             //add syscall after first index of .text if it exists
-            // updated_monaco_strings.insert(text_index.unwrap() as usize + 1, "syscall".to_string());
             monaco_line_info[text_index.unwrap() as usize + 1]
                 .updated_monaco_string
                 .insert_str(0, "syscall\n");
+
+            instructions.push(Instruction {
+                operator: Token {
+                    token_name: "syscall".to_string(),
+                    start_end_columns: (0, 0),
+                    token_type: Operator,
+                },
+                operands: vec![],
+                binary: 0,
+                instruction_number: 0,
+                line_number: text_index.unwrap(),
+                errors: vec![],
+                label: None,
+            });
         } else {
             //otherwise, add it at the beginning of monaco
-            // updated_monaco_strings.insert(0, ".text".to_string());
-            // updated_monaco_strings.insert(1, "syscall".to_string());
             monaco_line_info[0]
                 .updated_monaco_string
                 .insert_str(0, ".text\nsyscall\n");
+
+            instructions.push(Instruction {
+                operator: Token {
+                    token_name: "syscall".to_string(),
+                    start_end_columns: (0, 0),
+                    token_type: Operator,
+                },
+                operands: vec![],
+                binary: 0,
+                instruction_number: 0,
+                line_number: 0,
+                errors: vec![],
+                label: None,
+            });
         }
-        instructions.push(Instruction {
-            operator: Token {
-                token_name: "syscall".to_string(),
-                start_end_columns: (0, 6),
-                token_type: Operator,
-            },
-            operands: vec![],
-            binary: 0,
-            instruction_number: 0,
-            line_number: 0,
-            errors: vec![],
-            label: None,
-        });
     } else {
         let last_instruction = instructions.last().unwrap();
         //if the last instruction in monaco is not a syscall, add it in to updated_monaco_strings and to instructions
@@ -1091,7 +1100,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
             instructions.push(Instruction {
                 operator: Token {
                     token_name: "syscall".to_string(),
-                    start_end_columns: (0, 6),
+                    start_end_columns: (0, 0),
                     token_type: Operator,
                 },
                 operands: vec![],

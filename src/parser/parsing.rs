@@ -181,8 +181,6 @@ pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instructio
                 instruction.operator = lines[i].tokens[0].clone();
             }
 
-            let _first_operand_index = operand_iterator;
-
             //push all operands to the instruction operand vec that will have commas
             while operand_iterator < (lines[i].tokens.len() - 1) {
                 if lines[i].tokens[operand_iterator].token_name.ends_with(',') {
@@ -205,6 +203,7 @@ pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instructio
 
             //simple statement to handle cases where the user doesn't finish instructions
             if operand_iterator >= lines[i].tokens.len() {
+                instruction.line_number = lines[i].line_number as u32;
                 instruction_list.push(instruction.clone());
                 i += 1;
                 continue;
@@ -368,7 +367,7 @@ pub fn suggest_error_corrections(
         if instruction.errors.is_empty() {
             monaco_line_info[instruction.line_number as usize]
                 .mouse_hover_string
-                .push_str(&format!("Binary: {:032b}\n", instruction.binary));
+                .push_str(&format!("\nBinary: {:032b}", instruction.binary));
         } else {
             for error in &mut instruction.errors {
                 match error.error_name {
@@ -436,7 +435,7 @@ pub fn suggest_error_corrections(
                             "daddiu", "slt", "sltu", "swc1", "lwc1", "mtc1", "dmtc1", "mfc1",
                             "dmfc1", "j", "beq", "bne", "c.eq.s", "c.eq.d", "c.lt.s", "c.le.s",
                             "c.le.d", "c.ngt.s", "c.ngt.d", "c.nge.s", "c.nge.d", "bc1t", "bc1f",
-                            "syscall", "daddu", "dsubu", "ddivu", "dmulu",
+                            "daddu", "dsubu", "ddivu", "dmulu",
                         ];
 
                         let given_string = &instruction.operator.token_name;
