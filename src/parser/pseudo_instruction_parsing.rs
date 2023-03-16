@@ -32,7 +32,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
     //iterate through every instruction and check if the operator is a pseudo-instruction
     for (i, mut instruction) in &mut instructions.iter_mut().enumerate() {
-        instruction.instruction_number = (i + vec_of_added_instructions.len()) as u32;
+        instruction.instruction_number = i + vec_of_added_instructions.len();
         match &*instruction.operator.token_name.to_lowercase() {
             "li" => {
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
@@ -1043,16 +1043,16 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     //if there aren't any instructions, add a syscall to monaco's updated string so the emulation core does not try to run data as an instruction
     if instructions.is_empty() {
         //try to find an instance of .text
-        let mut text_index: Option<u32> = None;
+        let mut text_index: Option<usize> = None;
         for (i, monaco_line) in monaco_line_info.iter_mut().enumerate() {
             if !monaco_line.tokens.is_empty() && monaco_line.tokens[0].token_name == ".text" {
-                text_index = Some(i as u32);
+                text_index = Some(i);
                 break;
             }
         }
         if let Some(..) = text_index {
             //add syscall after first index of .text if it exists
-            monaco_line_info[text_index.unwrap() as usize]
+            monaco_line_info[text_index.unwrap()]
                 .updated_monaco_string
                 .push_str("\nsyscall");
 
@@ -1118,7 +1118,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 /// the second part of this must occur after the label hashmap is completed.
 pub fn complete_lw_sw_pseudo_instructions(
     instructions: &mut Vec<Instruction>,
-    labels: &HashMap<String, u32>,
+    labels: &HashMap<String, usize>,
     monaco_line_info: &mut [MonacoLineInfo],
 ) {
     if instructions.len() < 2 {

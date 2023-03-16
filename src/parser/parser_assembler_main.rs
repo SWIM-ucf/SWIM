@@ -25,7 +25,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
         &mut program_info.monaco_line_info,
     );
     let vec_of_data = assemble_data_binary(&mut program_info.data);
-    let labels: HashMap<String, u32> =
+    let labels: HashMap<String, usize> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
     complete_lw_sw_pseudo_instructions(
         &mut program_info.instructions,
@@ -65,7 +65,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
 ///Takes the vector of instructions and assembles the binary for them.
 pub fn read_instructions(
     instruction_list: &mut [Instruction],
-    labels: &HashMap<String, u32>,
+    labels: &HashMap<String, usize>,
     monaco_line_info: &mut [MonacoLineInfo],
 ) {
     for mut instruction in &mut instruction_list.iter_mut() {

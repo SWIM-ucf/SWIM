@@ -26,7 +26,7 @@ pub fn read_operands(
     instruction: &mut Instruction,
     expected_operands: Vec<OperandType>,
     concat_order: Vec<usize>,
-    labels_option: Option<HashMap<String, u32>>,
+    labels_option: Option<HashMap<String, usize>>,
 ) -> &mut Instruction {
     //if the number of operands in the instruction does not match the expected number, there is an error
     if instruction.operands.len() != expected_operands.len() {
@@ -172,9 +172,9 @@ pub fn read_operands(
 /// The value represents instruction numbers NOT bytes.
 pub fn read_label_relative(
     given_label: &str,
-    start_end_columns: (u32, u32),
-    current_instruction_number: u32,
-    labels: HashMap<String, u32>,
+    start_end_columns: (usize, usize),
+    current_instruction_number: usize,
+    labels: HashMap<String, usize>,
 ) -> (u32, Option<Error>) {
     let result = labels.get(given_label);
 
@@ -200,8 +200,8 @@ pub fn read_label_relative(
 /// This value corresponds to instruction number, NOT byte address.
 pub fn read_label_absolute(
     given_label: &str,
-    start_end_columns: (u32, u32),
-    labels: HashMap<String, u32>,
+    start_end_columns: (usize, usize),
+    labels: HashMap<String, usize>,
 ) -> (u32, Option<Error>) {
     let result = labels.get(given_label);
     if result.is_none() {
@@ -215,14 +215,14 @@ pub fn read_label_absolute(
             }),
         );
     }
-    (*result.unwrap() >> 2, None)
+    ((*result.unwrap() >> 2) as u32, None)
 }
 
 ///Takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors.
 /// If the string given matches a label, that address is returned instead
 pub fn read_memory_address(
     orig_string: &str,
-    start_end_columns: (u32, u32),
+    start_end_columns: (usize, usize),
 ) -> (u32, u32, Option<Vec<Error>>) {
     //the indices of the open and close parentheses are checked.
     //If either are missing or they are in the wrong order, an error is returned
@@ -291,7 +291,7 @@ pub fn read_memory_address(
 ///and the expected register type. It calls the corresponding functions holding the match cases for the different register types.
 pub fn read_register(
     register: &str,
-    start_end_columns: (u32, u32),
+    start_end_columns: (usize, usize),
     register_type: RegisterType,
 ) -> (u32, Option<Error>) {
     if register_type == GeneralPurpose {
@@ -441,7 +441,7 @@ pub fn match_fp_register(register: &str) -> Option<u32> {
 /// by the available bits, an error is returned.
 pub fn read_immediate(
     given_text: &str,
-    start_end_columns: (u32, u32),
+    start_end_columns: (usize, usize),
     num_bits: u32,
 ) -> (u32, Option<Error>) {
     //attempts to cast the text into a large int
@@ -492,7 +492,7 @@ pub fn read_immediate(
 pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
     let mut vec_of_data: Vec<u8> = Vec::new();
     for datum in data_list.iter_mut() {
-        datum.data_number = vec_of_data.len() as u32;
+        datum.data_number = vec_of_data.len();
         match &*datum.data_type.token_name.to_lowercase() {
             ".ascii" => {
                 //pushes a string of characters to memory
