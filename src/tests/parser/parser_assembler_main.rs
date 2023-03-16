@@ -801,8 +801,13 @@ fn console_output_post_assembly_works_with_no_errors_present() {
 }
 
 #[test]
-fn mouse_hover_holds_information_about_valid_instructions_and_translations_for_pseudos_and_nothing_for_all_other_lines(){
-    let program_info = parser(".text\nori $t1, $t2, 100\nlabel: subi $t1, $t2, 100\nadd $t1, $t2, $t3\nsyscall\n".to_string()).0;
+fn mouse_hover_holds_information_about_valid_instructions_and_translations_for_pseudos_and_nothing_for_all_other_lines(
+) {
+    let program_info = parser(
+        ".text\nori $t1, $t2, 100\nlabel: subi $t1, $t2, 100\nadd $t1, $t2, $t3\nsyscall\n"
+            .to_string(),
+    )
+    .0;
 
     assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
     assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "ori rt, rs, immediate\nBitwise ors the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n\nBinary: 00110101010010010000000001100100");

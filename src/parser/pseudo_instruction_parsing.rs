@@ -1044,8 +1044,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     if instructions.is_empty() {
         //try to find an instance of .text
         let mut text_index: Option<u32> = None;
-        for (i, monaco_line) in monaco_line_info.into_iter().enumerate() {
-            if !monaco_line.tokens.is_empty() && monaco_line.tokens[0].token_name == ".text"{
+        for (i, monaco_line) in monaco_line_info.iter_mut().enumerate() {
+            if !monaco_line.tokens.is_empty() && monaco_line.tokens[0].token_name == ".text" {
                 text_index = Some(i as u32);
                 break;
             }
