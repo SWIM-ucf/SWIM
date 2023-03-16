@@ -445,7 +445,15 @@ pub fn read_immediate(
     num_bits: u32,
 ) -> (u32, Option<Error>) {
     //attempts to cast the text into a large int
-    let parse_results = given_text.parse::<i32>();
+    let mut parse_results = given_text.parse::<i64>();
+
+    //if that results in an error, try to read it as hex
+    if parse_results.is_err() {
+        let removed_prefix = given_text.strip_prefix("0x");
+        if let Some(..) = removed_prefix {
+            parse_results = i64::from_str_radix(removed_prefix.unwrap(), 16);
+        }
+    }
 
     //if there was an error typecasting, the function returns with an error to add to the instruction or data
     if parse_results.is_err() {
@@ -459,8 +467,7 @@ pub fn read_immediate(
             }),
         );
     }
-
-    let int_representation: i64 = parse_results.unwrap() as i64;
+    let int_representation = parse_results.unwrap();
 
     //finds the max and min values of a signed integer with specified number of bits
     let max_value = i64::pow(2, num_bits);
