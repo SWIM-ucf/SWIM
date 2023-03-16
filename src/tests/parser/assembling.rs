@@ -80,7 +80,7 @@ mod immediate_tests {
 
     #[test]
     fn read_immediate_recognizes_hex() {
-        let results = read_immediate("0x42", (0,0), 12);
+        let results = read_immediate("0x42", (0, 0), 12);
         assert_eq!(results.0, 66);
         assert_eq!(results.1, None);
     }
