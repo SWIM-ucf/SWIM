@@ -655,6 +655,10 @@
 <a href="#655" id="655">655</a>
 <a href="#656" id="656">656</a>
 <a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
@@ -783,6 +787,10 @@
     <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
     <span class="comment">//goes through each line of the line vector and builds instructions as it goes
     </span><span class="kw">while </span>i &lt; lines.len() {
+        <span class="kw">if </span>lines[i].tokens.is_empty() {
+            i += <span class="number">1</span>;
+            <span class="kw">continue</span>;
+        }
         <span class="kw">if </span>lines[i].tokens[<span class="number">0</span>].token_name.to_lowercase() == <span class="string">&quot;.text&quot; </span>{
             is_text = <span class="bool-val">true</span>;
             i += <span class="number">1</span>;
