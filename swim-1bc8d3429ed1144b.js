@@ -1109,24 +1109,24 @@ function getImports() {
         const ret = makeMutClosure(arg0, arg1, 115, __wbg_adapter_26);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper800 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 308, __wbg_adapter_29);
+    imports.wbg.__wbindgen_closure_wrapper799 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 307, __wbg_adapter_29);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper914 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 344, __wbg_adapter_32);
+    imports.wbg.__wbindgen_closure_wrapper913 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 343, __wbg_adapter_32);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper1042 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 399, __wbg_adapter_35);
+    imports.wbg.__wbindgen_closure_wrapper1041 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 398, __wbg_adapter_35);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper1402 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 530, __wbg_adapter_38);
+    imports.wbg.__wbindgen_closure_wrapper1401 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 529, __wbg_adapter_38);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper1410 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 534, __wbg_adapter_41);
+    imports.wbg.__wbindgen_closure_wrapper1409 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 533, __wbg_adapter_41);
         return addHeapObject(ret);
     };
 
@@ -1165,7 +1165,7 @@ function initSync(module) {
 
 async function init(input) {
     if (typeof input === 'undefined') {
-        input = new URL('swim-ad9b613fd96dc9fd_bg.wasm', import.meta.url);
+        input = new URL('swim-1bc8d3429ed1144b_bg.wasm', import.meta.url);
     }
     const imports = getImports();
 

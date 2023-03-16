@@ -659,6 +659,13 @@
 <a href="#659" id="659">659</a>
 <a href="#660" id="660">660</a>
 <a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_assembler_main::append_binary;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     ImmediateOutOfBounds, ImproperlyFormattedASCII, ImproperlyFormattedChar,
@@ -1106,7 +1113,15 @@
     num_bits: u32,
 ) -&gt; (u32, <span class="prelude-ty">Option</span>&lt;Error&gt;) {
     <span class="comment">//attempts to cast the text into a large int
-    </span><span class="kw">let </span>parse_results = given_text.parse::&lt;i32&gt;();
+    </span><span class="kw">let </span><span class="kw-2">mut </span>parse_results = given_text.parse::&lt;i64&gt;();
+
+    <span class="comment">//if that results in an error, try to read it as hex
+    </span><span class="kw">if </span>parse_results.is_err() {
+        <span class="kw">let </span>removed_prefix = given_text.strip_prefix(<span class="string">&quot;0x&quot;</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(..) = removed_prefix {
+            parse_results = i64::from_str_radix(removed_prefix.unwrap(), <span class="number">16</span>);
+        }
+    }
 
     <span class="comment">//if there was an error typecasting, the function returns with an error to add to the instruction or data
     </span><span class="kw">if </span>parse_results.is_err() {
@@ -1120,8 +1135,7 @@
             }),
         );
     }
-
-    <span class="kw">let </span>int_representation: i64 = parse_results.unwrap() <span class="kw">as </span>i64;
+    <span class="kw">let </span>int_representation = parse_results.unwrap();
 
     <span class="comment">//finds the max and min values of a signed integer with specified number of bits
     </span><span class="kw">let </span>max_value = i64::pow(<span class="number">2</span>, num_bits);
