@@ -516,6 +516,24 @@
 <a href="#516" id="516">516</a>
 <a href="#517" id="517">517</a>
 <a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of a MIPS64 floating-point coprocessor.
 
 </span><span class="kw">use </span><span class="kw">super</span>::constants::<span class="kw-2">*</span>;
@@ -549,13 +567,22 @@
     <span class="kw">pub </span>function: u32,
 
     <span class="kw">pub </span>data_from_main_processor: u64,
+    <span class="kw">pub </span>data_writeback: u64,
+    <span class="kw">pub </span>destination: usize,
     <span class="kw">pub </span>fp_register_data_from_main_processor: u64,
     <span class="kw">pub </span>read_data_1: u64,
     <span class="kw">pub </span>read_data_2: u64,
+    <span class="kw">pub </span>register_write_data: u64,
+    <span class="kw">pub </span>register_write_mux_to_mux: u64,
+    <span class="kw">pub </span>sign_extend_data: u64,
+
     <span class="doccomment">/// Data line that goes from `Read Data 2` to the multiplexer in the main processor
     /// controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
+    /// This variable in a way in just a copy of read_data_2
     </span><span class="kw">pub </span>fp_register_to_memory: u64,
-    <span class="kw">pub </span>alu_result: u64,
+
+    <span class="doccomment">/// These two variable seem to be effectivly the time thing
+    </span><span class="kw">pub </span>alu_result: u64,
     <span class="kw">pub </span>comparator_result: u64,
 }
 
@@ -575,6 +602,7 @@
 
     <span class="kw">pub fn </span>stage_memory(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.write_data();
+        <span class="self">self</span>.set_data_writeback();
     }
 
     <span class="kw">pub fn </span>stage_writeback(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
@@ -641,13 +669,20 @@
         <span class="self">self</span>.state.data_from_main_processor = data;
     }
 
-    <span class="doccomment">/// Gets the contents of the data line between the `Data` register and the multiplexer
-    /// in the main processor controlled by the [`DataWrite`] control signal.
-    </span><span class="kw">pub fn </span>get_data_register(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-        <span class="kw">match </span><span class="self">self</span>.signals.fpu_reg_width {
-            FpuRegWidth::Word =&gt; <span class="self">self</span>.data <span class="kw">as </span>i32 <span class="kw">as </span>i64 <span class="kw">as </span>u64,
+    <span class="doccomment">/// I do not feel like writting this right now, runs in writeback stage of fpu
+    </span><span class="kw">pub fn </span>set_data_writeback(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.state.sign_extend_data = <span class="self">self</span>.data <span class="kw">as </span>i32 <span class="kw">as </span>i64 <span class="kw">as </span>u64;
+        <span class="self">self</span>.state.data_writeback = <span class="kw">match </span><span class="self">self</span>.signals.fpu_reg_width {
+            FpuRegWidth::Word =&gt; <span class="self">self</span>.state.sign_extend_data,
             FpuRegWidth::DoubleWord =&gt; <span class="self">self</span>.data,
         }
+    }
+
+    <span class="doccomment">/// Gets the contents of the data line between the `Data` register and the multiplexer
+    /// in the main processor controlled by the [`DataWrite`] control signal.
+    </span><span class="kw">pub fn </span>get_data_writeback(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
+        <span class="comment">// self.set_fpu_data_writeback(); // really should not be here #FIXME
+        </span><span class="self">self</span>.state.data_writeback
     }
 
     <span class="doccomment">/// Sets the data line between the multiplexer controlled by [`MemToReg`](super::control_signals::MemToReg)
@@ -1017,21 +1052,22 @@
             <span class="kw">return</span>;
         }
 
-        <span class="kw">let </span>destination = <span class="kw">match </span><span class="self">self</span>.signals.fpu_reg_dst {
+        <span class="self">self</span>.state.destination = <span class="kw">match </span><span class="self">self</span>.signals.fpu_reg_dst {
             FpuRegDst::Reg1 =&gt; <span class="self">self</span>.state.ft <span class="kw">as </span>usize,
             FpuRegDst::Reg2 =&gt; <span class="self">self</span>.state.fs <span class="kw">as </span>usize,
             FpuRegDst::Reg3 =&gt; <span class="self">self</span>.state.fd <span class="kw">as </span>usize,
         };
 
-        <span class="kw">let </span>register_data = <span class="kw">match </span><span class="self">self</span>.signals.fpu_mem_to_reg {
-            FpuMemToReg::UseDataWrite =&gt; <span class="kw">match </span><span class="self">self</span>.signals.data_write {
-                DataWrite::NoWrite =&gt; <span class="self">self</span>.state.alu_result,
-                DataWrite::YesWrite =&gt; <span class="self">self</span>.data,
-            },
+        <span class="self">self</span>.state.register_write_mux_to_mux = <span class="kw">match </span><span class="self">self</span>.signals.data_write {
+            DataWrite::NoWrite =&gt; <span class="self">self</span>.state.alu_result,
+            DataWrite::YesWrite =&gt; <span class="self">self</span>.data,
+        };
+        <span class="self">self</span>.state.register_write_data = <span class="kw">match </span><span class="self">self</span>.signals.fpu_mem_to_reg {
+            FpuMemToReg::UseDataWrite =&gt; <span class="self">self</span>.state.register_write_mux_to_mux,
             FpuMemToReg::UseMemory =&gt; <span class="self">self</span>.state.fp_register_data_from_main_processor,
         };
 
-        <span class="self">self</span>.fpr[destination] = register_data;
+        <span class="self">self</span>.fpr[<span class="self">self</span>.state.destination] = <span class="self">self</span>.state.register_write_data;
     }
 }
 </code></pre></div>

@@ -1105,27 +1105,27 @@ function getImports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper366 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 115, __wbg_adapter_26);
+    imports.wbg.__wbindgen_closure_wrapper425 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 168, __wbg_adapter_26);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper799 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper798 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 307, __wbg_adapter_29);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper913 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper912 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 343, __wbg_adapter_32);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper1041 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper1040 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 398, __wbg_adapter_35);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper1401 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper1400 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 529, __wbg_adapter_38);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper1409 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper1408 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 533, __wbg_adapter_41);
         return addHeapObject(ret);
     };
@@ -1165,7 +1165,7 @@ function initSync(module) {
 
 async function init(input) {
     if (typeof input === 'undefined') {
-        input = new URL('swim-fdacc71aebc02de2_bg.wasm', import.meta.url);
+        input = new URL('swim-39842ab13a7c8a7b_bg.wasm', import.meta.url);
     }
     const imports = getImports();
 

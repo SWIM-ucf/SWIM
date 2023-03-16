@@ -1207,6 +1207,10 @@
 <a href="#1207" id="1207">1207</a>
 <a href="#1208" id="1208">1208</a>
 <a href="#1209" id="1209">1209</a>
+<a href="#1210" id="1210">1210</a>
+<a href="#1211" id="1211">1211</a>
+<a href="#1212" id="1212">1212</a>
+<a href="#1213" id="1213">1213</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of a MIPS64 datapath.
 //!
 //! It is assumed that while moving through stages, only one
@@ -1302,6 +1306,10 @@
     <span class="doccomment">/// *Data line.* The data after the `MemToReg` multiplexer, but
     /// before the `DataWrite` multiplexer in the main processor.
     </span><span class="kw">pub </span>data_result: u64,
+
+    <span class="comment">// *Data line.* This line carries the idenfication number for the
+    // register register-write will write to.
+    </span><span class="kw">pub </span>write_register_destination: usize,
 
     <span class="doccomment">/// *Jump address line.* This line carries the concatenation of
     /// the high 36 bits of the PC, and `lower_26_shifted_left_by_2`.
@@ -2375,7 +2383,7 @@
         <span class="comment">// Decide to retrieve data either from the main processor or the coprocessor.
         </span><span class="self">self</span>.state.register_write_data = <span class="kw">match </span><span class="self">self</span>.coprocessor.signals.data_write {
             DataWrite::NoWrite =&gt; <span class="self">self</span>.state.data_result,
-            DataWrite::YesWrite =&gt; <span class="self">self</span>.coprocessor.get_data_register(),
+            DataWrite::YesWrite =&gt; <span class="self">self</span>.coprocessor.get_data_writeback(),
         };
 
         <span class="comment">// Abort if the RegWrite signal is not set, or if the OverflowWriteBlock signal
@@ -2388,7 +2396,7 @@
 
         <span class="comment">// Determine the destination for the data to write. This is
         // determined by the RegDst control signal.
-        </span><span class="kw">let </span>destination = <span class="kw">match </span><span class="self">self</span>.signals.reg_dst {
+        </span><span class="self">self</span>.state.write_register_destination = <span class="kw">match </span><span class="self">self</span>.signals.reg_dst {
             RegDst::Reg1 =&gt; <span class="self">self</span>.state.rs <span class="kw">as </span>usize,
             RegDst::Reg2 =&gt; <span class="self">self</span>.state.rt <span class="kw">as </span>usize,
             RegDst::Reg3 =&gt; <span class="self">self</span>.state.rd <span class="kw">as </span>usize,
@@ -2396,7 +2404,7 @@
         };
 
         <span class="comment">// If we are attempting to write to register $zero, stop.
-        </span><span class="kw">if </span>destination == <span class="number">0 </span>{
+        </span><span class="kw">if </span><span class="self">self</span>.state.write_register_destination == <span class="number">0 </span>{
             <span class="kw">return</span>;
         }
 
@@ -2406,7 +2414,7 @@
         }
 
         <span class="comment">// Write.
-        </span><span class="self">self</span>.registers.gpr[destination] = <span class="self">self</span>.state.register_write_data;
+        </span><span class="self">self</span>.registers.gpr[<span class="self">self</span>.state.write_register_destination] = <span class="self">self</span>.state.register_write_data;
     }
 
     <span class="doccomment">/// Update the program counter register.
