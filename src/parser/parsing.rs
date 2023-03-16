@@ -126,11 +126,11 @@ pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instructio
     let mut i = 0;
     //goes through each line of the line vector and builds instructions as it goes
     while i < lines.len() {
-        if lines[i].tokens[0].token_name == ".text" {
+        if lines[i].tokens[0].token_name.to_lowercase() == ".text" {
             is_text = true;
             i += 1;
             continue;
-        } else if lines[i].tokens[0].token_name == ".data" {
+        } else if lines[i].tokens[0].token_name.to_lowercase() == ".data" {
             is_text = false;
             i += 1;
             continue;
