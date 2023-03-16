@@ -1052,9 +1052,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
         }
         if let Some(..) = text_index {
             //add syscall after first index of .text if it exists
-            monaco_line_info[text_index.unwrap() as usize + 1]
+            monaco_line_info[text_index.unwrap() as usize]
                 .updated_monaco_string
-                .insert_str(0, "syscall\n");
+                .push_str("\nsyscall");
 
             instructions.push(Instruction {
                 operator: Token {
