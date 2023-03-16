@@ -423,11 +423,10 @@ fn assemble_data_binary_works_for_double() {
 }
 
 #[test]
-fn assemble_data_binary_word_recognizes_hex(){
+fn assemble_data_binary_word_recognizes_hex() {
     let lines = tokenize_program(".data\nlabel: .word 0xfa".to_string());
     let mut modified_data = separate_data_and_text(lines).1;
     let result = assemble_data_binary(&mut modified_data);
-
 
     assert_eq!(result[0], 0);
     assert_eq!(result[1], 0);

@@ -450,7 +450,7 @@ pub fn read_immediate(
     //if that results in an error, try to read it as hex
     if parse_results.is_err() {
         let removed_prefix = given_text.strip_prefix("0x");
-        if removed_prefix.is_some() {
+        if let Some(..) = removed_prefix {
             parse_results = i64::from_str_radix(removed_prefix.unwrap(), 16);
         }
     }
