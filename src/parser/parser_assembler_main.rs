@@ -71,7 +71,7 @@ pub fn read_instructions(
     for mut instruction in &mut instruction_list.iter_mut() {
         //this match case is the heart of the parser and figures out which instruction type it is
         //then it can call the proper functions for that specific instruction
-        match &*instruction.operator.token_name {
+        match &*instruction.operator.token_name.to_lowercase() {
             "add" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 

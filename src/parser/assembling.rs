@@ -352,7 +352,7 @@ pub fn read_register(
 ///This function takes a register string as an argument and returns the string of the binary of the matching
 ///general register or none if there is not one that matches.
 pub fn match_gp_register(register: &str) -> Option<u32> {
-    match register {
+    match register.to_lowercase().as_str() {
         "$zero" | "r0" => Some(0b00000), //0
         "$at" | "r1" => Some(0b00001),   //1
 
@@ -399,7 +399,7 @@ pub fn match_gp_register(register: &str) -> Option<u32> {
 ///This function takes a register string as an argument and returns the string of the binary of the matching
 ///floating point register or none if there is not one that matches.
 pub fn match_fp_register(register: &str) -> Option<u32> {
-    match register {
+    match register.to_lowercase().as_str() {
         "$f0" => Some(0b00000),
         "$f1" => Some(0b00001),
         "$f2" => Some(0b00010),
@@ -486,7 +486,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
     let mut vec_of_data: Vec<u8> = Vec::new();
     for datum in data_list.iter_mut() {
         datum.data_number = vec_of_data.len() as u32;
-        match &*datum.data_type.token_name {
+        match &*datum.data_type.token_name.to_lowercase() {
             ".ascii" => {
                 //pushes a string of characters to memory
                 for value in datum.data_entries_and_values.iter_mut() {

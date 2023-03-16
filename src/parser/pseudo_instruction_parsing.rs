@@ -33,7 +33,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     //iterate through every instruction and check if the operator is a pseudo-instruction
     for (i, mut instruction) in &mut instructions.iter_mut().enumerate() {
         instruction.instruction_number = (i + vec_of_added_instructions.len()) as u32;
-        match &*instruction.operator.token_name {
+        match &*instruction.operator.token_name.to_lowercase() {
             "li" => {
                 monaco_line_info[instruction.line_number as usize].mouse_hover_string =
                     "li is a pseudo-instruction.\nli regA, immediate =>\n\tori $regA, $zero, immediate\n"

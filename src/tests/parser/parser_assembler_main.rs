@@ -855,3 +855,27 @@ fn mouse_hover_holds_information_info_for_various_instruction_types() {
     assert_eq!(program_info.monaco_line_info[3].mouse_hover_string, "add rd, rs, rt\nAdds the 32-bit values in rs and rt, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if adding rs and rt causes a 32-bit overflow. However, SWIM places the result in rd, regardless.\n\nBinary: 00000001010010110100100000100000");
     assert_eq!(program_info.monaco_line_info[4].mouse_hover_string, "syscall\nThis function is currently stubbed in SWIM. Normally, it reverts control back to the OS. SWIM uses it to effectively end the program.\n\nBinary: 00000000000000000000000000001100");
 }
+
+#[test]
+fn instructions_directives_and_registers_work_regardless_of_capitalization() {
+    let result =
+        parser(".TexT\nOR $t1, $T2, $t3\nor $t1, $t2, $t3\n.DATA\nabel: .WOrD 100".to_string());
+
+    let correct =
+        parser(".TexT\nOR $t1, $T2, $t3\nor $t1, $t2, $t3\n.DATA\nabel: .WOrD 100".to_lowercase());
+    assert_eq!(result.1, correct.1);
+    assert_eq!(
+        result.0.console_out_post_assembly,
+        correct.0.console_out_post_assembly
+    );
+    assert_eq!(
+        result.0.address_to_line_number,
+        correct.0.address_to_line_number
+    );
+    for i in 0..result.0.monaco_line_info.len() {
+        assert_eq!(
+            result.0.monaco_line_info[i].mouse_hover_string,
+            correct.0.monaco_line_info[i].mouse_hover_string
+        );
+    }
+}
