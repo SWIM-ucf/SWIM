@@ -1146,6 +1146,15 @@
 <a href="#1146" id="1146">1146</a>
 <a href="#1147" id="1147">1147</a>
 <a href="#1148" id="1148">1148</a>
+<a href="#1149" id="1149">1149</a>
+<a href="#1150" id="1150">1150</a>
+<a href="#1151" id="1151">1151</a>
+<a href="#1152" id="1152">1152</a>
+<a href="#1153" id="1153">1153</a>
+<a href="#1154" id="1154">1154</a>
+<a href="#1155" id="1155">1155</a>
+<a href="#1156" id="1156">1156</a>
+<a href="#1157" id="1157">1157</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::IncorrectNumberOfOperands;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Operator;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::{
@@ -2193,41 +2202,50 @@
         <span class="comment">//try to find an instance of .text
         </span><span class="kw">let </span><span class="kw-2">mut </span>text_index: <span class="prelude-ty">Option</span>&lt;u32&gt; = <span class="prelude-val">None</span>;
         <span class="kw">for </span>(i, monaco_line) <span class="kw">in </span>monaco_line_info.iter_mut().enumerate() {
-            <span class="kw">let </span><span class="kw-2">mut </span>line = monaco_line.updated_monaco_string.clone();
-            line = line.replace(<span class="string">&#39; &#39;</span>, <span class="string">&quot;&quot;</span>);
-            line = line.replace(<span class="string">&#39;#&#39;</span>, <span class="string">&quot; &quot;</span>);
-            <span class="kw">if </span>line.starts_with(<span class="string">&quot;.text&quot;</span>) {
+            <span class="kw">if </span>!monaco_line.tokens.is_empty() &amp;&amp; monaco_line.tokens[<span class="number">0</span>].token_name == <span class="string">&quot;.text&quot; </span>{
                 text_index = <span class="prelude-val">Some</span>(i <span class="kw">as </span>u32);
                 <span class="kw">break</span>;
             }
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(..) = text_index {
             <span class="comment">//add syscall after first index of .text if it exists
-            // updated_monaco_strings.insert(text_index.unwrap() as usize + 1, &quot;syscall&quot;.to_string());
             </span>monaco_line_info[text_index.unwrap() <span class="kw">as </span>usize + <span class="number">1</span>]
                 .updated_monaco_string
                 .insert_str(<span class="number">0</span>, <span class="string">&quot;syscall\n&quot;</span>);
+
+            instructions.push(Instruction {
+                operator: Token {
+                    token_name: <span class="string">&quot;syscall&quot;</span>.to_string(),
+                    start_end_columns: (<span class="number">0</span>, <span class="number">0</span>),
+                    token_type: Operator,
+                },
+                operands: <span class="macro">vec!</span>[],
+                binary: <span class="number">0</span>,
+                instruction_number: <span class="number">0</span>,
+                line_number: text_index.unwrap(),
+                errors: <span class="macro">vec!</span>[],
+                label: <span class="prelude-val">None</span>,
+            });
         } <span class="kw">else </span>{
             <span class="comment">//otherwise, add it at the beginning of monaco
-            // updated_monaco_strings.insert(0, &quot;.text&quot;.to_string());
-            // updated_monaco_strings.insert(1, &quot;syscall&quot;.to_string());
             </span>monaco_line_info[<span class="number">0</span>]
                 .updated_monaco_string
                 .insert_str(<span class="number">0</span>, <span class="string">&quot;.text\nsyscall\n&quot;</span>);
+
+            instructions.push(Instruction {
+                operator: Token {
+                    token_name: <span class="string">&quot;syscall&quot;</span>.to_string(),
+                    start_end_columns: (<span class="number">0</span>, <span class="number">0</span>),
+                    token_type: Operator,
+                },
+                operands: <span class="macro">vec!</span>[],
+                binary: <span class="number">0</span>,
+                instruction_number: <span class="number">0</span>,
+                line_number: <span class="number">0</span>,
+                errors: <span class="macro">vec!</span>[],
+                label: <span class="prelude-val">None</span>,
+            });
         }
-        instructions.push(Instruction {
-            operator: Token {
-                token_name: <span class="string">&quot;syscall&quot;</span>.to_string(),
-                start_end_columns: (<span class="number">0</span>, <span class="number">6</span>),
-                token_type: Operator,
-            },
-            operands: <span class="macro">vec!</span>[],
-            binary: <span class="number">0</span>,
-            instruction_number: <span class="number">0</span>,
-            line_number: <span class="number">0</span>,
-            errors: <span class="macro">vec!</span>[],
-            label: <span class="prelude-val">None</span>,
-        });
     } <span class="kw">else </span>{
         <span class="kw">let </span>last_instruction = instructions.last().unwrap();
         <span class="comment">//if the last instruction in monaco is not a syscall, add it in to updated_monaco_strings and to instructions
@@ -2239,7 +2257,7 @@
             instructions.push(Instruction {
                 operator: Token {
                     token_name: <span class="string">&quot;syscall&quot;</span>.to_string(),
-                    start_end_columns: (<span class="number">0</span>, <span class="number">6</span>),
+                    start_end_columns: (<span class="number">0</span>, <span class="number">0</span>),
                     token_type: Operator,
                 },
                 operands: <span class="macro">vec!</span>[],
