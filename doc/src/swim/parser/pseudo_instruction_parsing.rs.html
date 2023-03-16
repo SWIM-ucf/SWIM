@@ -1190,7 +1190,7 @@
     <span class="comment">//iterate through every instruction and check if the operator is a pseudo-instruction
     </span><span class="kw">for </span>(i, <span class="kw-2">mut </span>instruction) <span class="kw">in </span><span class="kw-2">&amp;mut </span>instructions.iter_mut().enumerate() {
         instruction.instruction_number = (i + vec_of_added_instructions.len()) <span class="kw">as </span>u32;
-        <span class="kw">match </span><span class="kw-2">&amp;*</span>instruction.operator.token_name {
+        <span class="kw">match </span><span class="kw-2">&amp;*</span>instruction.operator.token_name.to_lowercase() {
             <span class="string">&quot;li&quot; </span>=&gt; {
                 monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
                     <span class="string">&quot;li is a pseudo-instruction.\nli regA, immediate =&gt;\n\tori $regA, $zero, immediate\n&quot;

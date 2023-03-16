@@ -783,11 +783,11 @@
     <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
     <span class="comment">//goes through each line of the line vector and builds instructions as it goes
     </span><span class="kw">while </span>i &lt; lines.len() {
-        <span class="kw">if </span>lines[i].tokens[<span class="number">0</span>].token_name == <span class="string">&quot;.text&quot; </span>{
+        <span class="kw">if </span>lines[i].tokens[<span class="number">0</span>].token_name.to_lowercase() == <span class="string">&quot;.text&quot; </span>{
             is_text = <span class="bool-val">true</span>;
             i += <span class="number">1</span>;
             <span class="kw">continue</span>;
-        } <span class="kw">else if </span>lines[i].tokens[<span class="number">0</span>].token_name == <span class="string">&quot;.data&quot; </span>{
+        } <span class="kw">else if </span>lines[i].tokens[<span class="number">0</span>].token_name.to_lowercase() == <span class="string">&quot;.data&quot; </span>{
             is_text = <span class="bool-val">false</span>;
             i += <span class="number">1</span>;
             <span class="kw">continue</span>;

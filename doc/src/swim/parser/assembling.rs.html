@@ -1013,7 +1013,7 @@
 <span class="doccomment">///This function takes a register string as an argument and returns the string of the binary of the matching
 ///general register or none if there is not one that matches.
 </span><span class="kw">pub fn </span>match_gp_register(register: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
-    <span class="kw">match </span>register {
+    <span class="kw">match </span>register.to_lowercase().as_str() {
         <span class="string">&quot;$zero&quot; </span>| <span class="string">&quot;r0&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="number">0b00000</span>), <span class="comment">//0
         </span><span class="string">&quot;$at&quot; </span>| <span class="string">&quot;r1&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="number">0b00001</span>),   <span class="comment">//1
 
@@ -1060,7 +1060,7 @@
 <span class="doccomment">///This function takes a register string as an argument and returns the string of the binary of the matching
 ///floating point register or none if there is not one that matches.
 </span><span class="kw">pub fn </span>match_fp_register(register: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
-    <span class="kw">match </span>register {
+    <span class="kw">match </span>register.to_lowercase().as_str() {
         <span class="string">&quot;$f0&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="number">0b00000</span>),
         <span class="string">&quot;$f1&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="number">0b00001</span>),
         <span class="string">&quot;$f2&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="number">0b00010</span>),
@@ -1147,7 +1147,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>vec_of_data: Vec&lt;u8&gt; = Vec::new();
     <span class="kw">for </span>datum <span class="kw">in </span>data_list.iter_mut() {
         datum.data_number = vec_of_data.len() <span class="kw">as </span>u32;
-        <span class="kw">match </span><span class="kw-2">&amp;*</span>datum.data_type.token_name {
+        <span class="kw">match </span><span class="kw-2">&amp;*</span>datum.data_type.token_name.to_lowercase() {
             <span class="string">&quot;.ascii&quot; </span>=&gt; {
                 <span class="comment">//pushes a string of characters to memory
                 </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
