@@ -68,12 +68,21 @@ mod immediate_tests {
     fn read_immediate_returns_correct_positive_value() {
         let results = read_immediate("255", (0, 0), 16);
         assert_eq!(results.0, 0b0000000011111111);
+        assert_eq!(results.1, None);
     }
 
     #[test]
     fn read_immediate_returns_correct_negative_value() {
         let results = read_immediate("-5", (0, 0), 12);
-        assert_eq!(results.0, 0b11111111111111111111111111111011)
+        assert_eq!(results.0, 0b11111111111111111111111111111011);
+        assert_eq!(results.1, None);
+    }
+
+    #[test]
+    fn read_immediate_recognizes_hex() {
+        let results = read_immediate("0x42", (0,0), 12);
+        assert_eq!(results.0, 66);
+        assert_eq!(results.1, None);
     }
 }
 
