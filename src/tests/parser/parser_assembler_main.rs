@@ -804,11 +804,9 @@ fn console_output_post_assembly_works_with_no_errors_present() {
 fn mouse_hover_holds_information_about_valid_instructions_and_translations_for_pseudos_and_nothing_for_all_other_lines(){
     let program_info = parser(".text\nori $t1, $t2, 100\nlabel: subi $t1, $t2, 100\nadd $t1, $t2, $t3\nsyscall\n".to_string()).0;
 
-    for instruction in program_info.instructions{
-        println!("Name: {} Line: {}", instruction.operator.token_name, instruction.line_number)
-    }
-
-    // for (i, line) in program_info.monaco_line_info.into_iter().enumerate(){
-    //     println!("Line {}: {}", i, line.mouse_hover_string);
-    // }
+    assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
+    assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "ori rt, rs, immediate\nBitwise ors the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n\nBinary: 00110101010010010000000001100100");
+    assert_eq!(program_info.monaco_line_info[2].mouse_hover_string, "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at\n\nBinary: 00110100000000010000000001100100\nBinary: 00000001010000010100100000100010");
+    assert_eq!(program_info.monaco_line_info[3].mouse_hover_string, "add rd, rs, rt\nAdds the 32-bit values in rs and rt, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if adding rs and rt causes a 32-bit overflow. However, SWIM places the result in rd, regardless.\n\nBinary: 00000001010010110100100000100000");
+    assert_eq!(program_info.monaco_line_info[4].mouse_hover_string, "syscall\nThis function is currently stubbed in SWIM. Normally, it reverts control back to the OS. SWIM uses it to effectively end the program.\n\nBinary: 00000000000000000000000000001100");
 }
