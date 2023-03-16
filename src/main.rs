@@ -10,9 +10,12 @@ use gloo::{dialogs::alert, file::FileList};
 use js_sys::Object;
 use monaco::{
     api::TextModel,
-    sys::editor::{
-        IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions,
-        ISuggestOptions,
+    sys::{
+        editor::{
+            IEditorMinimapOptions, IEditorScrollbarOptions, IMarkerData,
+            IStandaloneEditorConstructionOptions, ISuggestOptions,
+        },
+        MarkerSeverity,
     },
     yew::{CodeEditor, CodeEditorLink},
 };
@@ -27,6 +30,8 @@ use wasm_bindgen::{JsCast, JsValue};
 use yew::prelude::*;
 use yew::{html, Html, Properties};
 use yew_hooks::prelude::*;
+
+//use crate::parser::parser_structs_and_enums::instruction_tokenization::{print_vec_of_instructions, ProgramInfo};
 
 #[function_component(App)]
 fn app() -> Html {
@@ -71,10 +76,8 @@ fn app() -> Html {
     delta_decor.set_is_whole_line(true.into());
     delta_decor.set_inline_class_name("myInlineDecoration".into());
 
-    // TODO: Output will be stored in two ways, the first would be the parser's
-    // messages via logs and the registers will be stored
-    // in a custom-built register viewer.
     let parser_text_output = use_state_eq(String::new);
+    let memory_text_output = use_state_eq(String::new);
 
     // Since we want the Datapath to be independent from all the
     // events within the app, we will create it when the app loads. This is also done
@@ -87,6 +90,7 @@ fn app() -> Html {
     let on_assemble_clicked = {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
+        let parser_text_output = parser_text_output.clone();
         let trigger = use_force_update();
         use_callback(
             move |_, text_model| {
@@ -94,7 +98,38 @@ fn app() -> Html {
                 let text_model = (*text_model).borrow_mut();
 
                 // parses through the code to assemble the binary
-                let (_, assembled) = parser(text_model.get_value());
+                let (program_info, assembled) = parser(text_model.get_value());
+                parser_text_output.set(program_info.console_out_post_assembly);
+
+                let mut markers: Vec<IMarkerData> = vec![];
+
+                // Parse output from parser and create an instance of IMarkerData for each error.
+                for (line_number, line_information) in
+                    program_info.monaco_line_info.iter().enumerate()
+                {
+                    for (start_column, end_column) in &line_information.error_start_end_columns {
+                        let new_marker: IMarkerData = new_object().into();
+                        new_marker.set_message(&line_information.mouse_hover_string);
+                        new_marker.set_severity(MarkerSeverity::Error);
+                        new_marker.set_start_line_number((line_number + 1) as f64);
+                        new_marker.set_start_column((*start_column + 1) as f64);
+                        new_marker.set_end_line_number((line_number + 1) as f64);
+                        new_marker.set_end_column((*end_column + 2) as f64);
+                        markers.push(new_marker);
+                    }
+                }
+
+                // Convert Vec<IMarkerData> to Javascript array
+                let marker_jsarray = js_sys::Array::new();
+                for marker in markers {
+                    marker_jsarray.push(&marker);
+                }
+
+                monaco::sys::editor::set_model_markers(
+                    text_model.as_ref(),
+                    "owner",
+                    &marker_jsarray,
+                );
 
                 // Load the binary into the datapath's memory
                 (*datapath)
@@ -224,20 +259,6 @@ fn app() -> Html {
         })
     };
 
-    // This is where the parser will output its error messages to the user.
-    // Currently, it is tied to a button with placeholder text. The goal is to have
-    // this action take place when the Text Model changes and output the messages provided
-    // by the parser.
-    let on_error_clicked = {
-        let parser_text_output = parser_text_output.clone();
-        use_callback(
-            move |_, _| {
-                parser_text_output.set("Arial".to_string());
-            },
-            (),
-        )
-    };
-
     // This is where we will have the user prompted to load in a file
     let upload_clicked_callback = use_callback(
         move |e: MouseEvent, _| {
@@ -292,12 +313,9 @@ fn app() -> Html {
                         <SwimEditor text_model={(*text_model).borrow().clone()} link={codelink.clone()} />
                     </div>
 
-                    <div>
-                        <button onclick={on_error_clicked}>{ "Click" }</button>
-                    </div>
-
                     // Console
-                    <Console parsermsg={(*parser_text_output).clone()} datapath={(*datapath.borrow()).clone()}/>
+                    <Console parsermsg={(*parser_text_output).clone()} datapath={(*datapath.borrow()).clone()}
+                    memorymsg={(*memory_text_output).clone()}/>
                 </div>
 
                 // Right column
@@ -305,6 +323,11 @@ fn app() -> Html {
             </div>
         </>
     }
+}
+
+/// Creates a new `JsValue`.
+fn new_object() -> JsValue {
+    js_sys::Object::new().into()
 }
 
 /**********************  Editor Component **********************/

@@ -1,4 +1,5 @@
 body {
+  background-color: #474343;
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
 }
 
@@ -16,11 +17,19 @@ body {
 
 /****** Console ******/
 .console {
-  border: 2px solid black;
-  background-color: #b9cceb;
-  color: #000000;
+  resize: vertical;
+  border: 3px groove #ccc;
+  background: #012456;
+  color: #ccc;
   overflow-y: auto;
-  flex-basis: 50%;
+  overflow-wrap: break-word;
+  word-break: break-all;
+  padding-top: 25px;
+  padding-right: 25px;
+  padding-bottom: 25px;
+  padding-left: 25px;
+  min-height: 50%;
+  flex-grow: 1;
 }
 
 .datapath-wrapper {
@@ -37,6 +46,10 @@ body {
   overflow-y: auto;
 }
 
+thead {
+  background-color: #006591;
+  color: #fff;
+}
 th, td {
   border: 1px solid black;
   padding: 2px 8px 2px 8px;
@@ -47,6 +60,11 @@ table {
   border-spacing: 0;
   display: block;
   overflow-y: auto;
+}
+
+tr:nth-child(even)
+{
+  background-color: #ccc;
 }
 
 td:nth-child(2) {

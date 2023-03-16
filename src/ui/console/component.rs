@@ -1,3 +1,5 @@
+//use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
+//use monaco::api::TextModel;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 use yew::prelude::*;
@@ -10,6 +12,7 @@ use crate::ui::visual_datapath::{DatapathSize, VisualDatapath};
 pub struct Consoleprops {
     pub datapath: MipsDatapath,
     pub parsermsg: String,
+    pub memorymsg: String,
 }
 
 #[derive(Default, PartialEq)]
@@ -24,10 +27,8 @@ enum TabState {
 pub fn console(props: &Consoleprops) -> Html {
     let active_tab = use_state_eq(TabState::default);
     let zoom_datapath = use_bool_toggle(false);
-
     let change_tab = {
         let active_tab = active_tab.clone();
-
         Callback::from(move |event: MouseEvent| {
             let target = event.target().unwrap().dyn_into::<HtmlElement>().unwrap();
             let tab_name = target
@@ -70,7 +71,7 @@ pub fn console(props: &Consoleprops) -> Html {
                 </div>
             } else {
                 <div class="console">
-                    { "Memory" }
+                    { props.datapath.memory.to_string() }
                 </div>
             }
 
@@ -82,6 +83,11 @@ pub fn console(props: &Consoleprops) -> Html {
 
                 if *active_tab == TabState::Datapath {
                     <button onclick={toggle_zoom}>{"Toggle Zoom"}</button>
+                }
+                if *active_tab == TabState::Memory {
+                    <button>{"Dec"}</button>
+                    <button>{"Bin"}</button>
+                    <button>{"Hex"}</button>
                 }
             </div>
         </>
