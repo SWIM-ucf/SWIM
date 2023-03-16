@@ -2209,9 +2209,9 @@
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(..) = text_index {
             <span class="comment">//add syscall after first index of .text if it exists
-            </span>monaco_line_info[text_index.unwrap() <span class="kw">as </span>usize + <span class="number">1</span>]
+            </span>monaco_line_info[text_index.unwrap() <span class="kw">as </span>usize]
                 .updated_monaco_string
-                .insert_str(<span class="number">0</span>, <span class="string">&quot;syscall\n&quot;</span>);
+                .push_str(<span class="string">&quot;\nsyscall&quot;</span>);
 
             instructions.push(Instruction {
                 operator: Token {

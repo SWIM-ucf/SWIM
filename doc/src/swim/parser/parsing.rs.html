@@ -646,6 +646,15 @@
 <a href="#646" id="646">646</a>
 <a href="#647" id="647">647</a>
 <a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
@@ -1162,11 +1171,6 @@
                     }
                 }
 
-                <span class="comment">//push the message to mouse hover string
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
-                    .mouse_hover_string
-                    .push_str(<span class="kw-2">&amp;</span>error.message.clone());
-
                 <span class="comment">//add the error to monaco_line_info
                 </span><span class="kw">if </span>error.error_name == LabelAssignmentError
                     || error.error_name == LabelMultipleDefinition
@@ -1202,6 +1206,20 @@
                 ));
             }
         }
+    }
+
+    <span class="comment">//special section to remove the syscall binary from mouse hover if syscall was added in by the parser since this would be added on to the mouse hover of a completely unrelated string
+    </span><span class="kw">let </span><span class="kw-2">mut </span>contains = <span class="bool-val">false</span>;
+    <span class="kw">for </span>token <span class="kw">in </span>monaco_line_info.last().unwrap().tokens.clone() {
+        <span class="kw">if </span>token.token_name == <span class="string">&quot;syscall&quot; </span>{
+            contains = <span class="bool-val">true</span>;
+        }
+    }
+    <span class="kw">let </span>index = monaco_line_info.last().unwrap().line_number;
+    <span class="kw">if </span>!contains {
+        monaco_line_info[index].mouse_hover_string = monaco_line_info[index]
+            .mouse_hover_string
+            .replace(<span class="string">&quot;\nBinary: 00000000000000000000000000001100&quot;</span>, <span class="string">&quot;&quot;</span>);
     }
 
     <span class="comment">//go through each error in the data and suggest a correction
