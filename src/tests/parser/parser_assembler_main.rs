@@ -799,3 +799,16 @@ fn console_output_post_assembly_works_with_no_errors_present() {
 
     assert_eq!(result, "Program assembled successfully!".to_string());
 }
+
+#[test]
+fn mouse_hover_holds_information_about_valid_instructions_and_translations_for_pseudos_and_nothing_for_all_other_lines(){
+    let program_info = parser(".text\nori $t1, $t2, 100\nlabel: subi $t1, $t2, 100\nadd $t1, $t2, $t3\nsyscall\n".to_string()).0;
+
+    for instruction in program_info.instructions{
+        println!("Name: {} Line: {}", instruction.operator.token_name, instruction.line_number)
+    }
+
+    // for (i, line) in program_info.monaco_line_info.into_iter().enumerate(){
+    //     println!("Line {}: {}", i, line.mouse_hover_string);
+    // }
+}
