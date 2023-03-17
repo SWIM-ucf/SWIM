@@ -57,8 +57,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     token_type: Default::default(),
                 });
 
-                monaco_line_info[instruction.line_number]
-                    .update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "seq" => {
                 //seq $regA, $regB, $regC turns into:
@@ -327,8 +326,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operator.token_name = "slt".to_string();
                 instruction.operator.start_end_columns = (0, 0);
 
-                monaco_line_info[instruction.line_number]
-                    .update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "sgtu" => {
                 //sgtu $regA, $regB, $regC is translated to:
@@ -354,8 +352,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operator.token_name = "sltu".to_string();
                 instruction.operator.start_end_columns = (0, 0);
 
-                monaco_line_info[instruction.line_number]
-                    .update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "sge" => {
                 //sge $regA, $regB, $regC is translated to:

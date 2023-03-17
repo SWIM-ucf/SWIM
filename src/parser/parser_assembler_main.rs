@@ -1007,15 +1007,9 @@ pub fn read_instructions(
                 //syscall
 
                 //only adds mouse hover for syscall if the syscall was actually there already and not just inserted by the parser
-                if (!monaco_line_info[instruction.line_number]
-                    .tokens
-                    .is_empty()
-                    && monaco_line_info[instruction.line_number].tokens[0].token_name
-                        == "syscall")
-                    || (monaco_line_info[instruction.line_number]
-                        .tokens
-                        .len()
-                        > 1
+                if (!monaco_line_info[instruction.line_number].tokens.is_empty()
+                    && monaco_line_info[instruction.line_number].tokens[0].token_name == "syscall")
+                    || (monaco_line_info[instruction.line_number].tokens.len() > 1
                         && monaco_line_info[instruction.line_number].tokens[0]
                             .token_name
                             .ends_with(':')
