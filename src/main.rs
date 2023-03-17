@@ -7,7 +7,7 @@ pub mod ui;
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
 use gloo::{console::log, dialogs::alert, file::FileList};
-use js_sys::Object;
+use js_sys::{Object, Array};
 use monaco::{
     api::TextModel,
     sys::{
@@ -67,6 +67,8 @@ fn app() -> Html {
     let delta_decor = monaco::sys::editor::IModelDecorationOptions::default();
     let new_decor_array = js_sys::Array::new();
     let old_decor_array = js_sys::Array::new();
+    let hover_jsarray = js_sys::Array::new();
+    let hover_decor_array = js_sys::Array::new();
 
     // Setting up the options/parameters which
     // will highlight the executed line.
@@ -263,13 +265,15 @@ fn app() -> Html {
     let on_hover_clicked = {
         let text_model = Rc::clone(&text_model);
         let trigger = use_force_update();
+        let hover_jsarray = hover_jsarray.clone();
+        let hover_decor_array = hover_decor_array.clone();
         use_callback(
             move |_, _| {
             let text_model = (*text_model).borrow_mut();
             let curr_model = text_model.as_ref();
             let (program_info, _) = parser(text_model.get_value());
 
-            let mut decorations: Vec<IModelDeltaDecoration> = vec![];
+            let _decorations: Vec<IModelDeltaDecoration> = vec![];
 
             // Parse output from parser and create an instance of IModelDeltaDecoration for each line.
             for (line_number, line_information) in
@@ -284,44 +288,40 @@ fn app() -> Html {
                     let hover_opts: IModelDecorationOptions = new_object().into();
                     hover_opts.set_is_whole_line(true.into());
                     let hover_message: IMarkdownString = new_object().into();
-                    js_sys::Reflect::set(&hover_message, &JsValue::from_str("value"), &JsValue::from_str(&line_information.mouse_hover_string),).unwrap();
+                    js_sys::Reflect::set(&hover_message, &JsValue::from_str("value"), &JsValue::from_str(&line_information.mouse_hover_string),).unwrap_or_default();
+                    log!( js_sys::Reflect::set(&hover_message, &JsValue::from_str("value"), &JsValue::from_str(&line_information.mouse_hover_string),).unwrap() );
                     hover_opts.set_hover_message(&hover_message);
                     decoration.set_options(&hover_opts);
-                    decorations.push(decoration);      
-            }
-
-            // Convert Vec<IModelDeltaDecoration> to Javascript array
-            let hover_jsarray = js_sys::Array::new();
-            for decoration in decorations {
-                hover_jsarray.push(&decoration);
+                    let hover_js = decoration
+                    .dyn_into::<JsValue>()
+                    .expect("Highlight is not found.");
+                    hover_jsarray.push(&hover_js);      
             }
 
             log!("This is the array after the push");
             log!(hover_jsarray.clone());
 
-            let hover_decor_array = js_sys::Array::new();
-            hover_decor_array.set(
-                0,
-                (*curr_model)
-                    .delta_decorations(&hover_decor_array, &hover_jsarray, None)
-                    .into(),
-            );
+            let hover_decor_array = (*curr_model).delta_decorations(&hover_decor_array, &hover_jsarray, None);
+            // hover_decor_array.set(
+            //     0,
+            //     (*curr_model)
+            //         .delta_decorations(&hover_decor_array, &hover_jsarray, None)
+            //         .into(),
+            // );
             
 
             log!("These are the arrays after calling Delta Decorations");
             log!(hover_jsarray.clone());
-            log!(hover_decor_array.at(0));
+            log!(hover_decor_array.clone());
             
             trigger.force_update();
 
             // empty out the arrays and clear out delta_decorations
-            while hover_jsarray.length() != 0 {
-                hover_jsarray.pop();
-            }
+            hover_jsarray.set_length(0);
 
             log!("These are the arrays after calling popping the hover_jsarray");
             log!(hover_jsarray.clone());
-            log!(hover_decor_array.at(0));
+            log!(hover_decor_array.clone());
 
             },
             (),
