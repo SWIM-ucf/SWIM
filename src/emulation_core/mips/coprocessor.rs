@@ -31,12 +31,21 @@ pub struct FpuState {
     pub function: u32,
 
     pub data_from_main_processor: u64,
+    pub data_writeback: u64,
+    pub destination: usize,
     pub fp_register_data_from_main_processor: u64,
     pub read_data_1: u64,
     pub read_data_2: u64,
+    pub register_write_data: u64,
+    pub register_write_mux_to_mux: u64,
+    pub sign_extend_data: u64,
+
     /// Data line that goes from `Read Data 2` to the multiplexer in the main processor
     /// controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
+    /// This variable in a way in just a copy of read_data_2
     pub fp_register_to_memory: u64,
+
+    /// These two variable seem to be effectivly the time thing
     pub alu_result: u64,
     pub comparator_result: u64,
 }
@@ -57,6 +66,7 @@ impl MipsFpCoprocessor {
 
     pub fn stage_memory(&mut self) {
         self.write_data();
+        self.set_data_writeback();
     }
 
     pub fn stage_writeback(&mut self) {
@@ -123,13 +133,20 @@ impl MipsFpCoprocessor {
         self.state.data_from_main_processor = data;
     }
 
-    /// Gets the contents of the data line between the `Data` register and the multiplexer
-    /// in the main processor controlled by the [`DataWrite`] control signal.
-    pub fn get_data_register(&mut self) -> u64 {
-        match self.signals.fpu_reg_width {
-            FpuRegWidth::Word => self.data as i32 as i64 as u64,
+    /// I do not feel like writting this right now, runs in writeback stage of fpu
+    pub fn set_data_writeback(&mut self) {
+        self.state.sign_extend_data = self.data as i32 as i64 as u64;
+        self.state.data_writeback = match self.signals.fpu_reg_width {
+            FpuRegWidth::Word => self.state.sign_extend_data,
             FpuRegWidth::DoubleWord => self.data,
         }
+    }
+
+    /// Gets the contents of the data line between the `Data` register and the multiplexer
+    /// in the main processor controlled by the [`DataWrite`] control signal.
+    pub fn get_data_writeback(&mut self) -> u64 {
+        // self.set_fpu_data_writeback(); // really should not be here #FIXME
+        self.state.data_writeback
     }
 
     /// Sets the data line between the multiplexer controlled by [`MemToReg`](super::control_signals::MemToReg)
@@ -499,20 +516,21 @@ impl MipsFpCoprocessor {
             return;
         }
 
-        let destination = match self.signals.fpu_reg_dst {
+        self.state.destination = match self.signals.fpu_reg_dst {
             FpuRegDst::Reg1 => self.state.ft as usize,
             FpuRegDst::Reg2 => self.state.fs as usize,
             FpuRegDst::Reg3 => self.state.fd as usize,
         };
 
-        let register_data = match self.signals.fpu_mem_to_reg {
-            FpuMemToReg::UseDataWrite => match self.signals.data_write {
-                DataWrite::NoWrite => self.state.alu_result,
-                DataWrite::YesWrite => self.data,
-            },
+        self.state.register_write_mux_to_mux = match self.signals.data_write {
+            DataWrite::NoWrite => self.state.alu_result,
+            DataWrite::YesWrite => self.data,
+        };
+        self.state.register_write_data = match self.signals.fpu_mem_to_reg {
+            FpuMemToReg::UseDataWrite => self.state.register_write_mux_to_mux,
             FpuMemToReg::UseMemory => self.state.fp_register_data_from_main_processor,
         };
 
-        self.fpr[destination] = register_data;
+        self.fpr[self.state.destination] = self.state.register_write_data;
     }
 }
