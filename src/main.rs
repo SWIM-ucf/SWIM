@@ -63,18 +63,18 @@ fn app() -> Html {
     // For the clipboard callback from yew_hooks
     let clipboard = use_clipboard();
 
-    // Setup the array that would store decorations applied to the
-    // text model and initialize the options for it.
-    let new_decor_array = js_sys::Array::new();
-    let old_decor_array = js_sys::Array::new();
+    // Setup the highlight stacks that would store which line
+    // was executed after the execute button is pressed.
+    let executed_line = js_sys::Array::new();
+    let not_highlighted = js_sys::Array::new();
 
     // Setting up the options/parameters which
     // will highlight the previously executed line.
-    // The delta decor does not need to be changed,
+    // The highlight decor does not need to be changed,
     // the only parameter that will change is the range.
-    let delta_decor = monaco::sys::editor::IModelDecorationOptions::default();
-    delta_decor.set_is_whole_line(true.into());
-    delta_decor.set_inline_class_name("myInlineDecoration".into());
+    let highlight_decor = monaco::sys::editor::IModelDecorationOptions::default();
+    highlight_decor.set_is_whole_line(true.into());
+    highlight_decor.set_inline_class_name("myInlineDecoration".into());
 
     let parser_text_output = use_state_eq(String::new);
     let memory_text_output = use_state_eq(String::new);
@@ -93,8 +93,8 @@ fn app() -> Html {
         let parser_text_output = parser_text_output.clone();
         let trigger = use_force_update();
 
-        let new_decor_array = new_decor_array.clone();
-        let old_decor_array = old_decor_array.clone();
+        let executed_line = executed_line.clone();
+        let not_highlighted = not_highlighted.clone();
 
         use_callback(
             move |_, text_model| {
@@ -135,11 +135,11 @@ fn app() -> Html {
                 );
                 // Acts like reset and clears the highlight
                 let curr_model = text_model.as_ref();
-                new_decor_array.pop();
-                old_decor_array.set(
+                executed_line.pop();
+                not_highlighted.set(
                     0,
                     (*curr_model)
-                        .delta_decorations(&old_decor_array, &new_decor_array, None)
+                        .delta_decorations(&not_highlighted, &executed_line, None)
                         .into(),
                 );
                 // Load the binary into the datapath's memory
@@ -162,8 +162,8 @@ fn app() -> Html {
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
 
-        let new_decor_array = new_decor_array.clone();
-        let old_decor_array = old_decor_array.clone();
+        let executed_line = executed_line.clone();
+        let not_highlighted = not_highlighted.clone();
 
         use_callback(
             move |_, _| {
@@ -182,10 +182,10 @@ fn app() -> Html {
                 let curr_model = text_model.as_ref();
                 let curr_range = monaco::sys::Range::new(curr_line, 0.0, curr_line, 0.0);
 
-                // element to be stored in the Decoration array to highlight the line
+                // element to be stored in the stack to highlight the line
                 let highlight_line: monaco::sys::editor::IModelDeltaDecoration =
                     Object::new().unchecked_into();
-                highlight_line.set_options(&delta_decor);
+                highlight_line.set_options(&highlight_decor);
                 let range_js = curr_range
                     .dyn_into::<JsValue>()
                     .expect("Range is not found.");
@@ -194,26 +194,33 @@ fn app() -> Html {
                     .dyn_into::<JsValue>()
                     .expect("Highlight is not found.");
 
-                // log!("These are the arrays before the push");
-                // log!(new_decor_array.at(0));
-                // log!(old_decor_array.at(0));
-                new_decor_array.push(&highlight_js);
+                // log!("These are the stacks before the push");
+                // log!(executed_line.at(0));
+                // log!(not_highlighted.at(0));
+
+                // push the decoration onto the executed_line stack
+                executed_line.push(&highlight_js);
+
                 // it may look ugly, but it makes sense. Uncomment debug statements to see why.
-                old_decor_array.set(
+                not_highlighted.set(
                     0,
                     (*curr_model)
-                        .delta_decorations(&old_decor_array, &new_decor_array, None)
+                        .delta_decorations(&not_highlighted, &executed_line, None)
                         .into(),
                 );
-                // log!("These are the arrays after the push");
-                // log!(new_decor_array.at(0));
-                // log!(old_decor_array.at(0));
+
+                // log!("These are the stacks after the push");
+                // log!(executed_line.at(0));
+                // log!(not_highlighted.at(0));
+
                 (*datapath).execute_instruction();
+
                 // done with the highlight, prepare for the next one.
-                new_decor_array.pop();
-                // log!("These are the arrays after the pop");
-                // log!(new_decor_array.at(0));
-                // log!(old_decor_array.at(0));
+                executed_line.pop();
+
+                // log!("These are the stacks after the pop");
+                // log!(executed_line.at(0));
+                // log!(not_highlighted.at(0));
 
                 trigger.force_update();
             },
@@ -241,19 +248,19 @@ fn app() -> Html {
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
 
-        let new_decor_array = new_decor_array;
-        let old_decor_array = old_decor_array;
+        let executed_line = executed_line;
+        let not_highlighted = not_highlighted;
 
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
                 let text_model = (*text_model).borrow_mut();
                 let curr_model = text_model.as_ref();
-                new_decor_array.pop();
-                old_decor_array.set(
+                executed_line.pop();
+                not_highlighted.set(
                     0,
                     (*curr_model)
-                        .delta_decorations(&old_decor_array, &new_decor_array, None)
+                        .delta_decorations(&not_highlighted, &executed_line, None)
                         .into(),
                 );
                 (*datapath).reset();
