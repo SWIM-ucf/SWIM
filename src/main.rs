@@ -271,7 +271,6 @@ fn app() -> Html {
                 let curr_model = text_model.as_ref();
                 let (program_info, _) = parser(text_model.get_value());
 
-                let _decorations: Vec<IModelDeltaDecoration> = vec![];
 
                 // Parse output from parser and create an instance of IModelDeltaDecoration for each line.
                 for (line_number, line_information) in
@@ -298,13 +297,7 @@ fn app() -> Html {
                         &JsValue::from_str("value"),
                         &JsValue::from_str(&line_information.mouse_hover_string),
                     )
-                    .unwrap_or_default();
-                    log!(js_sys::Reflect::set(
-                        &hover_message,
-                        &JsValue::from_str("value"),
-                        &JsValue::from_str(&line_information.mouse_hover_string),
-                    )
-                    .unwrap());
+                    .unwrap();
                     hover_opts.set_hover_message(&hover_message);
                     decoration.set_options(&hover_opts);
                     let hover_js = decoration
@@ -318,12 +311,6 @@ fn app() -> Html {
 
                 let hover_decor_array =
                     (*curr_model).delta_decorations(&hover_decor_array, &hover_jsarray, None);
-                // hover_decor_array.set(
-                //     0,
-                //     (*curr_model)
-                //         .delta_decorations(&hover_decor_array, &hover_jsarray, None)
-                //         .into(),
-                // );
 
                 log!("These are the arrays after calling Delta Decorations");
                 log!(hover_jsarray.clone());
