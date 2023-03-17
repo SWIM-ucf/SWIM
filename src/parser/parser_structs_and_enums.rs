@@ -21,18 +21,16 @@ pub mod instruction_tokenization {
         pub line_number: usize,
         pub error_start_end_columns: Vec<(usize, usize)>,
         pub errors: Vec<Error>,
-        pub line_type: LineType
+        pub line_type: LineType,
     }
 
     #[derive(Clone, Debug, Default, Eq, PartialEq)]
     pub enum LineType {
-
         #[default]
         Blank,
         Data,
         Text,
-        Directive
-
+        Directive,
     }
 
     impl MonacoLineInfo {

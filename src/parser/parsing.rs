@@ -113,8 +113,8 @@ pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
     }
 
     //creates an empty monaco line if there is nothing in Monaco.
-    if monaco_line_info_vec.is_empty(){
-        monaco_line_info_vec.push(MonacoLineInfo{
+    if monaco_line_info_vec.is_empty() {
+        monaco_line_info_vec.push(MonacoLineInfo {
             mouse_hover_string: "".to_string(),
             updated_monaco_string: "".to_string(),
             tokens: vec![],
@@ -171,8 +171,7 @@ pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instructio
                 } else {
                     lines[i].tokens[0].token_name.pop();
                     lines[i].tokens[0].token_type = Label;
-                    instruction.label =
-                        Some((lines[i].tokens[0].clone(), lines[i].line_number));
+                    instruction.label = Some((lines[i].tokens[0].clone(), lines[i].line_number));
                 }
 
                 if lines[i].tokens.len() == 1 {

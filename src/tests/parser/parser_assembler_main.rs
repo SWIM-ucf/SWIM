@@ -881,7 +881,7 @@ fn instructions_directives_and_registers_work_regardless_of_capitalization() {
 }
 
 #[test]
-fn parser_assembler_works_with_empty_strings(){
+fn parser_assembler_works_with_empty_strings() {
     let _ = parser("".to_string());
     let _ = parser("\n".to_string());
     let _ = parser("\n\n".to_string());
