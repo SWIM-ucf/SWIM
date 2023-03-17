@@ -94,6 +94,10 @@ pub struct DatapathState {
     /// before the `DataWrite` multiplexer in the main processor.
     pub data_result: u64,
 
+    // *Data line.* This line carries the idenfication number for the
+    // register register-write will write to.
+    pub write_register_destination: usize,
+
     /// *Jump address line.* This line carries the concatenation of
     /// the high 36 bits of the PC, and `lower_26_shifted_left_by_2`.
     pub jump_address: u64,
@@ -1166,7 +1170,7 @@ impl MipsDatapath {
         // Decide to retrieve data either from the main processor or the coprocessor.
         self.state.register_write_data = match self.coprocessor.signals.data_write {
             DataWrite::NoWrite => self.state.data_result,
-            DataWrite::YesWrite => self.coprocessor.get_data_register(),
+            DataWrite::YesWrite => self.coprocessor.get_data_writeback(),
         };
 
         // Abort if the RegWrite signal is not set, or if the OverflowWriteBlock signal
@@ -1179,7 +1183,7 @@ impl MipsDatapath {
 
         // Determine the destination for the data to write. This is
         // determined by the RegDst control signal.
-        let destination = match self.signals.reg_dst {
+        self.state.write_register_destination = match self.signals.reg_dst {
             RegDst::Reg1 => self.state.rs as usize,
             RegDst::Reg2 => self.state.rt as usize,
             RegDst::Reg3 => self.state.rd as usize,
@@ -1187,7 +1191,7 @@ impl MipsDatapath {
         };
 
         // If we are attempting to write to register $zero, stop.
-        if destination == 0 {
+        if self.state.write_register_destination == 0 {
             return;
         }
 
@@ -1197,7 +1201,7 @@ impl MipsDatapath {
         }
 
         // Write.
-        self.registers.gpr[destination] = self.state.register_write_data;
+        self.registers.gpr[self.state.write_register_destination] = self.state.register_write_data;
     }
 
     /// Update the program counter register.
