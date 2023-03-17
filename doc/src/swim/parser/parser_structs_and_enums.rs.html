@@ -207,6 +207,16 @@
 <a href="#207" id="207">207</a>
 <a href="#208" id="208">208</a>
 <a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>instruction_tokenization {
     <span class="kw">use </span>std::default::Default;
     <span class="kw">use </span>std::fmt;
@@ -215,7 +225,7 @@
     </span><span class="doccomment">///Wrapper for all information gathered in the Parser/Assembler about the written program.
     </span><span class="kw">pub struct </span>ProgramInfo {
         <span class="kw">pub </span>monaco_line_info: Vec&lt;MonacoLineInfo&gt;,
-        <span class="kw">pub </span>address_to_line_number: Vec&lt;u32&gt;,
+        <span class="kw">pub </span>address_to_line_number: Vec&lt;usize&gt;,
         <span class="kw">pub </span>updated_monaco_string: String,
         <span class="kw">pub </span>console_out_post_assembly: String,
         <span class="kw">pub </span>instructions: Vec&lt;Instruction&gt;,
@@ -228,8 +238,18 @@
         <span class="kw">pub </span>updated_monaco_string: String,
         <span class="kw">pub </span>tokens: Vec&lt;Token&gt;,
         <span class="kw">pub </span>line_number: usize,
-        <span class="kw">pub </span>error_start_end_columns: Vec&lt;(u32, u32)&gt;,
+        <span class="kw">pub </span>error_start_end_columns: Vec&lt;(usize, usize)&gt;,
         <span class="kw">pub </span>errors: Vec&lt;Error&gt;,
+        <span class="kw">pub </span>line_type: LineType,
+    }
+
+    <span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
+    </span><span class="kw">pub enum </span>LineType {
+        <span class="attr">#[default]
+        </span>Blank,
+        Data,
+        Text,
+        Directive,
     }
 
     <span class="kw">impl </span>MonacoLineInfo {
@@ -252,10 +272,10 @@
         <span class="kw">pub </span>operator: Token,
         <span class="kw">pub </span>operands: Vec&lt;Token&gt;,
         <span class="kw">pub </span>binary: u32,
-        <span class="kw">pub </span>instruction_number: u32,
-        <span class="kw">pub </span>line_number: u32,
+        <span class="kw">pub </span>instruction_number: usize,
+        <span class="kw">pub </span>line_number: usize,
         <span class="kw">pub </span>errors: Vec&lt;Error&gt;,
-        <span class="kw">pub </span>label: <span class="prelude-ty">Option</span>&lt;(Token, u32)&gt;, <span class="comment">//label.1 refers to the line number the label is on
+        <span class="kw">pub </span>label: <span class="prelude-ty">Option</span>&lt;(Token, usize)&gt;, <span class="comment">//label.1 refers to the line number the label is on
     </span>}
 
     <span class="kw">impl </span>Instruction {
@@ -282,8 +302,8 @@
     <span class="doccomment">///A collection of all relevant information found about a variable in the Parser/Assembler
     </span><span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
     </span><span class="kw">pub struct </span>Data {
-        <span class="kw">pub </span>data_number: u32,
-        <span class="kw">pub </span>line_number: u32,
+        <span class="kw">pub </span>data_number: usize,
+        <span class="kw">pub </span>line_number: usize,
         <span class="kw">pub </span>errors: Vec&lt;Error&gt;,
         <span class="kw">pub </span>label: Token,
         <span class="kw">pub </span>data_type: Token,
@@ -293,7 +313,7 @@
     <span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
     </span><span class="kw">pub struct </span>Token {
         <span class="kw">pub </span>token_name: String,
-        <span class="kw">pub </span>start_end_columns: (u32, u32),
+        <span class="kw">pub </span>start_end_columns: (usize, usize),
         <span class="kw">pub </span>token_type: TokenType,
     }
 
@@ -301,7 +321,7 @@
     </span><span class="kw">pub struct </span>Error {
         <span class="kw">pub </span>error_name: ErrorType,
         <span class="kw">pub </span>token_causing_error: String,
-        <span class="kw">pub </span>start_end_columns: (u32, u32),
+        <span class="kw">pub </span>start_end_columns: (usize, usize),
         <span class="kw">pub </span>message: String,
     }
 

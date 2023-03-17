@@ -1152,9 +1152,6 @@
 <a href="#1152" id="1152">1152</a>
 <a href="#1153" id="1153">1153</a>
 <a href="#1154" id="1154">1154</a>
-<a href="#1155" id="1155">1155</a>
-<a href="#1156" id="1156">1156</a>
-<a href="#1157" id="1157">1157</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::IncorrectNumberOfOperands;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Operator;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::{
@@ -1189,10 +1186,10 @@
 
     <span class="comment">//iterate through every instruction and check if the operator is a pseudo-instruction
     </span><span class="kw">for </span>(i, <span class="kw-2">mut </span>instruction) <span class="kw">in </span><span class="kw-2">&amp;mut </span>instructions.iter_mut().enumerate() {
-        instruction.instruction_number = (i + vec_of_added_instructions.len()) <span class="kw">as </span>u32;
+        instruction.instruction_number = i + vec_of_added_instructions.len();
         <span class="kw">match </span><span class="kw-2">&amp;*</span>instruction.operator.token_name.to_lowercase() {
             <span class="string">&quot;li&quot; </span>=&gt; {
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;li is a pseudo-instruction.\nli regA, immediate =&gt;\n\tori $regA, $zero, immediate\n&quot;
                         </span>.to_string();
 
@@ -1214,15 +1211,14 @@
                     token_type: Default::default(),
                 });
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
-                    .update_pseudo_string(<span class="macro">vec!</span>[instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(<span class="macro">vec!</span>[instruction]);
             }
             <span class="string">&quot;seq&quot; </span>=&gt; {
                 <span class="comment">//seq $regA, $regB, $regC turns into:
                 //sub $regA, $regB, $regC
                 //ori $at, $zero, 1
                 //sltu $regA, $regA, $at
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;seq is a pseudo-instruction.\nseq $regA, $regB, $regC =&gt;\n\tsub $regA, $regB, $regC\n\tori $at, $zero, 1\n\tsltu $regA, $regA, $at\n&quot;
                         </span>.to_string();
 
@@ -1282,7 +1278,7 @@
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">2</span>;
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize].update_pseudo_string(<span class="macro">vec!</span>[
+                monaco_line_info[instruction.line_number].update_pseudo_string(<span class="macro">vec!</span>[
                     <span class="kw-2">&amp;mut </span>extra_instruction,
                     <span class="kw-2">&amp;mut </span>extra_instruction_2,
                     instruction,
@@ -1293,7 +1289,7 @@
                 //sub $regA, $regB, $regC
                 //sltu $regA, $zero, $regA
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;sne is a pseudo-instruction.\nsne $regA, $regB, $regC =&gt;\n\tsub $regA, $regB, $regC\n\tsltu $regA, $zero, $regA\n&quot;
                         </span>.to_string();
 
@@ -1321,7 +1317,7 @@
                 instruction.operands[<span class="number">2</span>] = instruction.operands[<span class="number">0</span>].clone();
                 instruction.instruction_number += <span class="number">1</span>;
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
             }
             <span class="string">&quot;sle&quot; </span>=&gt; {
@@ -1330,7 +1326,7 @@
                 // addi $regA, $regA, 1
                 // andi $regA, $regA, 1
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;sle is a pseudo-instruction.\nsle $regA, $regB, $regC =&gt;\n\tslt $regA, $regC, $regB\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n&quot;
                         </span>.to_string();
 
@@ -1386,7 +1382,7 @@
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">2</span>;
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize].update_pseudo_string(<span class="macro">vec!</span>[
+                monaco_line_info[instruction.line_number].update_pseudo_string(<span class="macro">vec!</span>[
                     <span class="kw-2">&amp;mut </span>extra_instruction,
                     <span class="kw-2">&amp;mut </span>extra_instruction_2,
                     instruction,
@@ -1398,7 +1394,7 @@
                 //addi $regA, $regA, 1
                 //andi $regA, $regA, 1
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;sleu is a pseudo-instruction.\nsleu $regA, $regB, $regC =&gt;\n\tsltu $regA, $regC, $regB\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n&quot;
                         </span>.to_string();
 
@@ -1454,7 +1450,7 @@
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">2</span>;
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize].update_pseudo_string(<span class="macro">vec!</span>[
+                monaco_line_info[instruction.line_number].update_pseudo_string(<span class="macro">vec!</span>[
                     <span class="kw-2">&amp;mut </span>extra_instruction,
                     <span class="kw-2">&amp;mut </span>extra_instruction_2,
                     instruction,
@@ -1464,7 +1460,7 @@
                 <span class="comment">//sgt $regA, $regB, $regC is translated to:
                 // slt $regA, $regC, $regB
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;sgt is a pseudo-instruction.\nsgt $regA, $regB, $regC =&gt;\n\tslt $regA, $regC, $regB\n&quot;
                         </span>.to_string();
 
@@ -1484,14 +1480,13 @@
                 instruction.operator.token_name = <span class="string">&quot;slt&quot;</span>.to_string();
                 instruction.operator.start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
-                    .update_pseudo_string(<span class="macro">vec!</span>[instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(<span class="macro">vec!</span>[instruction]);
             }
             <span class="string">&quot;sgtu&quot; </span>=&gt; {
                 <span class="comment">//sgtu $regA, $regB, $regC is translated to:
                 // sltu $regA, $regC, $regB
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;sgtu is a pseudo-instruction.\nsgtu $regA, $regB, $regC =&gt;\n\tsltu $regA, $regC, $regB\n&quot;
                         </span>.to_string();
 
@@ -1511,8 +1506,7 @@
                 instruction.operator.token_name = <span class="string">&quot;sltu&quot;</span>.to_string();
                 instruction.operator.start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
-                    .update_pseudo_string(<span class="macro">vec!</span>[instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(<span class="macro">vec!</span>[instruction]);
             }
             <span class="string">&quot;sge&quot; </span>=&gt; {
                 <span class="comment">//sge $regA, $regB, $regC is translated to:
@@ -1520,7 +1514,7 @@
                 // addi $regA, $regA, 1
                 // andi $regA, $regA, 1
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;sge is a pseudo-instruction.\nsge $regA, $regB, $regC =&gt;\n\tslt $regA, $regB, $regC\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n&quot;
                         </span>.to_string();
 
@@ -1573,7 +1567,7 @@
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">2</span>;
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize].update_pseudo_string(<span class="macro">vec!</span>[
+                monaco_line_info[instruction.line_number].update_pseudo_string(<span class="macro">vec!</span>[
                     <span class="kw-2">&amp;mut </span>extra_instruction,
                     <span class="kw-2">&amp;mut </span>extra_instruction_2,
                     instruction,
@@ -1585,7 +1579,7 @@
                 // addi $regA, $regA, 1
                 // andi $regA, $regA, 1
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;sgeu is a pseudo-instruction.\nsgeu $regA, $regB, $regC =&gt;\n\tsltu $regA, $regB, $regC\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n&quot;
                         </span>.to_string();
 
@@ -1638,7 +1632,7 @@
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">2</span>;
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize].update_pseudo_string(<span class="macro">vec!</span>[
+                monaco_line_info[instruction.line_number].update_pseudo_string(<span class="macro">vec!</span>[
                     <span class="kw-2">&amp;mut </span>extra_instruction,
                     <span class="kw-2">&amp;mut </span>extra_instruction_2,
                     instruction,
@@ -1665,11 +1659,11 @@
 
                     <span class="comment">//create mouse hover message dependent on lw / sw
                     </span><span class="kw">if </span>instruction.operator.token_name == <span class="string">&quot;lw&quot; </span>{
-                        monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                        monaco_line_info[instruction.line_number].mouse_hover_string =
                             <span class="string">&quot;lw $regA, label is a pseudo-instruction.\nlw $regA, label =&gt;\n\tlui $at, label\n\tlw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address.\n&quot;
                                 </span>.to_string();
                     } <span class="kw">else </span>{
-                        monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                        monaco_line_info[instruction.line_number].mouse_hover_string =
                             <span class="string">&quot;sw $regA, label is a pseudo-instruction.\nsw $regA, label =&gt;\n\tlui $at, label\n\tsw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address.\n&quot;
                                 </span>.to_string();
                     }
@@ -1705,7 +1699,7 @@
                 //ori $at, $zero, immediate
                 //sub $regA, $regB, $at
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =&gt;\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at\n&quot;
                         </span>.to_string();
 
@@ -1754,7 +1748,7 @@
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
             }
             <span class="string">&quot;dsubi&quot; </span>=&gt; {
@@ -1762,7 +1756,7 @@
                 //ori $at, $zero, immediate
                 //dsub $regA, $regB, $at
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;dsubi $regA, $regB, immediate is a pseudo-instruction.\ndsubi $regA, $regB, immediate =&gt;\n\tori $at, $zero, immediate\n\tdsub $regA, $regB, $at\n&quot;
                         </span>.to_string();
 
@@ -1809,7 +1803,7 @@
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
             }
             <span class="string">&quot;dsubiu&quot; </span>=&gt; {
@@ -1817,7 +1811,7 @@
                 //ori $at, $zero, immediate
                 //dsubu $regA, $regB, $at
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;dsubiu $regA, $regB, immediate is a pseudo-instruction.\ndsubiu $regA, $regB, immediate =&gt;\n\tori $at, $zero, immediate\n\tdsubu $regA, $regB, $at\n&quot;
                         </span>.to_string();
 
@@ -1866,7 +1860,7 @@
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
             }
             <span class="string">&quot;muli&quot; </span>=&gt; {
@@ -1874,7 +1868,7 @@
                 //ori $at, $zero, immediate
                 //mul $regA, $regB, $at
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;muli $regA, $regB, immediate is a pseudo-instruction.\nmuli $regA, $regB, immediate =&gt;\n\tori $at, $zero, immediate\n\tmul $regA, $regB, $at\n&quot;
                         </span>.to_string();
 
@@ -1922,7 +1916,7 @@
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
             }
             <span class="string">&quot;dmuli&quot; </span>=&gt; {
@@ -1930,7 +1924,7 @@
                 //ori $at, $zero, immediate
                 //dmul $regA, $regB, $at
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;dmuli $regA, $regB, immediate is a pseudo-instruction.\ndmuli $regA, $regB, immediate =&gt;\n\tori $at, $zero, immediate\n\tdmul $regA, $regB, $at\n&quot;
                         </span>.to_string();
 
@@ -1977,7 +1971,7 @@
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
             }
             <span class="string">&quot;dmuliu&quot; </span>=&gt; {
@@ -1985,7 +1979,7 @@
                 //ori $at, $zero, immediate
                 //dmulu $regA, $regB, $at
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;dmuliu $regA, $regB, immediate is a pseudo-instruction.\ndmuliu $regA, $regB, immediate =&gt;\n\tori $at, $zero, immediate\n\tdmulu $regA, $regB, $at\n&quot;
                         </span>.to_string();
 
@@ -2032,7 +2026,7 @@
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
             }
             <span class="string">&quot;divi&quot; </span>=&gt; {
@@ -2040,7 +2034,7 @@
                 //ori $at, $zero, immediate
                 //div $regA, $at
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;divi $regA, immediate is a pseudo-instruction.\ndivi $regA, immediate =&gt;\n\tori $at, $zero, immediate\n\tdiv $regA, $at\n&quot;
                         </span>.to_string();
 
@@ -2087,7 +2081,7 @@
                 instruction.operands[<span class="number">1</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
             }
             <span class="string">&quot;ddivi&quot; </span>=&gt; {
@@ -2095,7 +2089,7 @@
                 //ori $at, $zero, immediate
                 //ddiv $regA, $at
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;ddivi $regA, immediate is a pseudo-instruction.\nddivi $regA, immediate =&gt;\n\tori $at, $zero, immediate\n\tddiv $regA, $at\n&quot;
                         </span>.to_string();
 
@@ -2136,7 +2130,7 @@
                 instruction.operands[<span class="number">1</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
             }
             <span class="string">&quot;ddiviu&quot; </span>=&gt; {
@@ -2144,7 +2138,7 @@
                 //ori $at, $zero, immediate
                 //ddivu $regA, $at
 
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;ddiviu $regA, immediate is a pseudo-instruction.\nddiviu $regA, immediate =&gt;\n\tori $at, $zero, immediate\n\tddivu $regA, $at\n&quot;
                         </span>.to_string();
 
@@ -2185,7 +2179,7 @@
                 instruction.operands[<span class="number">1</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
 
-                monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
             }
             <span class="kw">_ </span>=&gt; {}
@@ -2194,22 +2188,22 @@
 
     <span class="comment">//insert all new new instructions
     </span><span class="kw">for </span>instruction <span class="kw">in </span>vec_of_added_instructions {
-        instructions.insert(instruction.instruction_number <span class="kw">as </span>usize, instruction);
+        instructions.insert(instruction.instruction_number, instruction);
     }
 
     <span class="comment">//if there aren&#39;t any instructions, add a syscall to monaco&#39;s updated string so the emulation core does not try to run data as an instruction
     </span><span class="kw">if </span>instructions.is_empty() {
         <span class="comment">//try to find an instance of .text
-        </span><span class="kw">let </span><span class="kw-2">mut </span>text_index: <span class="prelude-ty">Option</span>&lt;u32&gt; = <span class="prelude-val">None</span>;
+        </span><span class="kw">let </span><span class="kw-2">mut </span>text_index: <span class="prelude-ty">Option</span>&lt;usize&gt; = <span class="prelude-val">None</span>;
         <span class="kw">for </span>(i, monaco_line) <span class="kw">in </span>monaco_line_info.iter_mut().enumerate() {
             <span class="kw">if </span>!monaco_line.tokens.is_empty() &amp;&amp; monaco_line.tokens[<span class="number">0</span>].token_name == <span class="string">&quot;.text&quot; </span>{
-                text_index = <span class="prelude-val">Some</span>(i <span class="kw">as </span>u32);
+                text_index = <span class="prelude-val">Some</span>(i);
                 <span class="kw">break</span>;
             }
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(..) = text_index {
             <span class="comment">//add syscall after first index of .text if it exists
-            </span>monaco_line_info[text_index.unwrap() <span class="kw">as </span>usize]
+            </span>monaco_line_info[text_index.unwrap()]
                 .updated_monaco_string
                 .push_str(<span class="string">&quot;\nsyscall&quot;</span>);
 
@@ -2250,7 +2244,7 @@
         <span class="kw">let </span>last_instruction = instructions.last().unwrap();
         <span class="comment">//if the last instruction in monaco is not a syscall, add it in to updated_monaco_strings and to instructions
         </span><span class="kw">if </span>last_instruction.operator.token_name != <span class="string">&quot;syscall&quot; </span>{
-            monaco_line_info[last_instruction.line_number <span class="kw">as </span>usize]
+            monaco_line_info[last_instruction.line_number]
                 .updated_monaco_string
                 .push_str(<span class="string">&quot;\nsyscall&quot;</span>);
 
@@ -2275,7 +2269,7 @@
 /// the second part of this must occur after the label hashmap is completed.
 </span><span class="kw">pub fn </span>complete_lw_sw_pseudo_instructions(
     instructions: <span class="kw-2">&amp;mut </span>Vec&lt;Instruction&gt;,
-    labels: <span class="kw-2">&amp;</span>HashMap&lt;String, u32&gt;,
+    labels: <span class="kw-2">&amp;</span>HashMap&lt;String, usize&gt;,
     monaco_line_info: <span class="kw-2">&amp;mut </span>[MonacoLineInfo],
 ) {
     <span class="kw">if </span>instructions.len() &lt; <span class="number">2 </span>{
@@ -2305,7 +2299,7 @@
             instructions[index].operands[<span class="number">1</span>].token_name = memory_operand;
             instructions[index].operands[<span class="number">1</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
 
-            monaco_line_info[instructions[index].line_number <span class="kw">as </span>usize].update_pseudo_string(<span class="macro">vec!</span>[
+            monaco_line_info[instructions[index].line_number].update_pseudo_string(<span class="macro">vec!</span>[
                 <span class="kw-2">&amp;mut </span>instructions.clone()[index - <span class="number">1</span>],
                 <span class="kw-2">&amp;mut </span>instructions.clone()[index],
             ]);

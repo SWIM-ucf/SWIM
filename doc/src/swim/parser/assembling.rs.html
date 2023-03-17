@@ -694,7 +694,7 @@
     instruction: <span class="kw-2">&amp;mut </span>Instruction,
     expected_operands: Vec&lt;OperandType&gt;,
     concat_order: Vec&lt;usize&gt;,
-    labels_option: <span class="prelude-ty">Option</span>&lt;HashMap&lt;String, u32&gt;&gt;,
+    labels_option: <span class="prelude-ty">Option</span>&lt;HashMap&lt;String, usize&gt;&gt;,
 ) -&gt; <span class="kw-2">&amp;mut </span>Instruction {
     <span class="comment">//if the number of operands in the instruction does not match the expected number, there is an error
     </span><span class="kw">if </span>instruction.operands.len() != expected_operands.len() {
@@ -840,9 +840,9 @@
 /// The value represents instruction numbers NOT bytes.
 </span><span class="kw">pub fn </span>read_label_relative(
     given_label: <span class="kw-2">&amp;</span>str,
-    start_end_columns: (u32, u32),
-    current_instruction_number: u32,
-    labels: HashMap&lt;String, u32&gt;,
+    start_end_columns: (usize, usize),
+    current_instruction_number: usize,
+    labels: HashMap&lt;String, usize&gt;,
 ) -&gt; (u32, <span class="prelude-ty">Option</span>&lt;Error&gt;) {
     <span class="kw">let </span>result = labels.get(given_label);
 
@@ -868,8 +868,8 @@
 /// This value corresponds to instruction number, NOT byte address.
 </span><span class="kw">pub fn </span>read_label_absolute(
     given_label: <span class="kw-2">&amp;</span>str,
-    start_end_columns: (u32, u32),
-    labels: HashMap&lt;String, u32&gt;,
+    start_end_columns: (usize, usize),
+    labels: HashMap&lt;String, usize&gt;,
 ) -&gt; (u32, <span class="prelude-ty">Option</span>&lt;Error&gt;) {
     <span class="kw">let </span>result = labels.get(given_label);
     <span class="kw">if </span>result.is_none() {
@@ -883,14 +883,14 @@
             }),
         );
     }
-    (<span class="kw-2">*</span>result.unwrap() &gt;&gt; <span class="number">2</span>, <span class="prelude-val">None</span>)
+    ((<span class="kw-2">*</span>result.unwrap() &gt;&gt; <span class="number">2</span>) <span class="kw">as </span>u32, <span class="prelude-val">None</span>)
 }
 
 <span class="doccomment">///Takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors.
 /// If the string given matches a label, that address is returned instead
 </span><span class="kw">pub fn </span>read_memory_address(
     orig_string: <span class="kw-2">&amp;</span>str,
-    start_end_columns: (u32, u32),
+    start_end_columns: (usize, usize),
 ) -&gt; (u32, u32, <span class="prelude-ty">Option</span>&lt;Vec&lt;Error&gt;&gt;) {
     <span class="comment">//the indices of the open and close parentheses are checked.
     //If either are missing or they are in the wrong order, an error is returned
@@ -959,7 +959,7 @@
 ///and the expected register type. It calls the corresponding functions holding the match cases for the different register types.
 </span><span class="kw">pub fn </span>read_register(
     register: <span class="kw-2">&amp;</span>str,
-    start_end_columns: (u32, u32),
+    start_end_columns: (usize, usize),
     register_type: RegisterType,
 ) -&gt; (u32, <span class="prelude-ty">Option</span>&lt;Error&gt;) {
     <span class="kw">if </span>register_type == GeneralPurpose {
@@ -1109,7 +1109,7 @@
 /// by the available bits, an error is returned.
 </span><span class="kw">pub fn </span>read_immediate(
     given_text: <span class="kw-2">&amp;</span>str,
-    start_end_columns: (u32, u32),
+    start_end_columns: (usize, usize),
     num_bits: u32,
 ) -&gt; (u32, <span class="prelude-ty">Option</span>&lt;Error&gt;) {
     <span class="comment">//attempts to cast the text into a large int
@@ -1160,7 +1160,7 @@
 </span><span class="kw">pub fn </span>assemble_data_binary(data_list: <span class="kw-2">&amp;mut </span>[Data]) -&gt; Vec&lt;u8&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>vec_of_data: Vec&lt;u8&gt; = Vec::new();
     <span class="kw">for </span>datum <span class="kw">in </span>data_list.iter_mut() {
-        datum.data_number = vec_of_data.len() <span class="kw">as </span>u32;
+        datum.data_number = vec_of_data.len();
         <span class="kw">match </span><span class="kw-2">&amp;*</span>datum.data_type.token_name.to_lowercase() {
             <span class="string">&quot;.ascii&quot; </span>=&gt; {
                 <span class="comment">//pushes a string of characters to memory

@@ -1531,12 +1531,6 @@
 <a href="#1531" id="1531">1531</a>
 <a href="#1532" id="1532">1532</a>
 <a href="#1533" id="1533">1533</a>
-<a href="#1534" id="1534">1534</a>
-<a href="#1535" id="1535">1535</a>
-<a href="#1536" id="1536">1536</a>
-<a href="#1537" id="1537">1537</a>
-<a href="#1538" id="1538">1538</a>
-<a href="#1539" id="1539">1539</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::assembling::{assemble_data_binary, read_operands};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::OperandType::<span class="kw-2">*</span>;
@@ -1564,7 +1558,7 @@
         <span class="kw-2">&amp;mut </span>program_info.monaco_line_info,
     );
     <span class="kw">let </span>vec_of_data = assemble_data_binary(<span class="kw-2">&amp;mut </span>program_info.data);
-    <span class="kw">let </span>labels: HashMap&lt;String, u32&gt; =
+    <span class="kw">let </span>labels: HashMap&lt;String, usize&gt; =
         create_label_map(<span class="kw-2">&amp;mut </span>program_info.instructions, <span class="kw-2">&amp;mut </span>program_info.data);
     complete_lw_sw_pseudo_instructions(
         <span class="kw-2">&amp;mut </span>program_info.instructions,
@@ -1604,7 +1598,7 @@
 <span class="doccomment">///Takes the vector of instructions and assembles the binary for them.
 </span><span class="kw">pub fn </span>read_instructions(
     instruction_list: <span class="kw-2">&amp;mut </span>[Instruction],
-    labels: <span class="kw-2">&amp;</span>HashMap&lt;String, u32&gt;,
+    labels: <span class="kw-2">&amp;</span>HashMap&lt;String, usize&gt;,
     monaco_line_info: <span class="kw-2">&amp;mut </span>[MonacoLineInfo],
 ) {
     <span class="kw">for </span><span class="kw-2">mut </span>instruction <span class="kw">in </span><span class="kw-2">&amp;mut </span>instruction_list.iter_mut() {
@@ -1625,11 +1619,11 @@
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b100000</span>, <span class="number">6</span>);
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;add rd, rs, rt\nAdds the 32-bit values in rs and rt, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if adding rs and rt causes a 32-bit overflow. However, SWIM places the result in rd, regardless.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;add rd, rs, rt\nAdds the 32-bit values in rs and rt, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if adding rs and rt causes a 32-bit overflow. However, SWIM places the result in rd, regardless.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;sub&quot; </span>=&gt; {
@@ -1646,11 +1640,11 @@
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b100010</span>, <span class="number">6</span>);
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;sub rd, rs, rt\nSubtracts the 32-bit value in rt from the 32-bit value in rd, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if subtracting rs and rt causes a 32-bit overflow. However, SWIM places the result in rd, regardless.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;sub rd, rs, rt\nSubtracts the 32-bit value in rt from the 32-bit value in rd, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if subtracting rs and rt causes a 32-bit overflow. However, SWIM places the result in rd, regardless.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;mul&quot; </span>=&gt; {
@@ -1667,11 +1661,11 @@
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b000010</span>, <span class="number">6</span>);
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;mul rd, rs, rt\nMultiplies the signed 32-bit values in rs and rt, and places the lower 32 bits of the result in rd.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;mul rd, rs, rt\nMultiplies the signed 32-bit values in rs and rt, and places the lower 32 bits of the result in rd.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;div&quot; </span>=&gt; {
@@ -1683,11 +1677,11 @@
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b011010</span>, <span class="number">6</span>);
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;div rd, rs, rt\nDivides the 32-bit value in rs by the 32-bit value in rt and places the 32-bit quotient into rd.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;div rd, rs, rt\nDivides the 32-bit value in rs by the 32-bit value in rt and places the 32-bit quotient into rd.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;lw&quot; </span>=&gt; {
@@ -1701,11 +1695,11 @@
                 );
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;lw rt, offset(base)\nLoads the contents of the 32-bit at the specified memory address into rt.\nMemory address is calculated as the sum of offset and the contents of the base register.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;lw rt, offset(base)\nLoads the contents of the 32-bit at the specified memory address into rt.\nMemory address is calculated as the sum of offset and the contents of the base register.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;sw&quot; </span>=&gt; {
@@ -1719,11 +1713,11 @@
                 );
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;sw rt, offset(base)\nStores the value of the lower 32-bits in rt at the specified memory address.\nMemory address is calculated as the sum of offset and the contents of the base register.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;sw rt, offset(base)\nStores the value of the lower 32-bits in rt at the specified memory address.\nMemory address is calculated as the sum of offset and the contents of the base register.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;lui&quot; </span>=&gt; {
@@ -1733,11 +1727,11 @@
                 read_operands(instruction, <span class="macro">vec!</span>[RegisterGP, Immediate], <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>], <span class="prelude-val">None</span>);
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;lui rt, immediate\nLoads the 16-bit immediate value shifted left by 16 into rt.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;lui rt, immediate\nLoads the 16-bit immediate value shifted left by 16 into rt.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;aui&quot; </span>=&gt; {
@@ -1751,7 +1745,7 @@
                 );
 
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;aui rt, rs, immediate\nAdds the sign-extended 16-bit immediate value shifted left by 16 to the contents of rs, and stores the result in rt.\nResult is sign-extended as if it is a 32-bit signed address.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;aui rt, rs, immediate\nAdds the sign-extended 16-bit immediate value shifted left by 16 to the contents of rs, and stores the result in rt.\nResult is sign-extended as if it is a 32-bit signed address.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;andi&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b001100</span>, <span class="number">6</span>);
@@ -1764,11 +1758,11 @@
                 );
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;andi rt, rs, immediate\nBitwise ands the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;andi rt, rs, immediate\nBitwise ands the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;ori&quot; </span>=&gt; {
@@ -1782,11 +1776,11 @@
                 );
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;ori rt, rs, immediate\nBitwise ors the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;ori rt, rs, immediate\nBitwise ors the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;addi&quot; </span>=&gt; {
@@ -1800,11 +1794,11 @@
                 );
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;addi rt, rs, immediate\nAdds the 32-bit value in rs and the 16-bit immediate, and places the result in rt.\nIn hardware implementations, the result is not placed in rt if adding rs and the immediate causes a 32-bit overflow. However, SWIM places the result in rd, regardless.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;addi rt, rs, immediate\nAdds the 32-bit value in rs and the 16-bit immediate, and places the result in rt.\nIn hardware implementations, the result is not placed in rt if adding rs and the immediate causes a 32-bit overflow. However, SWIM places the result in rd, regardless.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;dadd&quot; </span>=&gt; {
@@ -1821,11 +1815,11 @@
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b101100</span>, <span class="number">6</span>);
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;dadd rd, rs, rt\nAdds the 64-bit values in rs and rt, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if adding rs and rt causes a 64-bit overflow. However, SWIM places the result in rd, regardless.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;dadd rd, rs, rt\nAdds the 64-bit values in rs and rt, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if adding rs and rt causes a 64-bit overflow. However, SWIM places the result in rd, regardless.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;dsub&quot; </span>=&gt; {
@@ -1842,11 +1836,11 @@
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b101110</span>, <span class="number">6</span>);
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;dsub rd, rs, rt\nSubtracts the 64-bit values in rt from the 64-bit value in rs, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if subtracting rs and rt causes a 64-bit overflow. However, SWIM places the result in rd, regardless.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;dsub rd, rs, rt\nSubtracts the 64-bit values in rt from the 64-bit value in rs, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if subtracting rs and rt causes a 64-bit overflow. However, SWIM places the result in rd, regardless.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;dmul&quot; </span>=&gt; {
@@ -1863,11 +1857,11 @@
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b011100</span>, <span class="number">6</span>);
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;dmul rd, rs, rt\nMultiplies the signed 64-bit values in rs and rt, and places the lower 64 bits of the result in rd.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;dmul rd, rs, rt\nMultiplies the signed 64-bit values in rs and rt, and places the lower 64 bits of the result in rd.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;ddiv&quot; </span>=&gt; {
@@ -1879,11 +1873,11 @@
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b011110</span>, <span class="number">6</span>);
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;ddiv rd, rs, rt\nDivides the 64-bit value in rs by the 64-bit value in rt and places the quotient into rd.\n\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;ddiv rd, rs, rt\nDivides the 64-bit value in rs by the 64-bit value in rt and places the quotient into rd.\n\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;or&quot; </span>=&gt; {
@@ -1900,7 +1894,7 @@
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b100101</span>, <span class="number">6</span>);
 
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;or rd, rs, rt\nBitwise ors the contents of rs with the contents of rt, and stores the result in rd.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;or rd, rs, rt\nBitwise ors the contents of rs with the contents of rt, and stores the result in rd.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;and&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b000000</span>, <span class="number">6</span>);
@@ -1916,7 +1910,7 @@
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b100100</span>, <span class="number">6</span>);
 
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;and rd, rs, rt\nBitwise ands the contents of rs with the contents of rt, and stores the result in rd.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;and rd, rs, rt\nBitwise ands the contents of rs with the contents of rt, and stores the result in rd.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;add.s&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -1933,7 +1927,7 @@
                 <span class="comment">//add
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;add.s fd, fs, ft\nAdds the single-precision values in ft and fs and stores the result in fd.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;add.s fd, fs, ft\nAdds the single-precision values in ft and fs and stores the result in fd.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;add.d&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -1950,7 +1944,7 @@
                 <span class="comment">//add
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;add.d fd, fs, ft\nAdds the double-precision values in ft and fs and stores the result in fd.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;add.d fd, fs, ft\nAdds the double-precision values in ft and fs and stores the result in fd.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;sub.s&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -1967,7 +1961,7 @@
                 <span class="comment">//sub
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;sub.s fd, fs, ft\nSubtracts the single-precision value in ft from the single-precision value in fs, and places the result in fd.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;sub.s fd, fs, ft\nSubtracts the single-precision value in ft from the single-precision value in fs, and places the result in fd.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;sub.d&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -1983,7 +1977,7 @@
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b000001</span>, <span class="number">6</span>);
 
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;sub.d fd, fs, ft\nSubtracts the double-precision value in ft from the single-precision value in fs, and places the result in fd.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;sub.d fd, fs, ft\nSubtracts the double-precision value in ft from the single-precision value in fs, and places the result in fd.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;mul.s&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2000,7 +1994,7 @@
                 <span class="comment">//mul
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;mul.s fd, fs, ft\nMultiplies the single-precision values in ft and fs and stores the result in fd.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;mul.s fd, fs, ft\nMultiplies the single-precision values in ft and fs and stores the result in fd.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;mul.d&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2017,7 +2011,7 @@
                 <span class="comment">//mul
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;mul.d fd, fs, ft\nMultiplies the double-precision values in ft and fs and stores the result in fd.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;mul.d fd, fs, ft\nMultiplies the double-precision values in ft and fs and stores the result in fd.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;div.s&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2034,7 +2028,7 @@
                 <span class="comment">//div
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;div.s fd, fs, ft\nDivides the single-precision value in fs by the single-precision value in ft and stores the result in fd.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;div.s fd, fs, ft\nDivides the single-precision value in fs by the single-precision value in ft and stores the result in fd.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;div.d&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2051,7 +2045,7 @@
                 <span class="comment">//div
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;div.d fd, fs, ft\nDivides the double-precision value in fs by the double-precision value in ft and stores the result in fd.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;div.d fd, fs, ft\nDivides the double-precision value in fs by the double-precision value in ft and stores the result in fd.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;dahi&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b000001</span>, <span class="number">6</span>); <span class="comment">//regimm
@@ -2062,7 +2056,7 @@
                     place_binary_in_middle_of_another(instruction.binary, <span class="number">0b00110</span>, <span class="number">5</span>, <span class="number">15</span>);
 
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;dahi rs, immediate\nAdds the sign-extended 16-bit immediate value shifted left by 32 to the contents of rs, and stores the result in rs.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;dahi rs, immediate\nAdds the sign-extended 16-bit immediate value shifted left by 32 to the contents of rs, and stores the result in rs.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;dati&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b000001</span>, <span class="number">6</span>); <span class="comment">//regimm
@@ -2073,7 +2067,7 @@
                     place_binary_in_middle_of_another(instruction.binary, <span class="number">0b11110</span>, <span class="number">5</span>, <span class="number">15</span>);
 
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;dati rs, immediate\nAdds the sign-extended 16-bit immediate value shifted left by 48 to the contents of rs, and stores the result in rs.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;dati rs, immediate\nAdds the sign-extended 16-bit immediate value shifted left by 48 to the contents of rs, and stores the result in rs.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;daddiu&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b011001</span>, <span class="number">6</span>); <span class="comment">//daddiu
@@ -2086,7 +2080,7 @@
                 );
 
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;daddiu rt, rs, immediate\nAdds the 64-bit value in rs and the 16-bit immediate, and places the result in rt.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;daddiu rt, rs, immediate\nAdds the 64-bit value in rs and the 16-bit immediate, and places the result in rt.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;daddu&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b000000</span>, <span class="number">6</span>); <span class="comment">//special
@@ -2103,7 +2097,7 @@
                 <span class="comment">//daddu
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;daddu rd, rs, rt\nAdds the 64-bit values in rs and rt, and places the result in rd.\nIgnores overflow.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;daddu rd, rs, rt\nAdds the 64-bit values in rs and rt, and places the result in rd.\nIgnores overflow.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;dsubu&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b000000</span>, <span class="number">6</span>); <span class="comment">//special
@@ -2120,11 +2114,11 @@
                 <span class="comment">//dsubu
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;dsubu rd, rs, rt\nSubtracts the 64-bit values in rt from the 64-bit value in rs, and places the result in rd.\nIgnores overflow.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;dsubu rd, rs, rt\nSubtracts the 64-bit values in rt from the 64-bit value in rs, and places the result in rd.\nIgnores overflow.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;dmulu&quot; </span>=&gt; {
@@ -2142,11 +2136,11 @@
                 <span class="comment">//sop35
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;dmulu rd, rs, rt\nMultiplies the signed 64-bit values in rs and rt, and places the lower 64 bits of the result in rd.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;dmulu rd, rs, rt\nMultiplies the signed 64-bit values in rs and rt, and places the lower 64 bits of the result in rd.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;ddivu&quot; </span>=&gt; {
@@ -2159,11 +2153,11 @@
                 <span class="comment">//DDIVU
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;ddivu rd, rs, rt\nDivides the unsigned 64-bit value in rs by the unsigned 64-bit value in rt and places the quotient into rd.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;ddivu rd, rs, rt\nDivides the unsigned 64-bit value in rs by the unsigned 64-bit value in rt and places the quotient into rd.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;slt&quot; </span>=&gt; {
@@ -2181,11 +2175,11 @@
                 <span class="comment">//slt
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;slt rd, rs, rt\nCompares the contents of rs and rt as signed integers and stores the value 1 in rd if rs is less than rt. Otherwise, stores the value 0 in rd.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;slt rd, rs, rt\nCompares the contents of rs and rt as signed integers and stores the value 1 in rd if rs is less than rt. Otherwise, stores the value 0 in rd.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;sltu&quot; </span>=&gt; {
@@ -2203,11 +2197,11 @@
                 <span class="comment">//sltu
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
-                </span><span class="kw">if </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;sltu rd, rs, rt\nCompares the contents of rs and rt as unsigned integers and stores the value 1 in rd if rs is less than rt. Otherwise, stores the value 0 in rd.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;sltu rd, rs, rt\nCompares the contents of rs and rt as unsigned integers and stores the value 1 in rd if rs is less than rt. Otherwise, stores the value 0 in rd.\n&quot;</span>.to_string();
                 }
             }
             <span class="string">&quot;swc1&quot; </span>=&gt; {
@@ -2221,7 +2215,7 @@
                 );
 
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;swc1 ft, offset(base)\nStores the value of the lower 32 bits in ft at the specified memory address.\nMemory address is calculated as the sum of offset and the contents of the base register.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;swc1 ft, offset(base)\nStores the value of the lower 32 bits in ft at the specified memory address.\nMemory address is calculated as the sum of offset and the contents of the base register.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;lwc1&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b110001</span>, <span class="number">6</span>); <span class="comment">//lwc1
@@ -2234,7 +2228,7 @@
                 );
 
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;lwc1 ft offset(base)\nLoads the contents of the 32-bit word at the specified memory address into ft.\nMemory address is calculated as the sum of offset and the contents of the base register.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;lwc1 ft offset(base)\nLoads the contents of the 32-bit word at the specified memory address into ft.\nMemory address is calculated as the sum of offset and the contents of the base register.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;mtc1&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2246,7 +2240,7 @@
                 <span class="comment">//0
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;mtc1 rt, fs\nMoves the lower 32 bits in rt into the lower 32 bits in fs.&quot;
                         </span>.to_string();
             }
@@ -2260,7 +2254,7 @@
                 <span class="comment">//0
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;dmtc1 rt, fs\nMoves the doubleword contents in rt into fs.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;mfc1&quot; </span>=&gt; {
@@ -2273,7 +2267,7 @@
                 <span class="comment">//0
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;mfc1 rt, fs\nSign-extends contents in fs and moves it into rt.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;dmfc1&quot; </span>=&gt; {
@@ -2286,7 +2280,7 @@
                 <span class="comment">//0
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string =
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string =
                     <span class="string">&quot;dmfc1 rt, fs\nMoves the doubleword contents in fs into rt.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;j&quot; </span>=&gt; {
@@ -2300,7 +2294,7 @@
                 );
 
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;j target\nMoves the program counter to point to the targeted instruction’s address.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;j target\nMoves the program counter to point to the targeted instruction’s address.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;beq&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b000100</span>, <span class="number">6</span>); <span class="comment">//beq
@@ -2313,7 +2307,7 @@
                 );
 
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;beq rs, rt, target\nCompares the contents of rs and rt and, if they are equal, moves the program counter to point to the targeted instruction’s address.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;beq rs, rt, target\nCompares the contents of rs and rt and, if they are equal, moves the program counter to point to the targeted instruction’s address.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;bne&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b000101</span>, <span class="number">6</span>); <span class="comment">//bne
@@ -2326,7 +2320,7 @@
                 );
 
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;bne rs, rt, target\nCompares the contents of rs and rt and, if they are not equal, moves the program counter to point to the targeted instruction’s address.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;bne rs, rt, target\nCompares the contents of rs and rt and, if they are not equal, moves the program counter to point to the targeted instruction’s address.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;c.eq.s&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2344,7 +2338,7 @@
                 <span class="comment">//EQ
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;c.eq.s fs, ft\nCompares the contents of fs and ft as single-precision floats and, if they are equal, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;c.eq.s fs, ft\nCompares the contents of fs and ft as single-precision floats and, if they are equal, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;c.eq.d&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2362,7 +2356,7 @@
                 <span class="comment">//EQ
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;c.eq.d fs, ft\nCompares the contents of fs and ft as double-precision floats and, if they are equal, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;c.eq.d fs, ft\nCompares the contents of fs and ft as double-precision floats and, if they are equal, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;c.lt.s&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2380,7 +2374,7 @@
                 <span class="comment">//lt
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;c.lt.s fs, ft\nCompares the contents of fs and ft as single-precision floats and, if the contents of fs is less than the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;c.lt.s fs, ft\nCompares the contents of fs and ft as single-precision floats and, if the contents of fs is less than the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;c.lt.d&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2398,7 +2392,7 @@
                 <span class="comment">//lt
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;c.lt.d fs, ft\nCompares the contents of fs and ft as double-precision floats and, if the contents of fs is less than the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;c.lt.d fs, ft\nCompares the contents of fs and ft as double-precision floats and, if the contents of fs is less than the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;c.le.s&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2416,7 +2410,7 @@
                 <span class="comment">//le
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;c.le.s fs, ft\nCompares the contents of fs and ft as single-precision floats and, if the contents of fs is less than or equal to the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;c.le.s fs, ft\nCompares the contents of fs and ft as single-precision floats and, if the contents of fs is less than or equal to the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;c.le.d&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2434,7 +2428,7 @@
                 <span class="comment">//le
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;c.le.d fs, ft\nCompares the contents of fs and ft as double-precision floats and, if the contents of fs is less than or equal to the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;c.le.d fs, ft\nCompares the contents of fs and ft as double-precision floats and, if the contents of fs is less than or equal to the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;c.ngt.s&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2452,7 +2446,7 @@
                 <span class="comment">//ngt
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;c.ngt.s fs, ft\nCompares the contents of fs and ft as single-precision floats and, if the contents of fs not greater than the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;c.ngt.s fs, ft\nCompares the contents of fs and ft as single-precision floats and, if the contents of fs not greater than the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;c.ngt.d&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2470,7 +2464,7 @@
                 <span class="comment">//ngt
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;c.ngt.d fs, ft\nCompares the contents of fs and ft as double-precision floats and, if the contents of fs not greater than the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;c.ngt.d fs, ft\nCompares the contents of fs and ft as double-precision floats and, if the contents of fs not greater than the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;c.nge.s&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2488,7 +2482,7 @@
                 <span class="comment">//nge
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;c.nge.d fs, ft\nCompares the contents of fs and ft as single-precision floats and, if the contents of fs not greater than or equal to the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;c.nge.d fs, ft\nCompares the contents of fs and ft as single-precision floats and, if the contents of fs not greater than or equal to the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;c.nge.d&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2506,7 +2500,7 @@
                 <span class="comment">//nge
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;c.nge.d fs, ft\nCompares the contents of fs and ft as double-precision floats and, if the contents of fs not greater than or equal to the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;c.nge.d fs, ft\nCompares the contents of fs and ft as double-precision floats and, if the contents of fs not greater than or equal to the contents of ft, stores the value 1 into FPConditionCode. Otherwise, stores the value 0 into FPConditionCode.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;bc1t&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2521,7 +2515,7 @@
                 );
 
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;bc1t target\nIf FPConditionCode is 1, moves the program counter to point to the targeted instruction’s address.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;bc1t target\nIf FPConditionCode is 1, moves the program counter to point to the targeted instruction’s address.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;bc1f&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b010001</span>, <span class="number">6</span>); <span class="comment">//cop1
@@ -2536,7 +2530,7 @@
                 );
 
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span>monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;bc1t target\nIf FPConditionCode is , moves the program counter to point to the targeted instruction’s address.\n&quot;</span>.to_string();
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;bc1t target\nIf FPConditionCode is , moves the program counter to point to the targeted instruction’s address.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;syscall&quot; </span>=&gt; {
                 <span class="comment">//our support for syscall is limited. It is simply there to end emulation
@@ -2546,22 +2540,16 @@
                 <span class="comment">//syscall
 
                 //only adds mouse hover for syscall if the syscall was actually there already and not just inserted by the parser
-                </span><span class="kw">if </span>(!monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
-                    .tokens
-                    .is_empty()
-                    &amp;&amp; monaco_line_info[instruction.line_number <span class="kw">as </span>usize].tokens[<span class="number">0</span>].token_name
-                        == <span class="string">&quot;syscall&quot;</span>)
-                    || (monaco_line_info[instruction.line_number <span class="kw">as </span>usize]
-                        .tokens
-                        .len()
-                        &gt; <span class="number">1
-                        </span>&amp;&amp; monaco_line_info[instruction.line_number <span class="kw">as </span>usize].tokens[<span class="number">0</span>]
+                </span><span class="kw">if </span>(!monaco_line_info[instruction.line_number].tokens.is_empty()
+                    &amp;&amp; monaco_line_info[instruction.line_number].tokens[<span class="number">0</span>].token_name == <span class="string">&quot;syscall&quot;</span>)
+                    || (monaco_line_info[instruction.line_number].tokens.len() &gt; <span class="number">1
+                        </span>&amp;&amp; monaco_line_info[instruction.line_number].tokens[<span class="number">0</span>]
                             .token_name
                             .ends_with(<span class="string">&#39;:&#39;</span>)
-                        &amp;&amp; monaco_line_info[instruction.line_number <span class="kw">as </span>usize].tokens[<span class="number">1</span>].token_name
+                        &amp;&amp; monaco_line_info[instruction.line_number].tokens[<span class="number">1</span>].token_name
                             == <span class="string">&quot;syscall&quot;</span>)
                 {
-                    monaco_line_info[instruction.line_number <span class="kw">as </span>usize].mouse_hover_string = <span class="string">&quot;syscall\nThis function is currently stubbed in SWIM. Normally, it reverts control back to the OS. SWIM uses it to effectively end the program.\n&quot;</span>.to_string();
+                    monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;syscall\nThis function is currently stubbed in SWIM. Normally, it reverts control back to the OS. SWIM uses it to effectively end the program.\n&quot;</span>.to_string();
                 }
             }
 
