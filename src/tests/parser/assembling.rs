@@ -195,7 +195,7 @@ mod read_label_absolute_tests {
             &data,
             &mut monaco_line_info_vec,
         );
-        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
+        let labels: HashMap<String, usize> = create_label_map(&mut instruction_list, &mut data);
 
         let results = read_label_absolute("load_from_memory", (0, 0), labels);
 
@@ -212,7 +212,7 @@ mod read_label_absolute_tests {
             &data,
             &mut monaco_line_info_vec,
         );
-        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
+        let labels: HashMap<String, usize> = create_label_map(&mut instruction_list, &mut data);
 
         let results = read_label_absolute("label_not_found:", (0, 0), labels);
 
@@ -235,7 +235,7 @@ mod read_label_relative_tests {
             &data,
             &mut monaco_line_info_vec,
         );
-        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
+        let labels: HashMap<String, usize> = create_label_map(&mut instruction_list, &mut data);
 
         let result = read_label_relative("load_from_memory", (0, 0), 4, labels);
 
@@ -252,7 +252,7 @@ mod read_label_relative_tests {
             &data,
             &mut monaco_line_info_vec,
         );
-        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
+        let labels: HashMap<String, usize> = create_label_map(&mut instruction_list, &mut data);
 
         let result = read_label_relative("store_in_memory", (0, 0), 1, labels);
 
