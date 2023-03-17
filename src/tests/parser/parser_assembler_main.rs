@@ -708,20 +708,18 @@ mod helper_functions {
     pub fn instruction_parser(mut file_string: String) -> Vec<Instruction> {
         file_string = file_string.to_lowercase();
 
-        let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) =
-            tokenize_program(file_string);
-        let (mut instruction_list, mut data) = separate_data_and_text(lines);
+        let mut monaco_line_info_vec = tokenize_program(file_string);
+        let (mut instruction_list, mut data) = separate_data_and_text(monaco_line_info_vec.clone());
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
-            &mut updated_monaco_strings,
             &mut monaco_line_info_vec,
         );
         assemble_data_binary(&mut data);
 
-        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
+        let labels: HashMap<String, usize> = create_label_map(&mut instruction_list, &mut data);
 
-        read_instructions(&mut instruction_list, &labels);
+        read_instructions(&mut instruction_list, &labels, &mut monaco_line_info_vec);
 
         instruction_list
     }
@@ -732,25 +730,30 @@ fn create_binary_vec_works_with_data() {
     let mut program_info = ProgramInfo::default();
     let file_string =
         ".data\nlabel: .ascii \"this is a string\"\n.text\nlw $t1, label\nsyscall".to_lowercase();
-    let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) =
-        tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
+    let monaco_line_info_vec = tokenize_program(file_string);
+    program_info.monaco_line_info = monaco_line_info_vec;
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(program_info.monaco_line_info.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
-        &mut updated_monaco_strings,
-        &mut monaco_line_info_vec,
+        &mut program_info.monaco_line_info,
     );
     let vec_of_data = assemble_data_binary(&mut program_info.data);
 
-    let labels: HashMap<String, u32> =
+    let labels: HashMap<String, usize> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
+
     complete_lw_sw_pseudo_instructions(
         &mut program_info.instructions,
         &labels,
-        &mut updated_monaco_strings,
+        &mut program_info.monaco_line_info,
     );
-    read_instructions(&mut program_info.instructions, &labels);
+    read_instructions(
+        &mut program_info.instructions,
+        &labels,
+        &mut program_info.monaco_line_info,
+    );
 
     let result = create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
@@ -762,26 +765,7 @@ fn create_binary_vec_works_with_data() {
 
 #[test]
 fn read_instructions_recognizes_valid_but_unsupported_instructions() {
-    let mut program_info = ProgramInfo::default();
-    let file_string = "jalr $t1, $t2\ndsrav $t1, $t2, $t3".to_lowercase();
-    let (lines, mut updated_monaco_strings, mut monaco_line_info_vec) =
-        tokenize_program(file_string);
-    (program_info.instructions, program_info.data) = separate_data_and_text(lines);
-    expand_pseudo_instructions_and_assign_instruction_numbers(
-        &mut program_info.instructions,
-        &program_info.data,
-        &mut updated_monaco_strings,
-        &mut monaco_line_info_vec,
-    );
-
-    let labels: HashMap<String, u32> =
-        create_label_map(&mut program_info.instructions, &mut program_info.data);
-    complete_lw_sw_pseudo_instructions(
-        &mut program_info.instructions,
-        &labels,
-        &mut updated_monaco_strings,
-    );
-    read_instructions(&mut program_info.instructions, &labels);
+    let program_info = parser("jalr $t1, $t2\ndsrav $t1, $t2, $t3\n".to_string()).0;
 
     assert_eq!(
         program_info.instructions[0].errors[0].error_name,
@@ -816,12 +800,89 @@ fn console_output_post_assembly_works_with_no_errors_present() {
     assert_eq!(result, "Program assembled successfully!".to_string());
 }
 
-// #[test]
-// fn parser_outputs_line_hover_info_for_pseudo_instructions() {
-//     let result = parser("subi: subi $t1, $t2, 100\nlw $t1, subi".to_string())
-//         .0
-//         .monaco_line_info;
-//
-//     assert_eq!(result[0].mouse_hover_string, "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at");
-//     assert_eq!(result[1].mouse_hover_string, "lw $regA, label is a pseudo-instruction.\nlw $regA, label =>\n\tlui $at, label\n\tlw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address.");
-// }
+#[test]
+fn mouse_hover_holds_information_about_valid_instructions() {
+    let program_info = parser(".text\nori $t1, $t2, 100\nsyscall".to_string()).0;
+
+    assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
+    assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "ori rt, rs, immediate\nBitwise ors the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n\nBinary: 00110101010010010000000001100100");
+}
+
+#[test]
+fn mouse_hover_holds_information_about_pseudo_instructions() {
+    let program_info = parser(".text\nlabel: subi $t1, $t2, 100\nsyscall".to_string()).0;
+
+    assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
+    assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at\n\nBinary: 00110100000000010000000001100100\nBinary: 00000001010000010100100000100010");
+}
+
+#[test]
+fn errors_do_not_go_into_mouse_hover() {
+    let program_info = parser(".text\nori $t1, $t2, $t3\nsyscall".to_string()).0;
+
+    assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
+    assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "ori rt, rs, immediate\nBitwise ors the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n");
+}
+
+#[test]
+fn syscall_message_and_binary_does_not_go_in_mouse_hover_if_the_syscall_was_added_by_parser() {
+    let monaco_line_info = parser(
+        ".text\nori $t1, $t2, 100\nlabel: subi $t1, $t2, 100\nadd $t1, $t2, $t3\n".to_string(),
+    )
+    .0
+    .monaco_line_info;
+
+    assert_eq!(monaco_line_info[0].mouse_hover_string, "");
+    assert_eq!(monaco_line_info[1].mouse_hover_string, "ori rt, rs, immediate\nBitwise ors the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n\nBinary: 00110101010010010000000001100100");
+    assert_eq!(monaco_line_info[2].mouse_hover_string, "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at\n\nBinary: 00110100000000010000000001100100\nBinary: 00000001010000010100100000100010");
+    assert_eq!(monaco_line_info[3].mouse_hover_string, "add rd, rs, rt\nAdds the 32-bit values in rs and rt, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if adding rs and rt causes a 32-bit overflow. However, SWIM places the result in rd, regardless.\n\nBinary: 00000001010010110100100000100000");
+
+    let monaco_line_info = parser(".text".to_string()).0.monaco_line_info;
+    assert_eq!(monaco_line_info[0].mouse_hover_string, "");
+}
+
+#[test]
+fn mouse_hover_holds_information_info_for_various_instruction_types() {
+    let program_info = parser(
+        ".text\nori $t1, $t2, 100\nlabel: subi $t1, $t2, 100\nadd $t1, $t2, $t3\nsyscall\n"
+            .to_string(),
+    )
+    .0;
+
+    assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
+    assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "ori rt, rs, immediate\nBitwise ors the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n\nBinary: 00110101010010010000000001100100");
+    assert_eq!(program_info.monaco_line_info[2].mouse_hover_string, "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at\n\nBinary: 00110100000000010000000001100100\nBinary: 00000001010000010100100000100010");
+    assert_eq!(program_info.monaco_line_info[3].mouse_hover_string, "add rd, rs, rt\nAdds the 32-bit values in rs and rt, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if adding rs and rt causes a 32-bit overflow. However, SWIM places the result in rd, regardless.\n\nBinary: 00000001010010110100100000100000");
+    assert_eq!(program_info.monaco_line_info[4].mouse_hover_string, "syscall\nThis function is currently stubbed in SWIM. Normally, it reverts control back to the OS. SWIM uses it to effectively end the program.\n\nBinary: 00000000000000000000000000001100");
+}
+
+#[test]
+fn instructions_directives_and_registers_work_regardless_of_capitalization() {
+    let result =
+        parser(".TexT\nOR $t1, $T2, $t3\nor $t1, $t2, $t3\n.DATA\nabel: .WOrD 100".to_string());
+
+    let correct =
+        parser(".TexT\nOR $t1, $T2, $t3\nor $t1, $t2, $t3\n.DATA\nabel: .WOrD 100".to_lowercase());
+    assert_eq!(result.1, correct.1);
+    assert_eq!(
+        result.0.console_out_post_assembly,
+        correct.0.console_out_post_assembly
+    );
+    assert_eq!(
+        result.0.address_to_line_number,
+        correct.0.address_to_line_number
+    );
+    for i in 0..result.0.monaco_line_info.len() {
+        assert_eq!(
+            result.0.monaco_line_info[i].mouse_hover_string,
+            correct.0.monaco_line_info[i].mouse_hover_string
+        );
+    }
+}
+
+#[test]
+fn parser_assembler_works_with_empty_strings() {
+    let _ = parser("".to_string());
+    let _ = parser("\n".to_string());
+    let _ = parser("\n\n".to_string());
+}

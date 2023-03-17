@@ -3,42 +3,38 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType
     Label, Operator, Unknown,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, Instruction, Line, MonacoLineInfo, Token,
+    Data, Error, Instruction, MonacoLineInfo, Token,
 };
 use levenshtein::levenshtein;
 use std::collections::HashMap;
 
 ///Takes the initial string of the program given by the editor and turns it into a vector of Line,
 /// a struct that holds tokens and the original line number.
-pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<String>, Vec<MonacoLineInfo>) {
+pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
     let mut monaco_line_info_vec: Vec<MonacoLineInfo> = Vec::new();
 
-    let mut line_vec: Vec<Line> = Vec::new();
     let mut token: Token = Token {
         token_name: "".to_string(),
         start_end_columns: (0, 0),
         token_type: Unknown,
     };
-    let mut lines_in_monaco: Vec<String> = Vec::new();
 
     for (i, line_of_program) in program.lines().enumerate() {
-        monaco_line_info_vec.push(MonacoLineInfo {
+        let mut line = MonacoLineInfo {
             mouse_hover_string: "".to_string(),
-            error_start_end_columns: vec![],
-        });
-
-        lines_in_monaco.push(line_of_program.parse().unwrap());
-
-        let mut line_of_tokens = Line {
-            line_number: i as u32,
-
+            updated_monaco_string: line_of_program.to_string(),
             tokens: vec![],
+            line_number: i,
+            error_start_end_columns: vec![],
+            errors: vec![],
+            line_type: Default::default(),
         };
+
         let mut is_string = false;
         let mut check_escape = false;
         //iterates through every character on each line of the program
         for (j, char) in line_of_program.chars().enumerate() {
-            token.start_end_columns.1 = j as u32;
+            token.start_end_columns.1 = j + 1;
             if char == '#' {
                 if j > 0 {
                     token.start_end_columns.1 -= 1;
@@ -82,46 +78,59 @@ pub fn tokenize_program(program: String) -> (Vec<Line>, Vec<String>, Vec<MonacoL
                 }
             } else if char == '\"' {
                 if !token.token_name.is_empty() {
-                    line_of_tokens.tokens.push(token.clone());
+                    line.tokens.push(token.clone());
                 }
                 token.token_name = '\"'.to_string();
-                token.start_end_columns.0 = j as u32;
+                token.start_end_columns.0 = j;
                 is_string = true;
             } else if char != ' ' {
                 if token.token_name.is_empty() {
-                    token.start_end_columns.0 = j as u32;
+                    token.start_end_columns.0 = j;
                 }
                 token.token_name.push(char);
                 if char == ',' {
                     if token.token_name.len() == 1 {
-                        let length = line_of_tokens.tokens.len();
-                        line_of_tokens.tokens[length - 1].token_name.push(char);
+                        let length = line.tokens.len();
+                        line.tokens[length - 1].token_name.push(char);
                     } else {
-                        line_of_tokens.tokens.push(token.clone());
+                        token.start_end_columns.1 -= 1;
+                        line.tokens.push(token.clone());
                     }
                     token.token_name = "".to_string();
                 }
             } else if !token.token_name.is_empty() {
                 token.start_end_columns.1 -= 1;
-                line_of_tokens.tokens.push(token.clone());
+                line.tokens.push(token.clone());
                 token.token_name = "".to_string();
             }
         }
         if !token.token_name.is_empty() {
-            line_of_tokens.tokens.push(token.clone());
+            line.tokens.push(token.clone());
             token.token_name = "".to_string();
         }
-        if !line_of_tokens.tokens.is_empty() {
-            line_vec.push(line_of_tokens.clone());
-        }
+
+        monaco_line_info_vec.push(line);
     }
 
-    (line_vec, lines_in_monaco, monaco_line_info_vec)
+    //creates an empty monaco line if there is nothing in Monaco.
+    if monaco_line_info_vec.is_empty() {
+        monaco_line_info_vec.push(MonacoLineInfo {
+            mouse_hover_string: "".to_string(),
+            updated_monaco_string: "".to_string(),
+            tokens: vec![],
+            line_number: 0,
+            error_start_end_columns: vec![],
+            errors: vec![],
+            line_type: Default::default(),
+        })
+    }
+
+    monaco_line_info_vec
 }
 
 ///This function takes the vector of lines created by tokenize program and turns them into instructions
 ///assigning labels, operators, operands, and line numbers and data assigning labels, data types, and values
-pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Data>) {
+pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instruction>, Vec<Data>) {
     let mut instruction_list: Vec<Instruction> = Vec::new();
     let mut instruction = Instruction::default();
     let mut data_list: Vec<Data> = Vec::new();
@@ -131,11 +140,15 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
     let mut i = 0;
     //goes through each line of the line vector and builds instructions as it goes
     while i < lines.len() {
-        if lines[i].tokens[0].token_name == ".text" {
+        if lines[i].tokens.is_empty() {
+            i += 1;
+            continue;
+        }
+        if lines[i].tokens[0].token_name.to_lowercase() == ".text" {
             is_text = true;
             i += 1;
             continue;
-        } else if lines[i].tokens[0].token_name == ".data" {
+        } else if lines[i].tokens[0].token_name.to_lowercase() == ".data" {
             is_text = false;
             i += 1;
             continue;
@@ -185,8 +198,6 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
                 instruction.operator = lines[i].tokens[0].clone();
             }
 
-            let _first_operand_index = operand_iterator;
-
             //push all operands to the instruction operand vec that will have commas
             while operand_iterator < (lines[i].tokens.len() - 1) {
                 if lines[i].tokens[operand_iterator].token_name.ends_with(',') {
@@ -209,6 +220,7 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
 
             //simple statement to handle cases where the user doesn't finish instructions
             if operand_iterator >= lines[i].tokens.len() {
+                instruction.line_number = lines[i].line_number;
                 instruction_list.push(instruction.clone());
                 i += 1;
                 continue;
@@ -299,8 +311,8 @@ pub fn separate_data_and_text(mut lines: Vec<Line>) -> (Vec<Instruction>, Vec<Da
 pub fn create_label_map(
     instruction_list: &mut Vec<Instruction>,
     data_list: &mut [Data],
-) -> HashMap<String, u32> {
-    let mut labels: HashMap<String, u32> = HashMap::new();
+) -> HashMap<String, usize> {
+    let mut labels: HashMap<String, usize> = HashMap::new();
     for instruction in &mut *instruction_list {
         if instruction.label.is_some() {
             //if the given label name is already used, an error is generated
@@ -333,7 +345,7 @@ pub fn create_label_map(
         (last_instruction.unwrap().instruction_number + 1) << 2
     } else {
         0
-    };
+    } as u32;
 
     for (_i, data) in data_list.iter_mut().enumerate() {
         //if the given label name is already used, an error is generated
@@ -348,7 +360,7 @@ pub fn create_label_map(
         } else {
             labels.insert(
                 data.label.token_name.clone(),
-                data.data_number + offset_for_instructions,
+                data.data_number + offset_for_instructions as usize,
             );
         }
     }
@@ -362,7 +374,7 @@ pub fn create_label_map(
 pub fn suggest_error_corrections(
     instructions: &mut [Instruction],
     data: &mut [Data],
-    labels: &HashMap<String, u32>,
+    labels: &HashMap<String, usize>,
     monaco_line_info: &mut [MonacoLineInfo],
 ) -> String {
     let mut console_out_string: String = "".to_string();
@@ -370,9 +382,9 @@ pub fn suggest_error_corrections(
     for instruction in instructions {
         //if there are no errors, instead push the binary of the instruction to mouse hover
         if instruction.errors.is_empty() {
-            monaco_line_info[instruction.line_number as usize]
+            monaco_line_info[instruction.line_number]
                 .mouse_hover_string
-                .push_str(&format!("Binary: {:032b}\n", instruction.binary));
+                .push_str(&format!("\nBinary: {:032b}", instruction.binary));
         } else {
             for error in &mut instruction.errors {
                 match error.error_name {
@@ -440,7 +452,7 @@ pub fn suggest_error_corrections(
                             "daddiu", "slt", "sltu", "swc1", "lwc1", "mtc1", "dmtc1", "mfc1",
                             "dmfc1", "j", "beq", "bne", "c.eq.s", "c.eq.d", "c.lt.s", "c.le.s",
                             "c.le.d", "c.ngt.s", "c.ngt.d", "c.nge.s", "c.nge.d", "bc1t", "bc1f",
-                            "syscall", "daddu", "dsubu", "ddivu", "dmulu",
+                            "daddu", "dsubu", "ddivu", "dmulu",
                         ];
 
                         let given_string = &instruction.operator.token_name;
@@ -515,26 +527,33 @@ pub fn suggest_error_corrections(
                         error.message = suggestion;
                     }
                     _ => {
-                        error.message = "PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH AN INSTRUCTION.\n".to_string();
+                        error.message = format!("{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH TEXT.\n", error.error_name);
                     }
                 }
-
-                //push the message to mouse hover string
-                monaco_line_info[instruction.line_number as usize]
-                    .mouse_hover_string
-                    .push_str(&error.message.clone());
 
                 //add the error to monaco_line_info
                 if error.error_name == LabelAssignmentError
                     || error.error_name == LabelMultipleDefinition
                 {
-                    monaco_line_info[instruction.label.clone().unwrap().1 as usize]
+                    //todo remove following line once Jerrett has started referencing error and not just start_end_columns
+                    monaco_line_info[instruction.label.clone().unwrap().1]
                         .error_start_end_columns
                         .push(error.start_end_columns);
+
+                    //add error to monaco_line_info
+                    monaco_line_info[instruction.line_number]
+                        .errors
+                        .push(error.clone());
                 } else {
-                    monaco_line_info[instruction.line_number as usize]
+                    //todo remove following line once Jerrett has started referencing error and not just start_end_columns
+                    monaco_line_info[instruction.line_number]
                         .error_start_end_columns
                         .push(error.start_end_columns);
+
+                    //add error to monaco_line_info
+                    monaco_line_info[instruction.line_number]
+                        .errors
+                        .push(error.clone());
                 }
 
                 //push a message about the error to the string for console
@@ -547,6 +566,20 @@ pub fn suggest_error_corrections(
                 ));
             }
         }
+    }
+
+    //special section to remove the syscall binary from mouse hover if syscall was added in by the parser since this would be added on to the mouse hover of a completely unrelated string
+    let mut contains = false;
+    for token in monaco_line_info.last().unwrap().tokens.clone() {
+        if token.token_name == "syscall" {
+            contains = true;
+        }
+    }
+    let index = monaco_line_info.last().unwrap().line_number;
+    if !contains {
+        monaco_line_info[index].mouse_hover_string = monaco_line_info[index]
+            .mouse_hover_string
+            .replace("\nBinary: 00000000000000000000000000001100", "");
     }
 
     //go through each error in the data and suggest a correction
@@ -604,19 +637,24 @@ pub fn suggest_error_corrections(
                     error.message =
                         "The given string cannot be recognized as a float.\n".to_string();
                 }
-
+                ImproperlyFormattedLabel => {
+                    error.message =
+                        "Label assignment recognized but does not end in a colon.\n".to_string();
+                }
                 _ => {
-                    error.message = "PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n".to_string();
+                    error.message = format!("{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n", error.error_name);
                 }
             }
-            monaco_line_info[datum.line_number as usize]
-                .mouse_hover_string
-                .push_str(&error.message.clone());
 
-            //add the error to monaco_line_info
-            monaco_line_info[datum.line_number as usize]
+            //todo remove following line once Jerrett has started referencing error and not just start_end_columns
+            monaco_line_info[datum.line_number]
                 .error_start_end_columns
                 .push(error.start_end_columns);
+
+            //add error to monaco_line_info
+            monaco_line_info[datum.line_number]
+                .errors
+                .push(error.clone());
 
             console_out_string.push_str(&format!(
                 "{} on line {} with token \"{}\"\n{}\n",
