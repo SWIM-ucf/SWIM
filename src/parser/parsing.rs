@@ -112,6 +112,19 @@ pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
         monaco_line_info_vec.push(line);
     }
 
+    //creates an empty monaco line if there is nothing in Monaco.
+    if monaco_line_info_vec.is_empty(){
+        monaco_line_info_vec.push(MonacoLineInfo{
+            mouse_hover_string: "".to_string(),
+            updated_monaco_string: "".to_string(),
+            tokens: vec![],
+            line_number: 0,
+            error_start_end_columns: vec![],
+            errors: vec![],
+            line_type: Default::default(),
+        })
+    }
+
     monaco_line_info_vec
 }
 
