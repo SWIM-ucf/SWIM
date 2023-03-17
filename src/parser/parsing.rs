@@ -382,7 +382,7 @@ pub fn suggest_error_corrections(
     for instruction in instructions {
         //if there are no errors, instead push the binary of the instruction to mouse hover
         if instruction.errors.is_empty() {
-            monaco_line_info[instruction.line_number as usize]
+            monaco_line_info[instruction.line_number]
                 .mouse_hover_string
                 .push_str(&format!("\nBinary: {:032b}", instruction.binary));
         } else {
@@ -536,22 +536,22 @@ pub fn suggest_error_corrections(
                     || error.error_name == LabelMultipleDefinition
                 {
                     //todo remove following line once Jerrett has started referencing error and not just start_end_columns
-                    monaco_line_info[instruction.label.clone().unwrap().1 as usize]
+                    monaco_line_info[instruction.label.clone().unwrap().1]
                         .error_start_end_columns
                         .push(error.start_end_columns);
 
                     //add error to monaco_line_info
-                    monaco_line_info[instruction.line_number as usize]
+                    monaco_line_info[instruction.line_number]
                         .errors
                         .push(error.clone());
                 } else {
                     //todo remove following line once Jerrett has started referencing error and not just start_end_columns
-                    monaco_line_info[instruction.line_number as usize]
+                    monaco_line_info[instruction.line_number]
                         .error_start_end_columns
                         .push(error.start_end_columns);
 
                     //add error to monaco_line_info
-                    monaco_line_info[instruction.line_number as usize]
+                    monaco_line_info[instruction.line_number]
                         .errors
                         .push(error.clone());
                 }
@@ -647,12 +647,12 @@ pub fn suggest_error_corrections(
             }
 
             //todo remove following line once Jerrett has started referencing error and not just start_end_columns
-            monaco_line_info[datum.line_number as usize]
+            monaco_line_info[datum.line_number]
                 .error_start_end_columns
                 .push(error.start_end_columns);
 
             //add error to monaco_line_info
-            monaco_line_info[datum.line_number as usize]
+            monaco_line_info[datum.line_number]
                 .errors
                 .push(error.clone());
 
