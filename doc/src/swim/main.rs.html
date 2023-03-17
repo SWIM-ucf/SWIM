@@ -403,6 +403,27 @@
 <a href="#403" id="403">403</a>
 <a href="#404" id="404">404</a>
 <a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attr">#[cfg(test)]
@@ -465,21 +486,21 @@
     <span class="comment">// Link to the Yew Editor Component, if not used by the end of the project remove it.
     </span><span class="kw">let </span>codelink = CodeEditorLink::default();
 
-    <span class="kw">let </span>clipboard = use_clipboard();
+    <span class="comment">// For the clipboard callback from yew_hooks
+    </span><span class="kw">let </span>clipboard = use_clipboard();
 
-    <span class="comment">// Setup the array that would store decorations applied to the
-    // text model and initialize the options for it.
-    </span><span class="kw">let </span>delta_decor = monaco::sys::editor::IModelDecorationOptions::default();
-    <span class="kw">let </span>new_decor_array = js_sys::Array::new();
-    <span class="kw">let </span>old_decor_array = js_sys::Array::new();
+    <span class="comment">// Setup the highlight stacks that would store which line
+    // was executed after the execute button is pressed.
+    </span><span class="kw">let </span>executed_line = js_sys::Array::new();
+    <span class="kw">let </span>not_highlighted = js_sys::Array::new();
 
     <span class="comment">// Setting up the options/parameters which
-    // will highlight the executed line.
-    // The delta decor does not need to be change,
-    // the only parameter that will need to be changed is
-    // the range.
-    </span>delta_decor.set_is_whole_line(<span class="bool-val">true</span>.into());
-    delta_decor.set_inline_class_name(<span class="string">&quot;myInlineDecoration&quot;</span>.into());
+    // will highlight the previously executed line.
+    // The highlight decor does not need to be changed,
+    // the only parameter that will change is the range.
+    </span><span class="kw">let </span>highlight_decor = monaco::sys::editor::IModelDecorationOptions::default();
+    highlight_decor.set_is_whole_line(<span class="bool-val">true</span>.into());
+    highlight_decor.set_inline_class_name(<span class="string">&quot;myInlineDecoration&quot;</span>.into());
 
     <span class="kw">let </span>parser_text_output = use_state_eq(String::new);
     <span class="kw">let </span>memory_text_output = use_state_eq(String::new);
@@ -497,12 +518,15 @@
         <span class="kw">let </span>datapath = Rc::clone(<span class="kw-2">&amp;</span>datapath);
         <span class="kw">let </span>parser_text_output = parser_text_output.clone();
         <span class="kw">let </span>trigger = use_force_update();
+
+        <span class="kw">let </span>executed_line = executed_line.clone();
+        <span class="kw">let </span>not_highlighted = not_highlighted.clone();
+
         use_callback(
             <span class="kw">move </span>|<span class="kw">_</span>, text_model| {
                 <span class="kw">let </span><span class="kw-2">mut </span>datapath = (<span class="kw-2">*</span>datapath).borrow_mut();
                 <span class="kw">let </span>text_model = (<span class="kw-2">*</span>text_model).borrow_mut();
-
-                <span class="comment">// parses through the code to assemble the binary
+                <span class="comment">// Parses through the code to assemble the binary
                 </span><span class="kw">let </span>(program_info, assembled) = parser(text_model.get_value());
                 parser_text_output.set(program_info.console_out_post_assembly);
 
@@ -535,7 +559,15 @@
                     <span class="string">&quot;owner&quot;</span>,
                     <span class="kw-2">&amp;</span>marker_jsarray,
                 );
-
+                <span class="comment">// Acts like reset and clears the highlight
+                </span><span class="kw">let </span>curr_model = text_model.as_ref();
+                executed_line.pop();
+                not_highlighted.set(
+                    <span class="number">0</span>,
+                    (<span class="kw-2">*</span>curr_model)
+                        .delta_decorations(<span class="kw-2">&amp;</span>not_highlighted, <span class="kw-2">&amp;</span>executed_line, <span class="prelude-val">None</span>)
+                        .into(),
+                );
                 <span class="comment">// Load the binary into the datapath&#39;s memory
                 </span>(<span class="kw-2">*</span>datapath)
                     .initialize(assembled)
@@ -548,15 +580,16 @@
     };
 
     <span class="comment">// This is where the code will get executed. If you execute further
-    // than when the code ends, the program crashes. As you execute the
-    // code, the currently executed line is highlighted.
+    // than when the code ends, the program crashes. This is remedied via the
+    // syscall instruction, which will halt the datapath. As you execute the
+    // code, the previously executed line is highlighted.
     </span><span class="kw">let </span>on_execute_clicked = {
         <span class="kw">let </span>text_model = Rc::clone(<span class="kw-2">&amp;</span>text_model);
         <span class="kw">let </span>datapath = Rc::clone(<span class="kw-2">&amp;</span>datapath);
         <span class="kw">let </span>trigger = use_force_update();
 
-        <span class="kw">let </span>new_decor_array = new_decor_array.clone();
-        <span class="kw">let </span>old_decor_array = old_decor_array.clone();
+        <span class="kw">let </span>executed_line = executed_line.clone();
+        <span class="kw">let </span>not_highlighted = not_highlighted.clone();
 
         use_callback(
             <span class="kw">move </span>|<span class="kw">_</span>, <span class="kw">_</span>| {
@@ -565,19 +598,20 @@
 
                 <span class="comment">// Pull ProgramInfo from the parser
                 </span><span class="kw">let </span>(programinfo, <span class="kw">_</span>) = parser(text_model.get_value());
+
                 <span class="comment">// Get the current line and convert it to f64
                 </span><span class="kw">let </span>list_of_line_numbers = programinfo.address_to_line_number;
                 <span class="kw">let </span>index = datapath.registers.pc <span class="kw">as </span>usize / <span class="number">4</span>;
-                <span class="kw">let </span>curr_line = <span class="kw-2">*</span>list_of_line_numbers.get(index).unwrap() <span class="kw">as </span>f64 + <span class="number">1.0</span>; <span class="comment">// add one to account for the editor&#39;s line numbers
+                <span class="kw">let </span>curr_line = <span class="kw-2">*</span>list_of_line_numbers.get(index).unwrap_or(<span class="kw-2">&amp;</span><span class="number">0</span>) <span class="kw">as </span>f64 + <span class="number">1.0</span>; <span class="comment">// add one to account for the editor&#39;s line numbers
 
                 // Setup the range
                 </span><span class="kw">let </span>curr_model = text_model.as_ref();
                 <span class="kw">let </span>curr_range = monaco::sys::Range::new(curr_line, <span class="number">0.0</span>, curr_line, <span class="number">0.0</span>);
 
-                <span class="comment">// element to be stored in the Decoration array to highlight the line
+                <span class="comment">// element to be stored in the stack to highlight the line
                 </span><span class="kw">let </span>highlight_line: monaco::sys::editor::IModelDeltaDecoration =
                     Object::new().unchecked_into();
-                highlight_line.set_options(<span class="kw-2">&amp;</span>delta_decor);
+                highlight_line.set_options(<span class="kw-2">&amp;</span>highlight_decor);
                 <span class="kw">let </span>range_js = curr_range
                     .dyn_into::&lt;JsValue&gt;()
                     .expect(<span class="string">&quot;Range is not found.&quot;</span>);
@@ -586,27 +620,36 @@
                     .dyn_into::&lt;JsValue&gt;()
                     .expect(<span class="string">&quot;Highlight is not found.&quot;</span>);
 
-                <span class="comment">// log!(&quot;These are the arrays before the push&quot;);
-                // log!(new_decor_array.at(0));
-                // log!(old_decor_array.at(0));
-                </span>new_decor_array.push(<span class="kw-2">&amp;</span>highlight_js);
+                <span class="comment">// log!(&quot;These are the stacks before the push&quot;);
+                // log!(executed_line.at(0));
+                // log!(not_highlighted.at(0));
+
+                // push the decoration onto the executed_line stack
+                </span>executed_line.push(<span class="kw-2">&amp;</span>highlight_js);
+
                 <span class="comment">// it may look ugly, but it makes sense. Uncomment debug statements to see why.
-                </span>old_decor_array.set(
+                </span>not_highlighted.set(
                     <span class="number">0</span>,
                     (<span class="kw-2">*</span>curr_model)
-                        .delta_decorations(<span class="kw-2">&amp;</span>old_decor_array, <span class="kw-2">&amp;</span>new_decor_array, <span class="prelude-val">None</span>)
+                        .delta_decorations(<span class="kw-2">&amp;</span>not_highlighted, <span class="kw-2">&amp;</span>executed_line, <span class="prelude-val">None</span>)
                         .into(),
                 );
-                (<span class="kw-2">*</span>datapath).execute_instruction();
-                <span class="comment">// log!(&quot;These are the arrays after the push&quot;);
-                // log!(new_decor_array.at(0));
-                // log!(old_decor_array.at(0));
+
+                <span class="comment">// log!(&quot;These are the stacks after the push&quot;);
+                // log!(executed_line.at(0));
+                // log!(not_highlighted.at(0));
+
+                </span>(<span class="kw-2">*</span>datapath).execute_instruction();
+
+                <span class="comment">// done with the highlight, prepare for the next one.
+                </span>executed_line.pop();
+
+                <span class="comment">// log!(&quot;These are the stacks after the pop&quot;);
+                // log!(executed_line.at(0));
+                // log!(not_highlighted.at(0));
+
                 </span>trigger.force_update();
-                new_decor_array.pop(); <span class="comment">// done with the highlight, prepare for the next one.
-                                       // log!(&quot;These are the arrays after the pop&quot;);
-                                       // log!(new_decor_array.at(0));
-                                       // log!(old_decor_array.at(0));
-            </span>},
+            },
             (),
         )
     };
@@ -624,27 +667,26 @@
         )
     };
 
-    <span class="comment">// This is how we will reset the datapath. This is the only method to &quot;halt&quot;
-    // programs since if the user continues to execute, the whole application will
-    // crash. This will also clear any highlight on the editor.
+    <span class="comment">// This is how we will reset the datapath.
+    // This will also clear any highlight on the editor.
     </span><span class="kw">let </span>on_reset_clicked = {
         <span class="kw">let </span>text_model = Rc::clone(<span class="kw-2">&amp;</span>text_model);
         <span class="kw">let </span>datapath = Rc::clone(<span class="kw-2">&amp;</span>datapath);
         <span class="kw">let </span>trigger = use_force_update();
 
-        <span class="kw">let </span>new_decor_array = new_decor_array;
-        <span class="kw">let </span>old_decor_array = old_decor_array;
+        <span class="kw">let </span>executed_line = executed_line;
+        <span class="kw">let </span>not_highlighted = not_highlighted;
 
         use_callback(
             <span class="kw">move </span>|<span class="kw">_</span>, <span class="kw">_</span>| {
                 <span class="kw">let </span><span class="kw-2">mut </span>datapath = (<span class="kw-2">*</span>datapath).borrow_mut();
                 <span class="kw">let </span>text_model = (<span class="kw-2">*</span>text_model).borrow_mut();
                 <span class="kw">let </span>curr_model = text_model.as_ref();
-                new_decor_array.pop();
-                old_decor_array.set(
+                executed_line.pop();
+                not_highlighted.set(
                     <span class="number">0</span>,
                     (<span class="kw-2">*</span>curr_model)
-                        .delta_decorations(<span class="kw-2">&amp;</span>old_decor_array, <span class="kw-2">&amp;</span>new_decor_array, <span class="prelude-val">None</span>)
+                        .delta_decorations(<span class="kw-2">&amp;</span>not_highlighted, <span class="kw-2">&amp;</span>executed_line, <span class="prelude-val">None</span>)
                         .into(),
                 );
                 (<span class="kw-2">*</span>datapath).reset();
