@@ -7,15 +7,15 @@ pub mod ui;
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
 use gloo::{console::log, dialogs::alert, file::FileList};
-use js_sys::{Object, Array};
+use js_sys::{Array, Object};
 use monaco::{
     api::TextModel,
     sys::{
         editor::{
-            IEditorMinimapOptions, IEditorScrollbarOptions, IMarkerData,
-            IStandaloneEditorConstructionOptions, ISuggestOptions, IModelDeltaDecoration, IModelDecorationOptions,
+            IEditorMinimapOptions, IEditorScrollbarOptions, IMarkerData, IModelDecorationOptions,
+            IModelDeltaDecoration, IStandaloneEditorConstructionOptions, ISuggestOptions,
         },
-        MarkerSeverity, IMarkdownString,
+        IMarkdownString, MarkerSeverity,
     },
     yew::{CodeEditor, CodeEditorLink},
 };
@@ -60,8 +60,6 @@ fn app() -> Html {
     // Link to the Yew Editor Component, if not used by the end of the project remove it.
     let codelink = CodeEditorLink::default();
 
-    
-
     // Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
     let delta_decor = monaco::sys::editor::IModelDecorationOptions::default();
@@ -98,7 +96,7 @@ fn app() -> Html {
             move |_, text_model| {
                 let mut datapath = (*datapath).borrow_mut();
                 let text_model = (*text_model).borrow_mut();
-                
+
                 // parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
                 let (program_info, assembled) = parser(text_model.get_value());
                 parser_text_output.set(program_info.console_out_post_assembly);
@@ -200,7 +198,7 @@ fn app() -> Html {
                 // log!(old_decor_array.at(0));
                 trigger.force_update();
                 // done with the highlight, prepare for the next one.
-                new_decor_array.pop(); 
+                new_decor_array.pop();
                 // log!("These are the arrays after the pop");
                 // log!(new_decor_array.at(0));
                 // log!(old_decor_array.at(0));
@@ -269,63 +267,79 @@ fn app() -> Html {
         let hover_decor_array = hover_decor_array.clone();
         use_callback(
             move |_, _| {
-            let text_model = (*text_model).borrow_mut();
-            let curr_model = text_model.as_ref();
-            let (program_info, _) = parser(text_model.get_value());
+                let text_model = (*text_model).borrow_mut();
+                let curr_model = text_model.as_ref();
+                let (program_info, _) = parser(text_model.get_value());
 
-            let _decorations: Vec<IModelDeltaDecoration> = vec![];
+                let _decorations: Vec<IModelDeltaDecoration> = vec![];
 
-            // Parse output from parser and create an instance of IModelDeltaDecoration for each line.
-            for (line_number, line_information) in
-                program_info.monaco_line_info.iter().enumerate()
-            {      
+                // Parse output from parser and create an instance of IModelDeltaDecoration for each line.
+                for (line_number, line_information) in
+                    program_info.monaco_line_info.iter().enumerate()
+                {
                     let decoration: IModelDeltaDecoration = new_object().into();
-                    
-                    let hover_range = monaco::sys::Range::new((line_number + 1) as f64, 0.0, (line_number + 1) as f64, 0.0);
-                    let hover_range_js = hover_range.dyn_into::<JsValue>().expect("Range is not found.");
+
+                    let hover_range = monaco::sys::Range::new(
+                        (line_number + 1) as f64,
+                        0.0,
+                        (line_number + 1) as f64,
+                        0.0,
+                    );
+                    let hover_range_js = hover_range
+                        .dyn_into::<JsValue>()
+                        .expect("Range is not found.");
                     decoration.set_range(&monaco::sys::IRange::from(hover_range_js));
 
                     let hover_opts: IModelDecorationOptions = new_object().into();
                     hover_opts.set_is_whole_line(true.into());
                     let hover_message: IMarkdownString = new_object().into();
-                    js_sys::Reflect::set(&hover_message, &JsValue::from_str("value"), &JsValue::from_str(&line_information.mouse_hover_string),).unwrap_or_default();
-                    log!( js_sys::Reflect::set(&hover_message, &JsValue::from_str("value"), &JsValue::from_str(&line_information.mouse_hover_string),).unwrap() );
+                    js_sys::Reflect::set(
+                        &hover_message,
+                        &JsValue::from_str("value"),
+                        &JsValue::from_str(&line_information.mouse_hover_string),
+                    )
+                    .unwrap_or_default();
+                    log!(js_sys::Reflect::set(
+                        &hover_message,
+                        &JsValue::from_str("value"),
+                        &JsValue::from_str(&line_information.mouse_hover_string),
+                    )
+                    .unwrap());
                     hover_opts.set_hover_message(&hover_message);
                     decoration.set_options(&hover_opts);
                     let hover_js = decoration
-                    .dyn_into::<JsValue>()
-                    .expect("Highlight is not found.");
-                    hover_jsarray.push(&hover_js);      
-            }
+                        .dyn_into::<JsValue>()
+                        .expect("Highlight is not found.");
+                    hover_jsarray.push(&hover_js);
+                }
 
-            log!("This is the array after the push");
-            log!(hover_jsarray.clone());
+                log!("This is the array after the push");
+                log!(hover_jsarray.clone());
 
-            let hover_decor_array = (*curr_model).delta_decorations(&hover_decor_array, &hover_jsarray, None);
-            // hover_decor_array.set(
-            //     0,
-            //     (*curr_model)
-            //         .delta_decorations(&hover_decor_array, &hover_jsarray, None)
-            //         .into(),
-            // );
-            
+                let hover_decor_array =
+                    (*curr_model).delta_decorations(&hover_decor_array, &hover_jsarray, None);
+                // hover_decor_array.set(
+                //     0,
+                //     (*curr_model)
+                //         .delta_decorations(&hover_decor_array, &hover_jsarray, None)
+                //         .into(),
+                // );
 
-            log!("These are the arrays after calling Delta Decorations");
-            log!(hover_jsarray.clone());
-            log!(hover_decor_array.clone());
-            
-            trigger.force_update();
+                log!("These are the arrays after calling Delta Decorations");
+                log!(hover_jsarray.clone());
+                log!(hover_decor_array.clone());
 
-            // empty out the arrays and clear out delta_decorations
-            hover_jsarray.set_length(0);
+                trigger.force_update();
 
-            log!("These are the arrays after calling popping the hover_jsarray");
-            log!(hover_jsarray.clone());
-            log!(hover_decor_array.clone());
+                // empty out the arrays and clear out delta_decorations
+                hover_jsarray.set_length(0);
 
+                log!("These are the arrays after calling popping the hover_jsarray");
+                log!(hover_jsarray.clone());
+                log!(hover_decor_array.clone());
             },
             (),
-        ) 
+        )
     };
 
     // This is where we will have the user prompted to load in a file
