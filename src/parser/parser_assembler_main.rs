@@ -546,6 +546,16 @@ pub fn read_instructions(
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 monaco_line_info[instruction.line_number].mouse_hover_string = "dati rs, immediate\nAdds the sign-extended 16-bit immediate value shifted left by 48 to the contents of rs, and stores the result in rs.\n".to_string();
             }
+            "daddi" => {
+                instruction.binary = append_binary(instruction.binary, 0b011000, 6); //daddi
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, Immediate],
+                    vec![2, 1, 3],
+                    None,
+                );
+            }
             "daddiu" => {
                 instruction.binary = append_binary(instruction.binary, 0b011001, 6); //daddiu
 

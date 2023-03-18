@@ -349,6 +349,18 @@ mod read_instructions_tests {
     }
 
     #[test]
+    fn read_instructions_daddi() {
+        let file_string = "daddi $t1, $t2, 43690".to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01100001010010011010101010101010
+        );
+    }
+
+    #[test]
     fn read_instructions_daddiu() {
         let file_string = "daddiu $t1, $t2, 43690".to_string();
 
