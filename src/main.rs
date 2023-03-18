@@ -7,7 +7,7 @@ pub mod ui;
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
 use gloo::{console::log, dialogs::alert, file::FileList};
-use js_sys::{Array, Object};
+use js_sys::{Object};
 use monaco::{
     api::TextModel,
     sys::{
@@ -63,10 +63,7 @@ fn app() -> Html {
     // Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
     let hover_jsarray = js_sys::Array::new();
-    let hover_decor_array = js_sys::Array::new();
-    
-    // For the clipboard callback from yew_hooks
-    let clipboard = use_clipboard();
+    let hover_decor_array = use_mut_ref(|| js_sys::Array::new());
 
     // Setup the highlight stacks that would store which line
     // was executed after the execute button is pressed.
@@ -276,6 +273,7 @@ fn app() -> Html {
         )
     };
 
+    // Copies text to the user's clipboard
     let on_clipboard_clicked = {
         let text_model = Rc::clone(&text_model);
         let clipboard = use_clipboard();
@@ -292,7 +290,7 @@ fn app() -> Html {
         let hover_jsarray = hover_jsarray.clone();
         let hover_decor_array = hover_decor_array.clone();
         use_callback(
-            move |_, _| {
+            move |_, text_model| {
                 let text_model = (*text_model).borrow_mut();
                 let curr_model = text_model.as_ref();
                 let (program_info, _) = parser(text_model.get_value());
@@ -335,12 +333,12 @@ fn app() -> Html {
                 log!("This is the array after the push");
                 log!(hover_jsarray.clone());
 
-                let hover_decor_array =
-                    (*curr_model).delta_decorations(&hover_decor_array, &hover_jsarray, None);
+                let new_hover_decor_array = (*curr_model).delta_decorations(&hover_decor_array.borrow_mut(), &hover_jsarray, None);
+                *hover_decor_array.borrow_mut() = new_hover_decor_array.to_owned();
 
                 log!("These are the arrays after calling Delta Decorations");
                 log!(hover_jsarray.clone());
-                log!(hover_decor_array.clone());
+                log!(hover_decor_array.borrow_mut().clone());
 
                 trigger.force_update();
 
@@ -349,9 +347,9 @@ fn app() -> Html {
 
                 log!("These are the arrays after calling popping the hover_jsarray");
                 log!(hover_jsarray.clone());
-                log!(hover_decor_array.clone());
+                log!(hover_decor_array.borrow_mut().clone());
             },
-            (),
+            text_model,
         )
     };
 
