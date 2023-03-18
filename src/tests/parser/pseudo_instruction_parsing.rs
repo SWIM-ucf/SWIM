@@ -649,7 +649,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuliu() {
 fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
     let mut program_info = ProgramInfo::default();
 
-    let file_string = "ddivi $t1, 100\nsw $t1, label".to_string();
+    let file_string = "ddivi $t1, $t1, 100\nsw $t1, label".to_string();
 
     let mut monaco_line_info_vec = tokenize_program(file_string);
     (program_info.instructions, program_info.data) =
@@ -681,7 +681,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
                 },
                 Token {
                     token_name: "100".to_string(),
-                    start_end_columns: (11, 14),
+                    start_end_columns: (16, 19),
                     token_type: Default::default(),
                 }
             ],
@@ -704,6 +704,11 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
                 Token {
                     token_name: "$t1".to_string(),
                     start_end_columns: (6, 9),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (11, 14),
                     token_type: Default::default(),
                 },
                 Token {
