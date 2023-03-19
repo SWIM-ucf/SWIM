@@ -1047,6 +1047,7 @@ impl MipsDatapath {
         }
 
         // Set the zero bit/signal.
+        self.datapath_signals.alu_z = AluZ::NotZero;
         if self.state.alu_result == 0 {
             self.datapath_signals.alu_z = AluZ::YesZero;
         }
@@ -1128,6 +1129,9 @@ impl MipsDatapath {
     }
 
     fn calc_general_branch_signal(&mut self) {
+        // Assume there is no branch initially.
+        self.datapath_signals.general_branch = GeneralBranch::NoBranch;
+
         if let CpuBranch::YesBranch = self.datapath_signals.cpu_branch {
             self.datapath_signals.general_branch = GeneralBranch::YesBranch;
             return;
