@@ -7,6 +7,7 @@ use crate::parser::parser_assembler_main::parser;
 pub mod basic_immediate;
 pub mod basic_operations;
 pub mod conditions;
+pub mod coprocessor_move;
 pub mod double_arithmetic;
 pub mod double_immediate;
 
