@@ -6,8 +6,8 @@ pub mod ui;
 
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
-use gloo::{console::log, dialogs::alert, file::FileList};
-use js_sys::{Object};
+use gloo::{dialogs::alert, file::FileList};
+use js_sys::Object;
 use monaco::{
     api::TextModel,
     sys::{
@@ -20,7 +20,7 @@ use monaco::{
     yew::{CodeEditor, CodeEditorLink},
 };
 use parser::parser_assembler_main::parser;
-use std::{cell::RefCell, rc::Rc};
+use std::rc::Rc;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
 //use stylist::yew::*;
@@ -51,11 +51,7 @@ fn app() -> Html {
     // This is the initial text model with default text contents. The
     // use_state_eq hook is created so that the component can be updated
     // when the text model changes.
-    let text_model = use_state_eq(|| {
-        Rc::new(RefCell::new(
-            TextModel::create(&code, Some(&language), None).unwrap(),
-        ))
-    });
+    let text_model = use_mut_ref(|| TextModel::create(&code, Some(&language), None).unwrap());
 
     // Link to the Yew Editor Component, if not used by the end of the project remove it.
     let codelink = CodeEditorLink::default();
@@ -86,7 +82,7 @@ fn app() -> Html {
     // since the scope will be open across all events involved with it. To achieve this,
     // we use interior mutability to have the reference to the Datapath immutable, but
     // the ability to access and change its contents be mutable.
-    let datapath = use_state_eq(|| Rc::new(RefCell::new(MipsDatapath::default())));
+    let datapath = use_mut_ref(|| MipsDatapath::default());
 
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
@@ -295,7 +291,6 @@ fn app() -> Html {
                 let curr_model = text_model.as_ref();
                 let (program_info, _) = parser(text_model.get_value());
 
-
                 // Parse output from parser and create an instance of IModelDeltaDecoration for each line.
                 for (line_number, line_information) in
                     program_info.monaco_line_info.iter().enumerate()
@@ -326,28 +321,33 @@ fn app() -> Html {
                     decoration.set_options(&hover_opts);
                     let hover_js = decoration
                         .dyn_into::<JsValue>()
-                        .expect("Highlight is not found.");
+                        .expect("Hover is not found.");
                     hover_jsarray.push(&hover_js);
                 }
 
-                log!("This is the array after the push");
-                log!(hover_jsarray.clone());
+                // log!("This is the array after the push");
+                // log!(hover_jsarray.clone());
 
-                let new_hover_decor_array = (*curr_model).delta_decorations(&hover_decor_array.borrow_mut(), &hover_jsarray, None);
+                // properly pass the handlers onto the array
+                let new_hover_decor_array = (*curr_model).delta_decorations(
+                    &hover_decor_array.borrow_mut(),
+                    &hover_jsarray,
+                    None,
+                );
                 *hover_decor_array.borrow_mut() = new_hover_decor_array.to_owned();
 
-                log!("These are the arrays after calling Delta Decorations");
-                log!(hover_jsarray.clone());
-                log!(hover_decor_array.borrow_mut().clone());
+                // log!("These are the arrays after calling Delta Decorations");
+                // log!(hover_jsarray.clone());
+                // log!(hover_decor_array.borrow_mut().clone());
 
                 trigger.force_update();
 
-                // empty out the arrays and clear out delta_decorations
+                // empty out the array that hold the decorations
                 hover_jsarray.set_length(0);
 
-                log!("These are the arrays after calling popping the hover_jsarray");
-                log!(hover_jsarray.clone());
-                log!(hover_decor_array.borrow_mut().clone());
+                // log!("These are the arrays after calling popping the hover_jsarray");
+                // log!(hover_jsarray.clone());
+                // log!(hover_decor_array.borrow_mut().clone());
             },
             text_model,
         )
