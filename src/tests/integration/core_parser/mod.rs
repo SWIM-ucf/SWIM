@@ -10,6 +10,7 @@ pub mod conditions;
 pub mod coprocessor_move;
 pub mod double_arithmetic;
 pub mod double_immediate;
+pub mod floating_point_arithmetic;
 
 #[test]
 fn add_register_plus_itself() -> Result<(), String> {
