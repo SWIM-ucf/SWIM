@@ -1060,31 +1060,24 @@ impl MipsDatapath {
             .wrapping_add(self.state.pc_plus_4);
     }
 
-    // if Branch::YesBranch && AluZ::YesZero
+    /// Determine the value of the [`CpuBranch`] signal.
     fn calc_cpu_branch_signal(&mut self) {
-        // Yes I know this code looks truely garbage, please fix it
-        // Rust does not allow the obvious clean option...
-        let mut yes_branch: bool = false;
-        if let Branch::YesBranch = self.signals.branch {
-            yes_branch = true;
-        }
+        // Start by assuming there is no branch.
+        self.datapath_signals.cpu_branch = CpuBranch::NoBranch;
 
-        let mut beq: bool = false;
-        if let BranchType::OnEqual = self.signals.branch_type {
-            beq = true;
-        }
+        // condition_is_true is based on the ALU and the BranchType. This
+        // is the line between the multiplexer and the AND gate, where the
+        // AND gate has as input the Branch control signal and said
+        // multiplexer.
+        //
+        // Depending on the branch type, this may use the ALU's Zero signal
+        // as-is or inverted.
+        let condition_is_true = match self.signals.branch_type {
+            BranchType::OnEqual => self.datapath_signals.alu_z == AluZ::YesZero,
+            BranchType::OnNotEqual => self.datapath_signals.alu_z == AluZ::NotZero,
+        };
 
-        let mut bne: bool = false;
-        if let BranchType::OnNotEqual = self.signals.branch_type {
-            bne = true;
-        }
-
-        let mut z: bool = false;
-        if let AluZ::YesZero = self.datapath_signals.alu_z {
-            z = true;
-        }
-
-        if (yes_branch & z & beq) | (yes_branch & !z & bne) {
+        if self.signals.branch == Branch::YesBranch && condition_is_true {
             self.datapath_signals.cpu_branch = CpuBranch::YesBranch;
         }
     }
