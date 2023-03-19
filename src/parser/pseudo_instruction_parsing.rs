@@ -980,16 +980,16 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "ddiviu" => {
-                //ddiviu $regA, immediate is translated to:
+                //ddiviu $regA, $regB, immediate is translated to:
                 //ori $at, $zero, immediate
-                //ddivu $regA, $at
+                //ddivu $regA, $regB, $at
 
                 monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "ddiviu $regA, immediate is a pseudo-instruction.\nddiviu $regA, immediate =>\n\tori $at, $zero, immediate\n\tddivu $regA, $at\n"
+                    "ddiviu $regA, $regB, immediate is a pseudo-instruction.\nddiviu $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tddivu $regA, $regB, $at\n"
                         .to_string();
 
                 //make sure the are the right number of operands
-                if instruction.operands.len() != 2 {
+                if instruction.operands.len() != 3 {
                     continue;
                 }
                 let mut extra_instruction = Instruction {
@@ -1009,7 +1009,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                             start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
-                        instruction.operands[1].clone(),
+                        instruction.operands[2].clone(),
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
@@ -1021,8 +1021,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //adjust ddiviu for the added instruction
                 instruction.operator.token_name = "ddivu".to_string();
                 instruction.operator.start_end_columns = (0, 0);
-                instruction.operands[1].token_name = "$at".to_string();
-                instruction.operands[1].start_end_columns = (0, 0);
+                instruction.operands[2].token_name = "$at".to_string();
+                instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
 
                 monaco_line_info[instruction.line_number]
