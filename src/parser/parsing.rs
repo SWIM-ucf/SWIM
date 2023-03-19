@@ -27,13 +27,14 @@ pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
             line_number: i,
             error_start_end_columns: vec![],
             errors: vec![],
+            line_type: Default::default(),
         };
 
         let mut is_string = false;
         let mut check_escape = false;
         //iterates through every character on each line of the program
         for (j, char) in line_of_program.chars().enumerate() {
-            token.start_end_columns.1 = j as u32 + 1;
+            token.start_end_columns.1 = j + 1;
             if char == '#' {
                 if j > 0 {
                     token.start_end_columns.1 -= 1;
@@ -80,11 +81,11 @@ pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
                     line.tokens.push(token.clone());
                 }
                 token.token_name = '\"'.to_string();
-                token.start_end_columns.0 = j as u32;
+                token.start_end_columns.0 = j;
                 is_string = true;
             } else if char != ' ' {
                 if token.token_name.is_empty() {
-                    token.start_end_columns.0 = j as u32;
+                    token.start_end_columns.0 = j;
                 }
                 token.token_name.push(char);
                 if char == ',' {
@@ -109,6 +110,19 @@ pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
         }
 
         monaco_line_info_vec.push(line);
+    }
+
+    //creates an empty monaco line if there is nothing in Monaco.
+    if monaco_line_info_vec.is_empty() {
+        monaco_line_info_vec.push(MonacoLineInfo {
+            mouse_hover_string: "".to_string(),
+            updated_monaco_string: "".to_string(),
+            tokens: vec![],
+            line_number: 0,
+            error_start_end_columns: vec![],
+            errors: vec![],
+            line_type: Default::default(),
+        })
     }
 
     monaco_line_info_vec
@@ -157,8 +171,7 @@ pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instructio
                 } else {
                     lines[i].tokens[0].token_name.pop();
                     lines[i].tokens[0].token_type = Label;
-                    instruction.label =
-                        Some((lines[i].tokens[0].clone(), lines[i].line_number as u32));
+                    instruction.label = Some((lines[i].tokens[0].clone(), lines[i].line_number));
                 }
 
                 if lines[i].tokens.len() == 1 {
@@ -207,7 +220,7 @@ pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instructio
 
             //simple statement to handle cases where the user doesn't finish instructions
             if operand_iterator >= lines[i].tokens.len() {
-                instruction.line_number = lines[i].line_number as u32;
+                instruction.line_number = lines[i].line_number;
                 instruction_list.push(instruction.clone());
                 i += 1;
                 continue;
@@ -218,7 +231,7 @@ pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instructio
                 .operands
                 .push(lines[i].tokens[operand_iterator].clone());
 
-            instruction.line_number = lines[i].line_number as u32;
+            instruction.line_number = lines[i].line_number;
 
             //push completed instruction to the instruction vec
             instruction_list.push(instruction.clone());
@@ -226,7 +239,7 @@ pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instructio
         }
         //if not text, it must be data
         else {
-            data.line_number = lines[i].line_number as u32;
+            data.line_number = lines[i].line_number;
 
             //the first token should be the label name
             if lines[i].tokens[0].token_name.ends_with(':') {
@@ -298,8 +311,8 @@ pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instructio
 pub fn create_label_map(
     instruction_list: &mut Vec<Instruction>,
     data_list: &mut [Data],
-) -> HashMap<String, u32> {
-    let mut labels: HashMap<String, u32> = HashMap::new();
+) -> HashMap<String, usize> {
+    let mut labels: HashMap<String, usize> = HashMap::new();
     for instruction in &mut *instruction_list {
         if instruction.label.is_some() {
             //if the given label name is already used, an error is generated
@@ -332,7 +345,7 @@ pub fn create_label_map(
         (last_instruction.unwrap().instruction_number + 1) << 2
     } else {
         0
-    };
+    } as u32;
 
     for (_i, data) in data_list.iter_mut().enumerate() {
         //if the given label name is already used, an error is generated
@@ -347,7 +360,7 @@ pub fn create_label_map(
         } else {
             labels.insert(
                 data.label.token_name.clone(),
-                data.data_number + offset_for_instructions,
+                data.data_number + offset_for_instructions as usize,
             );
         }
     }
@@ -361,7 +374,7 @@ pub fn create_label_map(
 pub fn suggest_error_corrections(
     instructions: &mut [Instruction],
     data: &mut [Data],
-    labels: &HashMap<String, u32>,
+    labels: &HashMap<String, usize>,
     monaco_line_info: &mut [MonacoLineInfo],
 ) -> String {
     let mut console_out_string: String = "".to_string();
@@ -369,7 +382,7 @@ pub fn suggest_error_corrections(
     for instruction in instructions {
         //if there are no errors, instead push the binary of the instruction to mouse hover
         if instruction.errors.is_empty() {
-            monaco_line_info[instruction.line_number as usize]
+            monaco_line_info[instruction.line_number]
                 .mouse_hover_string
                 .push_str(&format!("\nBinary: {:032b}", instruction.binary));
         } else {
@@ -523,22 +536,22 @@ pub fn suggest_error_corrections(
                     || error.error_name == LabelMultipleDefinition
                 {
                     //todo remove following line once Jerrett has started referencing error and not just start_end_columns
-                    monaco_line_info[instruction.label.clone().unwrap().1 as usize]
+                    monaco_line_info[instruction.label.clone().unwrap().1]
                         .error_start_end_columns
                         .push(error.start_end_columns);
 
                     //add error to monaco_line_info
-                    monaco_line_info[instruction.line_number as usize]
+                    monaco_line_info[instruction.line_number]
                         .errors
                         .push(error.clone());
                 } else {
                     //todo remove following line once Jerrett has started referencing error and not just start_end_columns
-                    monaco_line_info[instruction.line_number as usize]
+                    monaco_line_info[instruction.line_number]
                         .error_start_end_columns
                         .push(error.start_end_columns);
 
                     //add error to monaco_line_info
-                    monaco_line_info[instruction.line_number as usize]
+                    monaco_line_info[instruction.line_number]
                         .errors
                         .push(error.clone());
                 }
@@ -634,12 +647,12 @@ pub fn suggest_error_corrections(
             }
 
             //todo remove following line once Jerrett has started referencing error and not just start_end_columns
-            monaco_line_info[datum.line_number as usize]
+            monaco_line_info[datum.line_number]
                 .error_start_end_columns
                 .push(error.start_end_columns);
 
             //add error to monaco_line_info
-            monaco_line_info[datum.line_number as usize]
+            monaco_line_info[datum.line_number]
                 .errors
                 .push(error.clone());
 

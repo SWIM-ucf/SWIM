@@ -717,7 +717,7 @@ mod helper_functions {
         );
         assemble_data_binary(&mut data);
 
-        let labels: HashMap<String, u32> = create_label_map(&mut instruction_list, &mut data);
+        let labels: HashMap<String, usize> = create_label_map(&mut instruction_list, &mut data);
 
         read_instructions(&mut instruction_list, &labels, &mut monaco_line_info_vec);
 
@@ -741,7 +741,7 @@ fn create_binary_vec_works_with_data() {
     );
     let vec_of_data = assemble_data_binary(&mut program_info.data);
 
-    let labels: HashMap<String, u32> =
+    let labels: HashMap<String, usize> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
 
     complete_lw_sw_pseudo_instructions(
@@ -878,4 +878,11 @@ fn instructions_directives_and_registers_work_regardless_of_capitalization() {
             correct.0.monaco_line_info[i].mouse_hover_string
         );
     }
+}
+
+#[test]
+fn parser_assembler_works_with_empty_strings() {
+    let _ = parser("".to_string());
+    let _ = parser("\n".to_string());
+    let _ = parser("\n\n".to_string());
 }

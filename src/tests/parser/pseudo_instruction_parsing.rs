@@ -1567,8 +1567,8 @@ fn complete_lw_sw_pseudo_instructions_works_multiple_using_same_label() {
         &program_info.data,
         &mut program_info.monaco_line_info,
     );
-    let _vec_of_data = assemble_data_binary(&mut program_info.data);
-    let labels: HashMap<String, u32> =
+    let _ = assemble_data_binary(&mut program_info.data);
+    let labels: HashMap<String, usize> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
 
     complete_lw_sw_pseudo_instructions(
@@ -1702,7 +1702,7 @@ fn complete_lw_sw_pseudo_instructions_works() {
         &mut program_info.monaco_line_info,
     );
     let _vec_of_data = assemble_data_binary(&mut program_info.data);
-    let labels: HashMap<String, u32> =
+    let labels: HashMap<String, usize> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
 
     complete_lw_sw_pseudo_instructions(
@@ -1835,8 +1835,8 @@ fn complete_lw_sw_pseudo_instructions_doesnt_break_with_empty_instruction_list()
         &program_info.data,
         &mut program_info.monaco_line_info,
     );
-    let _vec_of_data = assemble_data_binary(&mut program_info.data);
-    let labels: HashMap<String, u32> =
+    let _ = assemble_data_binary(&mut program_info.data);
+    let labels: HashMap<String, usize> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
 
     complete_lw_sw_pseudo_instructions(

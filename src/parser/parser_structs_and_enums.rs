@@ -6,7 +6,7 @@ pub mod instruction_tokenization {
     ///Wrapper for all information gathered in the Parser/Assembler about the written program.
     pub struct ProgramInfo {
         pub monaco_line_info: Vec<MonacoLineInfo>,
-        pub address_to_line_number: Vec<u32>,
+        pub address_to_line_number: Vec<usize>,
         pub updated_monaco_string: String,
         pub console_out_post_assembly: String,
         pub instructions: Vec<Instruction>,
@@ -19,8 +19,18 @@ pub mod instruction_tokenization {
         pub updated_monaco_string: String,
         pub tokens: Vec<Token>,
         pub line_number: usize,
-        pub error_start_end_columns: Vec<(u32, u32)>,
+        pub error_start_end_columns: Vec<(usize, usize)>,
         pub errors: Vec<Error>,
+        pub line_type: LineType,
+    }
+
+    #[derive(Clone, Debug, Default, Eq, PartialEq)]
+    pub enum LineType {
+        #[default]
+        Blank,
+        Data,
+        Text,
+        Directive,
     }
 
     impl MonacoLineInfo {
@@ -43,10 +53,10 @@ pub mod instruction_tokenization {
         pub operator: Token,
         pub operands: Vec<Token>,
         pub binary: u32,
-        pub instruction_number: u32,
-        pub line_number: u32,
+        pub instruction_number: usize,
+        pub line_number: usize,
         pub errors: Vec<Error>,
-        pub label: Option<(Token, u32)>, //label.1 refers to the line number the label is on
+        pub label: Option<(Token, usize)>, //label.1 refers to the line number the label is on
     }
 
     impl Instruction {
@@ -73,8 +83,8 @@ pub mod instruction_tokenization {
     ///A collection of all relevant information found about a variable in the Parser/Assembler
     #[derive(Clone, Debug, Default, Eq, PartialEq)]
     pub struct Data {
-        pub data_number: u32,
-        pub line_number: u32,
+        pub data_number: usize,
+        pub line_number: usize,
         pub errors: Vec<Error>,
         pub label: Token,
         pub data_type: Token,
@@ -84,7 +94,7 @@ pub mod instruction_tokenization {
     #[derive(Clone, Debug, Default, Eq, PartialEq)]
     pub struct Token {
         pub token_name: String,
-        pub start_end_columns: (u32, u32),
+        pub start_end_columns: (usize, usize),
         pub token_type: TokenType,
     }
 
@@ -92,7 +102,7 @@ pub mod instruction_tokenization {
     pub struct Error {
         pub error_name: ErrorType,
         pub token_causing_error: String,
-        pub start_end_columns: (u32, u32),
+        pub start_end_columns: (usize, usize),
         pub message: String,
     }
 
