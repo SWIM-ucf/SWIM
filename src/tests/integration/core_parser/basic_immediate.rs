@@ -1,4 +1,4 @@
-//! Covering the basic immediate arithmetic instructions: addi, subi, muli, divi, ori, andi, lui.
+//! Covering the basic immediate arithmetic instructions: addi, subi, muli, divi, ori, andi, li, lui.
 //!
 //! Note that some of these instructions are pseudo-instructions.
 
@@ -120,6 +120,24 @@ fn basic_andi() -> Result<(), String> {
     }
 
     assert_eq!(datapath.registers.gpr[11], 4); // 100 & 4 (0110 0100 & 0000 0100)
+
+    Ok(())
+}
+
+#[test]
+fn basic_li() -> Result<(), String> {
+    let mut datapath = MipsDatapath::default();
+
+    let instructions = String::from("li r15, 56");
+
+    let (_, instruction_bits) = parser(instructions);
+    datapath.initialize(instruction_bits)?;
+
+    while !datapath.is_halted() {
+        datapath.execute_instruction();
+    }
+
+    assert_eq!(datapath.registers.gpr[15], 56);
 
     Ok(())
 }
