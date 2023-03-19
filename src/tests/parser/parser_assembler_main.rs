@@ -531,6 +531,20 @@ mod read_instructions_tests {
     }
 
     #[test]
+    fn read_instructions_jal() {
+        let file_string =
+            "Add $t1, $t2, $t3\nAddress: add $t1, #t2, $t3\nlw $t1, 400($t2)\njal Address"
+                .to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[3].binary,
+            0b00001100000000000000000000000001
+        )
+    }
+
+    #[test]
     fn read_instructions_beq() {
         let file_string = "Add $t1, $t2, $t3\nAddress: add $t1, #t2, $t3\nlw $t1, 400($t2)\nbeq $t1, $t2, address".to_string();
         let instruction_list = instruction_parser(file_string);
