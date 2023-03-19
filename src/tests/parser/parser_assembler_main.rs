@@ -410,13 +410,13 @@ mod read_instructions_tests {
 
     #[test]
     fn read_instructions_ddivu() {
-        let file_string = "ddivu $t1, $t2".to_string();
+        let file_string = "ddivu $t1, $t1, $t2".to_string();
 
         let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00000001001010100000000000011111
+            0b00000001001010100100100010011111
         );
     }
 
