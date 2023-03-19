@@ -79,6 +79,55 @@ fn add_syscall_to_program_info() {
 }
 
 #[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_li() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "li $t1, 100\nsw $t1, label".to_string();
+
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(monaco_line_info_vec.clone());
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "ori".to_string(),
+                start_end_columns: (0, 2),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (3, 6),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    start_end_columns: (0, 0),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "100".to_string(),
+                    start_end_columns: (0, 0),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            label: None,
+        }
+    );
+}
+
+#[test]
 fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi() {
     let mut program_info = ProgramInfo::default();
 
@@ -244,7 +293,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_muli() {
 fn expand_pseudo_instructions_and_assign_instruction_numbers_works_divi() {
     let mut program_info = ProgramInfo::default();
 
-    let file_string = "divi $t1, 100\nsw $t1, label".to_string();
+    let file_string = "divi $t1, $t1, 100\nsw $t1, label".to_string();
 
     let mut monaco_line_info_vec = tokenize_program(file_string);
     (program_info.instructions, program_info.data) =
@@ -276,7 +325,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_divi() {
                 },
                 Token {
                     token_name: "100".to_string(),
-                    start_end_columns: (10, 13),
+                    start_end_columns: (15, 18),
                     token_type: Default::default(),
                 }
             ],
@@ -299,6 +348,11 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_divi() {
                 Token {
                     token_name: "$t1".to_string(),
                     start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (10, 13),
                     token_type: Default::default(),
                 },
                 Token {
@@ -644,7 +698,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuliu() {
 fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
     let mut program_info = ProgramInfo::default();
 
-    let file_string = "ddivi $t1, 100\nsw $t1, label".to_string();
+    let file_string = "ddivi $t1, $t1, 100\nsw $t1, label".to_string();
 
     let mut monaco_line_info_vec = tokenize_program(file_string);
     (program_info.instructions, program_info.data) =
@@ -676,7 +730,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
                 },
                 Token {
                     token_name: "100".to_string(),
-                    start_end_columns: (11, 14),
+                    start_end_columns: (16, 19),
                     token_type: Default::default(),
                 }
             ],
@@ -702,6 +756,11 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
                     token_type: Default::default(),
                 },
                 Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (11, 14),
+                    token_type: Default::default(),
+                },
+                Token {
                     token_name: "$at".to_string(),
                     start_end_columns: (0, 0),
                     token_type: Default::default(),
@@ -720,7 +779,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
 fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddiviu() {
     let mut program_info = ProgramInfo::default();
 
-    let file_string = "ddiviu $t1, 100\nsw $t1, label".to_string();
+    let file_string = "ddiviu $t1, $t1, 100\nsw $t1, label".to_string();
 
     let mut monaco_line_info_vec = tokenize_program(file_string);
     (program_info.instructions, program_info.data) =
@@ -752,7 +811,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddiviu() {
                 },
                 Token {
                     token_name: "100".to_string(),
-                    start_end_columns: (12, 15),
+                    start_end_columns: (17, 20),
                     token_type: Default::default(),
                 }
             ],
@@ -775,6 +834,11 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddiviu() {
                 Token {
                     token_name: "$t1".to_string(),
                     start_end_columns: (7, 10),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (12, 15),
                     token_type: Default::default(),
                 },
                 Token {

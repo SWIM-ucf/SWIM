@@ -1,6 +1,19 @@
+use akin::akin;
+
 use crate::emulation_core::datapath::Datapath;
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::parser::parser_assembler_main::parser;
+
+pub mod basic_immediate;
+pub mod basic_operations;
+pub mod branch_jump;
+pub mod conditions;
+pub mod coprocessor_move;
+pub mod double_arithmetic;
+pub mod double_immediate;
+pub mod floating_point_arithmetic;
+pub mod floating_point_comparison;
+pub mod store_load_word;
 
 #[test]
 fn add_register_plus_itself() -> Result<(), String> {
@@ -62,6 +75,35 @@ dati r1, 43982"#,
     }
 
     assert_eq!(datapath.registers.gpr[1], 0xABCD_8765_CCCC_EEEE);
+
+    Ok(())
+}
+
+#[test]
+// Basic program that adds two numbers then multiplies that result by 2.
+// The parser should add a `syscall` instruction at the end of the program
+// and automatically halt.
+fn syscall_to_stop() -> Result<(), String> {
+    let mut datapath = MipsDatapath::default();
+
+    let instructions = String::from(
+        r#"ori r5, $zero, 4321
+ori r6, $zero, 5678
+dadd r7, r5, r6
+dmuli r8, r7, 2"#,
+    );
+
+    let (_, instruction_bits) = parser(instructions);
+    datapath.initialize(instruction_bits)?;
+
+    while !datapath.is_halted() {
+        datapath.execute_instruction();
+    }
+
+    assert_eq!(datapath.registers.gpr[5], 4321);
+    assert_eq!(datapath.registers.gpr[6], 5678);
+    assert_eq!(datapath.registers.gpr[7], 9999); // 4321 + 5678
+    assert_eq!(datapath.registers.gpr[8], 19998); // 9999 * 2
 
     Ok(())
 }
