@@ -1211,6 +1211,8 @@
 <a href="#1211" id="1211">1211</a>
 <a href="#1212" id="1212">1212</a>
 <a href="#1213" id="1213">1213</a>
+<a href="#1214" id="1214">1214</a>
+<a href="#1215" id="1215">1215</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of a MIPS64 datapath.
 //!
 //! It is assumed that while moving through stages, only one
@@ -1241,6 +1243,8 @@
 //! - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
 //!   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
 //!   `bnezalc`, `beqc`, and `bovc` instructions.
+//! - This datapath implements `daddi` as it exists in MIPS64 version 5. This instruction
+//!   was deprecated in MIPS64 version 6.
 //! - Unlike the MIPS64 version 6 specification for the `jal` instruction, `PC + 4` is
 //!   stored in `GPR[31]`, *not* `PC + 8`, as there is no implementation of branch
 //!   delay slots.
@@ -1419,11 +1423,6 @@
 
     <span class="kw">fn </span>execute_instruction(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">loop </span>{
-            <span class="comment">// If the FPU has halted, reflect this in the main unit.
-            </span><span class="kw">if </span><span class="self">self</span>.coprocessor.is_halted {
-                <span class="self">self</span>.is_halted = <span class="bool-val">true</span>;
-            }
-
             <span class="comment">// Stop early if the datapath has halted.
             </span><span class="kw">if </span><span class="self">self</span>.is_halted {
                 <span class="kw">break</span>;
@@ -1453,6 +1452,11 @@
             Stage::WriteBack =&gt; <span class="self">self</span>.stage_writeback(),
         }
 
+        <span class="comment">// If the FPU has halted, reflect this in the main unit.
+        </span><span class="kw">if </span><span class="self">self</span>.coprocessor.is_halted {
+            <span class="self">self</span>.is_halted = <span class="bool-val">true</span>;
+        }
+
         <span class="self">self</span>.current_stage = Stage::get_next_stage(<span class="self">self</span>.current_stage);
     }
 
@@ -1474,7 +1478,8 @@
 }
 
 <span class="kw">impl </span>MipsDatapath {
-    <span class="doccomment">/// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
+    <span class="comment">// ===================== General Functions =====================
+    </span><span class="doccomment">/// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
     /// flag. If the process fails, an [`Err`] is returned.
     </span><span class="kw">pub fn </span>initialize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, instructions: Vec&lt;u32&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt; {
         <span class="self">self</span>.reset();
@@ -1499,7 +1504,8 @@
         <span class="self">self</span>.is_halted = <span class="bool-val">true</span>;
     }
 
-    <span class="doccomment">/// Stage 1 of 5: Instruction Fetch (IF)
+    <span class="comment">// ========================== Stages ==========================
+    </span><span class="doccomment">/// Stage 1 of 5: Instruction Fetch (IF)
     ///
     /// Fetch the current instruction based on the given PC and load it
     /// into the datapath.
@@ -1549,43 +1555,6 @@
         <span class="self">self</span>.coprocessor.stage_execute();
     }
 
-    <span class="kw">fn </span>calc_relative_pc_branch(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.state.sign_extend_shift_left_by_2 = <span class="self">self</span>.state.sign_extend &lt;&lt; <span class="number">2</span>;
-        <span class="self">self</span>.state.relative_pc_branch = <span class="self">self
-            </span>.state
-            .sign_extend_shift_left_by_2
-            .wrapping_add(<span class="self">self</span>.state.pc_plus_4);
-    }
-
-    <span class="comment">// if Branch::YesBranch &amp;&amp; AluZ::YesZero
-    </span><span class="kw">fn </span>calc_cpu_branch_signal(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="comment">// Yes I know this code looks truely garbage, please fix it
-        // Rust does not allow the obvious clean option...
-        </span><span class="kw">let </span><span class="kw-2">mut </span>yes_branch: bool = <span class="bool-val">false</span>;
-        <span class="kw">if let </span>Branch::YesBranch = <span class="self">self</span>.signals.branch {
-            yes_branch = <span class="bool-val">true</span>;
-        }
-
-        <span class="kw">let </span><span class="kw-2">mut </span>beq: bool = <span class="bool-val">false</span>;
-        <span class="kw">if let </span>BranchType::OnEqual = <span class="self">self</span>.signals.branch_type {
-            beq = <span class="bool-val">true</span>;
-        }
-
-        <span class="kw">let </span><span class="kw-2">mut </span>bne: bool = <span class="bool-val">false</span>;
-        <span class="kw">if let </span>BranchType::OnNotEqual = <span class="self">self</span>.signals.branch_type {
-            bne = <span class="bool-val">true</span>;
-        }
-
-        <span class="kw">let </span><span class="kw-2">mut </span>z: bool = <span class="bool-val">false</span>;
-        <span class="kw">if let </span>AluZ::YesZero = <span class="self">self</span>.datapath_signals.alu_z {
-            z = <span class="bool-val">true</span>;
-        }
-
-        <span class="kw">if </span>(yes_branch &amp; z &amp; beq) | (yes_branch &amp; !z &amp; bne) {
-            <span class="self">self</span>.datapath_signals.cpu_branch = CpuBranch::YesBranch;
-        }
-    }
-
     <span class="doccomment">/// Stage 4 of 5: Memory (MEM)
     ///
     /// Read or write to memory.
@@ -1614,32 +1583,6 @@
         <span class="self">self</span>.coprocessor.stage_memory();
     }
 
-    <span class="kw">fn </span>calc_general_branch_signal(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">if let </span>CpuBranch::YesBranch = <span class="self">self</span>.datapath_signals.cpu_branch {
-            <span class="self">self</span>.datapath_signals.general_branch = GeneralBranch::YesBranch;
-            <span class="kw">return</span>;
-        }
-
-        <span class="kw">if let </span>FpuBranch::YesBranch = <span class="self">self</span>.coprocessor.signals.fpu_branch {
-            <span class="self">self</span>.datapath_signals.general_branch = GeneralBranch::YesBranch;
-        }
-    }
-
-    <span class="kw">fn </span>pick_pc_plus_4_or_relative_branch_addr_mux1(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">if let </span>GeneralBranch::YesBranch = <span class="self">self</span>.datapath_signals.general_branch {
-            <span class="self">self</span>.state.mem_mux1_to_mem_mux2 = <span class="self">self</span>.state.relative_pc_branch;
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.state.mem_mux1_to_mem_mux2 = <span class="self">self</span>.state.pc_plus_4;
-        }
-    }
-
-    <span class="kw">fn </span>set_new_pc_mux2(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.state.new_pc = <span class="kw">match </span><span class="self">self</span>.signals.jump {
-            Jump::NoJump =&gt; <span class="self">self</span>.state.mem_mux1_to_mem_mux2,
-            Jump::YesJump =&gt; <span class="self">self</span>.state.jump_address,
-        };
-    }
-
     <span class="doccomment">/// Stage 5 of 5: Writeback (WB)
     ///
     /// Write the result of the instruction&#39;s operation to a register,
@@ -1652,7 +1595,8 @@
         <span class="self">self</span>.coprocessor.stage_writeback();
     }
 
-    <span class="doccomment">/// Load the raw binary instruction from memory and into the
+    <span class="comment">// ================== Instruction Fetch (IF) ==================
+    </span><span class="doccomment">/// Load the raw binary instruction from memory and into the
     /// datapath. If there is an error with loading the word, assume
     /// the instruction to be bitwise zero and error.
     </span><span class="kw">fn </span>instruction_fetch(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
@@ -1669,10 +1613,7 @@
         <span class="self">self</span>.state.pc_plus_4 = <span class="self">self</span>.registers.pc + <span class="number">4</span>;
     }
 
-    <span class="comment">//    fn grab_lower_26_of_op(&amp;mut self) {
-    //         self.state.lower_26 = self.state.instruction &amp; 0x03ffffff;
-    //    }
-
+    <span class="comment">// ================== Instruction Decode (ID) ==================
     </span><span class="doccomment">/// Decode an instruction into its individual fields.
     </span><span class="kw">fn </span>instruction_decode(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">match </span>Instruction::try_from(<span class="self">self</span>.state.instruction) {
@@ -1728,19 +1669,49 @@
         }
     }
 
-    <span class="kw">fn </span>shift_lower_26_left_by_2(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.state.lower_26_shifted_left_by_2 = <span class="self">self</span>.state.lower_26 &lt;&lt; <span class="number">2</span>;
-    }
-
-    <span class="kw">fn </span>construct_jump_address(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.state.jump_address = (<span class="self">self</span>.state.pc_plus_4 &amp; <span class="number">0xffff_ffff_f000_0000</span>)
-            | <span class="self">self</span>.state.lower_26_shifted_left_by_2 <span class="kw">as </span>u64;
-    }
-
     <span class="doccomment">/// Extend the sign of a 16-bit value to the other 48 bits of a
     /// 64-bit value.
     </span><span class="kw">fn </span>sign_extend(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.state.sign_extend = ((<span class="self">self</span>.state.imm <span class="kw">as </span>i16) <span class="kw">as </span>i64) <span class="kw">as </span>u64;
+    }
+
+    <span class="doccomment">/// Set the control signals for the datapath based on the
+    /// instruction&#39;s opcode.
+    </span><span class="kw">fn </span>set_control_signals(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// Restore default behavior for this instruction, should OverflowWriteBlock
+        // have been set from a previous instruction.
+        </span><span class="self">self</span>.signals.overflow_write_block = OverflowWriteBlock::NoBlock;
+
+        <span class="kw">match </span><span class="self">self</span>.instruction {
+            Instruction::RType(r) =&gt; {
+                <span class="self">self</span>.set_rtype_control_signals(r);
+            }
+            Instruction::IType(i) =&gt; {
+                <span class="self">self</span>.set_itype_control_signals(i);
+            }
+            Instruction::JType(j) =&gt; {
+                <span class="self">self</span>.set_jtype_control_signals(j);
+            }
+            Instruction::FpuRegImmType(i) =&gt; {
+                <span class="self">self</span>.set_fpu_reg_imm_control_signals(i);
+            }
+            <span class="comment">// Main processor does nothing.
+            </span>Instruction::FpuRType(<span class="kw">_</span>)
+            | Instruction::FpuCompareType(<span class="kw">_</span>)
+            | Instruction::SyscallType(<span class="kw">_</span>) =&gt; {
+                <span class="self">self</span>.signals = ControlSignals {
+                    branch: Branch::NoBranch,
+                    jump: Jump::NoJump,
+                    mem_read: MemRead::NoRead,
+                    mem_write: MemWrite::NoWrite,
+                    reg_write: RegWrite::NoWrite,
+                    ..Default::default()
+                };
+            }
+            Instruction::FpuIType(i) =&gt; {
+                <span class="self">self</span>.set_fpu_itype_control_signals(i);
+            }
+        }
     }
 
     <span class="doccomment">/// Set rtype control signals. This function may have a Match statement added
@@ -1990,44 +1961,6 @@
         }
     }
 
-    <span class="doccomment">/// Set the control signals for the datapath, specifically in the
-    /// case where the instruction is an FPU I-type.
-    </span><span class="kw">fn </span>set_fpu_itype_control_signals(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: FpuIType) {
-        <span class="kw">match </span>i.op {
-            OPCODE_SWC1 =&gt; {
-                <span class="self">self</span>.signals = ControlSignals {
-                    alu_op: AluOp::Addition,
-                    alu_src: AluSrc::SignExtendedImmediate,
-                    branch: Branch::NoBranch,
-                    imm_shift: ImmShift::Shift0,
-                    jump: Jump::NoJump,
-                    mem_read: MemRead::NoRead,
-                    mem_write: MemWrite::YesWrite,
-                    mem_write_src: MemWriteSrc::FloatingPointUnit,
-                    reg_width: RegWidth::Word,
-                    reg_write: RegWrite::NoWrite,
-                    ..Default::default()
-                }
-            }
-            OPCODE_LWC1 =&gt; {
-                <span class="self">self</span>.signals = ControlSignals {
-                    alu_op: AluOp::Addition,
-                    alu_src: AluSrc::SignExtendedImmediate,
-                    branch: Branch::NoBranch,
-                    imm_shift: ImmShift::Shift0,
-                    jump: Jump::NoJump,
-                    mem_read: MemRead::YesRead,
-                    mem_to_reg: MemToReg::UseMemory,
-                    mem_write: MemWrite::NoWrite,
-                    reg_width: RegWidth::Word,
-                    reg_write: RegWrite::NoWrite,
-                    ..Default::default()
-                }
-            }
-            <span class="kw">_ </span>=&gt; <span class="self">self</span>.error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;FPU I-type instruction with opcode `{}`&quot;</span>, i.op)),
-        }
-    }
-
     <span class="doccomment">/// Set control signals for J-Type instructions
     </span><span class="kw">fn </span>set_jtype_control_signals(<span class="kw-2">&amp;mut </span><span class="self">self</span>, j: JType) {
         <span class="kw">match </span>j.op {
@@ -2124,42 +2057,41 @@
         }
     }
 
-    <span class="doccomment">/// Set the control signals for the datapath based on the
-    /// instruction&#39;s opcode.
-    </span><span class="kw">fn </span>set_control_signals(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="comment">// Restore default behavior for this instruction, should OverflowWriteBlock
-        // have been set from a previous instruction.
-        </span><span class="self">self</span>.signals.overflow_write_block = OverflowWriteBlock::NoBlock;
-
-        <span class="kw">match </span><span class="self">self</span>.instruction {
-            Instruction::RType(r) =&gt; {
-                <span class="self">self</span>.set_rtype_control_signals(r);
-            }
-            Instruction::IType(i) =&gt; {
-                <span class="self">self</span>.set_itype_control_signals(i);
-            }
-            Instruction::JType(j) =&gt; {
-                <span class="self">self</span>.set_jtype_control_signals(j);
-            }
-            Instruction::FpuRegImmType(i) =&gt; {
-                <span class="self">self</span>.set_fpu_reg_imm_control_signals(i);
-            }
-            <span class="comment">// Main processor does nothing.
-            </span>Instruction::FpuRType(<span class="kw">_</span>)
-            | Instruction::FpuCompareType(<span class="kw">_</span>)
-            | Instruction::SyscallType(<span class="kw">_</span>) =&gt; {
+    <span class="doccomment">/// Set the control signals for the datapath, specifically in the
+    /// case where the instruction is an FPU I-type.
+    </span><span class="kw">fn </span>set_fpu_itype_control_signals(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: FpuIType) {
+        <span class="kw">match </span>i.op {
+            OPCODE_SWC1 =&gt; {
                 <span class="self">self</span>.signals = ControlSignals {
+                    alu_op: AluOp::Addition,
+                    alu_src: AluSrc::SignExtendedImmediate,
                     branch: Branch::NoBranch,
+                    imm_shift: ImmShift::Shift0,
                     jump: Jump::NoJump,
                     mem_read: MemRead::NoRead,
-                    mem_write: MemWrite::NoWrite,
+                    mem_write: MemWrite::YesWrite,
+                    mem_write_src: MemWriteSrc::FloatingPointUnit,
+                    reg_width: RegWidth::Word,
                     reg_write: RegWrite::NoWrite,
                     ..Default::default()
-                };
+                }
             }
-            Instruction::FpuIType(i) =&gt; {
-                <span class="self">self</span>.set_fpu_itype_control_signals(i);
+            OPCODE_LWC1 =&gt; {
+                <span class="self">self</span>.signals = ControlSignals {
+                    alu_op: AluOp::Addition,
+                    alu_src: AluSrc::SignExtendedImmediate,
+                    branch: Branch::NoBranch,
+                    imm_shift: ImmShift::Shift0,
+                    jump: Jump::NoJump,
+                    mem_read: MemRead::YesRead,
+                    mem_to_reg: MemToReg::UseMemory,
+                    mem_write: MemWrite::NoWrite,
+                    reg_width: RegWidth::Word,
+                    reg_write: RegWrite::NoWrite,
+                    ..Default::default()
+                }
             }
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;FPU I-type instruction with opcode `{}`&quot;</span>, i.op)),
         }
     }
 
@@ -2237,7 +2169,17 @@
         };
     }
 
-    <span class="doccomment">/// Perform an ALU operation.
+    <span class="kw">fn </span>shift_lower_26_left_by_2(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.state.lower_26_shifted_left_by_2 = <span class="self">self</span>.state.lower_26 &lt;&lt; <span class="number">2</span>;
+    }
+
+    <span class="kw">fn </span>construct_jump_address(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.state.jump_address = (<span class="self">self</span>.state.pc_plus_4 &amp; <span class="number">0xffff_ffff_f000_0000</span>)
+            | <span class="self">self</span>.state.lower_26_shifted_left_by_2 <span class="kw">as </span>u64;
+    }
+
+    <span class="comment">// ======================= Execute (EX) =======================
+    </span><span class="doccomment">/// Perform an ALU operation.
     ///
     /// **Implementation Note:** Unlike the MIPS64 specification, this ALU
     /// does not handle exceptions due to integer overflow. However, it will
@@ -2320,12 +2262,44 @@
         }
 
         <span class="comment">// Set the zero bit/signal.
-        </span><span class="kw">if </span><span class="self">self</span>.state.alu_result == <span class="number">0 </span>{
+        </span><span class="self">self</span>.datapath_signals.alu_z = AluZ::NotZero;
+        <span class="kw">if </span><span class="self">self</span>.state.alu_result == <span class="number">0 </span>{
             <span class="self">self</span>.datapath_signals.alu_z = AluZ::YesZero;
         }
     }
 
-    <span class="doccomment">/// Read from memory based on the address provided by the ALU in
+    <span class="kw">fn </span>calc_relative_pc_branch(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.state.sign_extend_shift_left_by_2 = <span class="self">self</span>.state.sign_extend &lt;&lt; <span class="number">2</span>;
+        <span class="self">self</span>.state.relative_pc_branch = <span class="self">self
+            </span>.state
+            .sign_extend_shift_left_by_2
+            .wrapping_add(<span class="self">self</span>.state.pc_plus_4);
+    }
+
+    <span class="doccomment">/// Determine the value of the [`CpuBranch`] signal.
+    </span><span class="kw">fn </span>calc_cpu_branch_signal(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// Start by assuming there is no branch.
+        </span><span class="self">self</span>.datapath_signals.cpu_branch = CpuBranch::NoBranch;
+
+        <span class="comment">// condition_is_true is based on the ALU and the BranchType. This
+        // is the line between the multiplexer and the AND gate, where the
+        // AND gate has as input the Branch control signal and said
+        // multiplexer.
+        //
+        // Depending on the branch type, this may use the ALU&#39;s Zero signal
+        // as-is or inverted.
+        </span><span class="kw">let </span>condition_is_true = <span class="kw">match </span><span class="self">self</span>.signals.branch_type {
+            BranchType::OnEqual =&gt; <span class="self">self</span>.datapath_signals.alu_z == AluZ::YesZero,
+            BranchType::OnNotEqual =&gt; <span class="self">self</span>.datapath_signals.alu_z == AluZ::NotZero,
+        };
+
+        <span class="kw">if </span><span class="self">self</span>.signals.branch == Branch::YesBranch &amp;&amp; condition_is_true {
+            <span class="self">self</span>.datapath_signals.cpu_branch = CpuBranch::YesBranch;
+        }
+    }
+
+    <span class="comment">// ======================= Memory (MEM) =======================
+    </span><span class="doccomment">/// Read from memory based on the address provided by the ALU in
     /// [`DatapathState::alu_result`]. Returns the result to [`DatapathState::memory_data`].
     /// Should the address be invalid or otherwise memory cannot be
     /// read at the given address, bitwise 0 will be used in lieu of
@@ -2369,7 +2343,37 @@
         };
     }
 
-    <span class="doccomment">/// Write to a register. This will only write if the RegWrite
+    <span class="kw">fn </span>calc_general_branch_signal(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// Assume there is no branch initially.
+        </span><span class="self">self</span>.datapath_signals.general_branch = GeneralBranch::NoBranch;
+
+        <span class="kw">if let </span>CpuBranch::YesBranch = <span class="self">self</span>.datapath_signals.cpu_branch {
+            <span class="self">self</span>.datapath_signals.general_branch = GeneralBranch::YesBranch;
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">if let </span>FpuBranch::YesBranch = <span class="self">self</span>.coprocessor.signals.fpu_branch {
+            <span class="self">self</span>.datapath_signals.general_branch = GeneralBranch::YesBranch;
+        }
+    }
+
+    <span class="kw">fn </span>pick_pc_plus_4_or_relative_branch_addr_mux1(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if let </span>GeneralBranch::YesBranch = <span class="self">self</span>.datapath_signals.general_branch {
+            <span class="self">self</span>.state.mem_mux1_to_mem_mux2 = <span class="self">self</span>.state.relative_pc_branch;
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.state.mem_mux1_to_mem_mux2 = <span class="self">self</span>.state.pc_plus_4;
+        }
+    }
+
+    <span class="kw">fn </span>set_new_pc_mux2(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.state.new_pc = <span class="kw">match </span><span class="self">self</span>.signals.jump {
+            Jump::NoJump =&gt; <span class="self">self</span>.state.mem_mux1_to_mem_mux2,
+            Jump::YesJump =&gt; <span class="self">self</span>.state.jump_address,
+        };
+    }
+
+    <span class="comment">// ====================== Writeback (WB) ======================
+    </span><span class="doccomment">/// Write to a register. This will only write if the RegWrite
     /// control signal is set.
     </span><span class="kw">fn </span>register_write(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// Determine what data will be sent to the register: either

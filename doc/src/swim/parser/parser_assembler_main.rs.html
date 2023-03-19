@@ -1531,6 +1531,44 @@
 <a href="#1531" id="1531">1531</a>
 <a href="#1532" id="1532">1532</a>
 <a href="#1533" id="1533">1533</a>
+<a href="#1534" id="1534">1534</a>
+<a href="#1535" id="1535">1535</a>
+<a href="#1536" id="1536">1536</a>
+<a href="#1537" id="1537">1537</a>
+<a href="#1538" id="1538">1538</a>
+<a href="#1539" id="1539">1539</a>
+<a href="#1540" id="1540">1540</a>
+<a href="#1541" id="1541">1541</a>
+<a href="#1542" id="1542">1542</a>
+<a href="#1543" id="1543">1543</a>
+<a href="#1544" id="1544">1544</a>
+<a href="#1545" id="1545">1545</a>
+<a href="#1546" id="1546">1546</a>
+<a href="#1547" id="1547">1547</a>
+<a href="#1548" id="1548">1548</a>
+<a href="#1549" id="1549">1549</a>
+<a href="#1550" id="1550">1550</a>
+<a href="#1551" id="1551">1551</a>
+<a href="#1552" id="1552">1552</a>
+<a href="#1553" id="1553">1553</a>
+<a href="#1554" id="1554">1554</a>
+<a href="#1555" id="1555">1555</a>
+<a href="#1556" id="1556">1556</a>
+<a href="#1557" id="1557">1557</a>
+<a href="#1558" id="1558">1558</a>
+<a href="#1559" id="1559">1559</a>
+<a href="#1560" id="1560">1560</a>
+<a href="#1561" id="1561">1561</a>
+<a href="#1562" id="1562">1562</a>
+<a href="#1563" id="1563">1563</a>
+<a href="#1564" id="1564">1564</a>
+<a href="#1565" id="1565">1565</a>
+<a href="#1566" id="1566">1566</a>
+<a href="#1567" id="1567">1567</a>
+<a href="#1568" id="1568">1568</a>
+<a href="#1569" id="1569">1569</a>
+<a href="#1570" id="1570">1570</a>
+<a href="#1571" id="1571">1571</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::assembling::{assemble_data_binary, read_operands};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::OperandType::<span class="kw-2">*</span>;
@@ -1648,7 +1686,7 @@
                 }
             }
             <span class="string">&quot;mul&quot; </span>=&gt; {
-                instruction.binary = append_binary(instruction.binary, <span class="number">0b011100</span>, <span class="number">6</span>);
+                instruction.binary = append_binary(instruction.binary, <span class="number">0b000000</span>, <span class="number">6</span>);
 
                 read_operands(
                     instruction,
@@ -1657,8 +1695,8 @@
                     <span class="prelude-val">None</span>,
                 );
 
-                instruction.binary = append_binary(instruction.binary, <span class="number">0b00000</span>, <span class="number">5</span>);
-                instruction.binary = append_binary(instruction.binary, <span class="number">0b000010</span>, <span class="number">6</span>);
+                instruction.binary = append_binary(instruction.binary, <span class="number">0b00010</span>, <span class="number">5</span>);
+                instruction.binary = append_binary(instruction.binary, <span class="number">0b011000</span>, <span class="number">6</span>);
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
                 </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
@@ -1671,9 +1709,14 @@
             <span class="string">&quot;div&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b000000</span>, <span class="number">6</span>);
 
-                read_operands(instruction, <span class="macro">vec!</span>[RegisterGP, RegisterGP], <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>], <span class="prelude-val">None</span>);
+                read_operands(
+                    instruction,
+                    <span class="macro">vec!</span>[RegisterGP, RegisterGP, RegisterGP],
+                    <span class="macro">vec!</span>[<span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>],
+                    <span class="prelude-val">None</span>,
+                );
 
-                instruction.binary = append_binary(instruction.binary, <span class="number">0b0000000000</span>, <span class="number">10</span>);
+                instruction.binary = append_binary(instruction.binary, <span class="number">0b00010</span>, <span class="number">5</span>);
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b011010</span>, <span class="number">6</span>);
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
@@ -1867,9 +1910,14 @@
             <span class="string">&quot;ddiv&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b000000</span>, <span class="number">6</span>);
 
-                read_operands(instruction, <span class="macro">vec!</span>[RegisterGP, RegisterGP], <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>], <span class="prelude-val">None</span>);
+                read_operands(
+                    instruction,
+                    <span class="macro">vec!</span>[RegisterGP, RegisterGP, RegisterGP],
+                    <span class="macro">vec!</span>[<span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>],
+                    <span class="prelude-val">None</span>,
+                );
 
-                instruction.binary = append_binary(instruction.binary, <span class="number">0b0000000000</span>, <span class="number">10</span>);
+                instruction.binary = append_binary(instruction.binary, <span class="number">0b00010</span>, <span class="number">5</span>);
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b011110</span>, <span class="number">6</span>);
 
                 <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
@@ -2069,6 +2117,16 @@
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;dati rs, immediate\nAdds the sign-extended 16-bit immediate value shifted left by 48 to the contents of rs, and stores the result in rs.\n&quot;</span>.to_string();
             }
+            <span class="string">&quot;daddi&quot; </span>=&gt; {
+                instruction.binary = append_binary(instruction.binary, <span class="number">0b011000</span>, <span class="number">6</span>); <span class="comment">//daddi
+
+                </span>read_operands(
+                    instruction,
+                    <span class="macro">vec!</span>[RegisterGP, RegisterGP, Immediate],
+                    <span class="macro">vec!</span>[<span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>],
+                    <span class="prelude-val">None</span>,
+                );
+            }
             <span class="string">&quot;daddiu&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b011001</span>, <span class="number">6</span>); <span class="comment">//daddiu
 
@@ -2146,9 +2204,14 @@
             <span class="string">&quot;ddivu&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b000000</span>, <span class="number">6</span>); <span class="comment">//special
 
-                </span>read_operands(instruction, <span class="macro">vec!</span>[RegisterGP, RegisterGP], <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>], <span class="prelude-val">None</span>);
+                </span>read_operands(
+                    instruction,
+                    <span class="macro">vec!</span>[RegisterGP, RegisterGP, RegisterGP],
+                    <span class="macro">vec!</span>[<span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>],
+                    <span class="prelude-val">None</span>,
+                );
 
-                instruction.binary = append_binary(instruction.binary, <span class="number">0b0000000000</span>, <span class="number">10</span>); <span class="comment">//0
+                instruction.binary = append_binary(instruction.binary, <span class="number">0b00010</span>, <span class="number">5</span>); <span class="comment">//ddivu
                 </span>instruction.binary = append_binary(instruction.binary, <span class="number">0b011111</span>, <span class="number">6</span>);
                 <span class="comment">//DDIVU
 
@@ -2295,6 +2358,19 @@
 
                 <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;j target\nMoves the program counter to point to the targeted instruction’s address.\n&quot;</span>.to_string();
+            }
+            <span class="string">&quot;jal&quot; </span>=&gt; {
+                instruction.binary = append_binary(instruction.binary, <span class="number">0b000011</span>, <span class="number">6</span>); <span class="comment">//jal
+
+                </span>read_operands(
+                    instruction,
+                    <span class="macro">vec!</span>[LabelAbsolute],
+                    <span class="macro">vec!</span>[<span class="number">1</span>],
+                    <span class="prelude-val">Some</span>(labels.clone()),
+                );
+
+                <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                </span>monaco_line_info[instruction.line_number].mouse_hover_string = <span class="string">&quot;jal target\nExecute a procedure call. Sets the $ra (\&quot;return address\&quot;) register to the next instruction, then moves the program counter to point to the targeted instruction’s address.\n&quot;</span>.to_string();
             }
             <span class="string">&quot;beq&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b000100</span>, <span class="number">6</span>); <span class="comment">//beq

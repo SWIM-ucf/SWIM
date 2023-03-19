@@ -1152,6 +1152,10 @@
 <a href="#1152" id="1152">1152</a>
 <a href="#1153" id="1153">1153</a>
 <a href="#1154" id="1154">1154</a>
+<a href="#1155" id="1155">1155</a>
+<a href="#1156" id="1156">1156</a>
+<a href="#1157" id="1157">1157</a>
+<a href="#1158" id="1158">1158</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::IncorrectNumberOfOperands;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Operator;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::{
@@ -1205,11 +1209,15 @@
 
                 instruction.operator.token_name = <span class="string">&quot;ori&quot;</span>.to_string();
 
-                instruction.operands.push(Token {
-                    token_name: <span class="string">&quot;$zero&quot;</span>.to_string(),
-                    start_end_columns: (<span class="number">0</span>, <span class="number">0</span>),
-                    token_type: Default::default(),
-                });
+                instruction.operands.insert(
+                    <span class="number">1</span>,
+                    Token {
+                        token_name: <span class="string">&quot;$zero&quot;</span>.to_string(),
+                        start_end_columns: (<span class="number">0</span>, <span class="number">0</span>),
+                        token_type: Default::default(),
+                    },
+                );
+                instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
 
                 monaco_line_info[instruction.line_number].update_pseudo_string(<span class="macro">vec!</span>[instruction]);
             }
@@ -2030,16 +2038,16 @@
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
             }
             <span class="string">&quot;divi&quot; </span>=&gt; {
-                <span class="comment">//divi $regA, immediate is translated to:
+                <span class="comment">//divi $regA, $regB, immediate is translated to:
                 //ori $at, $zero, immediate
-                //div $regA, $at
+                //div $regA, $regB, $at
 
                 </span>monaco_line_info[instruction.line_number].mouse_hover_string =
-                    <span class="string">&quot;divi $regA, immediate is a pseudo-instruction.\ndivi $regA, immediate =&gt;\n\tori $at, $zero, immediate\n\tdiv $regA, $at\n&quot;
+                    <span class="string">&quot;divi $regA, $regB, immediate is a pseudo-instruction.\ndivi $regA, $regB, immediate =&gt;\n\tori $at, $zero, immediate\n\tdiv $regA, $regB, $at\n&quot;
                         </span>.to_string();
 
-                <span class="comment">//make sure the are the right number of operands a second operand
-                </span><span class="kw">if </span>instruction.operands.len() != <span class="number">2 </span>{
+                <span class="comment">//make sure the are the right number of operands
+                </span><span class="kw">if </span>instruction.operands.len() != <span class="number">3 </span>{
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
@@ -2065,7 +2073,7 @@
                             start_end_columns: (<span class="number">0</span>, <span class="number">0</span>),
                             token_type: Default::default(),
                         },
-                        instruction.operands[<span class="number">1</span>].clone(),
+                        instruction.operands[<span class="number">2</span>].clone(),
                     ],
                     binary: <span class="number">0</span>,
                     instruction_number: instruction.instruction_number,
@@ -2077,24 +2085,24 @@
                 <span class="comment">//adjust divi for the added instruction
                 </span>instruction.operator.token_name = <span class="string">&quot;div&quot;</span>.to_string();
                 instruction.operator.start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
-                instruction.operands[<span class="number">1</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
-                instruction.operands[<span class="number">1</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
+                instruction.operands[<span class="number">2</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
+                instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
 
                 monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
             }
             <span class="string">&quot;ddivi&quot; </span>=&gt; {
-                <span class="comment">//ddivi $regA, immediate is translated to:
+                <span class="comment">//ddivi $regA, $regB, immediate is translated to:
                 //ori $at, $zero, immediate
-                //ddiv $regA, $at
+                //ddiv $regA, $regB, $at
 
                 </span>monaco_line_info[instruction.line_number].mouse_hover_string =
-                    <span class="string">&quot;ddivi $regA, immediate is a pseudo-instruction.\nddivi $regA, immediate =&gt;\n\tori $at, $zero, immediate\n\tddiv $regA, $at\n&quot;
+                    <span class="string">&quot;ddivi $regA, $regB, immediate is a pseudo-instruction.\nddivi $regA, $regB, immediate =&gt;\n\tori $at, $zero, immediate\n\tddiv $regA, $regB, $at\n&quot;
                         </span>.to_string();
 
                 <span class="comment">//make sure the are the right number of operands
-                </span><span class="kw">if </span>instruction.operands.len() != <span class="number">2 </span>{
+                </span><span class="kw">if </span>instruction.operands.len() != <span class="number">3 </span>{
                     <span class="kw">continue</span>;
                 }
                 <span class="kw">let </span><span class="kw-2">mut </span>extra_instruction = Instruction {
@@ -2114,7 +2122,7 @@
                             start_end_columns: (<span class="number">0</span>, <span class="number">0</span>),
                             token_type: Default::default(),
                         },
-                        instruction.operands[<span class="number">1</span>].clone(),
+                        instruction.operands[<span class="number">2</span>].clone(),
                     ],
                     binary: <span class="number">0</span>,
                     instruction_number: instruction.instruction_number,
@@ -2126,24 +2134,24 @@
                 <span class="comment">//adjust ddivi for the added instruction
                 </span>instruction.operator.token_name = <span class="string">&quot;ddiv&quot;</span>.to_string();
                 instruction.operator.start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
-                instruction.operands[<span class="number">1</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
-                instruction.operands[<span class="number">1</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
+                instruction.operands[<span class="number">2</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
+                instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
 
                 monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
             }
             <span class="string">&quot;ddiviu&quot; </span>=&gt; {
-                <span class="comment">//ddiviu $regA, immediate is translated to:
+                <span class="comment">//ddiviu $regA, $regB, immediate is translated to:
                 //ori $at, $zero, immediate
-                //ddivu $regA, $at
+                //ddivu $regA, $regB, $at
 
                 </span>monaco_line_info[instruction.line_number].mouse_hover_string =
-                    <span class="string">&quot;ddiviu $regA, immediate is a pseudo-instruction.\nddiviu $regA, immediate =&gt;\n\tori $at, $zero, immediate\n\tddivu $regA, $at\n&quot;
+                    <span class="string">&quot;ddiviu $regA, $regB, immediate is a pseudo-instruction.\nddiviu $regA, $regB, immediate =&gt;\n\tori $at, $zero, immediate\n\tddivu $regA, $regB, $at\n&quot;
                         </span>.to_string();
 
                 <span class="comment">//make sure the are the right number of operands
-                </span><span class="kw">if </span>instruction.operands.len() != <span class="number">2 </span>{
+                </span><span class="kw">if </span>instruction.operands.len() != <span class="number">3 </span>{
                     <span class="kw">continue</span>;
                 }
                 <span class="kw">let </span><span class="kw-2">mut </span>extra_instruction = Instruction {
@@ -2163,7 +2171,7 @@
                             start_end_columns: (<span class="number">0</span>, <span class="number">0</span>),
                             token_type: Default::default(),
                         },
-                        instruction.operands[<span class="number">1</span>].clone(),
+                        instruction.operands[<span class="number">2</span>].clone(),
                     ],
                     binary: <span class="number">0</span>,
                     instruction_number: instruction.instruction_number,
@@ -2175,8 +2183,8 @@
                 <span class="comment">//adjust ddiviu for the added instruction
                 </span>instruction.operator.token_name = <span class="string">&quot;ddivu&quot;</span>.to_string();
                 instruction.operator.start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
-                instruction.operands[<span class="number">1</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
-                instruction.operands[<span class="number">1</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
+                instruction.operands[<span class="number">2</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
+                instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
 
                 monaco_line_info[instruction.line_number]

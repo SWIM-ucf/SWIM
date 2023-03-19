@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["akin","Duplicates the given code and substitutes specific identifiers for different code snippets in each duplicate."]]};

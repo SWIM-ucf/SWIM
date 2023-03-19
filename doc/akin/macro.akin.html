@@ -1,0 +1,185 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Duplicates the given code and substitutes specific identifiers for different code snippets in each duplicate."><meta name="keywords" content="rust, rustlang, rust-lang, akin"><title>akin in akin - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../akin/index.html"><div class="logo-container"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../akin/index.html"><div class="logo-container"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></div></a><div class="sidebar-elems"><h2><a href="index.html">In akin</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Macro <a href="index.html">akin</a>::<wbr><a class="macro" href="#">akin</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/akin/lib.rs.html#239-261">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><div class="item-decl"><pre class="rust macro"><code>akin!() { /* proc-macro */ }</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Duplicates the given code and substitutes specific identifiers for different code snippets in each duplicate.</p>
+<h3 id="usage"><a href="#usage">Usage</a></h3>
+<p>Write each identifier following <code>let &amp;ident = [v1, v2, v3, ...]</code>,
+and use them in the snippet you want to duplicate with <code>*ident</code>.</p>
+<p>Code snippets are copied <code>max(used_vars.values)</code> times.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">akin! </span>{
+    <span class="kw">let </span><span class="kw-2">&amp;</span>var = [<span class="string">&#39;a&#39;</span>, <span class="string">&#39;b&#39;</span>];
+    <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="kw-2">*</span>var);
+}</code></pre></div>
+<p>Will get copied 2 times, because the variable <code>&amp;var</code> has 2 values.</p>
+<p>If a used variable has less values than another, the last one will be used.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">akin! </span>{
+    <span class="kw">let </span><span class="kw-2">&amp;</span>v1 = [c];
+    <span class="kw">let </span><span class="kw-2">&amp;</span>v2 = [a, b];
+    <span class="macro">println!</span>(<span class="string">&quot;*v1*v2&quot;</span>);
+}</code></pre></div>
+<p>Expands to</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">println!</span>(<span class="string">&quot;ca&quot;</span>);
+<span class="macro">println!</span>(<span class="string">&quot;cb&quot;</span>);</code></pre></div>
+<p>All code in variables must be enclosed in brackets <code>{...}</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">akin! </span>{
+    <span class="kw">let </span><span class="kw-2">&amp;</span>var = [-<span class="number">1</span>, <span class="number">1</span>];
+    <span class="kw">let </span><span class="kw-2">&amp;</span>code = [
+        {
+            <span class="macro">println!</span>(<span class="string">&quot;true&quot;</span>);
+        },
+        {
+            <span class="macro">println!</span>(<span class="string">&quot;false&quot;</span>);
+        }
+    ];
+
+    <span class="kw">if </span><span class="kw-2">*</span>var &lt; <span class="number">0 </span>{
+        <span class="kw-2">*</span>code
+    }
+}</code></pre></div>
+<p>Will expand to</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">if </span>-<span class="number">1 </span>&lt; <span class="number">0 </span>{
+    <span class="macro">println!</span>(<span class="string">&quot;true&quot;</span>);
+}
+<span class="kw">if </span><span class="number">1 </span>&lt; <span class="number">0 </span>{
+    <span class="macro">println!</span>(<span class="string">&quot;false&quot;</span>)
+}</code></pre></div>
+<h3 id="example"><a href="#example">Example</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">akin! </span>{
+    <span class="kw">let </span><span class="kw-2">&amp;</span>a = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>];
+    <span class="kw">let </span><span class="kw-2">&amp;</span>b = [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>];
+    <span class="kw">let </span><span class="kw-2">&amp;</span>code = {
+        <span class="macro">println!</span>(<span class="string">&quot;*a + *b = {}&quot;</span>, <span class="kw-2">*</span>a + <span class="kw-2">*</span>b);
+    };
+    <span class="kw">let </span>print = <span class="bool-val">true</span>;
+    <span class="kw">if </span>print {
+        <span class="kw-2">*</span>code
+    }
+}</code></pre></div>
+<p>Expands to</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>print = <span class="bool-val">true</span>;
+<span class="kw">if </span>print {
+   <span class="macro">println!</span>(<span class="string">&quot;1 + 4 = 5&quot;</span>);
+   <span class="macro">println!</span>(<span class="string">&quot;2 + 5 = 7&quot;</span>);
+   <span class="macro">println!</span>(<span class="string">&quot;3 + 6 = 9&quot;</span>);
+   <span class="macro">println!</span>(<span class="string">&quot;4 + 6 = 10&quot;</span>);
+   <span class="macro">println!</span>(<span class="string">&quot;5 + 6 = 11&quot;</span>);
+   <span class="macro">println!</span>(<span class="string">&quot;6 + 6 = 12&quot;</span>);
+}</code></pre></div>
+<h3 id="range-syntax"><a href="#range-syntax">Range syntax</a></h3>
+<p>As a matter of convenience, the range syntax is also accepted, when declaring a variable,
+e.g. <code>0..3</code> and <code>0..=3</code>, which are equivalent to <code>[0,1,2]</code> and <code>[0,1,2,3]</code> respectively.
+So the variables <code>a</code> and <code>b</code> in the example above could also be declared like</p>
+
+<div class="example-wrap ignore"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code><span class="kw">let </span><span class="kw-2">&amp;</span>a = <span class="number">1</span>..=<span class="number">6</span>;
+<span class="kw">let </span><span class="kw-2">&amp;</span>b = <span class="number">4</span>..=<span class="number">6</span>;</code></pre></div>
+<p>Presently, only unsigned integers that can fit in <code>u64</code> are supported in ranges, i.e. ranges
+like <code>-10..-1</code> or <code>'a'..'c'</code>, which are fine in regular Rust, aren’t accepted by <code>akin</code>.</p>
+<h3 id="none"><a href="#none">NONE</a></h3>
+<p><code>NONE</code> is the way you can tell <code>akin</code> to simply skip that value and not write anything.
+It is useful for when you want to have elements in a duplication that do not have to be in the others.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">akin! </span>{
+    <span class="kw">let </span><span class="kw-2">&amp;</span>num = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
+    <span class="kw">let </span><span class="kw-2">&amp;</span>code = [
+        NONE,
+        {
+            .pow(<span class="number">2</span>)
+        }
+    ];
+
+    <span class="macro">println!</span>(<span class="string">&quot;*num^2 = {}&quot;</span>, <span class="kw-2">*</span>num~u32<span class="kw-2">*</span>code);
+    <span class="comment">// *num~u32 is necessary to ensure the type is written correctly (it would be &quot;1 u32&quot; without it)
+</span>}</code></pre></div>
+<h3 id="joint-modifier"><a href="#joint-modifier">Joint modifier</a></h3>
+<p>By default, <code>akin</code> places a space between all identifiers.
+Sometimes, this is not desirable, for example, if trying to interpolate between a function name</p>
+
+<div class="example-wrap compile_fail"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code><span class="macro">akin! </span>{
+    <span class="kw">let </span><span class="kw-2">&amp;</span>name = [<span class="number">1</span>];
+    <span class="kw">fn _</span><span class="kw-2">*</span>name()
+}</code></pre></div>
+<p>Will get wrongly expanded because ‘_’ is an identifier</p>
+
+<div class="example-wrap compile_fail"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code><span class="kw">fn _ </span><span class="number">1</span>()</code></pre></div>
+<p>To avoid it, use the joint modifier <code>~</code>, making the next identifier not to be separated.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">akin! </span>{
+    <span class="kw">let </span><span class="kw-2">&amp;</span>name = [<span class="number">1</span>];
+    <span class="kw">fn _</span>~<span class="kw-2">*</span>name() <span class="comment">// *name is affected by the modifier
+</span>}</code></pre></div>
+<p>Will get correctly expanded to</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">fn </span>_1()</code></pre></div>
+<p>Inside string literals <code>&quot;...&quot;</code> it is not necessary to use the modifier, as Rust does not count them as identifiers.</p>
+<p>This is a limitation on proc_macro parsing, so I doubt it’ll be fixed soon.</p>
+<h3 id="more-examples"><a href="#more-examples">More examples</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">trait </span>Sqrt {
+    <span class="kw">fn </span>dumb_sqrt(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;f64, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;;
+}
+
+<span class="macro">akin! </span>{
+    <span class="kw">let </span><span class="kw-2">&amp;</span>int_type = [i64, u64];
+    <span class="kw">let </span><span class="kw-2">&amp;</span>negative_check = [
+        {
+            <span class="kw">if </span><span class="self">self </span>&lt; <span class="number">0 </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;Sqrt of negative number&quot;</span>)
+            }
+        },
+        NONE
+    ];
+
+    <span class="kw">let </span><span class="kw-2">&amp;</span>num = [<span class="number">1</span>,     <span class="number">2</span>,    <span class="number">3</span>,  <span class="number">4</span>];
+    <span class="kw">let </span><span class="kw-2">&amp;</span>res = [<span class="number">1.</span>, <span class="number">1.41</span>, <span class="number">1.73</span>,  <span class="number">2.</span>];
+    <span class="kw">let </span><span class="kw-2">&amp;</span>branch = {
+        <span class="kw-2">*</span>num =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>res),
+    };
+
+    <span class="kw">impl </span>Sqrt <span class="kw">for </span><span class="kw-2">*</span>int_type {
+        <span class="kw">fn </span>dumb_sqrt(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;f64, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+            <span class="kw-2">*</span>negative_check
+
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="kw-2">*</span>branch
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;Sqrt of num not in [1, 4]&quot;</span>)
+            }
+        }
+    }
+}
+</code></pre></div>
+<p>Is expanded to:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">trait </span>Sqrt {
+    <span class="kw">fn </span>dumb_sqrt(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;f64, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;;
+}
+
+<span class="kw">impl </span>Sqrt <span class="kw">for </span>i64 {
+    <span class="kw">fn </span>dumb_sqrt(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;f64, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+        <span class="kw">if </span><span class="self">self </span>&lt; <span class="number">0 </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;Sqrt of negative number&quot;</span>)
+        }
+
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="number">1 </span>=&gt; <span class="prelude-val">Ok</span>(<span class="number">1.</span>),
+            <span class="number">2 </span>=&gt; <span class="prelude-val">Ok</span>(<span class="number">1.41</span>),
+            <span class="number">3 </span>=&gt; <span class="prelude-val">Ok</span>(<span class="number">1.73</span>),
+            <span class="number">4 </span>=&gt; <span class="prelude-val">Ok</span>(<span class="number">2.</span>),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;Sqrt of num not in [1, 4]&quot;</span>)
+        }
+    }
+}
+
+<span class="kw">impl </span>Sqrt <span class="kw">for </span>u64 {
+    <span class="kw">fn </span>dumb_sqrt(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;f64, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="number">1 </span>=&gt; <span class="prelude-val">Ok</span>(<span class="number">1.</span>),
+            <span class="number">2 </span>=&gt; <span class="prelude-val">Ok</span>(<span class="number">1.41</span>),
+            <span class="number">3 </span>=&gt; <span class="prelude-val">Ok</span>(<span class="number">1.73</span>),
+            <span class="number">4 </span>=&gt; <span class="prelude-val">Ok</span>(<span class="number">2.</span>),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;Sqrt of num not in [1, 4]&quot;</span>)
+        }
+    }
+}</code></pre></div>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="akin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>

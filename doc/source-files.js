@@ -1,4 +1,5 @@
 var sourcesIndex = JSON.parse('{\
+"akin":["",[],["lib.rs"]],\
 "anymap2":["",[],["any.rs","lib.rs","raw.rs"]],\
 "bincode":["",[["config",[],["endian.rs","int.rs","legacy.rs","limit.rs","mod.rs","trailing.rs"]],["de",[],["mod.rs","read.rs"]],["ser",[],["mod.rs"]]],["byteorder.rs","error.rs","internal.rs","lib.rs"]],\
 "boolinator":["",[],["lib.rs"]],\
