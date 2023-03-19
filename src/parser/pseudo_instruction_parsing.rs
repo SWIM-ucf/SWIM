@@ -51,11 +51,15 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 instruction.operator.token_name = "ori".to_string();
 
-                instruction.operands.push(Token {
-                    token_name: "$zero".to_string(),
-                    start_end_columns: (0, 0),
-                    token_type: Default::default(),
-                });
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "$zero".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+                instruction.operands[2].start_end_columns = (0, 0);
 
                 monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
