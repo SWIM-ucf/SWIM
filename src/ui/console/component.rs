@@ -84,11 +84,11 @@ pub fn console(props: &Consoleprops) -> Html {
                 if *active_tab == TabState::Datapath {
                     <button onclick={toggle_zoom}>{"Toggle Zoom"}</button>
                 }
-                if *active_tab == TabState::Memory {
-                    <button>{"Dec"}</button>
-                    <button>{"Bin"}</button>
-                    <button>{"Hex"}</button>
-                }
+//                 if *active_tab == TabState::Memory {
+//                     <button>{"Dec"}</button>
+//                     <button>{"Bin"}</button>
+//                     <button>{"Hex"}</button>
+//                 }
             </div>
         </>
     }
