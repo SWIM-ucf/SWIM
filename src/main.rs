@@ -39,7 +39,6 @@ fn app() -> Html {
     // stores 12345 in register $s0.
     let code = String::from("ori $s0, $zero, 12345\n");
     let language = String::from("mips");
-    let millis = use_state(|| 2000);
 
     // This is the initial text model with default text contents. The
     // use_state_eq hook is created so that the component can be updated
@@ -348,7 +347,7 @@ fn app() -> Html {
     };
 
     let timeout = {
-        let millis = millis.clone();
+        let millis = use_state(|| 2000);
         use_timeout(move || {hover_event}, *millis)
     };
 
