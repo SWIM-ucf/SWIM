@@ -2558,8 +2558,6 @@ pub mod jump_and_link_tests {
 }
 
 pub mod beq_tests {
-    use crate::emulation_core::mips::instruction;
-
     use super::*;
     #[test]
     fn beq_test_basic_registers_are_equal() -> Result<(), String> {
