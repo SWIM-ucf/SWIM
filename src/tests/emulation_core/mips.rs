@@ -2558,6 +2558,8 @@ pub mod jump_and_link_tests {
 }
 
 pub mod beq_tests {
+    use crate::emulation_core::mips::instruction;
+
     use super::*;
     #[test]
     fn beq_test_basic_registers_are_equal() -> Result<(), String> {
@@ -2566,9 +2568,11 @@ pub mod beq_tests {
         //                                  beq
         let instructions: Vec<u32> = vec![0b000100_01000_10000_0000000000000001];
         datapath.initialize(instructions)?;
-        datapath.execute_instruction();
 
-        assert_eq!(datapath.registers.pc, 8);
+        let initial_pc = datapath.registers.pc;
+        datapath.execute_instruction();
+        let expt_result = (0b0000_0000_0000_0001 << 2 ) + initial_pc + 4;
+        assert_eq!(datapath.registers.pc, expt_result);
         Ok(())
     }
 
@@ -2577,14 +2581,17 @@ pub mod beq_tests {
         let mut datapath = MipsDatapath::default();
 
         //                                  beq
-        let instructions: Vec<u32> = vec![0b000100_01000_10000_0000000000000001];
+        let instructions: Vec<u32> = vec![0b000100_01000_10000_0000000000000001, 0b000100_01000_10000_0000000000000001];
         datapath.initialize(instructions)?;
 
         datapath.registers.gpr[0b01000] = 1234;
         datapath.registers.gpr[0b10000] = 4321;
-        datapath.execute_instruction();
 
+        datapath.execute_instruction();
         assert_eq!(datapath.registers.pc, 4);
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.pc, 8);
         Ok(())
     }
 
@@ -2599,17 +2606,85 @@ pub mod beq_tests {
         datapath.registers.gpr[0b01000] = 1234;
         datapath.registers.gpr[0b10000] = 1234;
 
-        //                         beq                  (branch by 0)
-        let instruction: u32 = 0b000100_01000_10000_0000000000000000;
+        //                         beq                  (branch by -1 words, -4 bytes)
+        let instruction: u32 = 0b000100_01000_10000_1000000000000010;
         datapath.memory.store_word(16, instruction)?;
 
+        let initial_pc = datapath.registers.pc;
+        let expt_result = (0b0000_0000_0000_0011 << 2 ) + initial_pc + 4;
         datapath.execute_instruction();
-        assert_eq!(datapath.registers.pc, 16);
+        assert_eq!(datapath.registers.pc, expt_result);
         assert_eq!(datapath.registers.gpr[0b01000], 1234);
         assert_eq!(datapath.registers.gpr[0b10000], 1234);
 
         datapath.execute_instruction();
         assert_eq!(datapath.registers.pc, 20);
+        Ok(())
+    }
+}
+
+pub mod bne_tests {
+    use super::*;
+    #[test]
+    fn bne_test_basic_registers_are_equal() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        //                                  bne                         1 word
+        let instructions: Vec<u32> = vec![0b000101_01000_10000_0000000000000001];
+        datapath.registers.gpr[0b01000] = 1234;
+        datapath.registers.gpr[0b10000] = 1234;
+        datapath.initialize(instructions)?;
+        datapath.execute_instruction();
+        let expt_result = 4; // PC + 4, PC starts at 0 with the bne instruction at address 0, no branch acures
+        assert_eq!(datapath.registers.pc, expt_result);
+
+        Ok(())
+    }
+
+    #[test]
+    fn bne_test_loop() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        let instructions: Vec<u32> = vec![
+            0b000101_01000_10000_0000000000000001,  // 0x0
+            0,                                      // 0x4
+            0b000101_01000_10000_0000000000000101,  // 0x8
+            0,                                      // 0xc
+            0,                                      // 0x10
+            0,                                      // 0x14
+            0,                                      // 0x18
+            0,                                      // 0x1c
+            0,                                      // 0x20
+        ];
+        datapath.initialize(instructions)?;
+        datapath.registers.gpr[0b01000] = 1234;
+        datapath.registers.gpr[0b10000] = 4321;
+        
+        // test beq going from pc = 0 to next_pc + 4, 0x0 to 0x8
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.pc, 8);
+
+        // Branch from 0x8 to 0x20, aka from 8 to 32, branch by 24
+        let initial_pc = datapath.registers.pc;
+        datapath.execute_instruction();
+        let expt_result = (0b0000000000000101 << 2 ) + initial_pc + 4; // 32
+        assert_eq!(datapath.registers.pc, expt_result);
+
+        // Branch back to 0x8 from 0x20, aka 32 to 8
+        // Place bne at address 0x20 that jumps to address 8
+        let instruction: u32 = 0b000101_01000_10000_1111111111111001;
+        datapath.memory.store_word(32, instruction)?;
+
+        // The next_pc after 32 it 36, thus our branch offset will be 8 - 36 = -28
+        //
+        // destination_addr = SOME_LABEL
+        // Branch offset = (destination_addr - next_pc)
+        let initial_pc = datapath.registers.pc;
+        let offset = 0b1111_1111_1111_1001; // -28
+        datapath.execute_instruction();
+        let expt_result = ((offset as i16 as i64 as u64) << 2 ).wrapping_add(initial_pc).wrapping_add(4);
+        assert_eq!(datapath.registers.pc as i64, expt_result as i64);
+
         Ok(())
     }
 }
