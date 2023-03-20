@@ -309,6 +309,17 @@
 <a href="#309" id="309">309</a>
 <a href="#310" id="310">310</a>
 <a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Module for mapping lines in the visual datapath to information
 //! and variables in the coded datapath.
 
@@ -432,7 +443,7 @@
             },
             <span class="string">&quot;data_result&quot; </span>=&gt; LineInformation {
                 title: String::from(<span class="string">&quot;Data Result&quot;</span>),
-                description: String::from(<span class="string">&quot;This data maybe possible get wirtten to a register&quot;</span>),
+                description: String::from(<span class="string">&quot;This data maybe possible get written to a register&quot;</span>),
                 value: <span class="self">self</span>.state.data_result,
                 bits: <span class="number">64</span>,
             },
@@ -456,7 +467,7 @@
             },
             <span class="string">&quot;pc_plus_4&quot; </span>=&gt; LineInformation {
                 title: String::from(<span class="string">&quot;PC + 4&quot;</span>),
-                description: String::from(<span class="string">&quot;The address of the currectly executing instruction + 4&quot;</span>),
+                description: String::from(<span class="string">&quot;The address of the currently executing instruction + 4&quot;</span>),
                 value: <span class="self">self</span>.state.pc_plus_4,
                 bits: <span class="number">64</span>,
             },
@@ -468,7 +479,7 @@
             },
             <span class="string">&quot;ra_id&quot; </span>=&gt; LineInformation {
                 title: String::from(<span class="string">&quot;Return Address register index&quot;</span>),
-                description: String::from(<span class="string">&quot;This 5 bit value is the idenifcation code for the RA register, register $31&quot;</span>),
+                description: String::from(<span class="string">&quot;This 5 bit value is the identification code for the RA register, register $31&quot;</span>),
                 value: <span class="number">31</span>,
                 bits: <span class="number">5</span>,
             },
@@ -501,13 +512,13 @@
             <span class="comment">// Floating point datalines:
             </span><span class="string">&quot;fpu_data&quot; </span>=&gt; LineInformation {
                 title: String::from(<span class="string">&quot;FPU Data&quot;</span>),
-                description: String::from(<span class="string">&quot;The data comming off the FPU data register&quot;</span>),
+                description: String::from(<span class="string">&quot;The data coming off the FPU data register&quot;</span>),
                 value: <span class="self">self</span>.coprocessor.state.fmt <span class="kw">as </span>u64,
                 bits: <span class="number">64</span>,
             },
             <span class="string">&quot;fpu_data_writeback&quot; </span>=&gt; LineInformation {
                 title: String::from(<span class="string">&quot;FPU Data Writeback&quot;</span>),
-                description: String::from(<span class="string">&quot;The data comming off the FPU data register, possibly sign extended&quot;</span>),
+                description: String::from(<span class="string">&quot;The data coming off the FPU data register, possibly sign extended&quot;</span>),
                 value: <span class="self">self</span>.coprocessor.state.data_writeback,
                 bits: <span class="number">64</span>,
             },
@@ -543,11 +554,34 @@
                 bits: <span class="number">5</span>,
             },
 
-
+            <span class="string">&quot;fpu_alu_result&quot; </span>=&gt; LineInformation {
+                title: String::from(<span class="string">&quot;Main FPU ALU Result&quot;</span>),
+                description: String::from(<span class="string">&quot;This is the result of the main FPU ALU&quot;</span>),
+                value: <span class="self">self</span>.coprocessor.state.alu_result,
+                bits: <span class="number">64</span>,
+            },
+            <span class="string">&quot;fpu_comparator_result&quot; </span>=&gt; LineInformation {
+                title: String::from(<span class="string">&quot;FPU Comparator Result&quot;</span>),
+                description: String::from(<span class="string">&quot;The comparator result, goes to the comparator result internal register&quot;</span>),
+                value: <span class="self">self</span>.coprocessor.state.comparator_result,
+                bits: <span class="number">64</span>,
+            },
+            <span class="string">&quot;fpu_condition_code&quot; </span>=&gt; LineInformation {
+                title: String::from(<span class="string">&quot;FPU Condition Code&quot;</span>),
+                description: String::from(<span class="string">&quot;Condition Register Value&quot;</span>),
+                value: <span class="self">self</span>.coprocessor.condition_code,
+                bits: <span class="number">64</span>,
+            },
             <span class="string">&quot;fpu_data_from_main_processor&quot; </span>=&gt; LineInformation {
                 title: String::from(<span class="string">&quot;fpu_data_from_main_processor&quot;</span>),
                 description: String::from(<span class="string">&quot;This line carries the info Read Data 1 into the FPU&quot;</span>),
                 value: <span class="self">self</span>.coprocessor.state.data_from_main_processor,
+                bits: <span class="number">64</span>,
+            },
+            <span class="string">&quot;fpu_fp_register_to_memory&quot; </span>=&gt; LineInformation {
+                title: String::from(<span class="string">&quot;fpu_fp_register_to_memory&quot;</span>),
+                description: String::from(<span class="string">&quot;Basically FPU Read Data 2 but re-named&quot;</span>),
+                value: <span class="self">self</span>.coprocessor.state.fp_register_to_memory,
                 bits: <span class="number">64</span>,
             },
             <span class="string">&quot;fpu_destination&quot; </span>=&gt; LineInformation {
@@ -576,13 +610,13 @@
             },
             <span class="string">&quot;fpu_register_write_data&quot; </span>=&gt; LineInformation {
                 title: String::from(<span class="string">&quot;FPU Register Write Data&quot;</span>),
-                description: String::from(<span class="string">&quot;This data may potentialy be written to a register&quot;</span>),
+                description: String::from(<span class="string">&quot;This data may potentially be written to a register&quot;</span>),
                 value: <span class="self">self</span>.coprocessor.state.register_write_data,
                 bits: <span class="number">64</span>,
             },
             <span class="string">&quot;fpu_register_write_mux_to_mux&quot; </span>=&gt; LineInformation {
                 title: String::from(<span class="string">&quot;FPU Register Write Mux to Mux&quot;</span>),
-                description: String::from(<span class="string">&quot;This data may potentialy go to the write_data line, depends on control flag to second mux &quot;</span>),
+                description: String::from(<span class="string">&quot;This data may potentially go to the write_data line, depends on control flag to second mux &quot;</span>),
                 value: <span class="self">self</span>.coprocessor.state.register_write_mux_to_mux,
                 bits: <span class="number">64</span>,
             },
@@ -592,25 +626,13 @@
                 value: <span class="self">self</span>.coprocessor.state.sign_extend_data,
                 bits: <span class="number">64</span>,
             },
-            <span class="string">&quot;fpu_fp_register_to_memory&quot; </span>=&gt; LineInformation {
-                title: String::from(<span class="string">&quot;fpu_fp_register_to_memory&quot;</span>),
-                description: String::from(<span class="string">&quot;Basically FPU Read Data 2 but re-named&quot;</span>),
-                value: <span class="self">self</span>.coprocessor.state.fp_register_to_memory,
-                bits: <span class="number">64</span>,
-            },
-            <span class="string">&quot;fpu_alu_result&quot; </span>=&gt; LineInformation {
-                title: String::from(<span class="string">&quot;Main FPU ALU Result&quot;</span>),
-                description: String::from(<span class="string">&quot;This is the result of the main FPU ALU&quot;</span>),
-                value: <span class="self">self</span>.coprocessor.state.alu_result,
-                bits: <span class="number">64</span>,
-            },
-            <span class="string">&quot;fpu_comparator_result&quot; </span>=&gt; LineInformation {
-                title: String::from(<span class="string">&quot;FPU Comparator Result&quot;</span>),
-                description: String::from(<span class="string">&quot;The comparator result, goes to the comparator result internal register&quot;</span>),
-                value: <span class="self">self</span>.coprocessor.state.comparator_result,
-                bits: <span class="number">64</span>,
-            },
 
+            <span class="string">&quot;line_not_simulated&quot; </span>=&gt; LineInformation {
+                title: String::from(<span class="string">&quot;This line is not simulated&quot;</span>),
+                description: String::from(<span class="string">&quot;From some reason the simulation of this line was skipped, possibly in the name of clean code&quot;</span>),
+                value: <span class="number">0</span>,
+                bits: <span class="number">0</span>,
+            },
             <span class="kw">_ </span>=&gt; LineInformation {
                 title: String::from(<span class="string">&quot;[Title]&quot;</span>),
                 description: String::from(<span class="string">&quot;[Description]&quot;</span>),
