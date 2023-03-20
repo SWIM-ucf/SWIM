@@ -40,14 +40,6 @@ fn app() -> Html {
     let code = String::from("ori $s0, $zero, 12345\n");
     let language = String::from("mips");
 
-    let mut switch_view = 0;
-    true.then(|| {
-        switch_view += 1;
-    });
-    false.then(|| {
-        switch_view += 1;
-    });
-
     // This is the initial text model with default text contents. The
     // use_state_eq hook is created so that the component can be updated
     // when the text model changes.

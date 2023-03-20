@@ -51,11 +51,15 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 instruction.operator.token_name = "ori".to_string();
 
-                instruction.operands.push(Token {
-                    token_name: "$zero".to_string(),
-                    start_end_columns: (0, 0),
-                    token_type: Default::default(),
-                });
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "$zero".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+                instruction.operands[2].start_end_columns = (0, 0);
 
                 monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
@@ -876,16 +880,16 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "divi" => {
-                //divi $regA, immediate is translated to:
+                //divi $regA, $regB, immediate is translated to:
                 //ori $at, $zero, immediate
-                //div $regA, $at
+                //div $regA, $regB, $at
 
                 monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "divi $regA, immediate is a pseudo-instruction.\ndivi $regA, immediate =>\n\tori $at, $zero, immediate\n\tdiv $regA, $at\n"
+                    "divi $regA, $regB, immediate is a pseudo-instruction.\ndivi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdiv $regA, $regB, $at\n"
                         .to_string();
 
-                //make sure the are the right number of operands a second operand
-                if instruction.operands.len() != 2 {
+                //make sure the are the right number of operands
+                if instruction.operands.len() != 3 {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         token_causing_error: "".to_string(),
@@ -911,7 +915,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                             start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
-                        instruction.operands[1].clone(),
+                        instruction.operands[2].clone(),
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
@@ -923,24 +927,24 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //adjust divi for the added instruction
                 instruction.operator.token_name = "div".to_string();
                 instruction.operator.start_end_columns = (0, 0);
-                instruction.operands[1].token_name = "$at".to_string();
-                instruction.operands[1].start_end_columns = (0, 0);
+                instruction.operands[2].token_name = "$at".to_string();
+                instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
 
                 monaco_line_info[instruction.line_number]
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "ddivi" => {
-                //ddivi $regA, immediate is translated to:
+                //ddivi $regA, $regB, immediate is translated to:
                 //ori $at, $zero, immediate
-                //ddiv $regA, $at
+                //ddiv $regA, $regB, $at
 
                 monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "ddivi $regA, immediate is a pseudo-instruction.\nddivi $regA, immediate =>\n\tori $at, $zero, immediate\n\tddiv $regA, $at\n"
+                    "ddivi $regA, $regB, immediate is a pseudo-instruction.\nddivi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tddiv $regA, $regB, $at\n"
                         .to_string();
 
                 //make sure the are the right number of operands
-                if instruction.operands.len() != 2 {
+                if instruction.operands.len() != 3 {
                     continue;
                 }
                 let mut extra_instruction = Instruction {
@@ -960,7 +964,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                             start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
-                        instruction.operands[1].clone(),
+                        instruction.operands[2].clone(),
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
@@ -972,24 +976,24 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //adjust ddivi for the added instruction
                 instruction.operator.token_name = "ddiv".to_string();
                 instruction.operator.start_end_columns = (0, 0);
-                instruction.operands[1].token_name = "$at".to_string();
-                instruction.operands[1].start_end_columns = (0, 0);
+                instruction.operands[2].token_name = "$at".to_string();
+                instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
 
                 monaco_line_info[instruction.line_number]
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "ddiviu" => {
-                //ddiviu $regA, immediate is translated to:
+                //ddiviu $regA, $regB, immediate is translated to:
                 //ori $at, $zero, immediate
-                //ddivu $regA, $at
+                //ddivu $regA, $regB, $at
 
                 monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "ddiviu $regA, immediate is a pseudo-instruction.\nddiviu $regA, immediate =>\n\tori $at, $zero, immediate\n\tddivu $regA, $at\n"
+                    "ddiviu $regA, $regB, immediate is a pseudo-instruction.\nddiviu $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tddivu $regA, $regB, $at\n"
                         .to_string();
 
                 //make sure the are the right number of operands
-                if instruction.operands.len() != 2 {
+                if instruction.operands.len() != 3 {
                     continue;
                 }
                 let mut extra_instruction = Instruction {
@@ -1009,7 +1013,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                             start_end_columns: (0, 0),
                             token_type: Default::default(),
                         },
-                        instruction.operands[1].clone(),
+                        instruction.operands[2].clone(),
                     ],
                     binary: 0,
                     instruction_number: instruction.instruction_number,
@@ -1021,8 +1025,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //adjust ddiviu for the added instruction
                 instruction.operator.token_name = "ddivu".to_string();
                 instruction.operator.start_end_columns = (0, 0);
-                instruction.operands[1].token_name = "$at".to_string();
-                instruction.operands[1].start_end_columns = (0, 0);
+                instruction.operands[2].token_name = "$at".to_string();
+                instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
 
                 monaco_line_info[instruction.line_number]

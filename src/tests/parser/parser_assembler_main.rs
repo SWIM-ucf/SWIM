@@ -57,19 +57,19 @@ mod read_instructions_tests {
 
         assert_eq!(
             instruction_list[0].binary,
-            0b01110010110010100100100000000010
+            0b00000010110010100100100010011000
         );
     }
 
     #[test]
     fn read_instructions_div() {
-        let file_string = "div $t1, $s6".to_string();
+        let file_string = "div $t1, $t1, $s6".to_string();
 
         let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00000001001101100000000000011010
+            0b00000001001101100100100010011010
         );
     }
 
@@ -218,13 +218,13 @@ mod read_instructions_tests {
 
     #[test]
     fn read_instructions_ddiv() {
-        let file_string = "ddiv $t1, $t2".to_string();
+        let file_string = "ddiv $t1, $t1, $t2".to_string();
 
         let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00000001001010100000000000011110
+            0b00000001001010100100100010011110
         );
     }
 
@@ -349,6 +349,18 @@ mod read_instructions_tests {
     }
 
     #[test]
+    fn read_instructions_daddi() {
+        let file_string = "daddi $t1, $t2, 43690".to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b01100001010010011010101010101010
+        );
+    }
+
+    #[test]
     fn read_instructions_daddiu() {
         let file_string = "daddiu $t1, $t2, 43690".to_string();
 
@@ -398,13 +410,13 @@ mod read_instructions_tests {
 
     #[test]
     fn read_instructions_ddivu() {
-        let file_string = "ddivu $t1, $t2".to_string();
+        let file_string = "ddivu $t1, $t1, $t2".to_string();
 
         let instruction_list = instruction_parser(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00000001001010100000000000011111
+            0b00000001001010100100100010011111
         );
     }
 
@@ -515,6 +527,20 @@ mod read_instructions_tests {
         assert_eq!(
             instruction_list[3].binary,
             0b00001000000000000000000000000001
+        )
+    }
+
+    #[test]
+    fn read_instructions_jal() {
+        let file_string =
+            "Add $t1, $t2, $t3\nAddress: add $t1, #t2, $t3\nlw $t1, 400($t2)\njal Address"
+                .to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[3].binary,
+            0b00001100000000000000000000000001
         )
     }
 

@@ -115,7 +115,7 @@ pub fn read_instructions(
                 }
             }
             "mul" => {
-                instruction.binary = append_binary(instruction.binary, 0b011100, 6);
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
                 read_operands(
                     instruction,
@@ -124,8 +124,8 @@ pub fn read_instructions(
                     None,
                 );
 
-                instruction.binary = append_binary(instruction.binary, 0b00000, 5);
-                instruction.binary = append_binary(instruction.binary, 0b000010, 6);
+                instruction.binary = append_binary(instruction.binary, 0b00010, 5);
+                instruction.binary = append_binary(instruction.binary, 0b011000, 6);
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -138,9 +138,14 @@ pub fn read_instructions(
             "div" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
-                read_operands(instruction, vec![RegisterGP, RegisterGP], vec![1, 2], None);
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
 
-                instruction.binary = append_binary(instruction.binary, 0b0000000000, 10);
+                instruction.binary = append_binary(instruction.binary, 0b00010, 5);
                 instruction.binary = append_binary(instruction.binary, 0b011010, 6);
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
@@ -334,9 +339,14 @@ pub fn read_instructions(
             "ddiv" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
-                read_operands(instruction, vec![RegisterGP, RegisterGP], vec![1, 2], None);
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
 
-                instruction.binary = append_binary(instruction.binary, 0b0000000000, 10);
+                instruction.binary = append_binary(instruction.binary, 0b00010, 5);
                 instruction.binary = append_binary(instruction.binary, 0b011110, 6);
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
@@ -536,6 +546,16 @@ pub fn read_instructions(
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 monaco_line_info[instruction.line_number].mouse_hover_string = "dati rs, immediate\nAdds the sign-extended 16-bit immediate value shifted left by 48 to the contents of rs, and stores the result in rs.\n".to_string();
             }
+            "daddi" => {
+                instruction.binary = append_binary(instruction.binary, 0b011000, 6); //daddi
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, Immediate],
+                    vec![2, 1, 3],
+                    None,
+                );
+            }
             "daddiu" => {
                 instruction.binary = append_binary(instruction.binary, 0b011001, 6); //daddiu
 
@@ -613,9 +633,14 @@ pub fn read_instructions(
             "ddivu" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
 
-                read_operands(instruction, vec![RegisterGP, RegisterGP], vec![1, 2], None);
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
 
-                instruction.binary = append_binary(instruction.binary, 0b0000000000, 10); //0
+                instruction.binary = append_binary(instruction.binary, 0b00010, 5); //ddivu
                 instruction.binary = append_binary(instruction.binary, 0b011111, 6);
                 //DDIVU
 
@@ -762,6 +787,19 @@ pub fn read_instructions(
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 monaco_line_info[instruction.line_number].mouse_hover_string = "j target\nMoves the program counter to point to the targeted instruction’s address.\n".to_string();
+            }
+            "jal" => {
+                instruction.binary = append_binary(instruction.binary, 0b000011, 6); //jal
+
+                read_operands(
+                    instruction,
+                    vec![LabelAbsolute],
+                    vec![1],
+                    Some(labels.clone()),
+                );
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number].mouse_hover_string = "jal target\nExecute a procedure call. Sets the $ra (\"return address\") register to the next instruction, then moves the program counter to point to the targeted instruction’s address.\n".to_string();
             }
             "beq" => {
                 instruction.binary = append_binary(instruction.binary, 0b000100, 6); //beq
