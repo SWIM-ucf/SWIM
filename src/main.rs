@@ -39,6 +39,7 @@ fn app() -> Html {
     // stores 12345 in register $s0.
     let code = String::from("ori $s0, $zero, 12345\n");
     let language = String::from("mips");
+    
 
     // This is the initial text model with default text contents. The
     // use_state_eq hook is created so that the component can be updated
@@ -272,13 +273,13 @@ fn app() -> Html {
         })
     };
 
-    let on_hover_clicked = {
+    {
         let text_model = Rc::clone(&text_model);
-        let trigger = use_force_update();
+        use_event_with_window("keyup", move |_: KeyboardEvent| {
+        
+        // let trigger = use_force_update();
         let hover_jsarray = hover_jsarray.clone();
         let hover_decor_array = hover_decor_array.clone();
-        use_callback(
-            move |_, text_model| {
                 let text_model = (*text_model).borrow_mut();
                 let curr_model = text_model.as_ref();
                 let (program_info, _) = parser(text_model.get_value());
@@ -332,7 +333,7 @@ fn app() -> Html {
                 // log!(hover_jsarray.clone());
                 // log!(hover_decor_array.borrow_mut().clone());
 
-                trigger.force_update();
+                //trigger.force_update();
 
                 // empty out the array that hold the decorations
                 hover_jsarray.set_length(0);
@@ -340,10 +341,8 @@ fn app() -> Html {
                 // log!("These are the arrays after calling popping the hover_jsarray");
                 // log!(hover_jsarray.clone());
                 // log!(hover_decor_array.borrow_mut().clone());
-            },
-            text_model,
-        )
-    };
+            });
+    }
 
     // This is where we will have the user prompted to load in a file
     let upload_clicked_callback = use_callback(
@@ -392,7 +391,7 @@ fn app() -> Html {
                         <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
                         <input type="button" value="Load File" onclick={upload_clicked_callback} />
                         <input type="button" value="Save to Clipboard" onclick={on_clipboard_clicked} />
-                        <input type="button" value="Show Hovers" onclick={on_hover_clicked} />
+                        // <input type="button" value="Show Hovers" onclick={on_hover_clicked} />
                     </div>
 
                     // Editor
