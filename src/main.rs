@@ -39,7 +39,7 @@ fn app() -> Html {
     // stores 12345 in register $s0.
     let code = String::from("ori $s0, $zero, 12345\n");
     let language = String::from("mips");
-    
+    let millis = use_state(|| 2000);
 
     // This is the initial text model with default text contents. The
     // use_state_eq hook is created so that the component can be updated
@@ -273,10 +273,11 @@ fn app() -> Html {
         })
     };
 
-    {
+    let hover_event = {
         let text_model = Rc::clone(&text_model);
+        // let timeout = timeout.clone();
         use_event_with_window("keyup", move |_: KeyboardEvent| {
-        
+            // timeout.cancel();
         // let trigger = use_force_update();
         let hover_jsarray = hover_jsarray.clone();
         let hover_decor_array = hover_decor_array.clone();
@@ -341,8 +342,15 @@ fn app() -> Html {
                 // log!("These are the arrays after calling popping the hover_jsarray");
                 // log!(hover_jsarray.clone());
                 // log!(hover_decor_array.borrow_mut().clone());
+
+                // timeout.reset();
             });
-    }
+    };
+
+    let timeout = {
+        let millis = millis.clone();
+        use_timeout(move || {hover_event}, *millis)
+    };
 
     // This is where we will have the user prompted to load in a file
     let upload_clicked_callback = use_callback(
