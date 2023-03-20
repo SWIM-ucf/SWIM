@@ -321,12 +321,14 @@ fn app() -> Html {
                 <div style="flex-basis: 70%; display: flex; flex-direction: column; align-items: stretch; min-width: 0;">
                     // Top buttons
                     <div>
-                        <button class="button" onclick={on_assemble_clicked}>{ "Assemble" }</button>
-                        <button class="button" onclick={on_execute_clicked} disabled={(*datapath).borrow().is_halted()}> { "Execute" }</button>
-                        <button class="button" onclick={on_execute_stage_clicked} disabled={(*datapath).borrow().is_halted()}> { "Execute Stage" }</button>
-                        <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
-                        <input type="button" value="Load File" onclick={upload_clicked_callback} />
-                        <input type="button" value="Save to Clipboard" onclick={on_clipboard_clicked} />
+                        <button class="button" onclick={on_assemble_clicked}>{ "Assemble " }<i class="fa-sharp fa-solid fa-hammer"></i></button>
+                        <button class="button" onclick={on_execute_clicked} disabled={(*datapath).borrow().is_halted()}>{ "Execute " }<i class="fa-solid fa-play"></i></button>
+                        <button class="button" onclick={on_execute_stage_clicked} disabled={(*datapath).borrow().is_halted()}> { "Execute Stage " }<i class="fa-regular fa-circle-play"></i></button>
+                        <button class="button" onclick={on_reset_clicked}>{ "Reset " }<i class="fa-solid fa-arrow-rotate-left"></i></button>
+                        //<input type="button" value="Load File" onclick={upload_clicked_callback} />
+                        <button class="button" onclick={upload_clicked_callback}>{"Load File "}<i class="fa-sharp fa-solid fa-upload"></i></button>
+                        //<input type="button" value="Save to Clipboard" onclick={on_clipboard_clicked} /> 
+                        <button class="button" onclick={on_clipboard_clicked}>{"Save to Clipboard "}<i class="fa-sharp fa-solid fa-floppy-disk"></i></button>
                     </div>
 
                     // Editor

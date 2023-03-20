@@ -1,12 +1,16 @@
+.tabs {
+    width: 100%;
+    margin: 0 auto;
+}
 .tab {
-    background-color: white;
-    border: 1px solid black;
+    overflow: hidden;
+    background-color: rgb(255, 255, 255);
+    border-radius: 300px;
     padding: 2px 16px 2px 16px;
     color: black;
     text-align: center;
     display: inline-block;
     cursor: pointer;
-    opacity: 0.6;
     transition-duration: 0.3s;
 }
 .tab:hover {
@@ -17,11 +21,6 @@
     background-color: #2e2b2b;
     color: white;
 }
-.tabs1:hover {
-    opacity: 1;
-    background-color: gray;
-}
-.tabs1:focus {
+.tab::after {
     background-color: #2e2b2b;
-    color: white;
 }
