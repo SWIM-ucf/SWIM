@@ -150,6 +150,8 @@ pub mod instruction_tokenization {
         ImproperlyFormattedData, //Line of data does not contain the proper number of tokens
         ImproperlyFormattedASCII, //Token recognized as ASCII does not start and or end with "
         ImproperlyFormattedChar, //Token recognized as a char does not end with ' or is larger than a single char
+        NonASCIIString, //One or multiple characters within the given string cannot be represented in ASCII
+        NonASCIIChar,   //The given char cannot be represented in ASCII
     }
 
     impl fmt::Display for ErrorType {

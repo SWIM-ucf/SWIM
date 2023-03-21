@@ -1,4 +1,8 @@
 use crate::parser::assembling::assemble_data_binary;
+use crate::parser::parser_assembler_main::parser;
+use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
+    NonASCIIChar, NonASCIIString,
+};
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
 mod read_register_tests {
     use crate::parser::assembling::read_register;
@@ -366,6 +370,27 @@ fn assemble_data_binary_works_for_asciiz() {
     assert_eq!(result[3], 100);
     assert_eq!(result[4], 101);
     assert_eq!(result[5], 0);
+}
+
+#[test]
+fn assemble_data_binary_gives_errors_on_non_ascii_characters_for_ascii_asciiz_and_byte() {
+    let result = parser(".data\nlabel: .ascii \"❤️🦧❤️\"".to_string()).0;
+    assert_eq!(
+        result.monaco_line_info[1].errors[0].error_name,
+        NonASCIIString
+    );
+
+    let result = parser(".data\nlabel: .asciiz \"❤️🦧❤️\"".to_string()).0;
+    assert_eq!(
+        result.monaco_line_info[1].errors[0].error_name,
+        NonASCIIString
+    );
+
+    let result = parser(".data\nlabel: .byte \'🦧\'".to_string()).0;
+    assert_eq!(
+        result.monaco_line_info[1].errors[0].error_name,
+        NonASCIIChar
+    );
 }
 
 #[test]
