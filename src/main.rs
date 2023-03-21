@@ -272,83 +272,74 @@ fn app() -> Html {
         })
     };
 
-    let hover_event = {
+    // We'll have the Mouse Hover event running at all times.
+    // Bug: Due to how the nature of this being a functional component,
+    // the event won't initialize properly until the user starts typing anything
+    // in the code editor.
+    {
         let text_model = Rc::clone(&text_model);
-        // let timeout = timeout.clone();
         use_event_with_window("keyup", move |_: KeyboardEvent| {
-            // timeout.cancel();
-        // let trigger = use_force_update();
-        let hover_jsarray = hover_jsarray.clone();
-        let hover_decor_array = hover_decor_array.clone();
-                let text_model = (*text_model).borrow_mut();
-                let curr_model = text_model.as_ref();
-                let (program_info, _) = parser(text_model.get_value());
+            let hover_jsarray = hover_jsarray.clone();
+            let hover_decor_array = hover_decor_array.clone();
+            let text_model = (*text_model).borrow_mut();
+            let curr_model = text_model.as_ref();
+            let (program_info, _) = parser(text_model.get_value());
 
-                // Parse output from parser and create an instance of IModelDeltaDecoration for each line.
-                for (line_number, line_information) in
-                    program_info.monaco_line_info.iter().enumerate()
-                {
-                    let decoration: IModelDeltaDecoration = new_object().into();
+            // Parse output from parser and create an instance of IModelDeltaDecoration for each line.
+            for (line_number, line_information) in program_info.monaco_line_info.iter().enumerate()
+            {
+                let decoration: IModelDeltaDecoration = new_object().into();
 
-                    let hover_range = monaco::sys::Range::new(
-                        (line_number + 1) as f64,
-                        0.0,
-                        (line_number + 1) as f64,
-                        0.0,
-                    );
-                    let hover_range_js = hover_range
-                        .dyn_into::<JsValue>()
-                        .expect("Range is not found.");
-                    decoration.set_range(&monaco::sys::IRange::from(hover_range_js));
-
-                    let hover_opts: IModelDecorationOptions = new_object().into();
-                    hover_opts.set_is_whole_line(true.into());
-                    let hover_message: IMarkdownString = new_object().into();
-                    js_sys::Reflect::set(
-                        &hover_message,
-                        &JsValue::from_str("value"),
-                        &JsValue::from_str(&line_information.mouse_hover_string),
-                    )
-                    .unwrap();
-                    hover_opts.set_hover_message(&hover_message);
-                    decoration.set_options(&hover_opts);
-                    let hover_js = decoration
-                        .dyn_into::<JsValue>()
-                        .expect("Hover is not found.");
-                    hover_jsarray.push(&hover_js);
-                }
-
-                // log!("This is the array after the push");
-                // log!(hover_jsarray.clone());
-
-                // properly pass the handlers onto the array
-                let new_hover_decor_array = (*curr_model).delta_decorations(
-                    &hover_decor_array.borrow_mut(),
-                    &hover_jsarray,
-                    None,
+                let hover_range = monaco::sys::Range::new(
+                    (line_number + 1) as f64,
+                    0.0,
+                    (line_number + 1) as f64,
+                    0.0,
                 );
-                *hover_decor_array.borrow_mut() = new_hover_decor_array.to_owned();
+                let hover_range_js = hover_range
+                    .dyn_into::<JsValue>()
+                    .expect("Range is not found.");
+                decoration.set_range(&monaco::sys::IRange::from(hover_range_js));
 
-                // log!("These are the arrays after calling Delta Decorations");
-                // log!(hover_jsarray.clone());
-                // log!(hover_decor_array.borrow_mut().clone());
+                let hover_opts: IModelDecorationOptions = new_object().into();
+                hover_opts.set_is_whole_line(true.into());
+                let hover_message: IMarkdownString = new_object().into();
+                js_sys::Reflect::set(
+                    &hover_message,
+                    &JsValue::from_str("value"),
+                    &JsValue::from_str(&line_information.mouse_hover_string),
+                )
+                .unwrap();
+                hover_opts.set_hover_message(&hover_message);
+                decoration.set_options(&hover_opts);
+                let hover_js = decoration
+                    .dyn_into::<JsValue>()
+                    .expect("Hover is not found.");
+                hover_jsarray.push(&hover_js);
+            }
 
-                //trigger.force_update();
+            // log!("This is the array after the push");
+            // log!(hover_jsarray.clone());
 
-                // empty out the array that hold the decorations
-                hover_jsarray.set_length(0);
+            // properly pass the handlers onto the array
+            let new_hover_decor_array = (*curr_model).delta_decorations(
+                &hover_decor_array.borrow_mut(),
+                &hover_jsarray,
+                None,
+            );
+            *hover_decor_array.borrow_mut() = new_hover_decor_array.to_owned();
 
-                // log!("These are the arrays after calling popping the hover_jsarray");
-                // log!(hover_jsarray.clone());
-                // log!(hover_decor_array.borrow_mut().clone());
+            // log!("These are the arrays after calling Delta Decorations");
+            // log!(hover_jsarray.clone());
+            // log!(hover_decor_array.borrow_mut().clone());
 
-                // timeout.reset();
-            });
-    };
+            // empty out the array that hold the decorations
+            hover_jsarray.set_length(0);
 
-    let timeout = {
-        let millis = use_state(|| 2000);
-        use_timeout(move || {hover_event}, *millis)
+            // log!("These are the arrays after calling popping the hover_jsarray");
+            // log!(hover_jsarray.clone());
+            // log!(hover_decor_array.borrow_mut().clone());
+        });
     };
 
     // This is where we will have the user prompted to load in a file
@@ -396,9 +387,8 @@ fn app() -> Html {
                         <button class="button" onclick={on_execute_clicked} disabled={(*datapath).borrow().is_halted()}> { "Execute" }</button>
                         <button class="button" onclick={on_execute_stage_clicked} disabled={(*datapath).borrow().is_halted()}> { "Execute Stage" }</button>
                         <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
-                        <input type="button" value="Load File" onclick={upload_clicked_callback} />
-                        <input type="button" value="Save to Clipboard" onclick={on_clipboard_clicked} />
-                        // <input type="button" value="Show Hovers" onclick={on_hover_clicked} />
+                        <input type="button" value="Upload File" onclick={upload_clicked_callback} />
+                        <input type="button" value="Copy to Clipboard" onclick={on_clipboard_clicked} />
                     </div>
 
                     // Editor
@@ -472,7 +462,7 @@ pub struct Consoleprops {
 
 /**********************  File I/O Function ***********************/
 pub fn on_upload_file_clicked() {
-    // log!(JsValue::from("Upload clicked!"));
+    // log!("Upload clicked!");
 
     let window = web_sys::window().expect("should have a window in this context");
     let document = window.document().expect("window should have a document");
@@ -485,12 +475,12 @@ pub fn on_upload_file_clicked() {
         .dyn_into::<HtmlInputElement>()
         .expect("Element should be an HtmlInputElement");
 
-    // log!(JsValue::from("Before click"));
+    // log!("Before click");
     // workaround for https://github.com/yewstack/yew/pull/3037 since it's not in 0.20
     spawn_local(async move {
         file_input_elem.click();
     });
-    // log!(JsValue::from("After click"));
+    // log!("After click");
 }
 
 fn main() {
