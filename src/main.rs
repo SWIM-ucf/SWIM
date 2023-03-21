@@ -51,7 +51,7 @@ fn app() -> Html {
     // Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
     let hover_jsarray = js_sys::Array::new();
-    let hover_decor_array = use_mut_ref(|| js_sys::Array::new());
+    let hover_decor_array = use_mut_ref(js_sys::Array::new);
 
     // Setup the highlight stacks that would store which line
     // was executed after the execute button is pressed.
@@ -74,7 +74,7 @@ fn app() -> Html {
     // since the scope will be open across all events involved with it. To achieve this,
     // we use interior mutability to have the reference to the Datapath immutable, but
     // the ability to access and change its contents be mutable.
-    let datapath = use_mut_ref(|| MipsDatapath::default());
+    let datapath = use_mut_ref(MipsDatapath::default);
 
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
@@ -327,7 +327,7 @@ fn app() -> Html {
                 &hover_jsarray,
                 None,
             );
-            *hover_decor_array.borrow_mut() = new_hover_decor_array.to_owned();
+            *hover_decor_array.borrow_mut() = new_hover_decor_array;
 
             // log!("These are the arrays after calling Delta Decorations");
             // log!(hover_jsarray.clone());
