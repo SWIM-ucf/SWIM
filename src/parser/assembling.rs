@@ -2,8 +2,8 @@ use crate::parser::parser_assembler_main::append_binary;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
     ImmediateOutOfBounds, ImproperlyFormattedASCII, ImproperlyFormattedChar,
     IncorrectNumberOfOperands, IncorrectRegisterTypeFP, IncorrectRegisterTypeGP,
-    InvalidMemorySyntax, LabelNotFound, NonFloatImmediate, NonIntImmediate, UnrecognizedDataType,
-    UnrecognizedFPRegister, UnrecognizedGPRegister,
+    InvalidMemorySyntax, LabelNotFound, NonASCIIChar, NonASCIIString, NonFloatImmediate,
+    NonIntImmediate, UnrecognizedDataType, UnrecognizedFPRegister, UnrecognizedGPRegister,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::{
     Immediate, LabelAbsolute, LabelRelative, MemoryAddress, RegisterFP, RegisterGP,
@@ -12,7 +12,7 @@ use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterT
     FloatingPoint, GeneralPurpose,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
-    Byte, Float, Half, Space, Word, ASCII,
+    Byte, Float, Half, Space, Word, ASCII, ASCIIZ,
 };
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
     Data, Error, Instruction, OperandType, RegisterType, TokenType,
@@ -499,36 +499,50 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                 for value in datum.data_entries_and_values.iter_mut() {
                     value.0.token_type = ASCII;
                     let chars = value.0.token_name.as_bytes();
-                    if chars[0] == b'\"' && chars[chars.len() - 1] == b'\"' && chars.len() > 2 {
-                        for char in chars.iter().take(chars.len() - 1).skip(1) {
-                            vec_of_data.push(*char);
-                        }
-                    } else {
-                        datum.errors.push(Error {
-                            error_name: ImproperlyFormattedASCII,
-                            token_causing_error: value.0.token_name.clone(),
-                            start_end_columns: value.0.start_end_columns,
-                            message: "".to_string(),
-                        });
-                    }
-                }
-            }
-            ".asciiz" => {
-                //same as ascii but pushes a \0 to memory as well
-                for value in datum.data_entries_and_values.iter_mut() {
-                    value.0.token_type = ASCII;
-                    let chars = value.0.token_name.as_bytes();
-                    if chars[0] == b'\"' && chars[chars.len() - 1] == b'\"' && chars.len() > 2 {
-                        for char in chars.iter().take(chars.len() - 1).skip(1) {
-                            vec_of_data.push(*char);
-                        }
-                    } else {
+                    if chars[0] != b'\"' || chars[chars.len() - 1] != b'\"' || chars.len() <= 2 {
                         datum.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
                             token_causing_error: value.0.token_name.to_string(),
                             start_end_columns: value.0.start_end_columns,
                             message: "".to_string(),
                         });
+                    } else if !chars.is_ascii() {
+                        datum.errors.push(Error {
+                            error_name: NonASCIIString,
+                            token_causing_error: value.0.token_name.to_string(),
+                            start_end_columns: value.0.start_end_columns,
+                            message: "".to_string(),
+                        })
+                    } else {
+                        for char in chars.iter().take(chars.len() - 1).skip(1) {
+                            vec_of_data.push(*char);
+                        }
+                    }
+                }
+            }
+            ".asciiz" => {
+                //same as ascii but pushes a \0 to memory as well
+                for value in datum.data_entries_and_values.iter_mut() {
+                    value.0.token_type = ASCIIZ;
+                    let chars = value.0.token_name.as_bytes();
+                    if chars[0] != b'\"' || chars[chars.len() - 1] != b'\"' || chars.len() <= 2 {
+                        datum.errors.push(Error {
+                            error_name: ImproperlyFormattedASCII,
+                            token_causing_error: value.0.token_name.to_string(),
+                            start_end_columns: value.0.start_end_columns,
+                            message: "".to_string(),
+                        });
+                    } else if !chars.is_ascii() {
+                        datum.errors.push(Error {
+                            error_name: NonASCIIString,
+                            token_causing_error: value.0.token_name.to_string(),
+                            start_end_columns: value.0.start_end_columns,
+                            message: "".to_string(),
+                        })
+                    } else {
+                        for char in chars.iter().take(chars.len() - 1).skip(1) {
+                            vec_of_data.push(*char);
+                        }
                     }
                 }
                 vec_of_data.push(0);
@@ -538,7 +552,16 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     value.0.token_type = Byte;
                     //this if block handles chars
                     if value.0.token_name.starts_with('\'') {
-                        if value.0.token_name.len() != 3 || !value.0.token_name.ends_with('\'') {
+                        if !value.0.token_name.is_ascii() {
+                            datum.errors.push(Error {
+                                error_name: NonASCIIChar,
+                                token_causing_error: value.0.token_name.to_string(),
+                                start_end_columns: value.0.start_end_columns,
+                                message: "".to_string(),
+                            });
+                        } else if value.0.token_name.len() != 3
+                            || !value.0.token_name.ends_with('\'')
+                        {
                             datum.errors.push(Error {
                                 error_name: ImproperlyFormattedChar,
                                 token_causing_error: value.0.token_name.clone().to_string(),
