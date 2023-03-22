@@ -134,6 +134,14 @@ mod read_instructions_tests {
     }
 
     #[test]
+    fn read_instructions_recognizes_addiu() {
+        let instruction_list = instruction_parser("addiu $t1, $t2, 0x64".to_string());
+
+        assert_eq!(instruction_list[0].binary,
+        0b00100101010010010000000001100100)
+    }
+
+    #[test]
     fn read_instructions_and() {
         let file_string = "and $t1, $s6, $t2".to_string();
 
@@ -715,6 +723,47 @@ mod read_instructions_tests {
 
         assert_eq!(instruction_list[0].errors[0].error_name, JALRRDRegisterZero);
     }
+
+    #[test]
+    fn read_instructions_recognizes_b() {
+        let instruction_list = instruction_parser(".text\njump: addi $t1, $t2, 100\nb jump".to_string());
+
+        assert_eq!(
+            instruction_list[1].binary,
+            0b00010000000000001111111111111110
+        );
+    }
+
+    #[test]
+    fn read_instructions_recognizes_jr() {
+        let instruction_list = instruction_parser(".text\njump: jr $zero\nb jump".to_string());
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000000000000000000000000001001
+        );
+    }
+
+    #[test]
+    fn read_instructions_recognizes_sll() {
+        let instruction_list = instruction_parser(".text\nsll $t1, $t2, 5".to_string());
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000000000010100100100101000000
+        );
+    }
+
+    #[test]
+    fn read_instructions_recognizes_nop() {
+        let instruction_list = instruction_parser(".text\nnop".to_string());
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0
+        );
+    }
+
 }
 
 use crate::parser::assembling::assemble_data_binary;

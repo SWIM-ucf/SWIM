@@ -806,6 +806,9 @@ pub fn read_instructions(
 
                 read_operands(instruction, vec![RegisterGP], vec![1], None);
 
+                instruction.binary = append_binary(instruction.binary, 0b001001, 6); //jalr
+
+
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 monaco_line_info[instruction.line_number].mouse_hover_string = "jr rs\nReads the contents of the register as an address and moves the program counter to point to that instruction.\n".to_string();
             }
