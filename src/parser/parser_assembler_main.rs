@@ -256,7 +256,7 @@ pub fn read_instructions(
                 }
             }
             "addi" => {
-                instruction.binary = append_binary(instruction.binary, 0b001000, 6);
+                instruction.binary = append_binary(instruction.binary, 0b001000, 6); //addi
 
                 read_operands(
                     instruction,
@@ -272,6 +272,19 @@ pub fn read_instructions(
                 {
                     monaco_line_info[instruction.line_number].mouse_hover_string = "addi rt, rs, immediate\nAdds the 32-bit value in rs and the 16-bit immediate, and places the result in rt.\nIn hardware implementations, the result is not placed in rt if adding rs and the immediate causes a 32-bit overflow. However, SWIM places the result in rd, regardless.\n".to_string();
                 }
+            }
+            "addiu" => {
+                instruction.binary = append_binary(instruction.binary, 0b001001, 6); //addiu
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, Immediate],
+                    vec![2, 1, 3],
+                    None,
+                );
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number].mouse_hover_string = "addiu rt, rs, immediate\nAdds the 32-bit value in rs and the 16-bit immediate, and places the result in rt.\n".to_string();
             }
             "dadd" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
@@ -788,6 +801,16 @@ pub fn read_instructions(
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 monaco_line_info[instruction.line_number].mouse_hover_string = "j target\nMoves the program counter to point to the targeted instruction’s address.\n".to_string();
             }
+            "jr" => {
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+
+                read_operands(instruction, vec![RegisterGP], vec![1], None);
+
+                instruction.binary = append_binary(instruction.binary, 0b001001, 6); //jalr
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number].mouse_hover_string = "jr rs\nReads the contents of the register as an address and moves the program counter to point to that instruction.\n".to_string();
+            }
             "jal" => {
                 instruction.binary = append_binary(instruction.binary, 0b000011, 6); //jal
 
@@ -798,8 +821,43 @@ pub fn read_instructions(
                     Some(labels.clone()),
                 );
 
-                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                //this instruction is not used  in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 monaco_line_info[instruction.line_number].mouse_hover_string = "jal target\nExecute a procedure call. Sets the $ra (\"return address\") register to the next instruction, then moves the program counter to point to the targeted instruction’s address.\n".to_string();
+            }
+            "jalr" => {
+                //JALR is unique in a number of ways.
+                //if rd is left blank, rd = 31 is implied.
+                //in release 6, rd cannot be 00000
+                //it makes use of hint bits in some releases. In our implementation, we are not implementing hint bits.
+
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+
+                if instruction.operands.len() == 1 {
+                    //if len() == 1, rd is omitted and assumed to equal 31
+                    read_operands(instruction, vec![RegisterGP], vec![1], None);
+                    instruction.binary = append_binary(instruction.binary, 0b11111, 5);
+                    //rd = 31
+                } else {
+                    if instruction.operands[0].token_name == "$zero" {
+                        instruction.errors.push(Error {
+                            error_name: JALRRDRegisterZero,
+                            token_causing_error: "$zero".to_string(),
+                            start_end_columns: instruction.operands[0].start_end_columns,
+                            message: "".to_string(),
+                        })
+                    }
+                    read_operands(instruction, vec![RegisterGP, RegisterGP], vec![2, 1], None);
+                }
+
+                instruction.binary =
+                    place_binary_in_middle_of_another(instruction.binary, 0b00000, 5, 5); //0
+
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //hint
+                instruction.binary = append_binary(instruction.binary, 0b001001, 6);
+                //JALR
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number].mouse_hover_string = "jalr rs (rd = $ra implied) || jalr rd, rs\nExecute a procedure call. Sets the $ra (\"return address\") register to the next instruction, then moves the program counter to point to the address read from rs.\n".to_string();
             }
             "beq" => {
                 instruction.binary = append_binary(instruction.binary, 0b000100, 6); //beq
@@ -813,6 +871,22 @@ pub fn read_instructions(
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 monaco_line_info[instruction.line_number].mouse_hover_string = "beq rs, rt, target\nCompares the contents of rs and rt and, if they are equal, moves the program counter to point to the targeted instruction’s address.\n".to_string();
+            }
+            "b" => {
+                instruction.binary = append_binary(instruction.binary, 0b000100, 6); //beq
+
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
+
+                read_operands(
+                    instruction,
+                    vec![LabelRelative],
+                    vec![1],
+                    Some(labels.clone()),
+                );
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number].mouse_hover_string = "b target\nMoves the program counter to point to the targeted instruction’s address.\n".to_string();
             }
             "bne" => {
                 instruction.binary = append_binary(instruction.binary, 0b000101, 6); //bne
@@ -1035,7 +1109,37 @@ pub fn read_instructions(
                 );
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                monaco_line_info[instruction.line_number].mouse_hover_string = "bc1t target\nIf FPConditionCode is , moves the program counter to point to the targeted instruction’s address.\n".to_string();
+                monaco_line_info[instruction.line_number].mouse_hover_string = "bc1t target\nIf FPConditionCode is 0, moves the program counter to point to the targeted instruction’s address.\n".to_string();
+            }
+            "sll" => {
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, ShiftAmount],
+                    vec![2, 1, 3],
+                    Some(labels.clone()),
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b00000, 6); //sll
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number].mouse_hover_string = "sll rt, rs, sa\nShifts the lower 32-bit word in rs to the left by sa number of bits and placing the sign-extended result into rt.\n".to_string();
+            }
+            "nop" => {
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
+
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0
+
+                instruction.binary = append_binary(instruction.binary, 0b00000, 6); //sll
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                monaco_line_info[instruction.line_number].mouse_hover_string =
+                    "nop\nThis instruction does not do anything when it is run.\n".to_string();
             }
             "syscall" => {
                 //our support for syscall is limited. It is simply there to end emulation
@@ -1063,7 +1167,6 @@ pub fn read_instructions(
                     "abs.s",
                     "abs.d",
                     "abs.ps",
-                    "addiu",
                     "addiupc",
                     "addu",
                     "align",
@@ -1072,7 +1175,6 @@ pub fn read_instructions(
                     "aluipc",
                     "daui",
                     "auipc",
-                    "b",
                     "bal",
                     "balc",
                     "bc",
@@ -1267,12 +1369,10 @@ pub fn read_instructions(
                     "ginvi",
                     "ginvt",
                     "ins",
-                    "jalr",
                     "jalr.hb",
                     "jalx",
                     "jialc",
                     "jic",
-                    "jr",
                     "jr.hb",
                     "lb",
                     "lbe",
@@ -1377,7 +1477,6 @@ pub fn read_instructions(
                     "nmsub.s",
                     "nmsub.d",
                     "nmsub.ps",
-                    "nop",
                     "nor",
                     "pause",
                     "pll.ps",
@@ -1428,7 +1527,6 @@ pub fn read_instructions(
                     "sh",
                     "she",
                     "sigrie",
-                    "sll",
                     "sllv",
                     "slti",
                     "sltiu",

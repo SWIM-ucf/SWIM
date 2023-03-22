@@ -452,7 +452,8 @@ pub fn suggest_error_corrections(
                             "daddi", "daddiu", "slt", "sltu", "swc1", "lwc1", "mtc1", "dmtc1",
                             "mfc1", "dmfc1", "j", "beq", "bne", "c.eq.s", "c.eq.d", "c.lt.s",
                             "c.le.s", "c.le.d", "c.ngt.s", "c.ngt.d", "c.nge.s", "c.nge.d", "bc1t",
-                            "bc1f", "daddu", "dsubu", "ddivu", "dmulu",
+                            "bc1f", "daddu", "dsubu", "ddivu", "dmulu", "b", "nop", "sll", "jr",
+                            "jalr", "addiu", "jal",
                         ];
 
                         let given_string = &instruction.operator.token_name;
