@@ -137,8 +137,10 @@ mod read_instructions_tests {
     fn read_instructions_recognizes_addiu() {
         let instruction_list = instruction_parser("addiu $t1, $t2, 0x64".to_string());
 
-        assert_eq!(instruction_list[0].binary,
-        0b00100101010010010000000001100100)
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00100101010010010000000001100100
+        )
     }
 
     #[test]
@@ -726,7 +728,8 @@ mod read_instructions_tests {
 
     #[test]
     fn read_instructions_recognizes_b() {
-        let instruction_list = instruction_parser(".text\njump: addi $t1, $t2, 100\nb jump".to_string());
+        let instruction_list =
+            instruction_parser(".text\njump: addi $t1, $t2, 100\nb jump".to_string());
 
         assert_eq!(
             instruction_list[1].binary,
@@ -758,12 +761,8 @@ mod read_instructions_tests {
     fn read_instructions_recognizes_nop() {
         let instruction_list = instruction_parser(".text\nnop".to_string());
 
-        assert_eq!(
-            instruction_list[0].binary,
-            0
-        );
+        assert_eq!(instruction_list[0].binary, 0);
     }
-
 }
 
 use crate::parser::assembling::assemble_data_binary;

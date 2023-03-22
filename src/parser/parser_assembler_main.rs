@@ -808,7 +808,6 @@ pub fn read_instructions(
 
                 instruction.binary = append_binary(instruction.binary, 0b001001, 6); //jalr
 
-
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 monaco_line_info[instruction.line_number].mouse_hover_string = "jr rs\nReads the contents of the register as an address and moves the program counter to point to that instruction.\n".to_string();
             }
@@ -822,7 +821,7 @@ pub fn read_instructions(
                     Some(labels.clone()),
                 );
 
-                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                //this instruction is not used  in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 monaco_line_info[instruction.line_number].mouse_hover_string = "jal target\nExecute a procedure call. Sets the $ra (\"return address\") register to the next instruction, then moves the program counter to point to the targeted instruction’s address.\n".to_string();
             }
             "jalr" => {
