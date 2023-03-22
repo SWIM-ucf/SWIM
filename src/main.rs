@@ -137,7 +137,8 @@ fn app() -> Html {
                 (*datapath)
                     .initialize(assembled)
                     .expect("Memory could not be loaded");
-                //log!(datapath.memory.to_string());
+                // log!(datapath.memory.to_string());
+                text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
                 trigger.force_update();
             },
             text_model,
@@ -278,7 +279,7 @@ fn app() -> Html {
     // in the code editor.
     {
         let text_model = Rc::clone(&text_model);
-        use_event_with_window("keyup", move |_: KeyboardEvent| {
+        use_event_with_window("mouseover", move |_: MouseEvent| {
             let hover_jsarray = hover_jsarray.clone();
             let hover_decor_array = hover_decor_array.clone();
             let text_model = (*text_model).borrow_mut();
