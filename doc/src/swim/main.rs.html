@@ -416,6 +416,76 @@
 <a href="#416" id="416">416</a>
 <a href="#417" id="417">417</a>
 <a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attr">#[cfg(test)]
@@ -430,15 +500,15 @@
     api::TextModel,
     sys::{
         editor::{
-            IEditorMinimapOptions, IEditorScrollbarOptions, IMarkerData,
-            IStandaloneEditorConstructionOptions, ISuggestOptions,
+            IEditorMinimapOptions, IEditorScrollbarOptions, IMarkerData, IModelDecorationOptions,
+            IModelDeltaDecoration, IStandaloneEditorConstructionOptions, ISuggestOptions,
         },
-        MarkerSeverity,
+        IMarkdownString, MarkerSeverity,
     },
     yew::{CodeEditor, CodeEditorLink},
 };
 <span class="kw">use </span>parser::parser_assembler_main::parser;
-<span class="kw">use </span>std::{cell::RefCell, rc::Rc};
+<span class="kw">use </span>std::rc::Rc;
 <span class="kw">use </span>wasm_bindgen_futures::spawn_local;
 <span class="kw">use </span>web_sys::HtmlInputElement;
 <span class="comment">//use stylist::yew::*;
@@ -461,17 +531,15 @@
     <span class="comment">// This is the initial text model with default text contents. The
     // use_state_eq hook is created so that the component can be updated
     // when the text model changes.
-    </span><span class="kw">let </span>text_model = use_state_eq(|| {
-        Rc::new(RefCell::new(
-            TextModel::create(<span class="kw-2">&amp;</span>code, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>language), <span class="prelude-val">None</span>).unwrap(),
-        ))
-    });
+    </span><span class="kw">let </span>text_model = use_mut_ref(|| TextModel::create(<span class="kw-2">&amp;</span>code, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>language), <span class="prelude-val">None</span>).unwrap());
 
     <span class="comment">// Link to the Yew Editor Component, if not used by the end of the project remove it.
     </span><span class="kw">let </span>codelink = CodeEditorLink::default();
 
-    <span class="comment">// For the clipboard callback from yew_hooks
-    </span><span class="kw">let </span>clipboard = use_clipboard();
+    <span class="comment">// Setup the array that would store decorations applied to the
+    // text model and initialize the options for it.
+    </span><span class="kw">let </span>hover_jsarray = js_sys::Array::new();
+    <span class="kw">let </span>hover_decor_array = use_mut_ref(js_sys::Array::new);
 
     <span class="comment">// Setup the highlight stacks that would store which line
     // was executed after the execute button is pressed.
@@ -494,7 +562,7 @@
     // since the scope will be open across all events involved with it. To achieve this,
     // we use interior mutability to have the reference to the Datapath immutable, but
     // the ability to access and change its contents be mutable.
-    </span><span class="kw">let </span>datapath = use_state_eq(|| Rc::new(RefCell::new(MipsDatapath::default())));
+    </span><span class="kw">let </span>datapath = use_mut_ref(MipsDatapath::default);
 
     <span class="comment">// This is where code is assembled and loaded into the emulation core&#39;s memory.
     </span><span class="kw">let </span>on_assemble_clicked = {
@@ -510,7 +578,8 @@
             <span class="kw">move </span>|<span class="kw">_</span>, text_model| {
                 <span class="kw">let </span><span class="kw-2">mut </span>datapath = (<span class="kw-2">*</span>datapath).borrow_mut();
                 <span class="kw">let </span>text_model = (<span class="kw-2">*</span>text_model).borrow_mut();
-                <span class="comment">// Parses through the code to assemble the binary
+
+                <span class="comment">// parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
                 </span><span class="kw">let </span>(program_info, assembled) = parser(text_model.get_value());
                 parser_text_output.set(program_info.console_out_post_assembly);
 
@@ -680,14 +749,85 @@
         )
     };
 
-    <span class="kw">let </span>on_clipboard_clicked = {
+    <span class="comment">// Copies text to the user&#39;s clipboard
+    </span><span class="kw">let </span>on_clipboard_clicked = {
         <span class="kw">let </span>text_model = Rc::clone(<span class="kw-2">&amp;</span>text_model);
-        <span class="kw">let </span>clipboard = clipboard;
+        <span class="kw">let </span>clipboard = use_clipboard();
         Callback::from(<span class="kw">move </span>|<span class="kw">_</span>: <span class="kw">_</span>| {
             <span class="kw">let </span>text_model = (<span class="kw-2">*</span>text_model).borrow_mut();
             clipboard.write_text(text_model.get_value());
             alert(<span class="string">&quot;Your code is saved to the clipboard.\nPaste it onto a text file to save it.\n(Ctrl/Cmd + V)&quot;</span>);
         })
+    };
+
+    <span class="comment">// We&#39;ll have the Mouse Hover event running at all times.
+    // Bug: Due to how the nature of this being a functional component,
+    // the event won&#39;t initialize properly until the user starts typing anything
+    // in the code editor.
+    </span>{
+        <span class="kw">let </span>text_model = Rc::clone(<span class="kw-2">&amp;</span>text_model);
+        use_event_with_window(<span class="string">&quot;keyup&quot;</span>, <span class="kw">move </span>|<span class="kw">_</span>: KeyboardEvent| {
+            <span class="kw">let </span>hover_jsarray = hover_jsarray.clone();
+            <span class="kw">let </span>hover_decor_array = hover_decor_array.clone();
+            <span class="kw">let </span>text_model = (<span class="kw-2">*</span>text_model).borrow_mut();
+            <span class="kw">let </span>curr_model = text_model.as_ref();
+            <span class="kw">let </span>(program_info, <span class="kw">_</span>) = parser(text_model.get_value());
+
+            <span class="comment">// Parse output from parser and create an instance of IModelDeltaDecoration for each line.
+            </span><span class="kw">for </span>(line_number, line_information) <span class="kw">in </span>program_info.monaco_line_info.iter().enumerate()
+            {
+                <span class="kw">let </span>decoration: IModelDeltaDecoration = new_object().into();
+
+                <span class="kw">let </span>hover_range = monaco::sys::Range::new(
+                    (line_number + <span class="number">1</span>) <span class="kw">as </span>f64,
+                    <span class="number">0.0</span>,
+                    (line_number + <span class="number">1</span>) <span class="kw">as </span>f64,
+                    <span class="number">0.0</span>,
+                );
+                <span class="kw">let </span>hover_range_js = hover_range
+                    .dyn_into::&lt;JsValue&gt;()
+                    .expect(<span class="string">&quot;Range is not found.&quot;</span>);
+                decoration.set_range(<span class="kw-2">&amp;</span>monaco::sys::IRange::from(hover_range_js));
+
+                <span class="kw">let </span>hover_opts: IModelDecorationOptions = new_object().into();
+                hover_opts.set_is_whole_line(<span class="bool-val">true</span>.into());
+                <span class="kw">let </span>hover_message: IMarkdownString = new_object().into();
+                js_sys::Reflect::set(
+                    <span class="kw-2">&amp;</span>hover_message,
+                    <span class="kw-2">&amp;</span>JsValue::from_str(<span class="string">&quot;value&quot;</span>),
+                    <span class="kw-2">&amp;</span>JsValue::from_str(<span class="kw-2">&amp;</span>line_information.mouse_hover_string),
+                )
+                .unwrap();
+                hover_opts.set_hover_message(<span class="kw-2">&amp;</span>hover_message);
+                decoration.set_options(<span class="kw-2">&amp;</span>hover_opts);
+                <span class="kw">let </span>hover_js = decoration
+                    .dyn_into::&lt;JsValue&gt;()
+                    .expect(<span class="string">&quot;Hover is not found.&quot;</span>);
+                hover_jsarray.push(<span class="kw-2">&amp;</span>hover_js);
+            }
+
+            <span class="comment">// log!(&quot;This is the array after the push&quot;);
+            // log!(hover_jsarray.clone());
+
+            // properly pass the handlers onto the array
+            </span><span class="kw">let </span>new_hover_decor_array = (<span class="kw-2">*</span>curr_model).delta_decorations(
+                <span class="kw-2">&amp;</span>hover_decor_array.borrow_mut(),
+                <span class="kw-2">&amp;</span>hover_jsarray,
+                <span class="prelude-val">None</span>,
+            );
+            <span class="kw-2">*</span>hover_decor_array.borrow_mut() = new_hover_decor_array;
+
+            <span class="comment">// log!(&quot;These are the arrays after calling Delta Decorations&quot;);
+            // log!(hover_jsarray.clone());
+            // log!(hover_decor_array.borrow_mut().clone());
+
+            // empty out the array that hold the decorations
+            </span>hover_jsarray.set_length(<span class="number">0</span>);
+
+            <span class="comment">// log!(&quot;These are the arrays after calling popping the hover_jsarray&quot;);
+            // log!(hover_jsarray.clone());
+            // log!(hover_decor_array.borrow_mut().clone());
+        </span>});
     };
 
     <span class="comment">// This is where we will have the user prompted to load in a file
@@ -735,8 +875,8 @@
                         &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_execute_clicked} disabled={(<span class="kw-2">*</span>datapath).borrow().is_halted()}&gt; { <span class="string">&quot;Execute&quot; </span>}&lt;/button&gt;
                         &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_execute_stage_clicked} disabled={(<span class="kw-2">*</span>datapath).borrow().is_halted()}&gt; { <span class="string">&quot;Execute Stage&quot; </span>}&lt;/button&gt;
                         &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_reset_clicked}&gt;{ <span class="string">&quot;Reset&quot; </span>}&lt;/button&gt;
-                        &lt;input <span class="kw">type</span>=<span class="string">&quot;button&quot; </span>value=<span class="string">&quot;Load File&quot; </span>onclick={upload_clicked_callback} /&gt;
-                        &lt;input <span class="kw">type</span>=<span class="string">&quot;button&quot; </span>value=<span class="string">&quot;Save to Clipboard&quot; </span>onclick={on_clipboard_clicked} /&gt;
+                        &lt;input <span class="kw">type</span>=<span class="string">&quot;button&quot; </span>value=<span class="string">&quot;Upload File&quot; </span>onclick={upload_clicked_callback} /&gt;
+                        &lt;input <span class="kw">type</span>=<span class="string">&quot;button&quot; </span>value=<span class="string">&quot;Copy to Clipboard&quot; </span>onclick={on_clipboard_clicked} /&gt;
                     &lt;/div&gt;
 
                     <span class="comment">// Editor
@@ -810,7 +950,7 @@
 
 <span class="comment">/**********************  File I/O Function ***********************/
 </span><span class="kw">pub fn </span>on_upload_file_clicked() {
-    <span class="comment">// log!(JsValue::from(&quot;Upload clicked!&quot;));
+    <span class="comment">// log!(&quot;Upload clicked!&quot;);
 
     </span><span class="kw">let </span>window = web_sys::window().expect(<span class="string">&quot;should have a window in this context&quot;</span>);
     <span class="kw">let </span>document = window.document().expect(<span class="string">&quot;window should have a document&quot;</span>);
@@ -823,12 +963,12 @@
         .dyn_into::&lt;HtmlInputElement&gt;()
         .expect(<span class="string">&quot;Element should be an HtmlInputElement&quot;</span>);
 
-    <span class="comment">// log!(JsValue::from(&quot;Before click&quot;));
+    <span class="comment">// log!(&quot;Before click&quot;);
     // workaround for https://github.com/yewstack/yew/pull/3037 since it&#39;s not in 0.20
     </span>spawn_local(<span class="kw">async move </span>{
         file_input_elem.click();
     });
-    <span class="comment">// log!(JsValue::from(&quot;After click&quot;));
+    <span class="comment">// log!(&quot;After click&quot;);
 </span>}
 
 <span class="kw">fn </span>main() {
