@@ -219,6 +219,8 @@
 <a href="#219" id="219">219</a>
 <a href="#220" id="220">220</a>
 <a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>instruction_tokenization {
     <span class="kw">use </span>std::default::Default;
     <span class="kw">use </span>std::fmt;
@@ -373,6 +375,7 @@
         </span>ImproperlyFormattedChar, <span class="comment">//Token recognized as a char does not end with &#39; or is larger than a single char
         </span>NonASCIIString, <span class="comment">//One or multiple characters within the given string cannot be represented in ASCII
         </span>NonASCIIChar,   <span class="comment">//The given char cannot be represented in ASCII
+        </span>JALRRDRegisterZero, <span class="comment">//The destination address for JALR cannot be the zero register
     </span>}
 
     <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ErrorType {
@@ -389,6 +392,7 @@
         MemoryAddress,
         LabelAbsolute,
         LabelRelative,
+        ShiftAmount,
     }
 
     <span class="comment">//This enum is just for the read_register_function to determine which register type it should expect

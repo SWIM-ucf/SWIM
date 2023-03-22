@@ -672,6 +672,7 @@
 <a href="#672" id="672">672</a>
 <a href="#673" id="673">673</a>
 <a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
@@ -1126,7 +1127,8 @@
                             <span class="string">&quot;daddi&quot;</span>, <span class="string">&quot;daddiu&quot;</span>, <span class="string">&quot;slt&quot;</span>, <span class="string">&quot;sltu&quot;</span>, <span class="string">&quot;swc1&quot;</span>, <span class="string">&quot;lwc1&quot;</span>, <span class="string">&quot;mtc1&quot;</span>, <span class="string">&quot;dmtc1&quot;</span>,
                             <span class="string">&quot;mfc1&quot;</span>, <span class="string">&quot;dmfc1&quot;</span>, <span class="string">&quot;j&quot;</span>, <span class="string">&quot;beq&quot;</span>, <span class="string">&quot;bne&quot;</span>, <span class="string">&quot;c.eq.s&quot;</span>, <span class="string">&quot;c.eq.d&quot;</span>, <span class="string">&quot;c.lt.s&quot;</span>,
                             <span class="string">&quot;c.le.s&quot;</span>, <span class="string">&quot;c.le.d&quot;</span>, <span class="string">&quot;c.ngt.s&quot;</span>, <span class="string">&quot;c.ngt.d&quot;</span>, <span class="string">&quot;c.nge.s&quot;</span>, <span class="string">&quot;c.nge.d&quot;</span>, <span class="string">&quot;bc1t&quot;</span>,
-                            <span class="string">&quot;bc1f&quot;</span>, <span class="string">&quot;daddu&quot;</span>, <span class="string">&quot;dsubu&quot;</span>, <span class="string">&quot;ddivu&quot;</span>, <span class="string">&quot;dmulu&quot;</span>,
+                            <span class="string">&quot;bc1f&quot;</span>, <span class="string">&quot;daddu&quot;</span>, <span class="string">&quot;dsubu&quot;</span>, <span class="string">&quot;ddivu&quot;</span>, <span class="string">&quot;dmulu&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;nop&quot;</span>, <span class="string">&quot;sll&quot;</span>, <span class="string">&quot;jr&quot;</span>,
+                            <span class="string">&quot;jalr&quot;</span>, <span class="string">&quot;addiu&quot;</span>, <span class="string">&quot;jal&quot;</span>,
                         ];
 
                         <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>instruction.operator.token_name;
