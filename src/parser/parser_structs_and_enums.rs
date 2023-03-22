@@ -152,6 +152,7 @@ pub mod instruction_tokenization {
         ImproperlyFormattedChar, //Token recognized as a char does not end with ' or is larger than a single char
         NonASCIIString, //One or multiple characters within the given string cannot be represented in ASCII
         NonASCIIChar,   //The given char cannot be represented in ASCII
+        JALRRDRegisterZero, //The destination address for JALR cannot be the zero register
     }
 
     impl fmt::Display for ErrorType {
@@ -168,6 +169,7 @@ pub mod instruction_tokenization {
         MemoryAddress,
         LabelAbsolute,
         LabelRelative,
+        ShiftAmount,
     }
 
     //This enum is just for the read_register_function to determine which register type it should expect

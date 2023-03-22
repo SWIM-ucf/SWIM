@@ -23,6 +23,7 @@ mod parser_main_function_tests {
 }
 
 mod read_instructions_tests {
+    use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::JALRRDRegisterZero;
     use crate::tests::parser::parser_assembler_main::helper_functions::instruction_parser;
 
     #[test]
@@ -687,6 +688,33 @@ mod read_instructions_tests {
             0b01000101000000001111111111111110
         );
     }
+
+    #[test]
+    fn read_instruction_jalr_with_rd() {
+        let instruction_list = instruction_parser("jalr $t1, $t2".to_string());
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001010000000100100000001001
+        );
+    }
+
+    #[test]
+    fn read_instruction_jalr_without_rd() {
+        let instruction_list = instruction_parser("jalr $t2".to_string());
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001010000001111100000001001
+        );
+    }
+
+    #[test]
+    fn read_instruction_jalr_creates_error_with_rd_equal_0() {
+        let instruction_list = instruction_parser("jalr $zero, $t2".to_string());
+
+        assert_eq!(instruction_list[0].errors[0].error_name, JALRRDRegisterZero);
+    }
 }
 
 use crate::parser::assembling::assemble_data_binary;
@@ -791,7 +819,7 @@ fn create_binary_vec_works_with_data() {
 
 #[test]
 fn read_instructions_recognizes_valid_but_unsupported_instructions() {
-    let program_info = parser("jalr $t1, $t2\ndsrav $t1, $t2, $t3\n".to_string()).0;
+    let program_info = parser("addu $t1, $t2, $t3\ndsrav $t1, $t2, $t3\n".to_string()).0;
 
     assert_eq!(
         program_info.instructions[0].errors[0].error_name,

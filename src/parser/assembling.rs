@@ -154,6 +154,21 @@ pub fn read_operands(
                     instruction.errors.push(label_relative_results.1.unwrap());
                 }
             }
+            OperandType::ShiftAmount => {
+                instruction.operands[i].token_type = TokenType::Immediate;
+                bit_lengths.push(5);
+
+                let immediate_results = read_immediate(
+                    &instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                    5,
+                );
+
+                binary_representation.push(immediate_results.0);
+                if immediate_results.1.is_some() {
+                    instruction.errors.push(immediate_results.1.unwrap());
+                }
+            }
         }
     }
     //once all operands are read, we can append them onto the instruction
