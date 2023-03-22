@@ -133,7 +133,6 @@ fn app() -> Html {
                         .delta_decorations(&not_highlighted, &executed_line, None)
                         .into(),
                 );
-
                 // Prevent it from running erroneous code
                 if marker_jsarray.length() == 0 {
                 // Load the binary into the datapath's memory
