@@ -134,7 +134,7 @@ fn app() -> Html {
                         .into(),
                 );
 
-                // Prevent it from running erraneous code
+                // Prevent it from running erroneous code
                 if marker_jsarray.length() == 0 {
                 // Load the binary into the datapath's memory
                 (*datapath)
