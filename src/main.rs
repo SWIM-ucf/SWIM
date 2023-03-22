@@ -135,12 +135,12 @@ fn app() -> Html {
                 );
                 // Prevent it from running erroneous code
                 if marker_jsarray.length() == 0 {
-                // Load the binary into the datapath's memory
-                (*datapath)
-                    .initialize(assembled)
-                    .expect("Memory could not be loaded");
-                // log!(datapath.memory.to_string());
-                text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
+                    // Load the binary into the datapath's memory
+                    (*datapath)
+                        .initialize(assembled)
+                        .expect("Memory could not be loaded");
+                    // log!(datapath.memory.to_string());
+                    text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
                 }
 
                 trigger.force_update();
