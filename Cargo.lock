@@ -795,6 +795,7 @@ dependencies = [
  "gloo",
  "gloo-console",
  "gloo-events",
+ "gloo-utils",
  "js-sys",
  "levenshtein",
  "log",
