@@ -912,3 +912,39 @@ fn parser_assembler_works_with_empty_strings() {
     let _ = parser("\n".to_string());
     let _ = parser("\n\n".to_string());
 }
+
+#[test]
+fn create_binary_vec_works_with_all_mod_4_options() {
+    let result = parser(
+        "ori $s0, $zero, 12345\nori $s0, $zero, 12345\n.data\nlab: .ascii \"h\"".to_string(),
+    )
+    .1;
+    assert_eq!(result, vec![873476153, 873476153, 12, 1744830464]);
+
+    let result = parser(
+        "ori $s0, $zero, 12345\nori $s0, $zero, 12345\n.data\nlab: .ascii \"ha\"".to_string(),
+    )
+    .1;
+    assert_eq!(
+        result,
+        vec![873476153, 873476153, 12, 0b01101000011000010000000000000000]
+    );
+
+    let result = parser(
+        "ori $s0, $zero, 12345\nori $s0, $zero, 12345\n.data\nlab: .ascii \"han\"".to_string(),
+    )
+    .1;
+    assert_eq!(
+        result,
+        vec![873476153, 873476153, 12, 0b01101000011000010110111000000000]
+    );
+
+    let result = parser(
+        "ori $s0, $zero, 12345\nori $s0, $zero, 12345\n.data\nlab: .ascii \"hank\"".to_string(),
+    )
+    .1;
+    assert_eq!(
+        result,
+        vec![873476153, 873476153, 12, 0b01101000011000010110111001101011]
+    );
+}

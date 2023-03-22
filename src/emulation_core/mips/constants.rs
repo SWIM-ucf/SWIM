@@ -54,13 +54,18 @@ pub const OPCODE_DADDIU: u8 = 0b011001;
 pub const OPCODE_COP1: u8 = 0b010001;
 pub const OPCODE_LUI: u8 = 0b001111;
 pub const OPCODE_AUI: u8 = OPCODE_LUI;
+
+// Loading and Storing
 pub const OPCODE_LW: u8 = 0b100011;
 pub const OPCODE_SW: u8 = 0b101011;
 pub const OPCODE_LWC1: u8 = 0b110001;
 pub const OPCODE_SWC1: u8 = 0b111001;
+
+// Jump opcodes:
 pub const OPCODE_J: u8 = 0b000010;
 pub const OPCODE_JAL: u8 = 0b000011;
 
+// Branch OPCODE's
 pub const OPCODE_BEQ: u8 = 0b000100;
 pub const OPCODE_BNE: u8 = 0b000101;
 
