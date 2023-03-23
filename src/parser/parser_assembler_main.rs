@@ -227,9 +227,11 @@ pub fn read_instructions(
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "lui rt, immediate".to_string(),
-                        description: "Loads the 16-bit `immediate` value shifted left by 16 into `rt`.".to_string(),
+                        description:
+                            "Loads the 16-bit `immediate` value shifted left by 16 into `rt`."
+                                .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
@@ -352,7 +354,6 @@ pub fn read_instructions(
                     .mouse_hover_string
                     .is_empty()
                 {
-
                     let info = InstructionDescription{
                         syntax: "dadd rd, rs, rt".to_string(),
                         description: "Adds the 64-bit values in `rs` and `rt`, and places the result in `rd`.\n\nIn hardware implementations, the result is not placed in `rd` if adding `rs` and `rt` causes a 64-bit overflow. However, SWIM places the result in `rd`, regardless since there is no exception handling.".to_string(),
@@ -899,9 +900,10 @@ pub fn read_instructions(
                 //0
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                let info = InstructionDescription{
+                let info = InstructionDescription {
                     syntax: "mtc1 rt, fs".to_string(),
-                    description: "Moves the lower 32 bits in `rt` into the lower 32 bits in `fs`.".to_string(),
+                    description: "Moves the lower 32 bits in `rt` into the lower 32 bits in `fs`."
+                        .to_string(),
                 };
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
             }
@@ -915,7 +917,7 @@ pub fn read_instructions(
                 //0
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                let info = InstructionDescription{
+                let info = InstructionDescription {
                     syntax: "dmtc1 rt, fs".to_string(),
                     description: "Moves the double-word contents in `rt` into `fs`.".to_string(),
                 };
@@ -931,9 +933,10 @@ pub fn read_instructions(
                 //0
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                let info = InstructionDescription{
+                let info = InstructionDescription {
                     syntax: "mfc1 rt, fs".to_string(),
-                    description: "Sign-extends contents in `fs` and moves it into `rt`.".to_string(),
+                    description: "Sign-extends contents in `fs` and moves it into `rt`."
+                        .to_string(),
                 };
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
             }
@@ -947,7 +950,7 @@ pub fn read_instructions(
                 //0
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                let info = InstructionDescription{
+                let info = InstructionDescription {
                     syntax: "dmfc1 rt, fs".to_string(),
                     description: "Moves the double-word contents in `fs` into `rt`.".to_string(),
                 };
@@ -964,9 +967,11 @@ pub fn read_instructions(
                 );
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                let info = InstructionDescription{
+                let info = InstructionDescription {
                     syntax: "j target".to_string(),
-                    description: "Moves the program counter to point to the targeted instruction’s address.".to_string(),
+                    description:
+                        "Moves the program counter to point to the targeted instruction’s address."
+                            .to_string(),
                 };
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
             }
@@ -1071,9 +1076,11 @@ pub fn read_instructions(
                 );
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                let info = InstructionDescription{
+                let info = InstructionDescription {
                     syntax: "b target".to_string(),
-                    description: "Moves the program counter to point to the targeted instruction’s address.".to_string(),
+                    description:
+                        "Moves the program counter to point to the targeted instruction’s address."
+                            .to_string(),
                 };
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
             }
@@ -1383,7 +1390,7 @@ pub fn read_instructions(
                 instruction.binary = append_binary(instruction.binary, 0b00000, 6); //sll
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                let info = InstructionDescription{
+                let info = InstructionDescription {
                     syntax: "nop".to_string(),
                     description: "This instruction does not do anything when it is run".to_string(),
                 };

@@ -39,7 +39,7 @@ pub mod instruction_tokenization {
     }
 
     #[derive(Clone, Debug, Eq, PartialEq)]
-    pub struct InstructionDescription{
+    pub struct InstructionDescription {
         pub syntax: String,
         pub description: String,
     }
@@ -52,7 +52,7 @@ pub mod instruction_tokenization {
     }
 
     #[derive(Clone, Debug, Eq, PartialEq)]
-    pub struct PseudoDescription{
+    pub struct PseudoDescription {
         pub name: String,
         pub syntax: String,
         pub translation_lines: Vec<String>,
@@ -61,10 +61,10 @@ pub mod instruction_tokenization {
         fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
             write!(f, "`{}` is a pseudo-instruction.\n\n", self.name)?;
             write!(f, "```\n{} =>\n", self.syntax)?;
-            for line in &self.translation_lines{
-                write!(f, "{}\n", line)?;
+            for line in &self.translation_lines {
+                writeln!(f, "{}", line)?;
             }
-            write!(f, "\n```\n\n", )?;
+            write!(f, "\n```\n\n",)?;
             Ok(())
         }
     }
