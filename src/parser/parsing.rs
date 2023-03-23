@@ -388,7 +388,7 @@ pub fn suggest_error_corrections(
                 match error.error_name {
                     UnsupportedInstruction => {
                         error.message =
-                             "While this is a valid instruction, it is not currently supported by SWIM\n\n"
+                             "While this is a valid instruction, it is not currently supported by SWIM\n"
                                  .to_string();
                     }
                     UnrecognizedGPRegister => {
@@ -415,7 +415,7 @@ pub fn suggest_error_corrections(
                         let mut suggestion =
                             "GP register is not recognized. A valid, similar register is: "
                                 .to_string();
-                        suggestion.push_str(&format!("{}.\n\n", &closest.1));
+                        suggestion.push_str(&format!("{}.\n", &closest.1));
                         error.message = suggestion;
                     }
                     UnrecognizedFPRegister => {
@@ -439,7 +439,7 @@ pub fn suggest_error_corrections(
                         let mut suggestion =
                             "FP register is not recognized. A valid, similar register is: "
                                 .to_string();
-                        suggestion.push_str(&format!("{}.\n\n", &closest.1));
+                        suggestion.push_str(&format!("{}.\n", &closest.1));
                         error.message = suggestion;
                     }
                     UnrecognizedInstruction => {
@@ -465,49 +465,49 @@ pub fn suggest_error_corrections(
                         }
 
                         let mut suggestion = "A valid, similar instruction is: ".to_string();
-                        suggestion.push_str(&format!("{}.\n\n", &closest.1));
+                        suggestion.push_str(&format!("{}.\n", &closest.1));
                         error.message = suggestion;
                     }
                     IncorrectRegisterTypeGP => {
                         error.message =
-                            "Expected FP register but received GP register.\n\n".to_string();
+                            "Expected FP register but received GP register.\n".to_string();
                     }
                     IncorrectRegisterTypeFP => {
                         error.message =
-                            "Expected GP register but received FP register.\n\n".to_string();
+                            "Expected GP register but received FP register.\n".to_string();
                     }
                     MissingComma => {
                         error.message =
-                            "Operand expected to end with a comma but it does not.\n\n".to_string()
+                            "Operand expected to end with a comma but it does not.\n".to_string()
                     }
                     ImmediateOutOfBounds => {
-                        error.message = "Immediate value given cannot be expressed in the available number of bits.\n\n".to_string();
+                        error.message = "Immediate value given cannot be expressed in the available number of bits.\n".to_string();
                     }
                     NonIntImmediate => {
                         error.message =
-                            "The given string cannot be recognized as an integer.\n\n".to_string();
+                            "The given string cannot be recognized as an integer.\n".to_string();
                     }
                     NonFloatImmediate => {
                         error.message =
-                            "The given string cannot be recognized as a float.\n\n".to_string();
+                            "The given string cannot be recognized as a float.\n".to_string();
                     }
                     InvalidMemorySyntax => {
-                        error.message = "The given string for memory does not match syntax of \"offset(base)\" or \"label\".\n\n".to_string();
+                        error.message = "The given string for memory does not match syntax of \"offset(base)\" or \"label\".\n".to_string();
                     }
                     IncorrectNumberOfOperands => {
-                        error.message = "The given number of operands does not match the number expected for the given instruction.\n\n".to_string();
+                        error.message = "The given number of operands does not match the number expected for the given instruction.\n".to_string();
                     }
                     LabelMultipleDefinition => {
                         error.message =
-                            "The given label name is already used elsewhere in the project.\n\n"
+                            "The given label name is already used elsewhere in the project.\n"
                                 .to_string();
                     }
                     LabelAssignmentError => {
-                        error.message = "A label is specified but it is not followed by data or an instruction committed to memory.\n\n".to_string();
+                        error.message = "A label is specified but it is not followed by data or an instruction committed to memory.\n".to_string();
                     }
                     LabelNotFound => {
                         if labels.is_empty() {
-                            error.message = "There is no recognized labelled memory.\n\n".to_string();
+                            error.message = "There is no recognized labelled memory.\n".to_string();
                             continue;
                         }
 
@@ -522,11 +522,11 @@ pub fn suggest_error_corrections(
                         }
 
                         let mut suggestion = "A valid, similar label is: ".to_string();
-                        suggestion.push_str(&format!("{}.\n\n", &closest.1));
+                        suggestion.push_str(&format!("{}.\n", &closest.1));
                         error.message = suggestion;
                     }
                     _ => {
-                        error.message = format!("{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH TEXT.\n\n", error.error_name);
+                        error.message = format!("{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH TEXT.\n", error.error_name);
                     }
                 }
 
@@ -557,7 +557,7 @@ pub fn suggest_error_corrections(
 
                 //push a message about the error to the string for console
                 console_out_string.push_str(&format!(
-                    "{} on line {} with token \"{}\"\n\n{}\n\n",
+                    "{} on line {} with token \"{}\"\n{}\n",
                     &error.error_name.to_string(),
                     &(instruction.line_number + 1).to_string(),
                     &error.token_causing_error,
@@ -602,46 +602,46 @@ pub fn suggest_error_corrections(
                     }
 
                     let mut suggestion = "A valid, similar data type is: ".to_string();
-                    suggestion.push_str(&format!("{}.\n\n", &closest.1));
+                    suggestion.push_str(&format!("{}.\n", &closest.1));
                     error.message = suggestion;
                 }
                 LabelAssignmentError => {
-                    error.message = "A label is specified but it is not followed by data or an instruction committed to memory.\n\n".to_string();
+                    error.message = "A label is specified but it is not followed by data or an instruction committed to memory.\n".to_string();
                 }
                 LabelMultipleDefinition => {
                     error.message =
-                        "The given label name is already used elsewhere in the project.\n\n"
+                        "The given label name is already used elsewhere in the project.\n"
                             .to_string();
                 }
                 ImmediateOutOfBounds => {
-                    error.message = "Immediate value given cannot be expressed in the available number of bits.\n\n".to_string();
+                    error.message = "Immediate value given cannot be expressed in the available number of bits.\n".to_string();
                 }
                 ImproperlyFormattedASCII => {
                     error.message =
-                        "Token recognized as ASCII does not start and or end with double quotes (\").\n\n"
+                        "Token recognized as ASCII does not start and or end with double quotes (\").\n"
                             .to_string();
                 }
                 ImproperlyFormattedChar => {
-                    error.message = "Token recognized as a char does not end with ' or is larger than a single char.\n\n".to_string();
+                    error.message = "Token recognized as a char does not end with ' or is larger than a single char.\n".to_string();
                 }
                 MissingComma => {
                     error.message =
-                        "Operand expected to end with a comma but it does not.\n\n".to_string()
+                        "Operand expected to end with a comma but it does not.\n".to_string()
                 }
                 NonIntImmediate => {
                     error.message =
-                        "The given string cannot be recognized as an integer.\n\n".to_string();
+                        "The given string cannot be recognized as an integer.\n".to_string();
                 }
                 NonFloatImmediate => {
                     error.message =
-                        "The given string cannot be recognized as a float.\n\n".to_string();
+                        "The given string cannot be recognized as a float.\n".to_string();
                 }
                 ImproperlyFormattedLabel => {
                     error.message =
-                        "Label assignment recognized but does not end in a colon.\n\n".to_string();
+                        "Label assignment recognized but does not end in a colon.\n".to_string();
                 }
                 _ => {
-                    error.message = format!("{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n\n", error.error_name);
+                    error.message = format!("{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n", error.error_name);
                 }
             }
 
@@ -656,7 +656,7 @@ pub fn suggest_error_corrections(
                 .push(error.clone());
 
             console_out_string.push_str(&format!(
-                "{} on line {} with token \"{}\"\n\n{}\n\n",
+                "{} on line {} with token \"{}\"\n{}\n",
                 &error.error_name.to_string(),
                 &(datum.line_number + 1).to_string(),
                 error.token_causing_error,

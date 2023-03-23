@@ -50,7 +50,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
     for entry in &program_info.monaco_line_info {
         program_info
             .updated_monaco_string
-            .push_str(&format!("{}\n\n", entry.updated_monaco_string));
+            .push_str(&format!("{}\n", entry.updated_monaco_string));
     }
 
     for instruction in program_info.instructions.clone() {
@@ -312,7 +312,7 @@ pub fn read_instructions(
                 {
                     let info = InstructionDescription{
                         syntax: "addi rt, rs, immediate".to_string(),
-                        description: "Adds the 32-bit value in `rs` and the 16-bit `immediate`, and places the result in `rt`.\n\nIn hardware implementations, the result is not placed in `rt` if adding `rs` and the `immediate` causes a 32-bit overflow. However, SWIM places the result in `rd`, regardless.".to_string(),
+                        description: "Adds the 32-bit value in `rs` and the 16-bit `immediate`, and places the result in `rt`.\n\nIn hardware implementations, the result is not placed in `rt` if adding `rs` and the `immediate` causes a 32-bit overflow. However, SWIM places the result in `rd`, regardless since there is no exception handling.".to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
@@ -355,7 +355,7 @@ pub fn read_instructions(
 
                     let info = InstructionDescription{
                         syntax: "dadd rd, rs, rt".to_string(),
-                        description: "Adds the 64-bit values in `rs` and `rt`, and places the result in `rd`.\n\nIn hardware implementations, the result is not placed in `rd` if adding `rs` and `rt` causes a 64-bit overflow. However, SWIM places the result in `rd`, regardless.".to_string(),
+                        description: "Adds the 64-bit values in `rs` and `rt`, and places the result in `rd`.\n\nIn hardware implementations, the result is not placed in `rd` if adding `rs` and `rt` causes a 64-bit overflow. However, SWIM places the result in `rd`, regardless since there is no exception handling.".to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
@@ -380,7 +380,7 @@ pub fn read_instructions(
                 {
                     let info = InstructionDescription{
                         syntax: "dsub rd, rs, rt".to_string(),
-                        description: "Subtracts the 64-bit values in `rt` from the 64-bit value in `rs`, and places the result in `rd`.\n\nIn hardware implementations, the result is not placed in `rd` if subtracting `rs` and `rt` causes a 64-bit overflow. However, SWIM places the result in `rd`, regardless.".to_string(),
+                        description: "Subtracts the 64-bit values in `rt` from the 64-bit value in `rs`, and places the result in `rd`.\n\nIn hardware implementations, the result is not placed in `rd` if subtracting `rs` and `rt` causes a 64-bit overflow. However, SWIM places the result in `rd`, regardless since there is no exception handling.".to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
@@ -683,7 +683,7 @@ pub fn read_instructions(
                 );
                 let info = InstructionDescription{
                     syntax: "daddi rt, rs, immediate".to_string(),
-                    description: "Adds the 64-bit value in `rs` and the 16-bit `immediate`, and places the result in `rt`.\n\nIn hardware implementations, the result is not placed in `rt` if adding `rs` and `immediate` causes a 64-bit overflow. However, SWIM places the result in `rt`, regardless.".to_string(),
+                    description: "Adds the 64-bit value in `rs` and the 16-bit `immediate`, and places the result in `rt`.\n\nIn hardware implementations, the result is not placed in `rt` if adding `rs` and `immediate` causes a 64-bit overflow. However, SWIM places the result in `rt`, regardless since there is no exception handling.".to_string(),
                 };
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
             }

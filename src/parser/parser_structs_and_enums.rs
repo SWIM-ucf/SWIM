@@ -46,7 +46,7 @@ pub mod instruction_tokenization {
     impl fmt::Display for InstructionDescription {
         fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
             write!(f, "**Syntax:** `{}`\n\n", self.syntax)?;
-            write!(f, "{}\n\n", self.description)?;
+            write!(f, "{}", self.description)?;
             Ok(())
         }
     }
@@ -55,13 +55,16 @@ pub mod instruction_tokenization {
     pub struct PseudoDescription{
         pub name: String,
         pub syntax: String,
-        pub translation: String,
+        pub translation_lines: Vec<String>,
     }
     impl fmt::Display for PseudoDescription {
         fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
             write!(f, "`{}` is a pseudo-instruction.\n\n", self.name)?;
             write!(f, "```\n{} =>\n", self.syntax)?;
-            write!(f, "{} \n```\n\n", self.translation)?;
+            for line in &self.translation_lines{
+                write!(f, "{}\n", line)?;
+            }
+            write!(f, "\n```\n\n", )?;
             Ok(())
         }
     }

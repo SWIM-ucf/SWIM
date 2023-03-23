@@ -887,7 +887,7 @@ fn console_output_post_assembly_works_with_errors() {
     .0
     .console_out_post_assembly;
 
-    assert_eq!(result, "UnrecognizedGPRegister on line 2 with token \"1235\"\n\nGP register is not recognized. A valid, similar register is: r23.\n\n\nUnrecognizedGPRegister on line 6 with token \"t1\"\nGP register is not recognized. A valid, similar register is: $t1.\n\n\nInvalidMemorySyntax on line 6 with token \"address\"\n\nThe given string for memory does not match syntax of \"offset(base)\" or \"label\".\n\n\nImproperlyFormattedASCII on line 4 with token \"100\"\n\nToken recognized as ASCII does not start and or end with double quotes (\").\n\n\n")
+    assert_eq!(result, "UnrecognizedGPRegister on line 2 with token \"1235\"\nGP register is not recognized. A valid, similar register is: r23.\n\nUnrecognizedGPRegister on line 6 with token \"t1\"\nGP register is not recognized. A valid, similar register is: $t1.\n\nInvalidMemorySyntax on line 6 with token \"address\"\nThe given string for memory does not match syntax of \"offset(base)\" or \"label\".\n\nImproperlyFormattedASCII on line 4 with token \"100\"\nToken recognized as ASCII does not start and or end with double quotes (\").\n\n")
 }
 
 #[test]
@@ -907,7 +907,7 @@ fn mouse_hover_holds_information_about_valid_instructions() {
     let program_info = parser(".text\nori $t1, $t2, 100\nsyscall".to_string()).0;
 
     assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
-    assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "ori rt, rs, immediate\nBitwise ors the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n\nBinary: 00110101010010010000000001100100");
+    assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "**Syntax:** `ori rt, rs, immediate`\n\nBitwise ors the contents of `rs` with the left zero-extended `immediate` value, and stores the result in `rt`.\n\n\n\n**Binary:** `0b00110101010010010000000001100100`");
 }
 
 #[test]
@@ -915,7 +915,7 @@ fn mouse_hover_holds_information_about_pseudo_instructions() {
     let program_info = parser(".text\nlabel: subi $t1, $t2, 100\nsyscall".to_string()).0;
 
     assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
-    assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at\n\nBinary: 00110100000000010000000001100100\nBinary: 00000001010000010100100000100010");
+    assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "`subi` is a pseudo-instruction.\n\n```\nsubi rt, rs, immediate =>\nori $at, $zero, immediate\nsub rt, rs, $at\n\n```\n\n\n\n**Binary:** `0b00110100000000010000000001100100`\n\n**Binary:** `0b00000001010000010100100000100010`");
 }
 
 #[test]
@@ -923,7 +923,7 @@ fn errors_do_not_go_into_mouse_hover() {
     let program_info = parser(".text\nori $t1, $t2, $t3\nsyscall".to_string()).0;
 
     assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
-    assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "ori rt, rs, immediate\nBitwise ors the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n");
+    assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "**Syntax:** `ori rt, rs, immediate`\n\nBitwise ors the contents of `rs` with the left zero-extended `immediate` value, and stores the result in `rt`.\n\n");
 }
 
 #[test]
@@ -935,12 +935,12 @@ fn syscall_message_and_binary_does_not_go_in_mouse_hover_if_the_syscall_was_adde
     .monaco_line_info;
 
     assert_eq!(monaco_line_info[0].mouse_hover_string, "");
-    assert_eq!(monaco_line_info[1].mouse_hover_string, "ori rt, rs, immediate\nBitwise ors the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n\nBinary: 00110101010010010000000001100100");
-    assert_eq!(monaco_line_info[2].mouse_hover_string, "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at\n\nBinary: 00110100000000010000000001100100\nBinary: 00000001010000010100100000100010");
-    assert_eq!(monaco_line_info[3].mouse_hover_string, "add rd, rs, rt\nAdds the 32-bit values in rs and rt, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if adding rs and rt causes a 32-bit overflow. However, SWIM places the result in rd, regardless.\n\nBinary: 00000001010010110100100000100000");
+    assert_eq!(monaco_line_info[1].mouse_hover_string, "**Syntax:** `ori rt, rs, immediate`\n\nBitwise ors the contents of `rs` with the left zero-extended `immediate` value, and stores the result in `rt`.\n\n\n\n**Binary:** `0b00110101010010010000000001100100`");
+    assert_eq!(monaco_line_info[2].mouse_hover_string, "`subi` is a pseudo-instruction.\n\n```\nsubi rt, rs, immediate =>\nori $at, $zero, immediate\nsub rt, rs, $at\n\n```\n\n\n\n**Binary:** `0b00110100000000010000000001100100`\n\n**Binary:** `0b00000001010000010100100000100010`");
+    assert_eq!(monaco_line_info[3].mouse_hover_string, "**Syntax:** `add rd, rs, rt`\n\nAdds the 32-bit values in `rs` and `rt`, and places the result in `rd`.\n\nIn hardware implementations, the result is not placed in `rd` if adding `rs` and `rt` causes a 32-bit overflow. However, SWIM places the result in `rd` regardless since there is no exception handling.\n\n**Binary:** `0b00000001010010110100100000100000`\n\n");
 
     let monaco_line_info = parser(".text".to_string()).0.monaco_line_info;
-    assert_eq!(monaco_line_info[0].mouse_hover_string, "");
+    assert_eq!(monaco_line_info[0].mouse_hover_string, "\n\n");
 }
 
 #[test]
@@ -952,10 +952,10 @@ fn mouse_hover_holds_information_info_for_various_instruction_types() {
     .0;
 
     assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
-    assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "ori rt, rs, immediate\nBitwise ors the contents of rs with the left zero-extended immediate value, and stores the result in rt.\n\nBinary: 00110101010010010000000001100100");
-    assert_eq!(program_info.monaco_line_info[2].mouse_hover_string, "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at\n\nBinary: 00110100000000010000000001100100\nBinary: 00000001010000010100100000100010");
-    assert_eq!(program_info.monaco_line_info[3].mouse_hover_string, "add rd, rs, rt\nAdds the 32-bit values in rs and rt, and places the result in rd.\nIn hardware implementations, the result is not placed in rd if adding rs and rt causes a 32-bit overflow. However, SWIM places the result in rd, regardless.\n\nBinary: 00000001010010110100100000100000");
-    assert_eq!(program_info.monaco_line_info[4].mouse_hover_string, "syscall\nThis function is currently stubbed in SWIM. Normally, it reverts control back to the OS. SWIM uses it to effectively end the program.\n\nBinary: 00000000000000000000000000001100");
+    assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "**Syntax:** `ori rt, rs, immediate`\n\nBitwise ors the contents of `rs` with the left zero-extended `immediate` value, and stores the result in `rt`.\n\n\n\n**Binary:** `0b00110101010010010000000001100100`");
+    assert_eq!(program_info.monaco_line_info[2].mouse_hover_string, "`subi` is a pseudo-instruction.\n\n```\nsubi rt, rs, immediate =>\nori $at, $zero, immediate\nsub rt, rs, $at\n\n```\n\n\n\n**Binary:** `0b00110100000000010000000001100100`\n\n**Binary:** `0b00000001010000010100100000100010`");
+    assert_eq!(program_info.monaco_line_info[3].mouse_hover_string, "**Syntax:** `add rd, rs, rt`\n\nAdds the 32-bit values in `rs` and `rt`, and places the result in `rd`.\n\nIn hardware implementations, the result is not placed in `rd` if adding `rs` and `rt` causes a 32-bit overflow. However, SWIM places the result in `rd` regardless since there is no exception handling.\n\n**Binary:** `0b00000001010010110100100000100000`");
+    assert_eq!(program_info.monaco_line_info[4].mouse_hover_string, "**Syntax:** `syscall`\n\nThis function is currently stubbed in SWIM. Normally, it reverts control back to the OS. SWIM uses it to effectively end the program.\n\n**Binary:** `0b00000000000000000000000000001100`");
 }
 
 #[test]
