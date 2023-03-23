@@ -3,9 +3,7 @@ use crate::parser::parser_assembler_main::parser;
 use crate::parser::parser_structs_and_enums::ErrorType::{
     LabelAssignmentError, LabelMultipleDefinition, MissingComma,
 };
-use crate::parser::parser_structs_and_enums::TokenType::{
-    Label, Operator, Unknown,
-};
+use crate::parser::parser_structs_and_enums::TokenType::{Label, Operator, Unknown};
 use crate::parser::parser_structs_and_enums::{
     Data, Error, ErrorType, Instruction, MonacoLineInfo, Token,
 };

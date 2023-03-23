@@ -1,7 +1,5 @@
 use crate::parser::parser_structs_and_enums::ErrorType::*;
-use crate::parser::parser_structs_and_enums::TokenType::{
-    Label, Operator, Unknown,
-};
+use crate::parser::parser_structs_and_enums::TokenType::{Label, Operator, Unknown};
 use crate::parser::parser_structs_and_enums::{
     Data, Error, Instruction, MonacoLineInfo, Token, FP_REGISTERS, GP_REGISTERS,
 };
@@ -396,9 +394,9 @@ pub fn suggest_error_corrections(
                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
 
                         for register in GP_REGISTERS {
-                                if levenshtein(given_string, &register.names[0]) < closest.0 {
-                                    closest.0 = levenshtein(given_string, &register.names[0]);
-                                    closest.1 = register.names[0].to_string();
+                            if levenshtein(given_string, register.names[0]) < closest.0 {
+                                closest.0 = levenshtein(given_string, register.names[0]);
+                                closest.1 = register.names[0].to_string();
                             }
                         }
 
@@ -413,8 +411,8 @@ pub fn suggest_error_corrections(
                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
 
                         for register in FP_REGISTERS {
-                            if levenshtein(given_string, &register.name) < closest.0 {
-                                closest.0 = levenshtein(given_string, &register.name);
+                            if levenshtein(given_string, register.name) < closest.0 {
+                                closest.0 = levenshtein(given_string, register.name);
                                 closest.1 = register.name.to_string();
                             }
                         }

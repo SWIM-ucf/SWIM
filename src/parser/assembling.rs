@@ -8,13 +8,13 @@ use crate::parser::parser_structs_and_enums::ErrorType::{
 use crate::parser::parser_structs_and_enums::OperandType::{
     Immediate, LabelAbsolute, LabelRelative, MemoryAddress, RegisterFP, RegisterGP,
 };
-use crate::parser::parser_structs_and_enums::RegisterType::{
-    FloatingPoint, GeneralPurpose,
-};
+use crate::parser::parser_structs_and_enums::RegisterType::{FloatingPoint, GeneralPurpose};
 use crate::parser::parser_structs_and_enums::TokenType::{
     Byte, Float, Half, Space, Word, ASCII, ASCIIZ,
 };
-use crate::parser::parser_structs_and_enums::{Data, Error, Instruction, OperandType, RegisterType, TokenType, GP_REGISTERS, FP_REGISTERS};
+use crate::parser::parser_structs_and_enums::{
+    Data, Error, Instruction, OperandType, RegisterType, TokenType, FP_REGISTERS, GP_REGISTERS,
+};
 use std::collections::HashMap;
 
 ///This function takes an instruction whose operands it is supposed to read, the order of expected operand types and then
@@ -367,7 +367,7 @@ pub fn read_register(
 pub fn match_gp_register(given_string: &str) -> Option<u8> {
     for register in GP_REGISTERS {
         for name in register.names {
-            if given_string.to_lowercase().as_str() == name.to_string() {
+            if given_string.to_lowercase().as_str() == name {
                 return Some(register.binary);
             }
         }

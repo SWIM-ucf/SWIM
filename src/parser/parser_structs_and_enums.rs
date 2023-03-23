@@ -194,78 +194,270 @@ pub enum OperandType {
 }
 
 pub static GP_REGISTERS: &[GPRegister; 32] = &[
-    GPRegister { names: ["$zero", "r0", "$0"], binary: 0b00000 },
-    GPRegister {names: ["$at", "r1", "$1"], binary: 0b00001 },
-    GPRegister {names: ["$v0", "r2", "$2"], binary: 0b00010 },
-    GPRegister {names: ["$v1", "r3", "$3"], binary: 0b00011 },
-    GPRegister {names: ["$a0", "r4", "$4"], binary: 0b00100 },
-    GPRegister {names: ["$a1", "r5", "$5"], binary: 0b00101 },
-    GPRegister {names: ["$a2", "r6", "$6"], binary: 0b00110 },
-    GPRegister {names: ["$a3", "r7", "$7"], binary: 0b00111 },
-    GPRegister {names: ["$t0", "r8", "$8"], binary: 0b01000 },
-    GPRegister {names: ["$t1", "r9", "$9"], binary: 0b01001 },
-    GPRegister {names: ["$t2", "r10", "$10"], binary: 0b01010 },
-    GPRegister {names: ["$t3", "r11", "$11"], binary: 0b01011 },
-    GPRegister {names: ["$t4", "r12", "$12"], binary: 0b01100 },
-    GPRegister {names: ["$t5", "r13", "$13"], binary: 0b01101 },
-    GPRegister {names: ["$t6", "r14", "$14"], binary: 0b01110 },
-    GPRegister {names: ["$t7", "r15", "$15"], binary: 0b01111 },
-    GPRegister {names: ["$s0", "r16", "$16"], binary: 0b10000 },
-    GPRegister {names: ["$s1", "r17", "$17"], binary: 0b10001 },
-    GPRegister {names: ["$s2", "r18", "$18"], binary: 0b10010 },
-    GPRegister {names: ["$s3", "r19", "$19"], binary: 0b10011 },
-    GPRegister {names: ["$s4", "r20", "$20"], binary: 0b10100 },
-    GPRegister {names: ["$s5", "r21", "$21"], binary: 0b10101 },
-    GPRegister {names: ["$s6", "r22", "$22"], binary: 0b10110 },
-    GPRegister {names: ["$s7", "r23", "$23"], binary: 0b10111 },
-    GPRegister {names: ["$t8", "r24", "$24"], binary: 0b11000 },
-    GPRegister {names: ["$t9", "r25", "$25"], binary: 0b11001 },
-    GPRegister {names: ["$k0", "r26", "$26"], binary: 0b11010 },
-    GPRegister {names: ["$k1", "r27", "$27"], binary: 0b11011 },
-    GPRegister {names: ["$gp", "r28", "$28"], binary: 0b11100 },
-    GPRegister {names: ["$sp", "r29", "$29"], binary: 0b11101 },
-    GPRegister {names: ["$fp", "r30", "$30"], binary: 0b11110 },
-    GPRegister {names: ["$ra", "r31", "$31"], binary: 0b11111 },
+    GPRegister {
+        names: ["$zero", "r0", "$0"],
+        binary: 0b00000,
+    },
+    GPRegister {
+        names: ["$at", "r1", "$1"],
+        binary: 0b00001,
+    },
+    GPRegister {
+        names: ["$v0", "r2", "$2"],
+        binary: 0b00010,
+    },
+    GPRegister {
+        names: ["$v1", "r3", "$3"],
+        binary: 0b00011,
+    },
+    GPRegister {
+        names: ["$a0", "r4", "$4"],
+        binary: 0b00100,
+    },
+    GPRegister {
+        names: ["$a1", "r5", "$5"],
+        binary: 0b00101,
+    },
+    GPRegister {
+        names: ["$a2", "r6", "$6"],
+        binary: 0b00110,
+    },
+    GPRegister {
+        names: ["$a3", "r7", "$7"],
+        binary: 0b00111,
+    },
+    GPRegister {
+        names: ["$t0", "r8", "$8"],
+        binary: 0b01000,
+    },
+    GPRegister {
+        names: ["$t1", "r9", "$9"],
+        binary: 0b01001,
+    },
+    GPRegister {
+        names: ["$t2", "r10", "$10"],
+        binary: 0b01010,
+    },
+    GPRegister {
+        names: ["$t3", "r11", "$11"],
+        binary: 0b01011,
+    },
+    GPRegister {
+        names: ["$t4", "r12", "$12"],
+        binary: 0b01100,
+    },
+    GPRegister {
+        names: ["$t5", "r13", "$13"],
+        binary: 0b01101,
+    },
+    GPRegister {
+        names: ["$t6", "r14", "$14"],
+        binary: 0b01110,
+    },
+    GPRegister {
+        names: ["$t7", "r15", "$15"],
+        binary: 0b01111,
+    },
+    GPRegister {
+        names: ["$s0", "r16", "$16"],
+        binary: 0b10000,
+    },
+    GPRegister {
+        names: ["$s1", "r17", "$17"],
+        binary: 0b10001,
+    },
+    GPRegister {
+        names: ["$s2", "r18", "$18"],
+        binary: 0b10010,
+    },
+    GPRegister {
+        names: ["$s3", "r19", "$19"],
+        binary: 0b10011,
+    },
+    GPRegister {
+        names: ["$s4", "r20", "$20"],
+        binary: 0b10100,
+    },
+    GPRegister {
+        names: ["$s5", "r21", "$21"],
+        binary: 0b10101,
+    },
+    GPRegister {
+        names: ["$s6", "r22", "$22"],
+        binary: 0b10110,
+    },
+    GPRegister {
+        names: ["$s7", "r23", "$23"],
+        binary: 0b10111,
+    },
+    GPRegister {
+        names: ["$t8", "r24", "$24"],
+        binary: 0b11000,
+    },
+    GPRegister {
+        names: ["$t9", "r25", "$25"],
+        binary: 0b11001,
+    },
+    GPRegister {
+        names: ["$k0", "r26", "$26"],
+        binary: 0b11010,
+    },
+    GPRegister {
+        names: ["$k1", "r27", "$27"],
+        binary: 0b11011,
+    },
+    GPRegister {
+        names: ["$gp", "r28", "$28"],
+        binary: 0b11100,
+    },
+    GPRegister {
+        names: ["$sp", "r29", "$29"],
+        binary: 0b11101,
+    },
+    GPRegister {
+        names: ["$fp", "r30", "$30"],
+        binary: 0b11110,
+    },
+    GPRegister {
+        names: ["$ra", "r31", "$31"],
+        binary: 0b11111,
+    },
 ];
 pub struct GPRegister<'a> {
     pub names: [&'a str; 3],
     pub binary: u8,
 }
 
- pub static FP_REGISTERS: &[FPRegister] = &[
-    FPRegister { name: "$f0", binary: 0b00000 },
-    FPRegister { name: "$f1", binary: 0b00001 },
-    FPRegister { name: "$f2", binary: 0b00010 },
-    FPRegister { name: "$f3", binary: 0b00011 },
-    FPRegister { name: "$f4", binary: 0b00100 },
-    FPRegister { name: "$f5", binary: 0b00101 },
-    FPRegister { name: "$f6", binary: 0b00110 },
-    FPRegister { name: "$f7", binary: 0b00111 },
-    FPRegister { name: "$f8", binary: 0b01000 },
-    FPRegister { name: "$f9", binary: 0b01001 },
-    FPRegister { name: "$f10", binary: 0b01010 },
-    FPRegister { name: "$f11", binary: 0b01011 },
-    FPRegister { name: "$f12", binary: 0b01100 },
-    FPRegister { name: "$f13", binary: 0b01101 },
-    FPRegister { name: "$f14", binary: 0b01110 },
-    FPRegister { name: "$f15", binary: 0b01111 },
-    FPRegister { name: "$f16", binary: 0b10000 },
-    FPRegister { name: "$f17", binary: 0b10001 },
-    FPRegister { name: "$f18", binary: 0b10010 },
-    FPRegister { name: "$f19", binary: 0b10011 },
-    FPRegister { name: "$f20", binary: 0b10100 },
-    FPRegister { name: "$f21", binary: 0b10101 },
-    FPRegister { name: "$f22", binary: 0b10110 },
-    FPRegister { name: "$f23", binary: 0b10111 },
-    FPRegister { name: "$f24", binary: 0b11000 },
-    FPRegister { name: "$f25", binary: 0b11001 },
-    FPRegister { name: "$f26", binary: 0b11010 },
-    FPRegister { name: "$f27", binary: 0b11011 },
-    FPRegister { name: "$f28", binary: 0b11100 },
-    FPRegister { name: "$f29", binary: 0b11101 },
-    FPRegister { name: "$f30", binary: 0b11110 },
-    FPRegister { name: "$f31", binary: 0b11111 },
- ];
+pub static FP_REGISTERS: &[FPRegister] = &[
+    FPRegister {
+        name: "$f0",
+        binary: 0b00000,
+    },
+    FPRegister {
+        name: "$f1",
+        binary: 0b00001,
+    },
+    FPRegister {
+        name: "$f2",
+        binary: 0b00010,
+    },
+    FPRegister {
+        name: "$f3",
+        binary: 0b00011,
+    },
+    FPRegister {
+        name: "$f4",
+        binary: 0b00100,
+    },
+    FPRegister {
+        name: "$f5",
+        binary: 0b00101,
+    },
+    FPRegister {
+        name: "$f6",
+        binary: 0b00110,
+    },
+    FPRegister {
+        name: "$f7",
+        binary: 0b00111,
+    },
+    FPRegister {
+        name: "$f8",
+        binary: 0b01000,
+    },
+    FPRegister {
+        name: "$f9",
+        binary: 0b01001,
+    },
+    FPRegister {
+        name: "$f10",
+        binary: 0b01010,
+    },
+    FPRegister {
+        name: "$f11",
+        binary: 0b01011,
+    },
+    FPRegister {
+        name: "$f12",
+        binary: 0b01100,
+    },
+    FPRegister {
+        name: "$f13",
+        binary: 0b01101,
+    },
+    FPRegister {
+        name: "$f14",
+        binary: 0b01110,
+    },
+    FPRegister {
+        name: "$f15",
+        binary: 0b01111,
+    },
+    FPRegister {
+        name: "$f16",
+        binary: 0b10000,
+    },
+    FPRegister {
+        name: "$f17",
+        binary: 0b10001,
+    },
+    FPRegister {
+        name: "$f18",
+        binary: 0b10010,
+    },
+    FPRegister {
+        name: "$f19",
+        binary: 0b10011,
+    },
+    FPRegister {
+        name: "$f20",
+        binary: 0b10100,
+    },
+    FPRegister {
+        name: "$f21",
+        binary: 0b10101,
+    },
+    FPRegister {
+        name: "$f22",
+        binary: 0b10110,
+    },
+    FPRegister {
+        name: "$f23",
+        binary: 0b10111,
+    },
+    FPRegister {
+        name: "$f24",
+        binary: 0b11000,
+    },
+    FPRegister {
+        name: "$f25",
+        binary: 0b11001,
+    },
+    FPRegister {
+        name: "$f26",
+        binary: 0b11010,
+    },
+    FPRegister {
+        name: "$f27",
+        binary: 0b11011,
+    },
+    FPRegister {
+        name: "$f28",
+        binary: 0b11100,
+    },
+    FPRegister {
+        name: "$f29",
+        binary: 0b11101,
+    },
+    FPRegister {
+        name: "$f30",
+        binary: 0b11110,
+    },
+    FPRegister {
+        name: "$f31",
+        binary: 0b11111,
+    },
+];
 
 pub struct FPRegister<'a> {
     pub name: &'a str,

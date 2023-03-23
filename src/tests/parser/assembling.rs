@@ -1,17 +1,13 @@
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::parser;
-use crate::parser::parser_structs_and_enums::ErrorType::{
-    NonASCIIChar, NonASCIIString,
-};
+use crate::parser::parser_structs_and_enums::ErrorType::{NonASCIIChar, NonASCIIString};
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
 mod read_register_tests {
     use crate::parser::assembling::read_register;
     use crate::parser::parser_structs_and_enums::ErrorType::{
         IncorrectRegisterTypeFP, IncorrectRegisterTypeGP, UnrecognizedGPRegister,
     };
-    use crate::parser::parser_structs_and_enums::RegisterType::{
-        FloatingPoint, GeneralPurpose,
-    };
+    use crate::parser::parser_structs_and_enums::RegisterType::{FloatingPoint, GeneralPurpose};
 
     #[test]
     fn read_register_returns_correct_binary_on_valid_register_name() {
