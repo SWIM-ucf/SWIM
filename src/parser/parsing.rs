@@ -506,6 +506,11 @@ pub fn suggest_error_corrections(
                         suggestion.push_str(&format!("{}.\n", &closest.1));
                         error.message = suggestion;
                     }
+                    JALRRDRegisterZero => {
+                        error.message =
+                            "The destination address for JALR cannot be the zero register\n"
+                                .to_string();
+                    }
                     _ => {
                         error.message = format!("{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH TEXT.\n", error.error_name);
                     }
@@ -620,6 +625,13 @@ pub fn suggest_error_corrections(
                 ImproperlyFormattedLabel => {
                     error.message =
                         "Label assignment recognized but does not end in a colon.\n".to_string();
+                }
+                NonASCIIChar => {
+                    error.message = "The given char cannot be represented in ASCII\n".to_string();
+                }
+                NonASCIIString => {
+                    error.message =
+                        "One or multiple characters within the given string cannot be represented in ASCII.\n".to_string();
                 }
                 _ => {
                     error.message = format!("{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n", error.error_name);
