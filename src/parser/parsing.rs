@@ -627,8 +627,7 @@ pub fn suggest_error_corrections(
                         "Label assignment recognized but does not end in a colon.\n".to_string();
                 }
                 NonASCIIChar => {
-                    error.message =
-                        "The given char cannot be represented in ASCII\n".to_string();
+                    error.message = "The given char cannot be represented in ASCII\n".to_string();
                 }
                 NonASCIIString => {
                     error.message =
