@@ -671,8 +671,6 @@
 <a href="#671" id="671">671</a>
 <a href="#672" id="672">672</a>
 <a href="#673" id="673">673</a>
-<a href="#674" id="674">674</a>
-<a href="#675" id="675">675</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
     Label, Operator, Unknown,
@@ -702,7 +700,6 @@
             line_number: i,
             error_start_end_columns: <span class="macro">vec!</span>[],
             errors: <span class="macro">vec!</span>[],
-            line_type: Default::default(),
         };
 
         <span class="kw">let </span><span class="kw-2">mut </span>is_string = <span class="bool-val">false</span>;
@@ -796,7 +793,6 @@
             line_number: <span class="number">0</span>,
             error_start_end_columns: <span class="macro">vec!</span>[],
             errors: <span class="macro">vec!</span>[],
-            line_type: Default::default(),
         })
     }
 
@@ -1059,7 +1055,7 @@
         </span><span class="kw">if </span>instruction.errors.is_empty() {
             monaco_line_info[instruction.line_number]
                 .mouse_hover_string
-                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\nBinary: {:032b}&quot;</span>, instruction.binary));
+                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\n\n**Binary:** `0b{:032b}`&quot;</span>, instruction.binary));
         } <span class="kw">else </span>{
             <span class="kw">for </span>error <span class="kw">in </span><span class="kw-2">&amp;mut </span>instruction.errors {
                 <span class="kw">match </span>error.error_name {
@@ -1255,7 +1251,7 @@
     <span class="kw">if </span>!contains {
         monaco_line_info[index].mouse_hover_string = monaco_line_info[index]
             .mouse_hover_string
-            .replace(<span class="string">&quot;\nBinary: 00000000000000000000000000001100&quot;</span>, <span class="string">&quot;&quot;</span>);
+            .replace(<span class="string">&quot;**Binary:** `0b00000000000000000000000000001100`&quot;</span>, <span class="string">&quot;&quot;</span>);
     }
 
     <span class="comment">//go through each error in the data and suggest a correction
