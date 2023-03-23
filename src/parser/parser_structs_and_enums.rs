@@ -35,6 +35,13 @@ impl MonacoLineInfo {
                 instruction.recreate_string()
             ));
         }
+
+        //special case to handle lw label pseudo-instruction being expanded when there isn't a syscall afterward
+        if self.updated_monaco_string.contains("\nsyscall") {
+            let mut update = self.updated_monaco_string.replace("\nsyscall", "");
+            update.push_str("\nsyscall");
+            self.updated_monaco_string = update;
+        }
     }
 }
 

@@ -1129,16 +1129,16 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     //if there aren't any instructions, add a syscall to monaco's updated string so the emulation core does not try to run data as an instruction
     if instructions.is_empty() {
         //try to find an instance of .text
-        let mut text_index: Option<usize> = None;
+        let mut dot_text_index: Option<usize> = None;
         for (i, monaco_line) in monaco_line_info.iter_mut().enumerate() {
             if !monaco_line.tokens.is_empty() && monaco_line.tokens[0].token_name == ".text" {
-                text_index = Some(i);
+                dot_text_index = Some(i);
                 break;
             }
         }
-        if let Some(..) = text_index {
+        if let Some(..) = dot_text_index {
             //add syscall after first index of .text if it exists
-            monaco_line_info[text_index.unwrap()]
+            monaco_line_info[dot_text_index.unwrap()]
                 .updated_monaco_string
                 .push_str("\nsyscall");
 
@@ -1151,7 +1151,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 operands: vec![],
                 binary: 0,
                 instruction_number: 0,
-                line_number: text_index.unwrap(),
+                line_number: dot_text_index.unwrap(),
                 errors: vec![],
                 label: None,
             });
