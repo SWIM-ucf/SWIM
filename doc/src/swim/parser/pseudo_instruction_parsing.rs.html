@@ -2372,16 +2372,16 @@
     <span class="comment">//if there aren&#39;t any instructions, add a syscall to monaco&#39;s updated string so the emulation core does not try to run data as an instruction
     </span><span class="kw">if </span>instructions.is_empty() {
         <span class="comment">//try to find an instance of .text
-        </span><span class="kw">let </span><span class="kw-2">mut </span>text_index: <span class="prelude-ty">Option</span>&lt;usize&gt; = <span class="prelude-val">None</span>;
+        </span><span class="kw">let </span><span class="kw-2">mut </span>dot_text_index: <span class="prelude-ty">Option</span>&lt;usize&gt; = <span class="prelude-val">None</span>;
         <span class="kw">for </span>(i, monaco_line) <span class="kw">in </span>monaco_line_info.iter_mut().enumerate() {
             <span class="kw">if </span>!monaco_line.tokens.is_empty() &amp;&amp; monaco_line.tokens[<span class="number">0</span>].token_name == <span class="string">&quot;.text&quot; </span>{
-                text_index = <span class="prelude-val">Some</span>(i);
+                dot_text_index = <span class="prelude-val">Some</span>(i);
                 <span class="kw">break</span>;
             }
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(..) = text_index {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(..) = dot_text_index {
             <span class="comment">//add syscall after first index of .text if it exists
-            </span>monaco_line_info[text_index.unwrap()]
+            </span>monaco_line_info[dot_text_index.unwrap()]
                 .updated_monaco_string
                 .push_str(<span class="string">&quot;\nsyscall&quot;</span>);
 
@@ -2394,7 +2394,7 @@
                 operands: <span class="macro">vec!</span>[],
                 binary: <span class="number">0</span>,
                 instruction_number: <span class="number">0</span>,
-                line_number: text_index.unwrap(),
+                line_number: dot_text_index.unwrap(),
                 errors: <span class="macro">vec!</span>[],
                 label: <span class="prelude-val">None</span>,
             });
