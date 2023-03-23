@@ -193,6 +193,7 @@ pub enum OperandType {
     ShiftAmount,
 }
 
+///Contains every general purpose register's binary value and the various names they are recognized as. Any reference to gp registers throughout the parser/assembler should reference this array
 pub static GP_REGISTERS: &[GPRegister; 32] = &[
     GPRegister {
         names: ["$zero", "r0", "$0"],
@@ -328,6 +329,7 @@ pub struct GPRegister<'a> {
     pub binary: u8,
 }
 
+///Contains every floating point register name and binary value. Any reference to fp registers throughout the parser/assembler should reference this array
 pub static FP_REGISTERS: &[FPRegister] = &[
     FPRegister {
         name: "$f0",
