@@ -1,8 +1,8 @@
 use crate::parser::assembling::{assemble_data_binary, read_operands};
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::*;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::OperandType::*;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::*;
+use crate::parser::parser_structs_and_enums::ErrorType::*;
+use crate::parser::parser_structs_and_enums::OperandType::*;
+use crate::parser::parser_structs_and_enums::ProgramInfo;
+use crate::parser::parser_structs_and_enums::*;
 use crate::parser::parsing::*;
 use crate::parser::pseudo_instruction_parsing::{
     complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers,
