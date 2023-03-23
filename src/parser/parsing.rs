@@ -27,7 +27,6 @@ pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
             line_number: i,
             error_start_end_columns: vec![],
             errors: vec![],
-            line_type: Default::default(),
         };
 
         let mut is_string = false;
@@ -121,7 +120,6 @@ pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
             line_number: 0,
             error_start_end_columns: vec![],
             errors: vec![],
-            line_type: Default::default(),
         })
     }
 
@@ -384,7 +382,7 @@ pub fn suggest_error_corrections(
         if instruction.errors.is_empty() {
             monaco_line_info[instruction.line_number]
                 .mouse_hover_string
-                .push_str(&format!("\nBinary: {:032b}", instruction.binary));
+                .push_str(&format!("\n\n**Binary:** `0b{:032b}`", instruction.binary));
         } else {
             for error in &mut instruction.errors {
                 match error.error_name {
@@ -580,7 +578,7 @@ pub fn suggest_error_corrections(
     if !contains {
         monaco_line_info[index].mouse_hover_string = monaco_line_info[index]
             .mouse_hover_string
-            .replace("\nBinary: 00000000000000000000000000001100", "");
+            .replace("**Binary:** `0b00000000000000000000000000001100`", "");
     }
 
     //go through each error in the data and suggest a correction

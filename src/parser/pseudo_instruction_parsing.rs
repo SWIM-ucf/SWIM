@@ -1,7 +1,7 @@
 use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::IncorrectNumberOfOperands;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Operator;
 use crate::parser::parser_structs_and_enums::instruction_tokenization::{
-    Data, Error, Instruction, MonacoLineInfo, Token,
+    Data, Error, Instruction, MonacoLineInfo, PseudoDescription, Token,
 };
 use std::collections::HashMap;
 
@@ -35,9 +35,12 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
         instruction.instruction_number = i + vec_of_added_instructions.len();
         match &*instruction.operator.token_name.to_lowercase() {
             "li" => {
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "li is a pseudo-instruction.\nli regA, immediate =>\n\tori $regA, $zero, immediate\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "li".to_string(),
+                    syntax: "li rt, immediate".to_string(),
+                    translation_lines: vec!["ori rt, $zero, immediate".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 if instruction.operands.len() != 2 {
                     instruction.errors.push(Error {
@@ -64,13 +67,16 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "seq" => {
-                //seq $regA, $regB, $regC turns into:
-                //sub $regA, $regB, $regC
-                //ori $at, $zero, 1
-                //sltu $regA, $regA, $at
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "seq is a pseudo-instruction.\nseq $regA, $regB, $regC =>\n\tsub $regA, $regB, $regC\n\tori $at, $zero, 1\n\tsltu $regA, $regA, $at\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "seq".to_string(),
+                    syntax: "seq rd, rs, rt".to_string(),
+                    translation_lines: vec![
+                        "sub rd, rs, rt".to_string(),
+                        "ori $at, $zero, 1".to_string(),
+                        "sltu rd, rd, $at".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure there are the correct number operands
                 if instruction.operands.len() != 3 {
@@ -135,13 +141,15 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 ]);
             }
             "sne" => {
-                //sne $regA, $regB, $regC turns into:
-                //sub $regA, $regB, $regC
-                //sltu $regA, $zero, $regA
-
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "sne is a pseudo-instruction.\nsne $regA, $regB, $regC =>\n\tsub $regA, $regB, $regC\n\tsltu $regA, $zero, $regA\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "sne".to_string(),
+                    syntax: "sne rd, rs, rt".to_string(),
+                    translation_lines: vec![
+                        "sub rd, rs, rt".to_string(),
+                        "sltu rd, $zero, rd".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure there are enough operands
                 if instruction.operands.len() != 3 {
@@ -171,14 +179,16 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "sle" => {
-                //sle $regA, $regB, $regC is translated to:
-                // slt $regA, $regC, $regB
-                // addi $regA, $regA, 1
-                // andi $regA, $regA, 1
-
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "sle is a pseudo-instruction.\nsle $regA, $regB, $regC =>\n\tslt $regA, $regC, $regB\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "sle".to_string(),
+                    syntax: "sle rd, rs, rt".to_string(),
+                    translation_lines: vec![
+                        "slt rd, rt, rs".to_string(),
+                        "addi rd, rd, 1".to_string(),
+                        "andi rd, rd, 1".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure there are enough operands
                 if instruction.operands.len() != 3 {
@@ -239,14 +249,16 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 ]);
             }
             "sleu" => {
-                //sleu $regA, $regB, $regC is translated to:
-                //sltu $regA, $regC, $regB
-                //addi $regA, $regA, 1
-                //andi $regA, $regA, 1
-
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "sleu is a pseudo-instruction.\nsleu $regA, $regB, $regC =>\n\tsltu $regA, $regC, $regB\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "sle".to_string(),
+                    syntax: "sle rd, rs, rt".to_string(),
+                    translation_lines: vec![
+                        "sltu rd, rt, rs".to_string(),
+                        "addi rd, rd, 1".to_string(),
+                        "andi rd, rd, 1".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure there are enough operands
                 if instruction.operands.len() != 3 {
@@ -307,12 +319,12 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 ]);
             }
             "sgt" => {
-                //sgt $regA, $regB, $regC is translated to:
-                // slt $regA, $regC, $regB
-
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "sgt is a pseudo-instruction.\nsgt $regA, $regB, $regC =>\n\tslt $regA, $regC, $regB\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "sgt".to_string(),
+                    syntax: "sgt rd, rs, rt".to_string(),
+                    translation_lines: vec!["slt rd, rt, rs".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure that there actually is a third operand
                 if instruction.operands.len() != 3 {
@@ -333,12 +345,12 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "sgtu" => {
-                //sgtu $regA, $regB, $regC is translated to:
-                // sltu $regA, $regC, $regB
-
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "sgtu is a pseudo-instruction.\nsgtu $regA, $regB, $regC =>\n\tsltu $regA, $regC, $regB\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "sgtu".to_string(),
+                    syntax: "sgtu rd, rs, rt".to_string(),
+                    translation_lines: vec!["sltu rd, rt, rs".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure that there actually is a third operand
                 if instruction.operands.len() != 3 {
@@ -359,14 +371,16 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "sge" => {
-                //sge $regA, $regB, $regC is translated to:
-                // slt $regA, $regB, $regC
-                // addi $regA, $regA, 1
-                // andi $regA, $regA, 1
-
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "sge is a pseudo-instruction.\nsge $regA, $regB, $regC =>\n\tslt $regA, $regB, $regC\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "sge".to_string(),
+                    syntax: "sge rd, rs, rt".to_string(),
+                    translation_lines: vec![
+                        "slt rd, rs, rt".to_string(),
+                        "addi rd, rd, 1".to_string(),
+                        "andi rd, rd, 1".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure there are enough operands
                 if instruction.operands.len() != 3 {
@@ -424,14 +438,16 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 ]);
             }
             "sgeu" => {
-                //sgeu $regA, $regB, $regC is translated to:
-                // sltu $regA, $regC, $regB
-                // addi $regA, $regA, 1
-                // andi $regA, $regA, 1
-
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "sgeu is a pseudo-instruction.\nsgeu $regA, $regB, $regC =>\n\tsltu $regA, $regB, $regC\n\taddi $regA, $regA, 1\n\tandi $regA, $regA, 1\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "sgeu".to_string(),
+                    syntax: "sgeu rd, rs, rt".to_string(),
+                    translation_lines: vec![
+                        "sltu rd, rs, rt".to_string(),
+                        "addi rd, rd, 1".to_string(),
+                        "andi rd, rd, 1".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure there are enough operands
                 if instruction.operands.len() != 3 {
@@ -509,14 +525,33 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                     //create mouse hover message dependent on lw / sw
                     if instruction.operator.token_name == "lw" {
+                        let info = PseudoDescription {
+                            name: "lw rt target".to_string(),
+                            syntax: "lw rt target".to_string(),
+                            translation_lines: vec![
+                                "lui $at, upper48".to_string(),
+                                "lw rt, lower16($at)".to_string(),
+                            ],
+                        };
                         monaco_line_info[instruction.line_number].mouse_hover_string =
-                            "lw $regA, label is a pseudo-instruction.\nlw $regA, label =>\n\tlui $at, label\n\tlw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address.\n"
-                                .to_string();
+                            info.to_string();
                     } else {
+                        let info = PseudoDescription {
+                            name: "sw rt target".to_string(),
+                            syntax: "sw rt target".to_string(),
+                            translation_lines: vec![
+                                "lui $at, upper48".to_string(),
+                                "sw rt, lower16($at)".to_string(),
+                            ],
+                        };
                         monaco_line_info[instruction.line_number].mouse_hover_string =
-                            "sw $regA, label is a pseudo-instruction.\nsw $regA, label =>\n\tlui $at, label\n\tsw $regA, lower16($at)\n\twhere lower16 is the lower 16 bits of the labelled address.\n"
-                                .to_string();
+                            info.to_string();
                     }
+                    monaco_line_info[instruction.line_number]
+                        .mouse_hover_string
+                        .push_str(
+                            "where lower16 and upper48 refer to bits of the labelled address.\n",
+                        );
 
                     let extra_instruction = Instruction {
                         operator: Token {
@@ -545,13 +580,15 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 }
             }
             "subi" => {
-                //subi $regA, $regB, immediate is translated to:
-                //ori $at, $zero, immediate
-                //sub $regA, $regB, $at
-
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "subi $regA, $regB, immediate is a pseudo-instruction.\nsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tsub $regA, $regB, $at\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "subi".to_string(),
+                    syntax: "subi rt, rs, immediate".to_string(),
+                    translation_lines: vec![
+                        "ori $at, $zero, immediate".to_string(),
+                        "sub rt, rs, $at".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure there are enough operands
                 if instruction.operands.len() != 3 {
@@ -602,13 +639,15 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "dsubi" => {
-                //dsubi $regA, $regB, immediate is translated to:
-                //ori $at, $zero, immediate
-                //dsub $regA, $regB, $at
-
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "dsubi $regA, $regB, immediate is a pseudo-instruction.\ndsubi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdsub $regA, $regB, $at\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "dsubi".to_string(),
+                    syntax: "dsubi rt, rs, immediate".to_string(),
+                    translation_lines: vec![
+                        "ori $at, $zero, immediate".to_string(),
+                        "dsub rt, rs, $at".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure there are the right number of operands
                 if instruction.operands.len() != 3 {
@@ -657,13 +696,15 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "dsubiu" => {
-                //dsubiu $regA, $regB, immediate is translated to:
-                //ori $at, $zero, immediate
-                //dsubu $regA, $regB, $at
-
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "dsubiu $regA, $regB, immediate is a pseudo-instruction.\ndsubiu $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdsubu $regA, $regB, $at\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "dsubiu".to_string(),
+                    syntax: "dsubiu rt, rs, immediate".to_string(),
+                    translation_lines: vec![
+                        "ori $at, $zero, immediate".to_string(),
+                        "dsubu rt, rs, $at".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure there are the right number of operands
                 if instruction.operands.len() != 3 {
@@ -714,13 +755,15 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "muli" => {
-                //muli $regA, $regB, immediate is translated to:
-                //ori $at, $zero, immediate
-                //mul $regA, $regB, $at
-
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "muli $regA, $regB, immediate is a pseudo-instruction.\nmuli $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tmul $regA, $regB, $at\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "muli".to_string(),
+                    syntax: "muli rt, rs, immediate".to_string(),
+                    translation_lines: vec![
+                        "ori $at, $zero, immediate".to_string(),
+                        "mul rt, rs, $at".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure the are the right number of operands
                 if instruction.operands.len() != 3 {
@@ -770,13 +813,15 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "dmuli" => {
-                //dmuli $regA, $regB, immediate is translated to:
-                //ori $at, $zero, immediate
-                //dmul $regA, $regB, $at
-
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "dmuli $regA, $regB, immediate is a pseudo-instruction.\ndmuli $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdmul $regA, $regB, $at\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "dmuli".to_string(),
+                    syntax: "dmuli rt, rs, immediate".to_string(),
+                    translation_lines: vec![
+                        "ori $at, $zero, immediate".to_string(),
+                        "dmul rt, rs, $at".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure the are the right number of operands
                 if instruction.operands.len() != 3 {
@@ -825,13 +870,15 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "dmuliu" => {
-                //dmuliu $regA, $regB, immediate is translated to:
-                //ori $at, $zero, immediate
-                //dmulu $regA, $regB, $at
-
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "dmuliu $regA, $regB, immediate is a pseudo-instruction.\ndmuliu $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdmulu $regA, $regB, $at\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "dmuliu".to_string(),
+                    syntax: "dmuliu rt, rs, immediate".to_string(),
+                    translation_lines: vec![
+                        "ori $at, $zero, immediate".to_string(),
+                        "dmulu rt, rs, $at".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure the are the right number of operands
                 if instruction.operands.len() != 3 {
@@ -880,13 +927,15 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "divi" => {
-                //divi $regA, $regB, immediate is translated to:
-                //ori $at, $zero, immediate
-                //div $regA, $regB, $at
-
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "divi $regA, $regB, immediate is a pseudo-instruction.\ndivi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tdiv $regA, $regB, $at\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "divi".to_string(),
+                    syntax: "divi rt, rs, immediate".to_string(),
+                    translation_lines: vec![
+                        "ori $at, $zero, immediate".to_string(),
+                        "div rt, rs, $at".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure the are the right number of operands
                 if instruction.operands.len() != 3 {
@@ -935,13 +984,15 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "ddivi" => {
-                //ddivi $regA, $regB, immediate is translated to:
-                //ori $at, $zero, immediate
-                //ddiv $regA, $regB, $at
-
-                monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "ddivi $regA, $regB, immediate is a pseudo-instruction.\nddivi $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tddiv $regA, $regB, $at\n"
-                        .to_string();
+                let info = PseudoDescription {
+                    name: "ddivi".to_string(),
+                    syntax: "ddivi rt, rs, immediate".to_string(),
+                    translation_lines: vec![
+                        "ori $at, $zero, immediate".to_string(),
+                        "ddiv rt, rs, $at".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 //make sure the are the right number of operands
                 if instruction.operands.len() != 3 {
@@ -984,9 +1035,15 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
             "ddiviu" => {
-                //ddiviu $regA, $regB, immediate is translated to:
-                //ori $at, $zero, immediate
-                //ddivu $regA, $regB, $at
+                let info = PseudoDescription {
+                    name: "ddiviu".to_string(),
+                    syntax: "ddiviu rt, rs, immediate".to_string(),
+                    translation_lines: vec![
+                        "ori $at, $zero, immediate".to_string(),
+                        "ddivu rt, rs, $at".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 monaco_line_info[instruction.line_number].mouse_hover_string =
                     "ddiviu $regA, $regB, immediate is a pseudo-instruction.\nddiviu $regA, $regB, immediate =>\n\tori $at, $zero, immediate\n\tddivu $regA, $regB, $at\n"

@@ -1,6 +1,7 @@
 pub mod instruction_tokenization {
     use std::default::Default;
     use std::fmt;
+    use std::fmt::Formatter;
 
     #[derive(Clone, Debug, Default, Eq, PartialEq)]
     ///Wrapper for all information gathered in the Parser/Assembler about the written program.
@@ -21,16 +22,6 @@ pub mod instruction_tokenization {
         pub line_number: usize,
         pub error_start_end_columns: Vec<(usize, usize)>,
         pub errors: Vec<Error>,
-        pub line_type: LineType,
-    }
-
-    #[derive(Clone, Debug, Default, Eq, PartialEq)]
-    pub enum LineType {
-        #[default]
-        Blank,
-        Data,
-        Text,
-        Directive,
     }
 
     impl MonacoLineInfo {
@@ -44,6 +35,37 @@ pub mod instruction_tokenization {
                     instruction.recreate_string()
                 ));
             }
+        }
+    }
+
+    #[derive(Clone, Debug, Eq, PartialEq)]
+    pub struct InstructionDescription {
+        pub syntax: String,
+        pub description: String,
+    }
+    impl fmt::Display for InstructionDescription {
+        fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
+            write!(f, "**Syntax:** `{}`\n\n", self.syntax)?;
+            write!(f, "{}", self.description)?;
+            Ok(())
+        }
+    }
+
+    #[derive(Clone, Debug, Eq, PartialEq)]
+    pub struct PseudoDescription {
+        pub name: String,
+        pub syntax: String,
+        pub translation_lines: Vec<String>,
+    }
+    impl fmt::Display for PseudoDescription {
+        fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), fmt::Error> {
+            write!(f, "`{}` is a pseudo-instruction.\n\n", self.name)?;
+            write!(f, "```\n{} =>\n", self.syntax)?;
+            for line in &self.translation_lines {
+                writeln!(f, "{}", line)?;
+            }
+            write!(f, "\n```\n\n",)?;
+            Ok(())
         }
     }
 
@@ -156,7 +178,7 @@ pub mod instruction_tokenization {
     }
 
     impl fmt::Display for ErrorType {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fn fmt(&self, f: &mut Formatter) -> fmt::Result {
             write!(f, "{self:?}")
         }
     }
