@@ -887,7 +887,7 @@ fn console_output_post_assembly_works_with_errors() {
     .0
     .console_out_post_assembly;
 
-    assert_eq!(result, "UnrecognizedGPRegister on line 2 with token \"1235\"\nGP register is not recognized. A valid, similar register is: r23.\n\nUnrecognizedGPRegister on line 6 with token \"t1\"\nGP register is not recognized. A valid, similar register is: $t1.\n\nInvalidMemorySyntax on line 6 with token \"address\"\nThe given string for memory does not match syntax of \"offset(base)\" or \"label\".\n\nImproperlyFormattedASCII on line 4 with token \"100\"\nToken recognized as ASCII does not start and or end with double quotes (\").\n\n")
+    assert_eq!(result, "UnrecognizedGPRegister on line 2 with token \"1235\"\n\nGP register is not recognized. A valid, similar register is: r23.\n\n\nUnrecognizedGPRegister on line 6 with token \"t1\"\nGP register is not recognized. A valid, similar register is: $t1.\n\n\nInvalidMemorySyntax on line 6 with token \"address\"\n\nThe given string for memory does not match syntax of \"offset(base)\" or \"label\".\n\n\nImproperlyFormattedASCII on line 4 with token \"100\"\n\nToken recognized as ASCII does not start and or end with double quotes (\").\n\n\n")
 }
 
 #[test]

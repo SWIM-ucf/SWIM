@@ -36,7 +36,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
         match &*instruction.operator.token_name.to_lowercase() {
             "li" => {
                 monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "li is a pseudo-instruction.\nli regA, immediate =>\n\tori $regA, $zero, immediate\n"
+                    "li is a pseudo-instruction.\n\n```\nli $rt, immediate =>\n\tori $rt, $zero, immediate\n```\n"
                         .to_string();
 
                 if instruction.operands.len() != 2 {
@@ -69,7 +69,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //ori $at, $zero, 1
                 //sltu $regA, $regA, $at
                 monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "seq is a pseudo-instruction.\nseq $regA, $regB, $regC =>\n\tsub $regA, $regB, $regC\n\tori $at, $zero, 1\n\tsltu $regA, $regA, $at\n"
+                    "seq is a pseudo-instruction.\n\n```\nseq $rd, $rs, $rt =>\n\tsub $rd, $rs, $rt\n\tori $at, $zero, 1\n\tsltu $rd, $rd, $at\n```\n"
                         .to_string();
 
                 //make sure there are the correct number operands
@@ -140,7 +140,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 //sltu $regA, $zero, $regA
 
                 monaco_line_info[instruction.line_number].mouse_hover_string =
-                    "sne is a pseudo-instruction.\nsne $regA, $regB, $regC =>\n\tsub $regA, $regB, $regC\n\tsltu $regA, $zero, $regA\n"
+                    "sne is a pseudo-instruction.\n\n```\nsne $rd, $rs, $rt =>\n\tsub $regA, $regB, $regC\n\tsltu $regA, $zero, $regA\n"
                         .to_string();
 
                 //make sure there are enough operands
@@ -1074,7 +1074,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
             //otherwise, add it at the beginning of monaco
             monaco_line_info[0]
                 .updated_monaco_string
-                .insert_str(0, ".text\nsyscall\n");
+                .insert_str(0, ".text\nsyscall");
 
             instructions.push(Instruction {
                 operator: Token {
