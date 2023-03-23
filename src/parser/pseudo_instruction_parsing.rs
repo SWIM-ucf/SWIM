@@ -94,6 +94,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 extra_instruction.operator.start_end_columns = (0, 0);
                 vec_of_added_instructions.push(extra_instruction.clone());
 
+                instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
+
                 //put a 1 in $at
                 let mut extra_instruction_2 = Instruction {
                     operator: Token {
@@ -167,6 +169,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 extra_instruction.operator.start_end_columns = (0, 0);
                 vec_of_added_instructions.push(extra_instruction.clone());
 
+                instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
+
+
                 //set r0 to 1 if r1 - r2 != 0
                 instruction.operator.token_name = "sltu".to_string();
                 instruction.operator.start_end_columns = (0, 0);
@@ -209,6 +214,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 extra_instruction.operator.token_name = "slt".to_string();
                 extra_instruction.operator.start_end_columns = (0, 0);
                 vec_of_added_instructions.push(extra_instruction.clone());
+
+                instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
 
                 //addi
                 let mut extra_instruction_2 = Instruction {
@@ -279,6 +286,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 extra_instruction.operator.token_name = "sltu".to_string();
                 extra_instruction.operator.start_end_columns = (0, 0);
                 vec_of_added_instructions.push(extra_instruction.clone());
+
+                instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
 
                 //addi
                 let mut extra_instruction_2 = Instruction {
@@ -399,6 +408,8 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 extra_instruction.operator.start_end_columns = (0, 0);
                 vec_of_added_instructions.push(extra_instruction.clone());
 
+                instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
+
                 //addi
                 let mut extra_instruction_2 = Instruction {
                     operator: Token {
@@ -465,6 +476,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 extra_instruction.operator.token_name = "sltu".to_string();
                 extra_instruction.operator.start_end_columns = (0, 0);
                 vec_of_added_instructions.push(extra_instruction.clone());
+
+                instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
+
 
                 //addi
                 let mut extra_instruction_2 = Instruction {
@@ -571,8 +585,11 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                         instruction_number: instruction.instruction_number,
                         line_number: instruction.line_number,
                         errors: vec![],
-                        label: None,
+                        label: instruction.label.clone(),
                     };
+
+                    instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
+
                     vec_of_added_instructions.push(extra_instruction);
                     instruction.operands[1].token_name = "$at".to_string();
                     instruction.operands[1].start_end_columns = (0, 0);
@@ -623,7 +640,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: vec![],
-                    label: None,
+                    label: instruction.label.clone(),
                 };
 
                 vec_of_added_instructions.push(extra_instruction.clone());
@@ -634,6 +651,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+                instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
 
                 monaco_line_info[instruction.line_number]
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
@@ -682,8 +700,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: vec![],
-                    label: None,
+                    label: instruction.label.clone(),
                 };
+
                 vec_of_added_instructions.push(extra_instruction.clone());
                 //adjust dsubi for the added instruction
                 instruction.operator.token_name = "dsub".to_string();
@@ -691,6 +710,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+                instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
 
                 monaco_line_info[instruction.line_number]
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
@@ -740,7 +760,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: vec![],
-                    label: None,
+                    label: instruction.label.clone(),
                 };
                 vec_of_added_instructions.push(extra_instruction.clone());
 
@@ -750,6 +770,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+                instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
 
                 monaco_line_info[instruction.line_number]
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
@@ -798,7 +819,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: vec![],
-                    label: None,
+                    label: instruction.label.clone(),
                 };
                 vec_of_added_instructions.push(extra_instruction.clone());
 
@@ -808,6 +829,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+                instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
 
                 monaco_line_info[instruction.line_number]
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
@@ -856,7 +878,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: vec![],
-                    label: None,
+                    label: instruction.label.clone(),
                 };
                 vec_of_added_instructions.push(extra_instruction.clone());
                 //adjust dmuli for the added instruction
@@ -865,6 +887,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+                instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
 
                 monaco_line_info[instruction.line_number]
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
@@ -913,7 +936,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: vec![],
-                    label: None,
+                    label: instruction.label.clone(),
                 };
                 vec_of_added_instructions.push(extra_instruction.clone());
                 //adjust dmuliu for the added instruction
@@ -922,6 +945,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+                instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
 
                 monaco_line_info[instruction.line_number]
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
@@ -970,15 +994,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: vec![],
-                    label: None,
+                    label: instruction.label.clone(),
                 };
                 vec_of_added_instructions.push(extra_instruction.clone());
+
                 //adjust divi for the added instruction
                 instruction.operator.token_name = "div".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+                instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
 
                 monaco_line_info[instruction.line_number]
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
@@ -1021,15 +1047,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: vec![],
-                    label: None,
+                    label: instruction.label.clone(),
                 };
                 vec_of_added_instructions.push(extra_instruction.clone());
+
                 //adjust ddivi for the added instruction
                 instruction.operator.token_name = "ddiv".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+                instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
 
                 monaco_line_info[instruction.line_number]
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
@@ -1076,15 +1104,17 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: vec![],
-                    label: None,
+                    label: instruction.label.clone(),
                 };
                 vec_of_added_instructions.push(extra_instruction.clone());
+
                 //adjust ddiviu for the added instruction
                 instruction.operator.token_name = "ddivu".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[2].token_name = "$at".to_string();
                 instruction.operands[2].start_end_columns = (0, 0);
                 instruction.instruction_number += 1;
+                instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
 
                 monaco_line_info[instruction.line_number]
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
