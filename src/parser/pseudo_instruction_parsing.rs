@@ -171,7 +171,6 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
 
-
                 //set r0 to 1 if r1 - r2 != 0
                 instruction.operator.token_name = "sltu".to_string();
                 instruction.operator.start_end_columns = (0, 0);
@@ -478,7 +477,6 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 vec_of_added_instructions.push(extra_instruction.clone());
 
                 instruction.label = None; //if the pseudo-instruction had a label, remove it so it's only on the first expanded instruction
-
 
                 //addi
                 let mut extra_instruction_2 = Instruction {
