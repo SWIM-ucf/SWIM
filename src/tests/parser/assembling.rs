@@ -1,17 +1,13 @@
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::parser;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
-    NonASCIIChar, NonASCIIString,
-};
+use crate::parser::parser_structs_and_enums::ErrorType::{NonASCIIChar, NonASCIIString};
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
 mod read_register_tests {
     use crate::parser::assembling::read_register;
-    use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
+    use crate::parser::parser_structs_and_enums::ErrorType::{
         IncorrectRegisterTypeFP, IncorrectRegisterTypeGP, UnrecognizedGPRegister,
     };
-    use crate::parser::parser_structs_and_enums::instruction_tokenization::RegisterType::{
-        FloatingPoint, GeneralPurpose,
-    };
+    use crate::parser::parser_structs_and_enums::RegisterType::{FloatingPoint, GeneralPurpose};
 
     #[test]
     fn read_register_returns_correct_binary_on_valid_register_name() {
@@ -46,7 +42,7 @@ mod read_register_tests {
 
 mod immediate_tests {
     use crate::parser::assembling::read_immediate;
-    use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
+    use crate::parser::parser_structs_and_enums::ErrorType::{
         ImmediateOutOfBounds, NonIntImmediate,
     };
 
@@ -92,7 +88,7 @@ mod immediate_tests {
 
 mod memory_address_tests {
     use crate::parser::assembling::read_memory_address;
-    use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
+    use crate::parser::parser_structs_and_enums::ErrorType::{
         ImmediateOutOfBounds, InvalidMemorySyntax, NonIntImmediate, UnrecognizedGPRegister,
     };
 
@@ -185,7 +181,7 @@ mod append_instruction_component_tests {
 
 mod read_label_absolute_tests {
     use crate::parser::assembling::read_label_absolute;
-    use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::LabelNotFound;
+    use crate::parser::parser_structs_and_enums::ErrorType::LabelNotFound;
     use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
     use crate::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
     use std::collections::HashMap;

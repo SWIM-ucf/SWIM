@@ -23,7 +23,7 @@ mod parser_main_function_tests {
 }
 
 mod read_instructions_tests {
-    use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::JALRRDRegisterZero;
+    use crate::parser::parser_structs_and_enums::ErrorType::JALRRDRegisterZero;
     use crate::tests::parser::parser_assembler_main::helper_functions::instruction_parser;
 
     #[test]
@@ -769,8 +769,8 @@ use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::{
     create_binary_vec, parser, place_binary_in_middle_of_another, read_instructions,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::UnsupportedInstruction;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
+use crate::parser::parser_structs_and_enums::ErrorType::UnsupportedInstruction;
+use crate::parser::parser_structs_and_enums::ProgramInfo;
 use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
 use crate::parser::pseudo_instruction_parsing::{
     complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers,
@@ -802,7 +802,7 @@ fn place_binary_works_dahi() {
 mod helper_functions {
     use crate::parser::assembling::assemble_data_binary;
     use crate::parser::parser_assembler_main::read_instructions;
-    use crate::parser::parser_structs_and_enums::instruction_tokenization::Instruction;
+    use crate::parser::parser_structs_and_enums::Instruction;
     use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
     use crate::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
     use std::collections::HashMap;
@@ -887,7 +887,7 @@ fn console_output_post_assembly_works_with_errors() {
     .0
     .console_out_post_assembly;
 
-    assert_eq!(result, "UnrecognizedGPRegister on line 2 with token \"1235\"\nGP register is not recognized. A valid, similar register is: r23.\n\nUnrecognizedGPRegister on line 6 with token \"t1\"\nGP register is not recognized. A valid, similar register is: $t1.\n\nInvalidMemorySyntax on line 6 with token \"address\"\nThe given string for memory does not match syntax of \"offset(base)\" or \"label\".\n\nImproperlyFormattedASCII on line 4 with token \"100\"\nToken recognized as ASCII does not start and or end with double quotes (\").\n\n")
+    assert_eq!(result, "UnrecognizedGPRegister on line 2 with token \"1235\"\nGP register is not recognized. A valid, similar register is: $a3.\n\nUnrecognizedGPRegister on line 6 with token \"t1\"\nGP register is not recognized. A valid, similar register is: $t1.\n\nInvalidMemorySyntax on line 6 with token \"address\"\nThe given string for memory does not match syntax of \"offset(base)\" or \"label\".\n\nImproperlyFormattedASCII on line 4 with token \"100\"\nToken recognized as ASCII does not start and or end with double quotes (\").\n\n")
 }
 
 #[test]

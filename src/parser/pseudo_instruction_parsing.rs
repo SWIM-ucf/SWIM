@@ -1,6 +1,6 @@
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::IncorrectNumberOfOperands;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::Operator;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{
+use crate::parser::parser_structs_and_enums::ErrorType::IncorrectNumberOfOperands;
+use crate::parser::parser_structs_and_enums::TokenType::Operator;
+use crate::parser::parser_structs_and_enums::{
     Data, Error, Instruction, MonacoLineInfo, PseudoDescription, Token,
 };
 use std::collections::HashMap;

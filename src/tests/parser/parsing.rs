@@ -1,12 +1,10 @@
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::parser;
-use crate::parser::parser_structs_and_enums::instruction_tokenization::ErrorType::{
+use crate::parser::parser_structs_and_enums::ErrorType::{
     LabelAssignmentError, LabelMultipleDefinition, MissingComma,
 };
-use crate::parser::parser_structs_and_enums::instruction_tokenization::TokenType::{
-    Label, Operator, Unknown,
-};
-use crate::parser::parser_structs_and_enums::instruction_tokenization::{
+use crate::parser::parser_structs_and_enums::TokenType::{Label, Operator, Unknown};
+use crate::parser::parser_structs_and_enums::{
     Data, Error, ErrorType, Instruction, MonacoLineInfo, Token,
 };
 use crate::parser::parsing::create_label_map;
@@ -808,7 +806,7 @@ fn suggest_error_corrections_works_with_various_gp_registers() {
     );
     assert_eq!(
         result[1].errors[1].message,
-        "GP register is not recognized. A valid, similar register is: r0.\n"
+        "GP register is not recognized. A valid, similar register is: $ra.\n"
     );
 }
 
