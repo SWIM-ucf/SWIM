@@ -154,6 +154,7 @@ pub enum TokenType {
     Byte,
     Float,
     Double,
+    Directive,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -165,11 +166,13 @@ pub enum ErrorType {
     UnrecognizedDataType,    //Given string does not match data type directives
     IncorrectRegisterTypeFP, //Expected GP Register but received FP
     IncorrectRegisterTypeGP, //Expected FP Register but received GP
-    MissingComma,            //Operand expected to end with a comma but does not
+    MissingComma, //Operand expected to end with a comma but does not
+    MissingLabel, //The given datum is not preceded by a label.
+    UnnecessaryComma,        //The given token should not end with a comma
     ImmediateOutOfBounds,    //Immediate value given cannot be expressed in given number of bits
     NonIntImmediate,         //Given string cannot be recognized as an integer
     NonFloatImmediate,       //Given string cannot be recognized as a float
-    InvalidMemorySyntax, //Given string for memory does not match syntax of "offset(base)" or "label"
+    InvalidMemorySyntax,     //Given string for memory does not match syntax of "offset(base)" or "label"
     IncorrectNumberOfOperands, //The given number of operands does not match the number expected for an instruction
     LabelAssignmentError, //A label is specified but it is not followed by anything committed to memory
     LabelMultipleDefinition, //The given label name is already used elsewhere in the project

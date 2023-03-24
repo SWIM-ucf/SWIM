@@ -1,5 +1,5 @@
 use crate::parser::parser_structs_and_enums::ErrorType::*;
-use crate::parser::parser_structs_and_enums::TokenType::{Label, Operator, Unknown};
+use crate::parser::parser_structs_and_enums::TokenType::{Directive, Label, Operator, Unknown};
 use crate::parser::parser_structs_and_enums::{
     Data, Error, Instruction, MonacoLineInfo, Token, FP_REGISTERS, GP_REGISTERS,
 };
@@ -124,9 +124,205 @@ pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
     monaco_line_info_vec
 }
 
+///Checks the name of every token on a line and makes sure that labels, directives, and operators do not end in commas while
+/// all but the last operand or datum on a line does. Also, pops commas off of the end of all tokens on the line.
+pub fn remove_commas(line: &mut MonacoLineInfo){
+    //first check every token to see if they end in commas
+    let mut has_commas: Vec<bool> = Vec::new();
+    for token in &mut line.tokens{
+        if token.token_name.ends_with(','){
+            token.token_name.pop();
+            has_commas.push(true);
+        }else{
+            has_commas.push(false);
+        }
+    }
+    //check all labels. No label should end in a comma
+    let mut i = 0;
+    while line.tokens.len() > i &&  line.tokens[i].token_name.ends_with(':') {
+        if has_commas[i]{
+            line.errors.push(Error{
+                error_name: UnnecessaryComma,
+                token_causing_error: line.tokens[i].clone().token_name,
+                start_end_columns: line.tokens[i].start_end_columns,
+                message: "".to_string(),
+            });
+        }
+        i += 1;
+    }
+    //the following token should be the operator or the directive. Also should not end in a comma
+    if line.tokens.len() > i && has_commas[i] {
+        line.errors.push(Error{
+            error_name: UnnecessaryComma,
+            token_causing_error: line.tokens[i].clone().token_name,
+            start_end_columns: line.tokens[i].start_end_columns,
+            message: "".to_string(),
+        });
+    }
+    i += 1;
+
+    //all remaining tokens except the last should end in a comma
+    while line.tokens.len() > i + 1 {
+        if !has_commas[i]{
+            line.errors.push(Error{
+                error_name: MissingComma,
+                token_causing_error: line.tokens[i].clone().token_name,
+                start_end_columns: line.tokens[i].start_end_columns,
+                message: "".to_string(),
+            });
+        }
+        i += 1;
+    }
+
+    //finally, make sure the last token on the line does not end in a comma
+    if line.tokens.len() == i + 1 && has_commas[i]{
+        line.errors.push(Error{
+            error_name: UnnecessaryComma,
+            token_causing_error: line.tokens[i].clone().token_name,
+            start_end_columns: line.tokens[i].start_end_columns,
+            message: "".to_string(),
+        });
+    }
+}
+
+pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instruction>, Vec<Data>) {
+    let mut instruction_list: Vec<Instruction> = Vec::new();
+    let mut data_list: Vec<Data> = Vec::new();
+    let mut labels: Vec<(Token, usize)> = Vec::new();
+
+    let mut is_text = true;
+    let mut i = 0;
+    while i < lines.len() {
+        if lines[i].tokens.is_empty(){
+            i += 1;
+            continue;
+        }
+        //check commas and remove them
+        remove_commas(&mut lines[i]);
+
+        //handle transitions between .data and .text
+        if lines[i].tokens[0].token_name.to_lowercase() == ".text" || lines[i].tokens[0].token_name.to_lowercase() == ".data" {
+            lines[i].tokens[0].token_type = Directive;
+            while !labels.is_empty(){
+                let last = labels.pop().unwrap();
+                lines[last.1].errors.push(Error{
+                    error_name: LabelAssignmentError,
+                    token_causing_error: last.0.token_name,
+                    start_end_columns: last.0.start_end_columns,
+                    message: "".to_string(),
+                });
+            }
+            if lines[i].tokens[0].token_name.to_lowercase() == ".text"{
+                is_text = true;
+
+            }else {
+                is_text = false;
+            }
+            i += 1;
+            continue;
+        }
+        let mut j = 0;
+        //add all labels to the label stack
+        while lines[i].tokens.len() > j && lines[i].tokens[j].token_name.ends_with(':') {
+            lines[i].tokens[j].token_name.pop();
+            lines[i].tokens[j].token_type = Label;
+            labels.push((lines[i].tokens[j].clone(), i));
+            j += 1;
+        }
+        //make sure there are still tokens remaining on the line
+        if lines[i].tokens.len() == j {
+            i += 1;
+            continue;
+        }
+        //this chunk handles how we read .text
+        if is_text {
+            let mut instruction = Instruction{
+                line_number: i,
+                ..Default::default()
+            };
+            //push all incomplete labels to reference this instruction
+            while !labels.is_empty(){
+                instruction.label = Some(labels.pop().unwrap());
+                //todo swap instructions to handle multiple labels and change the line to:
+                //instruction.labels.push(labels.pop().unwrap());
+            }
+            //the next token is the operator
+            lines[i].tokens[j].token_type = Operator;
+            instruction.operator = lines[i].tokens[j].clone();
+            j += 1;
+            //any remaining tokens are the operands
+            while lines[i].tokens.len() > j {
+                instruction.operands.push(lines[i].tokens[j].clone());
+                j += 1;
+            }
+            instruction_list.push(instruction);
+
+            //this chunk handles how we read .data
+        } else {
+            let mut data = Data::default();
+            if labels.is_empty(){
+                let start_end = (lines[i].tokens[0].start_end_columns.0, lines[i].tokens.last().unwrap().start_end_columns.1);
+                lines[i].errors.push(Error {
+                    error_name: MissingLabel,
+                    token_causing_error: format!("Line {}", i),
+                    start_end_columns: start_end,
+                    message: "".to_string(),
+                })
+            }
+            else {
+                data.label = labels.pop().unwrap().0;
+                //todo swap label on data to also store line number (like instruction does). Then change line to:
+                //data.label = labels.pop().unwrap();
+            }
+            //any other labels in the stack are pushed to the data_list to be initialized as empty words in the assemble data function
+            for label in &labels {
+                data_list.push(Data{
+                    line_number: label.1,
+                    label: label.0.clone(),
+                    ..Default::default()
+                });
+            }
+            //the next token should be the data type directive
+            data.data_type = lines[i].tokens[j].clone();
+            j += 1;
+            //any remaining tokens should be data entries
+            while lines[i].tokens.len() > j {
+                data.data_entries_and_values.push((lines[i].tokens[j].clone(), 0));
+                j += 1;
+            }
+            data_list.push(data);
+        }
+        i += 1;
+    }
+
+    //handle any unfinished labels
+    if is_text{
+        //unfinished labels in text cause an error
+        for label in labels{
+            lines[label.1].errors.push(Error{
+                    error_name: LabelAssignmentError,
+                    token_causing_error: label.0.token_name,
+                    start_end_columns: label.0.start_end_columns,
+                    message: "".to_string(),
+                });
+        }
+    }else {
+        //unfinished labels in data are pushed to the list to be initialized as empty words in the assembler
+        for label in labels {
+            data_list.push(Data {
+                line_number: label.1,
+                label: label.0,
+                ..Default::default()
+            });
+        }
+    }
+
+    (instruction_list, data_list)
+}
+
 ///This function takes the vector of lines created by tokenize program and turns them into instructions
 ///assigning labels, operators, operands, and line numbers and data assigning labels, data types, and values
-pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instruction>, Vec<Data>) {
+pub fn sep(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instruction>, Vec<Data>) {
     let mut instruction_list: Vec<Instruction> = Vec::new();
     let mut instruction = Instruction::default();
     let mut data_list: Vec<Data> = Vec::new();
