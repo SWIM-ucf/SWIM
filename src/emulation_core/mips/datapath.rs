@@ -195,7 +195,7 @@ impl Default for MipsDatapath {
 
         // Set the stack pointer ($sp) to initially start at the end
         // of memory.
-        datapath.registers.gpr[29] = super::memory::CAPACITY_BYTES as u64;
+        datapath.registers.gpr[29] = super::memory::CAPACITY_BYTES as u64 - 1;
 
         datapath
     }
