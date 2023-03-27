@@ -191,6 +191,10 @@ pub mod sub {
     }
 
     #[test]
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register $s0, rather than having the register unmodified per the MIPS64v6
+    // specification.
     fn sub_32_bit_underflow() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
 
@@ -695,11 +699,15 @@ pub mod addi_addiu {
     }
 
     #[test]
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register S0, rather than having the register unmodified per the MIPS64v6
+    // specification.
     fn addi_overflow_test() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x1
-        //                                  addi    $t0   $s0          1
+        // $s0 = $t0 + 0x4
+        //                                  addi    $t0   $s0          4
         let instructions: Vec<u32> = vec![0b001000_01000_10000_0000000000000100];
         datapath.initialize(instructions)?;
         datapath.registers[GpRegisterType::T0] = 0xffffffff;
@@ -707,7 +715,7 @@ pub mod addi_addiu {
         datapath.execute_instruction();
 
         // If there is an overflow on addi, $s0 should not change.
-        assert_eq!(datapath.registers[GpRegisterType::S0], 123);
+        assert_eq!(datapath.registers[GpRegisterType::S0], 3);
         Ok(())
     }
 
@@ -809,6 +817,10 @@ pub mod daddi_and_daddiu {
     }
 
     #[test]
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register T1, rather than having the register unmodified per the MIPS64v6
+    // specification.
     fn daddi_overflow_test() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
 
@@ -820,9 +832,7 @@ pub mod daddi_and_daddiu {
         datapath.registers[GpRegisterType::S0] = 123;
         datapath.execute_instruction();
 
-        // if there is an overflow, $s0 should not change.
-        // For the addiu instruction, $s0 would change on overflow, it would become 3.
-        assert_eq!(datapath.registers[GpRegisterType::S0], 123);
+        assert_eq!(datapath.registers[GpRegisterType::S0], 0);
         Ok(())
     }
 
@@ -885,7 +895,7 @@ pub mod daddi_and_daddiu {
         datapath.execute_instruction();
 
         // if there is an overflow, $s0 should not change.
-        // For the addiu instruction, $s0 would change on overflow, it would become 3.
+        // For the daddiu instruction, $s0 would change on overflow, it would become 3.
         assert_eq!(datapath.registers[GpRegisterType::S0], 3);
         Ok(())
     }
