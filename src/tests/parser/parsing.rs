@@ -901,11 +901,11 @@ fn suggest_error_corrections_works_with_labels() {
 
     assert_eq!(
         result[0].errors[0].message,
-        "A valid, similar label is: table.\n"
+        "Given label is not found in the project. A valid, similar label is: table.\n"
     );
     assert_eq!(
         result[3].errors[0].message,
-        "A valid, similar label is: label.\n"
+        "Given label is not found in the project. A valid, similar label is: label.\n"
     );
 }
 
@@ -951,15 +951,15 @@ fn suggest_error_corrections_works_with_data_types() {
 
     assert_eq!(
         result[0].errors[0].message,
-        "A valid, similar data type is: .word.\n"
+        "Given string does not match data type directives. A valid, similar data type is: .word.\n"
     );
     assert_eq!(
         result[1].errors[0].message,
-        "A valid, similar data type is: .byte.\n"
+        "Given string does not match data type directives. A valid, similar data type is: .byte.\n"
     );
     assert_eq!(
         result[2].errors[0].message,
-        "A valid, similar data type is: .double.\n"
+        "Given string does not match data type directives.\n"
     );
 }
 
@@ -1006,7 +1006,7 @@ fn suggest_error_suggestions_associates_error_with_monaco_line_info() {
         error_name: ErrorType::UnrecognizedDataType,
         token_causing_error: ".wod".to_string(),
         start_end_columns: (5, 9),
-        message: "A valid, similar data type is: .word.\n".to_string(),
+        message: "Given string does not match data type directives. A valid, similar data type is: .word.\n".to_string(),
     };
     assert_eq!(lines[3].errors[1], actual);
 }
