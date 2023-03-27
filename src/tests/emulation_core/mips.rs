@@ -2560,20 +2560,36 @@ pub mod jump_and_link_tests {
 pub mod jr_and_jalr_tests {
     use super::*;
     #[test]
-    fn test_basic() -> Result<(), String> {
+    fn test_basic_jr() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
-        // let old_pc = datapath.registers.pc;
-        datapath.registers.gpr[0b01000] = 24;
-
         
         // JR $r8                            
         //                                  Special $r8  $zero $zero        JALR 
         let instructions: Vec<u32> = vec![0b000000_01000_00000_00000_00000_001001];
         datapath.initialize(instructions)?;
+        datapath.registers.gpr[0b01000] = 24;
         datapath.execute_instruction();
 
         assert_eq!(datapath.registers.pc, 24);
         assert_eq!(datapath.registers.gpr[8], 24);
+        Ok(())
+    }
+
+    #[test]
+    fn test_basic_jalr() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+        
+        // JALR $r8                            
+        //                                     Special  $r8  $zero $ra          JALR 
+        let instructions: Vec<u32> = vec![0,0,0b000000_01000_00000_11111_00000_001001];
+        datapath.initialize(instructions)?;
+        datapath.registers.pc = 8;
+        let initial_pc = datapath.registers.pc;
+        datapath.registers.gpr[0b01000] = 24;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 24);
+        assert_eq!(datapath.registers.gpr[31], initial_pc + 4);
         Ok(())
     }
 }

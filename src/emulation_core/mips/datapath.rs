@@ -514,13 +514,13 @@ impl MipsDatapath {
     fn set_rtype_special_control_signals(&mut self, s: RTypeSpecial) {
         match s.funct {
             FUNCT_JALR => {
-                self.signals.alu_op = AluOp::Addition;
-                self.signals.alu_src = AluSrc::ReadRegister2;
-                self.signals.branch = Branch::NoBranch; // don't care
+                // self.signals.alu_op = AluOp::Addition; // don't care
+                // self.signals.alu_src = AluSrc::ReadRegister2; // don't care
+                // self.signals.branch = Branch::NoBranch; // don't care
                 self.signals.imm_shift = ImmShift::Shift0; 
                 self.signals.jump = Jump::YesJumpJALR;
-                self.signals.mem_read = MemRead::NoRead;
-                self.signals.mem_to_reg = MemToReg::UseAlu;
+                self.signals.mem_read = MemRead::NoRead; // Don't care
+                self.signals.mem_to_reg = MemToReg::UsePcPlusFour;
                 self.signals.mem_write = MemWrite::NoWrite;
                 self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
                 self.signals.reg_dst = RegDst::Reg3;
