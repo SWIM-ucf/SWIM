@@ -1181,6 +1181,42 @@
 <a href="#1181" id="1181">1181</a>
 <a href="#1182" id="1182">1182</a>
 <a href="#1183" id="1183">1183</a>
+<a href="#1184" id="1184">1184</a>
+<a href="#1185" id="1185">1185</a>
+<a href="#1186" id="1186">1186</a>
+<a href="#1187" id="1187">1187</a>
+<a href="#1188" id="1188">1188</a>
+<a href="#1189" id="1189">1189</a>
+<a href="#1190" id="1190">1190</a>
+<a href="#1191" id="1191">1191</a>
+<a href="#1192" id="1192">1192</a>
+<a href="#1193" id="1193">1193</a>
+<a href="#1194" id="1194">1194</a>
+<a href="#1195" id="1195">1195</a>
+<a href="#1196" id="1196">1196</a>
+<a href="#1197" id="1197">1197</a>
+<a href="#1198" id="1198">1198</a>
+<a href="#1199" id="1199">1199</a>
+<a href="#1200" id="1200">1200</a>
+<a href="#1201" id="1201">1201</a>
+<a href="#1202" id="1202">1202</a>
+<a href="#1203" id="1203">1203</a>
+<a href="#1204" id="1204">1204</a>
+<a href="#1205" id="1205">1205</a>
+<a href="#1206" id="1206">1206</a>
+<a href="#1207" id="1207">1207</a>
+<a href="#1208" id="1208">1208</a>
+<a href="#1209" id="1209">1209</a>
+<a href="#1210" id="1210">1210</a>
+<a href="#1211" id="1211">1211</a>
+<a href="#1212" id="1212">1212</a>
+<a href="#1213" id="1213">1213</a>
+<a href="#1214" id="1214">1214</a>
+<a href="#1215" id="1215">1215</a>
+<a href="#1216" id="1216">1216</a>
+<a href="#1217" id="1217">1217</a>
+<a href="#1218" id="1218">1218</a>
+<a href="#1219" id="1219">1219</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of a MIPS64 datapath.
 //!
 //! It is assumed that while moving through stages, only one
@@ -1604,6 +1640,14 @@
                 <span class="self">self</span>.state.shamt = r.shamt <span class="kw">as </span>u32;
                 <span class="self">self</span>.state.funct = r.funct <span class="kw">as </span>u32;
             }
+            Instruction::RTypeSpecial(s) =&gt; {
+                <span class="self">self</span>.state.rs = s.rs <span class="kw">as </span>u32;
+                <span class="self">self</span>.state.rt = s.rt <span class="kw">as </span>u32;
+                <span class="self">self</span>.state.rd = s.rd <span class="kw">as </span>u32;
+
+                <span class="self">self</span>.state.shamt = s.shamt <span class="kw">as </span>u32; <span class="comment">// Hint field
+                </span><span class="self">self</span>.state.funct = s.funct <span class="kw">as </span>u32;
+            }
             Instruction::IType(i) =&gt; {
                 <span class="self">self</span>.state.rs = i.rs <span class="kw">as </span>u32;
                 <span class="self">self</span>.state.rt = i.rt <span class="kw">as </span>u32;
@@ -1676,11 +1720,38 @@
             Instruction::FpuIType(i) =&gt; {
                 <span class="self">self</span>.set_fpu_itype_control_signals(i);
             }
+            Instruction::RTypeSpecial(s) =&gt; {
+                <span class="self">self</span>.set_rtype_special_control_signals(s);
+            }
         }
     }
 
-    <span class="doccomment">/// Set rtype control signals. This function may have a Match statement added
-    /// in the future for dealing with different special case rtype instructions.
+    <span class="comment">// Set RTypeSpecial control signals.
+    </span><span class="kw">fn </span>set_rtype_special_control_signals(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: RTypeSpecial) {
+        <span class="kw">match </span>s.funct {
+            FUNCT_JALR =&gt; {
+                <span class="comment">// self.signals.alu_op = AluOp::Addition; // don&#39;t care
+                // self.signals.alu_src = AluSrc::ReadRegister2; // don&#39;t care
+                // self.signals.branch = Branch::NoBranch; // don&#39;t care
+                </span><span class="self">self</span>.signals.imm_shift = ImmShift::Shift0;
+                <span class="self">self</span>.signals.jump = Jump::YesJumpJALR;
+                <span class="self">self</span>.signals.mem_read = MemRead::NoRead; <span class="comment">// Don&#39;t care
+                </span><span class="self">self</span>.signals.mem_to_reg = MemToReg::UsePcPlusFour;
+                <span class="self">self</span>.signals.mem_write = MemWrite::NoWrite;
+                <span class="self">self</span>.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                <span class="self">self</span>.signals.reg_dst = RegDst::Reg3;
+                <span class="self">self</span>.signals.reg_write = RegWrite::YesWrite;
+                <span class="self">self</span>.signals.reg_width = RegWidth::DoubleWord;
+            }
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                <span class="string">&quot;R-type-special instruction with function code `{}`&quot;</span>,
+                s.funct
+            )),
+        }
+    }
+
+    <span class="doccomment">/// Set basic rtype control signals. Special case Rtype instructions are dealt with
+    /// in set_rtype_special_control_signals()
     </span><span class="kw">fn </span>set_rtype_control_signals(<span class="kw-2">&amp;mut </span><span class="self">self</span>, r: RType) {
         <span class="self">self</span>.signals.alu_op = AluOp::UseFunctField;
         <span class="self">self</span>.signals.alu_src = AluSrc::ReadRegister2;
@@ -2308,6 +2379,7 @@
         <span class="self">self</span>.state.new_pc = <span class="kw">match </span><span class="self">self</span>.signals.jump {
             Jump::NoJump =&gt; <span class="self">self</span>.state.mem_mux1_to_mem_mux2,
             Jump::YesJump =&gt; <span class="self">self</span>.state.jump_address,
+            Jump::YesJumpJALR =&gt; <span class="self">self</span>.state.read_data_1,
         };
     }
 

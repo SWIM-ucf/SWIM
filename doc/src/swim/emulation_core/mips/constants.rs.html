@@ -131,6 +131,9 @@
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::control_signals::RegWidth;
 
 <span class="kw">pub const </span>FUNCT_SYSCALL: u8 = <span class="number">0b001100</span>;
@@ -146,6 +149,9 @@
 <span class="kw">pub const </span>FUNCT_DADDU: u8 = <span class="number">0b101101</span>;
 <span class="kw">pub const </span>FUNCT_DSUB: u8 = <span class="number">0b101110</span>;
 <span class="kw">pub const </span>FUNCT_DSUBU: u8 = <span class="number">0b101111</span>;
+
+<span class="kw">pub const </span>FUNCT_JALR: u8 = <span class="number">0b001001</span>;
+<span class="kw">pub const </span>FUNCT_JR_RELEASE6: u8 = FUNCT_JALR;
 
 <span class="doccomment">/// Used for `MUL` and `MUH`.
 </span><span class="kw">pub const </span>FUNCT_SOP30: u8 = <span class="number">0b011000</span>;

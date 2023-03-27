@@ -499,6 +499,7 @@
 <a href="#499" id="499">499</a>
 <a href="#500" id="500">500</a>
 <a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Internal datapath control signals.
 
 /// Full collection of control signals.
@@ -670,6 +671,7 @@
     <span class="attr">#[default]
     </span>NoJump = <span class="number">0</span>,
     YesJump = <span class="number">1</span>,
+    YesJumpJALR = <span class="number">2</span>,
 }
 
 <span class="doccomment">/// Determines if memory should be read.
