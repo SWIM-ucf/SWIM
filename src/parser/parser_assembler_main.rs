@@ -18,20 +18,25 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
     };
 
     (program_info.instructions, program_info.data) =
-        separate_data_and_text(program_info.monaco_line_info.clone());
+        separate_data_and_text(&mut program_info.monaco_line_info);
+
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
         &mut program_info.monaco_line_info,
     );
+
     let vec_of_data = assemble_data_binary(&mut program_info.data);
+
     let labels: HashMap<String, usize> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
+
     complete_lw_sw_pseudo_instructions(
         &mut program_info.instructions,
         &labels,
         &mut program_info.monaco_line_info,
     );
+
     read_instructions(
         &mut program_info.instructions,
         &labels,
@@ -61,6 +66,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
 
     (program_info.clone(), binary)
 }
+
 
 ///Takes the vector of instructions and assembles the binary for them.
 pub fn read_instructions(

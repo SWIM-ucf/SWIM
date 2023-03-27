@@ -162,7 +162,7 @@ pub fn remove_commas(line: &mut MonacoLineInfo){
     i += 1;
 
     //all remaining tokens except the last should end in a comma
-    while line.tokens.len() > i + 1 {
+    while i < line.tokens.len() - 1 {
         if !has_commas[i]{
             line.errors.push(Error{
                 error_name: MissingComma,
@@ -185,7 +185,9 @@ pub fn remove_commas(line: &mut MonacoLineInfo){
     }
 }
 
-pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instruction>, Vec<Data>) {
+///This function takes the vector of lines created by tokenize program and turns them into instructions
+///assigning labels, operators, operands, and line numbers and data assigning labels, data types, and values
+pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instruction>, Vec<Data>) {
     let mut instruction_list: Vec<Instruction> = Vec::new();
     let mut data_list: Vec<Data> = Vec::new();
     let mut labels: Vec<(Token, usize)> = Vec::new();
@@ -259,15 +261,24 @@ pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instructio
 
             //this chunk handles how we read .data
         } else {
-            let mut data = Data::default();
+            let mut data = Data{
+                line_number: i,
+                ..Default::default()
+            };
             if labels.is_empty(){
-                let start_end = (lines[i].tokens[0].start_end_columns.0, lines[i].tokens.last().unwrap().start_end_columns.1);
+                //if labels is empty, generate an error but assume the first token on the line was supposed to be the label
+                //Remove commas should have already generated a MissingComma error so we replace that with a more accurate error.
+                lines[i].errors.pop();
+                let start_end = lines[i].tokens[j].start_end_columns;
+                let token_name = lines[i].tokens[j].token_name.clone();
                 lines[i].errors.push(Error {
-                    error_name: MissingLabel,
-                    token_causing_error: format!("Line {}", i),
+                    error_name: ImproperlyFormattedLabel,
+                    token_causing_error: token_name,
                     start_end_columns: start_end,
                     message: "".to_string(),
-                })
+                });
+                data.label = lines[i].tokens[j].clone();
+                j += 1;
             }
             else {
                 data.label = labels.pop().unwrap().0;
@@ -315,185 +326,6 @@ pub fn separate_data_and_text(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instructio
                 ..Default::default()
             });
         }
-    }
-
-    (instruction_list, data_list)
-}
-
-///This function takes the vector of lines created by tokenize program and turns them into instructions
-///assigning labels, operators, operands, and line numbers and data assigning labels, data types, and values
-pub fn sep(mut lines: Vec<MonacoLineInfo>) -> (Vec<Instruction>, Vec<Data>) {
-    let mut instruction_list: Vec<Instruction> = Vec::new();
-    let mut instruction = Instruction::default();
-    let mut data_list: Vec<Data> = Vec::new();
-    let mut data = Data::default();
-    let mut is_text = true;
-
-    let mut i = 0;
-    //goes through each line of the line vector and builds instructions as it goes
-    while i < lines.len() {
-        if lines[i].tokens.is_empty() {
-            i += 1;
-            continue;
-        }
-        if lines[i].tokens[0].token_name.to_lowercase() == ".text" {
-            is_text = true;
-            i += 1;
-            continue;
-        } else if lines[i].tokens[0].token_name.to_lowercase() == ".data" {
-            is_text = false;
-            i += 1;
-            continue;
-        }
-
-        if is_text {
-            let mut operand_iterator = 1;
-
-            if lines[i].tokens[0].token_name.ends_with(':') {
-                //if the instruction already has a label at this point, that means that the user wrote a label on a line on its
-                //own and then wrote another label on the next line without ever finishing the first
-                if instruction.label.clone().is_some() {
-                    instruction.errors.push(Error {
-                        error_name: LabelAssignmentError,
-                        token_causing_error: lines[i].tokens[0].token_name.clone(),
-                        start_end_columns: lines[i].tokens[0].start_end_columns,
-                        message: "".to_string(),
-                    })
-                    //if the above error doesn't occur, we can push the label to the instruction struct.
-                } else {
-                    lines[i].tokens[0].token_name.pop();
-                    lines[i].tokens[0].token_type = Label;
-                    instruction.label = Some((lines[i].tokens[0].clone(), lines[i].line_number));
-                }
-
-                if lines[i].tokens.len() == 1 {
-                    //if the only token on the last line of the program is a label, the user never finished assigning a value to the label
-                    if i == (lines.len() - 1) {
-                        instruction.errors.push(Error {
-                            error_name: LabelAssignmentError,
-                            token_causing_error: lines[i].tokens[0].token_name.clone(),
-                            start_end_columns: lines[i].tokens[0].start_end_columns,
-                            message: "".to_string(),
-                        });
-                        instruction_list.push(instruction.clone());
-                    }
-
-                    i += 1;
-                    continue;
-                }
-                //since token[0] was a label, the operator will be token[1] and operands start at token[2]
-                lines[i].tokens[1].token_type = Operator;
-                instruction.operator = lines[i].tokens[1].clone();
-                operand_iterator = 2;
-            } else {
-                lines[i].tokens[0].token_type = Operator;
-                instruction.operator = lines[i].tokens[0].clone();
-            }
-
-            //push all operands to the instruction operand vec that will have commas
-            while operand_iterator < (lines[i].tokens.len() - 1) {
-                if lines[i].tokens[operand_iterator].token_name.ends_with(',') {
-                    lines[i].tokens[operand_iterator].token_name.pop();
-                } else {
-                    instruction.errors.push(Error {
-                        error_name: MissingComma,
-                        token_causing_error: lines[i].tokens[operand_iterator]
-                            .token_name
-                            .to_string(),
-                        start_end_columns: lines[i].tokens[operand_iterator].start_end_columns,
-                        message: "".to_string(),
-                    })
-                }
-                instruction
-                    .operands
-                    .push(lines[i].tokens[operand_iterator].clone());
-                operand_iterator += 1;
-            }
-
-            //simple statement to handle cases where the user doesn't finish instructions
-            if operand_iterator >= lines[i].tokens.len() {
-                instruction.line_number = lines[i].line_number;
-                instruction_list.push(instruction.clone());
-                i += 1;
-                continue;
-            }
-
-            //push last operand that will not have a comma
-            instruction
-                .operands
-                .push(lines[i].tokens[operand_iterator].clone());
-
-            instruction.line_number = lines[i].line_number;
-
-            //push completed instruction to the instruction vec
-            instruction_list.push(instruction.clone());
-            instruction = Instruction::default();
-        }
-        //if not text, it must be data
-        else {
-            data.line_number = lines[i].line_number;
-
-            //the first token should be the label name
-            if lines[i].tokens[0].token_name.ends_with(':') {
-                lines[i].tokens[0].token_name.pop();
-                lines[i].tokens[0].token_type = Label;
-                data.label = lines[i].tokens[0].clone();
-            } else {
-                data.errors.push(Error {
-                    error_name: ImproperlyFormattedLabel,
-                    token_causing_error: lines[i].tokens[0].token_name.to_string(),
-                    start_end_columns: lines[i].tokens[0].start_end_columns,
-                    message: "".to_string(),
-                });
-                lines[i].tokens[0].token_type = Label;
-                data.label = lines[i].tokens[0].clone();
-            }
-
-            //just a simple check in case the user didn't complete a line
-            if lines[i].tokens.len() < 2 {
-                data.errors.push(Error {
-                    error_name: ImproperlyFormattedData,
-                    token_causing_error: "".to_string(),
-                    start_end_columns: (
-                        lines[i].tokens[0].start_end_columns.0,
-                        lines[i].tokens.last().unwrap().start_end_columns.1,
-                    ), //the entire length of the line
-                    message: "".to_string(),
-                });
-                i += 1;
-                continue;
-            }
-
-            //the second token on the line is the data type
-            data.data_type = lines[i].tokens[1].clone();
-
-            let mut value_iterator = 2;
-
-            //push all values to the data vec that will have commas
-            while value_iterator < (lines[i].tokens.len() - 1) {
-                if lines[i].tokens[value_iterator].token_name.ends_with(',') {
-                    lines[i].tokens[value_iterator].token_name.pop();
-                } else {
-                    instruction.errors.push(Error {
-                        error_name: MissingComma,
-                        token_causing_error: lines[i].tokens[value_iterator].token_name.to_string(),
-                        start_end_columns: lines[i].tokens[value_iterator].start_end_columns,
-                        message: "".to_string(),
-                    })
-                }
-                data.data_entries_and_values
-                    .push((lines[i].tokens[value_iterator].clone(), 0));
-                value_iterator += 1;
-            }
-
-            //push last operand that will not have a comma
-            data.data_entries_and_values
-                .push((lines[i].tokens[value_iterator].clone(), 0));
-
-            data_list.push(data.clone());
-            data = Data::default();
-        }
-        i += 1;
     }
 
     (instruction_list, data_list)

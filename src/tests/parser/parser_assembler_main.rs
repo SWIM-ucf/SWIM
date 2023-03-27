@@ -811,7 +811,7 @@ mod helper_functions {
         file_string = file_string.to_lowercase();
 
         let mut monaco_line_info_vec = tokenize_program(file_string);
-        let (mut instruction_list, mut data) = separate_data_and_text(monaco_line_info_vec.clone());
+        let (mut instruction_list, mut data) = separate_data_and_text(&mut monaco_line_info_vec.clone());
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
@@ -835,7 +835,7 @@ fn create_binary_vec_works_with_data() {
     let monaco_line_info_vec = tokenize_program(file_string);
     program_info.monaco_line_info = monaco_line_info_vec;
     (program_info.instructions, program_info.data) =
-        separate_data_and_text(program_info.monaco_line_info.clone());
+        separate_data_and_text(&mut program_info.monaco_line_info.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,

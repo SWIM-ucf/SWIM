@@ -167,7 +167,6 @@ pub enum ErrorType {
     IncorrectRegisterTypeFP, //Expected GP Register but received FP
     IncorrectRegisterTypeGP, //Expected FP Register but received GP
     MissingComma, //Operand expected to end with a comma but does not
-    MissingLabel, //The given datum is not preceded by a label.
     UnnecessaryComma,        //The given token should not end with a comma
     ImmediateOutOfBounds,    //Immediate value given cannot be expressed in given number of bits
     NonIntImmediate,         //Given string cannot be recognized as an integer
