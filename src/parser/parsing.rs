@@ -539,16 +539,27 @@ pub fn suggest_error_corrections(
                                 closest.1 = label.0.to_string();
                             }
                         }
-
-                        let mut suggestion = "A valid, similar label is: ".to_string();
-                        suggestion.push_str(&format!("{}.\n", &closest.1));
-                        error.message = suggestion;
+                        let mut message = "Given label is not found in the project.".to_string();
+                        //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
+                        if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
+                            message.push_str(&format!(
+                                " A valid, similar label is: {}.\n",
+                                &closest.1
+                            ));
+                        } else {
+                            message.push('\n');
+                        }
+                        error.message = message;
                     }
                     JALRRDRegisterZero => {
                         error.message =
                             "The destination address for JALR cannot be the zero register\n"
                                 .to_string();
                     }
+                    UnnecessaryComma => {
+                        error.message = "The given token should not end with a comma\n".to_string()
+                    }
+
                     _ => {
                         error.message = format!("{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH TEXT.\n", error.error_name);
                     }
@@ -625,9 +636,17 @@ pub fn suggest_error_corrections(
                         }
                     }
 
-                    let mut suggestion = "A valid, similar data type is: ".to_string();
-                    suggestion.push_str(&format!("{}.\n", &closest.1));
-                    error.message = suggestion;
+                    let mut message = "Given string does not match data type directives".to_string();
+                    //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
+                    if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
+                        message.push_str(&format!(
+                            " A valid, similar data type is: {}.\n",
+                            &closest.1
+                        ));
+                    } else {
+                        message.push('\n');
+                    }
+                    error.message = message;
                 }
                 LabelAssignmentError => {
                     error.message = "A label is specified but it is not followed by data or an instruction committed to memory.\n".to_string();
