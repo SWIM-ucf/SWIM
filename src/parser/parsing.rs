@@ -429,8 +429,11 @@ pub fn suggest_error_corrections(
                         let mut message = "GP register is not recognized.".to_string();
                         //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                         if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
-                            message.push_str(&format!(" A valid, similar register is: {}.\n", &closest.1));
-                        }else {
+                            message.push_str(&format!(
+                                " A valid, similar register is: {}.\n",
+                                &closest.1
+                            ));
+                        } else {
                             message.push('\n');
                         }
                         error.message = message;
@@ -448,8 +451,11 @@ pub fn suggest_error_corrections(
                         let mut message = "FP register is not recognized.".to_string();
                         //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                         if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
-                            message.push_str(&format!(" A valid, similar register is: {}.\n", &closest.1));
-                        }else {
+                            message.push_str(&format!(
+                                " A valid, similar register is: {}.\n",
+                                &closest.1
+                            ));
+                        } else {
                             message.push('\n');
                         }
                         error.message = message;
@@ -467,7 +473,10 @@ pub fn suggest_error_corrections(
                         let mut message = "Instruction is not recognized.".to_string();
                         //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                         if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
-                            message.push_str(&format!(" A valid, similar instruction is: {}.\n", &closest.1));
+                            message.push_str(&format!(
+                                " A valid, similar instruction is: {}.\n",
+                                &closest.1
+                            ));
                         } else {
                             message.push('\n');
                         }
