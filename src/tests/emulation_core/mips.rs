@@ -2557,6 +2557,15 @@ pub mod jump_and_link_tests {
     }
 }
 
+pub mod jr_and_jalr_tests {
+    use super::*;
+    #[test]
+    fn test_basic() -> Result<(), String> {
+        assert_eq!(1,2);
+        Ok(())
+    }
+}
+
 pub mod beq_tests {
     use super::*;
     #[test]
