@@ -559,7 +559,6 @@ pub fn suggest_error_corrections(
                     UnnecessaryComma => {
                         error.message = "The given token should not end with a comma\n".to_string()
                     }
-
                     _ => {
                         error.message = format!("{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH TEXT.\n", error.error_name);
                     }
@@ -569,21 +568,11 @@ pub fn suggest_error_corrections(
                 if error.error_name == LabelAssignmentError
                     || error.error_name == LabelMultipleDefinition
                 {
-                    //todo remove following line once Jerrett has started referencing error and not just start_end_columns
-                    monaco_line_info[instruction.labels.clone().last().unwrap().token_line]
-                        .error_start_end_columns
-                        .push(error.start_end_columns);
-
                     //add error to monaco_line_info
                     monaco_line_info[instruction.line_number]
                         .errors
                         .push(error.clone());
                 } else {
-                    //todo remove following line once Jerrett has started referencing error and not just start_end_columns
-                    monaco_line_info[instruction.line_number]
-                        .error_start_end_columns
-                        .push(error.start_end_columns);
-
                     //add error to monaco_line_info
                     monaco_line_info[instruction.line_number]
                         .errors
@@ -636,7 +625,8 @@ pub fn suggest_error_corrections(
                         }
                     }
 
-                    let mut message = "Given string does not match data type directives".to_string();
+                    let mut message =
+                        "Given string does not match data type directives".to_string();
                     //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                     if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
                         message.push_str(&format!(
@@ -689,6 +679,9 @@ pub fn suggest_error_corrections(
                 NonASCIIString => {
                     error.message =
                         "One or multiple characters within the given string cannot be represented in ASCII.\n".to_string();
+                }
+                UnnecessaryComma => {
+                    error.message = "The given token should not end with a comma\n".to_string()
                 }
                 _ => {
                     error.message = format!("{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n", error.error_name);
