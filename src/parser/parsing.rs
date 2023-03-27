@@ -568,7 +568,6 @@ pub fn suggest_error_corrections(
                 if error.error_name == LabelAssignmentError
                     || error.error_name == LabelMultipleDefinition
                 {
-
                     //add error to monaco_line_info
                     monaco_line_info[instruction.labels.clone().last().unwrap().token_line]
                         .errors
