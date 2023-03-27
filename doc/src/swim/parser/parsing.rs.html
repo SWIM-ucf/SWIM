@@ -679,20 +679,11 @@
 <a href="#679" id="679">679</a>
 <a href="#680" id="680">680</a>
 <a href="#681" id="681">681</a>
-<a href="#682" id="682">682</a>
-<a href="#683" id="683">683</a>
-<a href="#684" id="684">684</a>
-<a href="#685" id="685">685</a>
-<a href="#686" id="686">686</a>
-<a href="#687" id="687">687</a>
-<a href="#688" id="688">688</a>
-<a href="#689" id="689">689</a>
-<a href="#690" id="690">690</a>
-<a href="#691" id="691">691</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::TokenType::{Directive, Label, Operator, Unknown};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::{
     Data, Error, Instruction, LabelInstance, MonacoLineInfo, Token, FP_REGISTERS, GP_REGISTERS,
+    SUPPORTED_INSTRUCTIONS,
 };
 <span class="kw">use </span>levenshtein::levenshtein;
 <span class="kw">use </span>std::collections::HashMap;
@@ -1140,21 +1131,10 @@
                         error.message = suggestion;
                     }
                     UnrecognizedInstruction =&gt; {
-                        <span class="kw">let </span>recognized_instructions = [
-                            <span class="string">&quot;add&quot;</span>, <span class="string">&quot;sub&quot;</span>, <span class="string">&quot;mul&quot;</span>, <span class="string">&quot;div&quot;</span>, <span class="string">&quot;lw&quot;</span>, <span class="string">&quot;sw&quot;</span>, <span class="string">&quot;lui&quot;</span>, <span class="string">&quot;aui&quot;</span>, <span class="string">&quot;andi&quot;</span>, <span class="string">&quot;ori&quot;</span>,
-                            <span class="string">&quot;addi&quot;</span>, <span class="string">&quot;dadd&quot;</span>, <span class="string">&quot;dsub&quot;</span>, <span class="string">&quot;dmul&quot;</span>, <span class="string">&quot;ddiv&quot;</span>, <span class="string">&quot;or&quot;</span>, <span class="string">&quot;and&quot;</span>, <span class="string">&quot;add.s&quot;</span>, <span class="string">&quot;add.d&quot;</span>,
-                            <span class="string">&quot;sub.s&quot;</span>, <span class="string">&quot;sub.d&quot;</span>, <span class="string">&quot;mul.s&quot;</span>, <span class="string">&quot;mul.d&quot;</span>, <span class="string">&quot;div.s&quot;</span>, <span class="string">&quot;div.d&quot;</span>, <span class="string">&quot;dahi&quot;</span>, <span class="string">&quot;dati&quot;</span>,
-                            <span class="string">&quot;daddi&quot;</span>, <span class="string">&quot;daddiu&quot;</span>, <span class="string">&quot;slt&quot;</span>, <span class="string">&quot;sltu&quot;</span>, <span class="string">&quot;swc1&quot;</span>, <span class="string">&quot;lwc1&quot;</span>, <span class="string">&quot;mtc1&quot;</span>, <span class="string">&quot;dmtc1&quot;</span>,
-                            <span class="string">&quot;mfc1&quot;</span>, <span class="string">&quot;dmfc1&quot;</span>, <span class="string">&quot;j&quot;</span>, <span class="string">&quot;beq&quot;</span>, <span class="string">&quot;bne&quot;</span>, <span class="string">&quot;c.eq.s&quot;</span>, <span class="string">&quot;c.eq.d&quot;</span>, <span class="string">&quot;c.lt.s&quot;</span>,
-                            <span class="string">&quot;c.le.s&quot;</span>, <span class="string">&quot;c.le.d&quot;</span>, <span class="string">&quot;c.ngt.s&quot;</span>, <span class="string">&quot;c.ngt.d&quot;</span>, <span class="string">&quot;c.nge.s&quot;</span>, <span class="string">&quot;c.nge.d&quot;</span>, <span class="string">&quot;bc1t&quot;</span>,
-                            <span class="string">&quot;bc1f&quot;</span>, <span class="string">&quot;daddu&quot;</span>, <span class="string">&quot;dsubu&quot;</span>, <span class="string">&quot;ddivu&quot;</span>, <span class="string">&quot;dmulu&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;nop&quot;</span>, <span class="string">&quot;sll&quot;</span>, <span class="string">&quot;jr&quot;</span>,
-                            <span class="string">&quot;jalr&quot;</span>, <span class="string">&quot;addiu&quot;</span>, <span class="string">&quot;jal&quot;</span>,
-                        ];
-
                         <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>instruction.operator.token_name;
                         <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">&quot;&quot;</span>.to_string());
 
-                        <span class="kw">for </span>instruction <span class="kw">in </span>recognized_instructions {
+                        <span class="kw">for </span>instruction <span class="kw">in </span>SUPPORTED_INSTRUCTIONS {
                             <span class="kw">if </span>levenshtein(given_string, instruction) &lt; closest.<span class="number">0 </span>{
                                 closest.<span class="number">0 </span>= levenshtein(given_string, instruction);
                                 closest.<span class="number">1 </span>= instruction.to_string();
