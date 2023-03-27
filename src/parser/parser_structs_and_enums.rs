@@ -15,6 +15,7 @@ pub struct ProgramInfo {
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
+///This struct holds all the information we gather in the parser & assembler about a single line the user wrote
 pub struct MonacoLineInfo {
     pub mouse_hover_string: String,
     pub updated_monaco_string: String,
@@ -25,6 +26,7 @@ pub struct MonacoLineInfo {
 }
 
 impl MonacoLineInfo {
+    ///This function puts the translation from a pseudo-instruction into the updated monaco string
     pub fn update_pseudo_string(&mut self, expansion: Vec<&mut Instruction>) {
         self.updated_monaco_string
             .insert_str(0, "#Pseudo-Instruction: ");
@@ -85,7 +87,7 @@ pub struct Instruction {
     pub instruction_number: usize,
     pub line_number: usize,
     pub errors: Vec<Error>,
-    pub label: Option<(Token, usize)>, //label.1 refers to the line number the label is on
+    pub labels: Vec<LabelInstance>,
 }
 
 impl Instruction {
@@ -93,8 +95,13 @@ impl Instruction {
     pub fn recreate_string(&self) -> String {
         let mut recreated_string = "".to_string();
         //if the instruction had a label on the same line, start the string with that
-        if self.label.is_some() && self.label.clone().unwrap().1 == self.line_number {
-            recreated_string.push_str(&format!("{}: ", self.label.clone().unwrap().0.token_name));
+        if !self.labels.is_empty()
+            && self.labels.clone().last().unwrap().token_line == self.line_number
+        {
+            recreated_string.push_str(&format!(
+                "{}: ",
+                self.labels.clone().last().unwrap().token.token_name
+            ));
         }
         recreated_string.push_str(&self.operator.token_name.to_string());
 
@@ -117,6 +124,12 @@ pub struct Data {
     pub label: Token,
     pub data_type: Token,
     pub data_entries_and_values: Vec<(Token, u32)>,
+}
+
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub struct LabelInstance {
+    pub token_line: usize,
+    pub token: Token,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -154,6 +167,7 @@ pub enum TokenType {
     Byte,
     Float,
     Double,
+    Directive,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -166,6 +180,7 @@ pub enum ErrorType {
     IncorrectRegisterTypeFP, //Expected GP Register but received FP
     IncorrectRegisterTypeGP, //Expected FP Register but received GP
     MissingComma,            //Operand expected to end with a comma but does not
+    UnnecessaryComma,        //The given token should not end with a comma
     ImmediateOutOfBounds,    //Immediate value given cannot be expressed in given number of bits
     NonIntImmediate,         //Given string cannot be recognized as an integer
     NonFloatImmediate,       //Given string cannot be recognized as a float
@@ -501,8 +516,8 @@ pub fn print_instruction_contents(instruction: Instruction) {
         print!("{} ", operand.token_name);
     }
     println!();
-    if instruction.label.is_some() {
-        println!("Label: {:?}", instruction.label.unwrap().0);
+    for label in instruction.labels {
+        println!("Label: {}", label.token.token_name);
     }
     print!("Errors: ");
     for error in instruction.errors {

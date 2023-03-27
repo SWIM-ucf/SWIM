@@ -629,6 +629,13 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     vec_of_data.push(immediate_results.0 as u8);
                 }
             }
+            "" => {
+                //if the user only put a label on a line in .data and nothing else, it is defaulted to an empty word
+                vec_of_data.push(0);
+                vec_of_data.push(0);
+                vec_of_data.push(0);
+                vec_of_data.push(0);
+            }
             _ => datum.errors.push(Error {
                 error_name: UnrecognizedDataType,
                 token_causing_error: datum.data_type.token_name.to_string(),
