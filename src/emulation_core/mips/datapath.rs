@@ -1154,6 +1154,7 @@ impl MipsDatapath {
         self.state.new_pc = match self.signals.jump {
             Jump::NoJump => self.state.mem_mux1_to_mem_mux2,
             Jump::YesJump => self.state.jump_address,
+            Jump::YesJumpJALR => self.state.read_data_1,
         };
     }
 

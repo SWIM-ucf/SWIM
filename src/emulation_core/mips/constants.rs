@@ -14,6 +14,9 @@ pub const FUNCT_DADDU: u8 = 0b101101;
 pub const FUNCT_DSUB: u8 = 0b101110;
 pub const FUNCT_DSUBU: u8 = 0b101111;
 
+pub const FUNCT_JALR: u8 = 0b001001;
+pub const FUNCT_JR_RELEASE6: u8 = FUNCT_JALR;
+
 /// Used for `MUL` and `MUH`.
 pub const FUNCT_SOP30: u8 = 0b011000;
 
@@ -37,6 +40,8 @@ pub const FUNCT_SOP36: u8 = 0b011110;
 
 /// Used for `DDIVU` and `DMODU`.
 pub const FUNCT_SOP37: u8 = 0b011111;
+
+
 
 /// Used for many R-type instructions, like `ADD`, `SUB`, `MUL`, and `DIV`.
 pub const OPCODE_SPECIAL: u8 = 0b000000;
