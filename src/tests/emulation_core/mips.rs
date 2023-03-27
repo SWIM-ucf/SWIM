@@ -2561,7 +2561,19 @@ pub mod jr_and_jalr_tests {
     use super::*;
     #[test]
     fn test_basic() -> Result<(), String> {
-        assert_eq!(1,2);
+        let mut datapath = MipsDatapath::default();
+        // let old_pc = datapath.registers.pc;
+        datapath.registers.gpr[0b01000] = 24;
+
+        
+        // JR $r8                            
+        //                                  Special $r8  $zero $zero        JALR 
+        let instructions: Vec<u32> = vec![0b000000_01000_00000_00000_00000_001001];
+        datapath.initialize(instructions)?;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 24);
+        assert_eq!(datapath.registers.gpr[8], 24);
         Ok(())
     }
 }
