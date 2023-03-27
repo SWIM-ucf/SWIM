@@ -1025,7 +1025,7 @@ pub fn read_instructions(
                     instruction.binary = append_binary(instruction.binary, 0b11111, 5);
                     //rd = 31
                 } else {
-                    if instruction.operands[0].token_name == "$zero" {
+                    if instruction.operands.len() > 0 && instruction.operands[0].token_name == "$zero" {
                         instruction.errors.push(Error {
                             error_name: JALRRDRegisterZero,
                             token_causing_error: "$zero".to_string(),

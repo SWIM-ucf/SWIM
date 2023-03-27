@@ -769,8 +769,8 @@ use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::{
     create_binary_vec, parser, place_binary_in_middle_of_another, read_instructions,
 };
-use crate::parser::parser_structs_and_enums::ErrorType::UnsupportedInstruction;
-use crate::parser::parser_structs_and_enums::{ProgramInfo, UNSUPPORTED_INSTRUCTIONS};
+use crate::parser::parser_structs_and_enums::ErrorType::{UnrecognizedInstruction, UnsupportedInstruction};
+use crate::parser::parser_structs_and_enums::{ProgramInfo, SUPPORTED_INSTRUCTIONS, UNSUPPORTED_INSTRUCTIONS};
 use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
 use crate::parser::pseudo_instruction_parsing::{
     complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers,
@@ -1031,5 +1031,16 @@ fn no_unsupported_instructions_are_recognized_by_parser() {
     for instruction in UNSUPPORTED_INSTRUCTIONS {
         let result = parser(instruction.to_string()).0.monaco_line_info;
         assert_eq!(result[0].errors[0].error_name, UnsupportedInstruction);
+    }
+}
+
+#[test]
+fn supported_instructions_are_recognized_by_parser() {
+    for instruction in SUPPORTED_INSTRUCTIONS{
+        let result = parser(instruction.to_string()).0.monaco_line_info;
+        for error in &result[0].errors{
+            assert_ne!(error.error_name, UnsupportedInstruction);
+            assert_ne!(error.error_name, UnrecognizedInstruction);
+        }
     }
 }
