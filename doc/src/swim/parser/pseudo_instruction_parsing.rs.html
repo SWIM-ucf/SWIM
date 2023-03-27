@@ -1261,8 +1261,8 @@
     <span class="comment">//figure out list of labels to be used for lw and sw labels
     </span><span class="kw">let </span><span class="kw-2">mut </span>list_of_labels: Vec&lt;String&gt; = Vec::new();
     <span class="kw">for </span>instruction <span class="kw">in </span>instructions.clone() {
-        <span class="kw">if </span>instruction.label.is_some() {
-            list_of_labels.push(instruction.clone().label.unwrap().<span class="number">0</span>.token_name);
+        <span class="kw">for </span>label <span class="kw">in </span>instruction.labels {
+            list_of_labels.push(label.token.token_name);
         }
     }
     <span class="kw">for </span>data <span class="kw">in </span>data {
@@ -1337,7 +1337,7 @@
                 extra_instruction.operator.start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 vec_of_added_instructions.push(extra_instruction.clone());
 
-                instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                 //put a 1 in $at
                 </span><span class="kw">let </span><span class="kw-2">mut </span>extra_instruction_2 = Instruction {
@@ -1367,7 +1367,7 @@
                     instruction_number: instruction.instruction_number + <span class="number">1</span>,
                     line_number: instruction.line_number,
                     errors: <span class="macro">vec!</span>[],
-                    label: <span class="prelude-val">None</span>,
+                    labels: Vec::new(),
                 };
                 vec_of_added_instructions.push(extra_instruction_2.clone());
 
@@ -1412,7 +1412,7 @@
                 extra_instruction.operator.start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 vec_of_added_instructions.push(extra_instruction.clone());
 
-                instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                 //set r0 to 1 if r1 - r2 != 0
                 </span>instruction.operator.token_name = <span class="string">&quot;sltu&quot;</span>.to_string();
@@ -1457,7 +1457,7 @@
                 extra_instruction.operator.start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 vec_of_added_instructions.push(extra_instruction.clone());
 
-                instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                 //addi
                 </span><span class="kw">let </span><span class="kw-2">mut </span>extra_instruction_2 = Instruction {
@@ -1479,7 +1479,7 @@
                     instruction_number: instruction.instruction_number + <span class="number">1</span>,
                     line_number: instruction.line_number,
                     errors: <span class="macro">vec!</span>[],
-                    label: <span class="prelude-val">None</span>,
+                    labels: Vec::new(),
                 };
                 vec_of_added_instructions.push(extra_instruction_2.clone());
 
@@ -1529,7 +1529,7 @@
                 extra_instruction.operator.start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 vec_of_added_instructions.push(extra_instruction.clone());
 
-                instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                 //addi
                 </span><span class="kw">let </span><span class="kw-2">mut </span>extra_instruction_2 = Instruction {
@@ -1551,7 +1551,7 @@
                     instruction_number: instruction.instruction_number + <span class="number">1</span>,
                     line_number: instruction.line_number,
                     errors: <span class="macro">vec!</span>[],
-                    label: <span class="prelude-val">None</span>,
+                    labels: Vec::new(),
                 };
                 vec_of_added_instructions.push(extra_instruction_2.clone());
 
@@ -1650,7 +1650,7 @@
                 extra_instruction.operator.start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 vec_of_added_instructions.push(extra_instruction.clone());
 
-                instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                 //addi
                 </span><span class="kw">let </span><span class="kw-2">mut </span>extra_instruction_2 = Instruction {
@@ -1672,7 +1672,7 @@
                     instruction_number: instruction.instruction_number + <span class="number">1</span>,
                     line_number: instruction.line_number,
                     errors: <span class="macro">vec!</span>[],
-                    label: <span class="prelude-val">None</span>,
+                    labels: Vec::new(),
                 };
                 vec_of_added_instructions.push(extra_instruction_2.clone());
 
@@ -1719,7 +1719,7 @@
                 extra_instruction.operator.start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 vec_of_added_instructions.push(extra_instruction.clone());
 
-                instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                 //addi
                 </span><span class="kw">let </span><span class="kw-2">mut </span>extra_instruction_2 = Instruction {
@@ -1741,7 +1741,7 @@
                     instruction_number: instruction.instruction_number + <span class="number">1</span>,
                     line_number: instruction.line_number,
                     errors: <span class="macro">vec!</span>[],
-                    label: <span class="prelude-val">None</span>,
+                    labels: Vec::new(),
                 };
                 vec_of_added_instructions.push(extra_instruction_2.clone());
 
@@ -1826,10 +1826,10 @@
                         instruction_number: instruction.instruction_number,
                         line_number: instruction.line_number,
                         errors: <span class="macro">vec!</span>[],
-                        label: instruction.label.clone(),
+                        labels: instruction.labels.clone(),
                     };
 
-                    instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                    instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                     </span>vec_of_added_instructions.push(extra_instruction);
                     instruction.operands[<span class="number">1</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
@@ -1881,7 +1881,7 @@
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: <span class="macro">vec!</span>[],
-                    label: instruction.label.clone(),
+                    labels: instruction.labels.clone(),
                 };
 
                 vec_of_added_instructions.push(extra_instruction.clone());
@@ -1892,7 +1892,7 @@
                 instruction.operands[<span class="number">2</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
-                instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                 </span>monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
@@ -1941,7 +1941,7 @@
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: <span class="macro">vec!</span>[],
-                    label: instruction.label.clone(),
+                    labels: instruction.labels.clone(),
                 };
 
                 vec_of_added_instructions.push(extra_instruction.clone());
@@ -1951,7 +1951,7 @@
                 instruction.operands[<span class="number">2</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
-                instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                 </span>monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
@@ -2001,7 +2001,7 @@
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: <span class="macro">vec!</span>[],
-                    label: instruction.label.clone(),
+                    labels: instruction.labels.clone(),
                 };
                 vec_of_added_instructions.push(extra_instruction.clone());
 
@@ -2011,7 +2011,7 @@
                 instruction.operands[<span class="number">2</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
-                instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                 </span>monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
@@ -2060,7 +2060,7 @@
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: <span class="macro">vec!</span>[],
-                    label: instruction.label.clone(),
+                    labels: instruction.labels.clone(),
                 };
                 vec_of_added_instructions.push(extra_instruction.clone());
 
@@ -2070,7 +2070,7 @@
                 instruction.operands[<span class="number">2</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
-                instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                 </span>monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
@@ -2119,7 +2119,7 @@
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: <span class="macro">vec!</span>[],
-                    label: instruction.label.clone(),
+                    labels: instruction.labels.clone(),
                 };
                 vec_of_added_instructions.push(extra_instruction.clone());
                 <span class="comment">//adjust dmuli for the added instruction
@@ -2128,7 +2128,7 @@
                 instruction.operands[<span class="number">2</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
-                instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                 </span>monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
@@ -2177,7 +2177,7 @@
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: <span class="macro">vec!</span>[],
-                    label: instruction.label.clone(),
+                    labels: instruction.labels.clone(),
                 };
                 vec_of_added_instructions.push(extra_instruction.clone());
                 <span class="comment">//adjust dmuliu for the added instruction
@@ -2186,7 +2186,7 @@
                 instruction.operands[<span class="number">2</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
-                instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                 </span>monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
@@ -2235,7 +2235,7 @@
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: <span class="macro">vec!</span>[],
-                    label: instruction.label.clone(),
+                    labels: instruction.labels.clone(),
                 };
                 vec_of_added_instructions.push(extra_instruction.clone());
 
@@ -2245,7 +2245,7 @@
                 instruction.operands[<span class="number">2</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
-                instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                 </span>monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
@@ -2288,7 +2288,7 @@
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: <span class="macro">vec!</span>[],
-                    label: instruction.label.clone(),
+                    labels: instruction.labels.clone(),
                 };
                 vec_of_added_instructions.push(extra_instruction.clone());
 
@@ -2298,7 +2298,7 @@
                 instruction.operands[<span class="number">2</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
-                instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                 </span>monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
@@ -2345,7 +2345,7 @@
                     instruction_number: instruction.instruction_number,
                     line_number: instruction.line_number,
                     errors: <span class="macro">vec!</span>[],
-                    label: instruction.label.clone(),
+                    labels: instruction.labels.clone(),
                 };
                 vec_of_added_instructions.push(extra_instruction.clone());
 
@@ -2355,7 +2355,7 @@
                 instruction.operands[<span class="number">2</span>].token_name = <span class="string">&quot;$at&quot;</span>.to_string();
                 instruction.operands[<span class="number">2</span>].start_end_columns = (<span class="number">0</span>, <span class="number">0</span>);
                 instruction.instruction_number += <span class="number">1</span>;
-                instruction.label = <span class="prelude-val">None</span>; <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
+                instruction.labels = Vec::new(); <span class="comment">//if the pseudo-instruction had a label, remove it so it&#39;s only on the first expanded instruction
 
                 </span>monaco_line_info[instruction.line_number]
                     .update_pseudo_string(<span class="macro">vec!</span>[<span class="kw-2">&amp;mut </span>extra_instruction, instruction]);
@@ -2396,7 +2396,7 @@
                 instruction_number: <span class="number">0</span>,
                 line_number: dot_text_index.unwrap(),
                 errors: <span class="macro">vec!</span>[],
-                label: <span class="prelude-val">None</span>,
+                labels: Vec::new(),
             });
         } <span class="kw">else </span>{
             <span class="comment">//otherwise, add it at the beginning of monaco
@@ -2415,7 +2415,7 @@
                 instruction_number: <span class="number">0</span>,
                 line_number: <span class="number">0</span>,
                 errors: <span class="macro">vec!</span>[],
-                label: <span class="prelude-val">None</span>,
+                labels: Vec::new(),
             });
         }
     } <span class="kw">else </span>{
@@ -2437,7 +2437,7 @@
                 instruction_number: last_instruction.instruction_number + <span class="number">1</span>,
                 line_number: last_instruction.line_number,
                 errors: <span class="macro">vec!</span>[],
-                label: <span class="prelude-val">None</span>,
+                labels: Vec::new(),
             })
         }
     }

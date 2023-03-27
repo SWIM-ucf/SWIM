@@ -639,6 +639,13 @@
 <a href="#639" id="639">639</a>
 <a href="#640" id="640">640</a>
 <a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_assembler_main::append_binary;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::ErrorType::{
     ImmediateOutOfBounds, ImproperlyFormattedASCII, ImproperlyFormattedChar,
@@ -1269,6 +1276,13 @@
                     vec_of_data.push((immediate_results.<span class="number">0 </span>&gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8);
                     vec_of_data.push(immediate_results.<span class="number">0 </span><span class="kw">as </span>u8);
                 }
+            }
+            <span class="string">&quot;&quot; </span>=&gt; {
+                <span class="comment">//if the user only put a label on a line in .data and nothing else, it is defaulted to an empty word
+                </span>vec_of_data.push(<span class="number">0</span>);
+                vec_of_data.push(<span class="number">0</span>);
+                vec_of_data.push(<span class="number">0</span>);
+                vec_of_data.push(<span class="number">0</span>);
             }
             <span class="kw">_ </span>=&gt; datum.errors.push(Error {
                 error_name: UnrecognizedDataType,

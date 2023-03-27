@@ -521,6 +521,21 @@
 <a href="#521" id="521">521</a>
 <a href="#522" id="522">522</a>
 <a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::default::Default;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::fmt::Formatter;
@@ -538,6 +553,7 @@
 }
 
 <span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
+</span><span class="doccomment">///This struct holds all the information we gather in the parser &amp; assembler about a single line the user wrote
 </span><span class="kw">pub struct </span>MonacoLineInfo {
     <span class="kw">pub </span>mouse_hover_string: String,
     <span class="kw">pub </span>updated_monaco_string: String,
@@ -548,7 +564,8 @@
 }
 
 <span class="kw">impl </span>MonacoLineInfo {
-    <span class="kw">pub fn </span>update_pseudo_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expansion: Vec&lt;<span class="kw-2">&amp;mut </span>Instruction&gt;) {
+    <span class="doccomment">///This function puts the translation from a pseudo-instruction into the updated monaco string
+    </span><span class="kw">pub fn </span>update_pseudo_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expansion: Vec&lt;<span class="kw-2">&amp;mut </span>Instruction&gt;) {
         <span class="self">self</span>.updated_monaco_string
             .insert_str(<span class="number">0</span>, <span class="string">&quot;#Pseudo-Instruction: &quot;</span>);
 
@@ -608,16 +625,21 @@
     <span class="kw">pub </span>instruction_number: usize,
     <span class="kw">pub </span>line_number: usize,
     <span class="kw">pub </span>errors: Vec&lt;Error&gt;,
-    <span class="kw">pub </span>label: <span class="prelude-ty">Option</span>&lt;(Token, usize)&gt;, <span class="comment">//label.1 refers to the line number the label is on
-</span>}
+    <span class="kw">pub </span>labels: Vec&lt;LabelInstance&gt;,
+}
 
 <span class="kw">impl </span>Instruction {
     <span class="doccomment">///Takes the operator, operands, and label(optional) associated with an instruction and recreates the string version
     </span><span class="kw">pub fn </span>recreate_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>recreated_string = <span class="string">&quot;&quot;</span>.to_string();
         <span class="comment">//if the instruction had a label on the same line, start the string with that
-        </span><span class="kw">if </span><span class="self">self</span>.label.is_some() &amp;&amp; <span class="self">self</span>.label.clone().unwrap().<span class="number">1 </span>== <span class="self">self</span>.line_number {
-            recreated_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}: &quot;</span>, <span class="self">self</span>.label.clone().unwrap().<span class="number">0</span>.token_name));
+        </span><span class="kw">if </span>!<span class="self">self</span>.labels.is_empty()
+            &amp;&amp; <span class="self">self</span>.labels.clone().last().unwrap().token_line == <span class="self">self</span>.line_number
+        {
+            recreated_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                <span class="string">&quot;{}: &quot;</span>,
+                <span class="self">self</span>.labels.clone().last().unwrap().token.token_name
+            ));
         }
         recreated_string.push_str(<span class="kw-2">&amp;</span><span class="self">self</span>.operator.token_name.to_string());
 
@@ -640,6 +662,12 @@
     <span class="kw">pub </span>label: Token,
     <span class="kw">pub </span>data_type: Token,
     <span class="kw">pub </span>data_entries_and_values: Vec&lt;(Token, u32)&gt;,
+}
+
+<span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
+</span><span class="kw">pub struct </span>LabelInstance {
+    <span class="kw">pub </span>token_line: usize,
+    <span class="kw">pub </span>token: Token,
 }
 
 <span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -677,6 +705,7 @@
     Byte,
     Float,
     Double,
+    Directive,
 }
 
 <span class="attr">#[derive(Clone, Debug, Eq, PartialEq)]
@@ -689,6 +718,7 @@
     </span>IncorrectRegisterTypeFP, <span class="comment">//Expected GP Register but received FP
     </span>IncorrectRegisterTypeGP, <span class="comment">//Expected FP Register but received GP
     </span>MissingComma,            <span class="comment">//Operand expected to end with a comma but does not
+    </span>UnnecessaryComma,        <span class="comment">//The given token should not end with a comma
     </span>ImmediateOutOfBounds,    <span class="comment">//Immediate value given cannot be expressed in given number of bits
     </span>NonIntImmediate,         <span class="comment">//Given string cannot be recognized as an integer
     </span>NonFloatImmediate,       <span class="comment">//Given string cannot be recognized as a float
@@ -1024,8 +1054,8 @@
         <span class="macro">print!</span>(<span class="string">&quot;{} &quot;</span>, operand.token_name);
     }
     <span class="macro">println!</span>();
-    <span class="kw">if </span>instruction.label.is_some() {
-        <span class="macro">println!</span>(<span class="string">&quot;Label: {:?}&quot;</span>, instruction.label.unwrap().<span class="number">0</span>);
+    <span class="kw">for </span>label <span class="kw">in </span>instruction.labels {
+        <span class="macro">println!</span>(<span class="string">&quot;Label: {}&quot;</span>, label.token.token_name);
     }
     <span class="macro">print!</span>(<span class="string">&quot;Errors: &quot;</span>);
     <span class="kw">for </span>error <span class="kw">in </span>instruction.errors {

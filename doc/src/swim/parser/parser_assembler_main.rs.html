@@ -1929,6 +1929,11 @@
 <a href="#1929" id="1929">1929</a>
 <a href="#1930" id="1930">1930</a>
 <a href="#1931" id="1931">1931</a>
+<a href="#1932" id="1932">1932</a>
+<a href="#1933" id="1933">1933</a>
+<a href="#1934" id="1934">1934</a>
+<a href="#1935" id="1935">1935</a>
+<a href="#1936" id="1936">1936</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::assembling::{assemble_data_binary, read_operands};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::OperandType::<span class="kw-2">*</span>;
@@ -1949,20 +1954,25 @@
     };
 
     (program_info.instructions, program_info.data) =
-        separate_data_and_text(program_info.monaco_line_info.clone());
+        separate_data_and_text(<span class="kw-2">&amp;mut </span>program_info.monaco_line_info);
+
     expand_pseudo_instructions_and_assign_instruction_numbers(
         <span class="kw-2">&amp;mut </span>program_info.instructions,
         <span class="kw-2">&amp;</span>program_info.data,
         <span class="kw-2">&amp;mut </span>program_info.monaco_line_info,
     );
+
     <span class="kw">let </span>vec_of_data = assemble_data_binary(<span class="kw-2">&amp;mut </span>program_info.data);
+
     <span class="kw">let </span>labels: HashMap&lt;String, usize&gt; =
         create_label_map(<span class="kw-2">&amp;mut </span>program_info.instructions, <span class="kw-2">&amp;mut </span>program_info.data);
+
     complete_lw_sw_pseudo_instructions(
         <span class="kw-2">&amp;mut </span>program_info.instructions,
         <span class="kw-2">&amp;</span>labels,
         <span class="kw-2">&amp;mut </span>program_info.monaco_line_info,
     );
+
     read_instructions(
         <span class="kw-2">&amp;mut </span>program_info.instructions,
         <span class="kw-2">&amp;</span>labels,

@@ -664,10 +664,35 @@
 <a href="#664" id="664">664</a>
 <a href="#665" id="665">665</a>
 <a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::ErrorType::<span class="kw-2">*</span>;
-<span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::TokenType::{Label, Operator, Unknown};
+<span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::TokenType::{Directive, Label, Operator, Unknown};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::{
-    Data, Error, Instruction, MonacoLineInfo, Token, FP_REGISTERS, GP_REGISTERS,
+    Data, Error, Instruction, LabelInstance, MonacoLineInfo, Token, FP_REGISTERS, GP_REGISTERS,
 };
 <span class="kw">use </span>levenshtein::levenshtein;
 <span class="kw">use </span>std::collections::HashMap;
@@ -790,180 +815,210 @@
     monaco_line_info_vec
 }
 
+<span class="doccomment">///Checks the name of every token on a line and makes sure that labels, directives, and operators do not end in commas while
+/// all but the last operand or datum on a line does. Also, pops commas off of the end of all tokens on the line.
+</span><span class="kw">pub fn </span>remove_commas(line: <span class="kw-2">&amp;mut </span>MonacoLineInfo) {
+    <span class="comment">//first check every token to see if they end in commas
+    </span><span class="kw">let </span><span class="kw-2">mut </span>has_commas: Vec&lt;bool&gt; = Vec::new();
+    <span class="kw">for </span>token <span class="kw">in </span><span class="kw-2">&amp;mut </span>line.tokens {
+        <span class="kw">if </span>token.token_name.ends_with(<span class="string">&#39;,&#39;</span>) {
+            token.token_name.pop();
+            has_commas.push(<span class="bool-val">true</span>);
+        } <span class="kw">else </span>{
+            has_commas.push(<span class="bool-val">false</span>);
+        }
+    }
+    <span class="comment">//check all labels. No label should end in a comma
+    </span><span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
+    <span class="kw">while </span>line.tokens.len() &gt; i &amp;&amp; line.tokens[i].token_name.ends_with(<span class="string">&#39;:&#39;</span>) {
+        <span class="kw">if </span>has_commas[i] {
+            line.errors.push(Error {
+                error_name: UnnecessaryComma,
+                token_causing_error: line.tokens[i].clone().token_name,
+                start_end_columns: line.tokens[i].start_end_columns,
+                message: <span class="string">&quot;&quot;</span>.to_string(),
+            });
+        }
+        i += <span class="number">1</span>;
+    }
+    <span class="comment">//the following token should be the operator or the directive. Also should not end in a comma
+    </span><span class="kw">if </span>line.tokens.len() &gt; i &amp;&amp; has_commas[i] {
+        line.errors.push(Error {
+            error_name: UnnecessaryComma,
+            token_causing_error: line.tokens[i].clone().token_name,
+            start_end_columns: line.tokens[i].start_end_columns,
+            message: <span class="string">&quot;&quot;</span>.to_string(),
+        });
+    }
+    i += <span class="number">1</span>;
+
+    <span class="comment">//all remaining tokens except the last should end in a comma
+    </span><span class="kw">while </span>i &lt; line.tokens.len() - <span class="number">1 </span>{
+        <span class="kw">if </span>!has_commas[i] {
+            line.errors.push(Error {
+                error_name: MissingComma,
+                token_causing_error: line.tokens[i].clone().token_name,
+                start_end_columns: line.tokens[i].start_end_columns,
+                message: <span class="string">&quot;&quot;</span>.to_string(),
+            });
+        }
+        i += <span class="number">1</span>;
+    }
+
+    <span class="comment">//finally, make sure the last token on the line does not end in a comma
+    </span><span class="kw">if </span>line.tokens.len() == i + <span class="number">1 </span>&amp;&amp; has_commas[i] {
+        line.errors.push(Error {
+            error_name: UnnecessaryComma,
+            token_causing_error: line.tokens[i].clone().token_name,
+            start_end_columns: line.tokens[i].start_end_columns,
+            message: <span class="string">&quot;&quot;</span>.to_string(),
+        });
+    }
+}
+
 <span class="doccomment">///This function takes the vector of lines created by tokenize program and turns them into instructions
 ///assigning labels, operators, operands, and line numbers and data assigning labels, data types, and values
-</span><span class="kw">pub fn </span>separate_data_and_text(<span class="kw-2">mut </span>lines: Vec&lt;MonacoLineInfo&gt;) -&gt; (Vec&lt;Instruction&gt;, Vec&lt;Data&gt;) {
+</span><span class="kw">pub fn </span>separate_data_and_text(lines: <span class="kw-2">&amp;mut </span>Vec&lt;MonacoLineInfo&gt;) -&gt; (Vec&lt;Instruction&gt;, Vec&lt;Data&gt;) {
     <span class="kw">let </span><span class="kw-2">mut </span>instruction_list: Vec&lt;Instruction&gt; = Vec::new();
-    <span class="kw">let </span><span class="kw-2">mut </span>instruction = Instruction::default();
     <span class="kw">let </span><span class="kw-2">mut </span>data_list: Vec&lt;Data&gt; = Vec::new();
-    <span class="kw">let </span><span class="kw-2">mut </span>data = Data::default();
-    <span class="kw">let </span><span class="kw-2">mut </span>is_text = <span class="bool-val">true</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>labels: Vec&lt;LabelInstance&gt; = Vec::new();
 
+    <span class="kw">let </span><span class="kw-2">mut </span>is_text = <span class="bool-val">true</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
-    <span class="comment">//goes through each line of the line vector and builds instructions as it goes
-    </span><span class="kw">while </span>i &lt; lines.len() {
+    <span class="kw">while </span>i &lt; lines.len() {
         <span class="kw">if </span>lines[i].tokens.is_empty() {
             i += <span class="number">1</span>;
             <span class="kw">continue</span>;
         }
-        <span class="kw">if </span>lines[i].tokens[<span class="number">0</span>].token_name.to_lowercase() == <span class="string">&quot;.text&quot; </span>{
-            is_text = <span class="bool-val">true</span>;
-            i += <span class="number">1</span>;
-            <span class="kw">continue</span>;
-        } <span class="kw">else if </span>lines[i].tokens[<span class="number">0</span>].token_name.to_lowercase() == <span class="string">&quot;.data&quot; </span>{
-            is_text = <span class="bool-val">false</span>;
-            i += <span class="number">1</span>;
-            <span class="kw">continue</span>;
-        }
+        <span class="comment">//check commas and remove them
+        </span>remove_commas(<span class="kw-2">&amp;mut </span>lines[i]);
 
-        <span class="kw">if </span>is_text {
-            <span class="kw">let </span><span class="kw-2">mut </span>operand_iterator = <span class="number">1</span>;
-
-            <span class="kw">if </span>lines[i].tokens[<span class="number">0</span>].token_name.ends_with(<span class="string">&#39;:&#39;</span>) {
-                <span class="comment">//if the instruction already has a label at this point, that means that the user wrote a label on a line on its
-                //own and then wrote another label on the next line without ever finishing the first
-                </span><span class="kw">if </span>instruction.label.clone().is_some() {
-                    instruction.errors.push(Error {
-                        error_name: LabelAssignmentError,
-                        token_causing_error: lines[i].tokens[<span class="number">0</span>].token_name.clone(),
-                        start_end_columns: lines[i].tokens[<span class="number">0</span>].start_end_columns,
-                        message: <span class="string">&quot;&quot;</span>.to_string(),
-                    })
-                    <span class="comment">//if the above error doesn&#39;t occur, we can push the label to the instruction struct.
-                </span>} <span class="kw">else </span>{
-                    lines[i].tokens[<span class="number">0</span>].token_name.pop();
-                    lines[i].tokens[<span class="number">0</span>].token_type = Label;
-                    instruction.label = <span class="prelude-val">Some</span>((lines[i].tokens[<span class="number">0</span>].clone(), lines[i].line_number));
-                }
-
-                <span class="kw">if </span>lines[i].tokens.len() == <span class="number">1 </span>{
-                    <span class="comment">//if the only token on the last line of the program is a label, the user never finished assigning a value to the label
-                    </span><span class="kw">if </span>i == (lines.len() - <span class="number">1</span>) {
-                        instruction.errors.push(Error {
-                            error_name: LabelAssignmentError,
-                            token_causing_error: lines[i].tokens[<span class="number">0</span>].token_name.clone(),
-                            start_end_columns: lines[i].tokens[<span class="number">0</span>].start_end_columns,
-                            message: <span class="string">&quot;&quot;</span>.to_string(),
-                        });
-                        instruction_list.push(instruction.clone());
-                    }
-
-                    i += <span class="number">1</span>;
-                    <span class="kw">continue</span>;
-                }
-                <span class="comment">//since token[0] was a label, the operator will be token[1] and operands start at token[2]
-                </span>lines[i].tokens[<span class="number">1</span>].token_type = Operator;
-                instruction.operator = lines[i].tokens[<span class="number">1</span>].clone();
-                operand_iterator = <span class="number">2</span>;
-            } <span class="kw">else </span>{
-                lines[i].tokens[<span class="number">0</span>].token_type = Operator;
-                instruction.operator = lines[i].tokens[<span class="number">0</span>].clone();
-            }
-
-            <span class="comment">//push all operands to the instruction operand vec that will have commas
-            </span><span class="kw">while </span>operand_iterator &lt; (lines[i].tokens.len() - <span class="number">1</span>) {
-                <span class="kw">if </span>lines[i].tokens[operand_iterator].token_name.ends_with(<span class="string">&#39;,&#39;</span>) {
-                    lines[i].tokens[operand_iterator].token_name.pop();
-                } <span class="kw">else </span>{
-                    instruction.errors.push(Error {
-                        error_name: MissingComma,
-                        token_causing_error: lines[i].tokens[operand_iterator]
-                            .token_name
-                            .to_string(),
-                        start_end_columns: lines[i].tokens[operand_iterator].start_end_columns,
-                        message: <span class="string">&quot;&quot;</span>.to_string(),
-                    })
-                }
-                instruction
-                    .operands
-                    .push(lines[i].tokens[operand_iterator].clone());
-                operand_iterator += <span class="number">1</span>;
-            }
-
-            <span class="comment">//simple statement to handle cases where the user doesn&#39;t finish instructions
-            </span><span class="kw">if </span>operand_iterator &gt;= lines[i].tokens.len() {
-                instruction.line_number = lines[i].line_number;
-                instruction_list.push(instruction.clone());
-                i += <span class="number">1</span>;
-                <span class="kw">continue</span>;
-            }
-
-            <span class="comment">//push last operand that will not have a comma
-            </span>instruction
-                .operands
-                .push(lines[i].tokens[operand_iterator].clone());
-
-            instruction.line_number = lines[i].line_number;
-
-            <span class="comment">//push completed instruction to the instruction vec
-            </span>instruction_list.push(instruction.clone());
-            instruction = Instruction::default();
-        }
-        <span class="comment">//if not text, it must be data
-        </span><span class="kw">else </span>{
-            data.line_number = lines[i].line_number;
-
-            <span class="comment">//the first token should be the label name
-            </span><span class="kw">if </span>lines[i].tokens[<span class="number">0</span>].token_name.ends_with(<span class="string">&#39;:&#39;</span>) {
-                lines[i].tokens[<span class="number">0</span>].token_name.pop();
-                lines[i].tokens[<span class="number">0</span>].token_type = Label;
-                data.label = lines[i].tokens[<span class="number">0</span>].clone();
-            } <span class="kw">else </span>{
-                data.errors.push(Error {
-                    error_name: ImproperlyFormattedLabel,
-                    token_causing_error: lines[i].tokens[<span class="number">0</span>].token_name.to_string(),
-                    start_end_columns: lines[i].tokens[<span class="number">0</span>].start_end_columns,
+        <span class="comment">//handle transitions between .data and .text
+        </span><span class="kw">if </span>lines[i].tokens[<span class="number">0</span>].token_name.to_lowercase() == <span class="string">&quot;.text&quot;
+            </span>|| lines[i].tokens[<span class="number">0</span>].token_name.to_lowercase() == <span class="string">&quot;.data&quot;
+        </span>{
+            lines[i].tokens[<span class="number">0</span>].token_type = Directive;
+            <span class="kw">while </span>!labels.is_empty() {
+                <span class="kw">let </span>last = labels.pop().unwrap();
+                lines[last.token_line].errors.push(Error {
+                    error_name: LabelAssignmentError,
+                    token_causing_error: last.token.token_name,
+                    start_end_columns: last.token.start_end_columns,
                     message: <span class="string">&quot;&quot;</span>.to_string(),
                 });
-                lines[i].tokens[<span class="number">0</span>].token_type = Label;
-                data.label = lines[i].tokens[<span class="number">0</span>].clone();
             }
+            <span class="kw">if </span>lines[i].tokens[<span class="number">0</span>].token_name.to_lowercase() == <span class="string">&quot;.text&quot; </span>{
+                is_text = <span class="bool-val">true</span>;
+            } <span class="kw">else </span>{
+                is_text = <span class="bool-val">false</span>;
+            }
+            i += <span class="number">1</span>;
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">let </span><span class="kw-2">mut </span>j = <span class="number">0</span>;
+        <span class="comment">//add all labels to the label stack
+        </span><span class="kw">while </span>lines[i].tokens.len() &gt; j &amp;&amp; lines[i].tokens[j].token_name.ends_with(<span class="string">&#39;:&#39;</span>) {
+            lines[i].tokens[j].token_name.pop();
+            lines[i].tokens[j].start_end_columns.<span class="number">1 </span>-= <span class="number">1</span>;
+            lines[i].tokens[j].token_type = Label;
+            labels.push(LabelInstance {
+                token: lines[i].tokens[j].clone(),
+                token_line: i,
+            });
+            j += <span class="number">1</span>;
+        }
+        <span class="comment">//make sure there are still tokens remaining on the line
+        </span><span class="kw">if </span>lines[i].tokens.len() == j {
+            i += <span class="number">1</span>;
+            <span class="kw">continue</span>;
+        }
+        <span class="comment">//this chunk handles how we read .text
+        </span><span class="kw">if </span>is_text {
+            <span class="kw">let </span><span class="kw-2">mut </span>instruction = Instruction {
+                line_number: i,
+                ..Default::default()
+            };
+            <span class="comment">//push all incomplete labels to reference this instruction
+            </span><span class="kw">while </span>!labels.is_empty() {
+                instruction.labels.push(labels.pop().unwrap());
+            }
+            <span class="comment">//the next token is the operator
+            </span>lines[i].tokens[j].token_type = Operator;
+            instruction.operator = lines[i].tokens[j].clone();
+            j += <span class="number">1</span>;
+            <span class="comment">//any remaining tokens are the operands
+            </span><span class="kw">while </span>lines[i].tokens.len() &gt; j {
+                instruction.operands.push(lines[i].tokens[j].clone());
+                j += <span class="number">1</span>;
+            }
+            instruction_list.push(instruction);
 
-            <span class="comment">//just a simple check in case the user didn&#39;t complete a line
-            </span><span class="kw">if </span>lines[i].tokens.len() &lt; <span class="number">2 </span>{
-                data.errors.push(Error {
-                    error_name: ImproperlyFormattedData,
-                    token_causing_error: <span class="string">&quot;&quot;</span>.to_string(),
-                    start_end_columns: (
-                        lines[i].tokens[<span class="number">0</span>].start_end_columns.<span class="number">0</span>,
-                        lines[i].tokens.last().unwrap().start_end_columns.<span class="number">1</span>,
-                    ), <span class="comment">//the entire length of the line
-                    </span>message: <span class="string">&quot;&quot;</span>.to_string(),
+            <span class="comment">//this chunk handles how we read .data
+        </span>} <span class="kw">else </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>data = Data {
+                line_number: i,
+                ..Default::default()
+            };
+            <span class="kw">if </span>labels.is_empty() {
+                <span class="comment">//if labels is empty, generate an error but assume the first token on the line was supposed to be the label
+                //Remove commas should have already generated a MissingComma error so we replace that with a more accurate error.
+                </span>lines[i].errors.pop();
+                <span class="kw">let </span>start_end = lines[i].tokens[j].start_end_columns;
+                <span class="kw">let </span>token_name = lines[i].tokens[j].token_name.clone();
+                lines[i].errors.push(Error {
+                    error_name: ImproperlyFormattedLabel,
+                    token_causing_error: token_name,
+                    start_end_columns: start_end,
+                    message: <span class="string">&quot;&quot;</span>.to_string(),
                 });
-                i += <span class="number">1</span>;
-                <span class="kw">continue</span>;
+                data.label = lines[i].tokens[j].clone();
+                j += <span class="number">1</span>;
+            } <span class="kw">else </span>{
+                data.label = labels.pop().unwrap().token;
             }
-
-            <span class="comment">//the second token on the line is the data type
-            </span>data.data_type = lines[i].tokens[<span class="number">1</span>].clone();
-
-            <span class="kw">let </span><span class="kw-2">mut </span>value_iterator = <span class="number">2</span>;
-
-            <span class="comment">//push all values to the data vec that will have commas
-            </span><span class="kw">while </span>value_iterator &lt; (lines[i].tokens.len() - <span class="number">1</span>) {
-                <span class="kw">if </span>lines[i].tokens[value_iterator].token_name.ends_with(<span class="string">&#39;,&#39;</span>) {
-                    lines[i].tokens[value_iterator].token_name.pop();
-                } <span class="kw">else </span>{
-                    instruction.errors.push(Error {
-                        error_name: MissingComma,
-                        token_causing_error: lines[i].tokens[value_iterator].token_name.to_string(),
-                        start_end_columns: lines[i].tokens[value_iterator].start_end_columns,
-                        message: <span class="string">&quot;&quot;</span>.to_string(),
-                    })
-                }
+            <span class="comment">//any other labels in the stack are pushed to the data_list to be initialized as empty words in the assemble data function
+            </span><span class="kw">for </span>label <span class="kw">in </span><span class="kw-2">&amp;</span>labels {
+                data_list.push(Data {
+                    line_number: label.token_line,
+                    label: label.token.clone(),
+                    ..Default::default()
+                });
+            }
+            labels = Vec::new();
+            <span class="comment">//the next token should be the data type directive
+            </span>data.data_type = lines[i].tokens[j].clone();
+            j += <span class="number">1</span>;
+            <span class="comment">//any remaining tokens should be data entries
+            </span><span class="kw">while </span>lines[i].tokens.len() &gt; j {
                 data.data_entries_and_values
-                    .push((lines[i].tokens[value_iterator].clone(), <span class="number">0</span>));
-                value_iterator += <span class="number">1</span>;
+                    .push((lines[i].tokens[j].clone(), <span class="number">0</span>));
+                j += <span class="number">1</span>;
             }
-
-            <span class="comment">//push last operand that will not have a comma
-            </span>data.data_entries_and_values
-                .push((lines[i].tokens[value_iterator].clone(), <span class="number">0</span>));
-
-            data_list.push(data.clone());
-            data = Data::default();
+            data_list.push(data);
         }
         i += <span class="number">1</span>;
+    }
+
+    <span class="comment">//handle any unfinished labels
+    </span><span class="kw">if </span>is_text {
+        <span class="comment">//unfinished labels in text cause an error
+        </span><span class="kw">for </span>label <span class="kw">in </span>labels {
+            lines[label.token_line].errors.push(Error {
+                error_name: LabelAssignmentError,
+                token_causing_error: label.token.token_name,
+                start_end_columns: label.token.start_end_columns,
+                message: <span class="string">&quot;&quot;</span>.to_string(),
+            });
+        }
+    } <span class="kw">else </span>{
+        <span class="comment">//unfinished labels in data are pushed to the list to be initialized as empty words in the assembler
+        </span><span class="kw">for </span>label <span class="kw">in </span>labels {
+            data_list.push(Data {
+                line_number: label.token_line,
+                label: label.token,
+                ..Default::default()
+            });
+        }
     }
 
     (instruction_list, data_list)
@@ -975,26 +1030,21 @@
     data_list: <span class="kw-2">&amp;mut </span>[Data],
 ) -&gt; HashMap&lt;String, usize&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>labels: HashMap&lt;String, usize&gt; = HashMap::new();
-    <span class="kw">for </span>instruction <span class="kw">in </span><span class="kw-2">&amp;mut *</span>instruction_list {
-        <span class="kw">if </span>instruction.label.is_some() {
+    <span class="comment">//iterate through every instance of instruction and try to add the label to the map
+    </span><span class="kw">for </span>instruction <span class="kw">in </span><span class="kw-2">&amp;mut *</span>instruction_list {
+        <span class="kw">for </span>label <span class="kw">in </span>instruction.labels.clone() {
             <span class="comment">//if the given label name is already used, an error is generated
-            </span><span class="kw">if </span>labels.contains_key(<span class="kw-2">&amp;*</span>instruction.label.clone().unwrap().<span class="number">0</span>.token_name) {
+            </span><span class="kw">if </span>labels.contains_key(<span class="kw-2">&amp;*</span>label.token.token_name) {
                 instruction.errors.push(Error {
                     error_name: LabelMultipleDefinition,
-                    token_causing_error: instruction
-                        .label
-                        .clone()
-                        .unwrap()
-                        .<span class="number">0
-                        </span>.token_name
-                        .to_string(),
-                    start_end_columns: instruction.label.clone().unwrap().<span class="number">0</span>.start_end_columns,
+                    token_causing_error: label.token.token_name,
+                    start_end_columns: label.token.start_end_columns,
                     message: <span class="string">&quot;&quot;</span>.to_string(),
                 });
                 <span class="comment">//otherwise, it is inserted
             </span>} <span class="kw">else </span>{
                 labels.insert(
-                    instruction.clone().label.unwrap().<span class="number">0</span>.token_name,
+                    label.token.token_name,
                     instruction.clone().instruction_number &lt;&lt; <span class="number">2</span>,
                 );
             }
@@ -1187,7 +1237,7 @@
                     || error.error_name == LabelMultipleDefinition
                 {
                     <span class="comment">//todo remove following line once Jerrett has started referencing error and not just start_end_columns
-                    </span>monaco_line_info[instruction.label.clone().unwrap().<span class="number">1</span>]
+                    </span>monaco_line_info[instruction.labels.clone().last().unwrap().token_line]
                         .error_start_end_columns
                         .push(error.start_end_columns);
 
