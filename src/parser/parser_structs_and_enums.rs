@@ -69,7 +69,7 @@ impl fmt::Display for PseudoDescription {
         write!(f, "`{}` is a pseudo-instruction.\n\n", self.name)?;
         write!(f, "```\n{} =>\n", self.syntax)?;
         for line in &self.translation_lines {
-            writeln!(f, "{}", line)?;
+            writeln!(f, "{line}")?;
         }
         write!(f, "\n```\n\n",)?;
         Ok(())
