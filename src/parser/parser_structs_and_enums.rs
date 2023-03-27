@@ -215,7 +215,7 @@ pub enum OperandType {
     ShiftAmount,
 }
 
-pub static UNSUPPORTED_INSTRUCTIONS: [&str; 411] = [
+pub static UNSUPPORTED_INSTRUCTIONS: [&str; 409] = [
     "abs.s",
     "abs.d",
     "abs.ps",
@@ -232,9 +232,7 @@ pub static UNSUPPORTED_INSTRUCTIONS: [&str; 411] = [
     "bc",
     "bc1eqz",
     "bc1nez",
-    "bc1f",
     "bc1fl",
-    "bc1t",
     "bc1tl",
     "bc2eqz",
     "bc2nez",
