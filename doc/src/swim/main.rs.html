@@ -491,6 +491,9 @@
 <a href="#491" id="491">491</a>
 <a href="#492" id="492">492</a>
 <a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attr">#[cfg(test)]
@@ -594,14 +597,14 @@
                 </span><span class="kw">for </span>(line_number, line_information) <span class="kw">in
                     </span>program_info.monaco_line_info.iter().enumerate()
                 {
-                    <span class="kw">for </span>(start_column, end_column) <span class="kw">in </span><span class="kw-2">&amp;</span>line_information.error_start_end_columns {
+                    <span class="kw">for </span>error <span class="kw">in </span><span class="kw-2">&amp;</span>line_information.errors {
                         <span class="kw">let </span>new_marker: IMarkerData = new_object().into();
-                        new_marker.set_message(<span class="kw-2">&amp;</span>line_information.mouse_hover_string);
+                        new_marker.set_message(<span class="kw-2">&amp;</span>error.message);
                         new_marker.set_severity(MarkerSeverity::Error);
                         new_marker.set_start_line_number((line_number + <span class="number">1</span>) <span class="kw">as </span>f64);
-                        new_marker.set_start_column((<span class="kw-2">*</span>start_column + <span class="number">1</span>) <span class="kw">as </span>f64);
+                        new_marker.set_start_column((error.start_end_columns.<span class="number">0 </span>+ <span class="number">1</span>) <span class="kw">as </span>f64);
                         new_marker.set_end_line_number((line_number + <span class="number">1</span>) <span class="kw">as </span>f64);
-                        new_marker.set_end_column((<span class="kw-2">*</span>end_column + <span class="number">2</span>) <span class="kw">as </span>f64);
+                        new_marker.set_end_column((error.start_end_columns.<span class="number">1 </span>+ <span class="number">1</span>) <span class="kw">as </span>f64);
                         markers.push(new_marker);
                     }
                 }
@@ -626,12 +629,15 @@
                         .delta_decorations(<span class="kw-2">&amp;</span>not_highlighted, <span class="kw-2">&amp;</span>executed_line, <span class="prelude-val">None</span>)
                         .into(),
                 );
-                <span class="comment">// Prevent it from running erroneous code
+
+                <span class="comment">// Proceed with loading into memory and expand pseudo-instructions if there are no errors.
                 </span><span class="kw">if </span>marker_jsarray.length() == <span class="number">0 </span>{
                     <span class="comment">// Load the binary into the datapath&#39;s memory
-                    </span>(<span class="kw-2">*</span>datapath)
-                        .initialize(assembled)
-                        .expect(<span class="string">&quot;Memory could not be loaded&quot;</span>);
+                    </span><span class="kw">match </span>(<span class="kw-2">*</span>datapath).initialize(assembled) {
+                        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; (),
+                        <span class="comment">// In the case of an error, stop early.
+                        </span><span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span>,
+                    }
                     <span class="comment">// log!(datapath.memory.to_string());
                     </span>text_model.set_value(<span class="kw-2">&amp;</span>program_info.updated_monaco_string); <span class="comment">// Expands pseudo-instructions to their hardware counterpart.
                 </span>}

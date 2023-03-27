@@ -1030,7 +1030,7 @@
         <span class="macro">write!</span>(f, <span class="string">&quot;`{}` is a pseudo-instruction.\n\n&quot;</span>, <span class="self">self</span>.name)<span class="question-mark">?</span>;
         <span class="macro">write!</span>(f, <span class="string">&quot;```\n{} =&gt;\n&quot;</span>, <span class="self">self</span>.syntax)<span class="question-mark">?</span>;
         <span class="kw">for </span>line <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.translation_lines {
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;{}&quot;</span>, line)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">&quot;{line}&quot;</span>)<span class="question-mark">?</span>;
         }
         <span class="macro">write!</span>(f, <span class="string">&quot;\n```\n\n&quot;</span>,)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
