@@ -399,6 +399,7 @@ pub fn suggest_error_corrections(
     labels: &HashMap<String, usize>,
     monaco_line_info: &mut [MonacoLineInfo],
 ) -> String {
+    let levenshtein_threshold = 2_f32 / 3_f32;
     let mut console_out_string: String = "".to_string();
     //go through each error in the instructions and suggest a correction
     for instruction in instructions {
@@ -425,12 +426,17 @@ pub fn suggest_error_corrections(
                                 closest.1 = register.names[0].to_string();
                             }
                         }
-
-                        let mut suggestion =
-                            "GP register is not recognized. A valid, similar register is: "
-                                .to_string();
-                        suggestion.push_str(&format!("{}.\n", &closest.1));
-                        error.message = suggestion;
+                        let mut message = "GP register is not recognized.".to_string();
+                        //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
+                        if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
+                            message.push_str(&format!(
+                                " A valid, similar register is: {}.\n",
+                                &closest.1
+                            ));
+                        } else {
+                            message.push('\n');
+                        }
+                        error.message = message;
                     }
                     UnrecognizedFPRegister => {
                         let given_string = &error.token_causing_error;
@@ -442,12 +448,17 @@ pub fn suggest_error_corrections(
                                 closest.1 = register.name.to_string();
                             }
                         }
-
-                        let mut suggestion =
-                            "FP register is not recognized. A valid, similar register is: "
-                                .to_string();
-                        suggestion.push_str(&format!("{}.\n", &closest.1));
-                        error.message = suggestion;
+                        let mut message = "FP register is not recognized.".to_string();
+                        //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
+                        if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
+                            message.push_str(&format!(
+                                " A valid, similar register is: {}.\n",
+                                &closest.1
+                            ));
+                        } else {
+                            message.push('\n');
+                        }
+                        error.message = message;
                     }
                     UnrecognizedInstruction => {
                         let given_string = &instruction.operator.token_name;
@@ -459,10 +470,17 @@ pub fn suggest_error_corrections(
                                 closest.1 = instruction.to_string();
                             }
                         }
-
-                        let mut suggestion = "A valid, similar instruction is: ".to_string();
-                        suggestion.push_str(&format!("{}.\n", &closest.1));
-                        error.message = suggestion;
+                        let mut message = "Instruction is not recognized.".to_string();
+                        //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
+                        if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
+                            message.push_str(&format!(
+                                " A valid, similar instruction is: {}.\n",
+                                &closest.1
+                            ));
+                        } else {
+                            message.push('\n');
+                        }
+                        error.message = message;
                     }
                     IncorrectRegisterTypeGP => {
                         error.message =

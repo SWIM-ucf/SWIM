@@ -860,11 +860,11 @@ fn suggest_error_corrections_works_with_various_gp_registers() {
     );
     assert_eq!(
         result[1].errors[0].message,
-        "GP register is not recognized. A valid, similar register is: $at.\n"
+        "GP register is not recognized.\n"
     );
     assert_eq!(
         result[1].errors[1].message,
-        "GP register is not recognized. A valid, similar register is: $ra.\n"
+        "GP register is not recognized.\n"
     );
 }
 
@@ -880,7 +880,7 @@ fn suggest_error_corrections_works_with_various_fp_registers() {
     );
     assert_eq!(
         result[1].errors[0].message,
-        "FP register is not recognized. A valid, similar register is: $f0.\n"
+        "FP register is not recognized.\n"
     );
     assert_eq!(
         result[1].errors[1].message,
@@ -888,7 +888,7 @@ fn suggest_error_corrections_works_with_various_fp_registers() {
     );
     assert_eq!(
         result[1].errors[2].message,
-        "FP register is not recognized. A valid, similar register is: $f0.\n"
+        "FP register is not recognized.\n"
     );
 }
 
@@ -922,21 +922,21 @@ fn suggest_error_corrections_works_with_labels_when_no_labels_specified() {
 
 #[test]
 fn suggest_error_corrections_works_with_instructions() {
-    let result = parser("sun $t1, $t2, $t3\nlq $t1, 100($zero)\n.c.eqd $f1, $f1, $f3".to_string())
+    let result = parser("sun $t1, $t2, $t3\nqq $t1, 100($zero)\n.c.eqd $f1, $f1, $f3".to_string())
         .0
         .instructions;
 
     assert_eq!(
         result[0].errors[0].message,
-        "A valid, similar instruction is: sub.\n"
+        "Instruction is not recognized. A valid, similar instruction is: sub.\n"
     );
     assert_eq!(
         result[1].errors[0].message,
-        "A valid, similar instruction is: lw.\n"
+        "Instruction is not recognized.\n"
     );
     assert_eq!(
         result[2].errors[0].message,
-        "A valid, similar instruction is: c.eq.d.\n"
+        "Instruction is not recognized. A valid, similar instruction is: c.eq.d.\n"
     );
 }
 
@@ -974,7 +974,7 @@ fn suggest_error_suggestions_associates_error_with_monaco_line_info() {
         error_name: ErrorType::UnrecognizedGPRegister,
         token_causing_error: "100".to_string(),
         start_end_columns: (9, 12),
-        message: "GP register is not recognized. A valid, similar register is: $v0.\n".to_string(),
+        message: "GP register is not recognized.\n".to_string(),
     };
     assert_eq!(lines[0].errors[0], actual);
 
