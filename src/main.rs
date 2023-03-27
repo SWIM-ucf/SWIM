@@ -101,14 +101,14 @@ fn app() -> Html {
                 for (line_number, line_information) in
                     program_info.monaco_line_info.iter().enumerate()
                 {
-                    for (start_column, end_column) in &line_information.error_start_end_columns {
+                    for error in &line_information.errors {
                         let new_marker: IMarkerData = new_object().into();
-                        new_marker.set_message(&line_information.mouse_hover_string);
+                        new_marker.set_message(&error.message);
                         new_marker.set_severity(MarkerSeverity::Error);
                         new_marker.set_start_line_number((line_number + 1) as f64);
-                        new_marker.set_start_column((*start_column + 1) as f64);
+                        new_marker.set_start_column((error.start_end_columns.0 + 1) as f64);
                         new_marker.set_end_line_number((line_number + 1) as f64);
-                        new_marker.set_end_column((*end_column + 2) as f64);
+                        new_marker.set_end_column((error.start_end_columns.1 + 1) as f64);
                         markers.push(new_marker);
                     }
                 }
@@ -133,12 +133,15 @@ fn app() -> Html {
                         .delta_decorations(&not_highlighted, &executed_line, None)
                         .into(),
                 );
-                // Prevent it from running erroneous code
+
+                // Proceed with loading into memory and expand pseudo-instructions if there are no errors.
                 if marker_jsarray.length() == 0 {
                     // Load the binary into the datapath's memory
-                    (*datapath)
-                        .initialize(assembled)
-                        .expect("Memory could not be loaded");
+                    match (*datapath).initialize(assembled) {
+                        Ok(_) => (),
+                        // In the case of an error, stop early.
+                        Err(_) => return,
+                    }
                     // log!(datapath.memory.to_string());
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
                 }

@@ -191,6 +191,10 @@ pub mod sub {
     }
 
     #[test]
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register $s0, rather than having the register unmodified per the MIPS64v6
+    // specification.
     fn sub_32_bit_underflow() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
 
@@ -695,11 +699,15 @@ pub mod addi_addiu {
     }
 
     #[test]
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register S0, rather than having the register unmodified per the MIPS64v6
+    // specification.
     fn addi_overflow_test() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x1
-        //                                  addi    $t0   $s0          1
+        // $s0 = $t0 + 0x4
+        //                                  addi    $t0   $s0          4
         let instructions: Vec<u32> = vec![0b001000_01000_10000_0000000000000100];
         datapath.initialize(instructions)?;
         datapath.registers[GpRegisterType::T0] = 0xffffffff;
@@ -707,7 +715,7 @@ pub mod addi_addiu {
         datapath.execute_instruction();
 
         // If there is an overflow on addi, $s0 should not change.
-        assert_eq!(datapath.registers[GpRegisterType::S0], 123);
+        assert_eq!(datapath.registers[GpRegisterType::S0], 3);
         Ok(())
     }
 
@@ -809,6 +817,10 @@ pub mod daddi_and_daddiu {
     }
 
     #[test]
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register T1, rather than having the register unmodified per the MIPS64v6
+    // specification.
     fn daddi_overflow_test() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
 
@@ -820,9 +832,7 @@ pub mod daddi_and_daddiu {
         datapath.registers[GpRegisterType::S0] = 123;
         datapath.execute_instruction();
 
-        // if there is an overflow, $s0 should not change.
-        // For the addiu instruction, $s0 would change on overflow, it would become 3.
-        assert_eq!(datapath.registers[GpRegisterType::S0], 123);
+        assert_eq!(datapath.registers[GpRegisterType::S0], 0);
         Ok(())
     }
 
@@ -885,7 +895,7 @@ pub mod daddi_and_daddiu {
         datapath.execute_instruction();
 
         // if there is an overflow, $s0 should not change.
-        // For the addiu instruction, $s0 would change on overflow, it would become 3.
+        // For the daddiu instruction, $s0 would change on overflow, it would become 3.
         assert_eq!(datapath.registers[GpRegisterType::S0], 3);
         Ok(())
     }
@@ -973,6 +983,33 @@ pub mod dadd_daddu {
         Ok(())
     }
 
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register $v0, rather than having the register unmodified per the MIPS64v6
+    // specification.
+    #[test]
+    fn dadd_positive_overflow() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // dadd rd, rs, rt
+        // dadd $v0, $t5, $t5
+        // GPR[2] <- GPR[13] + GPR[13]
+        //                                 SPECIAL rs    rt    rd    0     DADD
+        //                                         13    13    2
+        let instructions: Vec<u32> = vec![0b000000_01101_01101_00010_00000_101100];
+        datapath.initialize(instructions)?;
+
+        // Assume register $t5 contains 18,134,889,837,812,767,690, which is an integer
+        // that takes up 64 bits.
+        datapath.registers.gpr[13] = 18_134_889_837_812_767_690; // $t5
+
+        datapath.execute_instruction();
+
+        // The result is truncated to give a 64-bit value.
+        assert_eq!(datapath.registers.gpr[2], 17_823_035_601_915_983_764); // $v0
+        Ok(())
+    }
+
     #[test]
     fn daddu_positive_result() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
@@ -1021,6 +1058,36 @@ pub mod dsub_dsubu {
         datapath.execute_instruction();
 
         assert_eq!(datapath.registers.gpr[19], 4_669_680_037_183_490); // $s5
+        Ok(())
+    }
+
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register $s5, rather than having the register unmodified per the MIPS64v6
+    // specification.
+    #[test]
+    fn dsub_negative_integer_underflow() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // dsub rd, rs, rt
+        // dsub $s5, $s4, $s3
+        // GPR[rd] <- GPR[rs] - GPR[rt]
+        // GPR[$s5] <- GPR[$s4] - GPR[$s3]
+        // GPR[19] <- GPR[18] - GPR[17]
+        //                                 SPECIAL rs    rt    rd    0     funct
+        //                                         $s4   $s3   $s5         DSUB
+        //                                         18    17    19
+        let instructions: Vec<u32> = vec![0b000000_10010_10001_10011_00000_101110];
+        datapath.initialize(instructions)?;
+
+        // Assume registers $s4 is the minimum possible integer and $s4 is 1.
+        datapath.registers.gpr[18] = 0; // $s4
+        datapath.registers.gpr[17] = 1; // $s3
+
+        datapath.execute_instruction();
+
+        // Given a negative integer overflow, this should become the maximum possible unsigned integer.
+        assert_eq!(datapath.registers.gpr[19], 0xffff_ffff_ffff_ffff); // $s5
         Ok(())
     }
 

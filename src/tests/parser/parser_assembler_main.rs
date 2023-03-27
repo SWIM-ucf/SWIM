@@ -769,8 +769,12 @@ use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::{
     create_binary_vec, parser, place_binary_in_middle_of_another, read_instructions,
 };
-use crate::parser::parser_structs_and_enums::ErrorType::UnsupportedInstruction;
-use crate::parser::parser_structs_and_enums::ProgramInfo;
+use crate::parser::parser_structs_and_enums::ErrorType::{
+    UnrecognizedInstruction, UnsupportedInstruction,
+};
+use crate::parser::parser_structs_and_enums::{
+    ProgramInfo, SUPPORTED_INSTRUCTIONS, UNSUPPORTED_INSTRUCTIONS,
+};
 use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
 use crate::parser::pseudo_instruction_parsing::{
     complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers,
@@ -811,7 +815,8 @@ mod helper_functions {
         file_string = file_string.to_lowercase();
 
         let mut monaco_line_info_vec = tokenize_program(file_string);
-        let (mut instruction_list, mut data) = separate_data_and_text(monaco_line_info_vec.clone());
+        let (mut instruction_list, mut data) =
+            separate_data_and_text(&mut monaco_line_info_vec.clone());
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
@@ -835,7 +840,7 @@ fn create_binary_vec_works_with_data() {
     let monaco_line_info_vec = tokenize_program(file_string);
     program_info.monaco_line_info = monaco_line_info_vec;
     (program_info.instructions, program_info.data) =
-        separate_data_and_text(program_info.monaco_line_info.clone());
+        separate_data_and_text(&mut program_info.monaco_line_info.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut program_info.instructions,
         &program_info.data,
@@ -887,7 +892,7 @@ fn console_output_post_assembly_works_with_errors() {
     .0
     .console_out_post_assembly;
 
-    assert_eq!(result, "UnrecognizedGPRegister on line 2 with token \"1235\"\nGP register is not recognized. A valid, similar register is: $a3.\n\nUnrecognizedGPRegister on line 6 with token \"t1\"\nGP register is not recognized. A valid, similar register is: $t1.\n\nInvalidMemorySyntax on line 6 with token \"address\"\nThe given string for memory does not match syntax of \"offset(base)\" or \"label\".\n\nImproperlyFormattedASCII on line 4 with token \"100\"\nToken recognized as ASCII does not start and or end with double quotes (\").\n\n")
+    assert_eq!(result, "UnrecognizedGPRegister on line 2 with token \"1235\"\nGP register is not recognized.\n\nUnrecognizedGPRegister on line 6 with token \"t1\"\nGP register is not recognized. A valid, similar register is: $t1.\n\nInvalidMemorySyntax on line 6 with token \"address\"\nThe given string for memory does not match syntax of \"offset(base)\" or \"label\".\n\nImproperlyFormattedASCII on line 4 with token \"100\"\nToken recognized as ASCII does not start and or end with double quotes (\").\n\n")
 }
 
 #[test]
@@ -1023,4 +1028,23 @@ fn create_binary_vec_works_with_all_mod_4_options() {
         result,
         vec![873476153, 873476153, 12, 0b01101000011000010110111001101011]
     );
+}
+
+#[test]
+fn no_unsupported_instructions_are_recognized_by_parser() {
+    for instruction in UNSUPPORTED_INSTRUCTIONS {
+        let result = parser(instruction.to_string()).0.monaco_line_info;
+        assert_eq!(result[0].errors[0].error_name, UnsupportedInstruction);
+    }
+}
+
+#[test]
+fn supported_instructions_are_recognized_by_parser() {
+    for instruction in SUPPORTED_INSTRUCTIONS {
+        let result = parser(instruction.to_string()).0.monaco_line_info;
+        for error in &result[0].errors {
+            assert_ne!(error.error_name, UnsupportedInstruction);
+            assert_ne!(error.error_name, UnrecognizedInstruction);
+        }
+    }
 }
