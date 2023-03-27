@@ -13,6 +13,17 @@ pub struct RType {
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct RTypeSpecial {
+    pub op: u8,
+    pub rs: u8,
+    pub rt: u8,
+    pub rd: u8,
+    pub shamt: u8, // Maybe should be called "Hint"
+    pub funct: u8,
+}
+
+
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct IType {
     pub op: u8,
     pub rs: u8,
@@ -107,6 +118,7 @@ pub enum Instruction {
     IType(IType),
     JType(JType),
     SyscallType(SyscallType),
+    RTypeSpecial(RTypeSpecial),
     FpuRType(FpuRType),
     FpuIType(FpuIType),
     FpuRegImmType(FpuRegImmType),
@@ -130,7 +142,15 @@ impl TryFrom<u32> for Instruction {
             // add, sub, mul, div
             // dadd, dsub, dmul, ddiv
             // daddu, dsubu, dmulu, ddivu
-            // Includes syscall.
+            //
+            // R-type-like instructions:
+            // These are instructions that are very R-type-like, but require
+            // some custom flag options that make them unique.
+            // jalr
+            //
+            // Syscall instructions:
+            // Any syscall
+            // 
             OPCODE_SPECIAL => {
                 let funct = (value & 0x3F) as u8;
 
@@ -138,6 +158,14 @@ impl TryFrom<u32> for Instruction {
                     FUNCT_SYSCALL => Ok(Instruction::SyscallType(SyscallType {
                         op: ((value >> 26) & 0x3F) as u8,
                         code: ((value >> 6) & 0xFFFFF),
+                        funct: (value & 0x3F) as u8,
+                    })),
+                    FUNCT_JALR => Ok(Instruction::RTypeSpecial(RTypeSpecial {
+                        op: ((value >> 26) & 0x3F) as u8,
+                        rs: ((value >> 21) & 0x1F) as u8,
+                        rt: ((value >> 16) & 0x1F) as u8,
+                        rd: ((value >> 11) & 0x1F) as u8,
+                        shamt: ((value >> 6) & 0x1F) as u8,
                         funct: (value & 0x3F) as u8,
                     })),
                     _ => Ok(Instruction::RType(RType {

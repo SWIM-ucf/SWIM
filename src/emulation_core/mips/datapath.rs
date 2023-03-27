@@ -420,6 +420,14 @@ impl MipsDatapath {
                 self.state.shamt = r.shamt as u32;
                 self.state.funct = r.funct as u32;
             }
+            Instruction::RTypeSpecial(s) => {
+                self.state.rs = s.rs as u32;
+                self.state.rt = s.rt as u32;
+                self.state.rd = s.rd as u32;
+
+                self.state.shamt = s.shamt as u32; // Hint field
+                self.state.funct = s.funct as u32;
+            }
             Instruction::IType(i) => {
                 self.state.rs = i.rs as u32;
                 self.state.rt = i.rt as u32;
@@ -496,11 +504,37 @@ impl MipsDatapath {
             Instruction::FpuIType(i) => {
                 self.set_fpu_itype_control_signals(i);
             }
+            Instruction::RTypeSpecial(s) => {
+                self.set_rtype_special_control_signals(s);
+            }
         }
     }
+    
+    // Set RTypeSpecial control signals. 
+    fn set_rtype_special_control_signals(&mut self, s: RTypeSpecial) {
+        match s.funct {
+            FUNCT_JALR => {
+                self.signals.alu_op = AluOp::Addition;
+                self.signals.alu_src = AluSrc::ReadRegister2;
+                self.signals.branch = Branch::NoBranch; // don't care
+                self.signals.imm_shift = ImmShift::Shift0; 
+                self.signals.jump = Jump::YesJumpJALR;
+                self.signals.mem_read = MemRead::NoRead;
+                self.signals.mem_to_reg = MemToReg::UseAlu;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg3;
+                self.signals.reg_write = RegWrite::YesWrite;
+                self.signals.reg_width = RegWidth::DoubleWord;
+                
+            }
+            _ => self.error(&format!("R-type-special instruction with function code `{}`", s.funct)),
+        }
 
-    /// Set rtype control signals. This function may have a Match statement added
-    /// in the future for dealing with different special case rtype instructions.
+    }
+
+    /// Set basic rtype control signals. Special case Rtype instructions are dealt with
+    /// in set_rtype_special_control_signals()
     fn set_rtype_control_signals(&mut self, r: RType) {
         self.signals.alu_op = AluOp::UseFunctField;
         self.signals.alu_src = AluSrc::ReadRegister2;
