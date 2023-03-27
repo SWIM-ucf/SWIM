@@ -1427,7 +1427,6 @@ pub fn read_instructions(
             }
 
             _ => {
-
                 if UNSUPPORTED_INSTRUCTIONS.contains(&&*instruction.operator.token_name) {
                     instruction.errors.push(Error {
                         error_name: UnsupportedInstruction,

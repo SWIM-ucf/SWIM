@@ -1027,8 +1027,8 @@ fn create_binary_vec_works_with_all_mod_4_options() {
 }
 
 #[test]
-fn no_unsupported_instructions_are_recognized_by_parser(){
-    for instruction in UNSUPPORTED_INSTRUCTIONS{
+fn no_unsupported_instructions_are_recognized_by_parser() {
+    for instruction in UNSUPPORTED_INSTRUCTIONS {
         let result = parser(instruction.to_string()).0.monaco_line_info;
         assert_eq!(result[0].errors[0].error_name, UnsupportedInstruction);
     }
