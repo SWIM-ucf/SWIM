@@ -67,7 +67,6 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
     (program_info.clone(), binary)
 }
 
-
 ///Takes the vector of instructions and assembles the binary for them.
 pub fn read_instructions(
     instruction_list: &mut [Instruction],

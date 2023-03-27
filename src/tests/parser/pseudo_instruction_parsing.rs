@@ -120,7 +120,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_li() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -169,7 +169,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -201,7 +201,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi() {
             instruction_number: 1,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -250,7 +250,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_muli() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -282,7 +282,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_muli() {
             instruction_number: 1,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -331,7 +331,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_divi() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -363,7 +363,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_divi() {
             instruction_number: 1,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -412,7 +412,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dsubi() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -444,7 +444,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dsubi() {
             instruction_number: 1,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -493,7 +493,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dsubiu() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -525,7 +525,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dsubiu() {
             instruction_number: 1,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -574,7 +574,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuli() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -606,7 +606,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuli() {
             instruction_number: 1,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -655,7 +655,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuliu() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -687,7 +687,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_dmuliu() {
             instruction_number: 1,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -736,7 +736,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -768,7 +768,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddivi() {
             instruction_number: 1,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -817,7 +817,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddiviu() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -849,7 +849,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_ddiviu() {
             instruction_number: 1,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -898,7 +898,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgt() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -947,7 +947,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgtu() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -996,7 +996,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_seq() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -1028,7 +1028,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_seq() {
             instruction_number: 1,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -1060,7 +1060,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_seq() {
             instruction_number: 2,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -1109,7 +1109,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sne() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -1141,7 +1141,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sne() {
             instruction_number: 1,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -1190,7 +1190,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sle() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -1222,7 +1222,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sle() {
             instruction_number: 1,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 
@@ -1255,7 +1255,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sle() {
             instruction_number: 2,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -1304,7 +1304,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sleu() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -1336,7 +1336,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sleu() {
             instruction_number: 1,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 
@@ -1369,7 +1369,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sleu() {
             instruction_number: 2,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -1418,7 +1418,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sge() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -1450,7 +1450,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sge() {
             instruction_number: 1,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 
@@ -1483,7 +1483,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sge() {
             instruction_number: 2,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -1544,7 +1544,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
             instruction_number: 0,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -1576,7 +1576,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
             instruction_number: 1,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 
@@ -1609,7 +1609,7 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_sgeu() {
             instruction_number: 2,
             line_number: 0,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -1663,7 +1663,7 @@ fn complete_lw_sw_pseudo_instructions_works_multiple_using_same_label() {
             instruction_number: 0,
             line_number: 3,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -1690,7 +1690,7 @@ fn complete_lw_sw_pseudo_instructions_works_multiple_using_same_label() {
             instruction_number: 1,
             line_number: 3,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -1717,7 +1717,7 @@ fn complete_lw_sw_pseudo_instructions_works_multiple_using_same_label() {
             instruction_number: 2,
             line_number: 4,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -1744,7 +1744,7 @@ fn complete_lw_sw_pseudo_instructions_works_multiple_using_same_label() {
             instruction_number: 3,
             line_number: 4,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -1797,7 +1797,7 @@ fn complete_lw_sw_pseudo_instructions_works() {
             instruction_number: 0,
             line_number: 3,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -1824,7 +1824,7 @@ fn complete_lw_sw_pseudo_instructions_works() {
             instruction_number: 1,
             line_number: 3,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -1851,7 +1851,7 @@ fn complete_lw_sw_pseudo_instructions_works() {
             instruction_number: 2,
             line_number: 4,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
     assert_eq!(
@@ -1878,7 +1878,7 @@ fn complete_lw_sw_pseudo_instructions_works() {
             instruction_number: 3,
             line_number: 4,
             errors: vec![],
-            label: None,
+            labels: Vec::new(),
         }
     );
 }
@@ -1924,6 +1924,6 @@ fn pseudo_instructions_with_labels_put_label_on_the_first_expanded_instruction()
     let result = parser("label: ddiviu $t2, $t2, 100\n".to_string())
         .0
         .instructions;
-    assert!(result[0].label.is_some());
-    assert!(result[1].label.is_none());
+    assert!(!result[0].labels.is_empty());
+    assert!(result[1].labels.is_empty());
 }

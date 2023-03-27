@@ -189,7 +189,8 @@ mod read_label_absolute_tests {
     #[test]
     fn read_label_absolute_returns_address_of_instruction() {
         let mut monaco_line_info_vec = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
-        let (mut instruction_list, mut data) = separate_data_and_text(&mut monaco_line_info_vec.clone());
+        let (mut instruction_list, mut data) =
+            separate_data_and_text(&mut monaco_line_info_vec.clone());
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
@@ -206,7 +207,8 @@ mod read_label_absolute_tests {
     #[test]
     fn read_label_absolute_returns_error_if_label_cannot_be_found() {
         let mut monaco_line_info_vec = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, #t2, $t3\nsave_to_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
-        let (mut instruction_list, mut data) = separate_data_and_text(&mut monaco_line_info_vec.clone());
+        let (mut instruction_list, mut data) =
+            separate_data_and_text(&mut monaco_line_info_vec.clone());
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
@@ -229,7 +231,8 @@ mod read_label_relative_tests {
     #[test]
     fn read_label_relative_returns_correct_value_for_instruction_above_current() {
         let mut monaco_line_info_vec = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nsw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
-        let (mut instruction_list, mut data) = separate_data_and_text(&mut monaco_line_info_vec.clone());
+        let (mut instruction_list, mut data) =
+            separate_data_and_text(&mut monaco_line_info_vec.clone());
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,
@@ -246,7 +249,8 @@ mod read_label_relative_tests {
     #[test]
     fn read_label_relative_returns_correct_value_for_instruction_below_current() {
         let mut monaco_line_info_vec = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1 400($t2)\nadd $t1, #t2, $t3\nstore_in_memory: sw $t1, 400($t2)\naddi $t1, $t2, 400".to_string());
-        let (mut instruction_list, mut data) = separate_data_and_text(&mut monaco_line_info_vec.clone());
+        let (mut instruction_list, mut data) =
+            separate_data_and_text(&mut monaco_line_info_vec.clone());
         expand_pseudo_instructions_and_assign_instruction_numbers(
             &mut instruction_list,
             &data,

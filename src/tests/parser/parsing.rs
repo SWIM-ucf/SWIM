@@ -1,9 +1,13 @@
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::parser;
-use crate::parser::parser_structs_and_enums::ErrorType::{LabelAssignmentError, LabelMultipleDefinition, MissingComma, UnnecessaryComma};
+use crate::parser::parser_structs_and_enums::ErrorType::{
+    LabelAssignmentError, LabelMultipleDefinition, MissingComma, UnnecessaryComma,
+};
 use crate::parser::parser_structs_and_enums::TokenType::{Label, Operator, Unknown};
-use crate::parser::parser_structs_and_enums::{Data, Error, ErrorType, Instruction, MonacoLineInfo, Token};
-use crate::parser::parsing::{create_label_map};
+use crate::parser::parser_structs_and_enums::{
+    Data, Error, ErrorType, Instruction, LabelInstance, MonacoLineInfo, Token,
+};
+use crate::parser::parsing::create_label_map;
 #[cfg(test)]
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
 use crate::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
@@ -340,7 +344,9 @@ fn separate_data_and_text_can_handle_empty_lines() {
 
 #[test]
 fn separate_data_and_text_generates_error_on_missing_commas_text() {
-    let result = parser("add, $t1, $t2, $t3,\nlw $t1 400($t2)".to_string()).0.monaco_line_info;
+    let result = parser("add, $t1, $t2, $t3,\nlw $t1 400($t2)".to_string())
+        .0
+        .monaco_line_info;
 
     let error_0_line_0 = Error {
         error_name: UnnecessaryComma,
@@ -367,7 +373,6 @@ fn separate_data_and_text_generates_error_on_missing_commas_text() {
         message: "".to_string(),
     };
     assert_eq!(error_line_1, result[1].errors[0]);
-
 }
 
 #[test]
@@ -393,14 +398,17 @@ fn separate_data_and_text_works_on_line_label() {
 
     let token = Token {
         token_name: "Load_from_memory".to_string(),
-        start_end_columns: (0, 17),
+        start_end_columns: (0, 16),
         token_type: Label,
     };
     let mut instruction_1 = Instruction {
         operator: lines[1].tokens[1].clone(),
         operands: vec![lines[1].tokens[2].clone(), lines[1].tokens[3].clone()],
         line_number: 1,
-        label: Some((token, 1)),
+        labels: Vec::from([LabelInstance {
+            token,
+            token_line: 1,
+        }]),
         ..Default::default()
     };
     instruction_1.operator.token_type = Operator;
@@ -443,14 +451,17 @@ fn separate_data_and_text_works_off_line_label() {
 
     let token = Token {
         token_name: "Load_from_memory".to_string(),
-        start_end_columns: (0, 17),
+        start_end_columns: (0, 16),
         token_type: Label,
     };
     let mut instruction_1 = Instruction {
         operator: lines[2].tokens[0].clone(),
         operands: vec![lines[2].tokens[1].clone(), lines[2].tokens[2].clone()],
         line_number: 2,
-        label: Some((token, 1)),
+        labels: Vec::from([LabelInstance {
+            token,
+            token_line: 1,
+        }]),
         ..Default::default()
     };
     instruction_1.operator.token_type = Operator;
@@ -555,8 +566,10 @@ fn separate_data_and_text_recognizes_data_and_text_interspersed() {
     correct_result.0[1].operands[0].token_name.pop();
     correct_result.1[0].label.token_type = Label;
     correct_result.1[0].label.token_name.pop();
+    correct_result.1[0].label.start_end_columns.1 -= 1;
     correct_result.1[1].label.token_type = Label;
     correct_result.1[1].label.token_name.pop();
+    correct_result.1[1].label.start_end_columns.1 -= 1;
     correct_result.1[1].data_entries_and_values[0]
         .0
         .token_name
@@ -624,8 +637,10 @@ fn separate_data_and_text_recognizes_ascii_data() {
     correct_result.0[1].operands[0].token_name.pop();
     correct_result.1[0].label.token_type = Label;
     correct_result.1[0].label.token_name.pop();
+    correct_result.1[0].label.start_end_columns.1 -= 1;
     correct_result.1[1].label.token_type = Label;
     correct_result.1[1].label.token_name.pop();
+    correct_result.1[1].label.start_end_columns.1 -= 1;
     correct_result.1[1].data_entries_and_values[0]
         .0
         .token_name
@@ -692,8 +707,10 @@ fn separate_data_and_text_recognizes_data_and_text() {
     correct_result.0[0].operands[1].token_name.pop();
     correct_result.0[1].operands[0].token_name.pop();
     correct_result.1[0].label.token_type = Label;
+    correct_result.1[0].label.start_end_columns.1 -= 1;
     correct_result.1[0].label.token_name.pop();
     correct_result.1[1].label.token_type = Label;
+    correct_result.1[1].label.start_end_columns.1 -= 1;
     correct_result.1[1].label.token_name.pop();
     correct_result.1[1].data_entries_and_values[0]
         .0
@@ -708,24 +725,47 @@ fn separate_data_and_text_recognizes_data_and_text() {
 }
 
 #[test]
-fn build_instruction_list_generates_error_on_double_label() {
+fn build_instruction_list_allows_double_label_on_instructions() {
     let mut lines =
         tokenize_program("lw $t1, 400($zero)\nLabel1:\nLabel2: add $t1, $t2, $t3\n".to_string());
     let result = separate_data_and_text(&mut lines);
-    assert_eq!(result.0[1].errors[0].error_name, LabelAssignmentError);
+
+    let label_1 = LabelInstance {
+        token_line: 1,
+        token: Token {
+            token_name: "Label1".to_string(),
+            start_end_columns: (0, 6),
+            token_type: Label,
+        },
+    };
+    let label_2 = LabelInstance {
+        token_line: 2,
+        token: Token {
+            token_name: "Label2".to_string(),
+            start_end_columns: (0, 6),
+            token_type: Label,
+        },
+    };
+
+    assert!(result.0[1].errors.is_empty());
+    assert_eq!(result.0[1].labels[1], label_1);
+    assert_eq!(result.0[1].labels[0], label_2);
 }
 
 #[test]
 fn build_instruction_list_generates_error_on_label_on_last_line() {
-    let result = parser("lw $t1, 400($zero)\nadd $t1, $t2, $t3\nlabel:\n".to_string()).0.monaco_line_info;
+    let result = parser("lw $t1, 400($zero)\nadd $t1, $t2, $t3\nlabel:\n".to_string())
+        .0
+        .monaco_line_info;
 
-   assert_eq!(result[2].errors[0].error_name, LabelAssignmentError);
+    assert_eq!(result[2].errors[0].error_name, LabelAssignmentError);
 }
 
 #[test]
 fn create_label_map_generates_map_on_no_errors() {
     let mut monaco_line_info_vec = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nstore_in_memory: sw $t1, 400($t2)".to_string());
-    let (mut instruction_list, mut data) = separate_data_and_text(&mut monaco_line_info_vec.clone());
+    let (mut instruction_list, mut data) =
+        separate_data_and_text(&mut monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut instruction_list,
         &data,
@@ -744,7 +784,8 @@ fn create_label_map_generates_map_on_no_errors() {
 #[test]
 fn create_label_map_recognizes_data_labels() {
     let mut monaco_line_info_vec = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\n".to_string());
-    let (mut instruction_list, mut data) = separate_data_and_text(&mut monaco_line_info_vec.clone());
+    let (mut instruction_list, mut data) =
+        separate_data_and_text(&mut monaco_line_info_vec.clone());
     assemble_data_binary(&mut data);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut instruction_list,
@@ -765,7 +806,8 @@ fn create_label_map_recognizes_data_labels() {
 #[test]
 fn create_label_map_recognizes_data_labels_and_text_together() {
     let mut monaco_line_info_vec = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\ninstruction: sub $t1, $t2, $t3\n".to_string());
-    let (mut instruction_list, mut data) = separate_data_and_text(&mut monaco_line_info_vec.clone());
+    let (mut instruction_list, mut data) =
+        separate_data_and_text(&mut monaco_line_info_vec.clone());
     assemble_data_binary(&mut data);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut instruction_list,
@@ -787,7 +829,8 @@ fn create_label_map_recognizes_data_labels_and_text_together() {
 #[test]
 fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name() {
     let mut monaco_line_info_vec = tokenize_program("add $t1, $t2, $t3\nload_from_memory: lw $t1, 400($t2)\nadd $t1, $t2, $t3\nload_from_memory: lw $t2, 400($t2)".to_string());
-    let (mut instruction_list, mut data) = separate_data_and_text(&mut monaco_line_info_vec.clone());
+    let (mut instruction_list, mut data) =
+        separate_data_and_text(&mut monaco_line_info_vec.clone());
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut instruction_list,
         &data,
