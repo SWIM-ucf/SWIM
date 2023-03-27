@@ -286,6 +286,11 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
             } else {
                 data.label = labels.pop().unwrap().token;
             }
+            //continue to the next line if there are no other tokens on the line.
+            if lines[i].tokens.len() == j {
+                i += 1;
+                continue;
+            }
             //any other labels in the stack are pushed to the data_list to be initialized as empty words in the assemble data function
             for label in &labels {
                 data_list.push(Data {
