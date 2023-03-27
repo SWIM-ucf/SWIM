@@ -14,7 +14,6 @@ pub struct ControlSignals {
     pub mem_to_reg: MemToReg,
     pub mem_write: MemWrite,
     pub mem_write_src: MemWriteSrc,
-    pub overflow_write_block: OverflowWriteBlock,
     pub reg_dst: RegDst,
     pub reg_width: RegWidth,
     pub reg_write: RegWrite,
@@ -32,7 +31,6 @@ pub struct ControlSignals {
 #[derive(Clone, Default, PartialEq)]
 pub enum AluControl {
     /// `_0000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
-    /// Will not set any overflow signal on overflow.
     #[default]
     Addition = 0,
 
@@ -68,10 +66,6 @@ pub enum AluControl {
 
     /// `_1011` (11) - Perform unsigned integer division. (Returns the integer quotient.)
     DivisionUnsigned = 11,
-
-    /// `_1100` (12) - Perform an addition, and set the [`OverflowWriteBlock`] signal in
-    /// the event of an overflow.
-    AddWithNoWriteOnOverflow = 12,
 }
 
 /// This determines the operation sent to the ALU control unit.
@@ -82,7 +76,6 @@ pub enum AluControl {
 #[derive(Clone, Default, PartialEq)]
 pub enum AluOp {
     /// `0000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
-    /// Will not set any overflow signal on overflow.
     #[default]
     Addition = 0,
 
@@ -113,10 +106,6 @@ pub enum AluOp {
     /// field alone does not provide the full description of those
     /// instructions.)
     UseFunctField = 7,
-
-    /// `1000` (8) - Perform an addition, and set the [`OverflowWriteBlock`]
-    /// signal in the event of an overflow.
-    AddWithNoWriteOnOverflow = 8,
 }
 
 /// Determines the second source of the ALU.
@@ -234,20 +223,6 @@ pub enum MemWriteSrc {
     FloatingPointUnit = 1,
 }
 
-/// Demonstrates an overflow signal from the ALU.
-///
-/// If this signal is set, this overrides [`RegWrite`], blocking any
-/// general-purpose register from being written to.
-#[derive(Clone, Default, Eq, PartialEq)]
-pub enum OverflowWriteBlock {
-    /// Do not block writing to general-purpose registers if [`RegWrite`] is set.
-    #[default]
-    NoBlock = 0,
-
-    /// Block writing to general-purpose registers and ignore [`RegWrite`].
-    YesBlock = 1,
-}
-
 /// Determines, given that [`RegWrite`] is set, which destination
 /// register to write to, which largely depends on the instruction format.
 #[derive(Clone, Default, PartialEq)]
@@ -282,8 +257,6 @@ pub enum RegWidth {
 }
 
 /// Determines if the register file should be written to.
-///
-/// This signal may be overridden if [`OverflowWriteBlock`] is set.
 #[derive(Clone, Default, Eq, PartialEq)]
 pub enum RegWrite {
     #[default]
