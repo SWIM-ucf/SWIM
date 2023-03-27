@@ -22,7 +22,6 @@ pub struct RTypeSpecial {
     pub funct: u8,
 }
 
-
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct IType {
     pub op: u8,
@@ -150,7 +149,7 @@ impl TryFrom<u32> for Instruction {
             //
             // Syscall instructions:
             // Any syscall
-            // 
+            //
             OPCODE_SPECIAL => {
                 let funct = (value & 0x3F) as u8;
 

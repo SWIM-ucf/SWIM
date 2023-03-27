@@ -509,15 +509,15 @@ impl MipsDatapath {
             }
         }
     }
-    
-    // Set RTypeSpecial control signals. 
+
+    // Set RTypeSpecial control signals.
     fn set_rtype_special_control_signals(&mut self, s: RTypeSpecial) {
         match s.funct {
             FUNCT_JALR => {
                 // self.signals.alu_op = AluOp::Addition; // don't care
                 // self.signals.alu_src = AluSrc::ReadRegister2; // don't care
                 // self.signals.branch = Branch::NoBranch; // don't care
-                self.signals.imm_shift = ImmShift::Shift0; 
+                self.signals.imm_shift = ImmShift::Shift0;
                 self.signals.jump = Jump::YesJumpJALR;
                 self.signals.mem_read = MemRead::NoRead; // Don't care
                 self.signals.mem_to_reg = MemToReg::UsePcPlusFour;
@@ -526,11 +526,12 @@ impl MipsDatapath {
                 self.signals.reg_dst = RegDst::Reg3;
                 self.signals.reg_write = RegWrite::YesWrite;
                 self.signals.reg_width = RegWidth::DoubleWord;
-                
             }
-            _ => self.error(&format!("R-type-special instruction with function code `{}`", s.funct)),
+            _ => self.error(&format!(
+                "R-type-special instruction with function code `{}`",
+                s.funct
+            )),
         }
-
     }
 
     /// Set basic rtype control signals. Special case Rtype instructions are dealt with

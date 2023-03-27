@@ -2562,9 +2562,9 @@ pub mod jr_and_jalr_tests {
     #[test]
     fn test_basic_jr() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
-        
-        // JR $r8                            
-        //                                  Special $r8  $zero $zero        JALR 
+
+        // JR $r8
+        //                                  Special $r8  $zero $zero        JALR
         let instructions: Vec<u32> = vec![0b000000_01000_00000_00000_00000_001001];
         datapath.initialize(instructions)?;
         datapath.registers.gpr[0b01000] = 24;
@@ -2578,10 +2578,10 @@ pub mod jr_and_jalr_tests {
     #[test]
     fn test_basic_jalr() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
-        
-        // JALR $r8                            
-        //                                     Special  $r8  $zero $ra          JALR 
-        let instructions: Vec<u32> = vec![0,0,0b000000_01000_00000_11111_00000_001001];
+
+        // JALR $r8
+        //                                     Special  $r8  $zero $ra          JALR
+        let instructions: Vec<u32> = vec![0, 0, 0b000000_01000_00000_11111_00000_001001];
         datapath.initialize(instructions)?;
         datapath.registers.pc = 8;
         let initial_pc = datapath.registers.pc;

@@ -41,8 +41,6 @@ pub const FUNCT_SOP36: u8 = 0b011110;
 /// Used for `DDIVU` and `DMODU`.
 pub const FUNCT_SOP37: u8 = 0b011111;
 
-
-
 /// Used for many R-type instructions, like `ADD`, `SUB`, `MUL`, and `DIV`.
 pub const OPCODE_SPECIAL: u8 = 0b000000;
 /// Used for register-immediate instructions, like `DAHI` and `DATI`.
