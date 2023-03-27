@@ -399,7 +399,7 @@ pub fn suggest_error_corrections(
     labels: &HashMap<String, usize>,
     monaco_line_info: &mut [MonacoLineInfo],
 ) -> String {
-    let levenshtein_threshold = 2 as f32 / 3 as f32;
+    let levenshtein_threshold = 2_f32 / 3_f32;
     let mut console_out_string: String = "".to_string();
     //go through each error in the instructions and suggest a correction
     for instruction in instructions {
