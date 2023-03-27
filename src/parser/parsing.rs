@@ -293,6 +293,7 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
                     ..Default::default()
                 });
             }
+            labels = Vec::new();
             //the next token should be the data type directive
             data.data_type = lines[i].tokens[j].clone();
             j += 1;

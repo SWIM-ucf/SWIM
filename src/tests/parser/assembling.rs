@@ -459,3 +459,18 @@ fn assemble_data_binary_word_recognizes_hex() {
     assert_eq!(result[2], 0);
     assert_eq!(result[3], 250);
 }
+
+#[test]
+fn assemble_data_binary_defaults_unfinished_labels_to_be_empty_words() {
+    let mut lines = tokenize_program(".data\nlabel: \nsecond: .ascii \"ABC\"".to_string());
+    let mut modified_data = separate_data_and_text(&mut lines).1;
+    let result = assemble_data_binary(&mut modified_data);
+
+    assert_eq!(result[0], 0);
+    assert_eq!(result[1], 0);
+    assert_eq!(result[2], 0);
+    assert_eq!(result[3], 0);
+    assert_eq!(result[4], 0x41);
+    assert_eq!(result[5], 0x42);
+    assert_eq!(result[6], 0x43);
+}
