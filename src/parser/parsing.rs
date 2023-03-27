@@ -2,6 +2,7 @@ use crate::parser::parser_structs_and_enums::ErrorType::*;
 use crate::parser::parser_structs_and_enums::TokenType::{Directive, Label, Operator, Unknown};
 use crate::parser::parser_structs_and_enums::{
     Data, Error, Instruction, LabelInstance, MonacoLineInfo, Token, FP_REGISTERS, GP_REGISTERS,
+    SUPPORTED_INSTRUCTIONS,
 };
 use levenshtein::levenshtein;
 use std::collections::HashMap;
@@ -449,21 +450,10 @@ pub fn suggest_error_corrections(
                         error.message = suggestion;
                     }
                     UnrecognizedInstruction => {
-                        let recognized_instructions = [
-                            "add", "sub", "mul", "div", "lw", "sw", "lui", "aui", "andi", "ori",
-                            "addi", "dadd", "dsub", "dmul", "ddiv", "or", "and", "add.s", "add.d",
-                            "sub.s", "sub.d", "mul.s", "mul.d", "div.s", "div.d", "dahi", "dati",
-                            "daddi", "daddiu", "slt", "sltu", "swc1", "lwc1", "mtc1", "dmtc1",
-                            "mfc1", "dmfc1", "j", "beq", "bne", "c.eq.s", "c.eq.d", "c.lt.s",
-                            "c.le.s", "c.le.d", "c.ngt.s", "c.ngt.d", "c.nge.s", "c.nge.d", "bc1t",
-                            "bc1f", "daddu", "dsubu", "ddivu", "dmulu", "b", "nop", "sll", "jr",
-                            "jalr", "addiu", "jal",
-                        ];
-
                         let given_string = &instruction.operator.token_name;
                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
 
-                        for instruction in recognized_instructions {
+                        for instruction in SUPPORTED_INSTRUCTIONS {
                             if levenshtein(given_string, instruction) < closest.0 {
                                 closest.0 = levenshtein(given_string, instruction);
                                 closest.1 = instruction.to_string();
