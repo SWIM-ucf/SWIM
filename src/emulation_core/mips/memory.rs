@@ -146,17 +146,3 @@ fn convert_word_to_chars(word: u32) -> String {
     }
     chars
 }
-
-#[test]
-fn test() {
-    let mut mem: Memory = Default::default();
-    let mut i = 0;
-    while i < mem.memory.len() {
-        mem.store_word(i as u64, 0x61616161)
-            .expect("TODO: panic message");
-        i += 4;
-    }
-    let string = mem.generate_formatted_hex();
-
-    println!("{}", string);
-}
