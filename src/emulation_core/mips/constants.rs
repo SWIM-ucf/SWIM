@@ -2,6 +2,7 @@ use super::control_signals::RegWidth;
 
 pub const FUNCT_SYSCALL: u8 = 0b001100;
 
+pub const FUNCT_SLL: u8 = 0b000000;
 pub const FUNCT_ADD: u8 = 0b100000;
 pub const FUNCT_SUB: u8 = 0b100010;
 pub const FUNCT_AND: u8 = 0b100100;

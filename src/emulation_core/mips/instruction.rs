@@ -167,6 +167,7 @@ impl TryFrom<u32> for Instruction {
                         shamt: ((value >> 6) & 0x1F) as u8,
                         funct: (value & 0x3F) as u8,
                     })),
+                    // Simple R-Type instructions:
                     _ => Ok(Instruction::RType(RType {
                         op: ((value >> 26) & 0x3F) as u8,
                         rs: ((value >> 21) & 0x1F) as u8,
