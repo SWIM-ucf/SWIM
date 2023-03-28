@@ -688,11 +688,6 @@ pub fn suggest_error_corrections(
                 }
             }
 
-            //todo remove following line once Jerrett has started referencing error and not just start_end_columns
-            monaco_line_info[datum.line_number]
-                .error_start_end_columns
-                .push(error.start_end_columns);
-
             //add error to monaco_line_info
             monaco_line_info[datum.line_number]
                 .errors
