@@ -93,6 +93,9 @@
 <a href="#93" id="93">93</a>
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
 </pre><pre class="rust"><code><span class="comment">//use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
 //use monaco::api::TextModel;
 </span><span class="kw">use </span>wasm_bindgen::JsCast;
@@ -165,8 +168,11 @@
                         &lt;VisualDatapath datapath={props.datapath.clone()} svg_path={<span class="string">&quot;static/datapath.svg&quot;</span>} size={datapath_size} /&gt;
                     &lt;/div&gt;
                 } <span class="kw">else </span>{
+
                     &lt;div class=<span class="string">&quot;console&quot;</span>&gt;
-                        { props.datapath.memory.to_string() }
+                        &lt;pre class = <span class="string">&quot;memory-view&quot;</span>&gt;
+                            {props.datapath.memory.generate_formatted_hex() }
+                        &lt;/pre&gt;
                     &lt;/div&gt;
                 }
 

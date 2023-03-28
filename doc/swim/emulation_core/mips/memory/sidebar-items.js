@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["CAPACITY_BYTES",""]],"struct":[["Memory",""]]};
+window.SIDEBAR_ITEMS = {"constant":[["CAPACITY_BYTES",""]],"fn":[["convert_word_to_chars",""]],"struct":[["Memory",""]]};

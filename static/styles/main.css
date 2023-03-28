@@ -32,6 +32,10 @@ body {
   flex-grow: 1;
 }
 
+.memory-view {
+      font-size: 1rem;
+}
+
 .datapath-wrapper {
   flex-grow: 1.4;
   border: 2px solid black;
