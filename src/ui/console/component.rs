@@ -70,8 +70,12 @@ pub fn console(props: &Consoleprops) -> Html {
                         <VisualDatapath datapath={props.datapath.clone()} svg_path={"static/datapath.svg"} size={datapath_size} />
                     </div>
                 } else {
+
                     <div class="console">
-                        { props.datapath.memory.to_string() }
+                        <pre>
+                            { props.datapath.memory.generate_formatted_hex() }
+                        </pre>
+
                     </div>
                 }
 
