@@ -120,6 +120,7 @@ impl MipsFpCoprocessor {
             }
             // These types do not use the floating-point unit so they can be ignored.
             Instruction::RType(_)
+            | Instruction::RTypeSpecial(_)
             | Instruction::IType(_)
             | Instruction::JType(_)
             | Instruction::SyscallType(_) => (),
@@ -362,6 +363,7 @@ impl MipsFpCoprocessor {
             }
             // These types do not use the floating-point unit so they can be ignored.
             Instruction::RType(_)
+            | Instruction::RTypeSpecial(_)
             | Instruction::IType(_)
             | Instruction::JType(_)
             | Instruction::SyscallType(_) => self.signals = FpuControlSignals::default(),
