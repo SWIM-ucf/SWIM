@@ -108,4 +108,54 @@ impl Memory {
 
         Ok(result)
     }
+    
+    pub fn generate_string_format(&self) -> String {
+        let mut string: String = "".to_string();
+
+        let mut base = 0;
+        while base < self.memory.len(){
+            string.push_str(&format!("0x{:08x}:\t", base));
+            let mut char_version: String = "".to_string();
+
+            for offset in 0..4 {
+                let word_address = base as u64 + (offset * 4);
+                match self.load_word(word_address) {
+                    Ok(word) => {
+                        string.push_str(&format!("{}\t", word));
+                        char_version.push_str(&convert_word_to_chars(word))
+                    }
+                    Err(_) => {}
+                };
+            }
+            string.push_str(&format!("{}\n", char_version));
+            base += 16;
+        }
+        string
+    }
+}
+
+fn convert_word_to_chars(word: u32) -> String{
+    let mut chars = "".to_string();
+    for shift in (0..4).rev() {
+        let byte = (word << shift) as u8;
+        if byte > 32 && byte < 127 {
+            chars.push(byte as char);
+        }else {
+            chars.push('.');
+        }
+    }
+    chars
+}
+
+#[test]
+fn test(){
+    let mut mem: Memory = Default::default();
+    let mut i = 0;
+    while i < mem.memory.len(){
+        mem.store_word(i as u64, 97).expect("TODO: panic message");
+        i += 4;
+    }
+    let string = mem.generate_string_format();
+
+    println!("{}", string);
 }
