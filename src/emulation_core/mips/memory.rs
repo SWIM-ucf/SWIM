@@ -114,7 +114,7 @@ impl Memory {
 
         let mut base = 0;
         while base < self.memory.len() {
-            string.push_str(&format!("0x{:08x}:\t", base));
+            string.push_str(&format!("0x{:04x}:\t\t", base));
             let mut char_version: String = "".to_string();
 
             for offset in 0..4 {

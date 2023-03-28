@@ -72,10 +72,9 @@ pub fn console(props: &Consoleprops) -> Html {
                 } else {
 
                     <div class="console">
-                        <pre>
-                            { props.datapath.memory.generate_formatted_hex() }
+                        <pre class = "memory_view">
+                            {props.datapath.memory.generate_formatted_hex() }
                         </pre>
-
                     </div>
                 }
 
