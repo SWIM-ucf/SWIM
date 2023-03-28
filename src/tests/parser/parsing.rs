@@ -543,17 +543,17 @@ fn separate_data_and_text_recognizes_data_and_text_interspersed() {
                 line_number: 1,
                 label: lines[1].tokens[0].clone(),
                 data_type: lines[1].tokens[1].clone(),
-                data_entries_and_values: vec![(lines[1].tokens[2].clone(), 0)],
+                data_entries: vec![lines[1].tokens[2].clone()],
                 ..Default::default()
             },
             Data {
                 line_number: 5,
                 label: lines[5].tokens[0].clone(),
                 data_type: lines[5].tokens[1].clone(),
-                data_entries_and_values: vec![
-                    (lines[5].tokens[2].clone(), 0),
-                    (lines[5].tokens[3].clone(), 0),
-                    (lines[5].tokens[4].clone(), 0),
+                data_entries: vec![
+                    lines[5].tokens[2].clone(),
+                    lines[5].tokens[3].clone(),
+                    lines[5].tokens[4].clone(),
                 ],
                 ..Default::default()
             },
@@ -570,14 +570,8 @@ fn separate_data_and_text_recognizes_data_and_text_interspersed() {
     correct_result.1[1].label.token_type = Label;
     correct_result.1[1].label.token_name.pop();
     correct_result.1[1].label.start_end_columns.1 -= 1;
-    correct_result.1[1].data_entries_and_values[0]
-        .0
-        .token_name
-        .pop();
-    correct_result.1[1].data_entries_and_values[1]
-        .0
-        .token_name
-        .pop();
+    correct_result.1[1].data_entries[0].token_name.pop();
+    correct_result.1[1].data_entries[1].token_name.pop();
 
     assert_eq!(result, correct_result);
 }
@@ -614,17 +608,17 @@ fn separate_data_and_text_recognizes_ascii_data() {
                 line_number: 1,
                 label: lines[1].tokens[0].clone(),
                 data_type: lines[1].tokens[1].clone(),
-                data_entries_and_values: vec![(lines[1].tokens[2].clone(), 0)],
+                data_entries: vec![lines[1].tokens[2].clone()],
                 ..Default::default()
             },
             Data {
                 line_number: 2,
                 label: lines[2].tokens[0].clone(),
                 data_type: lines[2].tokens[1].clone(),
-                data_entries_and_values: vec![
-                    (lines[2].tokens[2].clone(), 0),
-                    (lines[2].tokens[3].clone(), 0),
-                    (lines[2].tokens[4].clone(), 0),
+                data_entries: vec![
+                    lines[2].tokens[2].clone(),
+                    lines[2].tokens[3].clone(),
+                    lines[2].tokens[4].clone(),
                 ],
                 ..Default::default()
             },
@@ -641,14 +635,8 @@ fn separate_data_and_text_recognizes_ascii_data() {
     correct_result.1[1].label.token_type = Label;
     correct_result.1[1].label.token_name.pop();
     correct_result.1[1].label.start_end_columns.1 -= 1;
-    correct_result.1[1].data_entries_and_values[0]
-        .0
-        .token_name
-        .pop();
-    correct_result.1[1].data_entries_and_values[1]
-        .0
-        .token_name
-        .pop();
+    correct_result.1[1].data_entries[0].token_name.pop();
+    correct_result.1[1].data_entries[1].token_name.pop();
 
     assert_eq!(result, correct_result);
 }
@@ -685,17 +673,17 @@ fn separate_data_and_text_recognizes_data_and_text() {
                 line_number: 1,
                 label: lines[1].tokens[0].clone(),
                 data_type: lines[1].tokens[1].clone(),
-                data_entries_and_values: vec![(lines[1].tokens[2].clone(), 0)],
+                data_entries: vec![lines[1].tokens[2].clone()],
                 ..Default::default()
             },
             Data {
                 line_number: 2,
                 label: lines[2].tokens[0].clone(),
                 data_type: lines[2].tokens[1].clone(),
-                data_entries_and_values: vec![
-                    (lines[2].tokens[2].clone(), 0),
-                    (lines[2].tokens[3].clone(), 0),
-                    (lines[2].tokens[4].clone(), 0),
+                data_entries: vec![
+                    lines[2].tokens[2].clone(),
+                    lines[2].tokens[3].clone(),
+                    lines[2].tokens[4].clone(),
                 ],
                 ..Default::default()
             },
@@ -712,14 +700,8 @@ fn separate_data_and_text_recognizes_data_and_text() {
     correct_result.1[1].label.token_type = Label;
     correct_result.1[1].label.start_end_columns.1 -= 1;
     correct_result.1[1].label.token_name.pop();
-    correct_result.1[1].data_entries_and_values[0]
-        .0
-        .token_name
-        .pop();
-    correct_result.1[1].data_entries_and_values[1]
-        .0
-        .token_name
-        .pop();
+    correct_result.1[1].data_entries[0].token_name.pop();
+    correct_result.1[1].data_entries[1].token_name.pop();
 
     assert_eq!(result, correct_result);
 }
@@ -901,11 +883,11 @@ fn suggest_error_corrections_works_with_labels() {
 
     assert_eq!(
         result[0].errors[0].message,
-        "A valid, similar label is: table.\n"
+        "Given label is not found in the project. A valid, similar label is: table.\n"
     );
     assert_eq!(
         result[3].errors[0].message,
-        "A valid, similar label is: label.\n"
+        "Given label is not found in the project. A valid, similar label is: label.\n"
     );
 }
 
@@ -951,15 +933,15 @@ fn suggest_error_corrections_works_with_data_types() {
 
     assert_eq!(
         result[0].errors[0].message,
-        "A valid, similar data type is: .word.\n"
+        "Given string does not match data type directives. A valid, similar data type is: .word.\n"
     );
     assert_eq!(
         result[1].errors[0].message,
-        "A valid, similar data type is: .byte.\n"
+        "Given string does not match data type directives. A valid, similar data type is: .byte.\n"
     );
     assert_eq!(
         result[2].errors[0].message,
-        "A valid, similar data type is: .double.\n"
+        "Given string does not match data type directives.\n"
     );
 }
 
@@ -1006,7 +988,7 @@ fn suggest_error_suggestions_associates_error_with_monaco_line_info() {
         error_name: ErrorType::UnrecognizedDataType,
         token_causing_error: ".wod".to_string(),
         start_end_columns: (5, 9),
-        message: "A valid, similar data type is: .word.\n".to_string(),
+        message: "Given string does not match data type directives. A valid, similar data type is: .word.\n".to_string(),
     };
     assert_eq!(lines[3].errors[1], actual);
 }

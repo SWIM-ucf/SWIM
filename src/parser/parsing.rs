@@ -305,8 +305,7 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
             j += 1;
             //any remaining tokens should be data entries
             while lines[i].tokens.len() > j {
-                data.data_entries_and_values
-                    .push((lines[i].tokens[j].clone(), 0));
+                data.data_entries.push(lines[i].tokens[j].clone());
                 j += 1;
             }
             data_list.push(data);
@@ -539,15 +538,25 @@ pub fn suggest_error_corrections(
                                 closest.1 = label.0.to_string();
                             }
                         }
-
-                        let mut suggestion = "A valid, similar label is: ".to_string();
-                        suggestion.push_str(&format!("{}.\n", &closest.1));
-                        error.message = suggestion;
+                        let mut message = "Given label is not found in the project.".to_string();
+                        //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
+                        if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
+                            message.push_str(&format!(
+                                " A valid, similar label is: {}.\n",
+                                &closest.1
+                            ));
+                        } else {
+                            message.push('\n');
+                        }
+                        error.message = message;
                     }
                     JALRRDRegisterZero => {
                         error.message =
                             "The destination address for JALR cannot be the zero register\n"
                                 .to_string();
+                    }
+                    UnnecessaryComma => {
+                        error.message = "The given token should not end with a comma\n".to_string()
                     }
                     _ => {
                         error.message = format!("{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH TEXT.\n", error.error_name);
@@ -558,21 +567,11 @@ pub fn suggest_error_corrections(
                 if error.error_name == LabelAssignmentError
                     || error.error_name == LabelMultipleDefinition
                 {
-                    //todo remove following line once Jerrett has started referencing error and not just start_end_columns
-                    monaco_line_info[instruction.labels.clone().last().unwrap().token_line]
-                        .error_start_end_columns
-                        .push(error.start_end_columns);
-
                     //add error to monaco_line_info
-                    monaco_line_info[instruction.line_number]
+                    monaco_line_info[instruction.labels.clone().last().unwrap().token_line]
                         .errors
                         .push(error.clone());
                 } else {
-                    //todo remove following line once Jerrett has started referencing error and not just start_end_columns
-                    monaco_line_info[instruction.line_number]
-                        .error_start_end_columns
-                        .push(error.start_end_columns);
-
                     //add error to monaco_line_info
                     monaco_line_info[instruction.line_number]
                         .errors
@@ -625,9 +624,18 @@ pub fn suggest_error_corrections(
                         }
                     }
 
-                    let mut suggestion = "A valid, similar data type is: ".to_string();
-                    suggestion.push_str(&format!("{}.\n", &closest.1));
-                    error.message = suggestion;
+                    let mut message =
+                        "Given string does not match data type directives.".to_string();
+                    //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
+                    if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
+                        message.push_str(&format!(
+                            " A valid, similar data type is: {}.\n",
+                            &closest.1
+                        ));
+                    } else {
+                        message.push('\n');
+                    }
+                    error.message = message;
                 }
                 LabelAssignmentError => {
                     error.message = "A label is specified but it is not followed by data or an instruction committed to memory.\n".to_string();
@@ -671,15 +679,13 @@ pub fn suggest_error_corrections(
                     error.message =
                         "One or multiple characters within the given string cannot be represented in ASCII.\n".to_string();
                 }
+                UnnecessaryComma => {
+                    error.message = "The given token should not end with a comma\n".to_string()
+                }
                 _ => {
                     error.message = format!("{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n", error.error_name);
                 }
             }
-
-            //todo remove following line once Jerrett has started referencing error and not just start_end_columns
-            monaco_line_info[datum.line_number]
-                .error_start_end_columns
-                .push(error.start_end_columns);
 
             //add error to monaco_line_info
             monaco_line_info[datum.line_number]
