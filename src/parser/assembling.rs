@@ -509,9 +509,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                                 start_end_columns: value.start_end_columns,
                                 message: "".to_string(),
                             });
-                        } else if value.token_name.len() != 3
-                            || !value.token_name.ends_with('\'')
-                        {
+                        } else if value.token_name.len() != 3 || !value.token_name.ends_with('\'') {
                             datum.errors.push(Error {
                                 error_name: ImproperlyFormattedChar,
                                 token_causing_error: value.token_name.clone().to_string(),

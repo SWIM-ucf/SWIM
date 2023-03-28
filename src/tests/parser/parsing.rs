@@ -570,12 +570,8 @@ fn separate_data_and_text_recognizes_data_and_text_interspersed() {
     correct_result.1[1].label.token_type = Label;
     correct_result.1[1].label.token_name.pop();
     correct_result.1[1].label.start_end_columns.1 -= 1;
-    correct_result.1[1].data_entries[0]
-        .token_name
-        .pop();
-    correct_result.1[1].data_entries[1]
-        .token_name
-        .pop();
+    correct_result.1[1].data_entries[0].token_name.pop();
+    correct_result.1[1].data_entries[1].token_name.pop();
 
     assert_eq!(result, correct_result);
 }
@@ -639,12 +635,8 @@ fn separate_data_and_text_recognizes_ascii_data() {
     correct_result.1[1].label.token_type = Label;
     correct_result.1[1].label.token_name.pop();
     correct_result.1[1].label.start_end_columns.1 -= 1;
-    correct_result.1[1].data_entries[0]
-        .token_name
-        .pop();
-    correct_result.1[1].data_entries[1]
-        .token_name
-        .pop();
+    correct_result.1[1].data_entries[0].token_name.pop();
+    correct_result.1[1].data_entries[1].token_name.pop();
 
     assert_eq!(result, correct_result);
 }
@@ -708,12 +700,8 @@ fn separate_data_and_text_recognizes_data_and_text() {
     correct_result.1[1].label.token_type = Label;
     correct_result.1[1].label.start_end_columns.1 -= 1;
     correct_result.1[1].label.token_name.pop();
-    correct_result.1[1].data_entries[0]
-        .token_name
-        .pop();
-    correct_result.1[1].data_entries[1]
-        .token_name
-        .pop();
+    correct_result.1[1].data_entries[0].token_name.pop();
+    correct_result.1[1].data_entries[1].token_name.pop();
 
     assert_eq!(result, correct_result);
 }
