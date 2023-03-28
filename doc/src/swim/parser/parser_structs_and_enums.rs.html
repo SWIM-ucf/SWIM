@@ -1082,7 +1082,7 @@
     <span class="kw">pub </span>errors: Vec&lt;Error&gt;,
     <span class="kw">pub </span>label: Token,
     <span class="kw">pub </span>data_type: Token,
-    <span class="kw">pub </span>data_entries_and_values: Vec&lt;(Token, u32)&gt;,
+    <span class="kw">pub </span>data_entries: Vec&lt;Token&gt;,
 }
 
 <span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -1909,8 +1909,8 @@
     <span class="macro">println!</span>(<span class="string">&quot;Label: {}&quot;</span>, data.label.token_name);
     <span class="macro">println!</span>(<span class="string">&quot;Data Type: {}&quot;</span>, data.data_type.token_name);
     <span class="macro">println!</span>(<span class="string">&quot;Data Entries:&quot;</span>);
-    <span class="kw">for </span>data_entry <span class="kw">in </span>data.data_entries_and_values {
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, data_entry.<span class="number">0</span>);
+    <span class="kw">for </span>data_entry <span class="kw">in </span>data.data_entries {
+        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, data_entry.token_name);
     }
     <span class="kw">for </span>error <span class="kw">in </span>data.errors {
         <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, error.error_name);

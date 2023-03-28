@@ -643,9 +643,6 @@
 <a href="#643" id="643">643</a>
 <a href="#644" id="644">644</a>
 <a href="#645" id="645">645</a>
-<a href="#646" id="646">646</a>
-<a href="#647" id="647">647</a>
-<a href="#648" id="648">648</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_assembler_main::append_binary;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::ErrorType::{
     ImmediateOutOfBounds, ImproperlyFormattedASCII, ImproperlyFormattedChar,
@@ -1094,21 +1091,21 @@
         <span class="kw">match </span><span class="kw-2">&amp;*</span>datum.data_type.token_name.to_lowercase() {
             <span class="string">&quot;.ascii&quot; </span>=&gt; {
                 <span class="comment">//pushes a string of characters to memory
-                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
-                    value.<span class="number">0</span>.token_type = ASCII;
-                    <span class="kw">let </span>chars = value.<span class="number">0</span>.token_name.as_bytes();
+                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries.iter_mut() {
+                    value.token_type = ASCII;
+                    <span class="kw">let </span>chars = value.token_name.as_bytes();
                     <span class="kw">if </span>chars[<span class="number">0</span>] != <span class="string">b&#39;\&quot;&#39; </span>|| chars[chars.len() - <span class="number">1</span>] != <span class="string">b&#39;\&quot;&#39; </span>|| chars.len() &lt;= <span class="number">2 </span>{
                         datum.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
-                            token_causing_error: value.<span class="number">0</span>.token_name.to_string(),
-                            start_end_columns: value.<span class="number">0</span>.start_end_columns,
+                            token_causing_error: value.token_name.to_string(),
+                            start_end_columns: value.start_end_columns,
                             message: <span class="string">&quot;&quot;</span>.to_string(),
                         });
                     } <span class="kw">else if </span>!chars.is_ascii() {
                         datum.errors.push(Error {
                             error_name: NonASCIIString,
-                            token_causing_error: value.<span class="number">0</span>.token_name.to_string(),
-                            start_end_columns: value.<span class="number">0</span>.start_end_columns,
+                            token_causing_error: value.token_name.to_string(),
+                            start_end_columns: value.start_end_columns,
                             message: <span class="string">&quot;&quot;</span>.to_string(),
                         })
                     } <span class="kw">else </span>{
@@ -1120,21 +1117,21 @@
             }
             <span class="string">&quot;.asciiz&quot; </span>=&gt; {
                 <span class="comment">//same as ascii but pushes a \0 to memory as well
-                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
-                    value.<span class="number">0</span>.token_type = ASCIIZ;
-                    <span class="kw">let </span>chars = value.<span class="number">0</span>.token_name.as_bytes();
+                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries.iter_mut() {
+                    value.token_type = ASCIIZ;
+                    <span class="kw">let </span>chars = value.token_name.as_bytes();
                     <span class="kw">if </span>chars[<span class="number">0</span>] != <span class="string">b&#39;\&quot;&#39; </span>|| chars[chars.len() - <span class="number">1</span>] != <span class="string">b&#39;\&quot;&#39; </span>|| chars.len() &lt;= <span class="number">2 </span>{
                         datum.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
-                            token_causing_error: value.<span class="number">0</span>.token_name.to_string(),
-                            start_end_columns: value.<span class="number">0</span>.start_end_columns,
+                            token_causing_error: value.token_name.to_string(),
+                            start_end_columns: value.start_end_columns,
                             message: <span class="string">&quot;&quot;</span>.to_string(),
                         });
                     } <span class="kw">else if </span>!chars.is_ascii() {
                         datum.errors.push(Error {
                             error_name: NonASCIIString,
-                            token_causing_error: value.<span class="number">0</span>.token_name.to_string(),
-                            start_end_columns: value.<span class="number">0</span>.start_end_columns,
+                            token_causing_error: value.token_name.to_string(),
+                            start_end_columns: value.start_end_columns,
                             message: <span class="string">&quot;&quot;</span>.to_string(),
                         })
                     } <span class="kw">else </span>{
@@ -1146,28 +1143,26 @@
                 vec_of_data.push(<span class="number">0</span>);
             }
             <span class="string">&quot;.byte&quot; </span>=&gt; {
-                <span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
-                    value.<span class="number">0</span>.token_type = Byte;
+                <span class="kw">for </span>value <span class="kw">in </span>datum.data_entries.iter_mut() {
+                    value.token_type = Byte;
                     <span class="comment">//this if block handles chars
-                    </span><span class="kw">if </span>value.<span class="number">0</span>.token_name.starts_with(<span class="string">&#39;\&#39;&#39;</span>) {
-                        <span class="kw">if </span>!value.<span class="number">0</span>.token_name.is_ascii() {
+                    </span><span class="kw">if </span>value.token_name.starts_with(<span class="string">&#39;\&#39;&#39;</span>) {
+                        <span class="kw">if </span>!value.token_name.is_ascii() {
                             datum.errors.push(Error {
                                 error_name: NonASCIIChar,
-                                token_causing_error: value.<span class="number">0</span>.token_name.to_string(),
-                                start_end_columns: value.<span class="number">0</span>.start_end_columns,
+                                token_causing_error: value.token_name.to_string(),
+                                start_end_columns: value.start_end_columns,
                                 message: <span class="string">&quot;&quot;</span>.to_string(),
                             });
-                        } <span class="kw">else if </span>value.<span class="number">0</span>.token_name.len() != <span class="number">3
-                            </span>|| !value.<span class="number">0</span>.token_name.ends_with(<span class="string">&#39;\&#39;&#39;</span>)
-                        {
+                        } <span class="kw">else if </span>value.token_name.len() != <span class="number">3 </span>|| !value.token_name.ends_with(<span class="string">&#39;\&#39;&#39;</span>) {
                             datum.errors.push(Error {
                                 error_name: ImproperlyFormattedChar,
-                                token_causing_error: value.<span class="number">0</span>.token_name.clone().to_string(),
-                                start_end_columns: value.<span class="number">0</span>.start_end_columns,
+                                token_causing_error: value.token_name.clone().to_string(),
+                                start_end_columns: value.start_end_columns,
                                 message: <span class="string">&quot;&quot;</span>.to_string(),
                             });
                         } <span class="kw">else </span>{
-                            <span class="kw">let </span><span class="kw-2">mut </span>chars = value.<span class="number">0</span>.token_name.chars();
+                            <span class="kw">let </span><span class="kw-2">mut </span>chars = value.token_name.chars();
                             chars.next();
                             <span class="kw">let </span>char = chars.next().unwrap();
                             vec_of_data.push(char <span class="kw">as </span>u8);
@@ -1175,7 +1170,7 @@
                     } <span class="kw">else </span>{
                         <span class="comment">//otherwise we can assume it is an int
                         </span><span class="kw">let </span>immediate_results =
-                            read_immediate(<span class="kw-2">&amp;</span>value.<span class="number">0</span>.token_name, value.<span class="number">0</span>.start_end_columns, <span class="number">8</span>);
+                            read_immediate(<span class="kw-2">&amp;</span>value.token_name, value.start_end_columns, <span class="number">8</span>);
                         vec_of_data.push(immediate_results.<span class="number">0 </span><span class="kw">as </span>u8);
                         <span class="kw">if </span>immediate_results.<span class="number">1</span>.is_some() {
                             datum.errors.push(immediate_results.<span class="number">1</span>.unwrap());
@@ -1185,9 +1180,9 @@
             }
             <span class="string">&quot;.double&quot; </span>=&gt; {
                 <span class="comment">//pushes the given 64 bit float values
-                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
-                    value.<span class="number">0</span>.token_type = Float;
-                    <span class="kw">let </span>parse_results = value.<span class="number">0</span>.token_name.parse::&lt;f64&gt;();
+                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries.iter_mut() {
+                    value.token_type = Float;
+                    <span class="kw">let </span>parse_results = value.token_name.parse::&lt;f64&gt;();
                     <span class="kw">if let </span><span class="prelude-val">Ok</span>(..) = parse_results {
                         <span class="kw">let </span>float_bits = parse_results.unwrap().to_bits();
                         vec_of_data.push((float_bits &gt;&gt; <span class="number">56</span>) <span class="kw">as </span>u8);
@@ -1201,8 +1196,8 @@
                     } <span class="kw">else </span>{
                         datum.errors.push(Error {
                             error_name: NonFloatImmediate,
-                            token_causing_error: value.<span class="number">0</span>.token_name.to_string(),
-                            start_end_columns: value.<span class="number">0</span>.start_end_columns,
+                            token_causing_error: value.token_name.to_string(),
+                            start_end_columns: value.start_end_columns,
                             message: <span class="string">&quot;&quot;</span>.to_string(),
                         })
                     }
@@ -1210,9 +1205,9 @@
             }
             <span class="string">&quot;.float&quot; </span>=&gt; {
                 <span class="comment">//pushes the given 32 bit float values
-                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
-                    value.<span class="number">0</span>.token_type = Float;
-                    <span class="kw">let </span>parse_results = value.<span class="number">0</span>.token_name.parse::&lt;f32&gt;();
+                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries.iter_mut() {
+                    value.token_type = Float;
+                    <span class="kw">let </span>parse_results = value.token_name.parse::&lt;f32&gt;();
                     <span class="kw">if let </span><span class="prelude-val">Ok</span>(..) = parse_results {
                         <span class="kw">let </span>float_bits = parse_results.unwrap().to_bits();
                         vec_of_data.push((float_bits &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8);
@@ -1222,8 +1217,8 @@
                     } <span class="kw">else </span>{
                         datum.errors.push(Error {
                             error_name: NonFloatImmediate,
-                            token_causing_error: value.<span class="number">0</span>.token_name.to_string(),
-                            start_end_columns: value.<span class="number">0</span>.start_end_columns,
+                            token_causing_error: value.token_name.to_string(),
+                            start_end_columns: value.start_end_columns,
                             message: <span class="string">&quot;&quot;</span>.to_string(),
                         })
                     }
@@ -1231,10 +1226,10 @@
             }
             <span class="string">&quot;.half&quot; </span>=&gt; {
                 <span class="comment">//half words are 16 bits each. The vec is of u32s so 2 half words are in each u32
-                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
-                    value.<span class="number">0</span>.token_type = Half;
+                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries.iter_mut() {
+                    value.token_type = Half;
                     <span class="kw">let </span>immediate_results =
-                        read_immediate(<span class="kw-2">&amp;</span>value.<span class="number">0</span>.token_name, value.<span class="number">0</span>.start_end_columns, <span class="number">16</span>);
+                        read_immediate(<span class="kw-2">&amp;</span>value.token_name, value.start_end_columns, <span class="number">16</span>);
 
                     vec_of_data.push((immediate_results.<span class="number">0 </span>&gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8);
                     vec_of_data.push(immediate_results.<span class="number">0 </span><span class="kw">as </span>u8);
@@ -1246,11 +1241,10 @@
             }
             <span class="string">&quot;.space&quot; </span>=&gt; {
                 <span class="comment">//pushes specified number of empty bytes
-                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
-                    value.<span class="number">0</span>.token_type = Space;
+                </span><span class="kw">for </span>value <span class="kw">in </span>datum.data_entries.iter_mut() {
+                    value.token_type = Space;
                     <span class="kw">let </span>immediate_results =
-                        read_immediate(<span class="kw-2">&amp;</span>value.<span class="number">0</span>.token_name, value.<span class="number">0</span>.start_end_columns, <span class="number">32</span>);
-                    value.<span class="number">1 </span>= immediate_results.<span class="number">0</span>;
+                        read_immediate(<span class="kw-2">&amp;</span>value.token_name, value.start_end_columns, <span class="number">32</span>);
 
                     <span class="kw">for </span>_i <span class="kw">in </span><span class="number">0</span>..immediate_results.<span class="number">0 </span>{
                         vec_of_data.push(<span class="number">0</span>);
@@ -1262,10 +1256,10 @@
                 }
             }
             <span class="string">&quot;.word&quot; </span>=&gt; {
-                <span class="kw">for </span>value <span class="kw">in </span>datum.data_entries_and_values.iter_mut() {
-                    value.<span class="number">0</span>.token_type = Word;
+                <span class="kw">for </span>value <span class="kw">in </span>datum.data_entries.iter_mut() {
+                    value.token_type = Word;
                     <span class="kw">let </span>immediate_results =
-                        read_immediate(<span class="kw-2">&amp;</span>value.<span class="number">0</span>.token_name, value.<span class="number">0</span>.start_end_columns, <span class="number">32</span>);
+                        read_immediate(<span class="kw-2">&amp;</span>value.token_name, value.start_end_columns, <span class="number">32</span>);
                     <span class="kw">if </span>immediate_results.<span class="number">1</span>.is_some() {
                         datum.errors.push(immediate_results.<span class="number">1</span>.unwrap());
                     }

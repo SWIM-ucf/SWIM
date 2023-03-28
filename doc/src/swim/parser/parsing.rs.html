@@ -702,6 +702,12 @@
 <a href="#702" id="702">702</a>
 <a href="#703" id="703">703</a>
 <a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::TokenType::{Directive, Label, Operator, Unknown};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::{
@@ -1009,8 +1015,7 @@
             j += <span class="number">1</span>;
             <span class="comment">//any remaining tokens should be data entries
             </span><span class="kw">while </span>lines[i].tokens.len() &gt; j {
-                data.data_entries_and_values
-                    .push((lines[i].tokens[j].clone(), <span class="number">0</span>));
+                data.data_entries.push(lines[i].tokens[j].clone());
                 j += <span class="number">1</span>;
             }
             data_list.push(data);
@@ -1243,15 +1248,25 @@
                                 closest.<span class="number">1 </span>= label.<span class="number">0</span>.to_string();
                             }
                         }
-
-                        <span class="kw">let </span><span class="kw-2">mut </span>suggestion = <span class="string">&quot;A valid, similar label is: &quot;</span>.to_string();
-                        suggestion.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}.\n&quot;</span>, <span class="kw-2">&amp;</span>closest.<span class="number">1</span>));
-                        error.message = suggestion;
+                        <span class="kw">let </span><span class="kw-2">mut </span>message = <span class="string">&quot;Given label is not found in the project.&quot;</span>.to_string();
+                        <span class="comment">//only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
+                        </span><span class="kw">if </span>(closest.<span class="number">0 </span><span class="kw">as </span>f32 / given_string.len() <span class="kw">as </span>f32) &lt; levenshtein_threshold {
+                            message.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                                <span class="string">&quot; A valid, similar label is: {}.\n&quot;</span>,
+                                <span class="kw-2">&amp;</span>closest.<span class="number">1
+                            </span>));
+                        } <span class="kw">else </span>{
+                            message.push(<span class="string">&#39;\n&#39;</span>);
+                        }
+                        error.message = message;
                     }
                     JALRRDRegisterZero =&gt; {
                         error.message =
                             <span class="string">&quot;The destination address for JALR cannot be the zero register\n&quot;
                                 </span>.to_string();
+                    }
+                    UnnecessaryComma =&gt; {
+                        error.message = <span class="string">&quot;The given token should not end with a comma\n&quot;</span>.to_string()
                     }
                     <span class="kw">_ </span>=&gt; {
                         error.message = <span class="macro">format!</span>(<span class="string">&quot;{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH TEXT.\n&quot;</span>, error.error_name);
@@ -1262,21 +1277,11 @@
                 </span><span class="kw">if </span>error.error_name == LabelAssignmentError
                     || error.error_name == LabelMultipleDefinition
                 {
-                    <span class="comment">//todo remove following line once Jerrett has started referencing error and not just start_end_columns
-                    </span>monaco_line_info[instruction.labels.clone().last().unwrap().token_line]
-                        .error_start_end_columns
-                        .push(error.start_end_columns);
-
                     <span class="comment">//add error to monaco_line_info
-                    </span>monaco_line_info[instruction.line_number]
+                    </span>monaco_line_info[instruction.labels.clone().last().unwrap().token_line]
                         .errors
                         .push(error.clone());
                 } <span class="kw">else </span>{
-                    <span class="comment">//todo remove following line once Jerrett has started referencing error and not just start_end_columns
-                    </span>monaco_line_info[instruction.line_number]
-                        .error_start_end_columns
-                        .push(error.start_end_columns);
-
                     <span class="comment">//add error to monaco_line_info
                     </span>monaco_line_info[instruction.line_number]
                         .errors
@@ -1329,9 +1334,18 @@
                         }
                     }
 
-                    <span class="kw">let </span><span class="kw-2">mut </span>suggestion = <span class="string">&quot;A valid, similar data type is: &quot;</span>.to_string();
-                    suggestion.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}.\n&quot;</span>, <span class="kw-2">&amp;</span>closest.<span class="number">1</span>));
-                    error.message = suggestion;
+                    <span class="kw">let </span><span class="kw-2">mut </span>message =
+                        <span class="string">&quot;Given string does not match data type directives.&quot;</span>.to_string();
+                    <span class="comment">//only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
+                    </span><span class="kw">if </span>(closest.<span class="number">0 </span><span class="kw">as </span>f32 / given_string.len() <span class="kw">as </span>f32) &lt; levenshtein_threshold {
+                        message.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                            <span class="string">&quot; A valid, similar data type is: {}.\n&quot;</span>,
+                            <span class="kw-2">&amp;</span>closest.<span class="number">1
+                        </span>));
+                    } <span class="kw">else </span>{
+                        message.push(<span class="string">&#39;\n&#39;</span>);
+                    }
+                    error.message = message;
                 }
                 LabelAssignmentError =&gt; {
                     error.message = <span class="string">&quot;A label is specified but it is not followed by data or an instruction committed to memory.\n&quot;</span>.to_string();
@@ -1375,15 +1389,13 @@
                     error.message =
                         <span class="string">&quot;One or multiple characters within the given string cannot be represented in ASCII.\n&quot;</span>.to_string();
                 }
+                UnnecessaryComma =&gt; {
+                    error.message = <span class="string">&quot;The given token should not end with a comma\n&quot;</span>.to_string()
+                }
                 <span class="kw">_ </span>=&gt; {
                     error.message = <span class="macro">format!</span>(<span class="string">&quot;{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n&quot;</span>, error.error_name);
                 }
             }
-
-            <span class="comment">//todo remove following line once Jerrett has started referencing error and not just start_end_columns
-            </span>monaco_line_info[datum.line_number]
-                .error_start_end_columns
-                .push(error.start_end_columns);
 
             <span class="comment">//add error to monaco_line_info
             </span>monaco_line_info[datum.line_number]
