@@ -543,17 +543,17 @@ fn separate_data_and_text_recognizes_data_and_text_interspersed() {
                 line_number: 1,
                 label: lines[1].tokens[0].clone(),
                 data_type: lines[1].tokens[1].clone(),
-                data_entries_and_values: vec![(lines[1].tokens[2].clone(), 0)],
+                data_entries: vec![lines[1].tokens[2].clone()],
                 ..Default::default()
             },
             Data {
                 line_number: 5,
                 label: lines[5].tokens[0].clone(),
                 data_type: lines[5].tokens[1].clone(),
-                data_entries_and_values: vec![
-                    (lines[5].tokens[2].clone(), 0),
-                    (lines[5].tokens[3].clone(), 0),
-                    (lines[5].tokens[4].clone(), 0),
+                data_entries: vec![
+                    lines[5].tokens[2].clone(),
+                    lines[5].tokens[3].clone(),
+                    lines[5].tokens[4].clone(),
                 ],
                 ..Default::default()
             },
@@ -570,12 +570,10 @@ fn separate_data_and_text_recognizes_data_and_text_interspersed() {
     correct_result.1[1].label.token_type = Label;
     correct_result.1[1].label.token_name.pop();
     correct_result.1[1].label.start_end_columns.1 -= 1;
-    correct_result.1[1].data_entries_and_values[0]
-        .0
+    correct_result.1[1].data_entries[0]
         .token_name
         .pop();
-    correct_result.1[1].data_entries_and_values[1]
-        .0
+    correct_result.1[1].data_entries[1]
         .token_name
         .pop();
 
@@ -614,17 +612,17 @@ fn separate_data_and_text_recognizes_ascii_data() {
                 line_number: 1,
                 label: lines[1].tokens[0].clone(),
                 data_type: lines[1].tokens[1].clone(),
-                data_entries_and_values: vec![(lines[1].tokens[2].clone(), 0)],
+                data_entries: vec![lines[1].tokens[2].clone()],
                 ..Default::default()
             },
             Data {
                 line_number: 2,
                 label: lines[2].tokens[0].clone(),
                 data_type: lines[2].tokens[1].clone(),
-                data_entries_and_values: vec![
-                    (lines[2].tokens[2].clone(), 0),
-                    (lines[2].tokens[3].clone(), 0),
-                    (lines[2].tokens[4].clone(), 0),
+                data_entries: vec![
+                    lines[2].tokens[2].clone(),
+                    lines[2].tokens[3].clone(),
+                    lines[2].tokens[4].clone(),
                 ],
                 ..Default::default()
             },
@@ -641,12 +639,10 @@ fn separate_data_and_text_recognizes_ascii_data() {
     correct_result.1[1].label.token_type = Label;
     correct_result.1[1].label.token_name.pop();
     correct_result.1[1].label.start_end_columns.1 -= 1;
-    correct_result.1[1].data_entries_and_values[0]
-        .0
+    correct_result.1[1].data_entries[0]
         .token_name
         .pop();
-    correct_result.1[1].data_entries_and_values[1]
-        .0
+    correct_result.1[1].data_entries[1]
         .token_name
         .pop();
 
@@ -685,17 +681,17 @@ fn separate_data_and_text_recognizes_data_and_text() {
                 line_number: 1,
                 label: lines[1].tokens[0].clone(),
                 data_type: lines[1].tokens[1].clone(),
-                data_entries_and_values: vec![(lines[1].tokens[2].clone(), 0)],
+                data_entries: vec![lines[1].tokens[2].clone()],
                 ..Default::default()
             },
             Data {
                 line_number: 2,
                 label: lines[2].tokens[0].clone(),
                 data_type: lines[2].tokens[1].clone(),
-                data_entries_and_values: vec![
-                    (lines[2].tokens[2].clone(), 0),
-                    (lines[2].tokens[3].clone(), 0),
-                    (lines[2].tokens[4].clone(), 0),
+                data_entries: vec![
+                    lines[2].tokens[2].clone(),
+                    lines[2].tokens[3].clone(),
+                    lines[2].tokens[4].clone(),
                 ],
                 ..Default::default()
             },
@@ -712,12 +708,10 @@ fn separate_data_and_text_recognizes_data_and_text() {
     correct_result.1[1].label.token_type = Label;
     correct_result.1[1].label.start_end_columns.1 -= 1;
     correct_result.1[1].label.token_name.pop();
-    correct_result.1[1].data_entries_and_values[0]
-        .0
+    correct_result.1[1].data_entries[0]
         .token_name
         .pop();
-    correct_result.1[1].data_entries_and_values[1]
-        .0
+    correct_result.1[1].data_entries[1]
         .token_name
         .pop();
 

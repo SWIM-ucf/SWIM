@@ -123,7 +123,7 @@ pub struct Data {
     pub errors: Vec<Error>,
     pub label: Token,
     pub data_type: Token,
-    pub data_entries_and_values: Vec<(Token, u32)>,
+    pub data_entries: Vec<Token>,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -950,8 +950,8 @@ pub fn print_data_contents(data: Data) {
     println!("Label: {}", data.label.token_name);
     println!("Data Type: {}", data.data_type.token_name);
     println!("Data Entries:");
-    for data_entry in data.data_entries_and_values {
-        println!("{:?}", data_entry.0);
+    for data_entry in data.data_entries {
+        println!("{:?}", data_entry.token_name);
     }
     for error in data.errors {
         println!("{:?}", error.error_name);

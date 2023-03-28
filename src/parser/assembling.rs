@@ -446,21 +446,21 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
         match &*datum.data_type.token_name.to_lowercase() {
             ".ascii" => {
                 //pushes a string of characters to memory
-                for value in datum.data_entries_and_values.iter_mut() {
-                    value.0.token_type = ASCII;
-                    let chars = value.0.token_name.as_bytes();
+                for value in datum.data_entries.iter_mut() {
+                    value.token_type = ASCII;
+                    let chars = value.token_name.as_bytes();
                     if chars[0] != b'\"' || chars[chars.len() - 1] != b'\"' || chars.len() <= 2 {
                         datum.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
-                            token_causing_error: value.0.token_name.to_string(),
-                            start_end_columns: value.0.start_end_columns,
+                            token_causing_error: value.token_name.to_string(),
+                            start_end_columns: value.start_end_columns,
                             message: "".to_string(),
                         });
                     } else if !chars.is_ascii() {
                         datum.errors.push(Error {
                             error_name: NonASCIIString,
-                            token_causing_error: value.0.token_name.to_string(),
-                            start_end_columns: value.0.start_end_columns,
+                            token_causing_error: value.token_name.to_string(),
+                            start_end_columns: value.start_end_columns,
                             message: "".to_string(),
                         })
                     } else {
@@ -472,21 +472,21 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
             }
             ".asciiz" => {
                 //same as ascii but pushes a \0 to memory as well
-                for value in datum.data_entries_and_values.iter_mut() {
-                    value.0.token_type = ASCIIZ;
-                    let chars = value.0.token_name.as_bytes();
+                for value in datum.data_entries.iter_mut() {
+                    value.token_type = ASCIIZ;
+                    let chars = value.token_name.as_bytes();
                     if chars[0] != b'\"' || chars[chars.len() - 1] != b'\"' || chars.len() <= 2 {
                         datum.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
-                            token_causing_error: value.0.token_name.to_string(),
-                            start_end_columns: value.0.start_end_columns,
+                            token_causing_error: value.token_name.to_string(),
+                            start_end_columns: value.start_end_columns,
                             message: "".to_string(),
                         });
                     } else if !chars.is_ascii() {
                         datum.errors.push(Error {
                             error_name: NonASCIIString,
-                            token_causing_error: value.0.token_name.to_string(),
-                            start_end_columns: value.0.start_end_columns,
+                            token_causing_error: value.token_name.to_string(),
+                            start_end_columns: value.start_end_columns,
                             message: "".to_string(),
                         })
                     } else {
@@ -498,28 +498,28 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                 vec_of_data.push(0);
             }
             ".byte" => {
-                for value in datum.data_entries_and_values.iter_mut() {
-                    value.0.token_type = Byte;
+                for value in datum.data_entries.iter_mut() {
+                    value.token_type = Byte;
                     //this if block handles chars
-                    if value.0.token_name.starts_with('\'') {
-                        if !value.0.token_name.is_ascii() {
+                    if value.token_name.starts_with('\'') {
+                        if !value.token_name.is_ascii() {
                             datum.errors.push(Error {
                                 error_name: NonASCIIChar,
-                                token_causing_error: value.0.token_name.to_string(),
-                                start_end_columns: value.0.start_end_columns,
+                                token_causing_error: value.token_name.to_string(),
+                                start_end_columns: value.start_end_columns,
                                 message: "".to_string(),
                             });
-                        } else if value.0.token_name.len() != 3
-                            || !value.0.token_name.ends_with('\'')
+                        } else if value.token_name.len() != 3
+                            || !value.token_name.ends_with('\'')
                         {
                             datum.errors.push(Error {
                                 error_name: ImproperlyFormattedChar,
-                                token_causing_error: value.0.token_name.clone().to_string(),
-                                start_end_columns: value.0.start_end_columns,
+                                token_causing_error: value.token_name.clone().to_string(),
+                                start_end_columns: value.start_end_columns,
                                 message: "".to_string(),
                             });
                         } else {
-                            let mut chars = value.0.token_name.chars();
+                            let mut chars = value.token_name.chars();
                             chars.next();
                             let char = chars.next().unwrap();
                             vec_of_data.push(char as u8);
@@ -527,7 +527,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     } else {
                         //otherwise we can assume it is an int
                         let immediate_results =
-                            read_immediate(&value.0.token_name, value.0.start_end_columns, 8);
+                            read_immediate(&value.token_name, value.start_end_columns, 8);
                         vec_of_data.push(immediate_results.0 as u8);
                         if immediate_results.1.is_some() {
                             datum.errors.push(immediate_results.1.unwrap());
@@ -537,9 +537,9 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
             }
             ".double" => {
                 //pushes the given 64 bit float values
-                for value in datum.data_entries_and_values.iter_mut() {
-                    value.0.token_type = Float;
-                    let parse_results = value.0.token_name.parse::<f64>();
+                for value in datum.data_entries.iter_mut() {
+                    value.token_type = Float;
+                    let parse_results = value.token_name.parse::<f64>();
                     if let Ok(..) = parse_results {
                         let float_bits = parse_results.unwrap().to_bits();
                         vec_of_data.push((float_bits >> 56) as u8);
@@ -553,8 +553,8 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     } else {
                         datum.errors.push(Error {
                             error_name: NonFloatImmediate,
-                            token_causing_error: value.0.token_name.to_string(),
-                            start_end_columns: value.0.start_end_columns,
+                            token_causing_error: value.token_name.to_string(),
+                            start_end_columns: value.start_end_columns,
                             message: "".to_string(),
                         })
                     }
@@ -562,9 +562,9 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
             }
             ".float" => {
                 //pushes the given 32 bit float values
-                for value in datum.data_entries_and_values.iter_mut() {
-                    value.0.token_type = Float;
-                    let parse_results = value.0.token_name.parse::<f32>();
+                for value in datum.data_entries.iter_mut() {
+                    value.token_type = Float;
+                    let parse_results = value.token_name.parse::<f32>();
                     if let Ok(..) = parse_results {
                         let float_bits = parse_results.unwrap().to_bits();
                         vec_of_data.push((float_bits >> 24) as u8);
@@ -574,8 +574,8 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     } else {
                         datum.errors.push(Error {
                             error_name: NonFloatImmediate,
-                            token_causing_error: value.0.token_name.to_string(),
-                            start_end_columns: value.0.start_end_columns,
+                            token_causing_error: value.token_name.to_string(),
+                            start_end_columns: value.start_end_columns,
                             message: "".to_string(),
                         })
                     }
@@ -583,10 +583,10 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
             }
             ".half" => {
                 //half words are 16 bits each. The vec is of u32s so 2 half words are in each u32
-                for value in datum.data_entries_and_values.iter_mut() {
-                    value.0.token_type = Half;
+                for value in datum.data_entries.iter_mut() {
+                    value.token_type = Half;
                     let immediate_results =
-                        read_immediate(&value.0.token_name, value.0.start_end_columns, 16);
+                        read_immediate(&value.token_name, value.start_end_columns, 16);
 
                     vec_of_data.push((immediate_results.0 >> 8) as u8);
                     vec_of_data.push(immediate_results.0 as u8);
@@ -598,11 +598,10 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
             }
             ".space" => {
                 //pushes specified number of empty bytes
-                for value in datum.data_entries_and_values.iter_mut() {
-                    value.0.token_type = Space;
+                for value in datum.data_entries.iter_mut() {
+                    value.token_type = Space;
                     let immediate_results =
-                        read_immediate(&value.0.token_name, value.0.start_end_columns, 32);
-                    value.1 = immediate_results.0;
+                        read_immediate(&value.token_name, value.start_end_columns, 32);
 
                     for _i in 0..immediate_results.0 {
                         vec_of_data.push(0);
@@ -614,10 +613,10 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                 }
             }
             ".word" => {
-                for value in datum.data_entries_and_values.iter_mut() {
-                    value.0.token_type = Word;
+                for value in datum.data_entries.iter_mut() {
+                    value.token_type = Word;
                     let immediate_results =
-                        read_immediate(&value.0.token_name, value.0.start_end_columns, 32);
+                        read_immediate(&value.token_name, value.start_end_columns, 32);
                     if immediate_results.1.is_some() {
                         datum.errors.push(immediate_results.1.unwrap());
                     }

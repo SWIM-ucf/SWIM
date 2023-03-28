@@ -305,8 +305,8 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
             j += 1;
             //any remaining tokens should be data entries
             while lines[i].tokens.len() > j {
-                data.data_entries_and_values
-                    .push((lines[i].tokens[j].clone(), 0));
+                data.data_entries
+                    .push(lines[i].tokens[j].clone());
                 j += 1;
             }
             data_list.push(data);
