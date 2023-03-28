@@ -33,7 +33,7 @@ body {
 }
 
 .memory_view {
-      font-size: 500px;
+      font-size: 1rem;
 }
 
 .datapath-wrapper {
