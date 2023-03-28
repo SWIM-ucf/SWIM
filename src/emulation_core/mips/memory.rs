@@ -119,12 +119,9 @@ impl Memory {
 
             for offset in 0..4 {
                 let word_address = base as u64 + (offset * 4);
-                match self.load_word(word_address) {
-                    Ok(word) => {
-                        string.push_str(&format!("{:08x}\t", word));
-                        char_version.push_str(&convert_word_to_chars(word))
-                    }
-                    Err(_) => {}
+                if let Ok(word) = self.load_word(word_address) {
+                    string.push_str(&format!("{:08x}\t", word));
+                    char_version.push_str(&convert_word_to_chars(word))
                 };
             }
             string.push_str(&format!("{}\n", char_version));
