@@ -28,48 +28,47 @@ pub struct ControlSignals {
 /// ALUControl. The leading bit of the signal determines the size of
 /// the input and output data within the datapath. See [`RegWidth`] for
 /// more details
-#[repr(u32)]
 #[derive(Clone, Default, PartialEq)]
 pub enum AluControl {
     /// `_0000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
     #[default]
-    Addition = 0,
+    Addition,
 
     /// `_0001` (1) - Perform a subtraction. Will not set any underflow signal on underflow.
-    Subtraction = 1,
+    Subtraction,
 
     /// `_0010` (2) - Perform a "set on less than" operation.
-    SetOnLessThanSigned = 2,
+    SetOnLessThanSigned,
 
     /// `_0011` (3) - Perform a "set on less than unsigned" operation.
-    SetOnLessThanUnsigned = 3,
+    SetOnLessThanUnsigned,
 
     /// `_0100` (4) - Perform a bitwise "AND" operation.
-    And = 4,
+    And,
 
     /// `_0101` (5) - Perform a bitwise "OR" operation.
-    Or = 5,
+    Or,
 
     /// `_0110` (6) - Left shift the sign-extended immediate value 16 bits.
-    LeftShift16 = 6,
+    LeftShift16,
 
     /// `_0111` (7) - Perform a bitwise "NOT" operation.
-    Not = 7,
+    Not,
 
     /// `_1000` (8) - Perform signed multiplication.
-    MultiplicationSigned = 8,
+    MultiplicationSigned,
 
     /// `_1001` (9) - Perform unsigned multiplication.
-    MultiplicationUnsigned = 9,
+    MultiplicationUnsigned,
 
     /// `_1010` (10) - Perform signed integer division. (Returns the integer quotient.)
-    DivisionSigned = 10,
+    DivisionSigned,
 
     /// `_1011` (11) - Perform unsigned integer division. (Returns the integer quotient.)
-    DivisionUnsigned = 11,
+    DivisionUnsigned,
 
     /// `_1100` (12) - Perform a shift left logical by "shamt" field amount.
-    ShiftLeftLogical(u32) = 12,
+    ShiftLeftLogical(u32),
 }
 
 /// This determines the operation sent to the ALU control unit.
