@@ -114,17 +114,17 @@ impl Memory {
 
         let mut base = 0;
         while base < self.memory.len() {
-            string.push_str(&format!("0x{:04x}:\t\t", base));
+            string.push_str(&format!("0x{base:04x}:\t\t"));
             let mut char_version: String = "".to_string();
 
             for offset in 0..4 {
                 let word_address = base as u64 + (offset * 4);
                 if let Ok(word) = self.load_word(word_address) {
-                    string.push_str(&format!("{:08x}\t", word));
+                    string.push_str(&format!("{word:08x}\t"));
                     char_version.push_str(&convert_word_to_chars(word))
                 };
             }
-            string.push_str(&format!("{}\n", char_version));
+            string.push_str(&format!("{char_version}\n"));
             base += 16;
         }
         string
