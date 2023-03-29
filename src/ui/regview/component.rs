@@ -1,5 +1,5 @@
 use crate::emulation_core::mips::registers::GpRegisters;
-use gloo::console::log;
+//use gloo::console::log;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 use yew::prelude::*;
@@ -55,7 +55,7 @@ pub fn generate_gpr_rows_bin(gp: GpRegisters) -> Html {
             html! {
                 <tr>
                     <td>{register}</td>
-                    <td>{format!("0{data:b}").to_string()}</td>
+                    <td>{format!("{data:#b}").to_string()}</td>
                 </tr>
             }
         })
@@ -94,7 +94,7 @@ pub fn generate_fpr_rows_bin(fp: [u64; 32]) -> Html {
             html! {
                 <tr>
                     <td>{format!("F{register}")}</td>
-                    <td>{format!("0{data:b}").to_string()}</td>
+                    <td>{format!("{data:#b}").to_string()}</td>
                 </tr>
             }
         })
@@ -145,17 +145,17 @@ pub fn regview(props: &Regviewprops) -> Html {
             switch_flag,
         )
     };
-    log!("This is ", *switch_flag);
+    //log!("This is ", *switch_flag);
     html! {
         <div style="flex-grow: 1; gap: 8px; display: flex; flex-direction: column; flex-wrap: nowrap;">
-            <div class="tabs">
-                <button class="tab" style="width: 50%;" onclick={on_switch_clicked_true.clone()}>{"GP"}</button>
-                <button class="tab" style="width: 50%;" onclick={on_switch_clicked_false.clone()}>{"FP"}</button>
-            </div>
             <div>
                 <button label="dec" onclick={change_view.clone()}>{"Dec"}</button>
                 <button label="bin" onclick={change_view.clone()}>{"Bin"}</button>
                 <button label="hex" onclick={change_view.clone()}>{"Hex"}</button>
+            </div>
+            <div class="tabs">
+                <button class="tab" style="width: 50%;" onclick={on_switch_clicked_true.clone()}>{"GP"}</button>
+                <button class="tab" style="width: 50%;" onclick={on_switch_clicked_false.clone()}>{"FP"}</button>
             </div>
             <div class="table-wrapper">
                 <table style="background-color: #ffffff">
