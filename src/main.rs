@@ -17,7 +17,7 @@ use monaco::{
         },
         IMarkdownString, MarkerSeverity,
     },
-    yew::{CodeEditor, CodeEditorLink},
+    yew::CodeEditor,
 };
 use parser::parser_assembler_main::parser;
 use std::rc::Rc;
@@ -45,9 +45,6 @@ fn app() -> Html {
     // when the text model changes.
     let text_model = use_mut_ref(|| TextModel::create(&code, Some(&language), None).unwrap());
 
-    // Link to the Yew Editor Component, if not used by the end of the project remove it.
-    let codelink = CodeEditorLink::default();
-
     // Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
     let hover_jsarray = js_sys::Array::new();
@@ -66,6 +63,7 @@ fn app() -> Html {
     highlight_decor.set_is_whole_line(true.into());
     highlight_decor.set_inline_class_name("myInlineDecoration".into());
 
+    // Output strings for the console and memory viewers.
     let parser_text_output = use_state_eq(String::new);
     let memory_text_output = use_state_eq(String::new);
 
@@ -281,9 +279,6 @@ fn app() -> Html {
     };
 
     // We'll have the Mouse Hover event running at all times.
-    // Bug: Due to how the nature of this being a functional component,
-    // the event won't initialize properly until the user starts typing anything
-    // in the code editor.
     {
         let text_model = Rc::clone(&text_model);
         use_event_with_window("mouseover", move |_: MouseEvent| {
@@ -401,7 +396,7 @@ fn app() -> Html {
 
                     // Editor
                     <div style="flex-grow: 1; min-height: 4em;">
-                        <SwimEditor text_model={(*text_model).borrow().clone()} link={codelink.clone()} />
+                        <SwimEditor text_model={(*text_model).borrow().clone()} />
                     </div>
 
                     // Console
@@ -426,7 +421,6 @@ fn new_object() -> JsValue {
 #[derive(PartialEq, Properties)]
 pub struct SwimEditorProps {
     pub text_model: TextModel,
-    pub link: CodeEditorLink,
 }
 
 fn get_options() -> IStandaloneEditorConstructionOptions {
@@ -458,7 +452,7 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 #[function_component]
 pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     html! {
-        <CodeEditor classes={"editor"} options={get_options()} model={props.text_model.clone()} link={props.link.clone()} />
+        <CodeEditor classes={"editor"} options={get_options()} model={props.text_model.clone()} />
     }
 }
 
