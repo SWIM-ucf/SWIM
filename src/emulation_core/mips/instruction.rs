@@ -261,6 +261,17 @@ impl TryFrom<u32> for Instruction {
                         }))
                     }
 
+                    // Branch on coprocessor 1 true (bc1t)
+                    // Branch on coprocessor 1 false (bc1f)
+                    SUB_BC => Ok(Instruction::FpuBranchType(FpuBranchType {
+                        op: ((value >> 26) & 0x3F) as u8,
+                        bcc1: ((value >> 21) & 0x1F) as u8,
+                        cc: ((value >> 18) & 0x7) as u8,
+                        nd: ((value >> 17) & 1) as u8,
+                        tf: ((value >> 16) & 1) as u8,
+                        offset: (value & 0xFFFF) as u16,
+                    })),
+
                     _ => Err(format!("sub code `{sub}` not supported for opcode {op}")),
                 }
             }
