@@ -463,6 +463,14 @@ impl MipsDatapath {
             Instruction::JType(i) => {
                 self.state.lower_26 = i.addr;
             }
+            Instruction::FpuBranchType(b) => {
+                self.state.imm = b.offset as u32;
+                self.state.funct = 0; // Not applicable
+                self.state.rs = 0; // Not applicable
+                self.state.rt = 0; // Not applicable
+                self.state.rd = 0; // Not applicable
+                self.state.shamt = 0; // Not applicable
+            }
         }
     }
 
@@ -491,7 +499,8 @@ impl MipsDatapath {
             // Main processor does nothing.
             Instruction::FpuRType(_)
             | Instruction::FpuCompareType(_)
-            | Instruction::SyscallType(_) => {
+            | Instruction::SyscallType(_)
+            | Instruction::FpuBranchType(_) => {
                 self.signals = ControlSignals {
                     branch: Branch::NoBranch,
                     jump: Jump::NoJump,
