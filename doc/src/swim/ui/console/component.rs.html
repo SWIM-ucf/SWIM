@@ -154,16 +154,7 @@
     <span class="macro">html! </span>{
     &lt;&gt;
             <span class="comment">// Console buttons
-            </span>&lt;div class=<span class="string">&quot;tabs&quot;</span>&gt;
-            &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;console&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Console&quot;</span>}&lt;/button&gt;
-            &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;datapath&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Datapath&quot;</span>}&lt;/button&gt;
-            &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;memory&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Memory&quot;</span>}&lt;/button&gt;
-
-            <span class="kw">if </span><span class="kw-2">*</span>active_tab == TabState::Datapath {
-                &lt;button onclick={toggle_zoom}&gt;{<span class="string">&quot;Toggle Zoom&quot;</span>}&lt;/button&gt;
-            }
-            &lt;/div&gt;
-            <span class="kw">if </span><span class="kw-2">*</span>active_tab == TabState::Console {
+            </span><span class="kw">if </span><span class="kw-2">*</span>active_tab == TabState::Console {
                 &lt;div class=<span class="string">&quot;console&quot;</span>&gt;
                     { props.parsermsg.clone() }
                 &lt;/div&gt;
@@ -179,6 +170,15 @@
                     &lt;/pre&gt;
                 &lt;/div&gt;
             }
+            &lt;div class=<span class="string">&quot;tabs&quot;</span>&gt;
+                &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;console&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Console&quot;</span>}&lt;/button&gt;
+                &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;datapath&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Datapath&quot;</span>}&lt;/button&gt;
+                &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;memory&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Memory&quot;</span>}&lt;/button&gt;
+
+                <span class="kw">if </span><span class="kw-2">*</span>active_tab == TabState::Datapath {
+                    &lt;button onclick={toggle_zoom}&gt;{<span class="string">&quot;Toggle Zoom&quot;</span>}&lt;/button&gt;
+                }
+            &lt;/div&gt;
         &lt;/&gt;
     }
 }
