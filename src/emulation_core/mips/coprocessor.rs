@@ -339,6 +339,10 @@ impl MipsFpCoprocessor {
             },
             Instruction::FpuCompareType(c) => {
                 self.signals = FpuControlSignals {
+                    // All floating-point branch instructions are forced to use the same
+                    // one condition code register, regardless of the CC field in the
+                    // instruction. It should be noted that this differs from the
+                    // real-world MIPS specification.
                     cc: Cc::Cc0,
                     cc_write: CcWrite::YesWrite,
                     data_write: DataWrite::NoWrite,
