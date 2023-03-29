@@ -67,7 +67,6 @@ table {
   display: block;
   overflow-y: auto;
 }
-
 tr:nth-child(even)
 {
   background-color: #ccc;

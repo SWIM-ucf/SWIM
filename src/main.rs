@@ -387,13 +387,13 @@ fn app() -> Html {
                     // Top buttons
                     <div>
                         <button class="button" onclick={on_assemble_clicked}>{ "Assemble " }<i class="fa-sharp fa-solid fa-hammer"></i></button>
-                        <button class="button" onclick={on_execute_clicked} disabled={(*datapath).borrow().is_halted()}>{ "Execute " }<i class="fa-solid fa-play"></i></button>
-                        <button class="button" onclick={on_execute_stage_clicked} disabled={(*datapath).borrow().is_halted()}> { "Execute Stage " }<i class="fa-regular fa-circle-play"></i></button>
+                        <button class="button" onclick={on_execute_clicked} disabled={(*datapath).borrow().is_halted()}>{ "Execute " }<i class="fa-regular fa-circle-play"></i></button>
+                        <button class="button" onclick={on_execute_stage_clicked} disabled={(*datapath).borrow().is_halted()}> { "Execute Stage " }<i class="fa-solid fa-play"></i></button>
                         <button class="button" onclick={on_reset_clicked}>{ "Reset " }<i class="fa-solid fa-arrow-rotate-left"></i></button>
                         //<input type="button" value="Load File" onclick={upload_clicked_callback} />
-                        <button class="button" onclick={upload_clicked_callback}>{"Load File "}<i class="fa-sharp fa-solid fa-upload"></i></button>
-                        //<input type="button" value="Save to Clipboard" onclick={on_clipboard_clicked} /> 
-                        <button class="button" onclick={on_clipboard_clicked}>{"Save to Clipboard "}<i class="fa-sharp fa-solid fa-floppy-disk"></i></button>
+                        <button class="button" onclick={upload_clicked_callback}>{"Upload File "}<i class="fa-sharp fa-solid fa-upload"></i></button>
+                        //<input type="button" value="Save to Clipboard" onclick={on_clipboard_clicked} />
+                        <button class="button" onclick={on_clipboard_clicked}>{"Copy to Clipboard "}<i class="fa-regular fa-copy"></i></button>
                     </div>
 
                     // Editor

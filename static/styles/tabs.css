@@ -2,10 +2,18 @@
     width: 100%;
     margin: 0 auto;
 }
+.tabs .tab:first-child {
+    border-radius: 300px 0 0 300px;
+}
+.tabs .tab:last-child {
+    border-radius: 0 300px 300px 0;
+}
+.tabs .tab:only-child {
+    border-radius: 300px;
+}
 .tab {
     overflow: hidden;
     background-color: rgb(255, 255, 255);
-    border-radius: 300px;
     padding: 2px 16px 2px 16px;
     color: black;
     text-align: center;
