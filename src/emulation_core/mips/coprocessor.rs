@@ -29,6 +29,7 @@ pub struct FpuState {
     pub ft: u32,
     pub fd: u32,
     pub function: u32,
+    pub branch_flag: bool,
 
     pub data_from_main_processor: u64,
     pub data_writeback: u64,
@@ -117,6 +118,11 @@ impl MipsFpCoprocessor {
                 self.state.ft = c.ft as u32;
                 self.state.fs = c.fs as u32;
                 self.state.function = c.function as u32;
+            }
+            Instruction::FpuBranchType(b) => {
+                self.state.op = b.op as u32;
+                self.state.fmt = b.bcc1 as u32;
+                self.state.branch_flag = b.tf == 1;
             }
             // These types do not use the floating-point unit so they can be ignored.
             Instruction::RType(_)
@@ -362,6 +368,17 @@ impl MipsFpCoprocessor {
                         }
                     },
                     fpu_reg_write: FpuRegWrite::NoWrite,
+                    ..Default::default()
+                }
+            }
+            Instruction::FpuBranchType(_) => {
+                self.signals = FpuControlSignals {
+                    // All floating-point branch instructions are forced to use the same
+                    // one condition code register, regardless of the CC field in the
+                    // instruction. It should be noted that this differs from the
+                    // real-world MIPS specification.
+                    cc: Cc::Cc0,
+                    fpu_branch: FpuBranch::YesBranch,
                     ..Default::default()
                 }
             }
