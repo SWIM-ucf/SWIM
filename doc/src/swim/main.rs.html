@@ -488,12 +488,6 @@
 <a href="#488" id="488">488</a>
 <a href="#489" id="489">489</a>
 <a href="#490" id="490">490</a>
-<a href="#491" id="491">491</a>
-<a href="#492" id="492">492</a>
-<a href="#493" id="493">493</a>
-<a href="#494" id="494">494</a>
-<a href="#495" id="495">495</a>
-<a href="#496" id="496">496</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attr">#[cfg(test)]
@@ -513,7 +507,7 @@
         },
         IMarkdownString, MarkerSeverity,
     },
-    yew::{CodeEditor, CodeEditorLink},
+    yew::CodeEditor,
 };
 <span class="kw">use </span>parser::parser_assembler_main::parser;
 <span class="kw">use </span>std::rc::Rc;
@@ -541,9 +535,6 @@
     // when the text model changes.
     </span><span class="kw">let </span>text_model = use_mut_ref(|| TextModel::create(<span class="kw-2">&amp;</span>code, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>language), <span class="prelude-val">None</span>).unwrap());
 
-    <span class="comment">// Link to the Yew Editor Component, if not used by the end of the project remove it.
-    </span><span class="kw">let </span>codelink = CodeEditorLink::default();
-
     <span class="comment">// Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
     </span><span class="kw">let </span>hover_jsarray = js_sys::Array::new();
@@ -562,7 +553,8 @@
     highlight_decor.set_is_whole_line(<span class="bool-val">true</span>.into());
     highlight_decor.set_inline_class_name(<span class="string">&quot;myInlineDecoration&quot;</span>.into());
 
-    <span class="kw">let </span>parser_text_output = use_state_eq(String::new);
+    <span class="comment">// Output strings for the console and memory viewers.
+    </span><span class="kw">let </span>parser_text_output = use_state_eq(String::new);
     <span class="kw">let </span>memory_text_output = use_state_eq(String::new);
 
     <span class="comment">// Since we want the Datapath to be independent from all the
@@ -777,9 +769,6 @@
     };
 
     <span class="comment">// We&#39;ll have the Mouse Hover event running at all times.
-    // Bug: Due to how the nature of this being a functional component,
-    // the event won&#39;t initialize properly until the user starts typing anything
-    // in the code editor.
     </span>{
         <span class="kw">let </span>text_model = Rc::clone(<span class="kw-2">&amp;</span>text_model);
         use_event_with_window(<span class="string">&quot;mouseover&quot;</span>, <span class="kw">move </span>|<span class="kw">_</span>: MouseEvent| {
@@ -897,7 +886,7 @@
 
                     <span class="comment">// Editor
                     </span>&lt;div style=<span class="string">&quot;flex-grow: 1; min-height: 4em;&quot;</span>&gt;
-                        &lt;SwimEditor text_model={(<span class="kw-2">*</span>text_model).borrow().clone()} link={codelink.clone()} /&gt;
+                        &lt;SwimEditor text_model={(<span class="kw-2">*</span>text_model).borrow().clone()} /&gt;
                     &lt;/div&gt;
 
                     <span class="comment">// Console
@@ -922,7 +911,6 @@
 </span><span class="attr">#[derive(PartialEq, Properties)]
 </span><span class="kw">pub struct </span>SwimEditorProps {
     <span class="kw">pub </span>text_model: TextModel,
-    <span class="kw">pub </span>link: CodeEditorLink,
 }
 
 <span class="kw">fn </span>get_options() -&gt; IStandaloneEditorConstructionOptions {
@@ -954,7 +942,7 @@
 <span class="attr">#[function_component]
 </span><span class="kw">pub fn </span>SwimEditor(props: <span class="kw-2">&amp;</span>SwimEditorProps) -&gt; Html {
     <span class="macro">html! </span>{
-        &lt;CodeEditor classes={<span class="string">&quot;editor&quot;</span>} options={get_options()} model={props.text_model.clone()} link={props.link.clone()} /&gt;
+        &lt;CodeEditor classes={<span class="string">&quot;editor&quot;</span>} options={get_options()} model={props.text_model.clone()} /&gt;
     }
 }
 
