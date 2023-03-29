@@ -46,7 +46,6 @@ pub struct FpuState {
     /// This variable in a way in just a copy of read_data_2
     pub fp_register_to_memory: u64,
 
-    /// These two variable seem to be effectivly the time thing
     pub alu_result: u64,
     pub comparator_result: u64,
 }
@@ -140,19 +139,9 @@ impl MipsFpCoprocessor {
         self.state.data_from_main_processor = data;
     }
 
-    /// I do not feel like writting this right now, runs in writeback stage of fpu
-    pub fn set_data_writeback(&mut self) {
-        self.state.sign_extend_data = self.data as i32 as i64 as u64;
-        self.state.data_writeback = match self.signals.fpu_reg_width {
-            FpuRegWidth::Word => self.state.sign_extend_data,
-            FpuRegWidth::DoubleWord => self.data,
-        }
-    }
-
     /// Gets the contents of the data line between the `Data` register and the multiplexer
     /// in the main processor controlled by the [`DataWrite`] control signal.
     pub fn get_data_writeback(&mut self) -> u64 {
-        // self.set_fpu_data_writeback(); // really should not be here #FIXME
         self.state.data_writeback
     }
 
@@ -531,6 +520,16 @@ impl MipsFpCoprocessor {
     /// controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
     fn write_fp_register_to_memory(&mut self) {
         self.state.fp_register_to_memory = self.state.read_data_2;
+    }
+
+    /// Set the data line between the multiplexer after the `Data` register and the
+    /// multiplexer in the main processor controlled by the [`DataWrite`] control signal.
+    fn set_data_writeback(&mut self) {
+        self.state.sign_extend_data = self.data as i32 as i64 as u64;
+        self.state.data_writeback = match self.signals.fpu_reg_width {
+            FpuRegWidth::Word => self.state.sign_extend_data,
+            FpuRegWidth::DoubleWord => self.data,
+        }
     }
 
     /// Write data to the floating-point register file.
