@@ -106,6 +106,8 @@ pub const FUNCTION_C_LE: u8 = 0b111110;
 pub const FUNCTION_C_NGT: u8 = 0b111111;
 
 // "SUB" is short for operation subcode. Bits 25..21 of some instructions.
+/// Floating-point branch conditional.
+pub const SUB_BC: u8 = 0b01000;
 /// Move word from floating point.
 pub const SUB_MF: u8 = 0b00000;
 /// Move word to floating point.
