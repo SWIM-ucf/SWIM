@@ -541,7 +541,7 @@ pub mod sll {
         assert_eq!(datapath.registers.gpr[0b10010], 123);
         Ok(())
     }
-    
+
     #[test]
     fn mid_test() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();

@@ -1028,12 +1028,12 @@ impl MipsDatapath {
             AluControl::SetOnLessThanUnsigned => (input1 < input2) as u64,
             AluControl::And => input1 & input2,
             AluControl::Or => input1 | input2,
-            
+
             // shift amount should be set by the ALU control unit. got to make some variable that gets set
             AluControl::ShiftLeftLogical(shamt) => {
                 println!("beep");
                 input2 << shamt
-            },
+            }
             AluControl::LeftShift16 => input2 << 16,
             AluControl::Not => !input1,
             AluControl::MultiplicationSigned => ((input1 as i128) * (input2 as i128)) as u64,
