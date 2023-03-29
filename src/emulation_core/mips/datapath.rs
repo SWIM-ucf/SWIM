@@ -26,6 +26,9 @@
 //!   32 bits are ignored when being used for 32-bit instructions.
 //! - Instead of implementing the `cmp.condn.fmt` instructions, this datapath implements
 //!   the `c.cond.fmt` instructions from MIPS64 version 5.
+//! - Unlike MIPS specification, SWIM only uses 1 condition code register (`cc`), rather
+//!   than offering 8 condition code registers. The datapath will assume that the `cc`
+//!   field in a floating-point comparison or floating-point branch instruction is 0.
 //! - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
 //!   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
 //!   `bnezalc`, `beqc`, and `bovc` instructions.
