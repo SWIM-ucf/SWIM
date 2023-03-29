@@ -191,8 +191,8 @@
 <a href="#191" id="191">191</a>
 <a href="#192" id="192">192</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::emulation_core::mips::registers::GpRegisters;
-<span class="kw">use </span>gloo::console::log;
-<span class="kw">use </span>wasm_bindgen::JsCast;
+<span class="comment">//use gloo::console::log;
+</span><span class="kw">use </span>wasm_bindgen::JsCast;
 <span class="kw">use </span>web_sys::HtmlElement;
 <span class="kw">use </span>yew::prelude::<span class="kw-2">*</span>;
 
@@ -247,7 +247,7 @@
             <span class="macro">html! </span>{
                 &lt;tr&gt;
                     &lt;td&gt;{register}&lt;/td&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;0{data:b}&quot;</span>).to_string()}&lt;/td&gt;
+                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{data:#b}&quot;</span>).to_string()}&lt;/td&gt;
                 &lt;/tr&gt;
             }
         })
@@ -286,7 +286,7 @@
             <span class="macro">html! </span>{
                 &lt;tr&gt;
                     &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;F{register}&quot;</span>)}&lt;/td&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;0{data:b}&quot;</span>).to_string()}&lt;/td&gt;
+                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{data:#b}&quot;</span>).to_string()}&lt;/td&gt;
                 &lt;/tr&gt;
             }
         })
@@ -337,17 +337,17 @@
             switch_flag,
         )
     };
-    <span class="macro">log!</span>(<span class="string">&quot;This is &quot;</span>, <span class="kw-2">*</span>switch_flag);
-    <span class="macro">html! </span>{
+    <span class="comment">//log!(&quot;This is &quot;, *switch_flag);
+    </span><span class="macro">html! </span>{
         &lt;div style=<span class="string">&quot;flex-grow: 1; gap: 8px; display: flex; flex-direction: column; flex-wrap: nowrap;&quot;</span>&gt;
-            &lt;div class=<span class="string">&quot;tabs&quot;</span>&gt;
-                &lt;button class=<span class="string">&quot;tab&quot; </span>style=<span class="string">&quot;width: 50%;&quot; </span>onclick={on_switch_clicked_true.clone()}&gt;{<span class="string">&quot;GP&quot;</span>}&lt;/button&gt;
-                &lt;button class=<span class="string">&quot;tab&quot; </span>style=<span class="string">&quot;width: 50%;&quot; </span>onclick={on_switch_clicked_false.clone()}&gt;{<span class="string">&quot;FP&quot;</span>}&lt;/button&gt;
-            &lt;/div&gt;
             &lt;div&gt;
                 &lt;button label=<span class="string">&quot;dec&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Dec&quot;</span>}&lt;/button&gt;
                 &lt;button label=<span class="string">&quot;bin&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Bin&quot;</span>}&lt;/button&gt;
                 &lt;button label=<span class="string">&quot;hex&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Hex&quot;</span>}&lt;/button&gt;
+            &lt;/div&gt;
+            &lt;div class=<span class="string">&quot;tabs&quot;</span>&gt;
+                &lt;button class=<span class="string">&quot;tab&quot; </span>style=<span class="string">&quot;width: 50%;&quot; </span>onclick={on_switch_clicked_true.clone()}&gt;{<span class="string">&quot;GP&quot;</span>}&lt;/button&gt;
+                &lt;button class=<span class="string">&quot;tab&quot; </span>style=<span class="string">&quot;width: 50%;&quot; </span>onclick={on_switch_clicked_false.clone()}&gt;{<span class="string">&quot;FP&quot;</span>}&lt;/button&gt;
             &lt;/div&gt;
             &lt;div class=<span class="string">&quot;table-wrapper&quot;</span>&gt;
                 &lt;table style=<span class="string">&quot;background-color: #ffffff&quot;</span>&gt;

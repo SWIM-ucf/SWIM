@@ -259,17 +259,17 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>base = <span class="number">0</span>;
         <span class="kw">while </span>base &lt; <span class="self">self</span>.memory.len() {
-            string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;0x{:04x}:\t\t&quot;</span>, base));
+            string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;0x{base:04x}:\t\t&quot;</span>));
             <span class="kw">let </span><span class="kw-2">mut </span>char_version: String = <span class="string">&quot;&quot;</span>.to_string();
 
             <span class="kw">for </span>offset <span class="kw">in </span><span class="number">0</span>..<span class="number">4 </span>{
                 <span class="kw">let </span>word_address = base <span class="kw">as </span>u64 + (offset * <span class="number">4</span>);
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(word) = <span class="self">self</span>.load_word(word_address) {
-                    string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{:08x}\t&quot;</span>, word));
+                    string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{word:08x}\t&quot;</span>));
                     char_version.push_str(<span class="kw-2">&amp;</span>convert_word_to_chars(word))
                 };
             }
-            string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}\n&quot;</span>, char_version));
+            string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{char_version}\n&quot;</span>));
             base += <span class="number">16</span>;
         }
         string
