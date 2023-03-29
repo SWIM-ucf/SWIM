@@ -191,6 +191,10 @@ pub mod sub {
     }
 
     #[test]
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register $s0, rather than having the register unmodified per the MIPS64v6
+    // specification.
     fn sub_32_bit_underflow() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
 
@@ -695,11 +699,15 @@ pub mod addi_addiu {
     }
 
     #[test]
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register S0, rather than having the register unmodified per the MIPS64v6
+    // specification.
     fn addi_overflow_test() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x1
-        //                                  addi    $t0   $s0          1
+        // $s0 = $t0 + 0x4
+        //                                  addi    $t0   $s0          4
         let instructions: Vec<u32> = vec![0b001000_01000_10000_0000000000000100];
         datapath.initialize(instructions)?;
         datapath.registers[GpRegisterType::T0] = 0xffffffff;
@@ -707,7 +715,7 @@ pub mod addi_addiu {
         datapath.execute_instruction();
 
         // If there is an overflow on addi, $s0 should not change.
-        assert_eq!(datapath.registers[GpRegisterType::S0], 123);
+        assert_eq!(datapath.registers[GpRegisterType::S0], 3);
         Ok(())
     }
 
@@ -809,6 +817,10 @@ pub mod daddi_and_daddiu {
     }
 
     #[test]
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register T1, rather than having the register unmodified per the MIPS64v6
+    // specification.
     fn daddi_overflow_test() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
 
@@ -820,9 +832,7 @@ pub mod daddi_and_daddiu {
         datapath.registers[GpRegisterType::S0] = 123;
         datapath.execute_instruction();
 
-        // if there is an overflow, $s0 should not change.
-        // For the addiu instruction, $s0 would change on overflow, it would become 3.
-        assert_eq!(datapath.registers[GpRegisterType::S0], 123);
+        assert_eq!(datapath.registers[GpRegisterType::S0], 0);
         Ok(())
     }
 
@@ -885,7 +895,7 @@ pub mod daddi_and_daddiu {
         datapath.execute_instruction();
 
         // if there is an overflow, $s0 should not change.
-        // For the addiu instruction, $s0 would change on overflow, it would become 3.
+        // For the daddiu instruction, $s0 would change on overflow, it would become 3.
         assert_eq!(datapath.registers[GpRegisterType::S0], 3);
         Ok(())
     }
@@ -973,6 +983,33 @@ pub mod dadd_daddu {
         Ok(())
     }
 
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register $v0, rather than having the register unmodified per the MIPS64v6
+    // specification.
+    #[test]
+    fn dadd_positive_overflow() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // dadd rd, rs, rt
+        // dadd $v0, $t5, $t5
+        // GPR[2] <- GPR[13] + GPR[13]
+        //                                 SPECIAL rs    rt    rd    0     DADD
+        //                                         13    13    2
+        let instructions: Vec<u32> = vec![0b000000_01101_01101_00010_00000_101100];
+        datapath.initialize(instructions)?;
+
+        // Assume register $t5 contains 18,134,889,837,812,767,690, which is an integer
+        // that takes up 64 bits.
+        datapath.registers.gpr[13] = 18_134_889_837_812_767_690; // $t5
+
+        datapath.execute_instruction();
+
+        // The result is truncated to give a 64-bit value.
+        assert_eq!(datapath.registers.gpr[2], 17_823_035_601_915_983_764); // $v0
+        Ok(())
+    }
+
     #[test]
     fn daddu_positive_result() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
@@ -1021,6 +1058,36 @@ pub mod dsub_dsubu {
         datapath.execute_instruction();
 
         assert_eq!(datapath.registers.gpr[19], 4_669_680_037_183_490); // $s5
+        Ok(())
+    }
+
+    // NOTE: This test falls under our initial project design that there are no
+    // handled exceptions. Therefore, we would expect to see an updated value in
+    // register $s5, rather than having the register unmodified per the MIPS64v6
+    // specification.
+    #[test]
+    fn dsub_negative_integer_underflow() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // dsub rd, rs, rt
+        // dsub $s5, $s4, $s3
+        // GPR[rd] <- GPR[rs] - GPR[rt]
+        // GPR[$s5] <- GPR[$s4] - GPR[$s3]
+        // GPR[19] <- GPR[18] - GPR[17]
+        //                                 SPECIAL rs    rt    rd    0     funct
+        //                                         $s4   $s3   $s5         DSUB
+        //                                         18    17    19
+        let instructions: Vec<u32> = vec![0b000000_10010_10001_10011_00000_101110];
+        datapath.initialize(instructions)?;
+
+        // Assume registers $s4 is the minimum possible integer and $s4 is 1.
+        datapath.registers.gpr[18] = 0; // $s4
+        datapath.registers.gpr[17] = 1; // $s3
+
+        datapath.execute_instruction();
+
+        // Given a negative integer overflow, this should become the maximum possible unsigned integer.
+        assert_eq!(datapath.registers.gpr[19], 0xffff_ffff_ffff_ffff); // $s5
         Ok(())
     }
 
@@ -2557,6 +2624,43 @@ pub mod jump_and_link_tests {
     }
 }
 
+pub mod jr_and_jalr_tests {
+    use super::*;
+    #[test]
+    fn test_basic_jr() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // JR $r8
+        //                                  Special $r8  $zero $zero        JALR
+        let instructions: Vec<u32> = vec![0b000000_01000_00000_00000_00000_001001];
+        datapath.initialize(instructions)?;
+        datapath.registers.gpr[0b01000] = 24;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 24);
+        assert_eq!(datapath.registers.gpr[8], 24);
+        Ok(())
+    }
+
+    #[test]
+    fn test_basic_jalr() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // JALR $r8
+        //                                     Special  $r8  $zero $ra          JALR
+        let instructions: Vec<u32> = vec![0, 0, 0b000000_01000_00000_11111_00000_001001];
+        datapath.initialize(instructions)?;
+        datapath.registers.pc = 8;
+        let initial_pc = datapath.registers.pc;
+        datapath.registers.gpr[0b01000] = 24;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 24);
+        assert_eq!(datapath.registers.gpr[31], initial_pc + 4);
+        Ok(())
+    }
+}
+
 pub mod beq_tests {
     use super::*;
     #[test]
@@ -2566,9 +2670,11 @@ pub mod beq_tests {
         //                                  beq
         let instructions: Vec<u32> = vec![0b000100_01000_10000_0000000000000001];
         datapath.initialize(instructions)?;
-        datapath.execute_instruction();
 
-        assert_eq!(datapath.registers.pc, 8);
+        let initial_pc = datapath.registers.pc;
+        datapath.execute_instruction();
+        let expt_result = (0b0000_0000_0000_0001 << 2) + initial_pc + 4;
+        assert_eq!(datapath.registers.pc, expt_result);
         Ok(())
     }
 
@@ -2577,14 +2683,20 @@ pub mod beq_tests {
         let mut datapath = MipsDatapath::default();
 
         //                                  beq
-        let instructions: Vec<u32> = vec![0b000100_01000_10000_0000000000000001];
+        let instructions: Vec<u32> = vec![
+            0b000100_01000_10000_0000000000000001,
+            0b000100_01000_10000_0000000000000001,
+        ];
         datapath.initialize(instructions)?;
 
         datapath.registers.gpr[0b01000] = 1234;
         datapath.registers.gpr[0b10000] = 4321;
-        datapath.execute_instruction();
 
+        datapath.execute_instruction();
         assert_eq!(datapath.registers.pc, 4);
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.pc, 8);
         Ok(())
     }
 
@@ -2592,24 +2704,126 @@ pub mod beq_tests {
     fn beq_test_basic_branch_backwards() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
 
-        //                                  beq                +2(branch by +8)
-        let instructions: Vec<u32> = vec![0b000100_01000_10000_0000000000000011];
+        let instructions: Vec<u32> = vec![
+            0b000100_01000_10000_0000000000000011, // 0x00, Branch to 0x10
+            0,                                     // 0x04
+            0,                                     // 0x08
+            0,                                     // 0x0c
+            0b000100_01000_10000_1111111111111011, // 0x10, Branch to 0x00
+        ];
         datapath.initialize(instructions)?;
-
         datapath.registers.gpr[0b01000] = 1234;
         datapath.registers.gpr[0b10000] = 1234;
 
-        //                         beq                  (branch by 0)
-        let instruction: u32 = 0b000100_01000_10000_0000000000000000;
-        datapath.memory.store_word(16, instruction)?;
+        let initial_pc = datapath.registers.pc;
+        let offset = 0b0000_0000_0000_0011;
+        // 0x10, aka 16
+        let expt_result = ((offset as i16 as i64 as u64) << 2)
+            .wrapping_add(initial_pc)
+            .wrapping_add(4);
 
-        datapath.execute_instruction();
-        assert_eq!(datapath.registers.pc, 16);
+        datapath.execute_instruction(); // branch to address 16 from address 0
+        assert_eq!(datapath.registers.pc, expt_result);
         assert_eq!(datapath.registers.gpr[0b01000], 1234);
         assert_eq!(datapath.registers.gpr[0b10000], 1234);
 
+        let initial_pc = datapath.registers.pc;
+        let offset = 0b1111_1111_1111_1011;
+        // 0x00
+        let expt_result = ((offset as i16 as i64 as u64) << 2)
+            .wrapping_add(initial_pc)
+            .wrapping_add(4);
+
         datapath.execute_instruction();
-        assert_eq!(datapath.registers.pc, 20);
+        assert_eq!(datapath.registers.pc, expt_result);
+
+        // Some loop stuff:
+        datapath.execute_instruction(); // Branch to 0x10
+        datapath.execute_instruction(); // Branch to 0x00
+        datapath.execute_instruction(); // Branch to 0x10
+        datapath.execute_instruction(); // Branch to 0x00
+        datapath.execute_instruction(); // Branch to 0x10
+        datapath.execute_instruction(); // Branch to 0x00
+        assert_eq!(datapath.registers.pc, expt_result);
+        Ok(())
+    }
+}
+
+pub mod bne_tests {
+    use super::*;
+    #[test]
+    fn bne_test_basic_registers_are_equal() -> Result<(), String> {
+        // There should be no branching, the rs and rt are equal
+
+        let mut datapath = MipsDatapath::default();
+        //                                  bne                         1 word
+        let instructions: Vec<u32> = vec![0b000101_01000_10000_0000000000000001];
+        datapath.registers.gpr[0b01000] = 1234;
+        datapath.registers.gpr[0b10000] = 1234;
+        datapath.initialize(instructions)?;
+        datapath.execute_instruction();
+        let expt_result = 4; // PC + 4, PC starts at 0 with the bne instruction at address 0, no branch acures
+        assert_eq!(datapath.registers.pc, expt_result);
+
+        Ok(())
+    }
+
+    #[test]
+    fn bne_test_loop() -> Result<(), String> {
+        // This test starts with Branching from 0x0 to 0x8.
+        // then from 0x8, at branch to 0x20.
+        // then from 0x20 back to 0x8.
+        // then from 0x8 to 0x20
+        // backcally we have a loop of branching forever
+
+        let mut datapath = MipsDatapath::default();
+        let instructions: Vec<u32> = vec![
+            0b000101_01000_10000_0000000000000001, // 0x00, Branch to 0x8
+            0,                                     // 0x04
+            0b000101_01000_10000_0000000000000101, // 0x08, Branch to 0x20
+            0,                                     // 0x0c
+            0,                                     // 0x10
+            0,                                     // 0x14
+            0,                                     // 0x18
+            0,                                     // 0x1c
+            0b000101_01000_10000_1111111111111001, // 0x20, bne r8, r16, -24, (branch -28 relative to next addres), branch to 0x08
+        ];
+        datapath.initialize(instructions)?;
+        datapath.registers.gpr[0b01000] = 1234;
+        datapath.registers.gpr[0b10000] = 4321;
+
+        // test beq going from pc = 0 to next_pc + 4, 0x0 to 0x8
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.pc, 8);
+
+        // Branch from 0x8 to 0x20, aka from 8 to 32, branch by 24
+        let initial_pc = datapath.registers.pc;
+        datapath.execute_instruction();
+        let expt_result = (0b0000000000000101 << 2) + initial_pc + 4; // 32
+        assert_eq!(datapath.registers.pc, expt_result);
+
+        // Branch back to 0x8 from 0x20, aka 32 to 8
+        // The next_pc after 32 it 36, thus our branch offset will be 8 - 36 = -28
+        //
+        // destination_addr = SOME_LABEL
+        // Branch offset = (destination_addr - next_pc)
+        let initial_pc = datapath.registers.pc;
+        let offset = 0b1111_1111_1111_1001; // -28
+                                            // 0x8
+        let expt_result = ((offset as i16 as i64 as u64) << 2)
+            .wrapping_add(initial_pc)
+            .wrapping_add(4);
+
+        datapath.execute_instruction(); // branch to 0x08
+        assert_eq!(datapath.registers.pc as i64, expt_result as i64);
+
+        // loop around a few times
+        datapath.execute_instruction(); // branch to 0x20
+        datapath.execute_instruction(); // branch to 0x08
+        datapath.execute_instruction(); // branch to 0x20
+        datapath.execute_instruction(); // branch to 0x08
+        assert_eq!(datapath.registers.pc as i64, expt_result as i64);
+
         Ok(())
     }
 }

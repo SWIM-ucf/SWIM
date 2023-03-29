@@ -14,10 +14,11 @@
 //!
 //! - There is no exception handling, including that for integer overflow. (See
 //!   [`MipsDatapath::alu()`] and the following bullet.)
-//! - Only the `addi` and `daddi` instructions follow the proper MIPS specification
-//!   in terms of integer overflow. That is, if there is an overflow, the general-purpose
-//!   register will not be written to. `add` and `dadd` will continue to write on
-//!   overflow. `sub`, `dsub` will likewise continue to write on underflow.
+//! - The `add`, `addi`, `dadd`, `daddi`, `sub`, and `dsub` instructions do not
+//!   follow the proper MIPS specification in terms of integer overflow/wraparound.
+//!   That is, if there is integer wraparound, the general-purpose register should
+//!   not be written to. In our implementation, the general-purpose register is
+//!   written to regardless.
 //! - 32-bit instructions are treated exclusively with 32 bits, and the upper 32
 //!   bits stored in a register are completely ignored in any of these cases. For
 //!   example, before an `add` instruction, it should be checked whether it is a
@@ -28,6 +29,8 @@
 //! - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
 //!   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
 //!   `bnezalc`, `beqc`, and `bovc` instructions.
+//! - This datapath implements `daddi` as it exists in MIPS64 version 5. This instruction
+//!   was deprecated in MIPS64 version 6.
 //! - Unlike the MIPS64 version 6 specification for the `jal` instruction, `PC + 4` is
 //!   stored in `GPR[31]`, *not* `PC + 8`, as there is no implementation of branch
 //!   delay slots.
@@ -206,11 +209,6 @@ impl Datapath for MipsDatapath {
 
     fn execute_instruction(&mut self) {
         loop {
-            // If the FPU has halted, reflect this in the main unit.
-            if self.coprocessor.is_halted {
-                self.is_halted = true;
-            }
-
             // Stop early if the datapath has halted.
             if self.is_halted {
                 break;
@@ -240,6 +238,11 @@ impl Datapath for MipsDatapath {
             Stage::WriteBack => self.stage_writeback(),
         }
 
+        // If the FPU has halted, reflect this in the main unit.
+        if self.coprocessor.is_halted {
+            self.is_halted = true;
+        }
+
         self.current_stage = Stage::get_next_stage(self.current_stage);
     }
 
@@ -261,6 +264,7 @@ impl Datapath for MipsDatapath {
 }
 
 impl MipsDatapath {
+    // ===================== General Functions =====================
     /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
     /// flag. If the process fails, an [`Err`] is returned.
     pub fn initialize(&mut self, instructions: Vec<u32>) -> Result<(), String> {
@@ -286,6 +290,7 @@ impl MipsDatapath {
         self.is_halted = true;
     }
 
+    // ========================== Stages ==========================
     /// Stage 1 of 5: Instruction Fetch (IF)
     ///
     /// Fetch the current instruction based on the given PC and load it
@@ -336,43 +341,6 @@ impl MipsDatapath {
         self.coprocessor.stage_execute();
     }
 
-    fn calc_relative_pc_branch(&mut self) {
-        self.state.sign_extend_shift_left_by_2 = self.state.sign_extend << 2;
-        self.state.relative_pc_branch = self
-            .state
-            .sign_extend_shift_left_by_2
-            .wrapping_add(self.state.pc_plus_4);
-    }
-
-    // if Branch::YesBranch && AluZ::YesZero
-    fn calc_cpu_branch_signal(&mut self) {
-        // Yes I know this code looks truely garbage, please fix it
-        // Rust does not allow the obvious clean option...
-        let mut yes_branch: bool = false;
-        if let Branch::YesBranch = self.signals.branch {
-            yes_branch = true;
-        }
-
-        let mut beq: bool = false;
-        if let BranchType::OnEqual = self.signals.branch_type {
-            beq = true;
-        }
-
-        let mut bne: bool = false;
-        if let BranchType::OnNotEqual = self.signals.branch_type {
-            bne = true;
-        }
-
-        let mut z: bool = false;
-        if let AluZ::YesZero = self.datapath_signals.alu_z {
-            z = true;
-        }
-
-        if (yes_branch & z & beq) | (yes_branch & !z & bne) {
-            self.datapath_signals.cpu_branch = CpuBranch::YesBranch;
-        }
-    }
-
     /// Stage 4 of 5: Memory (MEM)
     ///
     /// Read or write to memory.
@@ -401,32 +369,6 @@ impl MipsDatapath {
         self.coprocessor.stage_memory();
     }
 
-    fn calc_general_branch_signal(&mut self) {
-        if let CpuBranch::YesBranch = self.datapath_signals.cpu_branch {
-            self.datapath_signals.general_branch = GeneralBranch::YesBranch;
-            return;
-        }
-
-        if let FpuBranch::YesBranch = self.coprocessor.signals.fpu_branch {
-            self.datapath_signals.general_branch = GeneralBranch::YesBranch;
-        }
-    }
-
-    fn pick_pc_plus_4_or_relative_branch_addr_mux1(&mut self) {
-        if let GeneralBranch::YesBranch = self.datapath_signals.general_branch {
-            self.state.mem_mux1_to_mem_mux2 = self.state.relative_pc_branch;
-        } else {
-            self.state.mem_mux1_to_mem_mux2 = self.state.pc_plus_4;
-        }
-    }
-
-    fn set_new_pc_mux2(&mut self) {
-        self.state.new_pc = match self.signals.jump {
-            Jump::NoJump => self.state.mem_mux1_to_mem_mux2,
-            Jump::YesJump => self.state.jump_address,
-        };
-    }
-
     /// Stage 5 of 5: Writeback (WB)
     ///
     /// Write the result of the instruction's operation to a register,
@@ -439,6 +381,7 @@ impl MipsDatapath {
         self.coprocessor.stage_writeback();
     }
 
+    // ================== Instruction Fetch (IF) ==================
     /// Load the raw binary instruction from memory and into the
     /// datapath. If there is an error with loading the word, assume
     /// the instruction to be bitwise zero and error.
@@ -456,10 +399,7 @@ impl MipsDatapath {
         self.state.pc_plus_4 = self.registers.pc + 4;
     }
 
-    //    fn grab_lower_26_of_op(&mut self) {
-    //         self.state.lower_26 = self.state.instruction & 0x03ffffff;
-    //    }
-
+    // ================== Instruction Decode (ID) ==================
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
         match Instruction::try_from(self.state.instruction) {
@@ -480,6 +420,14 @@ impl MipsDatapath {
 
                 self.state.shamt = r.shamt as u32;
                 self.state.funct = r.funct as u32;
+            }
+            Instruction::RTypeSpecial(s) => {
+                self.state.rs = s.rs as u32;
+                self.state.rt = s.rt as u32;
+                self.state.rd = s.rd as u32;
+
+                self.state.shamt = s.shamt as u32; // Hint field
+                self.state.funct = s.funct as u32;
             }
             Instruction::IType(i) => {
                 self.state.rs = i.rs as u32;
@@ -515,23 +463,76 @@ impl MipsDatapath {
         }
     }
 
-    fn shift_lower_26_left_by_2(&mut self) {
-        self.state.lower_26_shifted_left_by_2 = self.state.lower_26 << 2;
-    }
-
-    fn construct_jump_address(&mut self) {
-        self.state.jump_address = (self.state.pc_plus_4 & 0xffff_ffff_f000_0000)
-            | self.state.lower_26_shifted_left_by_2 as u64;
-    }
-
     /// Extend the sign of a 16-bit value to the other 48 bits of a
     /// 64-bit value.
     fn sign_extend(&mut self) {
         self.state.sign_extend = ((self.state.imm as i16) as i64) as u64;
     }
 
-    /// Set rtype control signals. This function may have a Match statement added
-    /// in the future for dealing with different special case rtype instructions.
+    /// Set the control signals for the datapath based on the
+    /// instruction's opcode.
+    fn set_control_signals(&mut self) {
+        match self.instruction {
+            Instruction::RType(r) => {
+                self.set_rtype_control_signals(r);
+            }
+            Instruction::IType(i) => {
+                self.set_itype_control_signals(i);
+            }
+            Instruction::JType(j) => {
+                self.set_jtype_control_signals(j);
+            }
+            Instruction::FpuRegImmType(i) => {
+                self.set_fpu_reg_imm_control_signals(i);
+            }
+            // Main processor does nothing.
+            Instruction::FpuRType(_)
+            | Instruction::FpuCompareType(_)
+            | Instruction::SyscallType(_) => {
+                self.signals = ControlSignals {
+                    branch: Branch::NoBranch,
+                    jump: Jump::NoJump,
+                    mem_read: MemRead::NoRead,
+                    mem_write: MemWrite::NoWrite,
+                    reg_write: RegWrite::NoWrite,
+                    ..Default::default()
+                };
+            }
+            Instruction::FpuIType(i) => {
+                self.set_fpu_itype_control_signals(i);
+            }
+            Instruction::RTypeSpecial(s) => {
+                self.set_rtype_special_control_signals(s);
+            }
+        }
+    }
+
+    // Set RTypeSpecial control signals.
+    fn set_rtype_special_control_signals(&mut self, s: RTypeSpecial) {
+        match s.funct {
+            FUNCT_JALR => {
+                // self.signals.alu_op = AluOp::Addition; // don't care
+                // self.signals.alu_src = AluSrc::ReadRegister2; // don't care
+                // self.signals.branch = Branch::NoBranch; // don't care
+                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.jump = Jump::YesJumpJALR;
+                self.signals.mem_read = MemRead::NoRead; // Don't care
+                self.signals.mem_to_reg = MemToReg::UsePcPlusFour;
+                self.signals.mem_write = MemWrite::NoWrite;
+                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
+                self.signals.reg_dst = RegDst::Reg3;
+                self.signals.reg_write = RegWrite::YesWrite;
+                self.signals.reg_width = RegWidth::DoubleWord;
+            }
+            _ => self.error(&format!(
+                "R-type-special instruction with function code `{}`",
+                s.funct
+            )),
+        }
+    }
+
+    /// Set basic rtype control signals. Special case Rtype instructions are dealt with
+    /// in set_rtype_special_control_signals()
     fn set_rtype_control_signals(&mut self, r: RType) {
         self.signals.alu_op = AluOp::UseFunctField;
         self.signals.alu_src = AluSrc::ReadRegister2;
@@ -579,7 +580,6 @@ impl MipsDatapath {
                         reg_dst: RegDst::Reg1,
                         reg_width: RegWidth::DoubleWord,
                         reg_write: RegWrite::YesWrite,
-                        overflow_write_block: OverflowWriteBlock::NoBlock,
                         ..Default::default()
                     }
                 }
@@ -596,7 +596,6 @@ impl MipsDatapath {
                         reg_dst: RegDst::Reg1,
                         reg_width: RegWidth::DoubleWord,
                         reg_write: RegWrite::YesWrite,
-                        overflow_write_block: OverflowWriteBlock::NoBlock,
                         ..Default::default()
                     }
                 }
@@ -682,7 +681,7 @@ impl MipsDatapath {
             }
 
             OPCODE_ADDI => {
-                self.signals.alu_op = AluOp::AddWithNoWriteOnOverflow;
+                self.signals.alu_op = AluOp::Addition;
                 self.signals.alu_src = AluSrc::SignExtendedImmediate;
                 self.signals.branch = Branch::NoBranch;
                 self.signals.imm_shift = ImmShift::Shift0;
@@ -712,7 +711,7 @@ impl MipsDatapath {
             }
 
             OPCODE_DADDI => {
-                self.signals.alu_op = AluOp::AddWithNoWriteOnOverflow;
+                self.signals.alu_op = AluOp::Addition;
                 self.signals.alu_src = AluSrc::SignExtendedImmediate;
                 self.signals.branch = Branch::NoBranch;
                 self.signals.imm_shift = ImmShift::Shift0;
@@ -777,44 +776,6 @@ impl MipsDatapath {
         }
     }
 
-    /// Set the control signals for the datapath, specifically in the
-    /// case where the instruction is an FPU I-type.
-    fn set_fpu_itype_control_signals(&mut self, i: FpuIType) {
-        match i.op {
-            OPCODE_SWC1 => {
-                self.signals = ControlSignals {
-                    alu_op: AluOp::Addition,
-                    alu_src: AluSrc::SignExtendedImmediate,
-                    branch: Branch::NoBranch,
-                    imm_shift: ImmShift::Shift0,
-                    jump: Jump::NoJump,
-                    mem_read: MemRead::NoRead,
-                    mem_write: MemWrite::YesWrite,
-                    mem_write_src: MemWriteSrc::FloatingPointUnit,
-                    reg_width: RegWidth::Word,
-                    reg_write: RegWrite::NoWrite,
-                    ..Default::default()
-                }
-            }
-            OPCODE_LWC1 => {
-                self.signals = ControlSignals {
-                    alu_op: AluOp::Addition,
-                    alu_src: AluSrc::SignExtendedImmediate,
-                    branch: Branch::NoBranch,
-                    imm_shift: ImmShift::Shift0,
-                    jump: Jump::NoJump,
-                    mem_read: MemRead::YesRead,
-                    mem_to_reg: MemToReg::UseMemory,
-                    mem_write: MemWrite::NoWrite,
-                    reg_width: RegWidth::Word,
-                    reg_write: RegWrite::NoWrite,
-                    ..Default::default()
-                }
-            }
-            _ => self.error(&format!("FPU I-type instruction with opcode `{}`", i.op)),
-        }
-    }
-
     /// Set control signals for J-Type instructions
     fn set_jtype_control_signals(&mut self, j: JType) {
         match j.op {
@@ -862,7 +823,6 @@ impl MipsDatapath {
                     mem_write: MemWrite::NoWrite,
                     reg_width: RegWidth::Word,
                     reg_write: RegWrite::NoWrite,
-                    overflow_write_block: OverflowWriteBlock::NoBlock,
                     ..Default::default()
                 }
             }
@@ -874,7 +834,6 @@ impl MipsDatapath {
                     mem_write: MemWrite::NoWrite,
                     reg_width: RegWidth::DoubleWord,
                     reg_write: RegWrite::NoWrite,
-                    overflow_write_block: OverflowWriteBlock::NoBlock,
                     ..Default::default()
                 }
             }
@@ -887,7 +846,6 @@ impl MipsDatapath {
                     reg_dst: RegDst::Reg2,
                     reg_width: RegWidth::Word,
                     reg_write: RegWrite::YesWrite,
-                    overflow_write_block: OverflowWriteBlock::NoBlock,
                     ..Default::default()
                 }
             }
@@ -900,7 +858,6 @@ impl MipsDatapath {
                     reg_dst: RegDst::Reg2,
                     reg_width: RegWidth::DoubleWord,
                     reg_write: RegWrite::YesWrite,
-                    overflow_write_block: OverflowWriteBlock::NoBlock,
                     ..Default::default()
                 }
             }
@@ -911,42 +868,41 @@ impl MipsDatapath {
         }
     }
 
-    /// Set the control signals for the datapath based on the
-    /// instruction's opcode.
-    fn set_control_signals(&mut self) {
-        // Restore default behavior for this instruction, should OverflowWriteBlock
-        // have been set from a previous instruction.
-        self.signals.overflow_write_block = OverflowWriteBlock::NoBlock;
-
-        match self.instruction {
-            Instruction::RType(r) => {
-                self.set_rtype_control_signals(r);
-            }
-            Instruction::IType(i) => {
-                self.set_itype_control_signals(i);
-            }
-            Instruction::JType(j) => {
-                self.set_jtype_control_signals(j);
-            }
-            Instruction::FpuRegImmType(i) => {
-                self.set_fpu_reg_imm_control_signals(i);
-            }
-            // Main processor does nothing.
-            Instruction::FpuRType(_)
-            | Instruction::FpuCompareType(_)
-            | Instruction::SyscallType(_) => {
+    /// Set the control signals for the datapath, specifically in the
+    /// case where the instruction is an FPU I-type.
+    fn set_fpu_itype_control_signals(&mut self, i: FpuIType) {
+        match i.op {
+            OPCODE_SWC1 => {
                 self.signals = ControlSignals {
+                    alu_op: AluOp::Addition,
+                    alu_src: AluSrc::SignExtendedImmediate,
                     branch: Branch::NoBranch,
+                    imm_shift: ImmShift::Shift0,
                     jump: Jump::NoJump,
                     mem_read: MemRead::NoRead,
-                    mem_write: MemWrite::NoWrite,
+                    mem_write: MemWrite::YesWrite,
+                    mem_write_src: MemWriteSrc::FloatingPointUnit,
+                    reg_width: RegWidth::Word,
                     reg_write: RegWrite::NoWrite,
                     ..Default::default()
-                };
+                }
             }
-            Instruction::FpuIType(i) => {
-                self.set_fpu_itype_control_signals(i);
+            OPCODE_LWC1 => {
+                self.signals = ControlSignals {
+                    alu_op: AluOp::Addition,
+                    alu_src: AluSrc::SignExtendedImmediate,
+                    branch: Branch::NoBranch,
+                    imm_shift: ImmShift::Shift0,
+                    jump: Jump::NoJump,
+                    mem_read: MemRead::YesRead,
+                    mem_to_reg: MemToReg::UseMemory,
+                    mem_write: MemWrite::NoWrite,
+                    reg_width: RegWidth::Word,
+                    reg_write: RegWrite::NoWrite,
+                    ..Default::default()
+                }
             }
+            _ => self.error(&format!("FPU I-type instruction with opcode `{}`", i.op)),
         }
     }
 
@@ -967,7 +923,6 @@ impl MipsDatapath {
     fn set_alu_control(&mut self) {
         self.signals.alu_control = match self.signals.alu_op {
             AluOp::Addition => AluControl::Addition,
-            AluOp::AddWithNoWriteOnOverflow => AluControl::AddWithNoWriteOnOverflow,
             AluOp::Subtraction => AluControl::Subtraction,
             AluOp::SetOnLessThanSigned => AluControl::SetOnLessThanSigned,
             AluOp::SetOnLessThanUnsigned => AluControl::SetOnLessThanUnsigned,
@@ -1024,12 +979,20 @@ impl MipsDatapath {
         };
     }
 
+    fn shift_lower_26_left_by_2(&mut self) {
+        self.state.lower_26_shifted_left_by_2 = self.state.lower_26 << 2;
+    }
+
+    fn construct_jump_address(&mut self) {
+        self.state.jump_address = (self.state.pc_plus_4 & 0xffff_ffff_f000_0000)
+            | self.state.lower_26_shifted_left_by_2 as u64;
+    }
+
+    // ======================= Execute (EX) =======================
     /// Perform an ALU operation.
     ///
     /// **Implementation Note:** Unlike the MIPS64 specification, this ALU
-    /// does not handle exceptions due to integer overflow. However, it will
-    /// set the [`OverflowWriteBlock`] signal on overflow when the operation
-    /// [`AluControl`] is set to `AddWithNoWriteOverflow`.
+    /// does not handle exceptions due to integer overflow.
     fn alu(&mut self) {
         // Left shift the immediate value based on the ImmShift control signal.
         let alu_immediate = match self.signals.imm_shift {
@@ -1059,23 +1022,6 @@ impl MipsDatapath {
         // Set the result.
         self.state.alu_result = match self.signals.alu_control {
             AluControl::Addition => input1.wrapping_add(input2),
-            AluControl::AddWithNoWriteOnOverflow => {
-                if let RegWidth::Word = self.signals.reg_width {
-                    let input1 = input1 as u32;
-                    let input2 = input2 as u32;
-                    let sum = input1.overflowing_add(input2);
-                    if sum.1 {
-                        self.signals.overflow_write_block = OverflowWriteBlock::YesBlock;
-                    }
-                    sum.0 as u64
-                } else {
-                    let sum = input1.overflowing_add(input2);
-                    if sum.1 {
-                        self.signals.overflow_write_block = OverflowWriteBlock::YesBlock;
-                    }
-                    sum.0
-                }
-            }
             AluControl::Subtraction => (input1 as i64).wrapping_sub(input2 as i64) as u64,
             AluControl::SetOnLessThanSigned => ((input1 as i64) < (input2 as i64)) as u64,
             AluControl::SetOnLessThanUnsigned => (input1 < input2) as u64,
@@ -1107,11 +1053,43 @@ impl MipsDatapath {
         }
 
         // Set the zero bit/signal.
+        self.datapath_signals.alu_z = AluZ::NotZero;
         if self.state.alu_result == 0 {
             self.datapath_signals.alu_z = AluZ::YesZero;
         }
     }
 
+    fn calc_relative_pc_branch(&mut self) {
+        self.state.sign_extend_shift_left_by_2 = self.state.sign_extend << 2;
+        self.state.relative_pc_branch = self
+            .state
+            .sign_extend_shift_left_by_2
+            .wrapping_add(self.state.pc_plus_4);
+    }
+
+    /// Determine the value of the [`CpuBranch`] signal.
+    fn calc_cpu_branch_signal(&mut self) {
+        // Start by assuming there is no branch.
+        self.datapath_signals.cpu_branch = CpuBranch::NoBranch;
+
+        // condition_is_true is based on the ALU and the BranchType. This
+        // is the line between the multiplexer and the AND gate, where the
+        // AND gate has as input the Branch control signal and said
+        // multiplexer.
+        //
+        // Depending on the branch type, this may use the ALU's Zero signal
+        // as-is or inverted.
+        let condition_is_true = match self.signals.branch_type {
+            BranchType::OnEqual => self.datapath_signals.alu_z == AluZ::YesZero,
+            BranchType::OnNotEqual => self.datapath_signals.alu_z == AluZ::NotZero,
+        };
+
+        if self.signals.branch == Branch::YesBranch && condition_is_true {
+            self.datapath_signals.cpu_branch = CpuBranch::YesBranch;
+        }
+    }
+
+    // ======================= Memory (MEM) =======================
     /// Read from memory based on the address provided by the ALU in
     /// [`DatapathState::alu_result`]. Returns the result to [`DatapathState::memory_data`].
     /// Should the address be invalid or otherwise memory cannot be
@@ -1156,6 +1134,37 @@ impl MipsDatapath {
         };
     }
 
+    fn calc_general_branch_signal(&mut self) {
+        // Assume there is no branch initially.
+        self.datapath_signals.general_branch = GeneralBranch::NoBranch;
+
+        if let CpuBranch::YesBranch = self.datapath_signals.cpu_branch {
+            self.datapath_signals.general_branch = GeneralBranch::YesBranch;
+            return;
+        }
+
+        if let FpuBranch::YesBranch = self.coprocessor.signals.fpu_branch {
+            self.datapath_signals.general_branch = GeneralBranch::YesBranch;
+        }
+    }
+
+    fn pick_pc_plus_4_or_relative_branch_addr_mux1(&mut self) {
+        if let GeneralBranch::YesBranch = self.datapath_signals.general_branch {
+            self.state.mem_mux1_to_mem_mux2 = self.state.relative_pc_branch;
+        } else {
+            self.state.mem_mux1_to_mem_mux2 = self.state.pc_plus_4;
+        }
+    }
+
+    fn set_new_pc_mux2(&mut self) {
+        self.state.new_pc = match self.signals.jump {
+            Jump::NoJump => self.state.mem_mux1_to_mem_mux2,
+            Jump::YesJump => self.state.jump_address,
+            Jump::YesJumpJALR => self.state.read_data_1,
+        };
+    }
+
+    // ====================== Writeback (WB) ======================
     /// Write to a register. This will only write if the RegWrite
     /// control signal is set.
     fn register_write(&mut self) {
@@ -1173,11 +1182,8 @@ impl MipsDatapath {
             DataWrite::YesWrite => self.coprocessor.get_data_writeback(),
         };
 
-        // Abort if the RegWrite signal is not set, or if the OverflowWriteBlock signal
-        // is set and overriding write behavior.
-        if self.signals.reg_write == RegWrite::NoWrite
-            || self.signals.overflow_write_block == OverflowWriteBlock::YesBlock
-        {
+        // Abort if the RegWrite signal is not set.
+        if self.signals.reg_write == RegWrite::NoWrite {
             return;
         }
 

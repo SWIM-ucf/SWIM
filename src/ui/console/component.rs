@@ -67,29 +67,15 @@ pub fn console(props: &Consoleprops) -> Html {
                 <button class="tab" label="datapath" onclick={change_tab.clone()}>{"Datapath"}</button>
                 <button class="tab" label="memory" onclick={change_tab.clone()}>{"Memory"}</button>
 
-                if *active_tab == TabState::Datapath {
-                    <button onclick={toggle_zoom}>{"Toggle Zoom"}</button>
-                }
-                if *active_tab == TabState::Memory {
-                    <button>{"Dec"}</button>
-                    <button>{"Bin"}</button>
-                    <button>{"Hex"}</button>
-                }
-            </div>
-            if *active_tab == TabState::Console {
-                <div class="console">
-                    { props.parsermsg.clone() }
+                    if *active_tab == TabState::Datapath {
+                        <button onclick={toggle_zoom}>{"Toggle Zoom"}</button>
+                    }
+    //                 if *active_tab == TabState::Memory {
+    //                     <button>{"Dec"}</button>
+    //                     <button>{"Bin"}</button>
+    //                     <button>{"Hex"}</button>
+    //                 }
                 </div>
-            } else if *active_tab == TabState::Datapath {
-                <div class="datapath-wrapper">
-                    <VisualDatapath datapath={props.datapath.clone()} svg_path={"static/datapath.svg"} size={datapath_size} />
-                </div>
-            } else {
-                <div class="console">
-                    { props.datapath.memory.to_string() }
-                </div>
-            }
-
-        </>
-    }
+            </>
+        }
 }
