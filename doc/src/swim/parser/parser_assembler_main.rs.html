@@ -1522,6 +1522,11 @@
 <a href="#1522" id="1522">1522</a>
 <a href="#1523" id="1523">1523</a>
 <a href="#1524" id="1524">1524</a>
+<a href="#1525" id="1525">1525</a>
+<a href="#1526" id="1526">1526</a>
+<a href="#1527" id="1527">1527</a>
+<a href="#1528" id="1528">1528</a>
+<a href="#1529" id="1529">1529</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::assembling::{assemble_data_binary, read_operands};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::OperandType::<span class="kw-2">*</span>;
@@ -1978,12 +1983,17 @@
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b00000</span>, <span class="number">5</span>);
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b100101</span>, <span class="number">6</span>);
 
-                <span class="comment">//this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                </span><span class="kw">let </span>info = InstructionDescription{
-                    syntax: <span class="string">&quot;or rd, rs, rt&quot;</span>.to_string(),
-                    description: <span class="string">&quot;Bitwise ors the contents of `rs` with the contents of `rt`, and stores the result in `rd`.&quot;</span>.to_string(),
-                };
-                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+                <span class="comment">//Pseudo-instructions already have text in mouse_hover_string so we check if there&#39;s text there already before adding in the blurb
+                </span><span class="kw">if </span>monaco_line_info[instruction.line_number]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    <span class="kw">let </span>info = InstructionDescription {
+                        syntax: <span class="string">&quot;or rd, rs, rt&quot;</span>.to_string(),
+                        description: <span class="string">&quot;Bitwise ors the contents of `rs` with the contents of `rt`, and stores the result in `rd`.&quot;</span>.to_string(),
+                    };
+                    monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+                }
             }
             <span class="string">&quot;and&quot; </span>=&gt; {
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b000000</span>, <span class="number">6</span>);
