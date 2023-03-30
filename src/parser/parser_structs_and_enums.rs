@@ -23,6 +23,7 @@ pub struct MonacoLineInfo {
     pub line_number: usize,
     pub error_start_end_columns: Vec<(usize, usize)>,
     pub errors: Vec<Error>,
+    pub line_type: LineType,
 }
 
 impl MonacoLineInfo {
@@ -45,6 +46,16 @@ impl MonacoLineInfo {
             self.updated_monaco_string = update;
         }
     }
+}
+
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub enum LineType {
+    #[default]
+    Blank,
+    Unknown(Vec<Token>),
+    Instruction(Vec<Instruction>),
+    Data(Data),
+    Directive(Vec<Token>),
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

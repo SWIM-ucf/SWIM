@@ -26,6 +26,7 @@ pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
             line_number: i,
             error_start_end_columns: vec![],
             errors: vec![],
+            line_type: Default::default(),
         };
 
         let mut is_string = false;
@@ -119,6 +120,7 @@ pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
             line_number: 0,
             error_start_end_columns: vec![],
             errors: vec![],
+            line_type: Default::default(),
         })
     }
 

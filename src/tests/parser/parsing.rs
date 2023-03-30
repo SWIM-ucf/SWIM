@@ -65,6 +65,7 @@ fn tokenize_program_works_basic_version() {
         tokens: vec![i_0_t_0, i_0_t_1],
         updated_monaco_string: "This line".to_string(),
         errors: vec![],
+        line_type: Default::default(),
     };
 
     let line_1 = MonacoLineInfo {
@@ -74,6 +75,7 @@ fn tokenize_program_works_basic_version() {
         tokens: vec![i_1_t_0, i_1_t_1, i_1_t_2],
         updated_monaco_string: "This second line".to_string(),
         errors: vec![],
+        line_type: Default::default(),
     };
 
     let line_2 = MonacoLineInfo {
@@ -83,6 +85,7 @@ fn tokenize_program_works_basic_version() {
         tokens: vec![i_2_t_0, i_2_t_1, i_2_t_2],
         updated_monaco_string: "Here's a third!".to_string(),
         errors: vec![],
+        line_type: Default::default(),
     };
 
     let correct_result = vec![line_0, line_1, line_2];
@@ -143,6 +146,7 @@ fn tokenize_program_handles_no_spaces_between_commas() {
         tokens: vec![i_0_t_0, i_0_t_1, i_0_t_2, i_0_t_3],
         updated_monaco_string: "add $t1, $t2, $t3".to_string(),
         errors: vec![],
+        line_type: Default::default(),
     };
 
     let line_1 = MonacoLineInfo {
@@ -152,6 +156,7 @@ fn tokenize_program_handles_no_spaces_between_commas() {
         tokens: vec![i_1_t_0, i_1_t_1, i_1_t_2, i_1_t_3],
         updated_monaco_string: "sub $s1,$s2,$s3".to_string(),
         errors: vec![],
+        line_type: Default::default(),
     };
 
     let correct_result = vec![line_0, line_1];
@@ -189,6 +194,7 @@ fn tokenize_program_handles_comma_after_space() {
         tokens: vec![i_0_t_0, i_0_t_1, i_0_t_2, i_0_t_3],
         updated_monaco_string: "add $t1 , $t2, $t3".to_string(),
         errors: vec![],
+        line_type: Default::default(),
     };
 
     let correct_result = vec![line_0];
@@ -219,6 +225,7 @@ fn tokenize_program_ignores_comments() {
         tokens: vec![i_0_t_0, i_0_t_1],
         updated_monaco_string: "This Line".to_string(),
         errors: vec![],
+        line_type: Default::default(),
     };
     let line_1 = MonacoLineInfo {
         mouse_hover_string: "".to_string(),
@@ -227,7 +234,9 @@ fn tokenize_program_ignores_comments() {
         tokens: vec![],
         updated_monaco_string: "#this line is a comment".to_string(),
         errors: vec![],
+        line_type: Default::default(),
     };
+
     let line_2 = MonacoLineInfo {
         mouse_hover_string: "".to_string(),
         line_number: 2,
@@ -239,7 +248,9 @@ fn tokenize_program_ignores_comments() {
         }],
         updated_monaco_string: "but_this_isn't".to_string(),
         errors: vec![],
+        line_type: Default::default(),
     };
+
     let line_3 = MonacoLineInfo {
         mouse_hover_string: "".to_string(),
         line_number: 3,
@@ -251,6 +262,7 @@ fn tokenize_program_ignores_comments() {
         }],
         updated_monaco_string: "this#has a comment in the middle".to_string(),
         errors: vec![],
+        line_type: Default::default(),
     };
 
     let correct_result = vec![line_0, line_1, line_2, line_3];
