@@ -1174,7 +1174,7 @@
     ShiftAmount,
 }
 
-<span class="kw">pub static </span>SUPPORTED_INSTRUCTIONS: [<span class="kw-2">&amp;</span>str; <span class="number">62</span>] = [
+<span class="kw">pub const </span>SUPPORTED_INSTRUCTIONS: [<span class="kw-2">&amp;</span>str; <span class="number">62</span>] = [
     <span class="string">&quot;add&quot;</span>, <span class="string">&quot;sub&quot;</span>, <span class="string">&quot;mul&quot;</span>, <span class="string">&quot;div&quot;</span>, <span class="string">&quot;lw&quot;</span>, <span class="string">&quot;sw&quot;</span>, <span class="string">&quot;lui&quot;</span>, <span class="string">&quot;aui&quot;</span>, <span class="string">&quot;andi&quot;</span>, <span class="string">&quot;ori&quot;</span>, <span class="string">&quot;addi&quot;</span>, <span class="string">&quot;dadd&quot;</span>, <span class="string">&quot;dsub&quot;</span>,
     <span class="string">&quot;dmul&quot;</span>, <span class="string">&quot;ddiv&quot;</span>, <span class="string">&quot;or&quot;</span>, <span class="string">&quot;and&quot;</span>, <span class="string">&quot;add.s&quot;</span>, <span class="string">&quot;add.d&quot;</span>, <span class="string">&quot;sub.s&quot;</span>, <span class="string">&quot;sub.d&quot;</span>, <span class="string">&quot;mul.s&quot;</span>, <span class="string">&quot;mul.d&quot;</span>, <span class="string">&quot;div.s&quot;</span>,
     <span class="string">&quot;div.d&quot;</span>, <span class="string">&quot;dahi&quot;</span>, <span class="string">&quot;dati&quot;</span>, <span class="string">&quot;daddi&quot;</span>, <span class="string">&quot;daddiu&quot;</span>, <span class="string">&quot;slt&quot;</span>, <span class="string">&quot;sltu&quot;</span>, <span class="string">&quot;swc1&quot;</span>, <span class="string">&quot;lwc1&quot;</span>, <span class="string">&quot;mtc1&quot;</span>, <span class="string">&quot;dmtc1&quot;</span>,
@@ -1183,7 +1183,7 @@
     <span class="string">&quot;b&quot;</span>, <span class="string">&quot;nop&quot;</span>, <span class="string">&quot;sll&quot;</span>, <span class="string">&quot;jr&quot;</span>, <span class="string">&quot;jalr&quot;</span>, <span class="string">&quot;addiu&quot;</span>, <span class="string">&quot;jal&quot;</span>,
 ];
 
-<span class="kw">pub static </span>UNSUPPORTED_INSTRUCTIONS: [<span class="kw-2">&amp;</span>str; <span class="number">409</span>] = [
+<span class="kw">pub const </span>UNSUPPORTED_INSTRUCTIONS: [<span class="kw-2">&amp;</span>str; <span class="number">409</span>] = [
     <span class="string">&quot;abs.s&quot;</span>,
     <span class="string">&quot;abs.d&quot;</span>,
     <span class="string">&quot;abs.ps&quot;</span>,
@@ -1596,143 +1596,143 @@
 ];
 
 <span class="doccomment">///Contains every general purpose register&#39;s binary value and the various names they are recognized as. Any reference to gp registers throughout the parser/assembler should reference this array
-</span><span class="kw">pub static </span>GP_REGISTERS: <span class="kw-2">&amp;</span>[GPRegister; <span class="number">32</span>] = <span class="kw-2">&amp;</span>[
+</span><span class="kw">pub const </span>GP_REGISTERS: <span class="kw-2">&amp;</span>[GPRegister; <span class="number">32</span>] = <span class="kw-2">&amp;</span>[
     GPRegister {
-        names: [<span class="string">&quot;$zero&quot;</span>, <span class="string">&quot;r0&quot;</span>, <span class="string">&quot;$0&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$zero&quot;</span>, <span class="string">&quot;r0&quot;</span>, <span class="string">&quot;$0&quot;</span>, <span class="string">&quot;zero&quot;</span>],
         binary: <span class="number">0b00000</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$at&quot;</span>, <span class="string">&quot;r1&quot;</span>, <span class="string">&quot;$1&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$at&quot;</span>, <span class="string">&quot;r1&quot;</span>, <span class="string">&quot;$1&quot;</span>, <span class="string">&quot;at&quot;</span>],
         binary: <span class="number">0b00001</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$v0&quot;</span>, <span class="string">&quot;r2&quot;</span>, <span class="string">&quot;$2&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$v0&quot;</span>, <span class="string">&quot;r2&quot;</span>, <span class="string">&quot;$2&quot;</span>, <span class="string">&quot;v0&quot;</span>],
         binary: <span class="number">0b00010</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$v1&quot;</span>, <span class="string">&quot;r3&quot;</span>, <span class="string">&quot;$3&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$v1&quot;</span>, <span class="string">&quot;r3&quot;</span>, <span class="string">&quot;$3&quot;</span>, <span class="string">&quot;v1&quot;</span>],
         binary: <span class="number">0b00011</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$a0&quot;</span>, <span class="string">&quot;r4&quot;</span>, <span class="string">&quot;$4&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$a0&quot;</span>, <span class="string">&quot;r4&quot;</span>, <span class="string">&quot;$4&quot;</span>, <span class="string">&quot;a0&quot;</span>],
         binary: <span class="number">0b00100</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$a1&quot;</span>, <span class="string">&quot;r5&quot;</span>, <span class="string">&quot;$5&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$a1&quot;</span>, <span class="string">&quot;r5&quot;</span>, <span class="string">&quot;$5&quot;</span>, <span class="string">&quot;a1&quot;</span>],
         binary: <span class="number">0b00101</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$a2&quot;</span>, <span class="string">&quot;r6&quot;</span>, <span class="string">&quot;$6&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$a2&quot;</span>, <span class="string">&quot;r6&quot;</span>, <span class="string">&quot;$6&quot;</span>, <span class="string">&quot;a2&quot;</span>],
         binary: <span class="number">0b00110</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$a3&quot;</span>, <span class="string">&quot;r7&quot;</span>, <span class="string">&quot;$7&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$a3&quot;</span>, <span class="string">&quot;r7&quot;</span>, <span class="string">&quot;$7&quot;</span>, <span class="string">&quot;a3&quot;</span>],
         binary: <span class="number">0b00111</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$t0&quot;</span>, <span class="string">&quot;r8&quot;</span>, <span class="string">&quot;$8&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$t0&quot;</span>, <span class="string">&quot;r8&quot;</span>, <span class="string">&quot;$8&quot;</span>, <span class="string">&quot;t0&quot;</span>],
         binary: <span class="number">0b01000</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$t1&quot;</span>, <span class="string">&quot;r9&quot;</span>, <span class="string">&quot;$9&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$t1&quot;</span>, <span class="string">&quot;r9&quot;</span>, <span class="string">&quot;$9&quot;</span>, <span class="string">&quot;t1&quot;</span>],
         binary: <span class="number">0b01001</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$t2&quot;</span>, <span class="string">&quot;r10&quot;</span>, <span class="string">&quot;$10&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$t2&quot;</span>, <span class="string">&quot;r10&quot;</span>, <span class="string">&quot;$10&quot;</span>, <span class="string">&quot;t2&quot;</span>],
         binary: <span class="number">0b01010</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$t3&quot;</span>, <span class="string">&quot;r11&quot;</span>, <span class="string">&quot;$11&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$t3&quot;</span>, <span class="string">&quot;r11&quot;</span>, <span class="string">&quot;$11&quot;</span>, <span class="string">&quot;t3&quot;</span>],
         binary: <span class="number">0b01011</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$t4&quot;</span>, <span class="string">&quot;r12&quot;</span>, <span class="string">&quot;$12&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$t4&quot;</span>, <span class="string">&quot;r12&quot;</span>, <span class="string">&quot;$12&quot;</span>, <span class="string">&quot;t4&quot;</span>],
         binary: <span class="number">0b01100</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$t5&quot;</span>, <span class="string">&quot;r13&quot;</span>, <span class="string">&quot;$13&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$t5&quot;</span>, <span class="string">&quot;r13&quot;</span>, <span class="string">&quot;$13&quot;</span>, <span class="string">&quot;t5&quot;</span>],
         binary: <span class="number">0b01101</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$t6&quot;</span>, <span class="string">&quot;r14&quot;</span>, <span class="string">&quot;$14&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$t6&quot;</span>, <span class="string">&quot;r14&quot;</span>, <span class="string">&quot;$14&quot;</span>, <span class="string">&quot;t6&quot;</span>],
         binary: <span class="number">0b01110</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$t7&quot;</span>, <span class="string">&quot;r15&quot;</span>, <span class="string">&quot;$15&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$t7&quot;</span>, <span class="string">&quot;r15&quot;</span>, <span class="string">&quot;$15&quot;</span>, <span class="string">&quot;t7&quot;</span>],
         binary: <span class="number">0b01111</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$s0&quot;</span>, <span class="string">&quot;r16&quot;</span>, <span class="string">&quot;$16&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$s0&quot;</span>, <span class="string">&quot;r16&quot;</span>, <span class="string">&quot;$16&quot;</span>, <span class="string">&quot;s0&quot;</span>],
         binary: <span class="number">0b10000</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$s1&quot;</span>, <span class="string">&quot;r17&quot;</span>, <span class="string">&quot;$17&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$s1&quot;</span>, <span class="string">&quot;r17&quot;</span>, <span class="string">&quot;$17&quot;</span>, <span class="string">&quot;s1&quot;</span>],
         binary: <span class="number">0b10001</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$s2&quot;</span>, <span class="string">&quot;r18&quot;</span>, <span class="string">&quot;$18&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$s2&quot;</span>, <span class="string">&quot;r18&quot;</span>, <span class="string">&quot;$18&quot;</span>, <span class="string">&quot;s2&quot;</span>],
         binary: <span class="number">0b10010</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$s3&quot;</span>, <span class="string">&quot;r19&quot;</span>, <span class="string">&quot;$19&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$s3&quot;</span>, <span class="string">&quot;r19&quot;</span>, <span class="string">&quot;$19&quot;</span>, <span class="string">&quot;s3&quot;</span>],
         binary: <span class="number">0b10011</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$s4&quot;</span>, <span class="string">&quot;r20&quot;</span>, <span class="string">&quot;$20&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$s4&quot;</span>, <span class="string">&quot;r20&quot;</span>, <span class="string">&quot;$20&quot;</span>, <span class="string">&quot;s4&quot;</span>],
         binary: <span class="number">0b10100</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$s5&quot;</span>, <span class="string">&quot;r21&quot;</span>, <span class="string">&quot;$21&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$s5&quot;</span>, <span class="string">&quot;r21&quot;</span>, <span class="string">&quot;$21&quot;</span>, <span class="string">&quot;s5&quot;</span>],
         binary: <span class="number">0b10101</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$s6&quot;</span>, <span class="string">&quot;r22&quot;</span>, <span class="string">&quot;$22&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$s6&quot;</span>, <span class="string">&quot;r22&quot;</span>, <span class="string">&quot;$22&quot;</span>, <span class="string">&quot;s6&quot;</span>],
         binary: <span class="number">0b10110</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$s7&quot;</span>, <span class="string">&quot;r23&quot;</span>, <span class="string">&quot;$23&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$s7&quot;</span>, <span class="string">&quot;r23&quot;</span>, <span class="string">&quot;$23&quot;</span>, <span class="string">&quot;s7&quot;</span>],
         binary: <span class="number">0b10111</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$t8&quot;</span>, <span class="string">&quot;r24&quot;</span>, <span class="string">&quot;$24&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$t8&quot;</span>, <span class="string">&quot;r24&quot;</span>, <span class="string">&quot;$24&quot;</span>, <span class="string">&quot;t8&quot;</span>],
         binary: <span class="number">0b11000</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$t9&quot;</span>, <span class="string">&quot;r25&quot;</span>, <span class="string">&quot;$25&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$t9&quot;</span>, <span class="string">&quot;r25&quot;</span>, <span class="string">&quot;$25&quot;</span>, <span class="string">&quot;t9&quot;</span>],
         binary: <span class="number">0b11001</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$k0&quot;</span>, <span class="string">&quot;r26&quot;</span>, <span class="string">&quot;$26&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$k0&quot;</span>, <span class="string">&quot;r26&quot;</span>, <span class="string">&quot;$26&quot;</span>, <span class="string">&quot;k0&quot;</span>],
         binary: <span class="number">0b11010</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$k1&quot;</span>, <span class="string">&quot;r27&quot;</span>, <span class="string">&quot;$27&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$k1&quot;</span>, <span class="string">&quot;r27&quot;</span>, <span class="string">&quot;$27&quot;</span>, <span class="string">&quot;k1&quot;</span>],
         binary: <span class="number">0b11011</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$gp&quot;</span>, <span class="string">&quot;r28&quot;</span>, <span class="string">&quot;$28&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$gp&quot;</span>, <span class="string">&quot;r28&quot;</span>, <span class="string">&quot;$28&quot;</span>, <span class="string">&quot;gp&quot;</span>],
         binary: <span class="number">0b11100</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$sp&quot;</span>, <span class="string">&quot;r29&quot;</span>, <span class="string">&quot;$29&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$sp&quot;</span>, <span class="string">&quot;r29&quot;</span>, <span class="string">&quot;$29&quot;</span>, <span class="string">&quot;sp&quot;</span>, <span class="string">&quot;$s8&quot;</span>, <span class="string">&quot;s8&quot;</span>],
         binary: <span class="number">0b11101</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$fp&quot;</span>, <span class="string">&quot;r30&quot;</span>, <span class="string">&quot;$30&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$fp&quot;</span>, <span class="string">&quot;r30&quot;</span>, <span class="string">&quot;$30&quot;</span>, <span class="string">&quot;fp&quot;</span>],
         binary: <span class="number">0b11110</span>,
     },
     GPRegister {
-        names: [<span class="string">&quot;$ra&quot;</span>, <span class="string">&quot;r31&quot;</span>, <span class="string">&quot;$31&quot;</span>],
+        names: <span class="kw-2">&amp;</span>[<span class="string">&quot;$ra&quot;</span>, <span class="string">&quot;r31&quot;</span>, <span class="string">&quot;$31&quot;</span>, <span class="string">&quot;ra&quot;</span>],
         binary: <span class="number">0b11111</span>,
     },
 ];
 <span class="kw">pub struct </span>GPRegister&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>names: [<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str; <span class="number">3</span>],
+    <span class="kw">pub </span>names: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str],
     <span class="kw">pub </span>binary: u8,
 }
 
 <span class="doccomment">///Contains every floating point register name and binary value. Any reference to fp registers throughout the parser/assembler should reference this array
-</span><span class="kw">pub static </span>FP_REGISTERS: <span class="kw-2">&amp;</span>[FPRegister] = <span class="kw-2">&amp;</span>[
+</span><span class="kw">pub const </span>FP_REGISTERS: <span class="kw-2">&amp;</span>[FPRegister] = <span class="kw-2">&amp;</span>[
     FPRegister {
         name: <span class="string">&quot;$f0&quot;</span>,
         binary: <span class="number">0b00000</span>,

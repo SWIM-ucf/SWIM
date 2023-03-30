@@ -1012,7 +1012,7 @@
 </span><span class="kw">pub fn </span>match_gp_register(given_string: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;u8&gt; {
     <span class="kw">for </span>register <span class="kw">in </span>GP_REGISTERS {
         <span class="kw">for </span>name <span class="kw">in </span>register.names {
-            <span class="kw">if </span>given_string.to_lowercase().as_str() == name {
+            <span class="kw">if </span><span class="kw-2">&amp;</span>given_string.to_lowercase().as_str() == name {
                 <span class="kw">return </span><span class="prelude-val">Some</span>(register.binary);
             }
         }
