@@ -61,8 +61,12 @@ fn app() -> Html {
     // The highlight decor does not need to be changed,
     // the only parameter that will change is the range.
     let highlight_decor = use_mut_ref(monaco::sys::editor::IModelDecorationOptions::default);
-    (*highlight_decor).borrow_mut().set_is_whole_line(true.into());
-    (*highlight_decor).borrow_mut().set_inline_class_name("myInlineDecoration".into());
+    (*highlight_decor)
+        .borrow_mut()
+        .set_is_whole_line(true.into());
+    (*highlight_decor)
+        .borrow_mut()
+        .set_inline_class_name("myInlineDecoration".into());
 
     // Output strings for the console and memory viewers.
     let parser_text_output = use_state_eq(String::new);
@@ -185,7 +189,7 @@ fn app() -> Html {
                 // element to be stored in the stack to highlight the line
                 let highlight_line: monaco::sys::editor::IModelDeltaDecoration =
                     Object::new().unchecked_into();
-                highlight_line.set_options(&*highlight_decor);
+                highlight_line.set_options(&highlight_decor);
                 let range_js = curr_range
                     .dyn_into::<JsValue>()
                     .expect("Range is not found.");
@@ -233,14 +237,15 @@ fn app() -> Html {
         let text_model = Rc::clone(&text_model);
         let executed_line = executed_line.clone();
         let not_highlighted = not_highlighted.clone();
-        let highlight_decor = highlight_decor.clone();
+        let highlight_decor = highlight_decor;
         let trigger = use_force_update();
 
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
                 let highlight_decor = (*highlight_decor).borrow_mut();
-                if (*datapath).current_stage == Stage::InstructionDecode { // highlight on InstructionDecode since syscall stops at that stage.
+                if datapath.current_stage == Stage::InstructionDecode {
+                    // highlight on InstructionDecode since syscall stops at that stage.
                     let text_model = (*text_model).borrow_mut();
                     let (programinfo, _) = parser(text_model.get_value());
                     let list_of_line_numbers = programinfo.address_to_line_number;
@@ -250,7 +255,7 @@ fn app() -> Html {
                     let curr_range = monaco::sys::Range::new(curr_line, 0.0, curr_line, 0.0);
                     let highlight_line: monaco::sys::editor::IModelDeltaDecoration =
                         Object::new().unchecked_into();
-                    highlight_line.set_options(&*highlight_decor);
+                    highlight_line.set_options(&highlight_decor);
                     let range_js = curr_range
                         .dyn_into::<JsValue>()
                         .expect("Range is not found.");
