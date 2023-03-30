@@ -832,7 +832,7 @@ fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name() {
 }
 #[test]
 fn suggest_error_corrections_works_with_various_gp_registers() {
-    let result = parser("add $t1, $t2, t3\nori not, ro, 100".to_string())
+    let result = parser("add $t1, $t2, @t3\nori not, ro, 100".to_string())
         .0
         .instructions;
 
@@ -991,4 +991,16 @@ fn suggest_error_suggestions_associates_error_with_monaco_line_info() {
         message: "Given string does not match data type directives. A valid, similar data type is: .word.\n".to_string(),
     };
     assert_eq!(lines[3].errors[1], actual);
+}
+
+#[test]
+fn operators_with_commas_cause_error(){
+    let result = parser("ori, $t1, $t2, 100".to_string()).0.monaco_line_info;
+
+    for line in result{
+        for error in  line.errors{
+            println!("{}", error.error_name);
+        }
+    }
+
 }

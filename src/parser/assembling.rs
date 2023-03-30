@@ -367,7 +367,7 @@ pub fn read_register(
 pub fn match_gp_register(given_string: &str) -> Option<u8> {
     for register in GP_REGISTERS {
         for name in register.names {
-            if given_string.to_lowercase().as_str() == name {
+            if &given_string.to_lowercase().as_str() == name {
                 return Some(register.binary);
             }
         }
