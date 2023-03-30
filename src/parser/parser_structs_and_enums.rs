@@ -215,7 +215,7 @@ pub enum OperandType {
     ShiftAmount,
 }
 
-pub static SUPPORTED_INSTRUCTIONS: [&str; 62] = [
+pub const SUPPORTED_INSTRUCTIONS: [&str; 62] = [
     "add", "sub", "mul", "div", "lw", "sw", "lui", "aui", "andi", "ori", "addi", "dadd", "dsub",
     "dmul", "ddiv", "or", "and", "add.s", "add.d", "sub.s", "sub.d", "mul.s", "mul.d", "div.s",
     "div.d", "dahi", "dati", "daddi", "daddiu", "slt", "sltu", "swc1", "lwc1", "mtc1", "dmtc1",
@@ -224,7 +224,7 @@ pub static SUPPORTED_INSTRUCTIONS: [&str; 62] = [
     "b", "nop", "sll", "jr", "jalr", "addiu", "jal",
 ];
 
-pub static UNSUPPORTED_INSTRUCTIONS: [&str; 409] = [
+pub const UNSUPPORTED_INSTRUCTIONS: [&str; 409] = [
     "abs.s",
     "abs.d",
     "abs.ps",
@@ -637,143 +637,143 @@ pub static UNSUPPORTED_INSTRUCTIONS: [&str; 409] = [
 ];
 
 ///Contains every general purpose register's binary value and the various names they are recognized as. Any reference to gp registers throughout the parser/assembler should reference this array
-pub static GP_REGISTERS: &[GPRegister; 32] = &[
+pub const GP_REGISTERS: &[GPRegister; 32] = &[
     GPRegister {
-        names: ["$zero", "r0", "$0"],
+        names: &["$zero", "r0", "$0", "zero"],
         binary: 0b00000,
     },
     GPRegister {
-        names: ["$at", "r1", "$1"],
+        names: &["$at", "r1", "$1", "at"],
         binary: 0b00001,
     },
     GPRegister {
-        names: ["$v0", "r2", "$2"],
+        names: &["$v0", "r2", "$2", "v0"],
         binary: 0b00010,
     },
     GPRegister {
-        names: ["$v1", "r3", "$3"],
+        names: &["$v1", "r3", "$3", "v1"],
         binary: 0b00011,
     },
     GPRegister {
-        names: ["$a0", "r4", "$4"],
+        names: &["$a0", "r4", "$4", "a0"],
         binary: 0b00100,
     },
     GPRegister {
-        names: ["$a1", "r5", "$5"],
+        names: &["$a1", "r5", "$5", "a1"],
         binary: 0b00101,
     },
     GPRegister {
-        names: ["$a2", "r6", "$6"],
+        names: &["$a2", "r6", "$6", "a2"],
         binary: 0b00110,
     },
     GPRegister {
-        names: ["$a3", "r7", "$7"],
+        names: &["$a3", "r7", "$7", "a3"],
         binary: 0b00111,
     },
     GPRegister {
-        names: ["$t0", "r8", "$8"],
+        names: &["$t0", "r8", "$8", "t0"],
         binary: 0b01000,
     },
     GPRegister {
-        names: ["$t1", "r9", "$9"],
+        names: &["$t1", "r9", "$9", "t1"],
         binary: 0b01001,
     },
     GPRegister {
-        names: ["$t2", "r10", "$10"],
+        names: &["$t2", "r10", "$10", "t2"],
         binary: 0b01010,
     },
     GPRegister {
-        names: ["$t3", "r11", "$11"],
+        names: &["$t3", "r11", "$11", "t3"],
         binary: 0b01011,
     },
     GPRegister {
-        names: ["$t4", "r12", "$12"],
+        names: &["$t4", "r12", "$12", "t4"],
         binary: 0b01100,
     },
     GPRegister {
-        names: ["$t5", "r13", "$13"],
+        names: &["$t5", "r13", "$13", "t5"],
         binary: 0b01101,
     },
     GPRegister {
-        names: ["$t6", "r14", "$14"],
+        names: &["$t6", "r14", "$14", "t6"],
         binary: 0b01110,
     },
     GPRegister {
-        names: ["$t7", "r15", "$15"],
+        names: &["$t7", "r15", "$15", "t7"],
         binary: 0b01111,
     },
     GPRegister {
-        names: ["$s0", "r16", "$16"],
+        names: &["$s0", "r16", "$16", "s0"],
         binary: 0b10000,
     },
     GPRegister {
-        names: ["$s1", "r17", "$17"],
+        names: &["$s1", "r17", "$17", "s1"],
         binary: 0b10001,
     },
     GPRegister {
-        names: ["$s2", "r18", "$18"],
+        names: &["$s2", "r18", "$18", "s2"],
         binary: 0b10010,
     },
     GPRegister {
-        names: ["$s3", "r19", "$19"],
+        names: &["$s3", "r19", "$19", "s3"],
         binary: 0b10011,
     },
     GPRegister {
-        names: ["$s4", "r20", "$20"],
+        names: &["$s4", "r20", "$20", "s4"],
         binary: 0b10100,
     },
     GPRegister {
-        names: ["$s5", "r21", "$21"],
+        names: &["$s5", "r21", "$21", "s5"],
         binary: 0b10101,
     },
     GPRegister {
-        names: ["$s6", "r22", "$22"],
+        names: &["$s6", "r22", "$22", "s6"],
         binary: 0b10110,
     },
     GPRegister {
-        names: ["$s7", "r23", "$23"],
+        names: &["$s7", "r23", "$23", "s7"],
         binary: 0b10111,
     },
     GPRegister {
-        names: ["$t8", "r24", "$24"],
+        names: &["$t8", "r24", "$24", "t8"],
         binary: 0b11000,
     },
     GPRegister {
-        names: ["$t9", "r25", "$25"],
+        names: &["$t9", "r25", "$25", "t9"],
         binary: 0b11001,
     },
     GPRegister {
-        names: ["$k0", "r26", "$26"],
+        names: &["$k0", "r26", "$26", "k0"],
         binary: 0b11010,
     },
     GPRegister {
-        names: ["$k1", "r27", "$27"],
+        names: &["$k1", "r27", "$27", "k1"],
         binary: 0b11011,
     },
     GPRegister {
-        names: ["$gp", "r28", "$28"],
+        names: &["$gp", "r28", "$28", "gp"],
         binary: 0b11100,
     },
     GPRegister {
-        names: ["$sp", "r29", "$29"],
+        names: &["$sp", "r29", "$29", "sp", "$s8", "s8"],
         binary: 0b11101,
     },
     GPRegister {
-        names: ["$fp", "r30", "$30"],
+        names: &["$fp", "r30", "$30", "fp"],
         binary: 0b11110,
     },
     GPRegister {
-        names: ["$ra", "r31", "$31"],
+        names: &["$ra", "r31", "$31", "ra"],
         binary: 0b11111,
     },
 ];
 pub struct GPRegister<'a> {
-    pub names: [&'a str; 3],
+    pub names: &'a [&'a str],
     pub binary: u8,
 }
 
 ///Contains every floating point register name and binary value. Any reference to fp registers throughout the parser/assembler should reference this array
-pub static FP_REGISTERS: &[FPRegister] = &[
+pub const FP_REGISTERS: &[FPRegister] = &[
     FPRegister {
         name: "$f0",
         binary: 0b00000,
