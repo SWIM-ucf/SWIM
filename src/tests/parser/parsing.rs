@@ -994,13 +994,12 @@ fn suggest_error_suggestions_associates_error_with_monaco_line_info() {
 }
 
 #[test]
-fn operators_with_commas_cause_error(){
+fn operators_with_commas_cause_error() {
     let result = parser("ori, $t1, $t2, 100".to_string()).0.monaco_line_info;
 
-    for line in result{
-        for error in  line.errors{
+    for line in result {
+        for error in line.errors {
             println!("{}", error.error_name);
         }
     }
-
 }

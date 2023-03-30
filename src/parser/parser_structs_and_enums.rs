@@ -768,7 +768,7 @@ pub const GP_REGISTERS: &[GPRegister; 32] = &[
     },
 ];
 pub struct GPRegister<'a> {
-    pub names: &'a[&'a str],
+    pub names: &'a [&'a str],
     pub binary: u8,
 }
 
