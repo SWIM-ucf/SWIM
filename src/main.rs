@@ -22,15 +22,14 @@ use monaco::{
 };
 use parser::parser_assembler_main::parser;
 use std::rc::Rc;
-use wasm_bindgen_futures::spawn_local;
-use web_sys::HtmlInputElement;
 use ui::console::component::Console;
 use ui::regview::component::Regview;
 use wasm_bindgen::{JsCast, JsValue};
+use wasm_bindgen_futures::spawn_local;
+use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew::{html, Html, Properties};
 use yew_hooks::prelude::*;
-
 
 #[function_component(App)]
 fn app() -> Html {
