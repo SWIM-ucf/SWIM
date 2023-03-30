@@ -4,7 +4,9 @@ use crate::parser::parser_structs_and_enums::ErrorType::{
     LabelAssignmentError, LabelMultipleDefinition, MissingComma, UnnecessaryComma,
 };
 use crate::parser::parser_structs_and_enums::TokenType::{Label, Operator, Unknown};
-use crate::parser::parser_structs_and_enums::{Data, Error, ErrorType, Instruction, LabelInstance, LineType, MonacoLineInfo, Token};
+use crate::parser::parser_structs_and_enums::{
+    Data, Error, ErrorType, Instruction, LabelInstance, LineType, MonacoLineInfo, Token,
+};
 use crate::parser::parsing::create_label_map;
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
 use crate::parser::pseudo_instruction_parsing::expand_pseudo_instructions_and_assign_instruction_numbers;
@@ -140,7 +142,12 @@ fn tokenize_program_handles_no_spaces_between_commas() {
         mouse_hover_string: "".to_string(),
         line_number: 0,
         error_start_end_columns: vec![],
-        tokens: vec![i_0_t_0.clone(), i_0_t_1.clone(), i_0_t_2.clone(), i_0_t_3.clone()],
+        tokens: vec![
+            i_0_t_0.clone(),
+            i_0_t_1.clone(),
+            i_0_t_2.clone(),
+            i_0_t_3.clone(),
+        ],
         updated_monaco_string: "add $t1, $t2, $t3".to_string(),
         errors: vec![],
         line_type: LineType::Unknown(vec![i_0_t_0, i_0_t_1, i_0_t_2, i_0_t_3]),
@@ -150,7 +157,12 @@ fn tokenize_program_handles_no_spaces_between_commas() {
         mouse_hover_string: "".to_string(),
         line_number: 1,
         error_start_end_columns: vec![],
-        tokens: vec![i_1_t_0.clone(), i_1_t_1.clone(), i_1_t_2.clone(), i_1_t_3.clone()],
+        tokens: vec![
+            i_1_t_0.clone(),
+            i_1_t_1.clone(),
+            i_1_t_2.clone(),
+            i_1_t_3.clone(),
+        ],
         updated_monaco_string: "sub $s1,$s2,$s3".to_string(),
         errors: vec![],
         line_type: LineType::Unknown(vec![i_1_t_0, i_1_t_1, i_1_t_2, i_1_t_3]),
@@ -188,7 +200,12 @@ fn tokenize_program_handles_comma_after_space() {
         mouse_hover_string: "".to_string(),
         line_number: 0,
         error_start_end_columns: vec![],
-        tokens: vec![i_0_t_0.clone(), i_0_t_1.clone(), i_0_t_2.clone(), i_0_t_3.clone()],
+        tokens: vec![
+            i_0_t_0.clone(),
+            i_0_t_1.clone(),
+            i_0_t_2.clone(),
+            i_0_t_3.clone(),
+        ],
         updated_monaco_string: "add $t1 , $t2, $t3".to_string(),
         errors: vec![],
         line_type: LineType::Unknown(vec![i_0_t_0, i_0_t_1, i_0_t_2, i_0_t_3]),

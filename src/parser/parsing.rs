@@ -1,6 +1,9 @@
 use crate::parser::parser_structs_and_enums::ErrorType::*;
 use crate::parser::parser_structs_and_enums::TokenType::{Directive, Label, Operator, Unknown};
-use crate::parser::parser_structs_and_enums::{Data, Error, Instruction, LabelInstance, MonacoLineInfo, Token, FP_REGISTERS, GP_REGISTERS, SUPPORTED_INSTRUCTIONS, LineType};
+use crate::parser::parser_structs_and_enums::{
+    Data, Error, Instruction, LabelInstance, LineType, MonacoLineInfo, Token, FP_REGISTERS,
+    GP_REGISTERS, SUPPORTED_INSTRUCTIONS,
+};
 use levenshtein::levenshtein;
 use std::collections::HashMap;
 
@@ -111,10 +114,11 @@ pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
             token.token_name = "".to_string();
         }
 
-        if !tokens.is_empty(){
+        if !tokens.is_empty() {
             line.line_type = LineType::Unknown(tokens.clone());
-
-        } else {line.line_type = LineType::Blank;}
+        } else {
+            line.line_type = LineType::Blank;
+        }
         monaco_line_info_vec.push(line);
     }
 
@@ -137,9 +141,17 @@ pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
 ///Checks the name of every token on a line and makes sure that labels, directives, and operators do not end in commas while
 /// all but the last operand or datum on a line does. Also, pops commas off of the end of all tokens on the line.
 pub fn remove_commas(line: &mut MonacoLineInfo) {
+    //extract the tokens from the enum.
+    let mut tokens = match line.line_type.clone() {
+        //the only two lineTypes at this point should be unknown and blank.
+        LineType::Unknown(tokens) => { tokens }
+        _ => {
+            return;
+        }
+    };
     //first check every token to see if they end in commas
     let mut has_commas: Vec<bool> = Vec::new();
-    for token in &mut line.tokens {
+    for token in &mut tokens {
         if token.token_name.ends_with(',') {
             token.token_name.pop();
             has_commas.push(true);
@@ -149,35 +161,35 @@ pub fn remove_commas(line: &mut MonacoLineInfo) {
     }
     //check all labels. No label should end in a comma
     let mut i = 0;
-    while line.tokens.len() > i && line.tokens[i].token_name.ends_with(':') {
+    while tokens.len() > i && tokens[i].token_name.ends_with(':') {
         if has_commas[i] {
             line.errors.push(Error {
                 error_name: UnnecessaryComma,
-                token_causing_error: line.tokens[i].clone().token_name,
-                start_end_columns: line.tokens[i].start_end_columns,
+                token_causing_error: tokens[i].clone().token_name,
+                start_end_columns: tokens[i].start_end_columns,
                 message: "".to_string(),
             });
         }
         i += 1;
     }
     //the following token should be the operator or the directive. Also should not end in a comma
-    if line.tokens.len() > i && has_commas[i] {
+    if tokens.len() > i && has_commas[i] {
         line.errors.push(Error {
             error_name: UnnecessaryComma,
-            token_causing_error: line.tokens[i].clone().token_name,
-            start_end_columns: line.tokens[i].start_end_columns,
+            token_causing_error: tokens[i].clone().token_name,
+            start_end_columns: tokens[i].start_end_columns,
             message: "".to_string(),
         });
     }
     i += 1;
 
     //all remaining tokens except the last should end in a comma
-    while i < line.tokens.len() - 1 {
+    while i < tokens.len() - 1 {
         if !has_commas[i] {
             line.errors.push(Error {
                 error_name: MissingComma,
-                token_causing_error: line.tokens[i].clone().token_name,
-                start_end_columns: line.tokens[i].start_end_columns,
+                token_causing_error: tokens[i].clone().token_name,
+                start_end_columns: tokens[i].start_end_columns,
                 message: "".to_string(),
             });
         }
@@ -185,14 +197,17 @@ pub fn remove_commas(line: &mut MonacoLineInfo) {
     }
 
     //finally, make sure the last token on the line does not end in a comma
-    if line.tokens.len() == i + 1 && has_commas[i] {
+    if tokens.len() == i + 1 && has_commas[i] {
         line.errors.push(Error {
             error_name: UnnecessaryComma,
-            token_causing_error: line.tokens[i].clone().token_name,
-            start_end_columns: line.tokens[i].start_end_columns,
+            token_causing_error: tokens[i].clone().token_name,
+            start_end_columns: tokens[i].start_end_columns,
             message: "".to_string(),
         });
     }
+
+    line.line_type = LineType::Unknown(tokens.clone());
+    line.tokens = tokens;
 }
 
 ///This function takes the vector of lines created by tokenize program and turns them into instructions
@@ -205,7 +220,7 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
     let mut is_text = true;
     let mut i = 0;
     while i < lines.len() {
-        if lines[i].tokens.is_empty() {
+        if lines[i].line_type == LineType::Blank {
             i += 1;
             continue;
         }
