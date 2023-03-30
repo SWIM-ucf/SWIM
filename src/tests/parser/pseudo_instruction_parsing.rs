@@ -126,6 +126,55 @@ fn expand_pseudo_instructions_and_assign_instruction_numbers_works_li() {
 }
 
 #[test]
+fn expand_pseudo_instructions_and_assign_instruction_numbers_works_move() {
+    let mut program_info = ProgramInfo::default();
+
+    let file_string = "move $t1, $t2\nsw $t1, label".to_string();
+
+    let mut monaco_line_info_vec = tokenize_program(file_string);
+    (program_info.instructions, program_info.data) =
+        separate_data_and_text(&mut monaco_line_info_vec.clone());
+    expand_pseudo_instructions_and_assign_instruction_numbers(
+        &mut program_info.instructions,
+        &program_info.data,
+        &mut monaco_line_info_vec,
+    );
+
+    assert_eq!(
+        program_info.instructions[0],
+        Instruction {
+            operator: Token {
+                token_name: "or".to_string(),
+                start_end_columns: (0, 4),
+                token_type: Operator,
+            },
+            operands: vec![
+                Token {
+                    token_name: "$t1".to_string(),
+                    start_end_columns: (5, 8),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$zero".to_string(),
+                    start_end_columns: (0, 0),
+                    token_type: Default::default(),
+                },
+                Token {
+                    token_name: "$t2".to_string(),
+                    start_end_columns: (10, 13),
+                    token_type: Default::default(),
+                }
+            ],
+            binary: 0,
+            instruction_number: 0,
+            line_number: 0,
+            errors: vec![],
+            labels: Vec::new(),
+        }
+    );
+}
+
+#[test]
 fn expand_pseudo_instructions_and_assign_instruction_numbers_works_subi() {
     let mut program_info = ProgramInfo::default();
 
