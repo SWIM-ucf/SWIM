@@ -67,7 +67,6 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "move" => {
-
                 let info = PseudoDescription {
                     name: "move".to_string(),
                     syntax: "move rt, rs".to_string(),
@@ -95,7 +94,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                         token_type: Default::default(),
                     },
                 );
-               //instruction.operands[2].start_end_columns = (0, 0);
+                //instruction.operands[2].start_end_columns = (0, 0);
 
                 monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
