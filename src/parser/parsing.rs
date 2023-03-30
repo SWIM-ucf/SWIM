@@ -1,9 +1,6 @@
 use crate::parser::parser_structs_and_enums::ErrorType::*;
 use crate::parser::parser_structs_and_enums::TokenType::{Directive, Label, Operator, Unknown};
-use crate::parser::parser_structs_and_enums::{
-    Data, Error, Instruction, LabelInstance, MonacoLineInfo, Token, FP_REGISTERS, GP_REGISTERS,
-    SUPPORTED_INSTRUCTIONS,
-};
+use crate::parser::parser_structs_and_enums::{Data, Error, Instruction, LabelInstance, MonacoLineInfo, Token, FP_REGISTERS, GP_REGISTERS, SUPPORTED_INSTRUCTIONS, LineType};
 use levenshtein::levenshtein;
 use std::collections::HashMap;
 
@@ -11,7 +8,7 @@ use std::collections::HashMap;
 /// a struct that holds tokens and the original line number.
 pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
     let mut monaco_line_info_vec: Vec<MonacoLineInfo> = Vec::new();
-
+    let mut tokens: Vec<Token>;
     let mut token: Token = Token {
         token_name: "".to_string(),
         start_end_columns: (0, 0),
@@ -19,6 +16,7 @@ pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
     };
 
     for (i, line_of_program) in program.lines().enumerate() {
+        tokens = Vec::new();
         let mut line = MonacoLineInfo {
             mouse_hover_string: "".to_string(),
             updated_monaco_string: line_of_program.to_string(),
@@ -78,6 +76,7 @@ pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
             } else if char == '\"' {
                 if !token.token_name.is_empty() {
                     line.tokens.push(token.clone());
+                    tokens.push(token.clone());
                 }
                 token.token_name = '\"'.to_string();
                 token.start_end_columns.0 = j;
@@ -89,25 +88,33 @@ pub fn tokenize_program(program: String) -> Vec<MonacoLineInfo> {
                 token.token_name.push(char);
                 if char == ',' {
                     if token.token_name.len() == 1 {
-                        let length = line.tokens.len();
+                        let length = tokens.len();
                         line.tokens[length - 1].token_name.push(char);
+                        tokens[length - 1].token_name.push(char);
                     } else {
                         token.start_end_columns.1 -= 1;
                         line.tokens.push(token.clone());
+                        tokens.push(token.clone());
                     }
                     token.token_name = "".to_string();
                 }
             } else if !token.token_name.is_empty() {
                 token.start_end_columns.1 -= 1;
                 line.tokens.push(token.clone());
+                tokens.push(token.clone());
                 token.token_name = "".to_string();
             }
         }
         if !token.token_name.is_empty() {
             line.tokens.push(token.clone());
+            tokens.push(token.clone());
             token.token_name = "".to_string();
         }
 
+        if !tokens.is_empty(){
+            line.line_type = LineType::Unknown(tokens.clone());
+
+        } else {line.line_type = LineType::Blank;}
         monaco_line_info_vec.push(line);
     }
 
