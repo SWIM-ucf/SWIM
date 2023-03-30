@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":[["Bow","A clone-on-write smart pointer with boxed owned data."]]};
