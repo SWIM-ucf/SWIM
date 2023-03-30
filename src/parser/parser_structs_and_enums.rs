@@ -56,6 +56,7 @@ pub enum LineType {
     Instruction(Vec<Instruction>),
     Data(Data),
     Directive(Vec<Token>),
+    Label(Vec<Token>)
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

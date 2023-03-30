@@ -227,11 +227,18 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
         //check commas and remove them
         remove_commas(&mut lines[i]);
 
+        //extract the tokens from LineType
+        let mut tokens = match lines[i].line_type.clone(){
+            //the only line_types at this point should be unknown and blank and blank shouldn't even make it here, anyway
+            LineType::Unknown(tokens) => { tokens}
+            _ => { continue;}
+        };
+
         //handle transitions between .data and .text
-        if lines[i].tokens[0].token_name.to_lowercase() == ".text"
-            || lines[i].tokens[0].token_name.to_lowercase() == ".data"
+        if tokens[0].token_name.to_lowercase() == ".text"
+            || tokens[0].token_name.to_lowercase() == ".data"
         {
-            lines[i].tokens[0].token_type = Directive;
+            tokens[0].token_type = Directive;
             while !labels.is_empty() {
                 let last = labels.pop().unwrap();
                 lines[last.token_line].errors.push(Error {
@@ -241,28 +248,30 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
                     message: "".to_string(),
                 });
             }
-            if lines[i].tokens[0].token_name.to_lowercase() == ".text" {
+            if tokens[0].token_name.to_lowercase() == ".text" {
                 is_text = true;
             } else {
                 is_text = false;
             }
+            lines[i].line_type = LineType::Directive(tokens);
             i += 1;
             continue;
         }
         let mut j = 0;
         //add all labels to the label stack
-        while lines[i].tokens.len() > j && lines[i].tokens[j].token_name.ends_with(':') {
-            lines[i].tokens[j].token_name.pop();
-            lines[i].tokens[j].start_end_columns.1 -= 1;
-            lines[i].tokens[j].token_type = Label;
+        while tokens.len() > j && tokens[j].token_name.ends_with(':') {
+            tokens[j].token_name.pop();
+            tokens[j].start_end_columns.1 -= 1;
+            tokens[j].token_type = Label;
             labels.push(LabelInstance {
-                token: lines[i].tokens[j].clone(),
+                token: tokens[j].clone(),
                 token_line: i,
             });
             j += 1;
         }
         //make sure there are still tokens remaining on the line
-        if lines[i].tokens.len() == j {
+        if tokens.len() == j {
+            lines[i].line_type = LineType::Label(tokens);
             i += 1;
             continue;
         }
@@ -277,15 +286,17 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
                 instruction.labels.push(labels.pop().unwrap());
             }
             //the next token is the operator
-            lines[i].tokens[j].token_type = Operator;
-            instruction.operator = lines[i].tokens[j].clone();
+            tokens[j].token_type = Operator;
+            instruction.operator = tokens[j].clone();
             j += 1;
             //any remaining tokens are the operands
-            while lines[i].tokens.len() > j {
-                instruction.operands.push(lines[i].tokens[j].clone());
+            while tokens.len() > j {
+                instruction.operands.push(tokens[j].clone());
                 j += 1;
             }
-            instruction_list.push(instruction);
+            instruction_list.push(instruction.clone());
+            lines[i].line_type = LineType::Instruction(vec![instruction]);
+            lines[i].tokens = tokens;
 
             //this chunk handles how we read .data
         } else {
@@ -297,21 +308,22 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
                 //if labels is empty, generate an error but assume the first token on the line was supposed to be the label
                 //Remove commas should have already generated a MissingComma error so we replace that with a more accurate error.
                 lines[i].errors.pop();
-                let start_end = lines[i].tokens[j].start_end_columns;
-                let token_name = lines[i].tokens[j].token_name.clone();
+                let start_end = tokens[j].start_end_columns;
+                let token_name = tokens[j].token_name.clone();
                 lines[i].errors.push(Error {
                     error_name: ImproperlyFormattedLabel,
                     token_causing_error: token_name,
                     start_end_columns: start_end,
                     message: "".to_string(),
                 });
-                data.label = lines[i].tokens[j].clone();
+                data.label = tokens[j].clone();
                 j += 1;
             } else {
                 data.label = labels.pop().unwrap().token;
             }
             //continue to the next line if there are no other tokens on the line.
-            if lines[i].tokens.len() == j {
+            if tokens.len() == j {
+                lines[i].line_type = LineType::Data(data);
                 i += 1;
                 continue;
             }
@@ -325,14 +337,16 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
             }
             labels = Vec::new();
             //the next token should be the data type directive
-            data.data_type = lines[i].tokens[j].clone();
+            data.data_type = tokens[j].clone();
             j += 1;
             //any remaining tokens should be data entries
-            while lines[i].tokens.len() > j {
-                data.data_entries.push(lines[i].tokens[j].clone());
+            while tokens.len() > j {
+                data.data_entries.push(tokens[j].clone());
                 j += 1;
             }
-            data_list.push(data);
+            data_list.push(data.clone());
+            lines[i].line_type = LineType::Data(data);
+            lines[i].tokens = tokens;
         }
         i += 1;
     }

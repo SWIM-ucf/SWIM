@@ -359,16 +359,25 @@ fn separate_data_and_text_works_basic_version() {
 fn separate_data_and_text_can_handle_empty_lines() {
     //this test realistically is only important to check that it does not panic but we might as well go a step further and
     //check that the result generated with empty lines is identical to the result without empty lines save for line number
-    let mut result_1 =
+    let result_1 =
         parser(".text\nori $s0, $zero, 0x1234\n\n.data\nlabel: .word 0xface".to_string())
             .0
             .monaco_line_info;
-    let result_2 = parser(".text\nori $s0, $zero, 0x1234\n.data\nlabel: .word 0xface".to_string())
+    let mut result_2 = parser(".text\nori $s0, $zero, 0x1234\n.data\nlabel: .word 0xface".to_string())
         .0
         .monaco_line_info;
-    result_1[2].line_number = 1;
-    result_1[3].line_number = 2;
-    result_1[4].line_number = 3;
+
+    result_2[2].line_number = 3;
+    result_2[3].line_number = 4;
+
+    let mut adjust = match result_2[3].clone().line_type {
+        LineType::Data(data) => {
+            data
+        }
+       _ => {Data::default()}
+    };
+    adjust.line_number += 1;
+    result_2[3].line_type = LineType::Data(adjust);
 
     assert_eq!(result_1[0], result_2[0]);
     assert_eq!(result_1[1], result_2[1]);
