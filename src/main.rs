@@ -6,6 +6,7 @@ pub mod ui;
 
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
+use emulation_core::mips::datapath::Stage;
 use gloo::{dialogs::alert, file::FileList};
 use js_sys::Object;
 use monaco::{
@@ -17,21 +18,18 @@ use monaco::{
         },
         IMarkdownString, MarkerSeverity,
     },
-    yew::{CodeEditor, CodeEditorLink},
+    yew::CodeEditor,
 };
 use parser::parser_assembler_main::parser;
 use std::rc::Rc;
-use wasm_bindgen_futures::spawn_local;
-use web_sys::HtmlInputElement;
-//use stylist::yew::*;
 use ui::console::component::Console;
 use ui::regview::component::Regview;
 use wasm_bindgen::{JsCast, JsValue};
+use wasm_bindgen_futures::spawn_local;
+use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew::{html, Html, Properties};
 use yew_hooks::prelude::*;
-
-//use crate::parser::parser_structs_and_enums::instruction_tokenization::{print_vec_of_instructions, ProgramInfo};
 
 #[function_component(App)]
 fn app() -> Html {
@@ -44,9 +42,6 @@ fn app() -> Html {
     // use_state_eq hook is created so that the component can be updated
     // when the text model changes.
     let text_model = use_mut_ref(|| TextModel::create(&code, Some(&language), None).unwrap());
-
-    // Link to the Yew Editor Component, if not used by the end of the project remove it.
-    let codelink = CodeEditorLink::default();
 
     // Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
@@ -62,10 +57,15 @@ fn app() -> Html {
     // will highlight the previously executed line.
     // The highlight decor does not need to be changed,
     // the only parameter that will change is the range.
-    let highlight_decor = monaco::sys::editor::IModelDecorationOptions::default();
-    highlight_decor.set_is_whole_line(true.into());
-    highlight_decor.set_inline_class_name("myInlineDecoration".into());
+    let highlight_decor = use_mut_ref(monaco::sys::editor::IModelDecorationOptions::default);
+    (*highlight_decor)
+        .borrow_mut()
+        .set_is_whole_line(true.into());
+    (*highlight_decor)
+        .borrow_mut()
+        .set_inline_class_name("myInlineDecoration".into());
 
+    // Output strings for the console and memory viewers.
     let parser_text_output = use_state_eq(String::new);
     let memory_text_output = use_state_eq(String::new);
 
@@ -163,11 +163,13 @@ fn app() -> Html {
 
         let executed_line = executed_line.clone();
         let not_highlighted = not_highlighted.clone();
+        let highlight_decor = highlight_decor.clone();
 
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
                 let text_model = (*text_model).borrow_mut();
+                let highlight_decor = (*highlight_decor).borrow_mut();
 
                 // Pull ProgramInfo from the parser
                 let (programinfo, _) = parser(text_model.get_value());
@@ -229,11 +231,47 @@ fn app() -> Html {
 
     let on_execute_stage_clicked = {
         let datapath = Rc::clone(&datapath);
+        let text_model = Rc::clone(&text_model);
+        let executed_line = executed_line.clone();
+        let not_highlighted = not_highlighted.clone();
+        let highlight_decor = highlight_decor;
         let trigger = use_force_update();
+
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
-                (*datapath).execute_stage();
+                let highlight_decor = (*highlight_decor).borrow_mut();
+                if datapath.current_stage == Stage::InstructionDecode {
+                    // highlight on InstructionDecode since syscall stops at that stage.
+                    let text_model = (*text_model).borrow_mut();
+                    let (programinfo, _) = parser(text_model.get_value());
+                    let list_of_line_numbers = programinfo.address_to_line_number;
+                    let index = datapath.registers.pc as usize / 4;
+                    let curr_line = *list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0;
+                    let curr_model = text_model.as_ref();
+                    let curr_range = monaco::sys::Range::new(curr_line, 0.0, curr_line, 0.0);
+                    let highlight_line: monaco::sys::editor::IModelDeltaDecoration =
+                        Object::new().unchecked_into();
+                    highlight_line.set_options(&highlight_decor);
+                    let range_js = curr_range
+                        .dyn_into::<JsValue>()
+                        .expect("Range is not found.");
+                    highlight_line.set_range(&monaco::sys::IRange::from(range_js));
+                    let highlight_js = highlight_line
+                        .dyn_into::<JsValue>()
+                        .expect("Highlight is not found.");
+                    executed_line.push(&highlight_js);
+                    not_highlighted.set(
+                        0,
+                        (*curr_model)
+                            .delta_decorations(&not_highlighted, &executed_line, None)
+                            .into(),
+                    );
+                    (*datapath).execute_stage();
+                    executed_line.pop();
+                } else {
+                    (*datapath).execute_stage();
+                }
                 trigger.force_update();
             },
             (),
@@ -281,9 +319,6 @@ fn app() -> Html {
     };
 
     // We'll have the Mouse Hover event running at all times.
-    // Bug: Due to how the nature of this being a functional component,
-    // the event won't initialize properly until the user starts typing anything
-    // in the code editor.
     {
         let text_model = Rc::clone(&text_model);
         use_event_with_window("mouseover", move |_: MouseEvent| {
@@ -391,17 +426,19 @@ fn app() -> Html {
                 <div style="flex-basis: 70%; display: flex; flex-direction: column; align-items: stretch; min-width: 0;">
                     // Top buttons
                     <div>
-                        <button class="button" onclick={on_assemble_clicked}>{ "Assemble" }</button>
-                        <button class="button" onclick={on_execute_clicked} disabled={(*datapath).borrow().is_halted()}> { "Execute" }</button>
-                        <button class="button" onclick={on_execute_stage_clicked} disabled={(*datapath).borrow().is_halted()}> { "Execute Stage" }</button>
-                        <button class="button" onclick={on_reset_clicked}>{ "Reset" }</button>
-                        <input type="button" value="Upload File" onclick={upload_clicked_callback} />
-                        <input type="button" value="Copy to Clipboard" onclick={on_clipboard_clicked} />
+                        <button class="button" onclick={on_assemble_clicked}>{ "Assemble " }<i class="fa-sharp fa-solid fa-hammer"></i></button>
+                        <button class="button" onclick={on_execute_clicked} disabled={(*datapath).borrow().is_halted()}>{ "Execute " }<i class="fa-regular fa-circle-play"></i></button>
+                        <button class="button" onclick={on_execute_stage_clicked} disabled={(*datapath).borrow().is_halted()}> { "Execute Stage " }<i class="fa-solid fa-play"></i></button>
+                        <button class="button" onclick={on_reset_clicked}>{ "Reset " }<i class="fa-solid fa-arrow-rotate-left"></i></button>
+                        //<input type="button" value="Load File" onclick={upload_clicked_callback} />
+                        <button class="button" onclick={upload_clicked_callback}>{"Upload File "}<i class="fa-sharp fa-solid fa-upload"></i></button>
+                        //<input type="button" value="Save to Clipboard" onclick={on_clipboard_clicked} />
+                        <button class="button" onclick={on_clipboard_clicked}>{"Copy to Clipboard "}<i class="fa-regular fa-copy"></i></button>
                     </div>
 
                     // Editor
                     <div style="flex-grow: 1; min-height: 4em;">
-                        <SwimEditor text_model={(*text_model).borrow().clone()} link={codelink.clone()} />
+                        <SwimEditor text_model={(*text_model).borrow().clone()} />
                     </div>
 
                     // Console
@@ -426,7 +463,6 @@ fn new_object() -> JsValue {
 #[derive(PartialEq, Properties)]
 pub struct SwimEditorProps {
     pub text_model: TextModel,
-    pub link: CodeEditorLink,
 }
 
 fn get_options() -> IStandaloneEditorConstructionOptions {
@@ -458,7 +494,7 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 #[function_component]
 pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     html! {
-        <CodeEditor classes={"editor"} options={get_options()} model={props.text_model.clone()} link={props.link.clone()} />
+        <CodeEditor classes={"editor"} options={get_options()} model={props.text_model.clone()} />
     }
 }
 

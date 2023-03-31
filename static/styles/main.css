@@ -1,7 +1,9 @@
 body {
-  background-color: #474343;
+  background-color: #3285a8;
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
 }
+
+/* CSS */
 
 /****** Editor ******/
 .editor {
@@ -65,7 +67,6 @@ table {
   display: block;
   overflow-y: auto;
 }
-
 tr:nth-child(even)
 {
   background-color: #ccc;
