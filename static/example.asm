@@ -43,7 +43,7 @@ L2:
         jal     fib(int)
         nop
 
-        addu    $v0,$s0,$v0 #addu needs to be implemented
+        addu    $v0,$s0,$v0
 L3:
         move    $sp,$fp
         lw      $ra,36($sp)
