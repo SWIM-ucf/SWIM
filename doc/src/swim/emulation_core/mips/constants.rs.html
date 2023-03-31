@@ -135,12 +135,14 @@
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::control_signals::RegWidth;
 
 <span class="kw">pub const </span>FUNCT_SYSCALL: u8 = <span class="number">0b001100</span>;
 
 <span class="kw">pub const </span>FUNCT_SLL: u8 = <span class="number">0b000000</span>;
 <span class="kw">pub const </span>FUNCT_ADD: u8 = <span class="number">0b100000</span>;
+<span class="kw">pub const </span>FUNCT_ADDU: u8 = <span class="number">0b100001</span>;
 <span class="kw">pub const </span>FUNCT_SUB: u8 = <span class="number">0b100010</span>;
 <span class="kw">pub const </span>FUNCT_AND: u8 = <span class="number">0b100100</span>;
 <span class="kw">pub const </span>FUNCT_OR: u8 = <span class="number">0b100101</span>;
@@ -263,7 +265,7 @@
         <span class="comment">// `syscall` does not have a register width associated with it,
         // but is set for the purposes of a default signal value.
         </span>FUNCT_SYSCALL =&gt; <span class="prelude-val">Some</span>(RegWidth::DoubleWord),
-        FUNCT_ADD | FUNCT_SUB | FUNCT_SLL =&gt; <span class="prelude-val">Some</span>(RegWidth::Word),
+        FUNCT_ADD | FUNCT_ADDU | FUNCT_SUB | FUNCT_SLL =&gt; <span class="prelude-val">Some</span>(RegWidth::Word),
         FUNCT_AND | FUNCT_OR | FUNCT_SLT | FUNCT_SLTU =&gt; <span class="prelude-val">Some</span>(RegWidth::DoubleWord),
         FUNCT_DADD | FUNCT_DSUB =&gt; <span class="prelude-val">Some</span>(RegWidth::DoubleWord),
         FUNCT_DADDU | FUNCT_DSUBU =&gt; <span class="prelude-val">Some</span>(RegWidth::DoubleWord),

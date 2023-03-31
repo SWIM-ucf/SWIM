@@ -1221,6 +1221,8 @@
 <a href="#1221" id="1221">1221</a>
 <a href="#1222" id="1222">1222</a>
 <a href="#1223" id="1223">1223</a>
+<a href="#1224" id="1224">1224</a>
+<a href="#1225" id="1225">1225</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of a MIPS64 datapath.
 //!
 //! It is assumed that while moving through stages, only one
@@ -2154,7 +2156,9 @@
             AluOp::LeftShift16 =&gt; AluControl::LeftShift16,
             AluOp::UseFunctField =&gt; {
                 <span class="kw">match </span><span class="self">self</span>.state.funct <span class="kw">as </span>u8 {
-                    FUNCT_ADD | FUNCT_DADD | FUNCT_DADDU =&gt; AluControl::Addition,
+                    <span class="comment">// In the future if/when interrupts are implemented, unsigned adds should be
+                    // dealt with differently
+                    </span>FUNCT_ADD | FUNCT_ADDU | FUNCT_DADD | FUNCT_DADDU =&gt; AluControl::Addition,
                     FUNCT_SUB | FUNCT_DSUB | FUNCT_DSUBU =&gt; AluControl::Subtraction,
                     FUNCT_AND =&gt; AluControl::And,
                     FUNCT_OR =&gt; AluControl::Or,
