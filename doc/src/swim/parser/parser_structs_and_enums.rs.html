@@ -956,7 +956,6 @@
 <a href="#956" id="956">956</a>
 <a href="#957" id="957">957</a>
 <a href="#958" id="958">958</a>
-<a href="#959" id="959">959</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::default::Default;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::fmt::Formatter;
@@ -1174,21 +1173,20 @@
     ShiftAmount,
 }
 
-<span class="kw">pub const </span>SUPPORTED_INSTRUCTIONS: [<span class="kw-2">&amp;</span>str; <span class="number">62</span>] = [
-    <span class="string">&quot;add&quot;</span>, <span class="string">&quot;sub&quot;</span>, <span class="string">&quot;mul&quot;</span>, <span class="string">&quot;div&quot;</span>, <span class="string">&quot;lw&quot;</span>, <span class="string">&quot;sw&quot;</span>, <span class="string">&quot;lui&quot;</span>, <span class="string">&quot;aui&quot;</span>, <span class="string">&quot;andi&quot;</span>, <span class="string">&quot;ori&quot;</span>, <span class="string">&quot;addi&quot;</span>, <span class="string">&quot;dadd&quot;</span>, <span class="string">&quot;dsub&quot;</span>,
-    <span class="string">&quot;dmul&quot;</span>, <span class="string">&quot;ddiv&quot;</span>, <span class="string">&quot;or&quot;</span>, <span class="string">&quot;and&quot;</span>, <span class="string">&quot;add.s&quot;</span>, <span class="string">&quot;add.d&quot;</span>, <span class="string">&quot;sub.s&quot;</span>, <span class="string">&quot;sub.d&quot;</span>, <span class="string">&quot;mul.s&quot;</span>, <span class="string">&quot;mul.d&quot;</span>, <span class="string">&quot;div.s&quot;</span>,
-    <span class="string">&quot;div.d&quot;</span>, <span class="string">&quot;dahi&quot;</span>, <span class="string">&quot;dati&quot;</span>, <span class="string">&quot;daddi&quot;</span>, <span class="string">&quot;daddiu&quot;</span>, <span class="string">&quot;slt&quot;</span>, <span class="string">&quot;sltu&quot;</span>, <span class="string">&quot;swc1&quot;</span>, <span class="string">&quot;lwc1&quot;</span>, <span class="string">&quot;mtc1&quot;</span>, <span class="string">&quot;dmtc1&quot;</span>,
-    <span class="string">&quot;mfc1&quot;</span>, <span class="string">&quot;dmfc1&quot;</span>, <span class="string">&quot;j&quot;</span>, <span class="string">&quot;beq&quot;</span>, <span class="string">&quot;bne&quot;</span>, <span class="string">&quot;c.eq.s&quot;</span>, <span class="string">&quot;c.eq.d&quot;</span>, <span class="string">&quot;c.lt.s&quot;</span>, <span class="string">&quot;c.le.s&quot;</span>, <span class="string">&quot;c.le.d&quot;</span>,
+<span class="kw">pub const </span>SUPPORTED_INSTRUCTIONS: [<span class="kw-2">&amp;</span>str; <span class="number">63</span>] = [
+    <span class="string">&quot;add&quot;</span>, <span class="string">&quot;addu&quot;</span>, <span class="string">&quot;sub&quot;</span>, <span class="string">&quot;mul&quot;</span>, <span class="string">&quot;div&quot;</span>, <span class="string">&quot;lw&quot;</span>, <span class="string">&quot;sw&quot;</span>, <span class="string">&quot;lui&quot;</span>, <span class="string">&quot;aui&quot;</span>, <span class="string">&quot;andi&quot;</span>, <span class="string">&quot;ori&quot;</span>, <span class="string">&quot;addi&quot;</span>, <span class="string">&quot;dadd&quot;</span>,
+    <span class="string">&quot;dsub&quot;</span>, <span class="string">&quot;dmul&quot;</span>, <span class="string">&quot;ddiv&quot;</span>, <span class="string">&quot;or&quot;</span>, <span class="string">&quot;and&quot;</span>, <span class="string">&quot;add.s&quot;</span>, <span class="string">&quot;add.d&quot;</span>, <span class="string">&quot;sub.s&quot;</span>, <span class="string">&quot;sub.d&quot;</span>, <span class="string">&quot;mul.s&quot;</span>, <span class="string">&quot;mul.d&quot;</span>,
+    <span class="string">&quot;div.s&quot;</span>, <span class="string">&quot;div.d&quot;</span>, <span class="string">&quot;dahi&quot;</span>, <span class="string">&quot;dati&quot;</span>, <span class="string">&quot;daddi&quot;</span>, <span class="string">&quot;daddiu&quot;</span>, <span class="string">&quot;slt&quot;</span>, <span class="string">&quot;sltu&quot;</span>, <span class="string">&quot;swc1&quot;</span>, <span class="string">&quot;lwc1&quot;</span>, <span class="string">&quot;mtc1&quot;</span>,
+    <span class="string">&quot;dmtc1&quot;</span>, <span class="string">&quot;mfc1&quot;</span>, <span class="string">&quot;dmfc1&quot;</span>, <span class="string">&quot;j&quot;</span>, <span class="string">&quot;beq&quot;</span>, <span class="string">&quot;bne&quot;</span>, <span class="string">&quot;c.eq.s&quot;</span>, <span class="string">&quot;c.eq.d&quot;</span>, <span class="string">&quot;c.lt.s&quot;</span>, <span class="string">&quot;c.le.s&quot;</span>, <span class="string">&quot;c.le.d&quot;</span>,
     <span class="string">&quot;c.ngt.s&quot;</span>, <span class="string">&quot;c.ngt.d&quot;</span>, <span class="string">&quot;c.nge.s&quot;</span>, <span class="string">&quot;c.nge.d&quot;</span>, <span class="string">&quot;bc1t&quot;</span>, <span class="string">&quot;bc1f&quot;</span>, <span class="string">&quot;daddu&quot;</span>, <span class="string">&quot;dsubu&quot;</span>, <span class="string">&quot;ddivu&quot;</span>, <span class="string">&quot;dmulu&quot;</span>,
     <span class="string">&quot;b&quot;</span>, <span class="string">&quot;nop&quot;</span>, <span class="string">&quot;sll&quot;</span>, <span class="string">&quot;jr&quot;</span>, <span class="string">&quot;jalr&quot;</span>, <span class="string">&quot;addiu&quot;</span>, <span class="string">&quot;jal&quot;</span>,
 ];
 
-<span class="kw">pub const </span>UNSUPPORTED_INSTRUCTIONS: [<span class="kw-2">&amp;</span>str; <span class="number">409</span>] = [
+<span class="kw">pub const </span>UNSUPPORTED_INSTRUCTIONS: [<span class="kw-2">&amp;</span>str; <span class="number">408</span>] = [
     <span class="string">&quot;abs.s&quot;</span>,
     <span class="string">&quot;abs.d&quot;</span>,
     <span class="string">&quot;abs.ps&quot;</span>,
     <span class="string">&quot;addiupc&quot;</span>,
-    <span class="string">&quot;addu&quot;</span>,
     <span class="string">&quot;align&quot;</span>,
     <span class="string">&quot;dalign&quot;</span>,
     <span class="string">&quot;alnv.ps&quot;</span>,
