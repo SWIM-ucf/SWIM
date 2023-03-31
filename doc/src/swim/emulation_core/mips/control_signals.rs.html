@@ -500,6 +500,9 @@
 <a href="#500" id="500">500</a>
 <a href="#501" id="501">501</a>
 <a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Internal datapath control signals.
 
 /// Full collection of control signals.
@@ -529,45 +532,48 @@
 /// [`RegWidth`] control signal additionally acts as the leading bit of
 /// ALUControl. The leading bit of the signal determines the size of
 /// the input and output data within the datapath. See [`RegWidth`] for
-/// more details.
+/// more details
 </span><span class="attr">#[derive(Clone, Default, PartialEq)]
 </span><span class="kw">pub enum </span>AluControl {
     <span class="doccomment">/// `_0000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
     </span><span class="attr">#[default]
-    </span>Addition = <span class="number">0</span>,
+    </span>Addition,
 
     <span class="doccomment">/// `_0001` (1) - Perform a subtraction. Will not set any underflow signal on underflow.
-    </span>Subtraction = <span class="number">1</span>,
+    </span>Subtraction,
 
     <span class="doccomment">/// `_0010` (2) - Perform a &quot;set on less than&quot; operation.
-    </span>SetOnLessThanSigned = <span class="number">2</span>,
+    </span>SetOnLessThanSigned,
 
     <span class="doccomment">/// `_0011` (3) - Perform a &quot;set on less than unsigned&quot; operation.
-    </span>SetOnLessThanUnsigned = <span class="number">3</span>,
+    </span>SetOnLessThanUnsigned,
 
     <span class="doccomment">/// `_0100` (4) - Perform a bitwise &quot;AND&quot; operation.
-    </span>And = <span class="number">4</span>,
+    </span>And,
 
     <span class="doccomment">/// `_0101` (5) - Perform a bitwise &quot;OR&quot; operation.
-    </span>Or = <span class="number">5</span>,
+    </span>Or,
 
     <span class="doccomment">/// `_0110` (6) - Left shift the sign-extended immediate value 16 bits.
-    </span>LeftShift16 = <span class="number">6</span>,
+    </span>LeftShift16,
 
     <span class="doccomment">/// `_0111` (7) - Perform a bitwise &quot;NOT&quot; operation.
-    </span>Not = <span class="number">7</span>,
+    </span>Not,
 
     <span class="doccomment">/// `_1000` (8) - Perform signed multiplication.
-    </span>MultiplicationSigned = <span class="number">8</span>,
+    </span>MultiplicationSigned,
 
     <span class="doccomment">/// `_1001` (9) - Perform unsigned multiplication.
-    </span>MultiplicationUnsigned = <span class="number">9</span>,
+    </span>MultiplicationUnsigned,
 
     <span class="doccomment">/// `_1010` (10) - Perform signed integer division. (Returns the integer quotient.)
-    </span>DivisionSigned = <span class="number">10</span>,
+    </span>DivisionSigned,
 
     <span class="doccomment">/// `_1011` (11) - Perform unsigned integer division. (Returns the integer quotient.)
-    </span>DivisionUnsigned = <span class="number">11</span>,
+    </span>DivisionUnsigned,
+
+    <span class="doccomment">/// `_1100` (12) - Perform a shift left logical by &quot;shamt&quot; field amount.
+    </span>ShiftLeftLogical(u32),
 }
 
 <span class="doccomment">/// This determines the operation sent to the ALU control unit.

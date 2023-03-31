@@ -262,6 +262,7 @@
 <a href="#262" id="262">262</a>
 <a href="#263" id="263">263</a>
 <a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Abstract representation of an instruction.
 
 </span><span class="kw">use </span><span class="kw">super</span>::constants::<span class="kw-2">*</span>;
@@ -431,7 +432,8 @@
                         shamt: ((value &gt;&gt; <span class="number">6</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                         funct: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                     })),
-                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(Instruction::RType(RType {
+                    <span class="comment">// Simple R-Type instructions:
+                    </span><span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(Instruction::RType(RType {
                         op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                         rs: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                         rt: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,

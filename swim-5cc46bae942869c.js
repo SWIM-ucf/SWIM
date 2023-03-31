@@ -1166,7 +1166,7 @@ function initSync(module) {
 
 async function init(input) {
     if (typeof input === 'undefined') {
-        input = new URL('swim-f6aa79eb3123fcf6_bg.wasm', import.meta.url);
+        input = new URL('swim-5cc46bae942869c_bg.wasm', import.meta.url);
     }
     const imports = getImports();
 

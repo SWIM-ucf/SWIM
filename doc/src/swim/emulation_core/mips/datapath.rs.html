@@ -1217,6 +1217,10 @@
 <a href="#1217" id="1217">1217</a>
 <a href="#1218" id="1218">1218</a>
 <a href="#1219" id="1219">1219</a>
+<a href="#1220" id="1220">1220</a>
+<a href="#1221" id="1221">1221</a>
+<a href="#1222" id="1222">1222</a>
+<a href="#1223" id="1223">1223</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of a MIPS64 datapath.
 //!
 //! It is assumed that while moving through stages, only one
@@ -2154,6 +2158,7 @@
                     FUNCT_SUB | FUNCT_DSUB | FUNCT_DSUBU =&gt; AluControl::Subtraction,
                     FUNCT_AND =&gt; AluControl::And,
                     FUNCT_OR =&gt; AluControl::Or,
+                    FUNCT_SLL =&gt; AluControl::ShiftLeftLogical(<span class="self">self</span>.state.shamt),
                     FUNCT_SLT =&gt; AluControl::SetOnLessThanSigned,
                     FUNCT_SLTU =&gt; AluControl::SetOnLessThanUnsigned,
                     FUNCT_SOP32 | FUNCT_SOP36 =&gt; <span class="kw">match </span><span class="self">self</span>.state.shamt <span class="kw">as </span>u8 {
@@ -2246,6 +2251,9 @@
             AluControl::SetOnLessThanUnsigned =&gt; (input1 &lt; input2) <span class="kw">as </span>u64,
             AluControl::And =&gt; input1 &amp; input2,
             AluControl::Or =&gt; input1 | input2,
+
+            <span class="comment">// shift amount should be set by the ALU control unit. got to make some variable that gets set
+            </span>AluControl::ShiftLeftLogical(shamt) =&gt; input2 &lt;&lt; shamt,
             AluControl::LeftShift16 =&gt; input2 &lt;&lt; <span class="number">16</span>,
             AluControl::Not =&gt; !input1,
             AluControl::MultiplicationSigned =&gt; ((input1 <span class="kw">as </span>i128) * (input2 <span class="kw">as </span>i128)) <span class="kw">as </span>u64,
