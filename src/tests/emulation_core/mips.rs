@@ -522,6 +522,62 @@ pub mod and {
     }
 }
 
+// Shift Word Left Logical
+pub mod sll {
+    use super::*;
+    #[test]
+    fn easy_test() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // something
+        //                                R-type        s1    s2  (shamt) SLL
+        let instructions: Vec<u32> = vec![0b000000_00000_10001_10010_00000_000000];
+        datapath.initialize(instructions)?;
+
+        datapath.registers.gpr[0b10001] = 123;
+        datapath.registers.gpr[0b10010] = 321;
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.gpr[0b10010], 123);
+        Ok(())
+    }
+
+    #[test]
+    fn mid_test() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // Shift left by two logical
+        //                                R-type        s1    s2  (shamt) SLL
+        let instructions: Vec<u32> = vec![0b000000_00000_10001_10010_00010_000000];
+        datapath.initialize(instructions)?;
+
+        datapath.registers.gpr[0b10001] = 0b1010;
+        datapath.registers.gpr[0b10010] = 0;
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.gpr[0b10010], 0b101000);
+        Ok(())
+    }
+
+    #[test]
+    fn hard_test_sign_extension() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // Shift left by two logical
+        //                                R-type        s1    s2  (shamt) SLL
+        let instructions: Vec<u32> = vec![0b000000_00000_10001_10010_00010_000000];
+        datapath.initialize(instructions)?;
+
+        datapath.registers.gpr[0b10001] = 0x7fffffff;
+        datapath.registers.gpr[0b10010] = 0x10101011;
+
+        datapath.execute_instruction();
+        println!("hmm {:#02x}", datapath.registers.gpr[0b10010]);
+        assert_eq!(datapath.registers.gpr[0b10010], 0xffff_ffff__ffff_fffc);
+        Ok(())
+    }
+}
+
 pub mod slt {
     use super::*;
 

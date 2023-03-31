@@ -935,6 +935,7 @@ impl MipsDatapath {
                     FUNCT_SUB | FUNCT_DSUB | FUNCT_DSUBU => AluControl::Subtraction,
                     FUNCT_AND => AluControl::And,
                     FUNCT_OR => AluControl::Or,
+                    FUNCT_SLL => AluControl::ShiftLeftLogical(self.state.shamt),
                     FUNCT_SLT => AluControl::SetOnLessThanSigned,
                     FUNCT_SLTU => AluControl::SetOnLessThanUnsigned,
                     FUNCT_SOP32 | FUNCT_SOP36 => match self.state.shamt as u8 {
@@ -1027,6 +1028,9 @@ impl MipsDatapath {
             AluControl::SetOnLessThanUnsigned => (input1 < input2) as u64,
             AluControl::And => input1 & input2,
             AluControl::Or => input1 | input2,
+
+            // shift amount should be set by the ALU control unit. got to make some variable that gets set
+            AluControl::ShiftLeftLogical(shamt) => input2 << shamt,
             AluControl::LeftShift16 => input2 << 16,
             AluControl::Not => !input1,
             AluControl::MultiplicationSigned => ((input1 as i128) * (input2 as i128)) as u64,
