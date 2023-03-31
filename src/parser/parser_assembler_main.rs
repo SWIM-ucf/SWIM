@@ -114,7 +114,7 @@ pub fn read_instructions(
 
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0, shamt
                 instruction.binary = append_binary(instruction.binary, 0b100001, 6); // funct code
-                //addu
+                                                                                     //addu
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 let info = InstructionDescription{
