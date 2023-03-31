@@ -4,6 +4,7 @@ pub const FUNCT_SYSCALL: u8 = 0b001100;
 
 pub const FUNCT_SLL: u8 = 0b000000;
 pub const FUNCT_ADD: u8 = 0b100000;
+pub const FUNCT_ADDU: u8 = 0b100001;
 pub const FUNCT_SUB: u8 = 0b100010;
 pub const FUNCT_AND: u8 = 0b100100;
 pub const FUNCT_OR: u8 = 0b100101;
@@ -126,7 +127,7 @@ pub fn reg_width_by_funct(funct: u8) -> Option<RegWidth> {
         // `syscall` does not have a register width associated with it,
         // but is set for the purposes of a default signal value.
         FUNCT_SYSCALL => Some(RegWidth::DoubleWord),
-        FUNCT_ADD | FUNCT_SUB | FUNCT_SLL => Some(RegWidth::Word),
+        FUNCT_ADD | FUNCT_ADDU | FUNCT_SUB | FUNCT_SLL => Some(RegWidth::Word),
         FUNCT_AND | FUNCT_OR | FUNCT_SLT | FUNCT_SLTU => Some(RegWidth::DoubleWord),
         FUNCT_DADD | FUNCT_DSUB => Some(RegWidth::DoubleWord),
         FUNCT_DADDU | FUNCT_DSUBU => Some(RegWidth::DoubleWord),
