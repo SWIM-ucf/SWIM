@@ -39,6 +39,18 @@ mod read_instructions_tests {
     }
 
     #[test]
+    fn read_instructions_addu() {
+        let file_string = "addu $t1, $t2, $t3".to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001010010110100100000100001
+        );
+    }
+
+    #[test]
     fn read_instructions_sub() {
         let file_string = "sub $t1, $s6, $t2".to_string();
 
@@ -872,7 +884,7 @@ fn create_binary_vec_works_with_data() {
 
 #[test]
 fn read_instructions_recognizes_valid_but_unsupported_instructions() {
-    let program_info = parser("addu $t1, $t2, $t3\ndsrav $t1, $t2, $t3\n".to_string()).0;
+    let program_info = parser("nor $t1, $t2, $t3\ndsrav $t1, $t2, $t3\n".to_string()).0;
 
     assert_eq!(
         program_info.instructions[0].errors[0].error_name,

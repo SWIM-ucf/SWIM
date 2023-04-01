@@ -102,6 +102,27 @@ pub fn read_instructions(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
+            "addu" => {
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0, shamt
+                instruction.binary = append_binary(instruction.binary, 0b100001, 6); // funct code
+                                                                                     //addu
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                let info = InstructionDescription{
+                    syntax: "addu rd, rs, rt".to_string(),
+                    description: "Adds the 32-bit values in `rs` and `rt`, and places the result in `rd`.\n\nIgnores overflow.".to_string(),
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+            }
             "sub" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
 
