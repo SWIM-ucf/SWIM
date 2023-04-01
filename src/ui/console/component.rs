@@ -68,7 +68,7 @@ pub fn console(props: &Consoleprops) -> Html {
                 </div>
             } else if *active_tab == TabState::Datapath {
                 <div class="datapath-wrapper">
-                    <VisualDatapath datapath={props.datapath.clone()} svg_path={"static/datapath.svg"} size={datapath_size} />
+                    <VisualDatapath datapath={props.datapath.clone()} svg_path={"static/datapath_full.svg"} size={datapath_size} />
                 </div>
             } else {
 
