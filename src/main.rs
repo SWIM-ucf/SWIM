@@ -47,7 +47,7 @@ fn app() -> Html {
     // use_state_eq hook is created so that the component can be updated
     // when the text model changes.
     //let text_model = use_mut_ref(|| TextModel::create(&code, Some(&language), None).unwrap());
-    let text_model = use_mut_ref(|| TextModel::create(CONTENT, Some(&"mips"), None).unwrap());
+    let text_model = use_mut_ref(|| TextModel::create(CONTENT, Some("mips"), None).unwrap());
 
     // Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
