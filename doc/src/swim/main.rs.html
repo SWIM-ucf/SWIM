@@ -572,22 +572,22 @@
 <span class="comment">// To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
-// const CONTENT: &amp;str = include_str!(&quot;../static/example.asm&quot;);
+</span><span class="kw">const </span>CONTENT: <span class="kw-2">&amp;</span>str = <span class="macro">include_str!</span>(<span class="string">&quot;../static/example.asm&quot;</span>);
 
-</span><span class="attr">#[function_component(App)]
+<span class="attr">#[function_component(App)]
 </span><span class="kw">fn </span>app() -&gt; Html {
     <span class="comment">// This contains the binary representation of &quot;ori $s0, $zero, 12345&quot;, which
     // stores 12345 in register $s0.
-    </span><span class="kw">let </span>code = String::from(<span class="string">&quot;ori $s0, $zero, 12345\n&quot;</span>);
-    <span class="kw">let </span>language = String::from(<span class="string">&quot;mips&quot;</span>);
+    // let code = String::from(&quot;ori $s0, $zero, 12345\n&quot;);
+    // let language = String::from(&quot;mips&quot;);
 
-    <span class="comment">// This is the initial text model with default text contents. The
+    // This is the initial text model with default text contents. The
     // use_state_eq hook is created so that the component can be updated
     // when the text model changes.
-    </span><span class="kw">let </span>text_model = use_mut_ref(|| TextModel::create(<span class="kw-2">&amp;</span>code, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>language), <span class="prelude-val">None</span>).unwrap());
-    <span class="comment">// let fib_model = use_mut_ref(|| TextModel::create(CONTENT, Some(&amp;&quot;mips&quot;), None).unwrap());
+    //let text_model = use_mut_ref(|| TextModel::create(&amp;code, Some(&amp;language), None).unwrap());
+    </span><span class="kw">let </span>text_model = use_mut_ref(|| TextModel::create(CONTENT, <span class="prelude-val">Some</span>(<span class="string">&quot;mips&quot;</span>), <span class="prelude-val">None</span>).unwrap());
 
-    // Setup the array that would store decorations applied to the
+    <span class="comment">// Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
     </span><span class="kw">let </span>hover_jsarray = js_sys::Array::new();
     <span class="kw">let </span>hover_decor_array = use_mut_ref(js_sys::Array::new);
