@@ -1,5 +1,3 @@
-# To contribute to this project https://github.com/SWIM-ucf
-# 
 # Delay slots are not implemented for this emulator, keep this in
 # mind when writing Jump or Branch instructions. For information
 # on delay slots read https://en.wikipedia.org/wiki/Delay_slot.
@@ -13,65 +11,66 @@
 
 fib(int):
         addiu   $sp,$sp,-40
-        sw      $31,36($sp)
+        sw      $ra,36($sp)
         sw      $fp,32($sp)
-        sw      $16,28($sp)
+        sw      $s0,28($sp)
         move    $fp,$sp
-        sw      $4,40($fp)
-        lw      $2,40($fp)
+        sw      $a0,40($fp)
+        lw      $v0,40($fp)
         nop
-        slt     $2,$2,2
-        beq     $2,$0,$L2
-        nop
-
-        lw      $2,40($fp)
-        b       $L3
+        addi    $s1,$zero,2
+        slt     $v0,$v0,$s1
+        beq     $v0,$zero,L2
         nop
 
-$L2:
-        lw      $2,40($fp)
+        lw      $v0,40($fp)
+        b       L3
         nop
-        addiu   $2,$2,-1
-        move    $4,$2
+
+L2:
+        lw      $v0,40($fp)
+        nop
+        addiu   $v0,$v0,-1
+        move    $a0,$v0
         jal     fib(int)
         nop
 
-        move    $16,$2
-        lw      $2,40($fp)
+        move    $s0,$v0
+        lw      $v0,40($fp)
         nop
-        addiu   $2,$2,-2
-        move    $4,$2
+        addiu   $v0,$v0,-2
+        move    $a0,$v0
         jal     fib(int)
         nop
 
-        addu    $2,$16,$2
-$L3:
+        addu    $v0,$s0,$v0
+L3:
         move    $sp,$fp
-        lw      $31,36($sp)
+        lw      $ra,36($sp)
         lw      $fp,32($sp)
-        lw      $16,28($sp)
+        lw      $s0,28($sp)
         addiu   $sp,$sp,40
-        jr      $31
+        jr      $ra
         nop
 
 main:
         addiu   $sp,$sp,-40
-        sw      $31,36($sp)
+        sw      $ra,36($sp)
         sw      $fp,32($sp)
         move    $fp,$sp
-        li      $2,5            # This is where "n" is set
-        sw      $2,24($fp)
-        lw      $4,24($fp)
+        li      $v0,5            # This is where "n" is set
+        sw      $v0,24($fp)
+        lw      $a0,24($fp)
         jal     fib(int)
         nop
 
-        sw      $2,28($fp)
-        lw      $2,28($fp)      # This is where the final answer gets loaded off the stack
+        sw      $v0,28($fp)
+        lw      $v0,28($fp)      # This is where the final answer gets loaded off the stack
         move    $sp,$fp
-        lw      $31,36($sp)
+        lw      $ra,36($sp)
         lw      $fp,32($sp)
         addiu   $sp,$sp,40
-        jr      $31
+        jr      $ra
         nop
 
 # Here's the demo code in C:

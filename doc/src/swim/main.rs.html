@@ -530,6 +530,12 @@
 <a href="#530" id="530">530</a>
 <a href="#531" id="531">531</a>
 <a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attr">#[cfg(test)]
@@ -563,7 +569,12 @@
 <span class="kw">use </span>yew::{html, Html, Properties};
 <span class="kw">use </span>yew_hooks::prelude::<span class="kw-2">*</span>;
 
-<span class="attr">#[function_component(App)]
+<span class="comment">// To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
+// and comment the code, language, and text_model lines. IMPORTANT:
+// rename fib_model to text_model to have it work.
+// const CONTENT: &amp;str = include_str!(&quot;../static/example.asm&quot;);
+
+</span><span class="attr">#[function_component(App)]
 </span><span class="kw">fn </span>app() -&gt; Html {
     <span class="comment">// This contains the binary representation of &quot;ori $s0, $zero, 12345&quot;, which
     // stores 12345 in register $s0.
@@ -574,8 +585,9 @@
     // use_state_eq hook is created so that the component can be updated
     // when the text model changes.
     </span><span class="kw">let </span>text_model = use_mut_ref(|| TextModel::create(<span class="kw-2">&amp;</span>code, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>language), <span class="prelude-val">None</span>).unwrap());
+    <span class="comment">// let fib_model = use_mut_ref(|| TextModel::create(CONTENT, Some(&amp;&quot;mips&quot;), None).unwrap());
 
-    <span class="comment">// Setup the array that would store decorations applied to the
+    // Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
     </span><span class="kw">let </span>hover_jsarray = js_sys::Array::new();
     <span class="kw">let </span>hover_decor_array = use_mut_ref(js_sys::Array::new);
