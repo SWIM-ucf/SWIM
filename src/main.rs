@@ -34,20 +34,20 @@ use yew_hooks::prelude::*;
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
-// const CONTENT: &str = include_str!("../static/example.asm");
+const CONTENT: &str = include_str!("../static/example.asm");
 
 #[function_component(App)]
 fn app() -> Html {
     // This contains the binary representation of "ori $s0, $zero, 12345", which
     // stores 12345 in register $s0.
-    let code = String::from("ori $s0, $zero, 12345\n");
-    let language = String::from("mips");
+    // let code = String::from("ori $s0, $zero, 12345\n");
+    // let language = String::from("mips");
 
     // This is the initial text model with default text contents. The
     // use_state_eq hook is created so that the component can be updated
     // when the text model changes.
-    let text_model = use_mut_ref(|| TextModel::create(&code, Some(&language), None).unwrap());
-    // let fib_model = use_mut_ref(|| TextModel::create(CONTENT, Some(&"mips"), None).unwrap());
+    //let text_model = use_mut_ref(|| TextModel::create(&code, Some(&language), None).unwrap());
+    let text_model = use_mut_ref(|| TextModel::create(CONTENT, Some("mips"), None).unwrap());
 
     // Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
