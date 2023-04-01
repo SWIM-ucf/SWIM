@@ -931,7 +931,9 @@ impl MipsDatapath {
             AluOp::LeftShift16 => AluControl::LeftShift16,
             AluOp::UseFunctField => {
                 match self.state.funct as u8 {
-                    FUNCT_ADD | FUNCT_DADD | FUNCT_DADDU => AluControl::Addition,
+                    // In the future if/when interrupts are implemented, unsigned adds should be
+                    // dealt with differently
+                    FUNCT_ADD | FUNCT_ADDU | FUNCT_DADD | FUNCT_DADDU => AluControl::Addition,
                     FUNCT_SUB | FUNCT_DSUB | FUNCT_DSUBU => AluControl::Subtraction,
                     FUNCT_AND => AluControl::And,
                     FUNCT_OR => AluControl::Or,

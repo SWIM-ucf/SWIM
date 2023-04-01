@@ -43,7 +43,7 @@ pub struct VisualDatapathProps {
     /// A path to the location of the datapath SVG file. This path should be
     /// relative to the project root.
     ///
-    /// For example, "`static/datapath.svg`".
+    /// For example, "`static/datapath_full.svg`".
     pub svg_path: String,
 
     pub size: Option<DatapathSize>,
