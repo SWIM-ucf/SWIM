@@ -31,6 +31,14 @@ pub struct FpuState {
     pub function: u32,
     pub branch_flag: bool,
 
+    /// The line that comes out of the condition code register file. Should contain
+    /// 1 for true or 0 for false.
+    pub condition_code_bit: u8,
+    /// The inversion of `condition_code_bit`.
+    pub condition_code_bit_inverted: u8,
+    /// The result of the multiplexer with `condition_code_bit` and `condition_code_bit_inverted`.
+    pub condition_code_mux: u8,
+
     pub data_from_main_processor: u64,
     pub data_writeback: u64,
     pub destination: usize,
@@ -63,11 +71,13 @@ impl MipsFpCoprocessor {
         self.comparator();
         self.write_condition_code();
         self.write_fp_register_to_memory();
+        self.set_condition_code_line();
     }
 
     pub fn stage_memory(&mut self) {
         self.write_data();
         self.set_data_writeback();
+        self.set_fpu_branch();
     }
 
     pub fn stage_writeback(&mut self) {
@@ -528,6 +538,22 @@ impl MipsFpCoprocessor {
     }
 
     // ======================= Memory (MEM) =======================
+    /// Set the data line that goes out of the condition code register file.
+    fn set_condition_code_line(&mut self) {
+        // The MIPS architecture supports more than one condition code, but SWIM
+        // manually uses only one. This stubs the possible use of more than one
+        // for future development.
+        let selected_register_data = match self.signals.cc {
+            Cc::Cc0 => self.condition_code,
+        };
+
+        // This only considers one bit of the selected condition code register.
+        self.state.condition_code_bit = match selected_register_data % 2 {
+            0 => 0,
+            _ => 1,
+        };
+    }
+
     /// Set the data line between the multiplexer after the `Data` register and the
     /// multiplexer in the main processor controlled by the [`DataWrite`] control signal.
     fn set_data_writeback(&mut self) {
@@ -536,6 +562,34 @@ impl MipsFpCoprocessor {
             FpuRegWidth::Word => self.state.sign_extend_data,
             FpuRegWidth::DoubleWord => self.data,
         }
+    }
+
+    /// Simulate the logic between `self.state.condition_code_bit` and the FPU branch
+    /// AND gate.
+    fn set_fpu_branch(&mut self) {
+        // Invert the condition code. (In this case, instead of using a bitwise NOT, this
+        // will invert only the last digit and leave the rest as 0.)
+        self.state.condition_code_bit_inverted = match self.state.condition_code_bit % 2 {
+            0 => 1,
+            _ => 0,
+        };
+
+        // Run the multiplexer.
+        self.state.condition_code_mux = match self.state.branch_flag {
+            // 0 - Use inverted condition code.
+            false => self.state.condition_code_bit_inverted,
+            // 1 - Use condition code value as-is.
+            true => self.state.condition_code_bit,
+        };
+
+        // Set the result of the AND gate.
+        self.signals.fpu_take_branch = if self.signals.fpu_branch == FpuBranch::YesBranch
+            && self.state.condition_code_mux == 1
+        {
+            FpuTakeBranch::YesBranch
+        } else {
+            FpuTakeBranch::NoBranch
+        };
     }
 
     // ====================== Writeback (WB) ======================
