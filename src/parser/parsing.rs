@@ -301,7 +301,6 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
             //this chunk handles how we read .data
         } else {
             let mut data = Data {
-                line_number: i,
                 ..Default::default()
             };
             if labels.is_empty() {

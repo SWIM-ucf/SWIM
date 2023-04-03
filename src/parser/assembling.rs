@@ -12,9 +12,7 @@ use crate::parser::parser_structs_and_enums::RegisterType::{FloatingPoint, Gener
 use crate::parser::parser_structs_and_enums::TokenType::{
     Byte, Float, Half, Space, Word, ASCII, ASCIIZ,
 };
-use crate::parser::parser_structs_and_enums::{
-    Data, Error, Instruction, OperandType, RegisterType, TokenType, FP_REGISTERS, GP_REGISTERS,
-};
+use crate::parser::parser_structs_and_enums::{Error, Instruction, OperandType, RegisterType, TokenType, FP_REGISTERS, GP_REGISTERS, MonacoLineInfo, LineType};
 use std::collections::HashMap;
 
 ///This function takes an instruction whose operands it is supposed to read, the order of expected operand types and then
@@ -439,9 +437,16 @@ pub fn read_immediate(
 }
 
 ///Takes the data list and finds the actual values for each data entry that will be put into memory
-pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
+pub fn assemble_data_binary(lines: &mut [MonacoLineInfo]) -> Vec<u8> {
     let mut vec_of_data: Vec<u8> = Vec::new();
-    for datum in data_list.iter_mut() {
+    for line in lines {
+        let mut datum = match line.line_type.clone() {
+            LineType::Data(datum) => {
+                datum
+            }
+            _ => {continue;}
+        };
+
         datum.data_number = vec_of_data.len();
         match &*datum.data_type.token_name.to_lowercase() {
             ".ascii" => {
@@ -450,14 +455,14 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     value.token_type = ASCII;
                     let chars = value.token_name.as_bytes();
                     if chars[0] != b'\"' || chars[chars.len() - 1] != b'\"' || chars.len() <= 2 {
-                        datum.errors.push(Error {
+                        line.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
                             token_causing_error: value.token_name.to_string(),
                             start_end_columns: value.start_end_columns,
                             message: "".to_string(),
                         });
                     } else if !chars.is_ascii() {
-                        datum.errors.push(Error {
+                        line.errors.push(Error {
                             error_name: NonASCIIString,
                             token_causing_error: value.token_name.to_string(),
                             start_end_columns: value.start_end_columns,
@@ -476,14 +481,14 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     value.token_type = ASCIIZ;
                     let chars = value.token_name.as_bytes();
                     if chars[0] != b'\"' || chars[chars.len() - 1] != b'\"' || chars.len() <= 2 {
-                        datum.errors.push(Error {
+                        line.errors.push(Error {
                             error_name: ImproperlyFormattedASCII,
                             token_causing_error: value.token_name.to_string(),
                             start_end_columns: value.start_end_columns,
                             message: "".to_string(),
                         });
                     } else if !chars.is_ascii() {
-                        datum.errors.push(Error {
+                        line.errors.push(Error {
                             error_name: NonASCIIString,
                             token_causing_error: value.token_name.to_string(),
                             start_end_columns: value.start_end_columns,
@@ -503,14 +508,14 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     //this if block handles chars
                     if value.token_name.starts_with('\'') {
                         if !value.token_name.is_ascii() {
-                            datum.errors.push(Error {
+                            line.errors.push(Error {
                                 error_name: NonASCIIChar,
                                 token_causing_error: value.token_name.to_string(),
                                 start_end_columns: value.start_end_columns,
                                 message: "".to_string(),
                             });
                         } else if value.token_name.len() != 3 || !value.token_name.ends_with('\'') {
-                            datum.errors.push(Error {
+                            line.errors.push(Error {
                                 error_name: ImproperlyFormattedChar,
                                 token_causing_error: value.token_name.clone().to_string(),
                                 start_end_columns: value.start_end_columns,
@@ -528,7 +533,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                             read_immediate(&value.token_name, value.start_end_columns, 8);
                         vec_of_data.push(immediate_results.0 as u8);
                         if immediate_results.1.is_some() {
-                            datum.errors.push(immediate_results.1.unwrap());
+                            line.errors.push(immediate_results.1.unwrap());
                         }
                     }
                 }
@@ -549,7 +554,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                         vec_of_data.push((float_bits >> 8) as u8);
                         vec_of_data.push(float_bits as u8);
                     } else {
-                        datum.errors.push(Error {
+                        line.errors.push(Error {
                             error_name: NonFloatImmediate,
                             token_causing_error: value.token_name.to_string(),
                             start_end_columns: value.start_end_columns,
@@ -570,7 +575,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                         vec_of_data.push((float_bits >> 8) as u8);
                         vec_of_data.push(float_bits as u8);
                     } else {
-                        datum.errors.push(Error {
+                        line.errors.push(Error {
                             error_name: NonFloatImmediate,
                             token_causing_error: value.token_name.to_string(),
                             start_end_columns: value.start_end_columns,
@@ -590,7 +595,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     vec_of_data.push(immediate_results.0 as u8);
 
                     if immediate_results.1.is_some() {
-                        datum.errors.push(immediate_results.1.unwrap());
+                        line.errors.push(immediate_results.1.unwrap());
                     }
                 }
             }
@@ -606,7 +611,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     }
 
                     if immediate_results.1.is_some() {
-                        datum.errors.push(immediate_results.1.unwrap());
+                        line.errors.push(immediate_results.1.unwrap());
                     }
                 }
             }
@@ -616,7 +621,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                     let immediate_results =
                         read_immediate(&value.token_name, value.start_end_columns, 32);
                     if immediate_results.1.is_some() {
-                        datum.errors.push(immediate_results.1.unwrap());
+                        line.errors.push(immediate_results.1.unwrap());
                     }
 
                     //push all four bytes of the word to the vector
@@ -633,7 +638,7 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                 vec_of_data.push(0);
                 vec_of_data.push(0);
             }
-            _ => datum.errors.push(Error {
+            _ => line.errors.push(Error {
                 error_name: UnrecognizedDataType,
                 token_causing_error: datum.data_type.token_name.to_string(),
                 start_end_columns: datum.data_type.start_end_columns,

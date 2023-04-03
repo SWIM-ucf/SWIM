@@ -822,7 +822,7 @@ mod helper_functions {
             &data,
             &mut monaco_line_info_vec,
         );
-        assemble_data_binary(&mut data);
+        assemble_data_binary(&mut monaco_line_info_vec);
 
         let labels: HashMap<String, usize> = create_label_map(&mut instruction_list, &mut data);
 
@@ -846,7 +846,7 @@ fn create_binary_vec_works_with_data() {
         &program_info.data,
         &mut program_info.monaco_line_info,
     );
-    let vec_of_data = assemble_data_binary(&mut program_info.data);
+    let vec_of_data = assemble_data_binary(&mut program_info.monaco_line_info);
 
     let labels: HashMap<String, usize> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);

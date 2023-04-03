@@ -1,8 +1,6 @@
 use crate::parser::parser_structs_and_enums::ErrorType::IncorrectNumberOfOperands;
 use crate::parser::parser_structs_and_enums::TokenType::Operator;
-use crate::parser::parser_structs_and_enums::{
-    Data, Error, Instruction, MonacoLineInfo, PseudoDescription, Token,
-};
+use crate::parser::parser_structs_and_enums::{Data, Error, Instruction, MonacoLineInfo, PseudoDescription, Token};
 use std::collections::HashMap;
 
 ///Iterates through the instruction list and translates pseudo-instructions into real instructions.
@@ -15,6 +13,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     data: &Vec<Data>,
     monaco_line_info: &mut [MonacoLineInfo],
 ) {
+
     //figure out list of labels to be used for lw and sw labels
     let mut list_of_labels: Vec<String> = Vec::new();
     for instruction in instructions.clone() {

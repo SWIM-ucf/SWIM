@@ -26,7 +26,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
         &mut program_info.monaco_line_info,
     );
 
-    let vec_of_data = assemble_data_binary(&mut program_info.data);
+    let vec_of_data = assemble_data_binary(&mut program_info.monaco_line_info);
 
     let labels: HashMap<String, usize> =
         create_label_map(&mut program_info.instructions, &mut program_info.data);
@@ -1125,7 +1125,7 @@ pub fn read_instructions(
                 );
 
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
-                instruction.binary = append_binary(instruction.binary, 0b1010, 4);
+                instruction.binary = append_binary(instruction.binary, 0b0010, 4);
                 //EQ
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty

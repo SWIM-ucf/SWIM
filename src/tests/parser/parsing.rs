@@ -810,8 +810,8 @@ fn create_label_map_generates_map_on_no_errors() {
 fn create_label_map_recognizes_data_labels() {
     let mut monaco_line_info_vec = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\n".to_string());
     let (mut instruction_list, mut data) =
-        separate_data_and_text(&mut monaco_line_info_vec.clone());
-    assemble_data_binary(&mut data);
+        separate_data_and_text(&mut monaco_line_info_vec);
+    assemble_data_binary(&mut monaco_line_info_vec);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut instruction_list,
         &data,
@@ -832,8 +832,8 @@ fn create_label_map_recognizes_data_labels() {
 fn create_label_map_recognizes_data_labels_and_text_together() {
     let mut monaco_line_info_vec = tokenize_program(".data\nlabel: .byte 'a'\nlabel2: .float 200\nlabel3: .word 200\n.text\nadd $t1, $t2, $t3\ninstruction: sub $t1, $t2, $t3\n".to_string());
     let (mut instruction_list, mut data) =
-        separate_data_and_text(&mut monaco_line_info_vec.clone());
-    assemble_data_binary(&mut data);
+        separate_data_and_text(&mut monaco_line_info_vec);
+    assemble_data_binary(&mut monaco_line_info_vec);
     expand_pseudo_instructions_and_assign_instruction_numbers(
         &mut instruction_list,
         &data,

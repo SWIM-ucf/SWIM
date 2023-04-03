@@ -267,8 +267,8 @@ mod read_label_relative_tests {
 #[test]
 fn assemble_data_binary_works_one_word() {
     let mut lines = tokenize_program(".data\nlabel: .word 200".to_string());
-    let mut modified_data = separate_data_and_text(&mut lines).1;
-    let result = assemble_data_binary(&mut modified_data);
+    separate_data_and_text(&mut lines);
+    let result = assemble_data_binary(&mut lines);
 
     assert_eq!(result[0], 0);
     assert_eq!(result[1], 0);
@@ -279,8 +279,8 @@ fn assemble_data_binary_works_one_word() {
 #[test]
 fn assemble_data_binary_works_multiple_words() {
     let mut lines = tokenize_program(".data\nlabel: .word 200, 45, -12".to_string());
-    let mut modified_data = separate_data_and_text(&mut lines).1;
-    let result = assemble_data_binary(&mut modified_data);
+    separate_data_and_text(&mut lines);
+    let result = assemble_data_binary(&mut lines);
 
     assert_eq!(result[0], 0);
     assert_eq!(result[1], 0);
@@ -299,8 +299,8 @@ fn assemble_data_binary_works_multiple_words() {
 #[test]
 fn assemble_data_binary_works_half_words() {
     let mut lines = tokenize_program(".data\nlabel: .half 200, 45, -12".to_string());
-    let mut modified_data = separate_data_and_text(&mut lines).1;
-    let result = assemble_data_binary(&mut modified_data);
+    separate_data_and_text(&mut lines);
+    let result = assemble_data_binary(&mut lines);
 
     assert_eq!(result[0], 0);
     assert_eq!(result[1], 200);
@@ -314,8 +314,8 @@ fn assemble_data_binary_works_half_words() {
 #[test]
 fn assemble_data_binary_works_for_spaces() {
     let mut lines = tokenize_program(".data\nlabel: .space 3, 1".to_string());
-    let mut modified_data = separate_data_and_text(&mut lines).1;
-    let result = assemble_data_binary(&mut modified_data);
+    separate_data_and_text(&mut lines);
+    let result = assemble_data_binary(&mut lines);
 
     assert_eq!(result[0], 0);
     assert_eq!(result[1], 0);
@@ -327,8 +327,8 @@ fn assemble_data_binary_works_for_spaces() {
 #[test]
 fn assemble_data_binary_works_for_int_bytes() {
     let mut lines = tokenize_program(".data\nlabel: .byte 255, -128".to_string());
-    let mut modified_data = separate_data_and_text(&mut lines).1;
-    let result = assemble_data_binary(&mut modified_data);
+    separate_data_and_text(&mut lines);
+    let result = assemble_data_binary(&mut lines);
 
     assert_eq!(result[0], 255);
     assert_eq!(result[1], 128);
@@ -337,8 +337,8 @@ fn assemble_data_binary_works_for_int_bytes() {
 #[test]
 fn assemble_data_binary_works_for_char_bytes() {
     let mut lines = tokenize_program(".data\nlabel: .byte 'a', '?'".to_string());
-    let mut modified_data = separate_data_and_text(&mut lines).1;
-    let result = assemble_data_binary(&mut modified_data);
+    separate_data_and_text(&mut lines);
+    let result = assemble_data_binary(&mut lines);
 
     assert_eq!(result[0], 97);
     assert_eq!(result[1], 63);
@@ -347,8 +347,8 @@ fn assemble_data_binary_works_for_char_bytes() {
 #[test]
 fn assemble_data_binary_works_for_ascii() {
     let mut lines = tokenize_program(".data\nlabel: .ascii \"abc de\"".to_string());
-    let mut modified_data = separate_data_and_text(&mut lines).1;
-    let result = assemble_data_binary(&mut modified_data);
+    separate_data_and_text(&mut lines);
+    let result = assemble_data_binary(&mut lines);
 
     assert_eq!(result[0], 97);
     assert_eq!(result[1], 98);
@@ -361,8 +361,8 @@ fn assemble_data_binary_works_for_ascii() {
 #[test]
 fn assemble_data_binary_works_for_asciiz() {
     let mut lines = tokenize_program(".data\nlabel: .asciiz \"abcde\"".to_string());
-    let mut modified_data = separate_data_and_text(&mut lines).1;
-    let result = assemble_data_binary(&mut modified_data);
+    separate_data_and_text(&mut lines);
+    let result = assemble_data_binary(&mut lines);
 
     assert_eq!(result[0], 97);
     assert_eq!(result[1], 98);
@@ -397,8 +397,8 @@ fn assemble_data_binary_gives_errors_on_non_ascii_characters_for_ascii_asciiz_an
 #[test]
 fn assemble_data_binary_works_for_float() {
     let mut lines = tokenize_program(".data\nlabel: .float 0.234, -121.8, 20".to_string());
-    let mut modified_data = separate_data_and_text(&mut lines).1;
-    let result = assemble_data_binary(&mut modified_data);
+    separate_data_and_text(&mut lines);
+    let result = assemble_data_binary(&mut lines);
 
     assert_eq!(result[0], 62);
     assert_eq!(result[1], 111);
@@ -417,8 +417,8 @@ fn assemble_data_binary_works_for_float() {
 #[test]
 fn assemble_data_binary_works_for_double() {
     let mut lines = tokenize_program(".data\nlabel: .double 0.234, -121.8, 20".to_string());
-    let mut modified_data = separate_data_and_text(&mut lines).1;
-    let result = assemble_data_binary(&mut modified_data);
+    separate_data_and_text(&mut lines);
+    let result = assemble_data_binary(&mut lines);
 
     assert_eq!(result[0], 0b00111111);
     assert_eq!(result[1], 0b11001101);
@@ -451,8 +451,8 @@ fn assemble_data_binary_works_for_double() {
 #[test]
 fn assemble_data_binary_word_recognizes_hex() {
     let mut lines = tokenize_program(".data\nlabel: .word 0xfa".to_string());
-    let mut modified_data = separate_data_and_text(&mut lines).1;
-    let result = assemble_data_binary(&mut modified_data);
+    separate_data_and_text(&mut lines);
+    let result = assemble_data_binary(&mut lines);
 
     assert_eq!(result[0], 0);
     assert_eq!(result[1], 0);
@@ -463,8 +463,8 @@ fn assemble_data_binary_word_recognizes_hex() {
 #[test]
 fn assemble_data_binary_defaults_unfinished_labels_to_be_empty_words() {
     let mut lines = tokenize_program(".data\nlabel: \nsecond: .ascii \"ABC\"".to_string());
-    let mut modified_data = separate_data_and_text(&mut lines).1;
-    let result = assemble_data_binary(&mut modified_data);
+    separate_data_and_text(&mut lines);
+    let result = assemble_data_binary(&mut lines);
 
     assert_eq!(result[0], 0);
     assert_eq!(result[1], 0);
