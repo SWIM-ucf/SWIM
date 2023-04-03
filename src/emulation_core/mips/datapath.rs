@@ -1161,7 +1161,7 @@ impl MipsDatapath {
             return;
         }
 
-        if let FpuBranch::YesBranch = self.coprocessor.signals.fpu_branch {
+        if let FpuTakeBranch::YesBranch = self.coprocessor.signals.fpu_take_branch {
             self.datapath_signals.general_branch = GeneralBranch::YesBranch;
         }
     }
