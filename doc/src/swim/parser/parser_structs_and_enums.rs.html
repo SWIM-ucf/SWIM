@@ -956,6 +956,7 @@
 <a href="#956" id="956">956</a>
 <a href="#957" id="957">957</a>
 <a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::default::Default;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::fmt::Formatter;
@@ -970,6 +971,7 @@
     <span class="kw">pub </span>console_out_post_assembly: String,
     <span class="kw">pub </span>instructions: Vec&lt;Instruction&gt;,
     <span class="kw">pub </span>data: Vec&lt;Data&gt;,
+    <span class="kw">pub </span>pc_starting_point: usize,
 }
 
 <span class="attr">#[derive(Clone, Debug, Default, Eq, PartialEq)]

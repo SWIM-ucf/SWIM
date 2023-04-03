@@ -1548,6 +1548,20 @@
 <a href="#1548" id="1548">1548</a>
 <a href="#1549" id="1549">1549</a>
 <a href="#1550" id="1550">1550</a>
+<a href="#1551" id="1551">1551</a>
+<a href="#1552" id="1552">1552</a>
+<a href="#1553" id="1553">1553</a>
+<a href="#1554" id="1554">1554</a>
+<a href="#1555" id="1555">1555</a>
+<a href="#1556" id="1556">1556</a>
+<a href="#1557" id="1557">1557</a>
+<a href="#1558" id="1558">1558</a>
+<a href="#1559" id="1559">1559</a>
+<a href="#1560" id="1560">1560</a>
+<a href="#1561" id="1561">1561</a>
+<a href="#1562" id="1562">1562</a>
+<a href="#1563" id="1563">1563</a>
+<a href="#1564" id="1564">1564</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::assembling::{assemble_data_binary, read_operands};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::OperandType::<span class="kw-2">*</span>;
@@ -1613,6 +1627,8 @@
             .address_to_line_number
             .push(instruction.line_number);
     }
+
+    program_info.pc_starting_point = determine_pc_starting_point(labels);
 
     (program_info.clone(), binary)
 }
@@ -3061,6 +3077,18 @@
     first &lt;&lt;= shift_amount;
     first |= second;
     first
+}
+
+<span class="doccomment">///returns the address of the labelled main instruction. If none exists, returns address of labelled start instruction.
+///Otherwise returns 0.
+</span><span class="kw">pub fn </span>determine_pc_starting_point(labels: HashMap&lt;String, usize&gt;) -&gt; usize {
+    <span class="kw">return match </span>labels.get(<span class="string">&quot;main&quot;</span>) {
+        <span class="prelude-val">Some</span>(main_address) =&gt; <span class="kw-2">*</span>main_address,
+        <span class="prelude-val">None </span>=&gt; <span class="kw">match </span>labels.get(<span class="string">&quot;start&quot;</span>) {
+            <span class="prelude-val">Some</span>(start_address) =&gt; <span class="kw-2">*</span>start_address,
+            <span class="prelude-val">None </span>=&gt; <span class="number">0</span>,
+        },
+    };
 }
 
 <span class="doccomment">///Creates a vector of u32 from the data found in the parser / assembler to put into memory.
