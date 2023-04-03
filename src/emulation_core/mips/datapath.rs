@@ -364,12 +364,12 @@ impl MipsDatapath {
             MemToReg::UsePcPlusFour => self.state.pc_plus_4,
         };
 
+        self.coprocessor.stage_memory();
+
         // PC calculation stuff from upper part of datapath
         self.calc_general_branch_signal();
         self.pick_pc_plus_4_or_relative_branch_addr_mux1();
         self.set_new_pc_mux2();
-
-        self.coprocessor.stage_memory();
     }
 
     /// Stage 5 of 5: Writeback (WB)
