@@ -528,7 +528,9 @@ impl MipsFpCoprocessor {
 
     /// Set the condition code (CC) register based on the result from the comparator.
     fn write_condition_code(&mut self) {
-        self.condition_code = self.state.comparator_result;
+        if let CcWrite::YesWrite = self.signals.cc_write {
+            self.condition_code = self.state.comparator_result;
+        }
     }
 
     /// Set the data line that goes from `Read Data 2` to the multiplexer in the main processor
