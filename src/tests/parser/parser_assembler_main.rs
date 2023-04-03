@@ -1062,16 +1062,28 @@ fn supported_instructions_are_recognized_by_parser() {
 }
 
 #[test]
-fn main_and_start_labelled_instructions_change_program_info_pc_starting_point(){
-    let result = parser("addi $t1, $t2, 100\nsw $t1, 400($zero)".to_string()).0.pc_starting_point;
+fn main_and_start_labelled_instructions_change_program_info_pc_starting_point() {
+    let result = parser("addi $t1, $t2, 100\nsw $t1, 400($zero)".to_string())
+        .0
+        .pc_starting_point;
     assert_eq!(result, 0);
 
-    let result = parser("addi $t1, $t2, 100\nsw $t1, 400($zero)\nmain: lw $t2, 320($zero)".to_string()).0.pc_starting_point;
+    let result =
+        parser("addi $t1, $t2, 100\nsw $t1, 400($zero)\nmain: lw $t2, 320($zero)".to_string())
+            .0
+            .pc_starting_point;
     assert_eq!(result, 8);
 
-    let result = parser("addi $t1, $t2, 100\nstart: sw $t1, 400($zero)\nlw $t2, 320($zero)".to_string()).0.pc_starting_point;
+    let result =
+        parser("addi $t1, $t2, 100\nstart: sw $t1, 400($zero)\nlw $t2, 320($zero)".to_string())
+            .0
+            .pc_starting_point;
     assert_eq!(result, 4);
 
-    let result = parser("addi $t1, $t2, 100\nstart: sw $t1, 400($zero)\nmain: lw $t2, 320($zero)".to_string()).0.pc_starting_point;
+    let result = parser(
+        "addi $t1, $t2, 100\nstart: sw $t1, 400($zero)\nmain: lw $t2, 320($zero)".to_string(),
+    )
+    .0
+    .pc_starting_point;
     assert_eq!(result, 8);
 }

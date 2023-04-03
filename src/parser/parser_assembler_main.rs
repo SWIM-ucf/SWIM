@@ -1517,22 +1517,14 @@ pub fn append_binary(mut first: u32, mut second: u32, shift_amount: u8) -> u32 {
 
 ///returns the address of the labelled main instruction. If none exists, returns address of labelled start instruction.
 ///Otherwise returns 0.
-pub fn determine_pc_starting_point(labels: HashMap<String, usize>) -> usize{
-    return match labels.get("main"){
-        Some(main_address) => {
-            *main_address
-        }
-        None => {
-            match labels.get("start"){
-                Some(start_address) => {
-                    *start_address
-                }
-                None => {
-                    0
-                }
-            }
-        }
-    }
+pub fn determine_pc_starting_point(labels: HashMap<String, usize>) -> usize {
+    return match labels.get("main") {
+        Some(main_address) => *main_address,
+        None => match labels.get("start") {
+            Some(start_address) => *start_address,
+            None => 0,
+        },
+    };
 }
 
 ///Creates a vector of u32 from the data found in the parser / assembler to put into memory.
