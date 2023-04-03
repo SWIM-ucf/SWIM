@@ -595,7 +595,7 @@ mod read_instructions_tests {
 
         assert_eq!(
             instruction_list[0].binary,
-            0b01000110000101100100100000111010
+            0b01000110000101100100100000110010
         )
     }
 
@@ -605,7 +605,7 @@ mod read_instructions_tests {
 
         assert_eq!(
             instruction_list[0].binary,
-            0b01000110001101100100100000111010
+            0b01000110001101100100100000110010
         )
     }
 
