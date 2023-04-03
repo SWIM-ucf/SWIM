@@ -283,6 +283,7 @@ pub mod floating_point {
         pub fpu_reg_dst: FpuRegDst,
         pub fpu_reg_width: FpuRegWidth,
         pub fpu_reg_write: FpuRegWrite,
+        pub fpu_take_branch: FpuTakeBranch,
     }
 
     /// Determines, given that [`CcWrite`] is set, which condition code register
@@ -501,5 +502,16 @@ pub mod floating_point {
 
         /// Write to the floating-point register file.
         YesWrite = 1,
+    }
+
+    /// After checking the [`FpuBranch`] and condition code, this signal determines whether
+    /// to follow through with a branch.
+    ///
+    /// This signal is what is sent to the main processor.
+    #[derive(Clone, Default, PartialEq)]
+    pub enum FpuTakeBranch {
+        #[default]
+        NoBranch = 0,
+        YesBranch = 1,
     }
 }
