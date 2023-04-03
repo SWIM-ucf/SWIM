@@ -51,6 +51,7 @@ pub struct FpuState {
 }
 
 impl MipsFpCoprocessor {
+    // ========================== Stages ==========================
     pub fn stage_instruction_decode(&mut self) {
         self.instruction_decode();
         self.set_control_signals();
@@ -73,11 +74,13 @@ impl MipsFpCoprocessor {
         self.register_write();
     }
 
+    // ===================== General Functions =====================
     /// Handle an otherwise irrecoverable error within the datapath.
     pub fn error(&mut self, _message: &str) {
         self.is_halted = true;
     }
 
+    // =================== API For Main Processor ===================
     /// Set the internally-stored copy of the current instruction. This effectively
     /// operates in lieu of any "instruction fetch" functionality since the coprocessor
     /// does not fetch instructions.
@@ -88,6 +91,33 @@ impl MipsFpCoprocessor {
         }
     }
 
+    /// Sets the data line between the main processor and the `Data` register. This
+    /// is then used if deciding data from the main processor should go into the `Data`
+    /// register.
+    pub fn set_data_from_main_processor(&mut self, data: u64) {
+        self.state.data_from_main_processor = data;
+    }
+
+    /// Gets the contents of the data line between the `Data` register and the multiplexer
+    /// in the main processor controlled by the [`DataWrite`] control signal.
+    pub fn get_data_writeback(&mut self) -> u64 {
+        self.state.data_writeback
+    }
+
+    /// Sets the data line between the multiplexer controlled by [`MemToReg`](super::control_signals::MemToReg)
+    /// in the main processor and the multiplexer controlled by [`FpuMemToReg`] in the
+    /// floating-point coprocessor.
+    pub fn set_fp_register_data_from_main_processor(&mut self, data: u64) {
+        self.state.fp_register_data_from_main_processor = data;
+    }
+
+    /// Gets the contents of the data line that goes from `Read Data 2` to the multiplexer
+    /// in the main processor controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
+    pub fn get_fp_register_to_memory(&mut self) -> u64 {
+        self.state.fp_register_to_memory
+    }
+
+    // ================== Instruction Decode (ID) ==================
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
         // Set the data lines based on the contents of the instruction.
@@ -130,32 +160,6 @@ impl MipsFpCoprocessor {
             | Instruction::JType(_)
             | Instruction::SyscallType(_) => (),
         }
-    }
-
-    /// Sets the data line between the main processor and the `Data` register. This
-    /// is then used if deciding data from the main processor should go into the `Data`
-    /// register.
-    pub fn set_data_from_main_processor(&mut self, data: u64) {
-        self.state.data_from_main_processor = data;
-    }
-
-    /// Gets the contents of the data line between the `Data` register and the multiplexer
-    /// in the main processor controlled by the [`DataWrite`] control signal.
-    pub fn get_data_writeback(&mut self) -> u64 {
-        self.state.data_writeback
-    }
-
-    /// Sets the data line between the multiplexer controlled by [`MemToReg`](super::control_signals::MemToReg)
-    /// in the main processor and the multiplexer controlled by [`FpuMemToReg`] in the
-    /// floating-point coprocessor.
-    pub fn set_fp_register_data_from_main_processor(&mut self, data: u64) {
-        self.state.fp_register_data_from_main_processor = data;
-    }
-
-    /// Gets the contents of the data line that goes from `Read Data 2` to the multiplexer
-    /// in the main processor controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
-    pub fn get_fp_register_to_memory(&mut self) -> u64 {
-        self.state.fp_register_to_memory
     }
 
     /// Set the control signals of the processor based on the instruction opcode and function
@@ -396,6 +400,7 @@ impl MipsFpCoprocessor {
         }
     }
 
+    // ======================= Execute (EX) =======================
     /// Perform an ALU operation.
     fn alu(&mut self) {
         let input1 = self.state.read_data_1;
@@ -522,6 +527,7 @@ impl MipsFpCoprocessor {
         self.state.fp_register_to_memory = self.state.read_data_2;
     }
 
+    // ======================= Memory (MEM) =======================
     /// Set the data line between the multiplexer after the `Data` register and the
     /// multiplexer in the main processor controlled by the [`DataWrite`] control signal.
     fn set_data_writeback(&mut self) {
@@ -532,6 +538,7 @@ impl MipsFpCoprocessor {
         }
     }
 
+    // ====================== Writeback (WB) ======================
     /// Write data to the floating-point register file.
     fn register_write(&mut self) {
         if let FpuRegWrite::NoWrite = self.signals.fpu_reg_write {
