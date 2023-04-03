@@ -2540,6 +2540,130 @@ pub mod coprocessor {
     }
 
     #[test]
+    fn bc1t_should_branch() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        let instructions: Vec<u32> = vec![
+            // c.eq.d fs, ft
+            // c.eq.d $f5, $f9
+            // CC[0] <- FPR[fs] == FPR[ft]
+            // CC[0] <- FPR[5] == FPR[9]
+            // COP1  fmt   ft    fs    cc     __cond
+            //       d     $f9   $f5   0        EQ
+            0b010001_10001_01001_00101_000_00_110010,
+            // bc1t 0
+            // Branch to address 0 if true
+            // COP1  BC    cc nd t  offset
+            //             0        -1 (which becomes -4)
+            0b010001_01000_000_0_1_1111111111111110,
+        ];
+        datapath.initialize(instructions)?;
+
+        datapath.coprocessor.fpr[5] = f64::to_bits(12951.625);
+        datapath.coprocessor.fpr[9] = f64::to_bits(12951.625);
+
+        datapath.execute_instruction();
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn bc1t_should_not_branch() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        let instructions: Vec<u32> = vec![
+            // c.eq.d fs, ft
+            // c.eq.d $f5, $f9
+            // CC[0] <- FPR[fs] == FPR[ft]
+            // CC[0] <- FPR[5] == FPR[9]
+            // COP1  fmt   ft    fs    cc     __cond
+            //       d     $f9   $f5   0        EQ
+            0b010001_10001_01001_00101_000_00_110010,
+            // bc1t 0
+            // Branch to address 0 if true
+            // COP1  BC    cc nd t  offset
+            //             0        -1 (which becomes -4)
+            0b010001_01000_000_0_1_1111111111111110,
+        ];
+        datapath.initialize(instructions)?;
+
+        datapath.coprocessor.fpr[5] = f64::to_bits(12952.625);
+        datapath.coprocessor.fpr[9] = f64::to_bits(12951.625);
+
+        datapath.execute_instruction();
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 8);
+
+        Ok(())
+    }
+
+    #[test]
+    fn bc1f_should_branch() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        let instructions: Vec<u32> = vec![
+            // c.le.s fs, ft
+            // c.le.s $f4, $f5
+            // CC[0] <- FPR[fs] <= FPR[ft]
+            // CC[0] <- FPR[4] <= FPR[5]
+            // COP1  fmt   ft    fs    cc     __cond
+            //       s     $f5   $f4   0        LE
+            0b010001_10000_00101_00100_000_00_111110,
+            // bc1f 0
+            // Branch to address 0 if false
+            // COP1  BC    cc nd f  offset
+            //             0        -1 (which becomes -4)
+            0b010001_01000_000_0_0_1111111111111110,
+        ];
+        datapath.initialize(instructions)?;
+
+        datapath.coprocessor.fpr[4] = f32::to_bits(5742.006f32) as u64;
+        datapath.coprocessor.fpr[5] = f32::to_bits(1336.568f32) as u64;
+
+        datapath.execute_instruction();
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn bc1f_should_not_branch() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        let instructions: Vec<u32> = vec![
+            // c.le.s fs, ft
+            // c.le.s $f4, $f5
+            // CC[0] <- FPR[fs] <= FPR[ft]
+            // CC[0] <- FPR[4] <= FPR[5]
+            // COP1  fmt   ft    fs    cc     __cond
+            //       s     $f5   $f4   0        LE
+            0b010001_10000_00101_00100_000_00_111110,
+            // bc1f 0
+            // Branch to address 0 if false
+            // COP1  BC    cc nd f  offset
+            //             0        -1 (which becomes -4)
+            0b010001_01000_000_0_0_1111111111111110,
+        ];
+        datapath.initialize(instructions)?;
+
+        datapath.coprocessor.fpr[4] = f32::to_bits(742.006f32) as u64;
+        datapath.coprocessor.fpr[5] = f32::to_bits(1336.568f32) as u64;
+
+        datapath.execute_instruction();
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers.pc, 8);
+
+        Ok(())
+    }
+
+    #[test]
     fn mtc1_basic_move() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
 
