@@ -47,6 +47,18 @@ impl VisualDatapath for MipsDatapath {
                 value: self.coprocessor.state.alu_result,
                 bits: 64,
             },
+            "fpu_branch_decision" => LineInformation {
+                title: String::from("FPU Branch Decision"),
+                description: String::from("Based on the true/false branch flag, determines whether to branch. (The FpuBranch control signal must also be set.)"),
+                value: self.coprocessor.state.condition_code_mux as u64,
+                bits: 1,
+            },
+            "fpu_branch_flag" => LineInformation {
+                title: String::from("Instruction Branch Flag (Instruction[16])"),
+                description: String::from("The true/false branch flag of branching coprocessor instructions."),
+                value: self.coprocessor.state.branch_flag as u64,
+                bits: 1,
+            },
             "fpu_comparator_result" => LineInformation {
                 title: String::from("FPU Comparator Result"),
                 description: String::from("The comparator result, goes to the comparator result internal register"),
@@ -55,9 +67,15 @@ impl VisualDatapath for MipsDatapath {
             },
             "fpu_condition_code" => LineInformation {
                 title: String::from("FPU Condition Code"),
-                description: String::from("Condition Register Value"),
-                value: self.coprocessor.condition_code,
-                bits: 64,
+                description: String::from("The condition code register value. This specifies whether a conditional instruction was true or false."),
+                value: self.coprocessor.state.condition_code_bit as u64,
+                bits: 1,
+            },
+            "fpu_condition_code_inverted" => LineInformation {
+                title: String::from("FPU Condition Code (inverted)"),
+                description: String::from("Inverted form of the condition code register value."),
+                value: self.coprocessor.state.condition_code_bit_inverted as u64,
+                bits: 1,
             },
             "fpu_data" => LineInformation {
                 title: String::from("FPU Data"),
