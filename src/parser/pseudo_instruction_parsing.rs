@@ -1168,11 +1168,12 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 break;
             }
         }
-        if let Some(..) = dot_text_index {
+        if let Some(dot_text_index) = dot_text_index {
+            let offset = monaco_line_info[dot_text_index].get_tab_space_offset().0;
             //add syscall after first index of .text if it exists
-            monaco_line_info[dot_text_index.unwrap()]
+            monaco_line_info[dot_text_index]
                 .updated_monaco_string
-                .push_str("\nsyscall");
+                .push_str(format!("\n{offset}syscall").as_str());
 
             instructions.push(Instruction {
                 operator: Token {
@@ -1183,15 +1184,16 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 operands: vec![],
                 binary: 0,
                 instruction_number: 0,
-                line_number: dot_text_index.unwrap(),
+                line_number: dot_text_index,
                 errors: vec![],
                 labels: Vec::new(),
             });
         } else {
+            let offset = monaco_line_info[0].get_tab_space_offset().0;
             //otherwise, add it at the beginning of monaco
             monaco_line_info[0]
                 .updated_monaco_string
-                .insert_str(0, ".text\nsyscall\n");
+                .insert_str(0, format!("{}.text\n{}syscall\n", offset, offset).as_str());
 
             instructions.push(Instruction {
                 operator: Token {
@@ -1211,9 +1213,12 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
         let last_instruction = instructions.last().unwrap();
         //if the last instruction in monaco is not a syscall, add it in to updated_monaco_strings and to instructions
         if last_instruction.operator.token_name != "syscall" {
+            let offset = monaco_line_info[last_instruction.line_number]
+                .get_tab_space_offset()
+                .0;
             monaco_line_info[last_instruction.line_number]
                 .updated_monaco_string
-                .push_str("\nsyscall");
+                .push_str(format!("\n{}syscall", offset).as_str());
 
             instructions.push(Instruction {
                 operator: Token {
