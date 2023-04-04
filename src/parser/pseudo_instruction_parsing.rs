@@ -1193,7 +1193,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
             //otherwise, add it at the beginning of monaco
             monaco_line_info[0]
                 .updated_monaco_string
-                .insert_str(0, format!("{}.text\n{}syscall\n", offset, offset).as_str());
+                .insert_str(0, format!("{offset}.text\n{offset}syscall\n").as_str());
 
             instructions.push(Instruction {
                 operator: Token {
@@ -1218,7 +1218,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 .0;
             monaco_line_info[last_instruction.line_number]
                 .updated_monaco_string
-                .push_str(format!("\n{}syscall", offset).as_str());
+                .push_str(format!("\n{offset}syscall").as_str());
 
             instructions.push(Instruction {
                 operator: Token {
