@@ -255,13 +255,13 @@ impl VisualDatapath for MipsDatapath {
                 title: String::from("Read Data 1"),
                 description: String::from("The rs register data"),
                 value: self.state.read_data_1,
-                bits: 5,
+                bits: 64,
             },
             "read_data_2" => LineInformation {
                 title: String::from("Read Data 2"),
                 description: String::from("The rt register data"),
                 value: self.state.read_data_2,
-                bits: 5,
+                bits: 64,
             },
             "register_write_data" => LineInformation {
                 title: String::from("Register Write Data"),
