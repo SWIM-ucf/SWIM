@@ -536,6 +536,8 @@
 <a href="#536" id="536">536</a>
 <a href="#537" id="537">537</a>
 <a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attr">#[cfg(test)]
@@ -970,14 +972,16 @@
                 </span>&lt;div style=<span class="string">&quot;flex-basis: 70%; display: flex; flex-direction: column; align-items: stretch; min-width: 0;&quot;</span>&gt;
                     <span class="comment">// Top buttons
                     </span>&lt;div&gt;
-                        &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_assemble_clicked}&gt;{ <span class="string">&quot;Assemble &quot; </span>}&lt;i class=<span class="string">&quot;fa-sharp fa-solid fa-hammer&quot;</span>&gt;&lt;/i&gt;&lt;/button&gt;
-                        &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_execute_clicked} disabled={(<span class="kw-2">*</span>datapath).borrow().is_halted()}&gt;{ <span class="string">&quot;Execute &quot; </span>}&lt;i class=<span class="string">&quot;fa-regular fa-circle-play&quot;</span>&gt;&lt;/i&gt;&lt;/button&gt;
-                        &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_execute_stage_clicked} disabled={(<span class="kw-2">*</span>datapath).borrow().is_halted()}&gt; { <span class="string">&quot;Execute Stage &quot; </span>}&lt;i class=<span class="string">&quot;fa-solid fa-play&quot;</span>&gt;&lt;/i&gt;&lt;/button&gt;
-                        &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_reset_clicked}&gt;{ <span class="string">&quot;Reset &quot; </span>}&lt;i class=<span class="string">&quot;fa-solid fa-arrow-rotate-left&quot;</span>&gt;&lt;/i&gt;&lt;/button&gt;
-                        <span class="comment">//&lt;input type=&quot;button&quot; value=&quot;Load File&quot; onclick={upload_clicked_callback} /&gt;
-                        </span>&lt;button class=<span class="string">&quot;button&quot; </span>onclick={upload_clicked_callback}&gt;{<span class="string">&quot;Upload File &quot;</span>}&lt;i class=<span class="string">&quot;fa-sharp fa-solid fa-upload&quot;</span>&gt;&lt;/i&gt;&lt;/button&gt;
-                        <span class="comment">//&lt;input type=&quot;button&quot; value=&quot;Save to Clipboard&quot; onclick={on_clipboard_clicked} /&gt;
-                        </span>&lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_clipboard_clicked}&gt;{<span class="string">&quot;Copy to Clipboard &quot;</span>}&lt;i class=<span class="string">&quot;fa-regular fa-copy&quot;</span>&gt;&lt;/i&gt;&lt;/button&gt;
+                        &lt;div class=<span class="string">&quot;buttons&quot;</span>&gt;
+                            &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_assemble_clicked}&gt;{ <span class="string">&quot;Assemble &quot; </span>}&lt;i class=<span class="string">&quot;fa-sharp fa-solid fa-hammer&quot;</span>&gt;&lt;/i&gt;&lt;/button&gt;
+                            &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_execute_clicked} disabled={(<span class="kw-2">*</span>datapath).borrow().is_halted()}&gt;{ <span class="string">&quot;Execute &quot; </span>}&lt;i class=<span class="string">&quot;fa-regular fa-circle-play&quot;</span>&gt;&lt;/i&gt;&lt;/button&gt;
+                            &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_execute_stage_clicked} disabled={(<span class="kw-2">*</span>datapath).borrow().is_halted()}&gt; { <span class="string">&quot;Execute Stage &quot; </span>}&lt;i class=<span class="string">&quot;fa-solid fa-play&quot;</span>&gt;&lt;/i&gt;&lt;/button&gt;
+                            &lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_reset_clicked}&gt;{ <span class="string">&quot;Reset &quot; </span>}&lt;i class=<span class="string">&quot;fa-solid fa-arrow-rotate-left&quot;</span>&gt;&lt;/i&gt;&lt;/button&gt;
+                            <span class="comment">//&lt;input type=&quot;button&quot; value=&quot;Load File&quot; onclick={upload_clicked_callback} /&gt;
+                            </span>&lt;button class=<span class="string">&quot;button&quot; </span>onclick={upload_clicked_callback}&gt;{<span class="string">&quot;Upload File &quot;</span>}&lt;i class=<span class="string">&quot;fa-sharp fa-solid fa-upload&quot;</span>&gt;&lt;/i&gt;&lt;/button&gt;
+                            <span class="comment">//&lt;input type=&quot;button&quot; value=&quot;Save to Clipboard&quot; onclick={on_clipboard_clicked} /&gt;
+                            </span>&lt;button class=<span class="string">&quot;button&quot; </span>onclick={on_clipboard_clicked}&gt;{<span class="string">&quot;Copy to Clipboard &quot;</span>}&lt;i class=<span class="string">&quot;fa-regular fa-copy&quot;</span>&gt;&lt;/i&gt;&lt;/button&gt;
+                        &lt;/div&gt;
                     &lt;/div&gt;
 
                     <span class="comment">// Editor

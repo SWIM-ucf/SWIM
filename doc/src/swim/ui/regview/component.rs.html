@@ -190,6 +190,46 @@
 <a href="#190" id="190">190</a>
 <a href="#191" id="191">191</a>
 <a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::emulation_core::mips::registers::GpRegisters;
 <span class="comment">//use gloo::console::log;
 </span><span class="kw">use </span>wasm_bindgen::JsCast;
@@ -214,6 +254,8 @@
     </span>Dec,
     Hex,
     Bin,
+    Float,
+    Double,
 }
 
 <span class="comment">//Convert register to html through iterator
@@ -293,6 +335,34 @@
         .collect::&lt;Html&gt;()
 }
 
+<span class="kw">pub fn </span>generate_fpr_rows_float(fp: [u64; <span class="number">32</span>]) -&gt; Html {
+    fp.iter()
+        .enumerate()
+        .map(|(register, data)| {
+            <span class="macro">html! </span>{
+                &lt;tr&gt;
+                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;F{register}&quot;</span>)}&lt;/td&gt;
+                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{:e}&quot;</span>,f32::from_bits((<span class="kw-2">*</span>data).try_into().unwrap())).to_string()}&lt;/td&gt;
+                &lt;/tr&gt;
+            }
+        })
+        .collect::&lt;Html&gt;()
+}
+
+<span class="kw">pub fn </span>generate_fpr_rows_double(fp: [u64; <span class="number">32</span>]) -&gt; Html {
+    fp.iter()
+        .enumerate()
+        .map(|(register, data)| {
+            <span class="macro">html! </span>{
+                &lt;tr&gt;
+                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;F{register}&quot;</span>)}&lt;/td&gt;
+                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{:e}&quot;</span>, f64::from_bits(<span class="kw-2">*</span>data)).to_string()}&lt;/td&gt;
+                &lt;/tr&gt;
+            }
+        })
+        .collect::&lt;Html&gt;()
+}
+
 <span class="attr">#[function_component(Regview)]
 </span><span class="kw">pub fn </span>regview(props: <span class="kw-2">&amp;</span>Regviewprops) -&gt; Html {
     <span class="kw">let </span>active_view = use_state_eq(UnitState::default);
@@ -309,6 +379,8 @@
                 <span class="string">&quot;bin&quot; </span>=&gt; UnitState::Bin,
                 <span class="string">&quot;hex&quot; </span>=&gt; UnitState::Hex,
                 <span class="string">&quot;dec&quot; </span>=&gt; UnitState::Dec,
+                <span class="string">&quot;float&quot; </span>=&gt; UnitState::Float,
+                <span class="string">&quot;double&quot; </span>=&gt; UnitState::Double,
                 <span class="kw">_ </span>=&gt; UnitState::default(),
             };
 
@@ -340,10 +412,14 @@
     <span class="comment">//log!(&quot;This is &quot;, *switch_flag);
     </span><span class="macro">html! </span>{
         &lt;div style=<span class="string">&quot;flex-grow: 1; gap: 8px; display: flex; flex-direction: column; flex-wrap: nowrap;&quot;</span>&gt;
-            &lt;div&gt;
-                &lt;button label=<span class="string">&quot;dec&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Dec&quot;</span>}&lt;/button&gt;
-                &lt;button label=<span class="string">&quot;bin&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Bin&quot;</span>}&lt;/button&gt;
-                &lt;button label=<span class="string">&quot;hex&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Hex&quot;</span>}&lt;/button&gt;
+            &lt;div class=<span class="string">&quot;buttons&quot;</span>&gt;
+                    &lt;button class=<span class="string">&quot;button&quot; </span>label=<span class="string">&quot;dec&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Dec&quot;</span>}&lt;/button&gt;
+                    &lt;button class=<span class="string">&quot;button&quot; </span>label=<span class="string">&quot;bin&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Bin&quot;</span>}&lt;/button&gt;
+                    &lt;button class=<span class="string">&quot;button&quot; </span>label=<span class="string">&quot;hex&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Hex&quot;</span>}&lt;/button&gt;
+                <span class="kw">if </span>!<span class="kw-2">*</span>switch_flag{
+                    &lt;button class=<span class="string">&quot;button&quot; </span>label=<span class="string">&quot;float&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Float&quot;</span>}&lt;/button&gt;
+                    &lt;button class=<span class="string">&quot;button&quot; </span>label=<span class="string">&quot;double&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Double&quot;</span>}&lt;/button&gt;
+                }
             &lt;/div&gt;
             &lt;div class=<span class="string">&quot;tabs&quot;</span>&gt;
                 &lt;button class=<span class="string">&quot;tab&quot; </span>style=<span class="string">&quot;width: 50%;&quot; </span>onclick={on_switch_clicked_true.clone()}&gt;{<span class="string">&quot;GP&quot;</span>}&lt;/button&gt;
@@ -372,7 +448,11 @@
                                 {generate_fpr_rows_bin(props.fp)}
                             } <span class="kw">else if </span><span class="kw-2">*</span>active_view == UnitState::Hex{
                                 {generate_fpr_rows_hex(props.fp)}
-                            } <span class="kw">else </span>{
+                            } <span class="kw">else if </span><span class="kw-2">*</span>active_view == UnitState::Float{
+                                {generate_fpr_rows_float(props.fp)}
+                            } <span class="kw">else if </span><span class="kw-2">*</span>active_view == UnitState::Double{
+                                {generate_fpr_rows_double(props.fp)}
+                            } <span class="kw">else if </span><span class="kw-2">*</span>active_view == UnitState::Dec {
                                 {generate_fpr_rows(props.fp)}
                             }
                         }
