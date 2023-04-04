@@ -136,6 +136,8 @@
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::control_signals::RegWidth;
 
 <span class="kw">pub const </span>FUNCT_SYSCALL: u8 = <span class="number">0b001100</span>;
@@ -244,7 +246,9 @@
 <span class="kw">pub const </span>FUNCTION_C_NGT: u8 = <span class="number">0b111111</span>;
 
 <span class="comment">// &quot;SUB&quot; is short for operation subcode. Bits 25..21 of some instructions.
-</span><span class="doccomment">/// Move word from floating point.
+</span><span class="doccomment">/// Floating-point branch conditional.
+</span><span class="kw">pub const </span>SUB_BC: u8 = <span class="number">0b01000</span>;
+<span class="doccomment">/// Move word from floating point.
 </span><span class="kw">pub const </span>SUB_MF: u8 = <span class="number">0b00000</span>;
 <span class="doccomment">/// Move word to floating point.
 </span><span class="kw">pub const </span>SUB_MT: u8 = <span class="number">0b00100</span>;

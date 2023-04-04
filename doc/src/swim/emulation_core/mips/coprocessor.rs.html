@@ -536,6 +536,89 @@
 <a href="#536" id="536">536</a>
 <a href="#537" id="537">537</a>
 <a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of a MIPS64 floating-point coprocessor.
 
 </span><span class="kw">use </span><span class="kw">super</span>::constants::<span class="kw-2">*</span>;
@@ -567,6 +650,15 @@
     <span class="kw">pub </span>ft: u32,
     <span class="kw">pub </span>fd: u32,
     <span class="kw">pub </span>function: u32,
+    <span class="kw">pub </span>branch_flag: bool,
+
+    <span class="doccomment">/// The line that comes out of the condition code register file. Should contain
+    /// 1 for true or 0 for false.
+    </span><span class="kw">pub </span>condition_code_bit: u8,
+    <span class="doccomment">/// The inversion of `condition_code_bit`.
+    </span><span class="kw">pub </span>condition_code_bit_inverted: u8,
+    <span class="doccomment">/// The result of the multiplexer with `condition_code_bit` and `condition_code_bit_inverted`.
+    </span><span class="kw">pub </span>condition_code_mux: u8,
 
     <span class="kw">pub </span>data_from_main_processor: u64,
     <span class="kw">pub </span>data_writeback: u64,
@@ -583,13 +675,13 @@
     /// This variable in a way in just a copy of read_data_2
     </span><span class="kw">pub </span>fp_register_to_memory: u64,
 
-    <span class="doccomment">/// These two variable seem to be effectivly the time thing
-    </span><span class="kw">pub </span>alu_result: u64,
+    <span class="kw">pub </span>alu_result: u64,
     <span class="kw">pub </span>comparator_result: u64,
 }
 
 <span class="kw">impl </span>MipsFpCoprocessor {
-    <span class="kw">pub fn </span>stage_instruction_decode(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+    <span class="comment">// ========================== Stages ==========================
+    </span><span class="kw">pub fn </span>stage_instruction_decode(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.instruction_decode();
         <span class="self">self</span>.set_control_signals();
         <span class="self">self</span>.read_registers();
@@ -600,23 +692,27 @@
         <span class="self">self</span>.comparator();
         <span class="self">self</span>.write_condition_code();
         <span class="self">self</span>.write_fp_register_to_memory();
+        <span class="self">self</span>.set_condition_code_line();
     }
 
     <span class="kw">pub fn </span>stage_memory(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.write_data();
         <span class="self">self</span>.set_data_writeback();
+        <span class="self">self</span>.set_fpu_branch();
     }
 
     <span class="kw">pub fn </span>stage_writeback(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.register_write();
     }
 
-    <span class="doccomment">/// Handle an otherwise irrecoverable error within the datapath.
+    <span class="comment">// ===================== General Functions =====================
+    </span><span class="doccomment">/// Handle an otherwise irrecoverable error within the datapath.
     </span><span class="kw">pub fn </span>error(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _message: <span class="kw-2">&amp;</span>str) {
         <span class="self">self</span>.is_halted = <span class="bool-val">true</span>;
     }
 
-    <span class="doccomment">/// Set the internally-stored copy of the current instruction. This effectively
+    <span class="comment">// =================== API For Main Processor ===================
+    </span><span class="doccomment">/// Set the internally-stored copy of the current instruction. This effectively
     /// operates in lieu of any &quot;instruction fetch&quot; functionality since the coprocessor
     /// does not fetch instructions.
     </span><span class="kw">pub fn </span>set_instruction(<span class="kw-2">&amp;mut </span><span class="self">self</span>, instruction_bits: u32) {
@@ -626,7 +722,34 @@
         }
     }
 
-    <span class="doccomment">/// Decode an instruction into its individual fields.
+    <span class="doccomment">/// Sets the data line between the main processor and the `Data` register. This
+    /// is then used if deciding data from the main processor should go into the `Data`
+    /// register.
+    </span><span class="kw">pub fn </span>set_data_from_main_processor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: u64) {
+        <span class="self">self</span>.state.data_from_main_processor = data;
+    }
+
+    <span class="doccomment">/// Gets the contents of the data line between the `Data` register and the multiplexer
+    /// in the main processor controlled by the [`DataWrite`] control signal.
+    </span><span class="kw">pub fn </span>get_data_writeback(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.state.data_writeback
+    }
+
+    <span class="doccomment">/// Sets the data line between the multiplexer controlled by [`MemToReg`](super::control_signals::MemToReg)
+    /// in the main processor and the multiplexer controlled by [`FpuMemToReg`] in the
+    /// floating-point coprocessor.
+    </span><span class="kw">pub fn </span>set_fp_register_data_from_main_processor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: u64) {
+        <span class="self">self</span>.state.fp_register_data_from_main_processor = data;
+    }
+
+    <span class="doccomment">/// Gets the contents of the data line that goes from `Read Data 2` to the multiplexer
+    /// in the main processor controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
+    </span><span class="kw">pub fn </span>get_fp_register_to_memory(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.state.fp_register_to_memory
+    }
+
+    <span class="comment">// ================== Instruction Decode (ID) ==================
+    </span><span class="doccomment">/// Decode an instruction into its individual fields.
     </span><span class="kw">fn </span>instruction_decode(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// Set the data lines based on the contents of the instruction.
         // Some lines will hold uninitialized values as a result.
@@ -656,6 +779,11 @@
                 <span class="self">self</span>.state.fs = c.fs <span class="kw">as </span>u32;
                 <span class="self">self</span>.state.function = c.function <span class="kw">as </span>u32;
             }
+            Instruction::FpuBranchType(b) =&gt; {
+                <span class="self">self</span>.state.op = b.op <span class="kw">as </span>u32;
+                <span class="self">self</span>.state.fmt = b.bcc1 <span class="kw">as </span>u32;
+                <span class="self">self</span>.state.branch_flag = b.tf == <span class="number">1</span>;
+            }
             <span class="comment">// These types do not use the floating-point unit so they can be ignored.
             </span>Instruction::RType(<span class="kw">_</span>)
             | Instruction::RTypeSpecial(<span class="kw">_</span>)
@@ -663,42 +791,6 @@
             | Instruction::JType(<span class="kw">_</span>)
             | Instruction::SyscallType(<span class="kw">_</span>) =&gt; (),
         }
-    }
-
-    <span class="doccomment">/// Sets the data line between the main processor and the `Data` register. This
-    /// is then used if deciding data from the main processor should go into the `Data`
-    /// register.
-    </span><span class="kw">pub fn </span>set_data_from_main_processor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: u64) {
-        <span class="self">self</span>.state.data_from_main_processor = data;
-    }
-
-    <span class="doccomment">/// I do not feel like writting this right now, runs in writeback stage of fpu
-    </span><span class="kw">pub fn </span>set_data_writeback(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.state.sign_extend_data = <span class="self">self</span>.data <span class="kw">as </span>i32 <span class="kw">as </span>i64 <span class="kw">as </span>u64;
-        <span class="self">self</span>.state.data_writeback = <span class="kw">match </span><span class="self">self</span>.signals.fpu_reg_width {
-            FpuRegWidth::Word =&gt; <span class="self">self</span>.state.sign_extend_data,
-            FpuRegWidth::DoubleWord =&gt; <span class="self">self</span>.data,
-        }
-    }
-
-    <span class="doccomment">/// Gets the contents of the data line between the `Data` register and the multiplexer
-    /// in the main processor controlled by the [`DataWrite`] control signal.
-    </span><span class="kw">pub fn </span>get_data_writeback(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-        <span class="comment">// self.set_fpu_data_writeback(); // really should not be here #FIXME
-        </span><span class="self">self</span>.state.data_writeback
-    }
-
-    <span class="doccomment">/// Sets the data line between the multiplexer controlled by [`MemToReg`](super::control_signals::MemToReg)
-    /// in the main processor and the multiplexer controlled by [`FpuMemToReg`] in the
-    /// floating-point coprocessor.
-    </span><span class="kw">pub fn </span>set_fp_register_data_from_main_processor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: u64) {
-        <span class="self">self</span>.state.fp_register_data_from_main_processor = data;
-    }
-
-    <span class="doccomment">/// Gets the contents of the data line that goes from `Read Data 2` to the multiplexer
-    /// in the main processor controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
-    </span><span class="kw">pub fn </span>get_fp_register_to_memory(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
-        <span class="self">self</span>.state.fp_register_to_memory
     }
 
     <span class="doccomment">/// Set the control signals of the processor based on the instruction opcode and function
@@ -877,7 +969,11 @@
             },
             Instruction::FpuCompareType(c) =&gt; {
                 <span class="self">self</span>.signals = FpuControlSignals {
-                    cc: Cc::Cc0,
+                    <span class="comment">// All floating-point branch instructions are forced to use the same
+                    // one condition code register, regardless of the CC field in the
+                    // instruction. It should be noted that this differs from the
+                    // real-world MIPS specification.
+                    </span>cc: Cc::Cc0,
                     cc_write: CcWrite::YesWrite,
                     data_write: DataWrite::NoWrite,
                     fpu_alu_op: <span class="kw">match </span>FpuAluOp::from_function(c.function) {
@@ -896,6 +992,17 @@
                         }
                     },
                     fpu_reg_write: FpuRegWrite::NoWrite,
+                    ..Default::default()
+                }
+            }
+            Instruction::FpuBranchType(<span class="kw">_</span>) =&gt; {
+                <span class="self">self</span>.signals = FpuControlSignals {
+                    <span class="comment">// All floating-point branch instructions are forced to use the same
+                    // one condition code register, regardless of the CC field in the
+                    // instruction. It should be noted that this differs from the
+                    // real-world MIPS specification.
+                    </span>cc: Cc::Cc0,
+                    fpu_branch: FpuBranch::YesBranch,
                     ..Default::default()
                 }
             }
@@ -924,7 +1031,8 @@
         }
     }
 
-    <span class="doccomment">/// Perform an ALU operation.
+    <span class="comment">// ======================= Execute (EX) =======================
+    </span><span class="doccomment">/// Perform an ALU operation.
     </span><span class="kw">fn </span>alu(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span>input1 = <span class="self">self</span>.state.read_data_1;
         <span class="kw">let </span>input2 = <span class="self">self</span>.state.read_data_2;
@@ -1041,7 +1149,9 @@
 
     <span class="doccomment">/// Set the condition code (CC) register based on the result from the comparator.
     </span><span class="kw">fn </span>write_condition_code(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.condition_code = <span class="self">self</span>.state.comparator_result;
+        <span class="kw">if let </span>CcWrite::YesWrite = <span class="self">self</span>.signals.cc_write {
+            <span class="self">self</span>.condition_code = <span class="self">self</span>.state.comparator_result;
+        }
     }
 
     <span class="doccomment">/// Set the data line that goes from `Read Data 2` to the multiplexer in the main processor
@@ -1050,7 +1160,63 @@
         <span class="self">self</span>.state.fp_register_to_memory = <span class="self">self</span>.state.read_data_2;
     }
 
-    <span class="doccomment">/// Write data to the floating-point register file.
+    <span class="comment">// ======================= Memory (MEM) =======================
+    </span><span class="doccomment">/// Set the data line that goes out of the condition code register file.
+    </span><span class="kw">fn </span>set_condition_code_line(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// The MIPS architecture supports more than one condition code, but SWIM
+        // manually uses only one. This stubs the possible use of more than one
+        // for future development.
+        </span><span class="kw">let </span>selected_register_data = <span class="kw">match </span><span class="self">self</span>.signals.cc {
+            Cc::Cc0 =&gt; <span class="self">self</span>.condition_code,
+        };
+
+        <span class="comment">// This only considers one bit of the selected condition code register.
+        </span><span class="self">self</span>.state.condition_code_bit = <span class="kw">match </span>selected_register_data % <span class="number">2 </span>{
+            <span class="number">0 </span>=&gt; <span class="number">0</span>,
+            <span class="kw">_ </span>=&gt; <span class="number">1</span>,
+        };
+    }
+
+    <span class="doccomment">/// Set the data line between the multiplexer after the `Data` register and the
+    /// multiplexer in the main processor controlled by the [`DataWrite`] control signal.
+    </span><span class="kw">fn </span>set_data_writeback(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.state.sign_extend_data = <span class="self">self</span>.data <span class="kw">as </span>i32 <span class="kw">as </span>i64 <span class="kw">as </span>u64;
+        <span class="self">self</span>.state.data_writeback = <span class="kw">match </span><span class="self">self</span>.signals.fpu_reg_width {
+            FpuRegWidth::Word =&gt; <span class="self">self</span>.state.sign_extend_data,
+            FpuRegWidth::DoubleWord =&gt; <span class="self">self</span>.data,
+        }
+    }
+
+    <span class="doccomment">/// Simulate the logic between `self.state.condition_code_bit` and the FPU branch
+    /// AND gate.
+    </span><span class="kw">fn </span>set_fpu_branch(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// Invert the condition code. (In this case, instead of using a bitwise NOT, this
+        // will invert only the last digit and leave the rest as 0.)
+        </span><span class="self">self</span>.state.condition_code_bit_inverted = <span class="kw">match </span><span class="self">self</span>.state.condition_code_bit % <span class="number">2 </span>{
+            <span class="number">0 </span>=&gt; <span class="number">1</span>,
+            <span class="kw">_ </span>=&gt; <span class="number">0</span>,
+        };
+
+        <span class="comment">// Run the multiplexer.
+        </span><span class="self">self</span>.state.condition_code_mux = <span class="kw">match </span><span class="self">self</span>.state.branch_flag {
+            <span class="comment">// 0 - Use inverted condition code.
+            </span><span class="bool-val">false </span>=&gt; <span class="self">self</span>.state.condition_code_bit_inverted,
+            <span class="comment">// 1 - Use condition code value as-is.
+            </span><span class="bool-val">true </span>=&gt; <span class="self">self</span>.state.condition_code_bit,
+        };
+
+        <span class="comment">// Set the result of the AND gate.
+        </span><span class="self">self</span>.signals.fpu_take_branch = <span class="kw">if </span><span class="self">self</span>.signals.fpu_branch == FpuBranch::YesBranch
+            &amp;&amp; <span class="self">self</span>.state.condition_code_mux == <span class="number">1
+        </span>{
+            FpuTakeBranch::YesBranch
+        } <span class="kw">else </span>{
+            FpuTakeBranch::NoBranch
+        };
+    }
+
+    <span class="comment">// ====================== Writeback (WB) ======================
+    </span><span class="doccomment">/// Write data to the floating-point register file.
     </span><span class="kw">fn </span>register_write(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if let </span>FpuRegWrite::NoWrite = <span class="self">self</span>.signals.fpu_reg_write {
             <span class="kw">return</span>;

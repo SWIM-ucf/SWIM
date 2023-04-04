@@ -263,6 +263,47 @@
 <a href="#263" id="263">263</a>
 <a href="#264" id="264">264</a>
 <a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Abstract representation of an instruction.
 
 </span><span class="kw">use </span><span class="kw">super</span>::constants::<span class="kw-2">*</span>;
@@ -376,6 +417,35 @@
     <span class="kw">pub </span>function: u8,
 }
 
+<span class="doccomment">/// Branching FPU Instruction
+///
+/// Used for instructions that branch based on the floating-point coprocessor.
+///
+/// ```text
+/// 31           26   25       21   20    18   17   16   15                              0
+/// ┌───────────────┬─────────────┬──────────┬────┬────┬──────────────────────────────────┐
+/// │ opcode = COP1 │    BCC1     │    cc    │ nd │ tf │              offset              │
+/// │    010001     │             │          │    │    │                                  │
+/// └───────────────┴─────────────┴──────────┴────┴────┴──────────────────────────────────┘
+///        6              5            3       1    1                   16
+/// ```
+///
+/// - opcode: COP1 (`010001`)
+/// - BCC1: &quot;Branch conditional coprocessor 1&quot; subcode.
+/// - cc: Branch instruction condition code.
+/// - nd: Nullify delay. If set, the branch is Likely, and the delay slot instruction is not executed. (Not necessary for this project.)
+/// - tf: True/False. The type of condition for a comparison.
+/// - offset: Signed offset field used in address calculations.
+</span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
+</span><span class="kw">pub struct </span>FpuBranchType {
+    <span class="kw">pub </span>op: u8,
+    <span class="kw">pub </span>bcc1: u8,
+    <span class="kw">pub </span>cc: u8,
+    <span class="kw">pub </span>nd: u8,
+    <span class="kw">pub </span>tf: u8,
+    <span class="kw">pub </span>offset: u16,
+}
+
 <span class="attr">#[derive(Clone, Debug, PartialEq)]
 </span><span class="kw">pub enum </span>Instruction {
     RType(RType),
@@ -387,6 +457,7 @@
     FpuIType(FpuIType),
     FpuRegImmType(FpuRegImmType),
     FpuCompareType(FpuCompareType),
+    FpuBranchType(FpuBranchType),
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>Instruction {
@@ -446,7 +517,7 @@
 
             <span class="comment">// COP1 (coprocessor 1)
             </span>OPCODE_COP1 =&gt; {
-                <span class="comment">// First break down the instruction by its `fmt` or `rs` field.
+                <span class="comment">// First break down the instruction by its `fmt`/`rs`/`bcc1` field.
                 // Also called `sub` (operation subcode) field.
                 </span><span class="kw">let </span>sub = ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8;
 
@@ -495,6 +566,17 @@
                             fs: ((value &gt;&gt; <span class="number">11</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                         }))
                     }
+
+                    <span class="comment">// Branch on coprocessor 1 true (bc1t)
+                    // Branch on coprocessor 1 false (bc1f)
+                    </span>SUB_BC =&gt; <span class="prelude-val">Ok</span>(Instruction::FpuBranchType(FpuBranchType {
+                        op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
+                        bcc1: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
+                        cc: ((value &gt;&gt; <span class="number">18</span>) &amp; <span class="number">0x7</span>) <span class="kw">as </span>u8,
+                        nd: ((value &gt;&gt; <span class="number">17</span>) &amp; <span class="number">1</span>) <span class="kw">as </span>u8,
+                        tf: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">1</span>) <span class="kw">as </span>u8,
+                        offset: (value &amp; <span class="number">0xFFFF</span>) <span class="kw">as </span>u16,
+                    })),
 
                     <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;sub code `{sub}` not supported for opcode {op}&quot;</span>)),
                 }
