@@ -29,17 +29,7 @@ pub struct MonacoLineInfo {
 impl MonacoLineInfo {
     ///This function puts the translation from a pseudo-instruction into the updated monaco string
     pub fn update_pseudo_string(&mut self, expansion: Vec<&mut Instruction>) {
-        //prefix section ensures that the indentation from the original pseudo-instruction is preserved.
-        let mut prefix = "".to_string();
-        let mut index = 0;
-        for (i, char) in self.updated_monaco_string.chars().enumerate() {
-            index = i;
-            if char == ' ' || char == '\t' {
-                prefix.push(char);
-            } else {
-                break;
-            }
-        }
+        let (prefix, index) = self.get_tab_space_offset();
 
         self.updated_monaco_string
             .insert_str(index, "#Pseudo-Instruction: ");
@@ -58,6 +48,21 @@ impl MonacoLineInfo {
             update.push_str("\nsyscall");
             self.updated_monaco_string = update;
         }
+    }
+
+    ///Returns a string of all the spaces and tabs that are at the beginning of updated_monaco_string and returns the number of characters that is
+    pub fn get_tab_space_offset(&self) -> (String, usize) {
+        let mut prefix = "".to_string();
+        let mut index = 0;
+        for (i, char) in self.updated_monaco_string.chars().enumerate() {
+            index = i;
+            if char == ' ' || char == '\t' {
+                prefix.push(char);
+            } else {
+                break;
+            }
+        }
+        (prefix, index)
     }
 }
 
