@@ -29,12 +29,25 @@ pub struct MonacoLineInfo {
 impl MonacoLineInfo {
     ///This function puts the translation from a pseudo-instruction into the updated monaco string
     pub fn update_pseudo_string(&mut self, expansion: Vec<&mut Instruction>) {
+        //prefix section ensures that the indentation from the original pseudo-instruction is preserved.
+        let mut prefix = "".to_string();
+        let mut index = 0;
+        for (i, char) in self.updated_monaco_string.chars().enumerate() {
+            index = i;
+            if char == ' ' || char == '\t' {
+                prefix.push(char);
+            } else {
+                break;
+            }
+        }
+
         self.updated_monaco_string
-            .insert_str(0, "#Pseudo-Instruction: ");
+            .insert_str(index, "#Pseudo-Instruction: ");
 
         for instruction in expansion {
             self.updated_monaco_string.push_str(&format!(
-                "\n{} #Pseudo-Instruction Translation",
+                "\n{}{} #Pseudo-Instruction Translation",
+                prefix,
                 instruction.recreate_string()
             ));
         }
