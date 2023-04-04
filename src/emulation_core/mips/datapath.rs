@@ -92,6 +92,12 @@ pub struct DatapathState {
     pub funct: u32,
     pub imm: u32,
 
+    /// *Data line.* The first input of the ALU.
+    pub alu_input1: u64,
+
+    /// *Data line.* The second input of the ALU.
+    pub alu_input2: u64,
+
     /// *Data line.* The final result as provided by the ALU.
     /// Initialized after the Execute stage.
     pub alu_result: u64,
@@ -1021,8 +1027,8 @@ impl MipsDatapath {
         // be the first register, but the second may be either the
         // second register, the sign-extended immediate value, or the
         // zero-extended immediate value.
-        let mut input1 = self.state.read_data_1;
-        let mut input2 = match self.signals.alu_src {
+        self.state.alu_input1 = self.state.read_data_1;
+        self.state.alu_input2 = match self.signals.alu_src {
             AluSrc::ReadRegister2 => self.state.read_data_2,
             AluSrc::SignExtendedImmediate => alu_immediate,
             AluSrc::ZeroExtendedImmediate => self.state.imm as u64,
@@ -1030,37 +1036,47 @@ impl MipsDatapath {
 
         // Truncate the inputs if 32-bit operations are expected.
         if let RegWidth::Word = self.signals.reg_width {
-            input1 = input1 as i32 as u64;
-            input2 = input2 as i32 as u64;
+            self.state.alu_input1 = self.state.alu_input1 as i32 as u64;
+            self.state.alu_input2 = self.state.alu_input2 as i32 as u64;
         }
 
         // Set the result.
         self.state.alu_result = match self.signals.alu_control {
-            AluControl::Addition => input1.wrapping_add(input2),
-            AluControl::Subtraction => (input1 as i64).wrapping_sub(input2 as i64) as u64,
-            AluControl::SetOnLessThanSigned => ((input1 as i64) < (input2 as i64)) as u64,
-            AluControl::SetOnLessThanUnsigned => (input1 < input2) as u64,
-            AluControl::And => input1 & input2,
-            AluControl::Or => input1 | input2,
+            AluControl::Addition => self.state.alu_input1.wrapping_add(self.state.alu_input2),
+            AluControl::Subtraction => {
+                (self.state.alu_input1 as i64).wrapping_sub(self.state.alu_input2 as i64) as u64
+            }
+            AluControl::SetOnLessThanSigned => {
+                ((self.state.alu_input1 as i64) < (self.state.alu_input2 as i64)) as u64
+            }
+            AluControl::SetOnLessThanUnsigned => {
+                (self.state.alu_input1 < self.state.alu_input2) as u64
+            }
+            AluControl::And => self.state.alu_input1 & self.state.alu_input2,
+            AluControl::Or => self.state.alu_input1 | self.state.alu_input2,
 
             // shift amount should be set by the ALU control unit. got to make some variable that gets set
-            AluControl::ShiftLeftLogical(shamt) => input2 << shamt,
-            AluControl::LeftShift16 => input2 << 16,
-            AluControl::Not => !input1,
-            AluControl::MultiplicationSigned => ((input1 as i128) * (input2 as i128)) as u64,
-            AluControl::MultiplicationUnsigned => ((input1 as u128) * (input2 as u128)) as u64,
+            AluControl::ShiftLeftLogical(shamt) => self.state.alu_input2 << shamt,
+            AluControl::LeftShift16 => self.state.alu_input2 << 16,
+            AluControl::Not => !self.state.alu_input1,
+            AluControl::MultiplicationSigned => {
+                ((self.state.alu_input1 as i128) * (self.state.alu_input2 as i128)) as u64
+            }
+            AluControl::MultiplicationUnsigned => {
+                ((self.state.alu_input1 as u128) * (self.state.alu_input2 as u128)) as u64
+            }
             AluControl::DivisionSigned => {
-                if input2 == 0 {
+                if self.state.alu_input2 == 0 {
                     0
                 } else {
-                    ((input1 as i64) / (input2 as i64)) as u64
+                    ((self.state.alu_input1 as i64) / (self.state.alu_input2 as i64)) as u64
                 }
             }
             AluControl::DivisionUnsigned => {
-                if input2 == 0 {
+                if self.state.alu_input2 == 0 {
                     0
                 } else {
-                    input1 / input2
+                    self.state.alu_input1 / self.state.alu_input2
                 }
             }
         };
