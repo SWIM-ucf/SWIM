@@ -23,6 +23,12 @@ impl VisualDatapath for MipsDatapath {
 
     fn visual_line_to_data(&self, variable: &str) -> LineInformation {
         match variable {
+            "alu_input2" => LineInformation {
+                title: String::from("ALU Input 2"),
+                description: String::from("The second input to the ALU. This is determined by the ALUSrc control signal to select between register data, a sign-extended and left-shifted immediate value, or a zero-extended immediate value."),
+                value: self.state.alu_input2,
+                bits: 64,
+            },
             "alu_result" => LineInformation {
                 title: String::from("ALU Result"),
                 description: String::from("The main output line of the ALU"),
