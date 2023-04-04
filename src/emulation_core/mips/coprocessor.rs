@@ -29,6 +29,15 @@ pub struct FpuState {
     pub ft: u32,
     pub fd: u32,
     pub function: u32,
+    pub branch_flag: bool,
+
+    /// The line that comes out of the condition code register file. Should contain
+    /// 1 for true or 0 for false.
+    pub condition_code_bit: u8,
+    /// The inversion of `condition_code_bit`.
+    pub condition_code_bit_inverted: u8,
+    /// The result of the multiplexer with `condition_code_bit` and `condition_code_bit_inverted`.
+    pub condition_code_mux: u8,
 
     pub data_from_main_processor: u64,
     pub data_writeback: u64,
@@ -45,12 +54,12 @@ pub struct FpuState {
     /// This variable in a way in just a copy of read_data_2
     pub fp_register_to_memory: u64,
 
-    /// These two variable seem to be effectivly the time thing
     pub alu_result: u64,
     pub comparator_result: u64,
 }
 
 impl MipsFpCoprocessor {
+    // ========================== Stages ==========================
     pub fn stage_instruction_decode(&mut self) {
         self.instruction_decode();
         self.set_control_signals();
@@ -62,22 +71,26 @@ impl MipsFpCoprocessor {
         self.comparator();
         self.write_condition_code();
         self.write_fp_register_to_memory();
+        self.set_condition_code_line();
     }
 
     pub fn stage_memory(&mut self) {
         self.write_data();
         self.set_data_writeback();
+        self.set_fpu_branch();
     }
 
     pub fn stage_writeback(&mut self) {
         self.register_write();
     }
 
+    // ===================== General Functions =====================
     /// Handle an otherwise irrecoverable error within the datapath.
     pub fn error(&mut self, _message: &str) {
         self.is_halted = true;
     }
 
+    // =================== API For Main Processor ===================
     /// Set the internally-stored copy of the current instruction. This effectively
     /// operates in lieu of any "instruction fetch" functionality since the coprocessor
     /// does not fetch instructions.
@@ -88,6 +101,33 @@ impl MipsFpCoprocessor {
         }
     }
 
+    /// Sets the data line between the main processor and the `Data` register. This
+    /// is then used if deciding data from the main processor should go into the `Data`
+    /// register.
+    pub fn set_data_from_main_processor(&mut self, data: u64) {
+        self.state.data_from_main_processor = data;
+    }
+
+    /// Gets the contents of the data line between the `Data` register and the multiplexer
+    /// in the main processor controlled by the [`DataWrite`] control signal.
+    pub fn get_data_writeback(&mut self) -> u64 {
+        self.state.data_writeback
+    }
+
+    /// Sets the data line between the multiplexer controlled by [`MemToReg`](super::control_signals::MemToReg)
+    /// in the main processor and the multiplexer controlled by [`FpuMemToReg`] in the
+    /// floating-point coprocessor.
+    pub fn set_fp_register_data_from_main_processor(&mut self, data: u64) {
+        self.state.fp_register_data_from_main_processor = data;
+    }
+
+    /// Gets the contents of the data line that goes from `Read Data 2` to the multiplexer
+    /// in the main processor controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
+    pub fn get_fp_register_to_memory(&mut self) -> u64 {
+        self.state.fp_register_to_memory
+    }
+
+    // ================== Instruction Decode (ID) ==================
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
         // Set the data lines based on the contents of the instruction.
@@ -118,6 +158,11 @@ impl MipsFpCoprocessor {
                 self.state.fs = c.fs as u32;
                 self.state.function = c.function as u32;
             }
+            Instruction::FpuBranchType(b) => {
+                self.state.op = b.op as u32;
+                self.state.fmt = b.bcc1 as u32;
+                self.state.branch_flag = b.tf == 1;
+            }
             // These types do not use the floating-point unit so they can be ignored.
             Instruction::RType(_)
             | Instruction::RTypeSpecial(_)
@@ -125,42 +170,6 @@ impl MipsFpCoprocessor {
             | Instruction::JType(_)
             | Instruction::SyscallType(_) => (),
         }
-    }
-
-    /// Sets the data line between the main processor and the `Data` register. This
-    /// is then used if deciding data from the main processor should go into the `Data`
-    /// register.
-    pub fn set_data_from_main_processor(&mut self, data: u64) {
-        self.state.data_from_main_processor = data;
-    }
-
-    /// I do not feel like writting this right now, runs in writeback stage of fpu
-    pub fn set_data_writeback(&mut self) {
-        self.state.sign_extend_data = self.data as i32 as i64 as u64;
-        self.state.data_writeback = match self.signals.fpu_reg_width {
-            FpuRegWidth::Word => self.state.sign_extend_data,
-            FpuRegWidth::DoubleWord => self.data,
-        }
-    }
-
-    /// Gets the contents of the data line between the `Data` register and the multiplexer
-    /// in the main processor controlled by the [`DataWrite`] control signal.
-    pub fn get_data_writeback(&mut self) -> u64 {
-        // self.set_fpu_data_writeback(); // really should not be here #FIXME
-        self.state.data_writeback
-    }
-
-    /// Sets the data line between the multiplexer controlled by [`MemToReg`](super::control_signals::MemToReg)
-    /// in the main processor and the multiplexer controlled by [`FpuMemToReg`] in the
-    /// floating-point coprocessor.
-    pub fn set_fp_register_data_from_main_processor(&mut self, data: u64) {
-        self.state.fp_register_data_from_main_processor = data;
-    }
-
-    /// Gets the contents of the data line that goes from `Read Data 2` to the multiplexer
-    /// in the main processor controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
-    pub fn get_fp_register_to_memory(&mut self) -> u64 {
-        self.state.fp_register_to_memory
     }
 
     /// Set the control signals of the processor based on the instruction opcode and function
@@ -339,6 +348,10 @@ impl MipsFpCoprocessor {
             },
             Instruction::FpuCompareType(c) => {
                 self.signals = FpuControlSignals {
+                    // All floating-point branch instructions are forced to use the same
+                    // one condition code register, regardless of the CC field in the
+                    // instruction. It should be noted that this differs from the
+                    // real-world MIPS specification.
                     cc: Cc::Cc0,
                     cc_write: CcWrite::YesWrite,
                     data_write: DataWrite::NoWrite,
@@ -358,6 +371,17 @@ impl MipsFpCoprocessor {
                         }
                     },
                     fpu_reg_write: FpuRegWrite::NoWrite,
+                    ..Default::default()
+                }
+            }
+            Instruction::FpuBranchType(_) => {
+                self.signals = FpuControlSignals {
+                    // All floating-point branch instructions are forced to use the same
+                    // one condition code register, regardless of the CC field in the
+                    // instruction. It should be noted that this differs from the
+                    // real-world MIPS specification.
+                    cc: Cc::Cc0,
+                    fpu_branch: FpuBranch::YesBranch,
                     ..Default::default()
                 }
             }
@@ -386,6 +410,7 @@ impl MipsFpCoprocessor {
         }
     }
 
+    // ======================= Execute (EX) =======================
     /// Perform an ALU operation.
     fn alu(&mut self) {
         let input1 = self.state.read_data_1;
@@ -503,7 +528,9 @@ impl MipsFpCoprocessor {
 
     /// Set the condition code (CC) register based on the result from the comparator.
     fn write_condition_code(&mut self) {
-        self.condition_code = self.state.comparator_result;
+        if let CcWrite::YesWrite = self.signals.cc_write {
+            self.condition_code = self.state.comparator_result;
+        }
     }
 
     /// Set the data line that goes from `Read Data 2` to the multiplexer in the main processor
@@ -512,6 +539,62 @@ impl MipsFpCoprocessor {
         self.state.fp_register_to_memory = self.state.read_data_2;
     }
 
+    // ======================= Memory (MEM) =======================
+    /// Set the data line that goes out of the condition code register file.
+    fn set_condition_code_line(&mut self) {
+        // The MIPS architecture supports more than one condition code, but SWIM
+        // manually uses only one. This stubs the possible use of more than one
+        // for future development.
+        let selected_register_data = match self.signals.cc {
+            Cc::Cc0 => self.condition_code,
+        };
+
+        // This only considers one bit of the selected condition code register.
+        self.state.condition_code_bit = match selected_register_data % 2 {
+            0 => 0,
+            _ => 1,
+        };
+    }
+
+    /// Set the data line between the multiplexer after the `Data` register and the
+    /// multiplexer in the main processor controlled by the [`DataWrite`] control signal.
+    fn set_data_writeback(&mut self) {
+        self.state.sign_extend_data = self.data as i32 as i64 as u64;
+        self.state.data_writeback = match self.signals.fpu_reg_width {
+            FpuRegWidth::Word => self.state.sign_extend_data,
+            FpuRegWidth::DoubleWord => self.data,
+        }
+    }
+
+    /// Simulate the logic between `self.state.condition_code_bit` and the FPU branch
+    /// AND gate.
+    fn set_fpu_branch(&mut self) {
+        // Invert the condition code. (In this case, instead of using a bitwise NOT, this
+        // will invert only the last digit and leave the rest as 0.)
+        self.state.condition_code_bit_inverted = match self.state.condition_code_bit % 2 {
+            0 => 1,
+            _ => 0,
+        };
+
+        // Run the multiplexer.
+        self.state.condition_code_mux = match self.state.branch_flag {
+            // 0 - Use inverted condition code.
+            false => self.state.condition_code_bit_inverted,
+            // 1 - Use condition code value as-is.
+            true => self.state.condition_code_bit,
+        };
+
+        // Set the result of the AND gate.
+        self.signals.fpu_take_branch = if self.signals.fpu_branch == FpuBranch::YesBranch
+            && self.state.condition_code_mux == 1
+        {
+            FpuTakeBranch::YesBranch
+        } else {
+            FpuTakeBranch::NoBranch
+        };
+    }
+
+    // ====================== Writeback (WB) ======================
     /// Write data to the floating-point register file.
     fn register_write(&mut self) {
         if let FpuRegWrite::NoWrite = self.signals.fpu_reg_write {

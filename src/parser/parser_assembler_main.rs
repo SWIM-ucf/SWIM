@@ -1148,7 +1148,7 @@ pub fn read_instructions(
                 );
 
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
-                instruction.binary = append_binary(instruction.binary, 0b1010, 4);
+                instruction.binary = append_binary(instruction.binary, 0b0010, 4);
                 //EQ
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
@@ -1170,7 +1170,7 @@ pub fn read_instructions(
                 );
 
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7); //cc, 0, A, FC
-                instruction.binary = append_binary(instruction.binary, 0b1010, 4);
+                instruction.binary = append_binary(instruction.binary, 0b0010, 4);
                 //EQ
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty

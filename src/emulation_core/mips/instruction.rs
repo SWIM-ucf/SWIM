@@ -111,6 +111,35 @@ pub struct FpuCompareType {
     pub function: u8,
 }
 
+/// Branching FPU Instruction
+///
+/// Used for instructions that branch based on the floating-point coprocessor.
+///
+/// ```text
+/// 31           26   25       21   20    18   17   16   15                              0
+/// ┌───────────────┬─────────────┬──────────┬────┬────┬──────────────────────────────────┐
+/// │ opcode = COP1 │    BCC1     │    cc    │ nd │ tf │              offset              │
+/// │    010001     │             │          │    │    │                                  │
+/// └───────────────┴─────────────┴──────────┴────┴────┴──────────────────────────────────┘
+///        6              5            3       1    1                   16
+/// ```
+///
+/// - opcode: COP1 (`010001`)
+/// - BCC1: "Branch conditional coprocessor 1" subcode.
+/// - cc: Branch instruction condition code.
+/// - nd: Nullify delay. If set, the branch is Likely, and the delay slot instruction is not executed. (Not necessary for this project.)
+/// - tf: True/False. The type of condition for a comparison.
+/// - offset: Signed offset field used in address calculations.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct FpuBranchType {
+    pub op: u8,
+    pub bcc1: u8,
+    pub cc: u8,
+    pub nd: u8,
+    pub tf: u8,
+    pub offset: u16,
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum Instruction {
     RType(RType),
@@ -122,6 +151,7 @@ pub enum Instruction {
     FpuIType(FpuIType),
     FpuRegImmType(FpuRegImmType),
     FpuCompareType(FpuCompareType),
+    FpuBranchType(FpuBranchType),
 }
 
 impl Default for Instruction {
@@ -181,7 +211,7 @@ impl TryFrom<u32> for Instruction {
 
             // COP1 (coprocessor 1)
             OPCODE_COP1 => {
-                // First break down the instruction by its `fmt` or `rs` field.
+                // First break down the instruction by its `fmt`/`rs`/`bcc1` field.
                 // Also called `sub` (operation subcode) field.
                 let sub = ((value >> 21) & 0x1F) as u8;
 
@@ -230,6 +260,17 @@ impl TryFrom<u32> for Instruction {
                             fs: ((value >> 11) & 0x1F) as u8,
                         }))
                     }
+
+                    // Branch on coprocessor 1 true (bc1t)
+                    // Branch on coprocessor 1 false (bc1f)
+                    SUB_BC => Ok(Instruction::FpuBranchType(FpuBranchType {
+                        op: ((value >> 26) & 0x3F) as u8,
+                        bcc1: ((value >> 21) & 0x1F) as u8,
+                        cc: ((value >> 18) & 0x7) as u8,
+                        nd: ((value >> 17) & 1) as u8,
+                        tf: ((value >> 16) & 1) as u8,
+                        offset: (value & 0xFFFF) as u16,
+                    })),
 
                     _ => Err(format!("sub code `{sub}` not supported for opcode {op}")),
                 }

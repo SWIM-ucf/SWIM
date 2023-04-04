@@ -26,6 +26,9 @@
 //!   32 bits are ignored when being used for 32-bit instructions.
 //! - Instead of implementing the `cmp.condn.fmt` instructions, this datapath implements
 //!   the `c.cond.fmt` instructions from MIPS64 version 5.
+//! - Unlike MIPS specification, SWIM only uses 1 condition code register (`cc`), rather
+//!   than offering 8 condition code registers. The datapath will assume that the `cc`
+//!   field in a floating-point comparison or floating-point branch instruction is 0.
 //! - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
 //!   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
 //!   `bnezalc`, `beqc`, and `bovc` instructions.
@@ -88,6 +91,12 @@ pub struct DatapathState {
     pub shamt: u32,
     pub funct: u32,
     pub imm: u32,
+
+    /// *Data line.* The first input of the ALU.
+    pub alu_input1: u64,
+
+    /// *Data line.* The second input of the ALU.
+    pub alu_input2: u64,
 
     /// *Data line.* The final result as provided by the ALU.
     /// Initialized after the Execute stage.
@@ -361,12 +370,12 @@ impl MipsDatapath {
             MemToReg::UsePcPlusFour => self.state.pc_plus_4,
         };
 
+        self.coprocessor.stage_memory();
+
         // PC calculation stuff from upper part of datapath
         self.calc_general_branch_signal();
         self.pick_pc_plus_4_or_relative_branch_addr_mux1();
         self.set_new_pc_mux2();
-
-        self.coprocessor.stage_memory();
     }
 
     /// Stage 5 of 5: Writeback (WB)
@@ -460,6 +469,14 @@ impl MipsDatapath {
             Instruction::JType(i) => {
                 self.state.lower_26 = i.addr;
             }
+            Instruction::FpuBranchType(b) => {
+                self.state.imm = b.offset as u32;
+                self.state.funct = 0; // Not applicable
+                self.state.rs = 0; // Not applicable
+                self.state.rt = 0; // Not applicable
+                self.state.rd = 0; // Not applicable
+                self.state.shamt = 0; // Not applicable
+            }
         }
     }
 
@@ -488,7 +505,8 @@ impl MipsDatapath {
             // Main processor does nothing.
             Instruction::FpuRType(_)
             | Instruction::FpuCompareType(_)
-            | Instruction::SyscallType(_) => {
+            | Instruction::SyscallType(_)
+            | Instruction::FpuBranchType(_) => {
                 self.signals = ControlSignals {
                     branch: Branch::NoBranch,
                     jump: Jump::NoJump,
@@ -1009,8 +1027,8 @@ impl MipsDatapath {
         // be the first register, but the second may be either the
         // second register, the sign-extended immediate value, or the
         // zero-extended immediate value.
-        let mut input1 = self.state.read_data_1;
-        let mut input2 = match self.signals.alu_src {
+        self.state.alu_input1 = self.state.read_data_1;
+        self.state.alu_input2 = match self.signals.alu_src {
             AluSrc::ReadRegister2 => self.state.read_data_2,
             AluSrc::SignExtendedImmediate => alu_immediate,
             AluSrc::ZeroExtendedImmediate => self.state.imm as u64,
@@ -1018,37 +1036,47 @@ impl MipsDatapath {
 
         // Truncate the inputs if 32-bit operations are expected.
         if let RegWidth::Word = self.signals.reg_width {
-            input1 = input1 as i32 as u64;
-            input2 = input2 as i32 as u64;
+            self.state.alu_input1 = self.state.alu_input1 as i32 as u64;
+            self.state.alu_input2 = self.state.alu_input2 as i32 as u64;
         }
 
         // Set the result.
         self.state.alu_result = match self.signals.alu_control {
-            AluControl::Addition => input1.wrapping_add(input2),
-            AluControl::Subtraction => (input1 as i64).wrapping_sub(input2 as i64) as u64,
-            AluControl::SetOnLessThanSigned => ((input1 as i64) < (input2 as i64)) as u64,
-            AluControl::SetOnLessThanUnsigned => (input1 < input2) as u64,
-            AluControl::And => input1 & input2,
-            AluControl::Or => input1 | input2,
+            AluControl::Addition => self.state.alu_input1.wrapping_add(self.state.alu_input2),
+            AluControl::Subtraction => {
+                (self.state.alu_input1 as i64).wrapping_sub(self.state.alu_input2 as i64) as u64
+            }
+            AluControl::SetOnLessThanSigned => {
+                ((self.state.alu_input1 as i64) < (self.state.alu_input2 as i64)) as u64
+            }
+            AluControl::SetOnLessThanUnsigned => {
+                (self.state.alu_input1 < self.state.alu_input2) as u64
+            }
+            AluControl::And => self.state.alu_input1 & self.state.alu_input2,
+            AluControl::Or => self.state.alu_input1 | self.state.alu_input2,
 
             // shift amount should be set by the ALU control unit. got to make some variable that gets set
-            AluControl::ShiftLeftLogical(shamt) => input2 << shamt,
-            AluControl::LeftShift16 => input2 << 16,
-            AluControl::Not => !input1,
-            AluControl::MultiplicationSigned => ((input1 as i128) * (input2 as i128)) as u64,
-            AluControl::MultiplicationUnsigned => ((input1 as u128) * (input2 as u128)) as u64,
+            AluControl::ShiftLeftLogical(shamt) => self.state.alu_input2 << shamt,
+            AluControl::LeftShift16 => self.state.alu_input2 << 16,
+            AluControl::Not => !self.state.alu_input1,
+            AluControl::MultiplicationSigned => {
+                ((self.state.alu_input1 as i128) * (self.state.alu_input2 as i128)) as u64
+            }
+            AluControl::MultiplicationUnsigned => {
+                ((self.state.alu_input1 as u128) * (self.state.alu_input2 as u128)) as u64
+            }
             AluControl::DivisionSigned => {
-                if input2 == 0 {
+                if self.state.alu_input2 == 0 {
                     0
                 } else {
-                    ((input1 as i64) / (input2 as i64)) as u64
+                    ((self.state.alu_input1 as i64) / (self.state.alu_input2 as i64)) as u64
                 }
             }
             AluControl::DivisionUnsigned => {
-                if input2 == 0 {
+                if self.state.alu_input2 == 0 {
                     0
                 } else {
-                    input1 / input2
+                    self.state.alu_input1 / self.state.alu_input2
                 }
             }
         };
@@ -1149,7 +1177,7 @@ impl MipsDatapath {
             return;
         }
 
-        if let FpuBranch::YesBranch = self.coprocessor.signals.fpu_branch {
+        if let FpuTakeBranch::YesBranch = self.coprocessor.signals.fpu_take_branch {
             self.datapath_signals.general_branch = GeneralBranch::YesBranch;
         }
     }
