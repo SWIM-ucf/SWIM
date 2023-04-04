@@ -63,15 +63,14 @@ pub fn console(props: &Consoleprops) -> Html {
     <>
             // Console buttons
             if *active_tab == TabState::Console {
-                <div class="console">
+                <pre class="console">
                     { props.parsermsg.clone() }
-                </div>
+                </pre>
             } else if *active_tab == TabState::Datapath {
                 <div class="datapath-wrapper">
                     <VisualDatapath datapath={props.datapath.clone()} svg_path={"static/datapath_full.svg"} size={datapath_size} />
                 </div>
             } else {
-
                 <div class="console">
                     <pre class = "memory-view">
                         {props.datapath.memory.generate_formatted_hex() }

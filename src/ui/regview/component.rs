@@ -22,6 +22,8 @@ enum UnitState {
     Dec,
     Hex,
     Bin,
+    Float,
+    Double,
 }
 
 //Convert register to html through iterator
@@ -101,6 +103,34 @@ pub fn generate_fpr_rows_bin(fp: [u64; 32]) -> Html {
         .collect::<Html>()
 }
 
+pub fn generate_fpr_rows_float(fp: [u64; 32]) -> Html {
+    fp.iter()
+        .enumerate()
+        .map(|(register, data)| {
+            html! {
+                <tr>
+                    <td>{format!("F{register}")}</td>
+                    <td>{format!("{:e}",f32::from_bits((*data).try_into().unwrap())).to_string()}</td>
+                </tr>
+            }
+        })
+        .collect::<Html>()
+}
+
+pub fn generate_fpr_rows_double(fp: [u64; 32]) -> Html {
+    fp.iter()
+        .enumerate()
+        .map(|(register, data)| {
+            html! {
+                <tr>
+                    <td>{format!("F{register}")}</td>
+                    <td>{format!("{:e}", f64::from_bits(*data)).to_string()}</td>
+                </tr>
+            }
+        })
+        .collect::<Html>()
+}
+
 #[function_component(Regview)]
 pub fn regview(props: &Regviewprops) -> Html {
     let active_view = use_state_eq(UnitState::default);
@@ -117,6 +147,8 @@ pub fn regview(props: &Regviewprops) -> Html {
                 "bin" => UnitState::Bin,
                 "hex" => UnitState::Hex,
                 "dec" => UnitState::Dec,
+                "float" => UnitState::Float,
+                "double" => UnitState::Double,
                 _ => UnitState::default(),
             };
 
@@ -148,10 +180,14 @@ pub fn regview(props: &Regviewprops) -> Html {
     //log!("This is ", *switch_flag);
     html! {
         <div style="flex-grow: 1; gap: 8px; display: flex; flex-direction: column; flex-wrap: nowrap;">
-            <div>
-                <button label="dec" onclick={change_view.clone()}>{"Dec"}</button>
-                <button label="bin" onclick={change_view.clone()}>{"Bin"}</button>
-                <button label="hex" onclick={change_view.clone()}>{"Hex"}</button>
+            <div class="buttons">
+                    <button class="button" label="dec" onclick={change_view.clone()}>{"Dec"}</button>
+                    <button class="button" label="bin" onclick={change_view.clone()}>{"Bin"}</button>
+                    <button class="button" label="hex" onclick={change_view.clone()}>{"Hex"}</button>
+                if !*switch_flag{
+                    <button class="button" label="float" onclick={change_view.clone()}>{"Float"}</button>
+                    <button class="button" label="double" onclick={change_view.clone()}>{"Double"}</button>
+                }
             </div>
             <div class="tabs">
                 <button class="tab" style="width: 50%;" onclick={on_switch_clicked_true.clone()}>{"GP"}</button>
@@ -180,7 +216,11 @@ pub fn regview(props: &Regviewprops) -> Html {
                                 {generate_fpr_rows_bin(props.fp)}
                             } else if *active_view == UnitState::Hex{
                                 {generate_fpr_rows_hex(props.fp)}
-                            } else {
+                            } else if *active_view == UnitState::Float{
+                                {generate_fpr_rows_float(props.fp)}
+                            } else if *active_view == UnitState::Double{
+                                {generate_fpr_rows_double(props.fp)}
+                            } else if *active_view == UnitState::Dec {
                                 {generate_fpr_rows(props.fp)}
                             }
                         }
