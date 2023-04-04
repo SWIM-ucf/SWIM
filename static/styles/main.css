@@ -1,10 +1,40 @@
 body {
-  background-color: #3285a8;
+  background-color: #474343;
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
 }
 
 /* CSS */
-
+.buttons {
+  width: 100%;
+  margin: 0 auto;
+}
+.buttons .button:first-child {
+  border-radius: 300px 0 0 300px;
+}
+.buttons .button:last-child {
+  border-radius: 0 300px 300px 0;
+}
+.buttons .button:only-child {
+  border-radius: 300px;
+}
+.button {
+  overflow: hidden;
+  background-color: rgb(255, 255, 255);
+  padding: 2px 16px 2px 16px;
+  color: black;
+  text-align: center;
+  display: inline-block;
+  cursor: pointer;
+  transition-duration: 0.3s;
+}
+.button:hover {
+  opacity: 1;
+  background-color: gray;
+}
+.button:active {
+  background-color: #2e2b2b;
+  color: white;
+}
 /****** Editor ******/
 .editor {
   max-height: 1px;
@@ -19,7 +49,6 @@ body {
 
 /****** Console ******/
 .console {
-  resize: vertical;
   border: 3px groove #ccc;
   background: #012456;
   color: #ccc;
@@ -30,8 +59,8 @@ body {
   padding-right: 25px;
   padding-bottom: 25px;
   padding-left: 25px;
-  min-height: 50%;
-  flex-grow: 1;
+  min-height: max(20%, 8em);
+  max-height: 50%;
 }
 
 .memory-view {
