@@ -64,6 +64,8 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
             .push(instruction.line_number);
     }
 
+    program_info.pc_starting_point = determine_pc_starting_point(labels);
+
     (program_info.clone(), binary)
 }
 
@@ -101,6 +103,27 @@ pub fn read_instructions(
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
+            }
+            "addu" => {
+                instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
+
+                read_operands(
+                    instruction,
+                    vec![RegisterGP, RegisterGP, RegisterGP],
+                    vec![2, 3, 1],
+                    None,
+                );
+
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); //0, shamt
+                instruction.binary = append_binary(instruction.binary, 0b100001, 6); // funct code
+                                                                                     //addu
+
+                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
+                let info = InstructionDescription{
+                    syntax: "addu rd, rs, rt".to_string(),
+                    description: "Adds the 32-bit values in `rs` and `rt`, and places the result in `rd`.\n\nIgnores overflow.".to_string(),
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
             }
             "sub" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
@@ -454,12 +477,17 @@ pub fn read_instructions(
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5);
                 instruction.binary = append_binary(instruction.binary, 0b100101, 6);
 
-                //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
-                let info = InstructionDescription{
-                    syntax: "or rd, rs, rt".to_string(),
-                    description: "Bitwise ors the contents of `rs` with the contents of `rt`, and stores the result in `rd`.".to_string(),
-                };
-                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                if monaco_line_info[instruction.line_number]
+                    .mouse_hover_string
+                    .is_empty()
+                {
+                    let info = InstructionDescription {
+                        syntax: "or rd, rs, rt".to_string(),
+                        description: "Bitwise ors the contents of `rs` with the contents of `rt`, and stores the result in `rd`.".to_string(),
+                    };
+                    monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+                }
             }
             "and" => {
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6);
@@ -1485,6 +1513,18 @@ pub fn append_binary(mut first: u32, mut second: u32, shift_amount: u8) -> u32 {
     first <<= shift_amount;
     first |= second;
     first
+}
+
+///returns the address of the labelled main instruction. If none exists, returns address of labelled start instruction.
+///Otherwise returns 0.
+pub fn determine_pc_starting_point(labels: HashMap<String, usize>) -> usize {
+    return match labels.get("main") {
+        Some(main_address) => *main_address,
+        None => match labels.get("start") {
+            Some(start_address) => *start_address,
+            None => 0,
+        },
+    };
 }
 
 ///Creates a vector of u32 from the data found in the parser / assembler to put into memory.

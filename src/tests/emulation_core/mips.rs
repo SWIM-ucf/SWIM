@@ -149,6 +149,112 @@ pub mod add {
     }
 }
 
+pub mod addu {
+    use super::*;
+    #[test]
+    fn addu_register_to_itself() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // $t1 = $t1 + $t1
+        //                                  R-type  t1    t1    t1  (shamt)  ADDU
+        let instructions: Vec<u32> = vec![0b000000_01001_01001_01001_00000_100001];
+        datapath.initialize(instructions)?;
+
+        // Assume the register $t1 has the value 5.
+        datapath.registers[GpRegisterType::T1] = 5;
+
+        datapath.execute_instruction();
+
+        // After the operation is finished, the register should be 10.
+        assert_eq!(datapath.registers[GpRegisterType::T1], 10);
+        Ok(())
+    }
+
+    #[test]
+    fn addu_register_to_another() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // $s2 = $s0 + $s1
+        //                                  R-type  s0    s1    s2  (shamt)  ADDU
+        let instructions: Vec<u32> = vec![0b000000_10000_10001_10010_00000_100001];
+        datapath.initialize(instructions)?;
+
+        datapath.registers.gpr[16] = 15; // $s0
+        datapath.registers.gpr[17] = 40; // $s1
+
+        datapath.execute_instruction();
+
+        // Register $s2 should contain 55.
+        let result = datapath.registers.gpr[18] as u32;
+        assert_eq!(result, 55);
+        Ok(())
+    }
+
+    #[test]
+    // This test attempts to write to register $zero. The datapath should
+    // not overwrite this register, and remain with a value of 0.
+    fn addu_to_register_zero() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // $zero = $t3 + $t3
+        //                                  R-type  t3    t3    zero (shamt) ADDU
+        let instructions: Vec<u32> = vec![0b000000_01011_01011_00000_00000_100001];
+        datapath.initialize(instructions)?;
+
+        datapath.registers.gpr[11] = 1234; // $t3
+
+        datapath.execute_instruction();
+
+        // $zero should still contain 0.
+        assert_eq!(datapath.registers.gpr[0], 0);
+        Ok(())
+    }
+
+    #[test]
+    fn addu_32_bit_with_overflow() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // $t1 = $t4 + $t4
+        //                                  R-type  t4    t4    t1 (shamt) ADDU
+        let instructions: Vec<u32> = vec![0b000000_01100_01100_01001_00000_100001];
+        datapath.initialize(instructions)?;
+
+        // Assume register $t4 contains 2,454,267,026, a 32-bit integer.
+        datapath.registers.gpr[12] = 0b10010010_01001001_00100100_10010010;
+
+        datapath.execute_instruction();
+
+        // Disregarding overflow, register $t4 would contain 4,908,534,052, or
+        // 1_00100100_10010010_01001001_00100100 in binary. The result
+        // should be truncated. Thus, we should expect the register to
+        // contain 613,566,756, or 00100100_10010010_01001001_00100100 in binary.
+        assert_eq!(datapath.registers.gpr[9], 613566756);
+        Ok(())
+    }
+
+    #[test]
+    fn add_32_bit_with_overflow_sign_extend() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // $t1 = $t4 + $t4
+        //                                  R-type  t4    t4    t1 (shamt) ADDU
+        let instructions: Vec<u32> = vec![0b000000_01100_01100_01001_00000_100001];
+        datapath.initialize(instructions)?;
+
+        // Assume register $t4 contains 3,528,008,850, a 32-bit integer.
+        datapath.registers.gpr[12] = 0b11010010_01001001_00100100_10010010;
+
+        datapath.execute_instruction();
+
+        // Disregarding overflow, register $t4 would contain 7,056,017,700, or
+        // 1_10100100_10010010_01001001_00100100 in binary. The result
+        // should be truncated. Thus, we should expect the register to
+        // contain 2,761,050,404, or 10100100_10010010_01001001_00100100 in binary.
+        assert_eq!(datapath.registers.gpr[9] as u32, 2761050404);
+        Ok(())
+    }
+}
+
 pub mod sub {
     use super::*;
 
@@ -518,6 +624,62 @@ pub mod and {
 
         // $zero should still contain 0.
         assert_eq!(datapath.registers.gpr[0], 0);
+        Ok(())
+    }
+}
+
+// Shift Word Left Logical
+pub mod sll {
+    use super::*;
+    #[test]
+    fn easy_test() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // something
+        //                                R-type        s1    s2  (shamt) SLL
+        let instructions: Vec<u32> = vec![0b000000_00000_10001_10010_00000_000000];
+        datapath.initialize(instructions)?;
+
+        datapath.registers.gpr[0b10001] = 123;
+        datapath.registers.gpr[0b10010] = 321;
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.gpr[0b10010], 123);
+        Ok(())
+    }
+
+    #[test]
+    fn mid_test() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // Shift left by two logical
+        //                                R-type        s1    s2  (shamt) SLL
+        let instructions: Vec<u32> = vec![0b000000_00000_10001_10010_00010_000000];
+        datapath.initialize(instructions)?;
+
+        datapath.registers.gpr[0b10001] = 0b1010;
+        datapath.registers.gpr[0b10010] = 0;
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.gpr[0b10010], 0b101000);
+        Ok(())
+    }
+
+    #[test]
+    fn hard_test_sign_extension() -> Result<(), String> {
+        let mut datapath = MipsDatapath::default();
+
+        // Shift left by two logical
+        //                                R-type        s1    s2  (shamt) SLL
+        let instructions: Vec<u32> = vec![0b000000_00000_10001_10010_00010_000000];
+        datapath.initialize(instructions)?;
+
+        datapath.registers.gpr[0b10001] = 0x7fffffff;
+        datapath.registers.gpr[0b10010] = 0x10101011;
+
+        datapath.execute_instruction();
+        println!("hmm {:#02x}", datapath.registers.gpr[0b10010]);
+        assert_eq!(datapath.registers.gpr[0b10010], 0xffff_ffff__ffff_fffc);
         Ok(())
     }
 }

@@ -66,6 +66,38 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
+            "move" => {
+                let info = PseudoDescription {
+                    name: "move".to_string(),
+                    syntax: "move rt, rs".to_string(),
+                    translation_lines: vec!["or rt, $zero, rs".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                instruction.operator.token_name = "or".to_string();
+
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "$zero".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+                //instruction.operands[2].start_end_columns = (0, 0);
+
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
             "seq" => {
                 let info = PseudoDescription {
                     name: "seq".to_string(),

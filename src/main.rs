@@ -6,6 +6,7 @@ pub mod ui;
 
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
+use emulation_core::mips::datapath::Stage;
 use gloo::{dialogs::alert, file::FileList};
 use js_sys::Object;
 use monaco::{
@@ -21,29 +22,32 @@ use monaco::{
 };
 use parser::parser_assembler_main::parser;
 use std::rc::Rc;
-use wasm_bindgen_futures::spawn_local;
-use web_sys::HtmlInputElement;
-//use stylist::yew::*;
 use ui::console::component::Console;
 use ui::regview::component::Regview;
 use wasm_bindgen::{JsCast, JsValue};
+use wasm_bindgen_futures::spawn_local;
+use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew::{html, Html, Properties};
 use yew_hooks::prelude::*;
 
-//use crate::parser::parser_structs_and_enums::instruction_tokenization::{print_vec_of_instructions, ProgramInfo};
+// To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
+// and comment the code, language, and text_model lines. IMPORTANT:
+// rename fib_model to text_model to have it work.
+const CONTENT: &str = include_str!("../static/example.asm");
 
 #[function_component(App)]
 fn app() -> Html {
     // This contains the binary representation of "ori $s0, $zero, 12345", which
     // stores 12345 in register $s0.
-    let code = String::from("ori $s0, $zero, 12345\n");
-    let language = String::from("mips");
+    // let code = String::from("ori $s0, $zero, 12345\n");
+    // let language = String::from("mips");
 
     // This is the initial text model with default text contents. The
     // use_state_eq hook is created so that the component can be updated
     // when the text model changes.
-    let text_model = use_mut_ref(|| TextModel::create(&code, Some(&language), None).unwrap());
+    //let text_model = use_mut_ref(|| TextModel::create(&code, Some(&language), None).unwrap());
+    let text_model = use_mut_ref(|| TextModel::create(CONTENT, Some("mips"), None).unwrap());
 
     // Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
@@ -59,9 +63,13 @@ fn app() -> Html {
     // will highlight the previously executed line.
     // The highlight decor does not need to be changed,
     // the only parameter that will change is the range.
-    let highlight_decor = monaco::sys::editor::IModelDecorationOptions::default();
-    highlight_decor.set_is_whole_line(true.into());
-    highlight_decor.set_inline_class_name("myInlineDecoration".into());
+    let highlight_decor = use_mut_ref(monaco::sys::editor::IModelDecorationOptions::default);
+    (*highlight_decor)
+        .borrow_mut()
+        .set_is_whole_line(true.into());
+    (*highlight_decor)
+        .borrow_mut()
+        .set_inline_class_name("myInlineDecoration".into());
 
     // Output strings for the console and memory viewers.
     let parser_text_output = use_state_eq(String::new);
@@ -161,11 +169,13 @@ fn app() -> Html {
 
         let executed_line = executed_line.clone();
         let not_highlighted = not_highlighted.clone();
+        let highlight_decor = highlight_decor.clone();
 
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
                 let text_model = (*text_model).borrow_mut();
+                let highlight_decor = (*highlight_decor).borrow_mut();
 
                 // Pull ProgramInfo from the parser
                 let (programinfo, _) = parser(text_model.get_value());
@@ -227,11 +237,47 @@ fn app() -> Html {
 
     let on_execute_stage_clicked = {
         let datapath = Rc::clone(&datapath);
+        let text_model = Rc::clone(&text_model);
+        let executed_line = executed_line.clone();
+        let not_highlighted = not_highlighted.clone();
+        let highlight_decor = highlight_decor;
         let trigger = use_force_update();
+
         use_callback(
             move |_, _| {
                 let mut datapath = (*datapath).borrow_mut();
-                (*datapath).execute_stage();
+                let highlight_decor = (*highlight_decor).borrow_mut();
+                if datapath.current_stage == Stage::InstructionDecode {
+                    // highlight on InstructionDecode since syscall stops at that stage.
+                    let text_model = (*text_model).borrow_mut();
+                    let (programinfo, _) = parser(text_model.get_value());
+                    let list_of_line_numbers = programinfo.address_to_line_number;
+                    let index = datapath.registers.pc as usize / 4;
+                    let curr_line = *list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0;
+                    let curr_model = text_model.as_ref();
+                    let curr_range = monaco::sys::Range::new(curr_line, 0.0, curr_line, 0.0);
+                    let highlight_line: monaco::sys::editor::IModelDeltaDecoration =
+                        Object::new().unchecked_into();
+                    highlight_line.set_options(&highlight_decor);
+                    let range_js = curr_range
+                        .dyn_into::<JsValue>()
+                        .expect("Range is not found.");
+                    highlight_line.set_range(&monaco::sys::IRange::from(range_js));
+                    let highlight_js = highlight_line
+                        .dyn_into::<JsValue>()
+                        .expect("Highlight is not found.");
+                    executed_line.push(&highlight_js);
+                    not_highlighted.set(
+                        0,
+                        (*curr_model)
+                            .delta_decorations(&not_highlighted, &executed_line, None)
+                            .into(),
+                    );
+                    (*datapath).execute_stage();
+                    executed_line.pop();
+                } else {
+                    (*datapath).execute_stage();
+                }
                 trigger.force_update();
             },
             (),

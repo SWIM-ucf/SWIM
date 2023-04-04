@@ -39,6 +39,18 @@ mod read_instructions_tests {
     }
 
     #[test]
+    fn read_instructions_addu() {
+        let file_string = "addu $t1, $t2, $t3".to_string();
+
+        let instruction_list = instruction_parser(file_string);
+
+        assert_eq!(
+            instruction_list[0].binary,
+            0b00000001010010110100100000100001
+        );
+    }
+
+    #[test]
     fn read_instructions_sub() {
         let file_string = "sub $t1, $s6, $t2".to_string();
 
@@ -872,7 +884,7 @@ fn create_binary_vec_works_with_data() {
 
 #[test]
 fn read_instructions_recognizes_valid_but_unsupported_instructions() {
-    let program_info = parser("addu $t1, $t2, $t3\ndsrav $t1, $t2, $t3\n".to_string()).0;
+    let program_info = parser("nor $t1, $t2, $t3\ndsrav $t1, $t2, $t3\n".to_string()).0;
 
     assert_eq!(
         program_info.instructions[0].errors[0].error_name,
@@ -892,7 +904,7 @@ fn console_output_post_assembly_works_with_errors() {
     .0
     .console_out_post_assembly;
 
-    assert_eq!(result, "UnrecognizedGPRegister on line 2 with token \"1235\"\nGP register is not recognized.\n\nUnrecognizedGPRegister on line 6 with token \"t1\"\nGP register is not recognized. A valid, similar register is: $t1.\n\nInvalidMemorySyntax on line 6 with token \"address\"\nThe given string for memory does not match syntax of \"offset(base)\" or \"label\".\n\nImproperlyFormattedASCII on line 4 with token \"100\"\nToken recognized as ASCII does not start and or end with double quotes (\").\n\n")
+    assert_eq!(result, "UnrecognizedGPRegister on line 2 with token \"1235\"\nGP register is not recognized.\n\nInvalidMemorySyntax on line 6 with token \"address\"\nThe given string for memory does not match syntax of \"offset(base)\" or \"label\".\n\nImproperlyFormattedASCII on line 4 with token \"100\"\nToken recognized as ASCII does not start and or end with double quotes (\").\n\n")
 }
 
 #[test]
@@ -1047,4 +1059,31 @@ fn supported_instructions_are_recognized_by_parser() {
             assert_ne!(error.error_name, UnrecognizedInstruction);
         }
     }
+}
+
+#[test]
+fn main_and_start_labelled_instructions_change_program_info_pc_starting_point() {
+    let result = parser("addi $t1, $t2, 100\nsw $t1, 400($zero)".to_string())
+        .0
+        .pc_starting_point;
+    assert_eq!(result, 0);
+
+    let result =
+        parser("addi $t1, $t2, 100\nsw $t1, 400($zero)\nmain: lw $t2, 320($zero)".to_string())
+            .0
+            .pc_starting_point;
+    assert_eq!(result, 8);
+
+    let result =
+        parser("addi $t1, $t2, 100\nstart: sw $t1, 400($zero)\nlw $t2, 320($zero)".to_string())
+            .0
+            .pc_starting_point;
+    assert_eq!(result, 4);
+
+    let result = parser(
+        "addi $t1, $t2, 100\nstart: sw $t1, 400($zero)\nmain: lw $t2, 320($zero)".to_string(),
+    )
+    .0
+    .pc_starting_point;
+    assert_eq!(result, 8);
 }
