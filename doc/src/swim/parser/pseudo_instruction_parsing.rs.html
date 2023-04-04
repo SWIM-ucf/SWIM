@@ -2473,7 +2473,7 @@
             <span class="comment">//otherwise, add it at the beginning of monaco
             </span>monaco_line_info[<span class="number">0</span>]
                 .updated_monaco_string
-                .insert_str(<span class="number">0</span>, <span class="macro">format!</span>(<span class="string">&quot;{}.text\n{}syscall\n&quot;</span>, offset, offset).as_str());
+                .insert_str(<span class="number">0</span>, <span class="macro">format!</span>(<span class="string">&quot;{offset}.text\n{offset}syscall\n&quot;</span>).as_str());
 
             instructions.push(Instruction {
                 operator: Token {
@@ -2498,7 +2498,7 @@
                 .<span class="number">0</span>;
             monaco_line_info[last_instruction.line_number]
                 .updated_monaco_string
-                .push_str(<span class="macro">format!</span>(<span class="string">&quot;\n{}syscall&quot;</span>, offset).as_str());
+                .push_str(<span class="macro">format!</span>(<span class="string">&quot;\n{offset}syscall&quot;</span>).as_str());
 
             instructions.push(Instruction {
                 operator: Token {
