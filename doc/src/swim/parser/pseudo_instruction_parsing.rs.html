@@ -1273,6 +1273,11 @@
 <a href="#1273" id="1273">1273</a>
 <a href="#1274" id="1274">1274</a>
 <a href="#1275" id="1275">1275</a>
+<a href="#1276" id="1276">1276</a>
+<a href="#1277" id="1277">1277</a>
+<a href="#1278" id="1278">1278</a>
+<a href="#1279" id="1279">1279</a>
+<a href="#1280" id="1280">1280</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::ErrorType::IncorrectNumberOfOperands;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::TokenType::Operator;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::{
@@ -2443,11 +2448,12 @@
                 <span class="kw">break</span>;
             }
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(..) = dot_text_index {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(dot_text_index) = dot_text_index {
+            <span class="kw">let </span>offset = monaco_line_info[dot_text_index].get_tab_space_offset().<span class="number">0</span>;
             <span class="comment">//add syscall after first index of .text if it exists
-            </span>monaco_line_info[dot_text_index.unwrap()]
+            </span>monaco_line_info[dot_text_index]
                 .updated_monaco_string
-                .push_str(<span class="string">&quot;\nsyscall&quot;</span>);
+                .push_str(<span class="macro">format!</span>(<span class="string">&quot;\n{offset}syscall&quot;</span>).as_str());
 
             instructions.push(Instruction {
                 operator: Token {
@@ -2458,15 +2464,16 @@
                 operands: <span class="macro">vec!</span>[],
                 binary: <span class="number">0</span>,
                 instruction_number: <span class="number">0</span>,
-                line_number: dot_text_index.unwrap(),
+                line_number: dot_text_index,
                 errors: <span class="macro">vec!</span>[],
                 labels: Vec::new(),
             });
         } <span class="kw">else </span>{
+            <span class="kw">let </span>offset = monaco_line_info[<span class="number">0</span>].get_tab_space_offset().<span class="number">0</span>;
             <span class="comment">//otherwise, add it at the beginning of monaco
             </span>monaco_line_info[<span class="number">0</span>]
                 .updated_monaco_string
-                .insert_str(<span class="number">0</span>, <span class="string">&quot;.text\nsyscall\n&quot;</span>);
+                .insert_str(<span class="number">0</span>, <span class="macro">format!</span>(<span class="string">&quot;{}.text\n{}syscall\n&quot;</span>, offset, offset).as_str());
 
             instructions.push(Instruction {
                 operator: Token {
@@ -2486,9 +2493,12 @@
         <span class="kw">let </span>last_instruction = instructions.last().unwrap();
         <span class="comment">//if the last instruction in monaco is not a syscall, add it in to updated_monaco_strings and to instructions
         </span><span class="kw">if </span>last_instruction.operator.token_name != <span class="string">&quot;syscall&quot; </span>{
+            <span class="kw">let </span>offset = monaco_line_info[last_instruction.line_number]
+                .get_tab_space_offset()
+                .<span class="number">0</span>;
             monaco_line_info[last_instruction.line_number]
                 .updated_monaco_string
-                .push_str(<span class="string">&quot;\nsyscall&quot;</span>);
+                .push_str(<span class="macro">format!</span>(<span class="string">&quot;\n{}syscall&quot;</span>, offset).as_str());
 
             instructions.push(Instruction {
                 operator: Token {
