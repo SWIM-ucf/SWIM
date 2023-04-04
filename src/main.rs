@@ -7,7 +7,7 @@ pub mod ui;
 use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
 use emulation_core::mips::datapath::Stage;
-use gloo::{dialogs::alert, file::FileList};
+use gloo::{console::log, dialogs::alert, file::FileList};
 use js_sys::Object;
 use monaco::{
     api::TextModel,
@@ -320,6 +320,7 @@ fn app() -> Html {
         Callback::from(move |_: _| {
             let text_model = (*text_model).borrow_mut();
             clipboard.write_text(text_model.get_value());
+            log!(*clipboard.is_supported);
             alert("Your code is saved to the clipboard.\nPaste it onto a text file to save it.\n(Ctrl/Cmd + V)");
         })
     };
