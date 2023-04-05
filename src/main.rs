@@ -318,13 +318,13 @@ fn app() -> Html {
         let text_model = Rc::clone(&text_model);
         let clipboard = use_clipboard();
         use_callback(
-            move |_, _| {
+            move |_, text_model| {
                 let text_model = (*text_model).borrow_mut();
-                clipboard.write_text(text_model.get_value());
+                clipboard.write_text(text_model.get_value().to_owned());
                 log!(*clipboard.is_supported);
                 alert("Your code is saved to the clipboard.\nPaste it onto a text file to save it.\n(Ctrl/Cmd + V)");
             },
-            (),
+            text_model,
         )
     };
 
