@@ -317,12 +317,15 @@ fn app() -> Html {
     let on_clipboard_clicked = {
         let text_model = Rc::clone(&text_model);
         let clipboard = use_clipboard();
-        Callback::from(move |_: _| {
-            let text_model = (*text_model).borrow_mut();
-            clipboard.write_text(text_model.get_value());
-            log!(*clipboard.is_supported);
-            alert("Your code is saved to the clipboard.\nPaste it onto a text file to save it.\n(Ctrl/Cmd + V)");
-        })
+        use_callback(
+            move |_, _| {
+                let text_model = (*text_model).borrow_mut();
+                clipboard.write_text(text_model.get_value());
+                log!(*clipboard.is_supported);
+                alert("Your code is saved to the clipboard.\nPaste it onto a text file to save it.\n(Ctrl/Cmd + V)");
+            },
+            (),
+        )
     };
 
     // We'll have the Mouse Hover event running at all times.
