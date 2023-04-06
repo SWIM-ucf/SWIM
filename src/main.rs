@@ -42,6 +42,7 @@ fn app() -> Html {
     // stores 12345 in register $s0.
     // let code = String::from("ori $s0, $zero, 12345\n");
     // let language = String::from("mips");
+    let clipboard = use_clipboard();
 
     // This is the initial text model with default text contents. The
     // use_state_eq hook is created so that the component can be updated
@@ -316,16 +317,15 @@ fn app() -> Html {
     // Copies text to the user's clipboard
     let on_clipboard_clicked = {
         let text_model = Rc::clone(&text_model);
-        let clipboard = use_clipboard();
+        let clipboard = clipboard.clone();
         use_callback(
-            move |_, text_model| {
+            move |_, _| {
                 let text_model = (*text_model).borrow_mut();
-                let copy_string = text_model.get_value();
-                clipboard.write_text(copy_string);
+                clipboard.write_text(text_model.get_value());
                 log!(*clipboard.is_supported);
                 alert("Your code is saved to the clipboard.\nPaste it onto a text file to save it.\n(Ctrl/Cmd + V)");
             },
-            text_model,
+            (),
         )
     };
 
@@ -461,6 +461,9 @@ fn app() -> Html {
 
                 // Right column
                 <Regview gp={(*datapath).borrow().registers} fp={(*datapath).borrow().coprocessor.fpr}/>
+                <p>{ format!("Current text: {:?}", *clipboard.text) }</p>
+                <p>{ format!("Copied: {:?}", *clipboard.copied) }</p>
+                <p>{ format!("Is supported: {:?}", *clipboard.is_supported) }</p>
             </div>
         </>
     }
