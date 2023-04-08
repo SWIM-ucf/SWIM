@@ -25,6 +25,26 @@ fn basic_addi() -> Result<(), String> {
 }
 
 #[test]
+fn basic_addiu() -> Result<(), String> {
+    let mut datapath = MipsDatapath::default();
+
+    let instructions = String::from("addiu r14, r17, 5");
+
+    let (_, instruction_bits) = parser(instructions);
+    datapath.initialize(instruction_bits)?;
+
+    datapath.registers.gpr[17] = 500;
+
+    while !datapath.is_halted() {
+        datapath.execute_instruction();
+    }
+
+    assert_eq!(datapath.registers.gpr[14], 505); // 500 + 5
+
+    Ok(())
+}
+
+#[test]
 fn basic_subi() -> Result<(), String> {
     let mut datapath = MipsDatapath::default();
 
