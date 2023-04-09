@@ -27,6 +27,7 @@ enum TabState {
 pub fn console(props: &Consoleprops) -> Html {
     let active_tab = use_state_eq(TabState::default);
     let zoom_datapath = use_bool_toggle(false);
+    let switch_datapath = use_bool_toggle(false);
     let change_tab = {
         let active_tab = active_tab.clone();
         Callback::from(move |event: MouseEvent| {
@@ -59,6 +60,19 @@ pub fn console(props: &Consoleprops) -> Html {
         false => DatapathSize::Small,
     };
 
+    let switch_datapath_type = {
+        let switch_datapath = switch_datapath.clone();
+
+        Callback::from(move |_| {
+            switch_datapath.toggle();
+        })
+    };
+
+    let datapath_type = match *switch_datapath {
+        true => "static/datapath_full.svg",
+        false => "static/datapath_simple.svg",
+    };
+
     html! {
     <>
             // Console buttons
@@ -68,7 +82,7 @@ pub fn console(props: &Consoleprops) -> Html {
                 </pre>
             } else if *active_tab == TabState::Datapath {
                 <div class="datapath-wrapper">
-                    <VisualDatapath datapath={props.datapath.clone()} svg_path={"static/datapath_full.svg"} size={datapath_size} />
+                    <VisualDatapath datapath={props.datapath.clone()} svg_path={datapath_type} size={datapath_size} />
                 </div>
             } else {
                 <div class="console">
@@ -84,6 +98,8 @@ pub fn console(props: &Consoleprops) -> Html {
 
                 if *active_tab == TabState::Datapath {
                     <button class ="tab" onclick={toggle_zoom}>{"Toggle Zoom"}</button>
+                    <button class="tab" onclick={switch_datapath_type}>{"Switch Datapath View"}</button>
+
                 }
             </div>
         </>
