@@ -83,7 +83,7 @@ pub fn console(props: &Consoleprops) -> Html {
                 <button class="tab" label="memory" onclick={change_tab.clone()}>{"Memory"}</button>
 
                 if *active_tab == TabState::Datapath {
-                    <button onclick={toggle_zoom}>{"Toggle Zoom"}</button>
+                    <button class ="tab" onclick={toggle_zoom}>{"Toggle Zoom"}</button>
                 }
             </div>
         </>
