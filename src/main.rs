@@ -150,6 +150,7 @@ fn app() -> Html {
                     }
                     // log!(datapath.memory.to_string());
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
+                    datapath.registers.pc = program_info.pc_starting_point as u64;
                 }
 
                 trigger.force_update();
