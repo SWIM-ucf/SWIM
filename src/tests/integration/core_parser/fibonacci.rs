@@ -58,7 +58,7 @@ fn recursive_fibonacci() -> Result<(), String> {
             sw      $ra,36($sp)
             sw      $fp,32($sp)
             move    $fp,$sp
-            li      $v0,5            # This is where \"n\" is set to 5
+            li      $v0,7            # This is where \"n\" is set to 5
             sw      $v0,24($fp)
             lw      $a0,24($fp)
             jal     fib(int)
@@ -70,7 +70,7 @@ fn recursive_fibonacci() -> Result<(), String> {
             lw      $ra,36($sp)
             lw      $fp,32($sp)
             addiu   $sp,$sp,40
-            jr      $ra
+            syscall                  # This was an $ra, changed to syscall to prevent infinite execution
             nop",
     );
 
@@ -81,7 +81,7 @@ fn recursive_fibonacci() -> Result<(), String> {
         datapath.execute_instruction();
     }
 
-    assert_eq!(datapath.registers[GpRegisterType::V0], 5); // fibo(5) is 5
+    assert_eq!(datapath.registers[GpRegisterType::V0], 13); // fibo(7) is 13
 
     Ok(())
 }
