@@ -27,13 +27,18 @@ body {
   cursor: pointer;
   transition-duration: 0.3s;
 }
-.button:hover {
+.button:hover:not(:disabled), .button:hover:not([disabled]) {
   opacity: 1;
   background-color: gray;
 }
+.button:disabled, .button[disabled] {
+  border-color: black;
+  border-style: solid;
+  background-color: #222;
+  color: #777;
+}
 .button:active {
   background-color: #2e2b2b;
-  color: white;
 }
 /****** Editor ******/
 .editor {
