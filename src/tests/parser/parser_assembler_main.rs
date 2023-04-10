@@ -763,8 +763,11 @@ mod read_instructions_tests {
     fn read_instructions_recognizes_jr_ra() {
         let instruction_list = instruction_parser(".text\njump: jr $ra\nb jump".to_string());
         println!("{:#04x}", instruction_list[0].binary);
-        println!("jr $ra is assembling to {:#032b}, should be 0b000000_11111_00000_00000_00000_001001", instruction_list[0].binary);
-        
+        println!(
+            "jr $ra is assembling to {:#032b}, should be 0b000000_11111_00000_00000_00000_001001",
+            instruction_list[0].binary
+        );
+
         // Page 249 in the MIPS64 release 6 manual
         // https://s3-eu-west-1.amazonaws.com/downloads-mips/documents/MIPS_Architecture_MIPS64_InstructionSet_%20AFP_P_MD00087_06.05.pdf
         assert_eq!(
