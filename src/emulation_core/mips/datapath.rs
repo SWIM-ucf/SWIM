@@ -819,7 +819,7 @@ impl MipsDatapath {
                 self.signals.jump = Jump::YesJump;
                 self.signals.mem_read = MemRead::NoRead;
                 self.signals.mem_to_reg = MemToReg::UsePcPlusFour;
-                self.signals.mem_write = MemWrite::YesWrite;
+                self.signals.mem_write = MemWrite::NoWrite;
                 self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
                 self.signals.reg_dst = RegDst::ReturnRegister;
                 self.signals.reg_width = RegWidth::DoubleWord;
