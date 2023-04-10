@@ -33,7 +33,7 @@ pub fn generate_gpr_rows(gp: GpRegisters) -> Html {
             html! {
                 <tr>
                     <td>{register}</td>
-                    <td>{data.to_string()}</td>
+                    <td>{(data as i64).to_string()}</td>
                 </tr>
             }
         })
@@ -70,7 +70,7 @@ pub fn generate_fpr_rows(fp: [u64; 32]) -> Html {
             html! {
                 <tr>
                     <td>{format!("F{register}")}</td>
-                    <td>{data.to_string()}</td>
+                    <td>{(*data as i64).to_string()}</td>
                 </tr>
             }
         })

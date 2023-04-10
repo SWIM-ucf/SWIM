@@ -25,9 +25,10 @@
     opacity: 1;
     background-color: gray;
 }
-.tab:focus {
-    background-color: #2e2b2b;
-    color: white;
+.tab:focus,
+.tab:active {
+    background-color: #2e2b2b !important;
+    color: white !important;
 }
 .tab::after {
     background-color: #2e2b2b;
