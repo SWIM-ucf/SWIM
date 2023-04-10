@@ -2,7 +2,7 @@
 # mind when writing Jump or Branch instructions. For information
 # on delay slots read https://en.wikipedia.org/wiki/Delay_slot.
 #
-# Make sure to checkout the interactive datapath diagram.
+# Make sure to checkout the interactive datapath diagram equip with mouse hover information.
 
 # This demo code was generated using gcc 12.2 at https://godbolt.org/:
 fib(int):
@@ -57,7 +57,7 @@ main:                           # PC starts here
         li      $v0,5            # This is where "n" is set
         sw      $v0,24($fp)
         lw      $a0,24($fp)
-        jal     fib(int)
+        jal     fib(int)         # fibo(5)
         nop
 
         sw      $v0,28($fp)
@@ -66,7 +66,7 @@ main:                           # PC starts here
         lw      $ra,36($sp)
         lw      $fp,32($sp)
         addiu   $sp,$sp,40
-        jr      $ra
+        syscall                  # replaced jr $ra with syscall to prevent infinite execution
         nop
 
 # Here's the demo code in C:

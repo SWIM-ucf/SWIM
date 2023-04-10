@@ -1562,6 +1562,9 @@
 <a href="#1562" id="1562">1562</a>
 <a href="#1563" id="1563">1563</a>
 <a href="#1564" id="1564">1564</a>
+<a href="#1565" id="1565">1565</a>
+<a href="#1566" id="1566">1566</a>
+<a href="#1567" id="1567">1567</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::assembling::{assemble_data_binary, read_operands};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::OperandType::<span class="kw-2">*</span>;
@@ -2576,8 +2579,11 @@
                 instruction.binary = append_binary(instruction.binary, <span class="number">0b000000</span>, <span class="number">6</span>); <span class="comment">//special
 
                 </span>read_operands(instruction, <span class="macro">vec!</span>[RegisterGP], <span class="macro">vec!</span>[<span class="number">1</span>], <span class="prelude-val">None</span>);
+                instruction.binary = append_binary(instruction.binary, <span class="number">0b00000</span>, <span class="number">5</span>); <span class="comment">// rt
+                </span>instruction.binary = append_binary(instruction.binary, <span class="number">0b00000</span>, <span class="number">5</span>); <span class="comment">// rd
+                </span>instruction.binary = append_binary(instruction.binary, <span class="number">0b00000</span>, <span class="number">5</span>); <span class="comment">// shift/hint
 
-                instruction.binary = append_binary(instruction.binary, <span class="number">0b001001</span>, <span class="number">6</span>); <span class="comment">//jalr
+                </span>instruction.binary = append_binary(instruction.binary, <span class="number">0b001001</span>, <span class="number">6</span>); <span class="comment">//jalr
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 </span><span class="kw">let </span>info = InstructionDescription{
