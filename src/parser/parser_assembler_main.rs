@@ -1012,6 +1012,9 @@ pub fn read_instructions(
                 instruction.binary = append_binary(instruction.binary, 0b000000, 6); //special
 
                 read_operands(instruction, vec![RegisterGP], vec![1], None);
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); // rt
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); // rd
+                instruction.binary = append_binary(instruction.binary, 0b00000, 5); // shift/hint
 
                 instruction.binary = append_binary(instruction.binary, 0b001001, 6); //jalr
 
