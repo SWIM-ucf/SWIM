@@ -51,6 +51,10 @@ pub struct VisualDatapathProps {
 
 pub struct VisualDatapath {
     active_listeners: Rc<RefCell<Vec<EventListener>>>,
+    /// Indicates an instance where the visual datapath should force re-render.
+    ///
+    /// This can occur if the `svg_path` property of the component changes.
+    should_reinitialize: bool,
 }
 
 #[derive(Clone, Copy, Default, PartialEq)]
@@ -67,6 +71,7 @@ impl Component for VisualDatapath {
     fn create(_ctx: &Context<Self>) -> Self {
         VisualDatapath {
             active_listeners: Rc::new(RefCell::new(vec![])),
+            should_reinitialize: false,
         }
     }
 
@@ -107,8 +112,9 @@ impl Component for VisualDatapath {
             Stage::WriteBack => "memory",
         });
 
-        if first_render {
+        if first_render || self.should_reinitialize {
             self.initialize(current_stage, ctx.props().datapath.clone());
+            self.should_reinitialize = false;
         } else {
             let result = Self::highlight_stage(
                 &get_g_elements(),
@@ -123,8 +129,13 @@ impl Component for VisualDatapath {
         }
     }
 
-    fn changed(&mut self, _ctx: &Context<Self>, _old_props: &Self::Properties) -> bool {
+    fn changed(&mut self, ctx: &Context<Self>, old_props: &Self::Properties) -> bool {
         self.clear_event_listeners();
+
+        // Re-initialize the component if the path name changed.
+        if old_props.svg_path != ctx.props().svg_path {
+            self.should_reinitialize = true;
+        }
 
         true
     }
