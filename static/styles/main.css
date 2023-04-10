@@ -3,9 +3,9 @@ body {
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
 }
 
-/* CSS */
+/****** Buttons ******/
 .buttons {
-  width: 100%;
+  display: inline-block;
   margin: 0 auto;
 }
 .buttons .button:first-child {
@@ -40,6 +40,7 @@ body {
 .button:active {
   background-color: #2e2b2b;
 }
+
 /****** Editor ******/
 .editor {
   max-height: 1px;
@@ -78,6 +79,14 @@ body {
   overflow: auto;
   width: 100%;
   flex-basis: 50%;
+}
+
+.button-bar {
+  width: 100%;
+}
+
+.button-bar > .tabs + .buttons {
+  margin-left: 8px;
 }
 
 /****** Register View ******/
