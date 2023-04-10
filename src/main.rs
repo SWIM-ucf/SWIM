@@ -372,11 +372,8 @@ fn app() -> Html {
             // log!(hover_jsarray.clone());
 
             // properly pass the handlers onto the array
-            let new_hover_decor_array = curr_model.delta_decorations(
-                &hover_decor_array.borrow_mut(),
-                &hover_jsarray,
-                None,
-            );
+            let new_hover_decor_array =
+                curr_model.delta_decorations(&hover_decor_array.borrow_mut(), &hover_jsarray, None);
             *hover_decor_array.borrow_mut() = new_hover_decor_array;
 
             // log!("These are the arrays after calling Delta Decorations");
