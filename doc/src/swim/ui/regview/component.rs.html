@@ -265,7 +265,7 @@
             <span class="macro">html! </span>{
                 &lt;tr&gt;
                     &lt;td&gt;{register}&lt;/td&gt;
-                    &lt;td&gt;{data.to_string()}&lt;/td&gt;
+                    &lt;td&gt;{(data <span class="kw">as </span>i64).to_string()}&lt;/td&gt;
                 &lt;/tr&gt;
             }
         })
@@ -302,7 +302,7 @@
             <span class="macro">html! </span>{
                 &lt;tr&gt;
                     &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;F{register}&quot;</span>)}&lt;/td&gt;
-                    &lt;td&gt;{data.to_string()}&lt;/td&gt;
+                    &lt;td&gt;{(<span class="kw-2">*</span>data <span class="kw">as </span>i64).to_string()}&lt;/td&gt;
                 &lt;/tr&gt;
             }
         })
