@@ -4,11 +4,7 @@
 #
 # Make sure to checkout the interactive datapath diagram.
 
-
-
 # This demo code was generated using gcc 12.2 at https://godbolt.org/:
-        j       main            # Make sure to manually add this line for gcc generated code
-
 fib(int):
         addiu   $sp,$sp,-40
         sw      $ra,36($sp)
@@ -53,7 +49,7 @@ L3:
         jr      $ra
         nop
 
-main:
+main:                           # PC starts here
         addiu   $sp,$sp,-40
         sw      $ra,36($sp)
         sw      $fp,32($sp)
