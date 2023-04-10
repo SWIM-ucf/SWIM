@@ -180,7 +180,7 @@ pub fn regview(props: &Regviewprops) -> Html {
     //log!("This is ", *switch_flag);
     html! {
         <div style="flex-grow: 1; gap: 8px; display: flex; flex-direction: column; flex-wrap: nowrap;">
-            <div class="buttons">
+            <div class="button-bar buttons">
                     <button class="button" label="dec" onclick={change_view.clone()}>{"Dec"}</button>
                     <button class="button" label="bin" onclick={change_view.clone()}>{"Bin"}</button>
                     <button class="button" label="hex" onclick={change_view.clone()}>{"Hex"}</button>
@@ -189,7 +189,7 @@ pub fn regview(props: &Regviewprops) -> Html {
                     <button class="button" label="double" onclick={change_view.clone()}>{"Double"}</button>
                 }
             </div>
-            <div class="tabs">
+            <div class="button-bar tabs">
                 <button class="tab" style="width: 50%;" onclick={on_switch_clicked_true.clone()}>{"GP"}</button>
                 <button class="tab" style="width: 50%;" onclick={on_switch_clicked_false.clone()}>{"FP"}</button>
             </div>

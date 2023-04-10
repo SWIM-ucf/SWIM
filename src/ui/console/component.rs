@@ -73,6 +73,11 @@ pub fn console(props: &Consoleprops) -> Html {
         false => "static/datapath_simple.svg",
     };
 
+    let switch_datapath_button_label = match *switch_datapath {
+        true => "Switch to Simple Datapath",
+        false => "Switch to Full Datapath",
+    };
+
     html! {
     <>
             // Console buttons
@@ -91,15 +96,18 @@ pub fn console(props: &Consoleprops) -> Html {
                     </pre>
                 </div>
             }
-            <div class="tabs">
-                <button class="tab" label="console" onclick={change_tab.clone()}>{"Console"}</button>
-                <button class="tab" label="memory" onclick={change_tab.clone()}>{"Memory"}</button>
-                <button class="tab" label="datapath" onclick={change_tab.clone()}>{"Datapath"}</button>
+            <div class="button-bar">
+                <div class="tabs">
+                    <button class="tab" label="console" onclick={change_tab.clone()}>{"Console"}</button>
+                    <button class="tab" label="memory" onclick={change_tab.clone()}>{"Memory"}</button>
+                    <button class="tab" label="datapath" onclick={change_tab.clone()}>{"Datapath"}</button>
+                </div>
 
                 if *active_tab == TabState::Datapath {
-                    <button class ="tab" onclick={toggle_zoom}>{"Toggle Zoom"}</button>
-                    <button class="tab" onclick={switch_datapath_type}>{"Switch Datapath View"}</button>
-
+                    <div class="buttons">
+                        <button class="button" onclick={toggle_zoom}>{"Toggle Zoom"}</button>
+                        <button class="button" onclick={switch_datapath_type}>{switch_datapath_button_label}</button>
+                    </div>
                 }
             </div>
         </>
