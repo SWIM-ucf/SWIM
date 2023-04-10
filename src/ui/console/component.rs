@@ -68,7 +68,7 @@ pub fn console(props: &Consoleprops) -> Html {
         })
     };
 
-    let datapath_type = match *switch_datapath {
+    let svg_path = match *switch_datapath {
         true => "static/datapath_full.svg",
         false => "static/datapath_simple.svg",
     };
@@ -82,7 +82,7 @@ pub fn console(props: &Consoleprops) -> Html {
                 </pre>
             } else if *active_tab == TabState::Datapath {
                 <div class="datapath-wrapper">
-                    <VisualDatapath datapath={props.datapath.clone()} svg_path={datapath_type} size={datapath_size} />
+                    <VisualDatapath datapath={props.datapath.clone()} svg_path={svg_path} size={datapath_size} />
                 </div>
             } else {
                 <div class="console">
