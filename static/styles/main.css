@@ -3,9 +3,9 @@ body {
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
 }
 
-/* CSS */
+/****** Buttons ******/
 .buttons {
-  width: 100%;
+  display: inline-block;
   margin: 0 auto;
 }
 .buttons .button:first-child {
@@ -27,14 +27,20 @@ body {
   cursor: pointer;
   transition-duration: 0.3s;
 }
-.button:hover {
+.button:hover:not(:disabled), .button:hover:not([disabled]) {
   opacity: 1;
   background-color: gray;
 }
+.button:disabled, .button[disabled] {
+  border-color: black;
+  border-style: solid;
+  background-color: #222;
+  color: #777;
+}
 .button:active {
   background-color: #2e2b2b;
-  color: white;
 }
+
 /****** Editor ******/
 .editor {
   max-height: 1px;
@@ -73,6 +79,14 @@ body {
   overflow: auto;
   width: 100%;
   flex-basis: 50%;
+}
+
+.button-bar {
+  width: 100%;
+}
+
+.button-bar > .tabs + .buttons {
+  margin-left: 8px;
 }
 
 /****** Register View ******/

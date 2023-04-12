@@ -1,5 +1,5 @@
 .tabs {
-    width: 100%;
+    display: inline-block;
     margin: 0 auto;
 }
 .tabs .tab:first-child {

@@ -105,6 +105,14 @@
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
 </pre><pre class="rust"><code><span class="comment">//use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
 //use monaco::api::TextModel;
 </span><span class="kw">use </span>wasm_bindgen::JsCast;
@@ -175,9 +183,14 @@
         })
     };
 
-    <span class="kw">let </span>datapath_type = <span class="kw">match </span><span class="kw-2">*</span>switch_datapath {
+    <span class="kw">let </span>svg_path = <span class="kw">match </span><span class="kw-2">*</span>switch_datapath {
         <span class="bool-val">true </span>=&gt; <span class="string">&quot;static/datapath_full.svg&quot;</span>,
         <span class="bool-val">false </span>=&gt; <span class="string">&quot;static/datapath_simple.svg&quot;</span>,
+    };
+
+    <span class="kw">let </span>switch_datapath_button_label = <span class="kw">match </span><span class="kw-2">*</span>switch_datapath {
+        <span class="bool-val">true </span>=&gt; <span class="string">&quot;Switch to Simple Datapath&quot;</span>,
+        <span class="bool-val">false </span>=&gt; <span class="string">&quot;Switch to Full Datapath&quot;</span>,
     };
 
     <span class="macro">html! </span>{
@@ -189,7 +202,7 @@
                 &lt;/pre&gt;
             } <span class="kw">else if </span><span class="kw-2">*</span>active_tab == TabState::Datapath {
                 &lt;div class=<span class="string">&quot;datapath-wrapper&quot;</span>&gt;
-                    &lt;VisualDatapath datapath={props.datapath.clone()} svg_path={datapath_type} size={datapath_size} /&gt;
+                    &lt;VisualDatapath datapath={props.datapath.clone()} svg_path={svg_path} size={datapath_size} /&gt;
                 &lt;/div&gt;
             } <span class="kw">else </span>{
                 &lt;div class=<span class="string">&quot;console&quot;</span>&gt;
@@ -198,15 +211,18 @@
                     &lt;/pre&gt;
                 &lt;/div&gt;
             }
-            &lt;div class=<span class="string">&quot;tabs&quot;</span>&gt;
-                &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;console&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Console&quot;</span>}&lt;/button&gt;
-                &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;memory&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Memory&quot;</span>}&lt;/button&gt;
-                &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;datapath&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Datapath&quot;</span>}&lt;/button&gt;
+            &lt;div class=<span class="string">&quot;button-bar&quot;</span>&gt;
+                &lt;div class=<span class="string">&quot;tabs&quot;</span>&gt;
+                    &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;console&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Console&quot;</span>}&lt;/button&gt;
+                    &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;memory&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Memory&quot;</span>}&lt;/button&gt;
+                    &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;datapath&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Datapath&quot;</span>}&lt;/button&gt;
+                &lt;/div&gt;
 
                 <span class="kw">if </span><span class="kw-2">*</span>active_tab == TabState::Datapath {
-                    &lt;button class =<span class="string">&quot;tab&quot; </span>onclick={toggle_zoom}&gt;{<span class="string">&quot;Toggle Zoom&quot;</span>}&lt;/button&gt;
-                    &lt;button class=<span class="string">&quot;tab&quot; </span>onclick={switch_datapath_type}&gt;{<span class="string">&quot;Switch Datapath View&quot;</span>}&lt;/button&gt;
-
+                    &lt;div class=<span class="string">&quot;buttons&quot;</span>&gt;
+                        &lt;button class=<span class="string">&quot;button&quot; </span>onclick={toggle_zoom}&gt;{<span class="string">&quot;Toggle Zoom&quot;</span>}&lt;/button&gt;
+                        &lt;button class=<span class="string">&quot;button&quot; </span>onclick={switch_datapath_type}&gt;{switch_datapath_button_label}&lt;/button&gt;
+                    &lt;/div&gt;
                 }
             &lt;/div&gt;
         &lt;/&gt;
