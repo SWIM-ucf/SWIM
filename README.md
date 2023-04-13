@@ -99,8 +99,8 @@ Supported Pseudo-instructions:
 - sgtu
 - sge
 - sgeu
-- lw
-- sw
+- lw (followed by a label)
+- sw (followed by a label)
 - subi
 - dsubi
 - dsubiu
