@@ -88,28 +88,28 @@ Supported Instructions:
 	- bc1t
 	- bc1f
 
-Supported Pseudo-instructions:
-- li
-- move
-- seq
-- sne
-- sle
-- sleu
-- sgt
-- sgtu
-- sge
-- sgeu
-- lw (followed by a label)
-- sw (followed by a label)
-- subi
-- dsubi
-- dsubiu
-- muli
-- dmuli
-- dmuliu
-- divi
-- ddivi
-- ddiviu
+- Supported Pseudo-instructions:
+	- li
+	- move
+	- seq
+	- sne
+	- sle
+	- sleu
+	- sgt
+	- sgtu
+	- sge
+	- sgeu
+	- lw (followed by a label)
+	- sw (followed by a label)
+	- subi
+	- dsubi
+	- dsubiu
+	- muli
+	- dmuli
+	- dmuliu
+	- divi
+	- ddivi
+	- ddiviu
 
 Supported .data directives:
 - .ascii
