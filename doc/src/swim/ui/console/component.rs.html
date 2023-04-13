@@ -113,6 +113,20 @@
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
 </pre><pre class="rust"><code><span class="comment">//use crate::parser::parser_structs_and_enums::instruction_tokenization::ProgramInfo;
 //use monaco::api::TextModel;
 </span><span class="kw">use </span>wasm_bindgen::JsCast;
@@ -213,9 +227,23 @@
             }
             &lt;div class=<span class="string">&quot;button-bar&quot;</span>&gt;
                 &lt;div class=<span class="string">&quot;tabs&quot;</span>&gt;
-                    &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;console&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Console&quot;</span>}&lt;/button&gt;
-                    &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;memory&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Memory&quot;</span>}&lt;/button&gt;
-                    &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;datapath&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Datapath&quot;</span>}&lt;/button&gt;
+                    <span class="kw">if </span><span class="kw-2">*</span>active_tab == TabState::Console {
+                        &lt;button class={<span class="macro">classes!</span>(<span class="string">&quot;tab&quot;</span>, <span class="string">&quot;pressed&quot;</span>)} label=<span class="string">&quot;console&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Console&quot;</span>}&lt;/button&gt;
+                    } <span class="kw">else </span>{
+                        &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;console&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Console&quot;</span>}&lt;/button&gt;
+                    }
+
+                    <span class="kw">if </span><span class="kw-2">*</span>active_tab == TabState::Memory {
+                        &lt;button class={<span class="macro">classes!</span>(<span class="string">&quot;tab&quot;</span>, <span class="string">&quot;pressed&quot;</span>)} label=<span class="string">&quot;memory&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Memory&quot;</span>}&lt;/button&gt;
+                    } <span class="kw">else </span>{
+                        &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;memory&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Memory&quot;</span>}&lt;/button&gt;
+                    }
+
+                    <span class="kw">if </span><span class="kw-2">*</span>active_tab == TabState::Datapath {
+                        &lt;button class={<span class="macro">classes!</span>(<span class="string">&quot;tab&quot;</span>, <span class="string">&quot;pressed&quot;</span>)} label=<span class="string">&quot;datapath&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Datapath&quot;</span>}&lt;/button&gt;
+                    } <span class="kw">else </span>{
+                        &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;datapath&quot; </span>onclick={change_tab.clone()}&gt;{<span class="string">&quot;Datapath&quot;</span>}&lt;/button&gt;
+                    }
                 &lt;/div&gt;
 
                 <span class="kw">if </span><span class="kw-2">*</span>active_tab == TabState::Datapath {
