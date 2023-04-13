@@ -291,6 +291,7 @@ fn app() -> Html {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
+        let parser_text_output = parser_text_output.clone();
 
         let executed_line = executed_line;
         let not_highlighted = not_highlighted;
@@ -307,6 +308,7 @@ fn app() -> Html {
                         .delta_decorations(&not_highlighted, &executed_line, None)
                         .into(),
                 );
+                parser_text_output.set("".to_string());
                 datapath.reset();
                 trigger.force_update();
             },
