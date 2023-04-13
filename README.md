@@ -2,6 +2,8 @@
 
 This was originally developed by Kevin Cahalan, Jerrett Longworth, Huy Nguyen, Evan Raiford, and Jimmie Smith at UCF as a senior design project.
 
+![Screenshot of Swim V1](media/swim-screenshot.png)
+
 A web-based emulator for MIPS64 made for educational purposes. Its emulation core supports over 60 real instructions and 20 pseudo-instuctions and an user interface that provides the following features:
 - Step execute and execute code down to the individual [stages](https://en.wikipedia.org/wiki/Instruction_cycle)
 - Upload files to SWIM and Copy code to the user's clipboard to be saved locally 
@@ -14,7 +16,7 @@ A web-based emulator for MIPS64 made for educational purposes. Its emulation cor
 - A console viewer to display errors and suggestions on fixing them
 - A memory viewer to see the code compiled and updated as it executes
 - A visualization of the datapath to see the individual parts that make up the general and floating-point coprocessors and the values inside each wire
-- Utilizes the Monaco Code Editor library to provide:
+- Utilizes the [Monaco Editor](https://microsoft.github.io/monaco-editor/) code library to provide:
 	- Syntax highlighting of our custom language
 	- Highlighting the previously executed line
 	- Providing mouse hover information on instructions and errors
