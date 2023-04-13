@@ -99,8 +99,8 @@ Supported Pseudo-instructions:
 - sgtu
 - sge
 - sgeu
-- lw `(followed by a label)`
-- sw `(followed by a label)`
+- lw
+- sw
 - subi
 - dsubi
 - dsubiu
@@ -128,7 +128,6 @@ All of this wholly developed with the [Rust](https://www.rust-lang.org/) languag
 While SWIM is currently being hosted [here](https://swim-ucf.github.io/SWIM/), you can compile and run it locally on your browser as long as it supports WebAssembly.
 
 1. Install the latest stable rust toolchain with `rustup` at https://www.rust-lang.org/tools/install
-	- If you plan on compiling the source yourself, make sure to add WebAssembly as a compile target by typing `rustup target add wasm32-unknown-unknown` in your terminal
 2. Install [trunk](https://trunkrs.dev/#install)
 3. `git clone` the repository or download the source here
 4. When you are in the root directory of the project, type `trunk serve --open` in your terminal to load it locally
