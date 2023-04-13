@@ -155,7 +155,7 @@ pub fn regview(props: &Regviewprops) -> Html {
             active_view.set(new_mode);
         })
     };
-    let on_switch_clicked_false = {
+    let on_switch_clicked_fp = {
         let switch_flag = switch_flag.clone();
         use_callback(
             move |_, switch_flag| {
@@ -166,7 +166,7 @@ pub fn regview(props: &Regviewprops) -> Html {
             switch_flag,
         )
     };
-    let on_switch_clicked_true = {
+    let on_switch_clicked_gp = {
         let switch_flag = switch_flag.clone();
         use_callback(
             move |_, switch_flag| {
@@ -180,18 +180,48 @@ pub fn regview(props: &Regviewprops) -> Html {
     //log!("This is ", *switch_flag);
     html! {
         <div style="flex-grow: 1; gap: 8px; display: flex; flex-direction: column; flex-wrap: nowrap;">
-            <div class="button-bar buttons">
-                    <button class="button" label="dec" onclick={change_view.clone()}>{"Dec"}</button>
-                    <button class="button" label="bin" onclick={change_view.clone()}>{"Bin"}</button>
-                    <button class="button" label="hex" onclick={change_view.clone()}>{"Hex"}</button>
+            <div class="button-bar tabs">
+                if *active_view == UnitState::Dec {
+                    <button class={classes!("tab", "pressed")} label="dec" onclick={change_view.clone()}>{"Dec"}</button>
+                } else {
+                    <button class="tab" label="dec" onclick={change_view.clone()}>{"Dec"}</button>
+                }
+                
+                if *active_view == UnitState::Bin {
+                    <button class={classes!("tab", "pressed")} label="bin" onclick={change_view.clone()}>{"Bin"}</button>
+                } else {
+                    <button class="tab" label="bin" onclick={change_view.clone()}>{"Bin"}</button>
+                }
+
+                if *active_view == UnitState::Hex {
+                    <button class={classes!("tab", "pressed")} label="hex" onclick={change_view.clone()}>{"Hex"}</button>
+                } else {
+                    <button class="tab" label="hex" onclick={change_view.clone()}>{"Hex"}</button>
+                }
                 if !*switch_flag{
-                    <button class="button" label="float" onclick={change_view.clone()}>{"Float"}</button>
-                    <button class="button" label="double" onclick={change_view.clone()}>{"Double"}</button>
+                    if *active_view == UnitState::Float {
+                        <button class={classes!("tab", "pressed")} label="float" onclick={change_view.clone()}>{"Float"}</button>
+                    } else {
+                        <button class="tab" label="float" onclick={change_view.clone()}>{"Float"}</button>
+                    }
+                    if *active_view == UnitState::Double {
+                        <button class={classes!("tab", "pressed")} label="double" onclick={change_view.clone()}>{"Double"}</button>
+                    } else {
+                        <button class="tab" label="double" onclick={change_view.clone()}>{"Double"}</button>
+                    }
                 }
             </div>
             <div class="button-bar tabs">
-                <button class="tab" style="width: 50%;" onclick={on_switch_clicked_true.clone()}>{"GP"}</button>
-                <button class="tab" style="width: 50%;" onclick={on_switch_clicked_false.clone()}>{"FP"}</button>
+            if *switch_flag == true {
+                <button class={classes!("tab", "pressed")} style="width: 50%;" onclick={on_switch_clicked_gp.clone()}>{"GP"}</button>
+            } else {
+                <button class="tab" style="width: 50%;" onclick={on_switch_clicked_gp.clone()}>{"GP"}</button>
+            }   
+            if *switch_flag == false {
+                <button class={classes!("tab", "pressed")} style="width: 50%;" onclick={on_switch_clicked_fp.clone()}>{"FP"}</button>
+            } else {
+                <button class="tab" style="width: 50%;" onclick={on_switch_clicked_fp.clone()}>{"FP"}</button>
+            }
             </div>
             <div class="table-wrapper">
                 <table style="background-color: #ffffff">

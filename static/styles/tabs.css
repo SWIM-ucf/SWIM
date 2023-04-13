@@ -33,3 +33,10 @@
 .tab::after {
     background-color: #2e2b2b;
 }
+.pressed {
+    background-color: #2e2b2b ;
+    padding: 2px 16px 2px 16px;
+    color: white;
+    text-align: center;
+    display: inline-block;
+}
