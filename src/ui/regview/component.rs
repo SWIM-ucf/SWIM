@@ -186,7 +186,7 @@ pub fn regview(props: &Regviewprops) -> Html {
                 } else {
                     <button class="tab" label="dec" onclick={change_view.clone()}>{"Dec"}</button>
                 }
-                
+
                 if *active_view == UnitState::Bin {
                     <button class={classes!("tab", "pressed")} label="bin" onclick={change_view.clone()}>{"Bin"}</button>
                 } else {
@@ -212,12 +212,12 @@ pub fn regview(props: &Regviewprops) -> Html {
                 }
             </div>
             <div class="button-bar tabs">
-            if *switch_flag == true {
+            if *switch_flag {
                 <button class={classes!("tab", "pressed")} style="width: 50%;" onclick={on_switch_clicked_gp.clone()}>{"GP"}</button>
             } else {
                 <button class="tab" style="width: 50%;" onclick={on_switch_clicked_gp.clone()}>{"GP"}</button>
-            }   
-            if *switch_flag == false {
+            }
+            if !(*switch_flag){
                 <button class={classes!("tab", "pressed")} style="width: 50%;" onclick={on_switch_clicked_fp.clone()}>{"FP"}</button>
             } else {
                 <button class="tab" style="width: 50%;" onclick={on_switch_clicked_fp.clone()}>{"FP"}</button>

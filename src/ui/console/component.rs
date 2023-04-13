@@ -109,7 +109,7 @@ pub fn console(props: &Consoleprops) -> Html {
                     } else {
                         <button class="tab" label="memory" onclick={change_tab.clone()}>{"Memory"}</button>
                     }
-                    
+
                     if *active_tab == TabState::Datapath {
                         <button class={classes!("tab", "pressed")} label="datapath" onclick={change_tab.clone()}>{"Datapath"}</button>
                     } else {
