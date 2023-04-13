@@ -88,7 +88,7 @@ Supported Instructions:
 	- bc1t
 	- bc1f
 
-- Supported Pseudo-instructions:
+- Pseudo-instructions:
 	- li
 	- move
 	- seq
