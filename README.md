@@ -9,9 +9,9 @@ A web-based emulator for MIPS64 made for educational purposes. Its emulation cor
 - Upload files to SWIM and Copy code to the user's clipboard to be saved locally 
 	- Note: For Chromium-based browsers on Mac, the user will have to manually copy-paste the code onto a text editor. This is done as followed:
 		1. Click on the Editor window.
-		2. Press `(Cmd + A)` to select all text.
-		3. Press `(Cmd + C)` to copy the text on your clipboard.
-		4. Press `(Cmd + V)` to paste the text in your text editor to save the code.
+		2. Press `Cmd + A` to select all text.
+		3. Press `Cmd + C` to copy the text on your clipboard.
+		4. Press `Cmd + V` to paste the text in your text editor to save the code.
 - A register viewer that displays General Purpose and Floating Point registers with toggling to different views (decimal, binary, hexadecimal, float, double)
 - A console viewer to display errors and suggestions on fixing them
 - A memory viewer to see the code compiled and updated as it executes
