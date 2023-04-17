@@ -79,6 +79,7 @@ body {
   overflow: auto;
   width: 100%;
   flex-basis: 50%;
+  background-color: #FFF;
 }
 
 .button-bar {
