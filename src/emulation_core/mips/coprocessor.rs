@@ -17,7 +17,7 @@ pub struct MipsFpCoprocessor {
 
     pub fpr: [u64; 32],
     pub condition_code: u64,
-    data: u64,
+    pub data: u64,
 }
 
 #[derive(Clone, Default, PartialEq)]
