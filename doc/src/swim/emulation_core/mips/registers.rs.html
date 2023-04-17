@@ -218,6 +218,7 @@
 <a href="#218" id="218">218</a>
 <a href="#219" id="219">219</a>
 <a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Register structure and API.
 
 </span><span class="kw">use </span>std::ops::{Index, IndexMut};
@@ -236,40 +237,41 @@
 /// of [`GpRegisters`].
 </span><span class="attr">#[derive(Clone, Copy, Debug, Display, EnumIter, EnumString, Eq, PartialEq)]
 #[strum(ascii_case_insensitive)]
+#[strum(serialize_all = <span class="string">&quot;lowercase&quot;</span>)]
 </span><span class="kw">pub enum </span>GpRegisterType {
-    Pc,
-    Zero,
-    At,
-    V0,
-    V1,
-    A0,
-    A1,
-    A2,
-    A3,
-    T0,
-    T1,
-    T2,
-    T3,
-    T4,
-    T5,
-    T6,
-    T7,
-    S0,
-    S1,
-    S2,
-    S3,
-    S4,
-    S5,
-    S6,
-    S7,
-    T8,
-    T9,
-    K0,
-    K1,
-    Gp,
-    Sp,
-    Fp,
-    Ra,
+    Pc = -<span class="number">1</span>,
+    Zero = <span class="number">0</span>,
+    At = <span class="number">1</span>,
+    V0 = <span class="number">2</span>,
+    V1 = <span class="number">3</span>,
+    A0 = <span class="number">4</span>,
+    A1 = <span class="number">5</span>,
+    A2 = <span class="number">6</span>,
+    A3 = <span class="number">7</span>,
+    T0 = <span class="number">8</span>,
+    T1 = <span class="number">9</span>,
+    T2 = <span class="number">10</span>,
+    T3 = <span class="number">11</span>,
+    T4 = <span class="number">12</span>,
+    T5 = <span class="number">13</span>,
+    T6 = <span class="number">14</span>,
+    T7 = <span class="number">15</span>,
+    S0 = <span class="number">16</span>,
+    S1 = <span class="number">17</span>,
+    S2 = <span class="number">18</span>,
+    S3 = <span class="number">19</span>,
+    S4 = <span class="number">20</span>,
+    S5 = <span class="number">21</span>,
+    S6 = <span class="number">22</span>,
+    S7 = <span class="number">23</span>,
+    T8 = <span class="number">24</span>,
+    T9 = <span class="number">25</span>,
+    K0 = <span class="number">26</span>,
+    K1 = <span class="number">27</span>,
+    Gp = <span class="number">28</span>,
+    Sp = <span class="number">29</span>,
+    Fp = <span class="number">30</span>,
+    Ra = <span class="number">31</span>,
 }
 
 <span class="kw">impl </span>ToString <span class="kw">for </span>GpRegisters {

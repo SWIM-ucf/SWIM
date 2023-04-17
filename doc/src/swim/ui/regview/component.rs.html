@@ -260,7 +260,16 @@
 <a href="#260" id="260">260</a>
 <a href="#261" id="261">261</a>
 <a href="#262" id="262">262</a>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::emulation_core::mips::registers::GpRegisters;
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::emulation_core::mips::registers::{GpRegisterType, GpRegisters};
 <span class="comment">//use gloo::console::log;
 </span><span class="kw">use </span>wasm_bindgen::JsCast;
 <span class="kw">use </span>web_sys::HtmlElement;
@@ -294,7 +303,7 @@
         .map(|(register, data)| {
             <span class="macro">html! </span>{
                 &lt;tr&gt;
-                    &lt;td&gt;{register}&lt;/td&gt;
+                    &lt;td&gt;{get_gpr_name(register)}&lt;/td&gt;
                     &lt;td&gt;{(data <span class="kw">as </span>i64).to_string()}&lt;/td&gt;
                 &lt;/tr&gt;
             }
@@ -306,7 +315,7 @@
         .map(|(register, data)| {
             <span class="macro">html! </span>{
                 &lt;tr&gt;
-                    &lt;td&gt;{register}&lt;/td&gt;
+                    &lt;td&gt;{get_gpr_name(register)}&lt;/td&gt;
                     &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{data:#04x?}&quot;</span>).to_string()}&lt;/td&gt;
                 &lt;/tr&gt;
             }
@@ -318,7 +327,7 @@
         .map(|(register, data)| {
             <span class="macro">html! </span>{
                 &lt;tr&gt;
-                    &lt;td&gt;{register}&lt;/td&gt;
+                    &lt;td&gt;{get_gpr_name(register)}&lt;/td&gt;
                     &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{data:#b}&quot;</span>).to_string()}&lt;/td&gt;
                 &lt;/tr&gt;
             }
@@ -331,7 +340,7 @@
         .map(|(register, data)| {
             <span class="macro">html! </span>{
                 &lt;tr&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;F{register}&quot;</span>)}&lt;/td&gt;
+                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;f{register}&quot;</span>)}&lt;/td&gt;
                     &lt;td&gt;{(<span class="kw-2">*</span>data <span class="kw">as </span>i64).to_string()}&lt;/td&gt;
                 &lt;/tr&gt;
             }
@@ -344,7 +353,7 @@
         .map(|(register, data)| {
             <span class="macro">html! </span>{
                 &lt;tr&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;F{register}&quot;</span>)}&lt;/td&gt;
+                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;f{register}&quot;</span>)}&lt;/td&gt;
                     &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{data:#04x?}&quot;</span>).to_string()}&lt;/td&gt;
                 &lt;/tr&gt;
             }
@@ -357,7 +366,7 @@
         .map(|(register, data)| {
             <span class="macro">html! </span>{
                 &lt;tr&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;F{register}&quot;</span>)}&lt;/td&gt;
+                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;f{register}&quot;</span>)}&lt;/td&gt;
                     &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{data:#b}&quot;</span>).to_string()}&lt;/td&gt;
                 &lt;/tr&gt;
             }
@@ -371,7 +380,7 @@
         .map(|(register, data)| {
             <span class="macro">html! </span>{
                 &lt;tr&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;F{register}&quot;</span>)}&lt;/td&gt;
+                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;f{register}&quot;</span>)}&lt;/td&gt;
                     &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{:e}&quot;</span>,f32::from_bits((<span class="kw-2">*</span>data).try_into().unwrap())).to_string()}&lt;/td&gt;
                 &lt;/tr&gt;
             }
@@ -385,12 +394,21 @@
         .map(|(register, data)| {
             <span class="macro">html! </span>{
                 &lt;tr&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;F{register}&quot;</span>)}&lt;/td&gt;
+                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;f{register}&quot;</span>)}&lt;/td&gt;
                     &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{:e}&quot;</span>, f64::from_bits(<span class="kw-2">*</span>data)).to_string()}&lt;/td&gt;
                 &lt;/tr&gt;
             }
         })
         .collect::&lt;Html&gt;()
+}
+
+<span class="doccomment">/// Returns the text to be shown for a general-purpose register.
+</span><span class="kw">pub fn </span>get_gpr_name(register: GpRegisterType) -&gt; String {
+    <span class="kw">if </span>register == GpRegisterType::Pc {
+        register.to_string()
+    } <span class="kw">else </span>{
+        <span class="macro">format!</span>(<span class="string">&quot;{} (r{})&quot;</span>, register, register <span class="kw">as </span>u32)
+    }
 }
 
 <span class="attr">#[function_component(Regview)]
