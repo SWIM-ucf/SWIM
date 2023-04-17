@@ -1,4 +1,4 @@
-use crate::emulation_core::mips::registers::GpRegisters;
+use crate::emulation_core::mips::registers::{GpRegisterType, GpRegisters};
 //use gloo::console::log;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
@@ -32,7 +32,7 @@ pub fn generate_gpr_rows(gp: GpRegisters) -> Html {
         .map(|(register, data)| {
             html! {
                 <tr>
-                    <td>{register}</td>
+                    <td>{get_gpr_name(register)}</td>
                     <td>{(data as i64).to_string()}</td>
                 </tr>
             }
@@ -44,7 +44,7 @@ pub fn generate_gpr_rows_hex(gp: GpRegisters) -> Html {
         .map(|(register, data)| {
             html! {
                 <tr>
-                    <td>{register}</td>
+                    <td>{get_gpr_name(register)}</td>
                     <td>{format!("{data:#04x?}").to_string()}</td>
                 </tr>
             }
@@ -56,7 +56,7 @@ pub fn generate_gpr_rows_bin(gp: GpRegisters) -> Html {
         .map(|(register, data)| {
             html! {
                 <tr>
-                    <td>{register}</td>
+                    <td>{get_gpr_name(register)}</td>
                     <td>{format!("{data:#b}").to_string()}</td>
                 </tr>
             }
@@ -69,7 +69,7 @@ pub fn generate_fpr_rows(fp: [u64; 32]) -> Html {
         .map(|(register, data)| {
             html! {
                 <tr>
-                    <td>{format!("F{register}")}</td>
+                    <td>{format!("f{register}")}</td>
                     <td>{(*data as i64).to_string()}</td>
                 </tr>
             }
@@ -82,7 +82,7 @@ pub fn generate_fpr_rows_hex(fp: [u64; 32]) -> Html {
         .map(|(register, data)| {
             html! {
                 <tr>
-                    <td>{format!("F{register}")}</td>
+                    <td>{format!("f{register}")}</td>
                     <td>{format!("{data:#04x?}").to_string()}</td>
                 </tr>
             }
@@ -95,7 +95,7 @@ pub fn generate_fpr_rows_bin(fp: [u64; 32]) -> Html {
         .map(|(register, data)| {
             html! {
                 <tr>
-                    <td>{format!("F{register}")}</td>
+                    <td>{format!("f{register}")}</td>
                     <td>{format!("{data:#b}").to_string()}</td>
                 </tr>
             }
@@ -109,7 +109,7 @@ pub fn generate_fpr_rows_float(fp: [u64; 32]) -> Html {
         .map(|(register, data)| {
             html! {
                 <tr>
-                    <td>{format!("F{register}")}</td>
+                    <td>{format!("f{register}")}</td>
                     <td>{format!("{:e}",f32::from_bits((*data).try_into().unwrap())).to_string()}</td>
                 </tr>
             }
@@ -123,12 +123,21 @@ pub fn generate_fpr_rows_double(fp: [u64; 32]) -> Html {
         .map(|(register, data)| {
             html! {
                 <tr>
-                    <td>{format!("F{register}")}</td>
+                    <td>{format!("f{register}")}</td>
                     <td>{format!("{:e}", f64::from_bits(*data)).to_string()}</td>
                 </tr>
             }
         })
         .collect::<Html>()
+}
+
+/// Returns the text to be shown for a general-purpose register.
+pub fn get_gpr_name(register: GpRegisterType) -> String {
+    if register == GpRegisterType::Pc {
+        register.to_string()
+    } else {
+        format!("{} (r{})", register, register as u32)
+    }
 }
 
 #[function_component(Regview)]
