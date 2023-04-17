@@ -5,7 +5,7 @@
     pub is_halted: <a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.bool.html">bool</a>,
     pub fpr: [<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.u64.html">u64</a>; <a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.array.html">32</a>],
     pub condition_code: <a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.u64.html">u64</a>,
-    data: <a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.u64.html">u64</a>,
+    pub data: <a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.u64.html">u64</a>,
 }</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>An implementation of a floating-point coprocessor for the MIPS64 ISA.</p>
 <p>Different from the main processor, much of the functionality of the coprocessor
 is controlled remotely using its available API calls.</p>
