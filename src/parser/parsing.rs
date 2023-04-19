@@ -417,8 +417,8 @@ pub fn suggest_error_corrections(
                 match error.error_name {
                     UnsupportedInstruction => {
                         error.message =
-                             "While this is a valid instruction, it is not currently supported by SWIM\n"
-                                 .to_string();
+                            "While this is a valid instruction, it is not currently supported by SWIM\n"
+                                .to_string();
                     }
                     UnrecognizedGPRegister => {
                         let given_string = &error.token_causing_error;
@@ -525,7 +525,7 @@ pub fn suggest_error_corrections(
                         //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                         if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
                             message.push_str(&format!(
-                                "A valid, similar label is: {}.\n",
+                                " A valid, similar label is: {}.\n",
                                 &closest.1
                             ));
                         }
@@ -561,7 +561,7 @@ pub fn suggest_error_corrections(
                         //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                         if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
                             message.push_str(&format!(
-                                "A valid, similar label is: {}.\n",
+                                " A valid, similar label is: {}.\n",
                                 &closest.1
                             ));
                         } else {
