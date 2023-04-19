@@ -417,8 +417,8 @@ pub fn suggest_error_corrections(
                 match error.error_name {
                     UnsupportedInstruction => {
                         error.message =
-                             "While this is a valid instruction, it is not currently supported by SWIM\n"
-                                 .to_string();
+                            "While this is a valid instruction, it is not currently supported by SWIM\n"
+                                .to_string();
                     }
                     UnrecognizedGPRegister => {
                         let given_string = &error.token_causing_error;
@@ -511,6 +511,25 @@ pub fn suggest_error_corrections(
                     }
                     InvalidMemorySyntax => {
                         error.message = "The given string for memory does not match syntax of \"offset(base)\" or \"label\".\n".to_string();
+
+                        let given_string = &error.token_causing_error;
+                        let mut closest: (usize, String) = (usize::MAX, "".to_string());
+
+                        for label in labels {
+                            if levenshtein(given_string, label.0) < closest.0 {
+                                closest.0 = levenshtein(given_string, label.0);
+                                closest.1 = label.0.to_string();
+                            }
+                        }
+                        let mut message = "".to_string();
+                        //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
+                        if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
+                            message.push_str(&format!(
+                                " A valid, similar label is: {}.\n",
+                                &closest.1
+                            ));
+                        }
+                        error.message.push_str(&message);
                     }
                     IncorrectNumberOfOperands => {
                         error.message = "The given number of operands does not match the number expected for the given instruction.\n".to_string();
