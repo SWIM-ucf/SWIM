@@ -708,6 +708,25 @@
 <a href="#708" id="708">708</a>
 <a href="#709" id="709">709</a>
 <a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::TokenType::{Directive, Label, Operator, Unknown};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::{
@@ -1127,8 +1146,8 @@
                 <span class="kw">match </span>error.error_name {
                     UnsupportedInstruction =&gt; {
                         error.message =
-                             <span class="string">&quot;While this is a valid instruction, it is not currently supported by SWIM\n&quot;
-                                 </span>.to_string();
+                            <span class="string">&quot;While this is a valid instruction, it is not currently supported by SWIM\n&quot;
+                                </span>.to_string();
                     }
                     UnrecognizedGPRegister =&gt; {
                         <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>error.token_causing_error;
@@ -1221,6 +1240,25 @@
                     }
                     InvalidMemorySyntax =&gt; {
                         error.message = <span class="string">&quot;The given string for memory does not match syntax of \&quot;offset(base)\&quot; or \&quot;label\&quot;.\n&quot;</span>.to_string();
+
+                        <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>error.token_causing_error;
+                        <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">&quot;&quot;</span>.to_string());
+
+                        <span class="kw">for </span>label <span class="kw">in </span>labels {
+                            <span class="kw">if </span>levenshtein(given_string, label.<span class="number">0</span>) &lt; closest.<span class="number">0 </span>{
+                                closest.<span class="number">0 </span>= levenshtein(given_string, label.<span class="number">0</span>);
+                                closest.<span class="number">1 </span>= label.<span class="number">0</span>.to_string();
+                            }
+                        }
+                        <span class="kw">let </span><span class="kw-2">mut </span>message = <span class="string">&quot;&quot;</span>.to_string();
+                        <span class="comment">//only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
+                        </span><span class="kw">if </span>(closest.<span class="number">0 </span><span class="kw">as </span>f32 / given_string.len() <span class="kw">as </span>f32) &lt; levenshtein_threshold {
+                            message.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                                <span class="string">&quot; A valid, similar label is: {}.\n&quot;</span>,
+                                <span class="kw-2">&amp;</span>closest.<span class="number">1
+                            </span>));
+                        }
+                        error.message.push_str(<span class="kw-2">&amp;</span>message);
                     }
                     IncorrectNumberOfOperands =&gt; {
                         error.message = <span class="string">&quot;The given number of operands does not match the number expected for the given instruction.\n&quot;</span>.to_string();
