@@ -130,7 +130,7 @@ While SWIM is currently being hosted [here](https://swim-ucf.github.io/SWIM/), y
 1. Install the latest stable rust toolchain with `rustup` at https://www.rust-lang.org/tools/install
 	- If you plan on compiling the source yourself, make sure to add WebAssembly as a compile target by typing `rustup target add wasm32-unknown-unknown` in your terminal
 2. Install [trunk](https://trunkrs.dev/#install)
-3. `git clone` the repository or download the source here
+3. `git clone` the repository or download the source [here](https://github.com/SWIM-ucf/SWIM/releases)
 4. When you are in the root directory of the project, type `trunk serve --open` in your terminal to load it locally
 
 ## Licensing
