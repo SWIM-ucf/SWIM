@@ -947,6 +947,7 @@ impl MipsDatapath {
                     FUNCT_SLT => AluControl::SetOnLessThanSigned,
                     FUNCT_SLTU => AluControl::SetOnLessThanUnsigned,
                     FUNCT_SOP32 | FUNCT_SOP36 => match self.state.shamt as u8 {
+                        // ENC_DIV == ENC_DDIV
                         ENC_DIV => AluControl::DivisionSigned,
                         _ => {
                             self.error(&format!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct));
@@ -962,6 +963,7 @@ impl MipsDatapath {
                         }
                     },
                     FUNCT_SOP30 | FUNCT_SOP34 => match self.state.shamt as u8 {
+                        // ENC_MUL == ENC_DMUL
                         ENC_MUL => AluControl::MultiplicationSigned,
                         _ => {
                             self.error(&format!("MIPS Release 6 encoding `{}` unsupported for this function code ({})", self.state.shamt, self.state.funct));
