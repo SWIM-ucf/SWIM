@@ -1044,8 +1044,6 @@ impl MipsDatapath {
             }
             AluControl::And => self.state.alu_input1 & self.state.alu_input2,
             AluControl::Or => self.state.alu_input1 | self.state.alu_input2,
-
-            // shift amount should be set by the ALU control unit. got to make some variable that gets set
             AluControl::ShiftLeftLogical(shamt) => self.state.alu_input2 << shamt,
             AluControl::LeftShift16 => self.state.alu_input2 << 16,
             AluControl::Not => !self.state.alu_input1,

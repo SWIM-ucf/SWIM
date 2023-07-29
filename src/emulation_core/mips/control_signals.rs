@@ -27,7 +27,7 @@ pub struct ControlSignals {
 /// [`RegWidth`] control signal additionally acts as the leading bit of
 /// ALUControl. The leading bit of the signal determines the size of
 /// the input and output data within the datapath. See [`RegWidth`] for
-/// more details
+/// more details.
 #[derive(Clone, Default, PartialEq)]
 pub enum AluControl {
     /// `_0000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
@@ -67,7 +67,7 @@ pub enum AluControl {
     /// `_1011` (11) - Perform unsigned integer division. (Returns the integer quotient.)
     DivisionUnsigned,
 
-    /// `_1100` (12) - Perform a shift left logical by "shamt" field amount.
+    /// `_1100` (12) - Perform a shift left logical operation by `shamt` bits.
     ShiftLeftLogical(u32),
 }
 
