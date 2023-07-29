@@ -131,6 +131,7 @@ pub enum AluSrc {
 /// Determines if the datapath should consider branching.
 ///
 /// Exact choice of branching or not branching relies on the result from the ALU.
+/// This can be overridden by the [`Jump`] signal.
 #[derive(Clone, Default, PartialEq)]
 pub enum Branch {
     /// Do not consider branching.
@@ -167,11 +168,19 @@ pub enum ImmShift {
 }
 
 /// Determines if the datapath should jump. This is an unconditional branch.
+///
+/// The [`Branch`] signal may be overridden depending on the value of this signal.
 #[derive(Clone, Default, PartialEq)]
 pub enum Jump {
+    /// Do not jump. Defer to the [`Branch`] signal.
     #[default]
     NoJump = 0,
+
+    /// Jump by using the address specified in the instruction's lower bits.
     YesJump = 1,
+
+    /// Jump by using the address specified in the contents of register `rs`.
+    /// This is used in `jr` and `jalr` instructions.
     YesJumpJalr = 2,
 }
 
