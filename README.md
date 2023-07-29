@@ -34,6 +34,8 @@ Supported Instructions:
 	- lui
 	- andi
 	- ori
+	- aui
+	- addi
 	- addiu
 	- dadd
 	- dsub
@@ -85,6 +87,8 @@ Supported Instructions:
 	- lwc1
 	- mtc1
 	- dmtc1
+	- mfc1
+	- dmfc1
 	- bc1t
 	- bc1f
 
