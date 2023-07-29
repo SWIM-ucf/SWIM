@@ -172,7 +172,7 @@ pub enum Jump {
     #[default]
     NoJump = 0,
     YesJump = 1,
-    YesJumpJALR = 2,
+    YesJumpJalr = 2,
 }
 
 /// Determines if memory should be read.
