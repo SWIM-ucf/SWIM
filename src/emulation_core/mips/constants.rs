@@ -17,7 +17,7 @@ pub const FUNCT_DSUB: u8 = 0b101110;
 pub const FUNCT_DSUBU: u8 = 0b101111;
 
 pub const FUNCT_JALR: u8 = 0b001001;
-pub const FUNCT_JR_RELEASE6: u8 = FUNCT_JALR;
+pub const FUNCT_JR: u8 = FUNCT_JALR;
 
 /// Used for `MUL` and `MUH`.
 pub const FUNCT_SOP30: u8 = 0b011000;
