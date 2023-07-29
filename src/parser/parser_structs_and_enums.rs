@@ -235,12 +235,12 @@ pub enum OperandType {
 }
 
 pub const SUPPORTED_INSTRUCTIONS: [&str; 63] = [
-    "add", "addu", "sub", "mul", "div", "lw", "sw", "lui", "aui", "andi", "ori", "addi", "dadd",
-    "dsub", "dmul", "ddiv", "or", "and", "add.s", "add.d", "sub.s", "sub.d", "mul.s", "mul.d",
-    "div.s", "div.d", "dahi", "dati", "daddi", "daddiu", "slt", "sltu", "swc1", "lwc1", "mtc1",
-    "dmtc1", "mfc1", "dmfc1", "j", "beq", "bne", "c.eq.s", "c.eq.d", "c.lt.s", "c.le.s", "c.le.d",
-    "c.ngt.s", "c.ngt.d", "c.nge.s", "c.nge.d", "bc1t", "bc1f", "daddu", "dsubu", "ddivu", "dmulu",
-    "b", "nop", "sll", "jr", "jalr", "addiu", "jal",
+    "add", "add.d", "add.s", "addi", "addiu", "addu", "and", "andi", "aui", "b", "bc1f", "bc1t",
+    "beq", "bne", "c.eq.d", "c.eq.s", "c.le.d", "c.le.s", "c.lt.s", "c.nge.d", "c.nge.s",
+    "c.ngt.d", "c.ngt.s", "dadd", "daddi", "daddiu", "daddu", "dahi", "dati", "ddiv", "ddivu",
+    "div", "div.d", "div.s", "dmfc1", "dmtc1", "dmul", "dmulu", "dsub", "dsubu", "j", "jal",
+    "jalr", "jr", "lui", "lw", "lwc1", "mfc1", "mtc1", "mul", "mul.d", "mul.s", "nop", "or", "ori",
+    "sll", "slt", "sltu", "sub", "sub.d", "sub.s", "sw", "swc1",
 ];
 
 pub const UNSUPPORTED_INSTRUCTIONS: [&str; 408] = [
