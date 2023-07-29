@@ -234,9 +234,9 @@ pub enum OperandType {
     ShiftAmount,
 }
 
-pub const SUPPORTED_INSTRUCTIONS: [&str; 63] = [
+pub const SUPPORTED_INSTRUCTIONS: [&str; 64] = [
     "add", "add.d", "add.s", "addi", "addiu", "addu", "and", "andi", "aui", "b", "bc1f", "bc1t",
-    "beq", "bne", "c.eq.d", "c.eq.s", "c.le.d", "c.le.s", "c.lt.s", "c.nge.d", "c.nge.s",
+    "beq", "bne", "c.eq.d", "c.eq.s", "c.le.d", "c.le.s", "c.lt.d", "c.lt.s", "c.nge.d", "c.nge.s",
     "c.ngt.d", "c.ngt.s", "dadd", "daddi", "daddiu", "daddu", "dahi", "dati", "ddiv", "ddivu",
     "div", "div.d", "div.s", "dmfc1", "dmtc1", "dmul", "dmulu", "dsub", "dsubu", "j", "jal",
     "jalr", "jr", "lui", "lw", "lwc1", "mfc1", "mtc1", "mul", "mul.d", "mul.s", "nop", "or", "ori",
