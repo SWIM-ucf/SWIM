@@ -523,7 +523,7 @@ impl MipsDatapath {
                     self.signals = ControlSignals {
                         branch: Branch::NoBranch,
                         imm_shift: ImmShift::Shift0,
-                        jump: Jump::YesJumpJALR,
+                        jump: Jump::YesJumpJalr,
                         mem_read: MemRead::NoRead,
                         mem_to_reg: MemToReg::UsePcPlusFour,
                         mem_write: MemWrite::NoWrite,
@@ -1182,7 +1182,7 @@ impl MipsDatapath {
         self.state.new_pc = match self.signals.jump {
             Jump::NoJump => self.state.mem_mux1_to_mem_mux2,
             Jump::YesJump => self.state.jump_address,
-            Jump::YesJumpJALR => self.state.read_data_1,
+            Jump::YesJumpJalr => self.state.read_data_1,
         };
     }
 
