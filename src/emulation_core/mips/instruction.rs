@@ -178,8 +178,11 @@ impl TryFrom<u32> for Instruction {
         match op {
             // R-type instructions:
             // add, sub, mul, div
+            // addu
             // dadd, dsub, dmul, ddiv
             // daddu, dsubu, dmulu, ddivu
+            // or, and, sll
+            // slt, sltu
             // jalr, jr
             //
             // Includes syscall.
