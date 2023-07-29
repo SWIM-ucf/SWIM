@@ -19,7 +19,7 @@ use super::constants::*;
 /// - rd: CPU register - can be used as a destination for the result of executed instructions.
 /// - shamt: Shift amount. Also called "shamt". Determines the amount of bits to shift in those instructions
 ///   that shift bits. Depending on the instruction, this field may be repurposed as a tertiary field for
-///   determining the type of instruction executed (in `mul`, `mulu`, `dmul`, `dmulu`, `div`, `divu`, `ddiv`,
+///   determining the type of instruction executed (in `mul`, `dmul`, `dmulu`, `div`, `ddiv`,
 ///   `ddivu`), or be used as a "hint" field for certain instructions (of note are `jr` and `jalr`).
 /// - function: Secondary field for determining the type of instruction executed.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
