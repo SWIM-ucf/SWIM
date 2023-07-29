@@ -133,6 +133,7 @@ pub fn reg_width_by_funct(funct: u8) -> Option<RegWidth> {
         FUNCT_AND | FUNCT_OR | FUNCT_SLT | FUNCT_SLTU => Some(RegWidth::DoubleWord),
         FUNCT_DADD | FUNCT_DSUB => Some(RegWidth::DoubleWord),
         FUNCT_DADDU | FUNCT_DSUBU => Some(RegWidth::DoubleWord),
+        FUNCT_JALR => Some(RegWidth::DoubleWord),
         FUNCT_SOP30 | FUNCT_SOP31 | FUNCT_SOP32 | FUNCT_SOP33 => Some(RegWidth::Word),
         FUNCT_SOP34 | FUNCT_SOP35 | FUNCT_SOP36 | FUNCT_SOP37 => Some(RegWidth::DoubleWord),
         _ => None,

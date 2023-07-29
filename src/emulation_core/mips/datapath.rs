@@ -430,14 +430,6 @@ impl MipsDatapath {
                 self.state.shamt = r.shamt as u32;
                 self.state.funct = r.funct as u32;
             }
-            Instruction::RTypeSpecial(s) => {
-                self.state.rs = s.rs as u32;
-                self.state.rt = s.rt as u32;
-                self.state.rd = s.rd as u32;
-
-                self.state.shamt = s.shamt as u32; // Hint field
-                self.state.funct = s.funct as u32;
-            }
             Instruction::IType(i) => {
                 self.state.rs = i.rs as u32;
                 self.state.rt = i.rt as u32;
@@ -519,50 +511,46 @@ impl MipsDatapath {
             Instruction::FpuIType(i) => {
                 self.set_fpu_itype_control_signals(i);
             }
-            Instruction::RTypeSpecial(s) => {
-                self.set_rtype_special_control_signals(s);
-            }
         }
     }
 
-    // Set RTypeSpecial control signals.
-    fn set_rtype_special_control_signals(&mut self, s: RTypeSpecial) {
-        match s.funct {
-            FUNCT_JALR => {
-                // self.signals.alu_op = AluOp::Addition; // don't care
-                // self.signals.alu_src = AluSrc::ReadRegister2; // don't care
-                // self.signals.branch = Branch::NoBranch; // don't care
-                self.signals.imm_shift = ImmShift::Shift0;
-                self.signals.jump = Jump::YesJumpJALR;
-                self.signals.mem_read = MemRead::NoRead; // Don't care
-                self.signals.mem_to_reg = MemToReg::UsePcPlusFour;
-                self.signals.mem_write = MemWrite::NoWrite;
-                self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
-                self.signals.reg_dst = RegDst::Reg3;
-                self.signals.reg_write = RegWrite::YesWrite;
-                self.signals.reg_width = RegWidth::DoubleWord;
-            }
-            _ => self.error(&format!(
-                "R-type-special instruction with function code `{}`",
-                s.funct
-            )),
-        }
-    }
-
-    /// Set basic rtype control signals. Special case Rtype instructions are dealt with
-    /// in set_rtype_special_control_signals()
+    /// Set the control signals for the datapath, specifically in the
+    /// case where the instruction is an R-type.
     fn set_rtype_control_signals(&mut self, r: RType) {
-        self.signals.alu_op = AluOp::UseFunctField;
-        self.signals.alu_src = AluSrc::ReadRegister2;
-        self.signals.branch = Branch::NoBranch;
-        self.signals.imm_shift = ImmShift::Shift0;
-        self.signals.jump = Jump::NoJump;
-        self.signals.mem_read = MemRead::NoRead;
-        self.signals.mem_to_reg = MemToReg::UseAlu;
-        self.signals.mem_write = MemWrite::NoWrite;
-        self.signals.mem_write_src = MemWriteSrc::PrimaryUnit;
-        self.signals.reg_dst = RegDst::Reg3;
-        self.signals.reg_write = RegWrite::YesWrite;
+        match r.op {
+            OPCODE_SPECIAL => match r.funct {
+                FUNCT_JALR => {
+                    self.signals = ControlSignals {
+                        branch: Branch::NoBranch,
+                        imm_shift: ImmShift::Shift0,
+                        jump: Jump::YesJumpJALR,
+                        mem_read: MemRead::NoRead,
+                        mem_to_reg: MemToReg::UsePcPlusFour,
+                        mem_write: MemWrite::NoWrite,
+                        reg_dst: RegDst::Reg3,
+                        reg_write: RegWrite::YesWrite,
+                        ..Default::default()
+                    }
+                }
+                _ => {
+                    self.signals = ControlSignals {
+                        alu_op: AluOp::UseFunctField,
+                        alu_src: AluSrc::ReadRegister2,
+                        branch: Branch::NoBranch,
+                        imm_shift: ImmShift::Shift0,
+                        jump: Jump::NoJump,
+                        mem_read: MemRead::NoRead,
+                        mem_to_reg: MemToReg::UseAlu,
+                        mem_write: MemWrite::NoWrite,
+                        mem_write_src: MemWriteSrc::PrimaryUnit,
+                        reg_dst: RegDst::Reg3,
+                        reg_write: RegWrite::YesWrite,
+                        ..Default::default()
+                    }
+                }
+            },
+            _ => self.error(&format!("R-type instruction with opcode `{}`", r.op)),
+        }
 
         // The RegWidth signal might differ depending on the
         // specific R-type instruction.

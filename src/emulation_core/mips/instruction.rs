@@ -2,6 +2,26 @@
 
 use super::constants::*;
 
+/// Register (R-Type) Instruction
+///
+/// ```text
+/// 31           26   25       21   20       16   15       11   10        6   5           0
+/// ┌───────────────┬─────────────┬─────────────┬─────────────┬─────────────┬───────────────┐
+/// │    opcode     │     rs      │     rt      │     rd      │    shamt    │   function    │
+/// │               │             │             │             │             │               │
+/// └───────────────┴─────────────┴─────────────┴─────────────┴─────────────┴───────────────┘
+///         6              5             5             5             5              6
+/// ```
+///
+/// - opcode: Determines the type of instruction executed. This is typically 000000 in R-type instructions.
+/// - rs: CPU register - used as a source to read from in the register file.
+/// - rt: CPU register - used as a source to read from in the register file.
+/// - rd: CPU register - can be used as a destination for the result of executed instructions.
+/// - shamt: Shift amount. Also called "shamt". Determines the amount of bits to shift in those instructions
+///   that shift bits. Depending on the instruction, this field may be repurposed as a tertiary field for
+///   determining the type of instruction executed (in `mul`, `mulu`, `dmul`, `dmulu`, `div`, `divu`, `ddiv`,
+///   `ddivu`), or be used as a "hint" field for certain instructions (of note are `jr` and `jalr`).
+/// - function: Secondary field for determining the type of instruction executed.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct RType {
     pub op: u8,
@@ -9,16 +29,6 @@ pub struct RType {
     pub rt: u8,
     pub rd: u8,
     pub shamt: u8,
-    pub funct: u8,
-}
-
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct RTypeSpecial {
-    pub op: u8,
-    pub rs: u8,
-    pub rt: u8,
-    pub rd: u8,
-    pub shamt: u8, // Maybe should be called "Hint"
     pub funct: u8,
 }
 
@@ -146,7 +156,6 @@ pub enum Instruction {
     IType(IType),
     JType(JType),
     SyscallType(SyscallType),
-    RTypeSpecial(RTypeSpecial),
     FpuRType(FpuRType),
     FpuIType(FpuIType),
     FpuRegImmType(FpuRegImmType),
@@ -171,15 +180,9 @@ impl TryFrom<u32> for Instruction {
             // add, sub, mul, div
             // dadd, dsub, dmul, ddiv
             // daddu, dsubu, dmulu, ddivu
+            // jalr, jr
             //
-            // R-type-like instructions:
-            // These are instructions that are very R-type-like, but require
-            // some custom flag options that make them unique.
-            // jalr
-            //
-            // Syscall instructions:
-            // Any syscall
-            //
+            // Includes syscall.
             OPCODE_SPECIAL => {
                 let funct = (value & 0x3F) as u8;
 
@@ -189,15 +192,6 @@ impl TryFrom<u32> for Instruction {
                         code: ((value >> 6) & 0xFFFFF),
                         funct: (value & 0x3F) as u8,
                     })),
-                    FUNCT_JALR => Ok(Instruction::RTypeSpecial(RTypeSpecial {
-                        op: ((value >> 26) & 0x3F) as u8,
-                        rs: ((value >> 21) & 0x1F) as u8,
-                        rt: ((value >> 16) & 0x1F) as u8,
-                        rd: ((value >> 11) & 0x1F) as u8,
-                        shamt: ((value >> 6) & 0x1F) as u8,
-                        funct: (value & 0x3F) as u8,
-                    })),
-                    // Simple R-Type instructions:
                     _ => Ok(Instruction::RType(RType {
                         op: ((value >> 26) & 0x3F) as u8,
                         rs: ((value >> 21) & 0x1F) as u8,
