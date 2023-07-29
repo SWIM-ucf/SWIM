@@ -25,95 +25,95 @@ A web-based emulator for MIPS64 made for educational purposes. Its emulation cor
 Supported Instructions:
 - Conventional Instructions:
 	- add
-	- addu
-	- sub
-	- mul
-	- div
-	- lw
-	- sw
-	- lui
-	- andi
-	- ori
-	- aui
 	- addi
 	- addiu
-	- dadd
-	- dsub
-	- dmul
-	- ddiv
-	- or
+	- addu
 	- and
-	- dahi
-	- dati
+	- andi
+	- aui
+	- b
+	- beq
+	- bne
+	- dadd
 	- daddi
 	- daddiu
 	- daddu
-	- dsubu
-	- dmulu
+	- dahi
+	- dati
+	- ddiv
 	- ddivu
-	- slt
-	- sltu
+	- div
+	- dmul
+	- dmulu
+	- dsub
+	- dsubu
 	- j
-	- jr
 	- jal
 	- jalr
-	- beq
-	- b
-	- bne
-	- sll
+	- jr
+	- lui
+	- lw
+	- mul
 	- nop
+	- or
+	- ori
+	- sll
+	- slt
+	- sltu
+	- sub
+	- sw
 	- syscall `Note: This is currently a stubbed instruction to halt emulation.`
 
 - Floating-Point Instructions:
-	- add.s
 	- add.d
-	- sub.s
-	- sub.d
-	- mul.s
-	- mul.d
-	- div.s
-	- div.d
-	- c.eq.s
-	- c.eq.d
-	- c.lt.s
-	- c.lt.d
-	- c.le.s
-	- c.le.d
-	- c.ngt.s
-	- c.ngt.d
-	- c.nge.s
-	- c.nge.d
-	- swc1
-	- lwc1
-	- mtc1
-	- dmtc1
-	- mfc1
-	- dmfc1
-	- bc1t
+	- add.s
 	- bc1f
+	- bc1t
+	- c.eq.d
+	- c.eq.s
+	- c.le.d
+	- c.le.s
+	- c.lt.d
+	- c.lt.s
+	- c.nge.d
+	- c.nge.s
+	- c.ngt.d
+	- c.ngt.s
+	- div.d
+	- div.s
+	- dmfc1
+	- dmtc1
+	- lwc1
+	- mfc1
+	- mtc1
+	- mul.d
+	- mul.s
+	- sub.d
+	- sub.s
+	- swc1
 
 - Pseudo-instructions:
-	- li
-	- move
-	- seq
-	- sne
-	- sle
-	- sleu
-	- sgt
-	- sgtu
-	- sge
-	- sgeu
-	- lw `(followed by a label)`
-	- sw `(followed by a label)`
-	- subi
-	- dsubi
-	- dsubiu
-	- muli
-	- dmuli
-	- dmuliu
-	- divi
 	- ddivi
 	- ddiviu
+	- divi
+	- dmuli
+	- dmuliu
+	- dsubi
+	- dsubiu
+	- li
+	- lw `(followed by a label)`
+	- move
+	- muli
+	- seq
+	- sge
+	- sgeu
+	- sgt
+	- sgtu
+	- sle
+	- sleu
+	- sne
+	- subi
+	- sw `(followed by a label)`
 
 Supported .data directives:
 - .ascii
