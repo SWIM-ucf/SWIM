@@ -1,4 +1,4 @@
-//! Tests for the branch and jump instructions: j, jr, jal, beq, bne
+//! Tests for the branch and jump instructions: j, jr, jal, jalr, beq, bne
 
 use super::*;
 
@@ -80,6 +80,36 @@ function: ori $t0, $zero, 5831"#,
 
     // The return address should be the instruction after the jal.
     assert_eq!(datapath.registers.gpr[31], 8); // $ra
+
+    Ok(())
+}
+
+#[test]
+fn basic_jalr() -> Result<(), String> {
+    let mut datapath = MipsDatapath::default();
+
+    let instructions = String::from(
+        r#"ori $s0, $zero, 12
+jalr $s5, $s0
+or $zero, $zero, $zero
+function: ori $t1, $zero, 9548"#,
+    );
+
+    let (_, instruction_bits) = parser(instructions);
+    datapath.initialize(instruction_bits)?;
+
+    // Execute 3 instructions.
+    for _ in 0..3 {
+        datapath.execute_instruction();
+    }
+
+    assert_eq!(datapath.registers.gpr[9], 9548); // $t1
+
+    // The return address should be the instruction after the jalr.
+    assert_eq!(datapath.registers.gpr[21], 8); // $ra
+
+    // The PC should be right after the last instruction.
+    assert_eq!(datapath.registers.pc, 16);
 
     Ok(())
 }
