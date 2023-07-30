@@ -1,4 +1,4 @@
-//! Covering the basic immediate arithmetic instructions: addi, subi, muli, divi, ori, andi, li, lui.
+//! Covering the basic immediate arithmetic instructions: addi, subi, muli, divi, ori, andi, li, lui, aui.
 //!
 //! Note that some of these instructions are pseudo-instructions.
 
@@ -178,6 +178,32 @@ fn basic_lui() -> Result<(), String> {
 
     // The value 0xFFFA should be sign-extended to the remaining 32 bits of the register.
     assert_eq!(datapath.registers.gpr[20], 18446744073709158400); // 129 << 16 (0xFFFF FFFF FFFA 0000)
+
+    Ok(())
+}
+
+#[test]
+fn basic_aui() -> Result<(), String> {
+    let mut datapath = MipsDatapath::default();
+
+    // 4612 == 0x1204
+    let instructions = String::from("aui r15, r18, 4612");
+
+    let (_, instruction_bits) = parser(instructions);
+    datapath.initialize(instruction_bits)?;
+
+    datapath.registers.gpr[18] = 0x0000_0000_0030_ABCD;
+
+    while !datapath.is_halted() {
+        datapath.execute_instruction();
+    }
+
+    //   0x0000 0000 0030 ABCD  (r18)
+    // + 0x0000 0000 1204 0000  (immediate << 16)
+    // ========================
+    //   0x0000 0000 1234 ABCD
+
+    assert_eq!(datapath.registers.gpr[15], 0x0000_0000_1234_ABCD);
 
     Ok(())
 }
