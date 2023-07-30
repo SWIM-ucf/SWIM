@@ -1,4 +1,4 @@
-//! Tests for the branch and jump instructions: j, jal, beq, bne
+//! Tests for the branch and jump instructions: j, jr, jal, beq, bne
 
 use super::*;
 
@@ -31,6 +31,29 @@ j loop"#,
         assert_eq!(datapath.registers.pc, 4);
         assert_eq!(datapath.registers.gpr[17], 12345 * i); // $s1
     }
+
+    Ok(())
+}
+
+#[test]
+fn basic_jr() -> Result<(), String> {
+    let mut datapath = MipsDatapath::default();
+
+    let instructions = String::from(
+        r#"ori r15, r0, 1200
+jr r15"#,
+    );
+
+    let (_, instruction_bits) = parser(instructions);
+    datapath.initialize(instruction_bits)?;
+
+    // Execute 2 instructions.
+    for _ in 0..2 {
+        datapath.execute_instruction();
+    }
+
+    // The PC should be at 1200.
+    assert_eq!(datapath.registers.pc, 1200);
 
     Ok(())
 }
