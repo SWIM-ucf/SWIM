@@ -62,6 +62,48 @@ function: ori $t0, $zero, 5831"#,
 }
 
 #[test]
+fn basic_b() -> Result<(), String> {
+    let mut datapath = MipsDatapath::default();
+
+    // This program does the following if this was in C:
+    //
+    // int x = 5;
+    // int y = 5;
+    // int z = 40;
+    //
+    // goto change10;
+    // z += 20;
+    //
+    // change10:
+    // z += 10;
+    //
+    // $s0 contains x.
+    // $s1 contains y.
+    // $s2 contains z.
+    //
+    // This test determines if at the conclusion of this program, if z == 50.
+    let instructions = String::from(
+        r#"ori $s0, $zero, 5
+ori $s1, $zero, 5
+ori $s2, $zero, 40
+b change10
+daddiu $s2, $s2, 20
+change10: daddiu $s2, $s2, 10"#,
+    );
+
+    let (_, instruction_bits) = parser(instructions);
+    datapath.initialize(instruction_bits)?;
+
+    while !datapath.is_halted() {
+        datapath.execute_instruction();
+    }
+
+    assert_eq!(datapath.registers.gpr[18], 50); // $s2
+
+    Ok(())
+}
+
+#[test]
 fn basic_beq() -> Result<(), String> {
     let mut datapath = MipsDatapath::default();
 
