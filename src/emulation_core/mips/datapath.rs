@@ -37,10 +37,6 @@
 //! - Unlike the MIPS64 version 6 specification for the `jal` instruction, `PC + 4` is
 //!   stored in `GPR[31]`, *not* `PC + 8`, as there is no implementation of branch
 //!   delay slots.
-//! - The "load upper immediate" (`lui`) instruction is officially supported as of MIPS64
-//!   version 5. In version 6, `lui` is an assembly idiom for "add upper immediate" (`aui`)
-//!   with `rs` = 0. However, `aui` is not officially supported nor tested in this
-//!   datapath.
 //!
 //! # Notes on `is_halted`
 //!
