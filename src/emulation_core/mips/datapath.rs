@@ -627,10 +627,10 @@ impl MipsDatapath {
             }
 
             OPCODE_LUI => {
-                self.signals.alu_op = AluOp::LeftShift16;
-                self.signals.alu_src = AluSrc::SignExtendedImmediate; // may  be fishy
+                self.signals.alu_op = AluOp::Addition;
+                self.signals.alu_src = AluSrc::SignExtendedImmediate;
                 self.signals.branch = Branch::NoBranch;
-                self.signals.imm_shift = ImmShift::Shift0;
+                self.signals.imm_shift = ImmShift::Shift16;
                 self.signals.jump = Jump::NoJump;
                 self.signals.mem_read = MemRead::NoRead;
                 self.signals.mem_to_reg = MemToReg::UseAlu;
