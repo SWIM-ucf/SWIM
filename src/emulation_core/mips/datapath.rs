@@ -1071,10 +1071,10 @@ impl MipsDatapath {
         }
 
         // Set the zero bit/signal.
-        self.datapath_signals.alu_z = AluZ::NoZero;
-        if self.state.alu_result == 0 {
-            self.datapath_signals.alu_z = AluZ::YesZero;
-        }
+        self.datapath_signals.alu_z = match self.state.alu_result {
+            0 => AluZ::YesZero,
+            _ => AluZ::NoZero,
+        };
     }
 
     fn calc_relative_pc_branch(&mut self) {
