@@ -1071,7 +1071,7 @@ impl MipsDatapath {
         }
 
         // Set the zero bit/signal.
-        self.datapath_signals.alu_z = AluZ::NotZero;
+        self.datapath_signals.alu_z = AluZ::NoZero;
         if self.state.alu_result == 0 {
             self.datapath_signals.alu_z = AluZ::YesZero;
         }
@@ -1099,7 +1099,7 @@ impl MipsDatapath {
         // as-is or inverted.
         let condition_is_true = match self.signals.branch_type {
             BranchType::OnEqual => self.datapath_signals.alu_z == AluZ::YesZero,
-            BranchType::OnNotEqual => self.datapath_signals.alu_z == AluZ::NotZero,
+            BranchType::OnNotEqual => self.datapath_signals.alu_z == AluZ::NoZero,
         };
 
         if self.signals.branch == Branch::YesBranch && condition_is_true {
