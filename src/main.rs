@@ -145,8 +145,10 @@ fn app() -> Html {
                     // Load the binary into the datapath's memory
                     match datapath.initialize(assembled) {
                         Ok(_) => (),
-                        // In the case of an error, stop early.
-                        Err(_) => return,
+                        Err(msg) => {
+                            // In the case of an error, note this and stop early.
+                            parser_text_output.set(format!("This program failed to load into the datapath. Message returned by datapath: {msg}"));
+                        }
                     }
                     // log!(datapath.memory.to_string());
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.

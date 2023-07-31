@@ -35,7 +35,7 @@ impl Memory {
     fn check_valid_address(&self, address: usize) -> Result<(), String> {
         if address % 4 != 0 {
             Err(format!("Address `{address}` is not word-aligned"))
-        } else if address > self.memory.len() {
+        } else if address >= self.memory.len() {
             Err(format!(
                 "Address `{}` out of bounds of memory of size {}",
                 address,
