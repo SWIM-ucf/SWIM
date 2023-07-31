@@ -301,14 +301,31 @@
 <a href="#301" id="301">301</a>
 <a href="#302" id="302">302</a>
 <a href="#303" id="303">303</a>
-<a href="#304" id="304">304</a>
-<a href="#305" id="305">305</a>
-<a href="#306" id="306">306</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Abstract representation of an instruction.
 
 </span><span class="kw">use </span><span class="kw">super</span>::constants::<span class="kw-2">*</span>;
 
-<span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq)]
+<span class="doccomment">/// Register (R-Type) Instruction
+///
+/// ```text
+/// 31           26   25       21   20       16   15       11   10        6   5           0
+/// ┌───────────────┬─────────────┬─────────────┬─────────────┬─────────────┬───────────────┐
+/// │    opcode     │     rs      │     rt      │     rd      │    shamt    │   function    │
+/// │               │             │             │             │             │               │
+/// └───────────────┴─────────────┴─────────────┴─────────────┴─────────────┴───────────────┘
+///         6              5             5             5             5              6
+/// ```
+///
+/// - opcode: Determines the type of instruction executed. This is typically 000000 in R-type instructions.
+/// - rs: CPU register - used as a source to read from in the register file.
+/// - rt: CPU register - used as a source to read from in the register file.
+/// - rd: CPU register - can be used as a destination for the result of executed instructions.
+/// - shamt: Shift amount. Also called &quot;shamt&quot;. Determines the amount of bits to shift in those instructions
+///   that shift bits. Depending on the instruction, this field may be repurposed as a tertiary field for
+///   determining the type of instruction executed (in `mul`, `dmul`, `dmulu`, `div`, `ddiv`,
+///   `ddivu`), or be used as a &quot;hint&quot; field for certain instructions (of note are `jr` and `jalr`).
+/// - function: Secondary field for determining the type of instruction executed.
+</span><span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq)]
 </span><span class="kw">pub struct </span>RType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>rs: u8,
@@ -316,16 +333,6 @@
     <span class="kw">pub </span>rd: u8,
     <span class="kw">pub </span>shamt: u8,
     <span class="kw">pub </span>funct: u8,
-}
-
-<span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq)]
-</span><span class="kw">pub struct </span>RTypeSpecial {
-    <span class="kw">pub </span>op: u8,
-    <span class="kw">pub </span>rs: u8,
-    <span class="kw">pub </span>rt: u8,
-    <span class="kw">pub </span>rd: u8,
-    <span class="kw">pub </span>shamt: u8, <span class="comment">// Maybe should be called &quot;Hint&quot;
-    </span><span class="kw">pub </span>funct: u8,
 }
 
 <span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -452,7 +459,6 @@
     IType(IType),
     JType(JType),
     SyscallType(SyscallType),
-    RTypeSpecial(RTypeSpecial),
     FpuRType(FpuRType),
     FpuIType(FpuIType),
     FpuRegImmType(FpuRegImmType),
@@ -475,17 +481,14 @@
         <span class="kw">match </span>op {
             <span class="comment">// R-type instructions:
             // add, sub, mul, div
+            // addu
             // dadd, dsub, dmul, ddiv
             // daddu, dsubu, dmulu, ddivu
+            // or, and, sll
+            // slt, sltu
+            // jalr, jr
             //
-            // R-type-like instructions:
-            // These are instructions that are very R-type-like, but require
-            // some custom flag options that make them unique.
-            // jalr
-            //
-            // Syscall instructions:
-            // Any syscall
-            //
+            // Includes syscall.
             </span>OPCODE_SPECIAL =&gt; {
                 <span class="kw">let </span>funct = (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8;
 
@@ -495,16 +498,7 @@
                         code: ((value &gt;&gt; <span class="number">6</span>) &amp; <span class="number">0xFFFFF</span>),
                         funct: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                     })),
-                    FUNCT_JALR =&gt; <span class="prelude-val">Ok</span>(Instruction::RTypeSpecial(RTypeSpecial {
-                        op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
-                        rs: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                        rt: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                        rd: ((value &gt;&gt; <span class="number">11</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                        shamt: ((value &gt;&gt; <span class="number">6</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                        funct: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
-                    })),
-                    <span class="comment">// Simple R-Type instructions:
-                    </span><span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(Instruction::RType(RType {
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(Instruction::RType(RType {
                         op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                         rs: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                         rt: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,

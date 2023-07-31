@@ -515,6 +515,15 @@
 <a href="#515" id="515">515</a>
 <a href="#516" id="516">516</a>
 <a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Internal datapath control signals.
 
 /// Full collection of control signals.
@@ -544,7 +553,7 @@
 /// [`RegWidth`] control signal additionally acts as the leading bit of
 /// ALUControl. The leading bit of the signal determines the size of
 /// the input and output data within the datapath. See [`RegWidth`] for
-/// more details
+/// more details.
 </span><span class="attr">#[derive(Clone, Default, PartialEq)]
 </span><span class="kw">pub enum </span>AluControl {
     <span class="doccomment">/// `_0000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
@@ -584,7 +593,7 @@
     <span class="doccomment">/// `_1011` (11) - Perform unsigned integer division. (Returns the integer quotient.)
     </span>DivisionUnsigned,
 
-    <span class="doccomment">/// `_1100` (12) - Perform a shift left logical by &quot;shamt&quot; field amount.
+    <span class="doccomment">/// `_1100` (12) - Perform a shift left logical operation by `shamt` bits.
     </span>ShiftLeftLogical(u32),
 }
 
@@ -648,6 +657,7 @@
 <span class="doccomment">/// Determines if the datapath should consider branching.
 ///
 /// Exact choice of branching or not branching relies on the result from the ALU.
+/// This can be overridden by the [`Jump`] signal.
 </span><span class="attr">#[derive(Clone, Default, PartialEq)]
 </span><span class="kw">pub enum </span>Branch {
     <span class="doccomment">/// Do not consider branching.
@@ -684,12 +694,20 @@
 }
 
 <span class="doccomment">/// Determines if the datapath should jump. This is an unconditional branch.
+///
+/// The [`Branch`] signal may be overridden depending on the value of this signal.
 </span><span class="attr">#[derive(Clone, Default, PartialEq)]
 </span><span class="kw">pub enum </span>Jump {
-    <span class="attr">#[default]
+    <span class="doccomment">/// Do not jump. Defer to the [`Branch`] signal.
+    </span><span class="attr">#[default]
     </span>NoJump = <span class="number">0</span>,
-    YesJump = <span class="number">1</span>,
-    YesJumpJALR = <span class="number">2</span>,
+
+    <span class="doccomment">/// Jump by using the address specified in the instruction&#39;s lower bits.
+    </span>YesJump = <span class="number">1</span>,
+
+    <span class="doccomment">/// Jump by using the address specified in the contents of register `rs`.
+    /// This is used in `jr` and `jalr` instructions.
+    </span>YesJumpJalr = <span class="number">2</span>,
 }
 
 <span class="doccomment">/// Determines if memory should be read.

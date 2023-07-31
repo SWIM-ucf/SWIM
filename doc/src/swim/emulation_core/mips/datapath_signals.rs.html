@@ -55,53 +55,53 @@
 <a href="#55" id="55">55</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Internal datapath signals.
 
-</span><span class="comment">// The random mid-datapath-signals
 </span><span class="attr">#[derive(Clone, Default, PartialEq)]
 </span><span class="kw">pub struct </span>DatapathSignals {
     <span class="kw">pub </span>alu_z: AluZ,
     <span class="kw">pub </span>cpu_branch: CpuBranch,
-    <span class="comment">// pub fpu_branch: FpuBranch,
-    </span><span class="kw">pub </span>general_branch: GeneralBranch,
+    <span class="kw">pub </span>general_branch: GeneralBranch,
 }
 
-<span class="doccomment">/// The Z like comming off the main ALU
+<span class="doccomment">/// The &quot;Zero&quot; line that comes out of the ALU.
+///
+/// Indicates whether or not the result of the last arithmetic
+/// operation was equal to 0.
 </span><span class="attr">#[derive(Clone, Default, PartialEq)]
 </span><span class="kw">pub enum </span>AluZ {
-    <span class="doccomment">/// alut_result is not zero
+    <span class="doccomment">/// The result of the ALU is bitwise zero.
     </span><span class="attr">#[default]
-    </span>NotZero = <span class="number">0</span>,
+    </span>YesZero = <span class="number">0</span>,
 
-    <span class="doccomment">/// alu_result is zero
-    </span>YesZero = <span class="number">1</span>,
+    <span class="doccomment">/// The result of the ALU is non-zero.
+    </span>NoZero = <span class="number">1</span>,
 }
 
-<span class="doccomment">/// CPU branch signal
+<span class="doccomment">/// CPU branch signal. This is the final determined branch signal from the CPU.
 ///
-/// This signal is set in the EX stage
+/// This signal uses as input the [`Branch`](super::control_signals::Branch),
+/// [`BranchType`](super::control_signals::BranchType), and [`AluZ`] signals to
+/// determine its value. This signal is set in the EX stage.
 </span><span class="attr">#[derive(Clone, Default, PartialEq)]
 </span><span class="kw">pub enum </span>CpuBranch {
-    <span class="doccomment">/// (branch control signal != YesBranch) || (AluZ != YesZero)
+    <span class="doccomment">/// Do not branch.
+    ///
+    /// Based on the following formula: `(Branch != YesBranch) || (AluZ != YesZero)`
     </span><span class="attr">#[default]
     </span>NoBranch = <span class="number">0</span>,
 
-    <span class="doccomment">/// (branch control signal == YesBranch) &amp;&amp; (AluZ == YesZero)
+    <span class="doccomment">/// Branch.
+    ///
+    /// Based on the following formula: `(Branch == YesBranch) &amp;&amp; (AluZ == YesZero)`
     </span>YesBranch = <span class="number">1</span>,
 }
 
-<span class="comment">// For now this signal sits in constrol_signals.rs
-//pub enum FpuBranch {
-//     // FPU has not signaled for a branch
-//     #[default]
-//     NoBranch = 0,
-//
-//     // FPU wants a branch
-//     YesBranch = 1,
-//}
-
-</span><span class="doccomment">/// General branch signal
+<span class="doccomment">/// General branch signal. This is the final determined branch signal from
+/// the CPU and FPU combined.
 ///
+/// This signal uses as input the [`CpuBranch`] and [`FpuBranch`](super::control_signals::floating_point::FpuBranch) signals.
 /// This signal is set in the MEM stage.
-/// GeneralBranch = CpuBranch | FpuBranch
+///
+/// The following formula is considered: [`GeneralBranch`] = [`CpuBranch`] | [`FpuBranch`](super::control_signals::floating_point::FpuBranch)
 </span><span class="attr">#[derive(Clone, Default, PartialEq)]
 </span><span class="kw">pub enum </span>GeneralBranch {
     <span class="attr">#[default]

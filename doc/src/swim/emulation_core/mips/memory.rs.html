@@ -148,7 +148,7 @@
 </span><span class="comment">// pub const CAPACITY_BYTES: usize = 2^12; // 4KB
 </span><span class="kw">pub const </span>CAPACITY_BYTES: usize = <span class="number">64 </span>* <span class="number">1024</span>; <span class="comment">// 64 KB
 
-</span><span class="attr">#[derive(Clone, PartialEq)]
+</span><span class="attr">#[derive(Clone, Debug, PartialEq)]
 </span><span class="kw">pub struct </span>Memory {
     <span class="kw">pub </span>memory: Vec&lt;u8&gt;,
 }
@@ -180,7 +180,7 @@
     </span><span class="kw">fn </span>check_valid_address(<span class="kw-2">&amp;</span><span class="self">self</span>, address: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt; {
         <span class="kw">if </span>address % <span class="number">4 </span>!= <span class="number">0 </span>{
             <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Address `{address}` is not word-aligned&quot;</span>))
-        } <span class="kw">else if </span>address &gt; <span class="self">self</span>.memory.len() {
+        } <span class="kw">else if </span>address &gt;= <span class="self">self</span>.memory.len() {
             <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;Address `{}` out of bounds of memory of size {}&quot;</span>,
                 address,

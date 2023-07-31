@@ -538,6 +538,8 @@
 <a href="#538" id="538">538</a>
 <a href="#539" id="539">539</a>
 <a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>emulation_core;
 <span class="kw">pub mod </span>parser;
 <span class="attr">#[cfg(test)]
@@ -685,8 +687,10 @@
                     <span class="comment">// Load the binary into the datapath&#39;s memory
                     </span><span class="kw">match </span>datapath.initialize(assembled) {
                         <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; (),
-                        <span class="comment">// In the case of an error, stop early.
-                        </span><span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span>,
+                        <span class="prelude-val">Err</span>(msg) =&gt; {
+                            <span class="comment">// In the case of an error, note this and stop early.
+                            </span>parser_text_output.set(<span class="macro">format!</span>(<span class="string">&quot;This program failed to load into the datapath. Message returned by datapath: {msg}&quot;</span>));
+                        }
                     }
                     <span class="comment">// log!(datapath.memory.to_string());
                     </span>text_model.set_value(<span class="kw-2">&amp;</span>program_info.updated_monaco_string); <span class="comment">// Expands pseudo-instructions to their hardware counterpart.
