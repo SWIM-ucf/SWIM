@@ -1,4 +1,4 @@
-//! Tests for additional arithmetic instructions: addu, move.
+//! Tests for additional arithmetic instructions: addu, move, nop.
 
 use super::*;
 
@@ -40,6 +40,30 @@ move $s5, $s4"#,
     }
 
     assert_eq!(datapath.registers.gpr[21], 78); // $s5
+
+    Ok(())
+}
+
+#[test]
+fn basic_nop() -> Result<(), String> {
+    let mut datapath = MipsDatapath::default();
+
+    let instructions = String::from(r#"nop"#);
+
+    let (_, instruction_bits) = parser(instructions);
+    datapath.initialize(instruction_bits)?;
+
+    let mut expected_registers = datapath.registers;
+    expected_registers.pc = 4;
+    let expected_memory = datapath.memory.clone();
+
+    while !datapath.is_halted() {
+        datapath.execute_instruction();
+    }
+
+    // Register and memory contents should be unchanged, except for the PC.
+    assert_eq!(datapath.registers, expected_registers);
+    assert_eq!(datapath.memory, expected_memory);
 
     Ok(())
 }
