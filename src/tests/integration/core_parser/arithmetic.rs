@@ -1,4 +1,4 @@
-//! Tests for additional arithmetic instructions: addu.
+//! Tests for additional arithmetic instructions: addu, move.
 
 use super::*;
 
@@ -19,6 +19,27 @@ fn basic_addu() -> Result<(), String> {
     }
 
     assert_eq!(datapath.registers.gpr[20], 106666353); // 6849841 + 99816512
+
+    Ok(())
+}
+
+#[test]
+fn basic_move() -> Result<(), String> {
+    let mut datapath = MipsDatapath::default();
+
+    let instructions = String::from(
+        r#"ori $s4, $zero, 78
+move $s5, $s4"#,
+    );
+
+    let (_, instruction_bits) = parser(instructions);
+    datapath.initialize(instruction_bits)?;
+
+    while !datapath.is_halted() {
+        datapath.execute_instruction();
+    }
+
+    assert_eq!(datapath.registers.gpr[21], 78); // $s5
 
     Ok(())
 }
