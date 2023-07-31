@@ -1,52 +1,52 @@
 //! Internal datapath signals.
 
-// The random mid-datapath-signals
 #[derive(Clone, Default, PartialEq)]
 pub struct DatapathSignals {
     pub alu_z: AluZ,
     pub cpu_branch: CpuBranch,
-    // pub fpu_branch: FpuBranch,
     pub general_branch: GeneralBranch,
 }
 
-/// The Z like comming off the main ALU
+/// The "Zero" line that comes out of the ALU.
+///
+/// Indicates whether or not the result of the last arithmetic
+/// operation was equal to 0.
 #[derive(Clone, Default, PartialEq)]
 pub enum AluZ {
-    /// alut_result is not zero
+    /// The result of the ALU is bitwise zero.
     #[default]
-    NotZero = 0,
+    YesZero = 0,
 
-    /// alu_result is zero
-    YesZero = 1,
+    /// The result of the ALU is non-zero.
+    NoZero = 1,
 }
 
-/// CPU branch signal
+/// CPU branch signal. This is the final determined branch signal from the CPU.
 ///
-/// This signal is set in the EX stage
+/// This signal uses as input the [`Branch`](super::control_signals::Branch),
+/// [`BranchType`](super::control_signals::BranchType), and [`AluZ`] signals to
+/// determine its value. This signal is set in the EX stage.
 #[derive(Clone, Default, PartialEq)]
 pub enum CpuBranch {
-    /// (branch control signal != YesBranch) || (AluZ != YesZero)
+    /// Do not branch.
+    ///
+    /// Based on the following formula: `(Branch != YesBranch) || (AluZ != YesZero)`
     #[default]
     NoBranch = 0,
 
-    /// (branch control signal == YesBranch) && (AluZ == YesZero)
+    /// Branch.
+    ///
+    /// Based on the following formula: `(Branch == YesBranch) && (AluZ == YesZero)`
     YesBranch = 1,
 }
 
-// For now this signal sits in constrol_signals.rs
-//pub enum FpuBranch {
-//     // FPU has not signaled for a branch
-//     #[default]
-//     NoBranch = 0,
-//
-//     // FPU wants a branch
-//     YesBranch = 1,
-//}
-
-/// General branch signal
+/// General branch signal. This is the final determined branch signal from
+/// the CPU and FPU combined.
 ///
+/// This signal uses as input the [`CpuBranch`] and [`FpuBranch`](super::control_signals::floating_point::FpuBranch) signals.
 /// This signal is set in the MEM stage.
-/// GeneralBranch = CpuBranch | FpuBranch
+///
+/// The following formula is considered: [`GeneralBranch`] = [`CpuBranch`] | [`FpuBranch`](super::control_signals::floating_point::FpuBranch)
 #[derive(Clone, Default, PartialEq)]
 pub enum GeneralBranch {
     #[default]
