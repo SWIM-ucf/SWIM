@@ -48,6 +48,36 @@ lw r25, 0(r14)"#,
 }
 
 #[test]
+fn lw_sw_label() -> Result<(), String> {
+    let mut datapath = MipsDatapath::default();
+
+    let instructions = String::from(
+        r#".data
+secret_number: .word 42
+
+.text
+lw $s1, secret_number
+daddiu $s2, $s1, 1
+sw $s2, secret_number"#,
+    );
+
+    let (_, instruction_bits) = parser(instructions);
+    datapath.initialize(instruction_bits)?;
+
+    while !datapath.is_halted() {
+        datapath.execute_instruction();
+    }
+
+    // .data contents are stored after the end of instructions. Thus, secret_number
+    // will be at address 24, following the syscall instruction at address 20.
+
+    assert_eq!(datapath.registers.gpr[17], 42); // $s1
+    assert_eq!(datapath.memory.load_word(24).unwrap(), 43);
+
+    Ok(())
+}
+
+#[test]
 fn basic_swc1() -> Result<(), String> {
     let mut datapath = MipsDatapath::default();
 
