@@ -69,8 +69,17 @@ body {
   max-height: 50%;
 }
 
+.hex-wrapper {
+  border: 3px groove #ccc;
+  background: #012456;
+  color: #ccc;
+  word-break: break-all;
+  min-height: max(20%, 8em);
+  max-height: 50%;
+}
+
 .memory-view {
-      font-size: 1rem;
+  font-size: 1rem;
 }
 
 .datapath-wrapper {

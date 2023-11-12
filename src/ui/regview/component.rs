@@ -1,16 +1,27 @@
+use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::emulation_core::mips::registers::{GpRegisterType, GpRegisters};
 //use gloo::console::log;
 use wasm_bindgen::JsCast;
-use web_sys::HtmlElement;
+use web_sys::{HtmlElement, InputEvent, HtmlInputElement};
 use yew::prelude::*;
+use yew::{html, Html};
+use std::rc::Rc;
+use std::cell::RefCell;
+// use log::debug;
 
 // datapath.coprocessor.fpr
 #[derive(PartialEq, Properties)]
 pub struct Regviewprops {
     pub gp: GpRegisters,
     pub fp: [u64; 32],
+    pub datapath: Rc<RefCell<MipsDatapath>>
 }
-
+#[derive(PartialEq, Properties)]
+pub struct Regrowprops {
+    pub gp: GpRegisters,
+    pub fp: [u64; 32],
+    pub on_input: Callback<(InputEvent, GpRegisterType)>,
+}
 #[derive(PartialEq, Properties)]
 pub struct Viewswitch {
     pub switch_view: bool,
@@ -26,14 +37,30 @@ enum UnitState {
     Double,
 }
 
+#[derive(Debug)]
+enum Msg {
+    UpdateRegister(GpRegisterType, u64),
+}
+
+pub struct InputData {
+    pub value: String,
+    pub event: InputEvent,
+}
+
 //Convert register to html through iterator
-pub fn generate_gpr_rows(gp: GpRegisters) -> Html {
-    gp.into_iter()
+pub fn generate_gpr_rows(props: &Regrowprops) -> Html {
+    
+    props.gp.into_iter()
         .map(|(register, data)| {
+            let on_input = Callback::clone(&props.on_input);
             html! {
                 <tr>
                     <td>{get_gpr_name(register)}</td>
-                    <td>{(data as i64).to_string()}</td>
+                    <td>
+                        <input type="text" 
+                        oninput={move |e: InputEvent| {on_input.emit((e, register))}} 
+                        value={(data as i64).to_string()}/>
+                    </td>
                 </tr>
             }
         })
@@ -144,6 +171,8 @@ pub fn get_gpr_name(register: GpRegisterType) -> String {
 pub fn regview(props: &Regviewprops) -> Html {
     let active_view = use_state_eq(UnitState::default);
     let switch_flag = use_state_eq(|| true);
+    
+    let datapath = Rc::clone(&props.datapath);
     let change_view = {
         let active_view = active_view.clone();
         Callback::from(move |event: MouseEvent| {
@@ -186,6 +215,31 @@ pub fn regview(props: &Regviewprops) -> Html {
             switch_flag,
         )
     };
+
+    let on_input = Callback::from(move |args: (InputEvent, GpRegisterType)| {
+        let (e, register) = args;
+        let target = e.target();
+        let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+        let val: u64 = input.value().parse().unwrap();
+        let msg = Msg::UpdateRegister(register, val);
+
+        let mut datapath = datapath.borrow_mut();
+
+        let write_destination: usize = register as usize;
+        if register == GpRegisterType::Pc {
+            datapath.registers.pc = val;
+        } 
+        else {
+            datapath.registers.gpr[write_destination] = val;
+        }
+    });
+
+    let rowprops = Regrowprops {
+        gp: props.gp,
+        fp: props.fp,
+        on_input
+    };
+
     //log!("This is ", *switch_flag);
     html! {
         <div style="flex-grow: 1; gap: 8px; display: flex; flex-direction: column; flex-wrap: nowrap;">
@@ -248,7 +302,7 @@ pub fn regview(props: &Regviewprops) -> Html {
                             else if *active_view == UnitState::Hex {
                                 {generate_gpr_rows_hex(props.gp)}
                             } else {
-                                {generate_gpr_rows(props.gp)}
+                                {generate_gpr_rows(&rowprops)}
                             }
                         } else {
                             if *active_view == UnitState::Bin {

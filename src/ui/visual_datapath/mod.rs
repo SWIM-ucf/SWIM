@@ -375,6 +375,7 @@ impl VisualDatapath {
             } else {
                 Self::set_inactive(&path)?;
             }
+            path.style().set_property("stroke-width", "10");
 
             if path.tag_name() == "path" {
                 // Set the initial state of this path:

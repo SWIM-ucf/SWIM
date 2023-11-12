@@ -1,6 +1,7 @@
 //! Data and instruction memory implementation and API.
 
 // pub const CAPACITY_BYTES: usize = 2^12; // 4KB
+use log::debug;
 pub const CAPACITY_BYTES: usize = 64 * 1024; // 64 KB
 
 #[derive(Clone, Debug, PartialEq)]
@@ -109,37 +110,60 @@ impl Memory {
         Ok(result)
     }
 
-    pub fn generate_formatted_hex(&self) -> String {
-        let mut string: String = "".to_string();
-
-        let mut base = 0;
-        while base < self.memory.len() {
-            string.push_str(&format!("0x{base:04x}:\t\t"));
-            let mut char_version: String = "".to_string();
-
-            for offset in 0..4 {
-                let word_address = base as u64 + (offset * 4);
-                if let Ok(word) = self.load_word(word_address) {
-                    string.push_str(&format!("{word:08x}\t"));
-                    char_version.push_str(&convert_word_to_chars(word))
-                };
-            }
-            string.push_str(&format!("{char_version}\n"));
-            base += 16;
+    pub fn parse_formatted_hex(&mut self, input: &str) -> Result<(), String> {
+        let mut address = 0;
+        for (i, line) in input.lines().enumerate() {
+            // Split each line into parts
+            let parts: Vec<&str> = line.split('\t').collect();
+            let memory_address = &parts[0..2];
+            parts[2..6]
+            .iter()
+            .try_for_each(|&part| -> Result<(), String> {
+                if address + 3 > CAPACITY_BYTES {
+                    debug!("Address {} out of bounds", address);
+                    ()
+                }
+                let data = u32::from_str_radix(&part, 16).map_err(|e| e.to_string())?;
+                self.store_word(address as u64, data)?;
+                address += 4;
+                Ok(())
+            })?;
         }
-        string
+        Ok(())
     }
 }
 
-fn convert_word_to_chars(word: u32) -> String {
-    let mut chars = "".to_string();
-    for shift in (0..4).rev() {
-        let byte = (word >> (shift * 8)) as u8;
-        if byte > 32 && byte < 127 {
-            chars.push(byte as char);
-        } else {
-            chars.push('.');
+pub struct MemoryIter<'a> {
+    memory: &'a Memory,
+    current_address: usize,
+}
+
+impl<'a> MemoryIter<'a> {
+    pub fn new(memory: &'a Memory) -> MemoryIter<'a> {
+        MemoryIter {
+            memory,
+            current_address: 0
         }
     }
-    chars
+}
+
+impl<'a> Iterator for MemoryIter<'a> {
+    // Words are 32 bits
+    type Item = (usize, Vec<u32>);
+    fn next(&mut self) -> Option<Self::Item> {
+        self.current_address = (self.current_address + 3) & !3;
+        if self.current_address + 16 <= self.memory.memory.len() {
+            let address = self.current_address;
+            let words = (0..4)
+                .map(|i| self.memory
+                    .load_word(address as u64 + (i * 4))
+                    .unwrap())
+                .collect();
+
+            self.current_address += 16;
+            Some((address, words))
+        } else {
+            None
+        }
+    }
 }

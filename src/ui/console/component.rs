@@ -4,15 +4,22 @@ use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
+use std::rc::Rc;
+use std::cell::RefCell;
+
+
+use monaco::api::TextModel;
 
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::ui::visual_datapath::{DatapathSize, VisualDatapath};
+use crate::ui::hex_editor::component::HexEditor;
+use crate::emulation_core::mips::memory::Memory;
 
 #[derive(PartialEq, Properties)]
 pub struct Consoleprops {
     pub datapath: MipsDatapath,
     pub parsermsg: String,
-    pub memorymsg: String,
+    pub memory_text_model: Rc<RefCell<TextModel>>,
 }
 
 #[derive(Default, PartialEq)]
@@ -21,6 +28,7 @@ enum TabState {
     Console,
     Datapath,
     Memory,
+    HexEditor
 }
 
 #[function_component(Console)]
@@ -40,6 +48,7 @@ pub fn console(props: &Consoleprops) -> Html {
                 "console" => TabState::Console,
                 "datapath" => TabState::Datapath,
                 "memory" => TabState::Memory,
+                "hex_editor" => TabState::HexEditor,
                 _ => TabState::default(),
             };
 
@@ -89,13 +98,19 @@ pub fn console(props: &Consoleprops) -> Html {
                 <div class="datapath-wrapper">
                     <VisualDatapath datapath={props.datapath.clone()} svg_path={svg_path} size={datapath_size} />
                 </div>
-            } else {
-                <div class="console">
-                    <pre class = "memory-view">
-                        {props.datapath.memory.generate_formatted_hex() }
-                    </pre>
+            } else if *active_tab == TabState::HexEditor {
+                <div class="hex-wrapper">
+                    // <HexEditor memory={props.datapath.memory.clone()}/>
+                    <HexEditor memory_text_model={&props.memory_text_model}/>
                 </div>
-            }
+            } 
+            // else {
+            //     <div class="console">
+            //         <pre class = "memory-view">
+            //             {props.datapath.memory.generate_formatted_hex() }
+            //         </pre>
+            //     </div>
+            // }
             <div class="button-bar">
                 <div class="tabs">
                     if *active_tab == TabState::Console {
@@ -115,11 +130,17 @@ pub fn console(props: &Consoleprops) -> Html {
                     } else {
                         <button class="tab" label="datapath" onclick={change_tab.clone()}>{"Datapath"}</button>
                     }
+
+                    if *active_tab == TabState::HexEditor {
+                        <button class={classes!("tab", "pressed")} label="hex_editor" onclick={change_tab.clone()}>{"Hex Editor"}</button>
+                    } else {
+                        <button class="tab" label="hex_editor" onclick={change_tab.clone()}>{"Hex Editor"}</button>
+                    }
                 </div>
 
                 if *active_tab == TabState::Datapath {
                     <div class="buttons">
-                        <button class="button" onclick={toggle_zoom}>{"Toggle Zoom"}</button>
+                        <button class={ classes!("bg-red-500", "button") } onclick={toggle_zoom}>{"Toggle Zoom"}</button>
                         <button class="button" onclick={switch_datapath_type}>{switch_datapath_button_label}</button>
                     </div>
                 }
