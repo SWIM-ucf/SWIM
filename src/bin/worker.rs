@@ -1,5 +1,6 @@
-use gloo_console::log;
+use yew_agent::Registrable;
+use swim::emulation_core::agent::EmulationCoreAgent;
 
 fn main() {
-    log!("Hello world from the worker!")
+    EmulationCoreAgent::registrar().register();
 }
