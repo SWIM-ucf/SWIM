@@ -1,6 +1,7 @@
 use swim::emulation_core::datapath::Datapath;
 use swim::emulation_core::mips::datapath::MipsDatapath;
 use swim::emulation_core::mips::datapath::Stage;
+use swim::emulation_core::agent::EmulationCoreAgent;
 use gloo::{dialogs::alert, file::FileList};
 use js_sys::Object;
 use monaco::{
@@ -24,6 +25,7 @@ use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew::{html, Html, Properties};
 use yew_hooks::prelude::*;
+use yew_agent::Spawnable;
 
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
 // and comment the code, language, and text_model lines. IMPORTANT:
@@ -532,5 +534,6 @@ pub fn on_upload_file_clicked() {
 }
 
 fn main() {
+    let bridge = EmulationCoreAgent::spawner().spawn("./worker.js");
     yew::Renderer::<App>::new().render();
 }
