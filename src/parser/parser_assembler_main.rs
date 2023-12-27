@@ -918,7 +918,7 @@ pub fn read_instructions(
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 let info = InstructionDescription{
-                    syntax: "lwc1 ft offset(base)".to_string(),
+                    syntax: "lwc1 ft, offset(base)".to_string(),
                     description: "Loads the contents of the 32-bit word at the specified memory address into `ft`.\n\nMemory address is calculated as the sum of `offset` and the contents of the `base` register.".to_string(),
                 };
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();

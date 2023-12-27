@@ -2,11 +2,27 @@
 
 // pub const CAPACITY_BYTES: usize = 2^12; // 4KB
 use log::debug;
+use super::instruction::get_string_version;
 pub const CAPACITY_BYTES: usize = 64 * 1024; // 64 KB
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Memory {
     pub memory: Vec<u8>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct UpdatedLine {
+    pub text: String,
+    pub line_number: usize
+}
+
+impl UpdatedLine {
+    pub fn new(text: String, line_number: usize) -> Self {
+        UpdatedLine {
+            text,
+            line_number
+        }
+    }
 }
 
 impl Default for Memory {
@@ -110,26 +126,41 @@ impl Memory {
         Ok(result)
     }
 
-    pub fn parse_formatted_hex(&mut self, input: &str) -> Result<(), String> {
-        let mut address = 0;
-        for (i, line) in input.lines().enumerate() {
-            // Split each line into parts
+    pub fn parse_hexdump(&mut self, input: &str) -> Result<Vec<u32>, String> {
+        let mut words = Vec::new();
+        for line in input.lines() {
             let parts: Vec<&str> = line.split('\t').collect();
-            let memory_address = &parts[0..2];
-            parts[2..6]
-            .iter()
-            .try_for_each(|&part| -> Result<(), String> {
-                if address + 3 > CAPACITY_BYTES {
-                    debug!("Address {} out of bounds", address);
-                    ()
-                }
-                let data = u32::from_str_radix(&part, 16).map_err(|e| e.to_string())?;
-                self.store_word(address as u64, data)?;
-                address += 4;
-                Ok(())
-            })?;
+            for &part in &parts[2..6] {
+                let data = u32::from_str_radix(part, 16).map_err(|e| e.to_string())?;
+                words.push(data);
+            }
         }
-        Ok(())
+        Ok(words)
+    }
+
+    // Returns instructions that were updated with their string versions and line numbers
+    pub fn store_hexdump(&mut self, instructions: Vec<u32>) -> Result<Vec<UpdatedLine>, String> {
+        let mut changed_lines: Vec<UpdatedLine> = vec![];
+        for (i, data) in instructions.iter().enumerate() {
+            let address = i as u64;
+            let line = match get_string_version(*data) {
+                Ok(string) => string,
+                Err(string) => string,
+            };
+            let curr_word = match self.load_word(address * 4) {
+                Ok(data) => data,
+                Err(e) => {
+                    debug!("{:?}", e);
+                    0
+                }
+            };
+            if curr_word != *data {
+                changed_lines.push(UpdatedLine::new(line, i));
+                self.store_word(address * 4, *data)?
+            }
+        }
+
+        Ok(changed_lines)
     }
 }
 

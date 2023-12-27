@@ -8,14 +8,15 @@ use emulation_core::datapath::Datapath;
 use emulation_core::mips::datapath::MipsDatapath;
 use emulation_core::mips::datapath::Stage;
 use gloo::{dialogs::alert, file::FileList};
-use gloo_console::log;
+use log::debug;
 use js_sys::Object;
+// use monaco::sys::editor::IModelContentChangedEvent;
 use monaco::{
     api::TextModel,
     sys::{
         editor::{
             IEditorMinimapOptions, IEditorScrollbarOptions, IMarkerData, IModelDecorationOptions,
-            IModelDeltaDecoration, IStandaloneEditorConstructionOptions, ISuggestOptions, ScrollType
+            IModelDeltaDecoration, IStandaloneEditorConstructionOptions, ISuggestOptions, ScrollType,
         },
         IMarkdownString, MarkerSeverity,
     },
@@ -80,10 +81,42 @@ fn app() -> Html {
     // Output strings for the console and memory viewers.
     let parser_text_output = use_state_eq(String::new);
     let memory_text_output = use_state_eq(String::new);
+    let pc_limit = use_state(|| 0);
 
     let last_memory_text_model = use_mut_ref(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
 
     let memory_text_model = use_mut_ref(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
+
+    // let on_did_change_content_handler = {
+    //     let memory_text_model = Rc::clone(&memory_text_model);
+    //     Callback::from(move |e: &IModelContentChangedEvent| {
+
+    //         // handle the event
+    //     })
+    // };
+
+    // use_effect_with_deps(
+    //     move |_| {
+
+    //         let memory_text_model = Rc::clone(&memory_text_model);
+    //         let curr_memory_model = memory_text_model.borrow_mut().as_ref();
+    //         // create a JavaScript closure that calls the Yew callback
+    //         let cb: Closure<dyn FnMut(Event)> = Closure::new(move |event: Event| {
+    //             // Inside the Closure, call the Yew callback
+    //             if let Some(event) = event.dyn_ref::<IModelContentChangedEvent>() {
+    //                 on_did_change_content_handler.emit(event);
+    //             }
+    //         });
+    //         let cb_func = cb.as_ref().unchecked_ref();
+
+    //         // pass the &js_sys::Function to the on_did_change_content method
+    //         curr_memory_model.on_did_change_content(cb_func);
+
+    //         cb.forget();
+    //     },
+    //     (),
+    // );
+
     // Since we want the Datapath to be independent from all the
     // events within the app, we will create it when the app loads. This is also done
     // since the scope will be open across all events involved with it. To achieve this,
@@ -107,8 +140,8 @@ fn app() -> Html {
                     // log!("Executed line: {}", *curr_line);
                     raw_editor.reveal_line_in_center(*curr_line, Some(ScrollType::Smooth));
                 }) {
-                    Some(()) => log!("Editor linked."),
-                    None => log!("No editor :(")
+                    Some(()) => debug!("Editor linked."),
+                    None => debug!("No editor :(")
                 };
             },
             text_model,
@@ -127,6 +160,7 @@ fn app() -> Html {
         let not_highlighted = not_highlighted.clone();
         // Clone the value before moving it into the closure
         let last_memory_text_model = Rc::clone(&last_memory_text_model);
+        let pc_limit = pc_limit.clone();
 
 
         use_callback(
@@ -136,6 +170,7 @@ fn app() -> Html {
                 let memory_text_model = memory_text_model.borrow_mut();
                 // parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
                 let (program_info, assembled) = parser(text_model.get_value());
+                pc_limit.set(assembled.len() * 4);
                 parser_text_output.set(program_info.console_out_post_assembly);
                 let last_memory_text_model = last_memory_text_model.borrow_mut();
 
@@ -269,35 +304,20 @@ fn app() -> Html {
                         .into(),
                 );
 
-                memory_text_model.as_ref().delta_decorations(&not_highlighted, &executed_line, None);
+                // memory_text_model.as_ref().delta_decorations(&not_highlighted, &executed_line, None);
 
                 // log!("These are the stacks after the push");
                 // log!(executed_line.at(0));
                 // log!(not_highlighted.at(0));
 
+                // Execute instruction
+                datapath.execute_instruction();
+
                 // Update memory
-                let last_memory_text_model_value = last_memory_text_model.get_value(); 
-                let current_memory_text_model_value = memory_text_model.get_value();
-
-                if current_memory_text_model_value != last_memory_text_model_value {
-                    match datapath.memory.parse_formatted_hex(&current_memory_text_model_value) {
-                        Ok(()) => {
-                            log!("Memory updated successfully.");
-                        },
-                        Err(err) => {
-                            log!("Error updating memory: {}", err)
-                        }
-                    }
-                }
-
                 let hexdump = &generate_formatted_hex(&datapath.memory);
 
                 memory_text_model.set_value(hexdump);
                 last_memory_text_model.set_value(hexdump);
-
-                // Execute instruction
-
-                datapath.execute_instruction();
 
                 // done with the highlight, prepare for the next one.
                 executed_line.pop();
@@ -331,28 +351,8 @@ fn app() -> Html {
                 let mut datapath = datapath.borrow_mut();
                 let highlight_decor = highlight_decor.borrow_mut();
 
-                // Update memory
                 let memory_text_model = memory_text_model.borrow_mut();
                 let last_memory_text_model = last_memory_text_model.borrow_mut();
-        
-                let last_memory_text_model_value = last_memory_text_model.get_value(); 
-                let current_memory_text_model_value = memory_text_model.get_value();
-        
-                if current_memory_text_model_value != last_memory_text_model_value {
-                    match datapath.memory.parse_formatted_hex(&current_memory_text_model_value) {
-                        Ok(()) => {
-                            log!("Memory updated successfully.");
-                        },
-                        Err(err) => {
-                            log!("Error updating memory: {}", err)
-                        }
-                    }
-                }
-        
-                let hexdump = &generate_formatted_hex(&datapath.memory);
-        
-                memory_text_model.set_value(hexdump);
-                last_memory_text_model.set_value(hexdump);
 
                 if datapath.current_stage == Stage::InstructionDecode {
                     // highlight on InstructionDecode since syscall stops at that stage.
@@ -385,7 +385,100 @@ fn app() -> Html {
                 } else {
                     datapath.execute_stage();
                 }
+
+                // Update memory
+                let hexdump = &generate_formatted_hex(&datapath.memory);
+
+                memory_text_model.set_value(hexdump);
+                last_memory_text_model.set_value(hexdump);
                 trigger.force_update();
+            },
+            (),
+        )
+    };
+
+    let on_memory_clicked = {
+        let datapath = Rc::clone(&datapath);
+        let trigger = use_force_update();
+
+        // Code editor
+        let text_model = Rc::clone(&text_model);
+
+        // Hex editor
+        let memory_text_model = Rc::clone(&memory_text_model);
+        let last_memory_text_model = Rc::clone(&last_memory_text_model);
+
+        use_callback(
+            move |_, _| {
+                let mut datapath = datapath.borrow_mut();
+                let text_model = text_model.borrow_mut();
+
+                let (programinfo, binary) = parser(text_model.get_value());
+
+                // Update memory
+                let memory_text_model = memory_text_model.borrow_mut();
+                let last_memory_text_model = last_memory_text_model.borrow_mut();
+
+                let last_memory_text_model_value = last_memory_text_model.get_value();
+                let current_memory_text_model_value = memory_text_model.get_value();
+
+                if current_memory_text_model_value != last_memory_text_model_value {
+                    match datapath.memory.parse_hexdump(&current_memory_text_model_value) {
+                        Ok(instructions) => {
+                            debug!("Memory parsed with no errors.");
+                            match datapath.memory.store_hexdump(instructions) {
+                                Ok(changed_lines) => {
+                                    debug!("Memory updated successfully. Changed lines:");
+                                    debug!("{:?}", changed_lines);
+                                    for line in changed_lines {
+                                        debug!("{}", binary[line.line_number]);
+                                        debug!("{}", programinfo.address_to_line_number[line.line_number]);
+                                        let updated_line = programinfo.address_to_line_number[line.line_number] as f64 + 1.0;
+                                        let curr_model = text_model.as_ref();
+
+                                        let line_to_replace = curr_model.get_line_content(updated_line);
+                                        let mut start_line_column = 0.0;
+                                        let end_line_column = line_to_replace.len() as f64 + 2.0;
+                                        for (i, c) in line_to_replace.chars().enumerate() {
+                                            if c.is_alphanumeric() {
+                                                start_line_column = i as f64 + 1.0;
+                                                break;
+                                            }
+                                        }
+                                        debug!("Line to replace -> {:?}, {:?}: {:?}: {:?}: {:?}", line_to_replace, updated_line, start_line_column, updated_line, end_line_column);
+
+                                        let edit_range = monaco::sys::Range::new(updated_line, start_line_column, updated_line, end_line_column);
+                                        let before_cursor_state = monaco::sys::Selection::new(updated_line, start_line_column, updated_line,end_line_column);
+                                        let edit_operations: monaco::sys::editor::IIdentifiedSingleEditOperation = Object::new().unchecked_into();
+                                        edit_operations.set_range(&edit_range);
+                                        edit_operations.set_text(Some(&line.text));
+                                        let edit_operations_array = js_sys::Array::new();
+                                        edit_operations_array.push(&edit_operations);
+                                        let before_cursor_state_array = js_sys::Array::new();
+                                        before_cursor_state_array.push(&before_cursor_state);
+                                        curr_model.push_edit_operations(&before_cursor_state_array, &edit_operations_array, None);
+                                    }
+
+                                },
+                                Err(err) => {
+                                    debug!("Error: {}", err)
+                                }
+                            };
+                            ()
+                        },
+                        Err(err) => {
+                            debug!("Error updating memory: {}", err)
+                        }
+                    }
+                }
+
+                let hexdump = &generate_formatted_hex(&datapath.memory);
+
+                memory_text_model.set_value(hexdump);
+                last_memory_text_model.set_value(hexdump);
+
+                trigger.force_update();
+
             },
             (),
         )
@@ -561,6 +654,7 @@ fn app() -> Html {
                             <button class="button" onclick={upload_clicked_callback}>{"Upload File "}<i class="fa-sharp fa-solid fa-upload"></i></button>
                             //<input type="button" value="Save to Clipboard" onclick={on_clipboard_clicked} />
                             <button class="button" onclick={on_clipboard_clicked}>{"Copy to Clipboard "}<i class="fa-regular fa-copy"></i></button>
+                            <button class="button" onclick={on_memory_clicked}>{"Update Memory"}</button>
                         </div>
                     </div>
 
@@ -574,7 +668,7 @@ fn app() -> Html {
                 </div>
 
                 // Right column
-                <Regview gp={datapath.borrow_mut().registers} fp={datapath.borrow().coprocessor.fpr} datapath={datapath}/>
+                <Regview gp={datapath.borrow_mut().registers} fp={datapath.borrow().coprocessor.fpr} datapath={datapath} pc_limit={*pc_limit}/>
             </div>
         </>
     }
@@ -657,6 +751,6 @@ pub fn on_upload_file_clicked() {
 }
 
 fn main() {
-    console_log::init_with_level(Level::Debug);
+    console_log::init_with_level(Level::Debug).unwrap();
     yew::Renderer::<App>::new().render();
 }

@@ -1,4 +1,5 @@
 use crate::emulation_core::mips::datapath::MipsDatapath;
+use crate::emulation_core::mips::memory::CAPACITY_BYTES;
 use crate::emulation_core::mips::registers::{GpRegisterType, GpRegisters};
 //use gloo::console::log;
 use wasm_bindgen::JsCast;
@@ -14,7 +15,8 @@ use std::cell::RefCell;
 pub struct Regviewprops {
     pub gp: GpRegisters,
     pub fp: [u64; 32],
-    pub datapath: Rc<RefCell<MipsDatapath>>
+    pub datapath: Rc<RefCell<MipsDatapath>>,
+    pub pc_limit: usize
 }
 #[derive(PartialEq, Properties)]
 pub struct Regrowprops {
@@ -37,10 +39,10 @@ enum UnitState {
     Double,
 }
 
-#[derive(Debug)]
-enum Msg {
-    UpdateRegister(GpRegisterType, u64),
-}
+// #[derive(Debug)]
+// enum Msg {
+//     UpdateRegister(GpRegisterType, i64),
+// }
 
 pub struct InputData {
     pub value: String,
@@ -49,7 +51,7 @@ pub struct InputData {
 
 //Convert register to html through iterator
 pub fn generate_gpr_rows(props: &Regrowprops) -> Html {
-    
+
     props.gp.into_iter()
         .map(|(register, data)| {
             let on_input = Callback::clone(&props.on_input);
@@ -57,8 +59,8 @@ pub fn generate_gpr_rows(props: &Regrowprops) -> Html {
                 <tr>
                     <td>{get_gpr_name(register)}</td>
                     <td>
-                        <input type="text" 
-                        oninput={move |e: InputEvent| {on_input.emit((e, register))}} 
+                        <input type="text" id={register.to_string()}
+                        oninput={move |e: InputEvent| {on_input.emit((e, register))}}
                         value={(data as i64).to_string()}/>
                     </td>
                 </tr>
@@ -171,8 +173,9 @@ pub fn get_gpr_name(register: GpRegisterType) -> String {
 pub fn regview(props: &Regviewprops) -> Html {
     let active_view = use_state_eq(UnitState::default);
     let switch_flag = use_state_eq(|| true);
-    
+
     let datapath = Rc::clone(&props.datapath);
+    let pc_limit = props.pc_limit;
     let change_view = {
         let active_view = active_view.clone();
         Callback::from(move |event: MouseEvent| {
@@ -220,17 +223,42 @@ pub fn regview(props: &Regviewprops) -> Html {
         let (e, register) = args;
         let target = e.target();
         let input = target.unwrap().unchecked_into::<HtmlInputElement>();
-        let val: u64 = input.value().parse().unwrap();
-        let msg = Msg::UpdateRegister(register, val);
+        let val: i64 = match input.value().parse() {
+            Ok(value) => {
+                input.style().set_property("color", "black").unwrap_or_default();
+                value
+            },
+            Err(_err) => {
+                input.style().set_property("color", "red").unwrap_or_default();
+                return
+            }
+        };
+        // let msg = Msg::UpdateRegister(register, val);
 
         let mut datapath = datapath.borrow_mut();
 
         let write_destination: usize = register as usize;
         if register == GpRegisterType::Pc {
-            datapath.registers.pc = val;
-        } 
+            // check if pc is more than the number of instructions
+            // or if it's not word aligned
+            if val > pc_limit as i64 || val % 4 != 0
+            {
+                input.style().set_property("color", "red").unwrap_or_default();
+                return
+            }
+
+            datapath.registers.pc = val as u64;
+        }
+        // check if pc is more than memory capacity
+        // or if it's not word aligned
+        else if register == GpRegisterType::Sp {
+            if val > CAPACITY_BYTES as i64 || val < 0 || val % 4 != 0 {
+                input.style().set_property("color", "red").unwrap_or_default();
+                return
+            }
+        }
         else {
-            datapath.registers.gpr[write_destination] = val;
+            datapath.registers.gpr[write_destination] = val as u64;
         }
     });
 

@@ -13,7 +13,6 @@ use monaco::api::TextModel;
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::ui::visual_datapath::{DatapathSize, VisualDatapath};
 use crate::ui::hex_editor::component::HexEditor;
-use crate::emulation_core::mips::memory::Memory;
 
 #[derive(PartialEq, Properties)]
 pub struct Consoleprops {
@@ -100,17 +99,9 @@ pub fn console(props: &Consoleprops) -> Html {
                 </div>
             } else if *active_tab == TabState::HexEditor {
                 <div class="hex-wrapper">
-                    // <HexEditor memory={props.datapath.memory.clone()}/>
                     <HexEditor memory_text_model={&props.memory_text_model}/>
                 </div>
-            } 
-            // else {
-            //     <div class="console">
-            //         <pre class = "memory-view">
-            //             {props.datapath.memory.generate_formatted_hex() }
-            //         </pre>
-            //     </div>
-            // }
+            }
             <div class="button-bar">
                 <div class="tabs">
                     if *active_tab == TabState::Console {
