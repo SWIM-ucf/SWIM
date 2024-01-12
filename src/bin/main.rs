@@ -1,12 +1,7 @@
-pub mod emulation_core;
-pub mod parser;
-#[cfg(test)]
-pub mod tests;
-pub mod ui;
-
-use emulation_core::datapath::Datapath;
-use emulation_core::mips::datapath::MipsDatapath;
-use emulation_core::mips::datapath::Stage;
+use swim::emulation_core::datapath::Datapath;
+use swim::emulation_core::mips::datapath::MipsDatapath;
+use swim::emulation_core::mips::datapath::Stage;
+use swim::emulation_core::agent::EmulationCoreAgent;
 use gloo::{dialogs::alert, file::FileList};
 use log::debug;
 use js_sys::Object;
@@ -22,7 +17,7 @@ use monaco::{
     },
     yew::{CodeEditor, CodeEditorLink},
 };
-use parser::parser_assembler_main::parser;
+use swim::parser::parser_assembler_main::parser;
 use std::rc::Rc;
 use ui::console::component::Console;
 use ui::regview::component::Regview;
@@ -36,11 +31,12 @@ use yew_hooks::prelude::*;
 use log::Level;
 use std::cell::RefCell;
 
+use yew_agent::Spawnable;
 
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
-const CONTENT: &str = include_str!("../static/assembly_examples/fibonacci.asm");
+const CONTENT: &str = include_str!("../../static/assembly_examples/fibonacci.asm");
 
 #[function_component(App)]
 fn app() -> Html {
@@ -752,5 +748,6 @@ pub fn on_upload_file_clicked() {
 
 fn main() {
     console_log::init_with_level(Level::Debug).unwrap();
+    let bridge = EmulationCoreAgent::spawner().spawn("./worker.js");
     yew::Renderer::<App>::new().render();
 }
