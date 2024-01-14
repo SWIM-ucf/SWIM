@@ -19,9 +19,9 @@ use monaco::{
 };
 use swim::parser::parser_assembler_main::parser;
 use std::rc::Rc;
-use ui::console::component::Console;
-use ui::regview::component::Regview;
-use ui::hex_editor::component::generate_formatted_hex;
+use swim::ui::console::component::Console;
+use swim::ui::regview::component::Regview;
+use swim::ui::hex_editor::component::generate_formatted_hex;
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
@@ -36,7 +36,7 @@ use yew_agent::Spawnable;
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
-const CONTENT: &str = include_str!("../../static/assembly_examples/fibonacci.asm");
+const CONTENT: &str = include_str!("../../static/assembly_examples/store_word.asm");
 
 #[function_component(App)]
 fn app() -> Html {
@@ -426,33 +426,52 @@ fn app() -> Html {
                                 Ok(changed_lines) => {
                                     debug!("Memory updated successfully. Changed lines:");
                                     debug!("{:?}", changed_lines);
+                                    let mut lines_beyond_counter = programinfo.address_to_line_number.len();
+                                    let mut curr_value = text_model.get_value().to_owned();
+                                    let mut add_new_lines = false;
                                     for line in changed_lines {
-                                        debug!("{}", binary[line.line_number]);
-                                        debug!("{}", programinfo.address_to_line_number[line.line_number]);
-                                        let updated_line = programinfo.address_to_line_number[line.line_number] as f64 + 1.0;
-                                        let curr_model = text_model.as_ref();
+                                        if line.line_number < programinfo.address_to_line_number.len() {
+                                            debug!("{}", binary[line.line_number]);
+                                            debug!("{}", programinfo.address_to_line_number[line.line_number]);
+                                            let updated_line = programinfo.address_to_line_number[line.line_number] as f64 + 1.0;
+                                            let curr_model = text_model.as_ref();
 
-                                        let line_to_replace = curr_model.get_line_content(updated_line);
-                                        let mut start_line_column = 0.0;
-                                        let end_line_column = line_to_replace.len() as f64 + 2.0;
-                                        for (i, c) in line_to_replace.chars().enumerate() {
-                                            if c.is_alphanumeric() {
-                                                start_line_column = i as f64 + 1.0;
-                                                break;
+                                            let line_to_replace = curr_model.get_line_content(updated_line);
+                                            let mut start_line_column = 0.0;
+                                            let end_line_column = line_to_replace.len() as f64 + 2.0;
+                                            for (i, c) in line_to_replace.chars().enumerate() {
+                                                if c.is_alphanumeric() {
+                                                    start_line_column = i as f64 + 1.0;
+                                                    break;
+                                                }
                                             }
-                                        }
-                                        debug!("Line to replace -> {:?}, {:?}: {:?}: {:?}: {:?}", line_to_replace, updated_line, start_line_column, updated_line, end_line_column);
+                                            debug!("Line to replace -> {:?}, {:?}: {:?}: {:?}: {:?}", line_to_replace, updated_line, start_line_column, updated_line, end_line_column);
 
-                                        let edit_range = monaco::sys::Range::new(updated_line, start_line_column, updated_line, end_line_column);
-                                        let before_cursor_state = monaco::sys::Selection::new(updated_line, start_line_column, updated_line,end_line_column);
-                                        let edit_operations: monaco::sys::editor::IIdentifiedSingleEditOperation = Object::new().unchecked_into();
-                                        edit_operations.set_range(&edit_range);
-                                        edit_operations.set_text(Some(&line.text));
-                                        let edit_operations_array = js_sys::Array::new();
-                                        edit_operations_array.push(&edit_operations);
-                                        let before_cursor_state_array = js_sys::Array::new();
-                                        before_cursor_state_array.push(&before_cursor_state);
-                                        curr_model.push_edit_operations(&before_cursor_state_array, &edit_operations_array, None);
+                                            let edit_range = monaco::sys::Range::new(updated_line, start_line_column, updated_line, end_line_column);
+                                            let before_cursor_state = monaco::sys::Selection::new(updated_line, start_line_column, updated_line,end_line_column);
+                                            let edit_operations: monaco::sys::editor::IIdentifiedSingleEditOperation = Object::new().unchecked_into();
+                                            edit_operations.set_range(&edit_range);
+                                            edit_operations.set_text(Some(&line.text));
+                                            let edit_operations_array = js_sys::Array::new();
+                                            edit_operations_array.push(&edit_operations);
+                                            let before_cursor_state_array = js_sys::Array::new();
+                                            before_cursor_state_array.push(&before_cursor_state);
+                                            curr_model.push_edit_operations(&before_cursor_state_array, &edit_operations_array, None);
+                                        } else if line.line_number == lines_beyond_counter {
+                                            debug!("Adding new line: {}", &line.text);
+                                            // check if we've added new lines already
+                                            if !add_new_lines {
+                                                // start adding new lines by getting a copy of the current text model to append to
+                                                add_new_lines = true;
+                                                curr_value = text_model.get_value();
+                                            }
+                                            curr_value.push_str("\n");
+                                            curr_value.push_str(&line.text);
+                                            lines_beyond_counter += 1;
+                                        }
+                                    }
+                                    if add_new_lines {
+                                        text_model.set_value(&curr_value);
                                     }
 
                                 },
