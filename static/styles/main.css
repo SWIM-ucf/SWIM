@@ -52,6 +52,10 @@ body {
 	color: rgb(49, 212, 144) !important;
 	font-weight: bold;
 }
+.hexHighlight {
+	color: rgb(49, 212, 144) !important;
+	font-weight: bold;
+}
 
 /****** Console ******/
 .console {
