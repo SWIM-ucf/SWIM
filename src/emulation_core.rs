@@ -1,6 +1,6 @@
 //! The emulation core for the project.
 
-pub mod datapath;
-pub mod mips;
 pub mod agent;
-mod datapath_communicator;
+pub mod datapath;
+pub mod datapath_communicator;
+pub mod mips;
