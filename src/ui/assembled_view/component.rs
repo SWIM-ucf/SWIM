@@ -14,7 +14,6 @@ use crate::parser::parser_structs_and_enums::ProgramInfo;
 pub struct TextSegmentProps {
     pub program_info: ProgramInfo,
     pub lines_content: Rc<RefCell<Vec<String>>>,
-    pub memory_curr_line: Rc<RefCell<f64>>,
     pub pc: u64
 }
 #[derive(PartialEq, Properties)]
@@ -22,14 +21,12 @@ pub struct DataSegmentProps {
     pub program_info: ProgramInfo,
     pub binary: Vec<u32>,
     pub lines_content: Rc<RefCell<Vec<String>>>,
-    pub memory_curr_line: Rc<RefCell<f64>>
 }
 
 #[function_component]
 pub fn TextSegment(props: &TextSegmentProps) -> Html {
     let program_info = &props.program_info;
     let lines_content = props.lines_content.borrow_mut().clone();
-    let memory_curr_line = props.memory_curr_line.borrow_mut();
 
     let on_check = Callback::from(move |args: (MouseEvent, i64)| {
         let (e, address) = args;
@@ -49,7 +46,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
 
         debug!("Go to address {:08x}", address);
         debug!("Go to line {:?}", (address / 4) as f64);
-        // *memory_curr_line = (address / 4) as f64;
+        // memory_curr_line.set((address / 4) as f64);
         
     });
 
@@ -120,7 +117,6 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
     let program_info = &props.program_info;
     let binary = &props.binary;
     let lines_content = props.lines_content.borrow_mut().clone();
-    let memory_curr_line = props.memory_curr_line.borrow_mut();
 
     let on_address_click = Callback::from(move |args: (MouseEvent, usize)| {
         let (e, address) = args;
@@ -129,7 +125,6 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
 
         debug!("Go to address {:08x}", address);
         debug!("Go to line {:?}", (address / 4) as f64);
-        // *memory_curr_line = (address / 4) as f64;
         
     });
 

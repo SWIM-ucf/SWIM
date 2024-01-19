@@ -50,10 +50,10 @@ impl DatapathCommunicator {
     }
 
     /// Sends a test message to the worker thread.
-    pub fn send_test_message(&self) {
+    pub fn send_test_message(&self, num: i64) {
         let mut writer = self.writer.borrow_mut();
         writer
-            .send(1)
+            .send(num as i32)
             // The
             .now_or_never()
             .expect("Send function did not immediately return, async logic needed.")

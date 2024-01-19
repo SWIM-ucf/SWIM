@@ -1,3 +1,4 @@
+use crate::agent::datapath_communicator::DatapathCommunicator;
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::emulation_core::mips::memory::CAPACITY_BYTES;
 use crate::emulation_core::mips::registers::{GpRegisterType, GpRegisters};
@@ -16,13 +17,14 @@ pub struct Regviewprops {
     pub gp: GpRegisters,
     pub fp: [u64; 32],
     pub datapath: Rc<RefCell<MipsDatapath>>,
-    pub pc_limit: usize
+    pub pc_limit: usize,
+    // pub communicator: &'static DatapathCommunicator
 }
 #[derive(PartialEq, Properties)]
 pub struct Regrowprops {
     pub gp: GpRegisters,
     pub fp: [u64; 32],
-    pub on_input: Callback<(InputEvent, GpRegisterType)>,
+    pub on_input: Callback<(InputEvent, GpRegisterType)>
 }
 #[derive(PartialEq, Properties)]
 pub struct Viewswitch {
@@ -246,6 +248,7 @@ pub fn regview(props: &Regviewprops) -> Html {
             }
 
             datapath.registers.pc = val as u64;
+            // props.communicator.send_test_message(val);
         }
         // check if pc is more than memory capacity
         // or if it's not word aligned

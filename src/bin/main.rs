@@ -188,7 +188,7 @@ fn app(props: &AppProps) -> Html {
 
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
-        props.communicator.send_test_message(); // Test message, remove later.
+        // props.communicator.send_test_message(1); // Test message, remove later.
         let text_model = Rc::clone(&text_model);
         let memory_text_model = Rc::clone(&memory_text_model);
         let datapath = Rc::clone(&datapath);
@@ -834,9 +834,9 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             if *active_tab == EditorTabState::Editor {
                 <CodeEditor classes={"editor"} link={props.link.clone()} options={get_options()} model={props.text_model.clone()} on_editor_created={props.on_editor_created.clone()}/>
             } else if *active_tab == EditorTabState::TextSegment {
-                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} memory_curr_line={&props.memory_curr_line} pc={props.pc.clone()}/>
+                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} pc={props.pc.clone()}/>
             } else if *active_tab == EditorTabState::DataSegment {
-                <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()} memory_curr_line={&props.memory_curr_line}/>
+                <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()}/>
             }
         </>
     }
