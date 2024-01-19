@@ -1,5 +1,6 @@
 use gloo::{dialogs::alert, file::FileList};
 use js_sys::Object;
+use gloo_console::log;
 use monaco::{
     api::TextModel,
     sys::{
@@ -33,17 +34,9 @@ use yew_hooks::prelude::*;
 // rename fib_model to text_model to have it work.
 const CONTENT: &str = include_str!("../../static/assembly_examples/fibonacci.asm");
 
-#[derive(Properties, Clone)]
+#[derive(Properties, Clone, PartialEq)]
 struct AppProps {
     communicator: &'static DatapathCommunicator,
-}
-
-impl PartialEq for AppProps {
-    fn eq(&self, other: &Self) -> bool {
-        let self_ptr: *const Self = self;
-        let other_ptr: *const Self = other;
-        self_ptr == other_ptr
-    }
 }
 
 #[function_component(App)]
@@ -96,15 +89,14 @@ fn app(props: &AppProps) -> Html {
     // and will force updates whenever its internal state changes.
     {
         let trigger = use_force_update();
-        let communicator = props.communicator;
-        use_effect(move || {
+        use_effect_with_deps(move |communicator| {
             spawn_local(communicator.listen_for_updates(trigger));
-        });
+        }, props.communicator);
     }
 
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
-        props.communicator.send_test_message(); // Test message, remove later.
+        let communicator = props.communicator;
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
         let parser_text_output = parser_text_output.clone();
@@ -115,6 +107,7 @@ fn app(props: &AppProps) -> Html {
 
         use_callback(
             move |_, text_model| {
+                communicator.send_test_message(); // Test message, remove later.
                 let mut datapath = datapath.borrow_mut();
                 let text_model = text_model.borrow_mut();
 
@@ -181,6 +174,8 @@ fn app(props: &AppProps) -> Html {
             text_model,
         )
     };
+
+    log!("Re-rendered!");
 
     // This is where the code will get executed. If you execute further
     // than when the code ends, the program crashes. This is remedied via the
