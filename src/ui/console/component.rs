@@ -105,27 +105,27 @@ pub fn console(props: &Consoleprops) -> Html {
             <div class="button-bar">
                 <div class="tabs">
                     if *active_tab == TabState::Console {
-                        <button class={classes!("tab", "pressed")} label="console" onclick={change_tab.clone()}>{"Console"}</button>
+                        <button class={classes!("bottom-tab", "pressed")} label="console" onclick={change_tab.clone()}>{"Console"}</button>
                     } else {
-                        <button class="tab" label="console" onclick={change_tab.clone()}>{"Console"}</button>
+                        <button class="bottom-tab" label="console" onclick={change_tab.clone()}>{"Console"}</button>
                     }
 
                     if *active_tab == TabState::Memory {
-                        <button class={classes!("tab", "pressed")} label="memory" onclick={change_tab.clone()}>{"Memory"}</button>
+                        <button class={classes!("bottom-tab", "pressed")} label="memory" onclick={change_tab.clone()}>{"Memory"}</button>
                     } else {
-                        <button class="tab" label="memory" onclick={change_tab.clone()}>{"Memory"}</button>
+                        <button class="bottom-tab" label="memory" onclick={change_tab.clone()}>{"Memory"}</button>
                     }
 
                     if *active_tab == TabState::Datapath {
-                        <button class={classes!("tab", "pressed")} label="datapath" onclick={change_tab.clone()}>{"Datapath"}</button>
+                        <button class={classes!("bottom-tab", "pressed")} label="datapath" onclick={change_tab.clone()}>{"Datapath"}</button>
                     } else {
-                        <button class="tab" label="datapath" onclick={change_tab.clone()}>{"Datapath"}</button>
+                        <button class="bottom-tab" label="datapath" onclick={change_tab.clone()}>{"Datapath"}</button>
                     }
 
                     if *active_tab == TabState::HexEditor {
-                        <button class={classes!("tab", "pressed")} label="hex_editor" onclick={change_tab.clone()}>{"Hex Editor"}</button>
+                        <button class={classes!("bottom-tab", "pressed")} label="hex_editor" onclick={change_tab.clone()}>{"Hex Editor"}</button>
                     } else {
-                        <button class="tab" label="hex_editor" onclick={change_tab.clone()}>{"Hex Editor"}</button>
+                        <button class="bottom-tab" label="hex_editor" onclick={change_tab.clone()}>{"Hex Editor"}</button>
                     }
                 </div>
 

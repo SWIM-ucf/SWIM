@@ -18,9 +18,11 @@ use monaco::{
     yew::{CodeEditor, CodeEditorLink},
 };
 use swim::parser::parser_assembler_main::parser;
+use swim::parser::parser_structs_and_enums::ProgramInfo;
 use std::rc::Rc;
 use swim::ui::console::component::Console;
 use swim::ui::regview::component::Regview;
+use swim::ui::assembled_view::component::AssembledView;
 use swim::ui::hex_editor::component::generate_formatted_hex;
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::spawn_local;
@@ -36,7 +38,7 @@ use yew_agent::Spawnable;
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
-const CONTENT: &str = include_str!("../../static/assembly_examples/store_word.asm");
+const CONTENT: &str = include_str!("../../static/assembly_examples/fibonacci.asm");
 
 #[function_component(App)]
 fn app() -> Html {
@@ -78,6 +80,11 @@ fn app() -> Html {
     let parser_text_output = use_state_eq(String::new);
     let memory_text_output = use_state_eq(String::new);
     let pc_limit = use_state(|| 0);
+
+    // Input strings from the code editor
+    let lines_content = use_mut_ref(Vec::<String>::new);
+
+    let program_info_ref = use_mut_ref(ProgramInfo::default);
 
     let last_memory_text_model = use_mut_ref(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
 
@@ -125,19 +132,29 @@ fn app() -> Html {
     let on_editor_created = {
         let text_model = Rc::clone(&text_model);
         let curr_line = Rc::clone(&curr_line);
+        let lines_content = Rc::clone(&lines_content);
 
         use_callback(
             move |editor_link: CodeEditorLink, _text_model| {
-                // log::trace!("render {editor_link:?}");
                 let curr_line = curr_line.borrow_mut();
                 match editor_link.with_editor(|editor| {
                     let raw_editor = editor.as_ref();
-                    // log!("We made it.");
-                    // log!("Executed line: {}", *curr_line);
+                    let model = raw_editor.get_model().unwrap();
+                    // store each line from the original code editor's contents for assembled view
+                    let js_lines = model.get_lines_content();
+                    let mut string_lines = lines_content.borrow_mut();
+                    for js_string in js_lines.into_iter() {
+                        let string_value = match js_string.as_string() {
+                            Some(string) => string,
+                            None => String::from("")
+                        };
+                        string_lines.push(string_value);
+                        
+                    };
                     raw_editor.reveal_line_in_center(*curr_line, Some(ScrollType::Smooth));
                 }) {
-                    Some(()) => debug!("Editor linked."),
-                    None => debug!("No editor :(")
+                    Some(()) => debug!("Editor linked!"),
+                    None => debug!("No editor :<")
                 };
             },
             text_model,
@@ -157,6 +174,7 @@ fn app() -> Html {
         // Clone the value before moving it into the closure
         let last_memory_text_model = Rc::clone(&last_memory_text_model);
         let pc_limit = pc_limit.clone();
+        let program_info_ref = Rc::clone(&program_info_ref);
 
 
         use_callback(
@@ -166,6 +184,7 @@ fn app() -> Html {
                 let memory_text_model = memory_text_model.borrow_mut();
                 // parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
                 let (program_info, assembled) = parser(text_model.get_value());
+                *program_info_ref.borrow_mut() = program_info.clone();
                 pc_limit.set(assembled.len() * 4);
                 parser_text_output.set(program_info.console_out_post_assembly);
                 let last_memory_text_model = last_memory_text_model.borrow_mut();
@@ -674,8 +693,8 @@ fn app() -> Html {
                     </div>
 
                     // Editor
-                    <div style="flex-grow: 1; min-height: 4em;">
-                        <SwimEditor text_model={text_model.borrow().clone()} link={link} on_editor_created={on_editor_created} />
+                    <div class="code">
+                        <SwimEditor text_model={text_model.borrow().clone()} link={link} on_editor_created={on_editor_created} lines_content={lines_content} program_info={program_info_ref.borrow().clone()}/>
                     </div>
 
                     // Console
@@ -700,7 +719,17 @@ fn new_object() -> JsValue {
 pub struct SwimEditorProps {
     pub text_model: TextModel,
     pub link: CodeEditorLink,
-    pub on_editor_created: Callback<CodeEditorLink>
+    pub on_editor_created: Callback<CodeEditorLink>,
+    pub lines_content: Rc<RefCell<Vec<String>>>,
+    pub program_info: ProgramInfo
+}
+
+#[derive(Default, PartialEq)]
+enum EditorTabState {
+    #[default]
+    Editor,
+    TextSegment,
+    DataSegment
 }
 
 fn get_options() -> IStandaloneEditorConstructionOptions {
@@ -731,8 +760,53 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 
 #[function_component]
 pub fn SwimEditor(props: &SwimEditorProps) -> Html {
+    let active_tab = use_state_eq(EditorTabState::default);
+    let change_tab = {
+        let active_tab = active_tab.clone();
+        Callback::from(move |event: MouseEvent| {
+            let target = event.target().unwrap().dyn_into::<web_sys::HtmlElement>().unwrap();
+            let tab_name = target
+                .get_attribute("label")
+                .unwrap_or(String::from("editor"));
+
+            let new_tab: EditorTabState = match tab_name.as_str() {
+                "editor" => EditorTabState::Editor,
+                "text" => EditorTabState::TextSegment,
+                "data" => EditorTabState::DataSegment,
+                _ => EditorTabState::default(),
+            };
+
+            active_tab.set(new_tab);
+        })
+    };
     html! {
-        <CodeEditor classes={"editor"} link={props.link.clone()} options={get_options()} model={props.text_model.clone()} on_editor_created={props.on_editor_created.clone()}/>
+        <>
+            // Editor buttons
+            <div class="bar tabs">
+                if *active_tab == EditorTabState::Editor {
+                    <button class={classes!("tab", "pressed")} label="editor" onclick={change_tab.clone()}>{"Editor"}</button>
+                } else {
+                    <button class="tab" label="editor" onclick={change_tab.clone()}>{"Editor"}</button>
+                }
+
+                if *active_tab == EditorTabState::TextSegment {
+                    <button class={classes!("tab", "pressed")} label="text" onclick={change_tab.clone()}>{"Text Segment"}</button>
+                } else {
+                    <button class="tab" label="text" onclick={change_tab.clone()}>{"Text Segment"}</button>
+                }
+
+                if *active_tab == EditorTabState::DataSegment {
+                    <button class={classes!("tab", "pressed")} label="data" onclick={change_tab.clone()}>{"Data Segment"}</button>
+                } else {
+                    <button class="tab" label="data" onclick={change_tab.clone()}>{"Data Segment"}</button>
+                }
+            </div>
+            if *active_tab == EditorTabState::Editor {
+                <CodeEditor classes={"editor"} link={props.link.clone()} options={get_options()} model={props.text_model.clone()} on_editor_created={props.on_editor_created.clone()}/>
+            } else if *active_tab == EditorTabState::TextSegment {
+                <AssembledView text_model={props.text_model.clone()} lines_content={props.lines_content.clone()} program_info={props.program_info.clone()}/>
+            }
+        </>
     }
 }
 

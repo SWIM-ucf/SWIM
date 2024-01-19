@@ -88,7 +88,7 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
 
                 }) {
                     Some(()) => debug!("Hex Editor linked!"),
-                    None => debug!("No editor :(")
+                    None => debug!("No editor :<")
                 };
             },
             text_model,

@@ -178,11 +178,9 @@ pub fn regview(props: &Regviewprops) -> Html {
     let pc_limit = props.pc_limit;
     let change_view = {
         let active_view = active_view.clone();
-        Callback::from(move |event: MouseEvent| {
-            let target = event.target().unwrap().dyn_into::<HtmlElement>().unwrap();
-            let mode = target
-                .get_attribute("label")
-                .unwrap_or(String::from("regview"));
+        Callback::from(move |event: Event| {
+            let target = event.target().unwrap().unchecked_into::<HtmlInputElement>();
+            let mode = target.value();
 
             let new_mode = match mode.as_str() {
                 "bin" => UnitState::Bin,
@@ -270,49 +268,38 @@ pub fn regview(props: &Regviewprops) -> Html {
 
     //log!("This is ", *switch_flag);
     html! {
-        <div style="flex-grow: 1; gap: 8px; display: flex; flex-direction: column; flex-wrap: nowrap;">
-            <div class="button-bar tabs">
-                if *active_view == UnitState::Dec {
-                    <button class={classes!("tab", "pressed")} label="dec" onclick={change_view.clone()}>{"Dec"}</button>
-                } else {
-                    <button class="tab" label="dec" onclick={change_view.clone()}>{"Dec"}</button>
-                }
-
-                if *active_view == UnitState::Bin {
-                    <button class={classes!("tab", "pressed")} label="bin" onclick={change_view.clone()}>{"Bin"}</button>
-                } else {
-                    <button class="tab" label="bin" onclick={change_view.clone()}>{"Bin"}</button>
-                }
-
-                if *active_view == UnitState::Hex {
-                    <button class={classes!("tab", "pressed")} label="hex" onclick={change_view.clone()}>{"Hex"}</button>
-                } else {
-                    <button class="tab" label="hex" onclick={change_view.clone()}>{"Hex"}</button>
-                }
-                if !*switch_flag{
-                    if *active_view == UnitState::Float {
-                        <button class={classes!("tab", "pressed")} label="float" onclick={change_view.clone()}>{"Float"}</button>
+        <div style="flex-grow: 1; display: flex; flex-direction: column; flex-wrap: nowrap; margin-top: 36px;">
+            <div class="regview-menu bar">
+                <div class="tabs">
+                    if *switch_flag {
+                        <button class={classes!("tab", "pressed")} onclick={on_switch_clicked_gp.clone()}>{"GP"}</button>
                     } else {
-                        <button class="tab" label="float" onclick={change_view.clone()}>{"Float"}</button>
+                        <button class="tab" onclick={on_switch_clicked_gp.clone()}>{"GP"}</button>
                     }
-                    if *active_view == UnitState::Double {
-                        <button class={classes!("tab", "pressed")} label="double" onclick={change_view.clone()}>{"Double"}</button>
+                    if !(*switch_flag){
+                        <button class={classes!("tab", "pressed")} onclick={on_switch_clicked_fp.clone()}>{"FP"}</button>
                     } else {
-                        <button class="tab" label="double" onclick={change_view.clone()}>{"Double"}</button>
+                        <button class="tab" onclick={on_switch_clicked_fp.clone()}>{"FP"}</button>
                     }
-                }
-            </div>
-            <div class="button-bar tabs">
-            if *switch_flag {
-                <button class={classes!("tab", "pressed")} style="width: 50%;" onclick={on_switch_clicked_gp.clone()}>{"GP"}</button>
-            } else {
-                <button class="tab" style="width: 50%;" onclick={on_switch_clicked_gp.clone()}>{"GP"}</button>
-            }
-            if !(*switch_flag){
-                <button class={classes!("tab", "pressed")} style="width: 50%;" onclick={on_switch_clicked_fp.clone()}>{"FP"}</button>
-            } else {
-                <button class="tab" style="width: 50%;" onclick={on_switch_clicked_fp.clone()}>{"FP"}</button>
-            }
+                </div>
+                <select class="unit-state" name="units" onchange={change_view.clone()} value={
+                    match *active_view {
+                        UnitState::Bin => "Binary",
+                        UnitState::Dec => "Decimal",
+                        UnitState::Hex => "Hex",
+                        UnitState::Float => "Float",
+                        UnitState::Double => "Double",
+                        _ => "dec",
+                    }
+                }>
+                    <option value="dec">{"Decimal"}</option>
+                    <option value="bin">{"Binary"}</option>
+                    <option value="hex">{"Hex"}</option>
+                    if !*switch_flag {
+                        <option value="float">{"Float"}</option>
+                        <option value="double">{"Double"}</option>
+                    }
+                </select>
             </div>
             <div class="table-wrapper">
                 <table style="background-color: #ffffff">
