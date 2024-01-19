@@ -11,31 +11,23 @@ use monaco::{
     api::TextModel,
     sys::
         editor::{
-            IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions, ISuggestOptions
+            IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions, ISuggestOptions, ScrollType
         },
     yew::{CodeEditor, CodeEditorLink},
 };
 #[derive(PartialEq, Properties)]
 pub struct HexEditorProps {
-    pub memory_text_model: Rc<RefCell<TextModel>>
+    pub memory_text_model: Rc<RefCell<TextModel>>,
+    pub curr_line: Rc<RefCell<f64>>
 }
 
 #[function_component(HexEditor)]
 pub fn hex_editor(props: &HexEditorProps) -> Html {
     let editor_link = CodeEditorLink::new();
     let text_model = Rc::clone(&props.memory_text_model);
-    let executed_line = js_sys::Array::new();
+    let curr_line = Rc::clone(&props.curr_line);
     let not_highlighted = js_sys::Array::new();
     let mut mutated = false;
-
-    use_effect_with_deps(
-        move |_| {
-
-            let memory_text_model = text_model.borrow_mut();
-
-        },
-        executed_line,
-    );
 
     // create a JavaScript closure
     let cb = Closure::wrap(Box::new(move |event: monaco::sys::editor::ICursorSelectionChangedEvent| {
@@ -75,9 +67,11 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
 
     let on_editor_created = {
         let text_model = Rc::clone(&props.memory_text_model);
+        let curr_line = Rc::clone(&curr_line);
 
         use_callback(
             move |editor_link: CodeEditorLink, text_model| {
+                let curr_line = curr_line.borrow_mut();
                 match editor_link.with_editor(|editor| {
                     let raw_editor = editor.as_ref();
 
@@ -85,6 +79,7 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
                     let cb_func = &cb.as_ref().unchecked_ref();
 
                     raw_editor.on_did_change_cursor_selection(cb_func);
+                    // raw_editor.reveal_line_in_center(*curr_line, Some(ScrollType::Smooth))
 
                 }) {
                     Some(()) => debug!("Hex Editor linked!"),

@@ -72,5 +72,4 @@
 .bottom-tab:hover,
 .bottom-tab:active {
     color: rgb(244, 244, 244);
-    transition: 0.1s;
 }

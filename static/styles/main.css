@@ -65,7 +65,7 @@ body {
 }
 
 /****** Assembled View ******/
-.text_segment {
+.memory_segment {
   height: 96%;
   background-color: #1e1e1e;
   color: #ddd;

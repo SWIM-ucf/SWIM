@@ -19,6 +19,7 @@ pub struct Consoleprops {
     pub datapath: MipsDatapath,
     pub parsermsg: String,
     pub memory_text_model: Rc<RefCell<TextModel>>,
+    pub memory_curr_line: Rc<RefCell<f64>>
 }
 
 #[derive(Default, PartialEq)]
@@ -26,7 +27,6 @@ enum TabState {
     #[default]
     Console,
     Datapath,
-    Memory,
     HexEditor
 }
 
@@ -46,7 +46,6 @@ pub fn console(props: &Consoleprops) -> Html {
             let new_tab = match tab_name.as_str() {
                 "console" => TabState::Console,
                 "datapath" => TabState::Datapath,
-                "memory" => TabState::Memory,
                 "hex_editor" => TabState::HexEditor,
                 _ => TabState::default(),
             };
@@ -99,7 +98,7 @@ pub fn console(props: &Consoleprops) -> Html {
                 </div>
             } else if *active_tab == TabState::HexEditor {
                 <div class="hex-wrapper">
-                    <HexEditor memory_text_model={&props.memory_text_model}/>
+                    <HexEditor memory_text_model={&props.memory_text_model} curr_line={&props.memory_curr_line}/>
                 </div>
             }
             <div class="button-bar">
@@ -108,12 +107,6 @@ pub fn console(props: &Consoleprops) -> Html {
                         <button class={classes!("bottom-tab", "pressed")} label="console" onclick={change_tab.clone()}>{"Console"}</button>
                     } else {
                         <button class="bottom-tab" label="console" onclick={change_tab.clone()}>{"Console"}</button>
-                    }
-
-                    if *active_tab == TabState::Memory {
-                        <button class={classes!("bottom-tab", "pressed")} label="memory" onclick={change_tab.clone()}>{"Memory"}</button>
-                    } else {
-                        <button class="bottom-tab" label="memory" onclick={change_tab.clone()}>{"Memory"}</button>
                     }
 
                     if *active_tab == TabState::Datapath {
