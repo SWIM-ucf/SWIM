@@ -12,9 +12,9 @@ use monaco::{
     yew::CodeEditor,
 };
 use std::rc::Rc;
-use swim::emulation_core::agent::EmulationCoreAgent;
+use swim::agent::EmulationCoreAgent;
+use swim::agent::datapath_communicator::DatapathCommunicator;
 use swim::emulation_core::datapath::Datapath;
-use swim::emulation_core::datapath_communicator::DatapathCommunicator;
 use swim::emulation_core::mips::datapath::MipsDatapath;
 use swim::emulation_core::mips::datapath::Stage;
 use swim::parser::parser_assembler_main::parser;
@@ -92,7 +92,8 @@ fn app(props: &AppProps) -> Html {
     // the ability to access and change its contents be mutable.
     let datapath = use_mut_ref(MipsDatapath::default);
 
-    // Start listening for messages from the communicator
+    // Start listening for messages from the communicator. This effectively links the worker thread to the main thread
+    // and will force updates whenever its internal state changes.
     {
         let trigger = use_force_update();
         let communicator = props.communicator;
@@ -103,7 +104,7 @@ fn app(props: &AppProps) -> Html {
 
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
-        props.communicator.send_test_message();
+        props.communicator.send_test_message(); // Test message, remove later.
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
         let parser_text_output = parser_text_output.clone();
