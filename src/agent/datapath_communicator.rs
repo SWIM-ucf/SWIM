@@ -19,6 +19,15 @@ pub struct DatapathCommunicator {
     reader: RefCell<SplitStream<ReactorBridge<EmulationCoreAgent>>>,
 }
 
+// Check references for equality by memory address.
+impl PartialEq for &'static DatapathCommunicator {
+    fn eq(&self, other: &Self) -> bool {
+        let self_ptr: *const DatapathCommunicator = *self;
+        let other_ptr: *const DatapathCommunicator = *other;
+        self_ptr == other_ptr
+    }
+}
+
 impl DatapathCommunicator {
     /// Initialize the DatapathCommunicator using a bridge.
     pub fn new(bridge: ReactorBridge<EmulationCoreAgent>) -> DatapathCommunicator {
@@ -43,17 +52,21 @@ impl DatapathCommunicator {
         };
 
         loop {
+            log!("Waiting...");
             let update = reader.next().await;
             log!(format!("Got update {:?}", update));
+            if let None = update {
+                return;
+            }
             update_handle.force_update();
         }
     }
 
     /// Sends a test message to the worker thread.
-    pub fn send_test_message(&self, num: i64) {
+    pub fn send_test_message(&self) {
         let mut writer = self.writer.borrow_mut();
         writer
-            .send(num as i32)
+            .send(1)
             // The
             .now_or_never()
             .expect("Send function did not immediately return, async logic needed.")
