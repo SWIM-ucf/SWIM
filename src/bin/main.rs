@@ -1,7 +1,3 @@
-use swim::emulation_core::datapath::Datapath;
-use swim::emulation_core::mips::datapath::MipsDatapath;
-use swim::emulation_core::mips::datapath::Stage;
-use swim::emulation_core::agent::EmulationCoreAgent;
 use gloo::{dialogs::alert, file::FileList};
 use log::debug;
 use js_sys::Object;
@@ -20,6 +16,11 @@ use monaco::{
 use swim::parser::parser_assembler_main::parser;
 use swim::parser::parser_structs_and_enums::ProgramInfo;
 use std::rc::Rc;
+use swim::agent::EmulationCoreAgent;
+use swim::agent::datapath_communicator::DatapathCommunicator;
+use swim::emulation_core::datapath::Datapath;
+use swim::emulation_core::mips::datapath::MipsDatapath;
+use swim::emulation_core::mips::datapath::Stage;
 use swim::ui::console::component::Console;
 use swim::ui::regview::component::Regview;
 use swim::ui::assembled_view::component::{TextSegment, DataSegment};
@@ -29,19 +30,32 @@ use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew::{html, Html, Properties};
-use yew_hooks::prelude::*;
 use log::Level;
 use std::cell::RefCell;
 
 use yew_agent::Spawnable;
+use yew_hooks::prelude::*;
 
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
 const CONTENT: &str = include_str!("../../static/assembly_examples/fibonacci.asm");
 
+#[derive(Properties, Clone)]
+struct AppProps {
+    communicator: &'static DatapathCommunicator,
+}
+
+impl PartialEq for AppProps {
+    fn eq(&self, other: &Self) -> bool {
+        let self_ptr: *const Self = self;
+        let other_ptr: *const Self = other;
+        self_ptr == other_ptr
+    }
+}
+
 #[function_component(App)]
-fn app() -> Html {
+fn app(props: &AppProps) -> Html {
     // This contains the binary representation of "ori $s0, $zero, 12345", which
     // stores 12345 in register $s0.
     // let code = String::from("ori $s0, $zero, 12345\n");
@@ -162,9 +176,19 @@ fn app() -> Html {
             text_model,
         )
     };
+    // Start listening for messages from the communicator. This effectively links the worker thread to the main thread
+    // and will force updates whenever its internal state changes.
+    {
+        let trigger = use_force_update();
+        let communicator = props.communicator;
+        use_effect(move || {
+            spawn_local(communicator.listen_for_updates(trigger));
+        });
+    }
 
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
+        props.communicator.send_test_message(); // Test message, remove later.
         let text_model = Rc::clone(&text_model);
         let memory_text_model = Rc::clone(&memory_text_model);
         let datapath = Rc::clone(&datapath);
@@ -849,6 +873,12 @@ pub fn on_upload_file_clicked() {
 
 fn main() {
     console_log::init_with_level(Level::Debug).unwrap();
+    // Initialize and leak the communicator to ensure that the thread spawns immediately and the bridge to it lives
+    // for the remainder of the program.
     let bridge = EmulationCoreAgent::spawner().spawn("./worker.js");
-    yew::Renderer::<App>::new().render();
+    let communicator = Box::new(DatapathCommunicator::new(bridge));
+    yew::Renderer::<App>::with_props(AppProps {
+        communicator: Box::leak(communicator),
+    })
+    .render();
 }
