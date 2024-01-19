@@ -79,6 +79,10 @@ body {
     }
   }
 
+  .executing {
+    color:rgb(49, 212, 144);
+  }
+
   .assembled-string {
     color: #006591;
     cursor: pointer;

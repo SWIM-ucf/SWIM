@@ -14,7 +14,8 @@ use crate::parser::parser_structs_and_enums::ProgramInfo;
 pub struct TextSegmentProps {
     pub program_info: ProgramInfo,
     pub lines_content: Rc<RefCell<Vec<String>>>,
-    pub memory_curr_line: Rc<RefCell<f64>>
+    pub memory_curr_line: Rc<RefCell<f64>>,
+    pub pc: u64
 }
 #[derive(PartialEq, Properties)]
 pub struct DataSegmentProps {
@@ -30,7 +31,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
     let lines_content = props.lines_content.borrow_mut().clone();
     let memory_curr_line = props.memory_curr_line.borrow_mut();
 
-    let on_check = Callback::from(move |args: (MouseEvent, i32)| {
+    let on_check = Callback::from(move |args: (MouseEvent, i64)| {
         let (e, address) = args;
         let target = e.target();
         let input = target.unwrap().unchecked_into::<HtmlInputElement>();
@@ -41,7 +42,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
         
     });
 
-    let on_address_click = Callback::from(move |args: (MouseEvent, i32)| {
+    let on_address_click = Callback::from(move |args: (MouseEvent, i64)| {
         let (e, address) = args;
         let target = e.target();
         let input = target.unwrap().unchecked_into::<HtmlInputElement>();
@@ -52,7 +53,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
         
     });
 
-    let on_assembled_click = Callback::from(move |args: (MouseEvent, i32)| {
+    let on_assembled_click = Callback::from(move |args: (MouseEvent, i64)| {
         let (e, line_number) = args;
         let target = e.target();
         let input = target.unwrap().unchecked_into::<HtmlInputElement>();
@@ -80,9 +81,13 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                     let on_address_click = Callback::clone(&on_address_click);
                     let on_assembled_click = Callback::clone(&on_assembled_click);
                     address += 4;
+                    let mut conditional_class = "";
+                    if props.pc as i64 == address {
+                        conditional_class = "executing";
+                    }
                     html!{ 
                         
-                        <tr key={index} class={classes!("row")}>
+                        <tr key={index} class={classes!("row", conditional_class)}>
                             <td class={classes!("bkpt")}>
                                 <input type="checkbox" onclick={move |e: MouseEvent| {on_check.emit((e, address))}}/>
                                 <div class="circle"></div>
@@ -147,7 +152,7 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
                 <th>{"Source"}</th>
             </tr>
             { 
-                if program_info.instructions.len() > 0 {
+                if program_info.instructions.len() > 0 && binary.len() > 0 {
                     let mut address = program_info.instructions.len() * 4 - 4;
                     program_info.data.iter().enumerate().map(|(index, data)| {
                         let recreated_string = data.recreate_string();

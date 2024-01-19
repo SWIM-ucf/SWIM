@@ -697,7 +697,7 @@ fn app() -> Html {
 
                     // Editor
                     <div class="code">
-                        <SwimEditor text_model={text_model.borrow().clone()} link={link} on_editor_created={on_editor_created} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} binary={binary_ref.borrow().clone()} memory_curr_line={memory_curr_line.clone()}/>
+                        <SwimEditor text_model={text_model.borrow().clone()} link={link} on_editor_created={on_editor_created} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} binary={binary_ref.borrow().clone()} memory_curr_line={memory_curr_line.clone()} pc={(*datapath.borrow()).clone().registers.pc}/>
                     </div>
 
                     // Console
@@ -726,7 +726,8 @@ pub struct SwimEditorProps {
     pub lines_content: Rc<RefCell<Vec<String>>>,
     pub program_info: ProgramInfo,
     pub binary: Vec<u32>,
-    pub memory_curr_line: Rc<RefCell<f64>>
+    pub memory_curr_line: Rc<RefCell<f64>>,
+    pub pc: u64
 }
 
 #[derive(Default, PartialEq)]
@@ -809,7 +810,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             if *active_tab == EditorTabState::Editor {
                 <CodeEditor classes={"editor"} link={props.link.clone()} options={get_options()} model={props.text_model.clone()} on_editor_created={props.on_editor_created.clone()}/>
             } else if *active_tab == EditorTabState::TextSegment {
-                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} memory_curr_line={&props.memory_curr_line}/>
+                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} memory_curr_line={&props.memory_curr_line} pc={props.pc.clone()}/>
             } else if *active_tab == EditorTabState::DataSegment {
                 <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()} memory_curr_line={&props.memory_curr_line}/>
             }
