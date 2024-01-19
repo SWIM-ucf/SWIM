@@ -20,7 +20,7 @@ pub struct DatapathCommunicator {
 }
 
 // Check references for equality by memory address.
-impl PartialEq for &'static DatapathCommunicator {
+impl PartialEq for &DatapathCommunicator {
     fn eq(&self, other: &Self) -> bool {
         let self_ptr: *const DatapathCommunicator = *self;
         let other_ptr: *const DatapathCommunicator = *other;
