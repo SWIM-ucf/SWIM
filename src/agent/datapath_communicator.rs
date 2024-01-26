@@ -55,7 +55,7 @@ impl DatapathCommunicator {
             log!("Waiting...");
             let update = reader.next().await;
             log!(format!("Got update {:?}", update));
-            if let None = update {
+            if update.is_none() {
                 return;
             }
             update_handle.force_update();

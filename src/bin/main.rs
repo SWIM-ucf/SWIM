@@ -1,6 +1,6 @@
 use gloo::{dialogs::alert, file::FileList};
-use js_sys::Object;
 use gloo_console::log;
+use js_sys::Object;
 use monaco::{
     api::TextModel,
     sys::{
@@ -13,8 +13,8 @@ use monaco::{
     yew::CodeEditor,
 };
 use std::rc::Rc;
-use swim::agent::EmulationCoreAgent;
 use swim::agent::datapath_communicator::DatapathCommunicator;
+use swim::agent::EmulationCoreAgent;
 use swim::emulation_core::datapath::Datapath;
 use swim::emulation_core::mips::datapath::MipsDatapath;
 use swim::emulation_core::mips::datapath::Stage;
@@ -89,9 +89,12 @@ fn app(props: &AppProps) -> Html {
     // and will force updates whenever its internal state changes.
     {
         let trigger = use_force_update();
-        use_effect_with_deps(move |communicator| {
-            spawn_local(communicator.listen_for_updates(trigger));
-        }, props.communicator);
+        use_effect_with_deps(
+            move |communicator| {
+                spawn_local(communicator.listen_for_updates(trigger));
+            },
+            props.communicator,
+        );
     }
 
     // This is where code is assembled and loaded into the emulation core's memory.
@@ -555,7 +558,8 @@ pub fn on_upload_file_clicked() {
 
 fn main() {
     // Initialize and leak the communicator to ensure that the thread spawns immediately and the bridge to it lives
-    // for the remainder of the program.
+    // for the remainder of the program. We can use the communicator exclusively through immutable references for the
+    // rest of the program.
     let bridge = EmulationCoreAgent::spawner().spawn("./worker.js");
     let communicator = Box::new(DatapathCommunicator::new(bridge));
     yew::Renderer::<App>::with_props(AppProps {
