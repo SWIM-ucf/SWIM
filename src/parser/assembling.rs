@@ -6,7 +6,7 @@ use crate::parser::parser_structs_and_enums::ErrorType::{
     NonIntImmediate, UnrecognizedDataType, UnrecognizedFPRegister, UnrecognizedGPRegister,
 };
 use crate::parser::parser_structs_and_enums::OperandType::{
-    Immediate, LabelAbsolute, LabelRelative, MemoryAddress, RegisterFP, RegisterGP,
+    Immediate, UpperImmediate, LabelAbsolute, LabelRelative, MemoryAddress, RegisterFP, RegisterGP, ShiftAmount
 };
 use crate::parser::parser_structs_and_enums::RegisterType::{FloatingPoint, GeneralPurpose};
 use crate::parser::parser_structs_and_enums::TokenType::{
@@ -16,6 +16,10 @@ use crate::parser::parser_structs_and_enums::{
     Data, Error, Instruction, OperandType, RegisterType, TokenType, FP_REGISTERS, GP_REGISTERS,
 };
 use std::collections::HashMap;
+
+use super::parser_structs_and_enums::{RISCV_GP_REGISTERS, RISCV_FP_REGISTERS};
+
+use gloo_console::log;
 
 ///This function takes an instruction whose operands it is supposed to read, the order of expected operand types and then
 ///the order these operands should be concatenated onto the binary representation of the string
@@ -87,6 +91,10 @@ pub fn read_operands(
                     instruction.errors.push(immediate_results.1.unwrap());
                 }
             }
+            UpperImmediate =>
+            {
+                // Don't need to handle for MIPS
+            }
             MemoryAddress => {
                 instruction.operands[i].token_type = TokenType::MemoryAddress;
 
@@ -152,7 +160,7 @@ pub fn read_operands(
                     instruction.errors.push(label_relative_results.1.unwrap());
                 }
             }
-            OperandType::ShiftAmount => {
+            ShiftAmount => {
                 instruction.operands[i].token_type = TokenType::Immediate;
                 bit_lengths.push(5);
 
@@ -176,6 +184,193 @@ pub fn read_operands(
             binary_representation[element - 1],
             bit_lengths[element - 1],
         );
+    }
+
+    instruction
+}
+
+pub fn read_operands_riscv(
+    instruction: &mut Instruction,
+    expected_operands: Vec<OperandType>,
+    concat_order: Vec<usize>,
+    labels_option: Option<HashMap<String, usize>>,
+    funct3: Option<u32>
+) -> &mut Instruction {
+    //if the number of operands in the instruction does not match the expected number, there is an error
+    if instruction.operands.len() != expected_operands.len() {
+        instruction.errors.push(Error {
+            error_name: IncorrectNumberOfOperands,
+            token_causing_error: instruction.operator.token_name.clone(),
+            start_end_columns: instruction.operator.start_end_columns,
+            message: "".to_string(),
+        });
+        return instruction;
+    }
+
+    let labels = if let Some(..) = labels_option {
+        labels_option.unwrap()
+    } else {
+        HashMap::new()
+    };
+
+    //operands aren't represented in the binary in the order they're read so the vec<u32> allows us to concatenate them in the proper order after they're all read.
+    let mut binary_representation: Vec<u32> = Vec::new();
+    let mut bit_lengths: Vec<u8> = Vec::new();
+    //goes through once for each expected operand
+    for (i, operand_type) in expected_operands.iter().enumerate() {
+        //break if there are no more operands to read. Should only occur if IncorrectNumberOfOperands occurs above
+        if i >= instruction.operands.len() {
+            break;
+        };
+
+        //match case calls the proper functions based on the expected operand type. The data returned from these functions is always
+        //the binary of the read operand and the option for any errors encountered while reading the operand. If there were no errors,
+        //the binary is pushed to the string representations vec. Otherwise, the errors are pushed to the instruction.errors vec.
+        match operand_type {
+            RegisterGP => {
+                log!("RegisterGP");
+                instruction.operands[i].token_type = TokenType::RegisterGP;
+                bit_lengths.push(5);
+
+                let register_results = read_register_riscv(
+                    &instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                    GeneralPurpose,
+                );
+                
+                log!("Register Results:  ", format!("{:?}", register_results));
+
+                // Vector holding all register arguments
+                binary_representation.push(register_results.0 as u32);
+                if register_results.1.is_some() {
+                    instruction.errors.push(register_results.1.unwrap());
+                }
+            }
+            Immediate => {
+                instruction.operands[i].token_type = TokenType::Immediate;
+                bit_lengths.push(12); // 12 bits to represent immediates
+
+                let immediate_results = read_immediate(
+                    &instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                    12,
+                );
+
+                binary_representation.push(immediate_results.0);
+                if immediate_results.1.is_some() {
+                    instruction.errors.push(immediate_results.1.unwrap());
+                }
+            }
+            UpperImmediate => // Can be used to represent offsets for J-type instructions
+            {
+                log!("Upper Immediate");
+                instruction.operands[i].token_type = TokenType::Immediate;
+                bit_lengths.push(20); // 20 bits to represent upper immediates
+
+                let immediate_results = read_immediate(
+                    &instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                    20,
+                );
+
+                binary_representation.push(immediate_results.0);
+                if immediate_results.1.is_some() {
+                    instruction.errors.push(immediate_results.1.unwrap());
+                }
+            }
+            MemoryAddress => {
+                instruction.operands[i].token_type = TokenType::MemoryAddress;
+
+                bit_lengths.push(12);
+                bit_lengths.push(5);
+                //memory address works a bit differently because it really amounts to two operands: the offset and base
+                //meaning there are two values to push and the possibility of errors on both operands
+                let memory_results = read_memory_address_riscv(
+                    &instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                );
+
+                binary_representation.push(memory_results.0);
+                binary_representation.push(memory_results.1);
+                if memory_results.2.is_some() {
+                    for error in memory_results.2.unwrap() {
+                        instruction.errors.push(error);
+                    }
+                }
+            }
+            RegisterFP => {
+                instruction.operands[i].token_type = TokenType::RegisterFP;
+
+                bit_lengths.push(5);
+                let register_results = read_register(
+                    &instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                    FloatingPoint,
+                );
+
+                binary_representation.push(register_results.0 as u32);
+                if register_results.1.is_some() {
+                    instruction.errors.push(register_results.1.unwrap());
+                }
+            }
+            LabelAbsolute => {
+                instruction.operands[i].token_type = TokenType::LabelOperand;
+
+                bit_lengths.push(26);
+                let label_absolute_results = read_label_absolute(
+                    &instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                    labels.clone(),
+                );
+
+                binary_representation.push(label_absolute_results.0);
+                if label_absolute_results.1.is_some() {
+                    instruction.errors.push(label_absolute_results.1.unwrap());
+                }
+            }
+            LabelRelative => {
+                instruction.operands[i].token_type = TokenType::LabelOperand;
+
+                bit_lengths.push(16);
+                let label_relative_results = read_label_relative(
+                    &instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                    instruction.instruction_number,
+                    labels.clone(),
+                );
+                binary_representation.push(label_relative_results.0);
+                if label_relative_results.1.is_some() {
+                    instruction.errors.push(label_relative_results.1.unwrap());
+                }
+            }
+            ShiftAmount => {
+                instruction.operands[i].token_type = TokenType::Immediate;
+                bit_lengths.push(7);
+
+                let immediate_results = read_immediate(
+                    &instruction.operands[i].token_name,
+                    instruction.operands[i].start_end_columns,
+                    7,
+                );
+
+                binary_representation.push(immediate_results.0);
+                if immediate_results.1.is_some() {
+                    instruction.errors.push(immediate_results.1.unwrap());
+                }
+            }
+        }
+    }
+    //once all operands are read, we can append them onto the instruction
+    for (index, element) in concat_order.iter().rev().enumerate() {
+        instruction.binary = append_binary(
+            instruction.binary,
+            binary_representation[element - 1],
+            bit_lengths[element - 1],
+        );
+        if index == 1 && funct3.is_some() // Set funct3 value before the final argument
+        {
+            instruction.binary = append_binary(instruction.binary, funct3.unwrap_or(0), 3) // Shift amount may need to be adjusted using function argument
+        }
     }
 
     instruction
@@ -300,6 +495,78 @@ pub fn read_memory_address(
     (immediate_results.0, register_results.0 as u32, None)
 }
 
+///Takes in a memory address and token number and returns the binary for the offset value, base register value, and any errors.
+/// If the string given matches a label, that address is returned instead
+pub fn read_memory_address_riscv(
+    orig_string: &str,
+    start_end_columns: (usize, usize),
+) -> (u32, u32, Option<Vec<Error>>) {
+    //the indices of the open and close parentheses are checked.
+    //If either are missing or they are in the wrong order, an error is returned
+    let open_index = orig_string.find('(');
+    let close_index = orig_string.find(')');
+    if close_index.is_none() || open_index.is_none() || close_index < open_index {
+        return (
+            0,
+            0,
+            Some(vec![Error {
+                error_name: InvalidMemorySyntax,
+                token_causing_error: orig_string.to_string(),
+                start_end_columns,
+                message: "".to_string(),
+            }]),
+        );
+    }
+
+    //splits the string at the index of the open parenthesis to isolate the base and offset
+    let (offset_str, base_str) = orig_string.split_at(open_index.unwrap());
+
+    let mut base: Vec<char> = base_str.chars().collect();
+
+    //returns an error if there are any characters after the close parenthesis
+    if base[base.len() - 1] != ')' {
+        return (
+            0,
+            0,
+            Some(vec![Error {
+                error_name: InvalidMemorySyntax,
+                token_causing_error: orig_string.to_string(),
+                start_end_columns,
+                message: "".to_string(),
+            }]),
+        );
+    }
+
+    //removes the open and close parentheses characters and then turns it into a string
+    base = base[1..base.len() - 1].to_owned();
+    let mut cleaned_base: String = base.into_iter().collect();
+    cleaned_base = cleaned_base.to_string();
+
+    //offset is an immediate while base is a register so the read functions for those operands
+    //will confirm they are properly formatted
+    let immediate_results = read_immediate(offset_str, start_end_columns, 16);
+    let register_results = read_register_riscv(&cleaned_base, start_end_columns, GeneralPurpose);
+
+    log!("Immediate: ", format!("{:?}", immediate_results));
+    log!("Register: ", format!("{:?}", register_results));
+
+    //any errors found in the read_immediate or read_register functions are collected into a vec
+    //if there were any errors, those are returned
+    let mut return_errors: Vec<Error> = Vec::new();
+    if immediate_results.1.is_some() {
+        return_errors.push(immediate_results.1.unwrap())
+    }
+    if register_results.1.is_some() {
+        return_errors.push(register_results.1.unwrap());
+    }
+    if !return_errors.is_empty() {
+        return (0, 0, Some(return_errors));
+    }
+
+    //if the function reaches here and hasn't already returned, there aren't any errors
+    (immediate_results.0, register_results.0 as u32, None)
+}
+
 ///read_register takes the string of the register name, the token number the register is from the corresponding instruction
 ///and the expected register type. It calls the corresponding functions holding the match cases for the different register types.
 pub fn read_register(
@@ -312,7 +579,7 @@ pub fn read_register(
         let general_result = match_gp_register(register);
         if let Some(..) = general_result {
             (general_result.unwrap(), None)
-        } else if match_fp_register(register).is_some() {
+        } else if match_fp_register(register).is_some() { // Creates Error if supplied a fp register for gp
             (
                 0,
                 Some(Error {
@@ -362,10 +629,85 @@ pub fn read_register(
     }
 }
 
+///read_register takes the string of the register name, the token number the register is from the corresponding instruction
+///and the expected register type. It calls the corresponding functions holding the match cases for the different register types.
+pub fn read_register_riscv(
+    register: &str,
+    start_end_columns: (usize, usize),
+    register_type: RegisterType,
+) -> (u8, Option<Error>) {
+    if register_type == GeneralPurpose {
+        //this section is for matching general purpose registers
+        let general_result = match_gp_register_riscv(register);
+        if let Some(..) = general_result {
+            (general_result.unwrap(), None)
+        } else if match_fp_register_riscv(register).is_some() { // Creates Error if supplied a fp register for gp
+            (
+                0,
+                Some(Error {
+                    error_name: IncorrectRegisterTypeFP,
+                    token_causing_error: register.to_string(),
+                    start_end_columns,
+                    message: "".to_string(),
+                }),
+            )
+        } else {
+            (
+                0,
+                Some(Error {
+                    error_name: UnrecognizedGPRegister,
+                    token_causing_error: register.to_string(),
+                    start_end_columns,
+                    message: "".to_string(),
+                }),
+            )
+        }
+    } else {
+        //this section is for matching floating point registers
+        let floating_result = match_fp_register_riscv(register);
+        if let Some(..) = floating_result {
+            (floating_result.unwrap(), None)
+        } else if match_gp_register(register).is_some() {
+            (
+                0,
+                Some(Error {
+                    error_name: IncorrectRegisterTypeGP,
+                    token_causing_error: register.to_string(),
+                    start_end_columns,
+                    message: "".to_string(),
+                }),
+            )
+        } else {
+            (
+                0,
+                Some(Error {
+                    error_name: UnrecognizedFPRegister,
+                    token_causing_error: register.to_string(),
+                    start_end_columns,
+                    message: "".to_string(),
+                }),
+            )
+        }
+    }
+}
+
 ///This function takes a register string as an argument and returns the string of the binary of the matching
 ///general register or none if there is not one that matches.
 pub fn match_gp_register(given_string: &str) -> Option<u8> {
     for register in GP_REGISTERS {
+        for name in register.names {
+            if &given_string.to_lowercase().as_str() == name {
+                return Some(register.binary);
+            }
+        }
+    }
+    None
+}
+
+///This function takes a register string as an argument and returns the string of the binary of the matching
+///general register or none if there is not one that matches.
+pub fn match_gp_register_riscv(given_string: &str) -> Option<u8> {
+    for register in RISCV_GP_REGISTERS {
         for name in register.names {
             if &given_string.to_lowercase().as_str() == name {
                 return Some(register.binary);
@@ -381,6 +723,19 @@ pub fn match_fp_register(given_string: &str) -> Option<u8> {
     for register in FP_REGISTERS {
         if given_string.to_lowercase() == register.name {
             return Some(register.binary);
+        }
+    }
+    None
+}
+
+///This function takes a register string as an argument and returns the string of the binary of the matching
+///floating point register or none if there is not one that matches.
+pub fn match_fp_register_riscv(given_string: &str) -> Option<u8> {
+    for register in RISCV_FP_REGISTERS {
+        for name in register.names {
+            if &given_string.to_lowercase().as_str() == name {
+                return Some(register.binary);
+            }
         }
     }
     None
