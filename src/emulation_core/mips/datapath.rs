@@ -185,6 +185,18 @@ impl Stage {
     }
 }
 
+impl From<Stage> for String {
+    fn from(val: Stage) -> String {
+        String::from(match val {
+            Stage::InstructionFetch => "writeback",
+            Stage::InstructionDecode => "instruction_fetch",
+            Stage::Execute => "instruction_decode",
+            Stage::Memory => "execute",
+            Stage::WriteBack => "memory",
+        })
+    }
+}
+
 impl Default for MipsDatapath {
     fn default() -> Self {
         let mut datapath = MipsDatapath {
@@ -211,6 +223,8 @@ impl Datapath for MipsDatapath {
     type RegisterData = u64;
     type RegisterEnum = super::registers::GpRegisterType;
     type MemoryType = Memory;
+
+    type StageEnum = Stage;
 
     fn execute_instruction(&mut self) {
         loop {

@@ -27,6 +27,11 @@ pub trait Datapath {
     /// or its own interface at will.
     type MemoryType;
 
+    /// This enum describes all possible stages in the datapath. This is
+    /// used primarily for the visual datapath view. Must be convertable
+    /// into a string for highlighting purposes.
+    type StageEnum: Into<String>;
+
     /// Execute a single instruction based on the current state of the
     /// datapath. Should the datapath support stages, if the datapath is
     /// midway through a stage, the current instruction will be finished
@@ -45,8 +50,25 @@ pub trait Datapath {
     /// registers should be listed within [`Self::RegisterEnum`].
     fn get_register_by_enum(&self, register: Self::RegisterEnum) -> Self::RegisterData;
 
+    /// Sets the data in the register indicated by the provided enum.
+    fn set_register_by_enum(&self, _register: Self::RegisterEnum, _data: Self::RegisterData) {
+        todo!()
+    }
+
+    /// Loads the instructions from the provided array into an emulation core's
+    /// memory. This will also clear the memory of the emulation core and reset
+    /// the core's program counter.
+    fn load_instructions(&mut self, instructions: &[Self::MemoryType]) {
+        self.reset();
+        self.set_memory(0, instructions);
+    }
+
     /// Retrieve all memory as-is.
     fn get_memory(&self) -> &Self::MemoryType;
+
+    fn set_memory(&mut self, _ptr: usize, _data: &[Self::MemoryType]) {
+        todo!()
+    }
 
     /// Returns if the datapath is in a "halted" or "stopped" state. This may
     /// be true in the case where an error had occurred previously.
@@ -54,6 +76,19 @@ pub trait Datapath {
 
     /// Restore the datapath to its default state.
     fn reset(&mut self);
+
+    // Information retrieval
+
+    /// Get the program counter from an emulation core, regardless of what
+    /// it's called.
+    fn get_pc(&self) -> Self::RegisterData {
+        todo!()
+    }
+
+    /// Gets the current stage the emulator core is in.
+    fn get_stage(&self) -> Self::StageEnum {
+        todo!()
+    }
 }
 
 /// A datapath that supports a visual diagram component.
