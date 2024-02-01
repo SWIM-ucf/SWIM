@@ -1,7 +1,6 @@
 use js_sys::Object;
 use wasm_bindgen::{closure::Closure, JsValue};
-use yew::{function_component, html, Html, Properties, use_callback, Callback, use_mut_ref, use_effect_with_deps};
-use crate::emulation_core::mips::memory::{Memory, MemoryIter};
+use yew::{function_component, html, Html, Properties, use_callback};
 use std::rc::Rc;
 use std::cell::RefCell;
 use log::debug;
@@ -11,7 +10,7 @@ use monaco::{
     api::TextModel,
     sys::
         editor::{
-            IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions, ISuggestOptions, ScrollType
+            IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions, ISuggestOptions
         },
     yew::{CodeEditor, CodeEditorLink},
 };
@@ -24,10 +23,10 @@ pub struct HexEditorProps {
 #[function_component(HexEditor)]
 pub fn hex_editor(props: &HexEditorProps) -> Html {
     let editor_link = CodeEditorLink::new();
-    let text_model = Rc::clone(&props.memory_text_model);
-    let curr_line = Rc::clone(&props.curr_line);
-    let not_highlighted = js_sys::Array::new();
-    let mut mutated = false;
+    // let text_model = Rc::clone(&props.memory_text_model);
+    // let curr_line = Rc::clone(&props.curr_line);
+    // let not_highlighted = js_sys::Array::new();
+    // let mut mutated = false;
 
     // create a JavaScript closure
     let cb = Closure::wrap(Box::new(move |event: monaco::sys::editor::ICursorSelectionChangedEvent| {
@@ -51,9 +50,9 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             .dyn_into::<JsValue>()
             .expect("Hex range is not found.");
         highlight_line.set_range(&monaco::sys::IRange::from(range_js));
-        let highlight_js = highlight_line
-            .dyn_into::<JsValue>()
-            .expect("Hex highlight is not found.");
+        // let highlight_js = highlight_line
+            // .dyn_into::<JsValue>()
+            // .expect("Hex highlight is not found.");
 
         if start_column > 8.0 && end_column < 46.0 {
             // select ASCII
@@ -67,11 +66,11 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
 
     let on_editor_created = {
         let text_model = Rc::clone(&props.memory_text_model);
-        let curr_line = Rc::clone(&curr_line);
+        // let curr_line = Rc::clone(&curr_line);
 
         use_callback(
-            move |editor_link: CodeEditorLink, text_model| {
-                let curr_line = curr_line.borrow_mut();
+            move |editor_link: CodeEditorLink, _text_model| {
+                // let curr_line = curr_line.borrow_mut();
                 match editor_link.with_editor(|editor| {
                     let raw_editor = editor.as_ref();
 
@@ -98,39 +97,6 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             on_editor_created={on_editor_created}
         />
     }
-}
-
-pub fn generate_formatted_hex(memory: &Memory) -> String {
-    let iterator = MemoryIter::new(&memory);
-
-    let mut string: String = "".to_string();
-
-    for (address, words) in iterator {
-        string.push_str(&format!("0x{address:04x}:\t\t"));
-        let mut char_version: String = "".to_string();
-
-        for word in words {
-            string.push_str(&format!("{:08x}\t", word));
-            char_version.push_str(&convert_word_to_chars(word));
-        }
-
-        string.push_str(&format!("{char_version}\n"));
-    }
-
-    string
-}
-
-fn convert_word_to_chars(word: u32) -> String {
-    let mut chars = "".to_string();
-    for shift in (0..4).rev() {
-        let byte = (word >> (shift * 8)) as u8;
-        if byte > 32 && byte < 127 {
-            chars.push(byte as char);
-        } else {
-            chars.push('.');
-        }
-    }
-    chars
 }
 
 

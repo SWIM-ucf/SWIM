@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use monaco::api::TextModel;
+// use monaco::api::TextModel;
 use web_sys::HtmlInputElement;
 use yew::{Properties, Html};
 use yew::prelude::*;
@@ -33,30 +33,30 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
         let target = e.target();
         let input = target.unwrap().unchecked_into::<HtmlInputElement>();
 
-        if (input.checked()) {
+        if input.checked() {
             debug!("Breakpoint set at {:08x}", address);
         }
-        
+
     });
 
     let on_address_click = Callback::from(move |args: (MouseEvent, i64)| {
-        let (e, address) = args;
-        let target = e.target();
-        let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+        let (_e, address) = args;
+        // let target = e.target();
+        // let input = target.unwrap().unchecked_into::<HtmlInputElement>();
 
         debug!("Go to address {:08x}", address);
         debug!("Go to line {:?}", (address / 4) as f64);
         // memory_curr_line.set((address / 4) as f64);
-        
+
     });
 
     let on_assembled_click = Callback::from(move |args: (MouseEvent, i64)| {
-        let (e, line_number) = args;
-        let target = e.target();
-        let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+        let (_e, line_number) = args;
+        // let target = e.target();
+        // let input = target.unwrap().unchecked_into::<HtmlInputElement>();
 
         debug!("Go to line number {:08x}", line_number);
-        
+
     });
 
     let mut address = -4;
@@ -71,7 +71,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                 <th>{"Assembled"}</th>
                 <th>{"Source"}</th>
             </tr>
-            { 
+            {
                 program_info.instructions.iter().enumerate().map(|(index, instruction)| {
                     let recreated_string = instruction.recreate_string();
                     let on_check = Callback::clone(&on_check);
@@ -82,24 +82,24 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                     if props.pc as i64 == address {
                         conditional_class = "executing";
                     }
-                    html!{ 
-                        
+                    html!{
+
                         <tr key={index} class={classes!("row", conditional_class)}>
                             <td class={classes!("bkpt")}>
                                 <input type="checkbox" onclick={move |e: MouseEvent| {on_check.emit((e, address))}}/>
                                 <div class="circle"></div>
                             </td>
                             <td class="address" title={format!("Go to address {:08x}", address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, address))}}>
-                                {format!("0x{:08x}", address as u64)} 
+                                {format!("0x{:08x}", address as u64)}
                             </td>
                             <td>
-                                {format!("0b{:032b}", instruction.binary)} 
+                                {format!("0b{:032b}", instruction.binary)}
                             </td>
                             <td>
-                                {format!("0x{:08x}", instruction.binary)} 
+                                {format!("0x{:08x}", instruction.binary)}
                             </td>
                             <td class="assembled-string" title="Go to line" onclick={move |e: MouseEvent| {on_assembled_click.emit((e, address))}}>
-                                {recreated_string} 
+                                {recreated_string}
                             </td>
                             <td>
                                 {format!("{}: {:?}", instruction.line_number, lines_content.get(instruction.line_number).unwrap_or(&String::from("")))}
@@ -119,22 +119,22 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
     let lines_content = props.lines_content.borrow_mut().clone();
 
     let on_address_click = Callback::from(move |args: (MouseEvent, usize)| {
-        let (e, address) = args;
-        let target = e.target();
-        let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+        let (_e, address) = args;
+        // let target = e.target();
+        // let input = target.unwrap().unchecked_into::<HtmlInputElement>();
 
         debug!("Go to address {:08x}", address);
         debug!("Go to line {:?}", (address / 4) as f64);
-        
+
     });
 
     let on_assembled_click = Callback::from(move |args: (MouseEvent, usize)| {
-        let (e, line_number) = args;
-        let target = e.target();
-        let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+        let (_e, line_number) = args;
+        // let target = e.target();
+        // let input = target.unwrap().unchecked_into::<HtmlInputElement>();
 
         debug!("Go to line number {:08x}", line_number);
-        
+
     });
 
     html! {
@@ -146,7 +146,7 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
                 <th>{"Assembled"}</th>
                 <th>{"Source"}</th>
             </tr>
-            { 
+            {
                 if program_info.instructions.len() > 0 && binary.len() > 0 {
                     let mut address = program_info.instructions.len() * 4 - 4;
                     program_info.data.iter().enumerate().map(|(index, data)| {
@@ -154,17 +154,17 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
                         let on_address_click = Callback::clone(&on_address_click);
                         let on_assembled_click = Callback::clone(&on_assembled_click);
                         address += 4;
-                        html!{ 
-                            
+                        html!{
+
                             <tr key={index} class={classes!("row")}>
                                 <td class="address" title={format!("Go to address {:08x}", address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, address))}}>
-                                    {format!("0x{:08x}", address as u64)} 
+                                    {format!("0x{:08x}", address as u64)}
                                 </td>
                                 <td>
-                                    {format!("0x{:08x}", binary[data.line_number])} 
+                                    {format!("0x{:08x}", binary[data.line_number])}
                                 </td>
                                 <td class="assembled-string" title="Go to line" onclick={move |e: MouseEvent| {on_assembled_click.emit((e, address))}}>
-                                    {recreated_string} 
+                                    {recreated_string}
                                 </td>
                                 <td>
                                     {format!("{}: {:?}", data.line_number, lines_content.get(data.line_number).unwrap_or(&String::from("")))}

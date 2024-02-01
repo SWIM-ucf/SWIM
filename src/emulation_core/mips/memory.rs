@@ -162,6 +162,39 @@ impl Memory {
 
         Ok(changed_lines)
     }
+
+    pub fn generate_formatted_hex(&mut self) -> String {
+        let iterator = MemoryIter::new(&self);
+
+        let mut string: String = "".to_string();
+
+        for (address, words) in iterator {
+            string.push_str(&format!("0x{address:04x}:\t\t"));
+            let mut char_version: String = "".to_string();
+
+            for word in words {
+                string.push_str(&format!("{:08x}\t", word));
+                char_version.push_str(&Self::convert_word_to_chars(word));
+            }
+
+            string.push_str(&format!("{char_version}\n"));
+        }
+
+        string
+    }
+
+    pub fn convert_word_to_chars(word: u32) -> String {
+        let mut chars = "".to_string();
+        for shift in (0..4).rev() {
+            let byte = (word >> (shift * 8)) as u8;
+            if byte > 32 && byte < 127 {
+                chars.push(byte as char);
+            } else {
+                chars.push('.');
+            }
+        }
+        chars
+    }
 }
 
 pub struct MemoryIter<'a> {

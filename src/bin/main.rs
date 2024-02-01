@@ -7,12 +7,12 @@ use monaco::{
     api::TextModel,
     sys::{
         editor::{
-            IEditorMinimapOptions, IEditorScrollbarOptions, IMarkerData, IModelDecorationOptions,
-            IModelDeltaDecoration, IStandaloneEditorConstructionOptions, ISuggestOptions, ScrollType,
+            IMarkerData,
+            IModelDecorationOptions,
+            IModelDeltaDecoration,
         },
         IMarkdownString, MarkerSeverity,
-    },
-    yew::{CodeEditor, CodeEditorLink},
+    }
 };
 use swim::parser::parser_assembler_main::parser;
 use swim::parser::parser_structs_and_enums::ProgramInfo;
@@ -24,15 +24,13 @@ use swim::emulation_core::mips::datapath::MipsDatapath;
 use swim::emulation_core::mips::datapath::Stage;
 use swim::ui::console::component::Console;
 use swim::ui::regview::component::Regview;
-use swim::ui::assembled_view::component::{TextSegment, DataSegment};
-use swim::ui::hex_editor::component::generate_formatted_hex;
+use swim::ui::swim_editor::component::SwimEditor;
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew::{html, Html, Properties};
 use log::Level;
-use std::cell::RefCell;
 
 use yew_agent::Spawnable;
 use yew_hooks::prelude::*;
@@ -69,8 +67,8 @@ fn app(props: &AppProps) -> Html {
     // was executed after the execute button is pressed.
     let executed_line = js_sys::Array::new();
     let not_highlighted = js_sys::Array::new();
-    let curr_line = Rc::new(RefCell::new(0.0));
-    let memory_curr_line = Rc::new(RefCell::new(0.0));
+    let curr_line = use_mut_ref(|| 0.0);
+    let memory_curr_line = use_mut_ref(|| 0.0);
 
     // Setting up the options/parameters which
     // will highlight the previously executed line.
@@ -99,36 +97,6 @@ fn app(props: &AppProps) -> Html {
 
     let memory_text_model = use_mut_ref(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
 
-    // let on_did_change_content_handler = {
-    //     let memory_text_model = Rc::clone(&memory_text_model);
-    //     Callback::from(move |e: &IModelContentChangedEvent| {
-
-    //         // handle the event
-    //     })
-    // };
-
-    // use_effect_with_deps(
-    //     move |_| {
-
-    //         let memory_text_model = Rc::clone(&memory_text_model);
-    //         let curr_memory_model = memory_text_model.borrow_mut().as_ref();
-    //         // create a JavaScript closure that calls the Yew callback
-    //         let cb: Closure<dyn FnMut(Event)> = Closure::new(move |event: Event| {
-    //             // Inside the Closure, call the Yew callback
-    //             if let Some(event) = event.dyn_ref::<IModelContentChangedEvent>() {
-    //                 on_did_change_content_handler.emit(event);
-    //             }
-    //         });
-    //         let cb_func = cb.as_ref().unchecked_ref();
-
-    //         // pass the &js_sys::Function to the on_did_change_content method
-    //         curr_memory_model.on_did_change_content(cb_func);
-
-    //         cb.forget();
-    //     },
-    //     (),
-    // );
-
     // Since we want the Datapath to be independent from all the
     // events within the app, we will create it when the app loads. This is also done
     // since the scope will be open across all events involved with it. To achieve this,
@@ -136,39 +104,6 @@ fn app(props: &AppProps) -> Html {
     // the ability to access and change its contents be mutable.
     let datapath = use_mut_ref(MipsDatapath::default);
 
-    let link = CodeEditorLink::new();
-
-    let on_editor_created = {
-        let text_model = Rc::clone(&text_model);
-        let curr_line = Rc::clone(&curr_line);
-        let lines_content = Rc::clone(&lines_content);
-
-        use_callback(
-            move |editor_link: CodeEditorLink, _text_model| {
-                let curr_line = curr_line.borrow_mut();
-                match editor_link.with_editor(|editor| {
-                    let raw_editor = editor.as_ref();
-                    let model = raw_editor.get_model().unwrap();
-                    // store each line from the original code editor's contents for assembled view
-                    let js_lines = model.get_lines_content();
-                    let mut string_lines = lines_content.borrow_mut();
-                    for js_string in js_lines.into_iter() {
-                        let string_value = match js_string.as_string() {
-                            Some(string) => string,
-                            None => String::from("")
-                        };
-                        string_lines.push(string_value);
-                        
-                    };
-                    raw_editor.reveal_line_in_center(*curr_line, Some(ScrollType::Smooth));
-                }) {
-                    Some(()) => debug!("Editor linked!"),
-                    None => debug!("No editor :<")
-                };
-            },
-            text_model,
-        )
-    };
     // Start listening for messages from the communicator. This effectively links the worker thread to the main thread
     // and will force updates whenever its internal state changes.
     {
@@ -261,7 +196,7 @@ fn app(props: &AppProps) -> Html {
                     }
                     // log!(datapath.memory.to_string());
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
-                    let hexdump = &generate_formatted_hex(&datapath.memory);
+                    let hexdump = &datapath.memory.generate_formatted_hex();
                     memory_text_model.set_value(hexdump);
                     last_memory_text_model.set_value(hexdump);
                     datapath.registers.pc = program_info.pc_starting_point as u64;
@@ -352,7 +287,7 @@ fn app(props: &AppProps) -> Html {
                 datapath.execute_instruction();
 
                 // Update memory
-                let hexdump = &generate_formatted_hex(&datapath.memory);
+                let hexdump = &datapath.memory.generate_formatted_hex();
 
                 memory_text_model.set_value(hexdump);
                 last_memory_text_model.set_value(hexdump);
@@ -425,7 +360,7 @@ fn app(props: &AppProps) -> Html {
                 }
 
                 // Update memory
-                let hexdump = &generate_formatted_hex(&datapath.memory);
+                let hexdump = &datapath.memory.generate_formatted_hex();
 
                 memory_text_model.set_value(hexdump);
                 last_memory_text_model.set_value(hexdump);
@@ -529,7 +464,7 @@ fn app(props: &AppProps) -> Html {
                     }
                 }
 
-                let hexdump = &generate_formatted_hex(&datapath.memory);
+                let hexdump = &datapath.memory.generate_formatted_hex();
 
                 memory_text_model.set_value(hexdump);
                 last_memory_text_model.set_value(hexdump);
@@ -717,7 +652,7 @@ fn app(props: &AppProps) -> Html {
 
                     // Editor
                     <div class="code">
-                        <SwimEditor text_model={text_model.borrow().clone()} link={link} on_editor_created={on_editor_created} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} binary={binary_ref.borrow().clone()} memory_curr_line={memory_curr_line.clone()} pc={(*datapath.borrow()).clone().registers.pc}/>
+                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} binary={binary_ref.borrow().clone()} memory_curr_line={memory_curr_line.clone()} curr_line={curr_line.clone()} pc={(*datapath.borrow()).clone().registers.pc}/>
                     </div>
 
                     // Console
@@ -725,7 +660,7 @@ fn app(props: &AppProps) -> Html {
                 </div>
 
                 // Right column
-                <Regview gp={datapath.borrow_mut().registers} fp={datapath.borrow().coprocessor.fpr} datapath={datapath} pc_limit={*pc_limit}/>
+                <Regview gp={datapath.borrow_mut().registers} fp={datapath.borrow().coprocessor.fpr} datapath={datapath} pc_limit={*pc_limit} communicator={props.communicator}/>
             </div>
         </>
     }
@@ -734,114 +669,6 @@ fn app(props: &AppProps) -> Html {
 /// Creates a new `JsValue`.
 fn new_object() -> JsValue {
     js_sys::Object::new().into()
-}
-
-/**********************  Editor Component **********************/
-
-#[derive(PartialEq, Properties)]
-pub struct SwimEditorProps {
-    pub text_model: TextModel,
-    pub link: CodeEditorLink,
-    pub on_editor_created: Callback<CodeEditorLink>,
-    pub lines_content: Rc<RefCell<Vec<String>>>,
-    pub program_info: ProgramInfo,
-    pub binary: Vec<u32>,
-    pub memory_curr_line: Rc<RefCell<f64>>,
-    pub pc: u64
-}
-
-#[derive(Default, PartialEq)]
-enum EditorTabState {
-    #[default]
-    Editor,
-    TextSegment,
-    DataSegment
-}
-
-fn get_options() -> IStandaloneEditorConstructionOptions {
-    let options = IStandaloneEditorConstructionOptions::default();
-    options.set_theme("vs-dark".into());
-    options.set_language("mips".into());
-    options.set_scroll_beyond_last_line(false.into());
-    options.set_automatic_layout(true.into());
-
-    let minimap = IEditorMinimapOptions::default();
-    minimap.set_enabled(false.into());
-    options.set_minimap(Some(&minimap));
-
-    let scrollbar = IEditorScrollbarOptions::default();
-    scrollbar.set_always_consume_mouse_wheel(false.into());
-    options.set_scrollbar(Some(&scrollbar));
-
-    let suggest = ISuggestOptions::default();
-    suggest.set_show_keywords(false.into());
-    suggest.set_show_variables(false.into());
-    suggest.set_show_icons(false.into());
-    suggest.set_show_words(false.into());
-    suggest.set_filter_graceful(false.into());
-    options.set_suggest(Some(&suggest));
-
-    options
-}
-
-#[function_component]
-pub fn SwimEditor(props: &SwimEditorProps) -> Html {
-    let active_tab = use_state_eq(EditorTabState::default);
-    let change_tab = {
-        let active_tab = active_tab.clone();
-        Callback::from(move |event: MouseEvent| {
-            let target = event.target().unwrap().dyn_into::<web_sys::HtmlElement>().unwrap();
-            let tab_name = target
-                .get_attribute("label")
-                .unwrap_or(String::from("editor"));
-
-            let new_tab: EditorTabState = match tab_name.as_str() {
-                "editor" => EditorTabState::Editor,
-                "text" => EditorTabState::TextSegment,
-                "data" => EditorTabState::DataSegment,
-                _ => EditorTabState::default(),
-            };
-
-            active_tab.set(new_tab);
-        })
-    };
-    html! {
-        <>
-            // Editor buttons
-            <div class="bar tabs">
-                if *active_tab == EditorTabState::Editor {
-                    <button class={classes!("tab", "pressed")} label="editor" onclick={change_tab.clone()}>{"Editor"}</button>
-                } else {
-                    <button class="tab" label="editor" onclick={change_tab.clone()}>{"Editor"}</button>
-                }
-
-                if *active_tab == EditorTabState::TextSegment {
-                    <button class={classes!("tab", "pressed")} label="text" onclick={change_tab.clone()}>{"Text Segment"}</button>
-                } else {
-                    <button class="tab" label="text" onclick={change_tab.clone()}>{"Text Segment"}</button>
-                }
-
-                if *active_tab == EditorTabState::DataSegment {
-                    <button class={classes!("tab", "pressed")} label="data" onclick={change_tab.clone()}>{"Data Segment"}</button>
-                } else {
-                    <button class="tab" label="data" onclick={change_tab.clone()}>{"Data Segment"}</button>
-                }
-            </div>
-            if *active_tab == EditorTabState::Editor {
-                <CodeEditor classes={"editor"} link={props.link.clone()} options={get_options()} model={props.text_model.clone()} on_editor_created={props.on_editor_created.clone()}/>
-            } else if *active_tab == EditorTabState::TextSegment {
-                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} pc={props.pc.clone()}/>
-            } else if *active_tab == EditorTabState::DataSegment {
-                <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()}/>
-            }
-        </>
-    }
-}
-
-/**********************  "Console" Component **********************/
-#[derive(PartialEq, Properties)]
-pub struct Consoleprops {
-    pub parsermsg: String,
 }
 
 /**********************  File I/O Function ***********************/

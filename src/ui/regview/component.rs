@@ -4,7 +4,7 @@ use crate::emulation_core::mips::memory::CAPACITY_BYTES;
 use crate::emulation_core::mips::registers::{GpRegisterType, GpRegisters};
 //use gloo::console::log;
 use wasm_bindgen::JsCast;
-use web_sys::{HtmlElement, InputEvent, HtmlInputElement};
+use web_sys::{InputEvent, HtmlInputElement};
 use yew::prelude::*;
 use yew::{html, Html};
 use std::rc::Rc;
@@ -18,7 +18,7 @@ pub struct Regviewprops {
     pub fp: [u64; 32],
     pub datapath: Rc<RefCell<MipsDatapath>>,
     pub pc_limit: usize,
-    // pub communicator: &'static DatapathCommunicator
+    pub communicator: &'static DatapathCommunicator
 }
 #[derive(PartialEq, Properties)]
 pub struct Regrowprops {
@@ -221,6 +221,7 @@ pub fn regview(props: &Regviewprops) -> Html {
 
     let on_input = Callback::from(move |args: (InputEvent, GpRegisterType)| {
         let (e, register) = args;
+        // let communicator = props.communicator;
         let target = e.target();
         let input = target.unwrap().unchecked_into::<HtmlInputElement>();
         let val: i64 = match input.value().parse() {
@@ -248,7 +249,7 @@ pub fn regview(props: &Regviewprops) -> Html {
             }
 
             datapath.registers.pc = val as u64;
-            // props.communicator.send_test_message(val);
+            // communicator.send_test_message(val);
         }
         // check if pc is more than memory capacity
         // or if it's not word aligned
