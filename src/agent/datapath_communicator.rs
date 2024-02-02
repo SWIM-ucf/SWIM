@@ -1,5 +1,6 @@
 use crate::agent::EmulationCoreAgent;
 use crate::emulation_core::architectures::AvailableDatapaths;
+use crate::emulation_core::datapath::VisualDatapath;
 use futures::stream::{SplitSink, SplitStream};
 use futures::FutureExt;
 use futures::SinkExt;
@@ -79,55 +80,79 @@ impl DatapathCommunicator {
 
     // Wrapper functions for commands
 
+    /// Sets the current emulation core to the provided architecture.
     pub fn set_core(&self, _architecture: AvailableDatapaths) {
         todo!()
     }
 
+    /// Loads the parsed/assembled instructions provided into the current emulator core.
     pub fn load_instructions(&self, _instructions: &[u8]) {
         todo!()
     }
 
+    /// Sets the execution speed of the emulator core to the provided speed in hz. If set to zero, the emulator core
+    /// will execute as fast as possible.
     pub fn set_execute_speed(&self, _speed: u32) {
         todo!()
     }
 
+    /// Sets the register with the provided name to the provided value.
     pub fn set_register(&self, _register: &str, _data: &str) {
         todo!()
     }
 
+    /// Copies the contents of `data` to the emulator core's memory at `ptr`. Copies until either the end of `data` or
+    /// the end of the emulaot core's memory.
     pub fn set_memory(&self, _ptr: usize, _data: &[u8]) {
         todo!()
     }
 
+    /// Executes the emulator core at the current set speed.
     pub fn execute(&self) {
         todo!()
     }
 
+    /// Executes a single instruction on the emulator core and pauses.
     pub fn execute_instruction(&self) {
         todo!()
     }
 
+    /// Executes a single stage on the emulator core and pauses.
     pub fn execute_stage(&self) {
         todo!()
     }
 
+    /// Pauses the core. Does nothing if the emulator core is already paused.
     pub fn pause_core(&self) {}
 
     // Getters for internal state
 
+    /// Returns a list of all the registers on the current emulator core.
     pub fn get_registers(&self) -> HashMap<String, String> {
         todo!()
     }
 
+    /// Returns the emulator core's memory as an array of bytes.
     pub fn get_memory(&self) -> Vec<u8> {
         todo!()
     }
 
+    /// Gets the current stage of the emulator core as a string.
     pub fn get_current_stage(&self) -> String {
         todo!()
     }
 
+    /// Gets the currently executing instruction on the emulator core. This is generally based on the value of the
+    /// program counter.
     pub fn get_current_instruction(&self) -> usize {
+        todo!()
+    }
+
+    /// Returns the appropriate visual datapath for the current architecture. Returns a boxed generic VisualDatapath.
+    pub fn get_visual_datapath(
+        &self,
+        _architecture: AvailableDatapaths,
+    ) -> Box<dyn VisualDatapath> {
         todo!()
     }
 }
