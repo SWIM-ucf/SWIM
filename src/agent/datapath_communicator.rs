@@ -1,4 +1,5 @@
 use crate::agent::EmulationCoreAgent;
+use crate::emulation_core::architectures::AvailableDatapaths;
 use futures::stream::{SplitSink, SplitStream};
 use futures::FutureExt;
 use futures::SinkExt;
@@ -6,6 +7,7 @@ use futures::StreamExt;
 use gloo_console::log;
 use gloo_console::warn;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use yew::UseForceUpdateHandle;
 use yew_agent::reactor::ReactorBridge;
 
@@ -29,6 +31,8 @@ impl PartialEq for &DatapathCommunicator {
 }
 
 impl DatapathCommunicator {
+    // General operational functions
+
     /// Initialize the DatapathCommunicator using a bridge.
     pub fn new(bridge: ReactorBridge<EmulationCoreAgent>) -> DatapathCommunicator {
         let (write, read) = bridge.split();
@@ -71,5 +75,59 @@ impl DatapathCommunicator {
             .now_or_never()
             .expect("Send function did not immediately return, async logic needed.")
             .expect("Sending test message error")
+    }
+
+    // Wrapper functions for commands
+
+    pub fn set_core(&self, _architecture: AvailableDatapaths) {
+        todo!()
+    }
+
+    pub fn load_instructions(&self, _instructions: &[u8]) {
+        todo!()
+    }
+
+    pub fn set_execute_speed(&self, _speed: u32) {
+        todo!()
+    }
+
+    pub fn set_register(&self, _register: &str, _data: &str) {
+        todo!()
+    }
+
+    pub fn set_memory(&self, _ptr: usize, _data: &[u8]) {
+        todo!()
+    }
+
+    pub fn execute(&self) {
+        todo!()
+    }
+
+    pub fn execute_instruction(&self) {
+        todo!()
+    }
+
+    pub fn execute_stage(&self) {
+        todo!()
+    }
+
+    pub fn pause_core(&self) {}
+
+    // Getters for internal state
+
+    pub fn get_registers(&self) -> HashMap<String, String> {
+        todo!()
+    }
+
+    pub fn get_memory(&self) -> Vec<u8> {
+        todo!()
+    }
+
+    pub fn get_current_stage(&self) -> String {
+        todo!()
+    }
+
+    pub fn get_current_instruction(&self) -> usize {
+        todo!()
     }
 }
