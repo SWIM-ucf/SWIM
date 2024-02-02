@@ -5,6 +5,7 @@ use gloo_console::log;
 use yew_agent::prelude::*;
 
 pub mod datapath_communicator;
+pub mod messages;
 
 /// The main logic for the emulation core agent. All code within this function runs on a worker thread as opposed to
 /// the UI thread.
