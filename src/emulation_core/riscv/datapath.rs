@@ -320,13 +320,11 @@ impl RiscDatapath {
     /// finish the instruction and set the `is_halted` flag.
     fn stage_instruction_decode(&mut self) {
         self.instruction_decode();
-        self.set_immediate();
-        self.sign_extend();
         self.set_control_signals();
+        self.set_immediate();
         self.read_registers();
 
         // Upper part of datapath, PC calculation
-        self.shift_lower_26_left_by_2();
         self.construct_jump_address();
 
         self.coprocessor.stage_instruction_decode();
@@ -474,7 +472,7 @@ impl RiscDatapath {
     fn set_immediate(&mut self) {
         let mut signed_imm = 0x0000 as u32;
         if self.state.instruction >> 31 == 1 {
-            signed_imm = 0xffff as u32;
+            signed_imm = 0xffffffff as u32;
         }
 
         signed_imm = match self.instruction {
@@ -500,6 +498,10 @@ impl RiscDatapath {
                 signed_imm
             }
         };
+
+        if (self.signals.imm_select == ImmSelect::IUnsigned) {
+            signed_imm = signed_imm & 0x00000fff;
+        }
 
         self.state.imm = signed_imm;
     }
@@ -534,33 +536,30 @@ impl RiscDatapath {
     /// case where the instruction is an R-type.
     fn set_rtype_control_signals(&mut self, r: RType) {
         self.signals = ControlSignals {
-            alu_src: AluSrc::ReadRegister2,
-            branch: Branch::NoBranch,
-            jump: Jump::NoJump,
-            mem_read: MemRead::NoRead,
-            mem_to_reg: MemToReg::UseAlu,
-            mem_write: MemWrite::NoWrite,
+            op2_select: OP2Select::DATA2,
+            branch_jump: BranchJump::NoBranch,
+            read_write: ReadWrite::NoLoadStore,
+            wb_sel: WBSel::UseAlu,
             reg_dst: RegDst::Reg3,
-            reg_width: RegWidth::Word,
-            reg_write: RegWrite::YesWrite,
+            reg_write_en: RegWriteEn::YesWrite,
             ..Default::default()
         };
         
         match r.funct3 {
             0 => match r.funct7 {
-                0b0000000 => self.signals.alu_control = AluControl::Addition,
-                0b0100000 => self.signals.alu_control = AluControl::Subtraction
+                0b0000000 => self.signals.alu_op = AluOp::Addition,
+                0b0100000 => self.signals.alu_op = AluOp::Subtraction
             }
-            1 => self.signals.alu_control = AluControl::ShiftLeftLogical(self.state.rs2),
-            2 => self.signals.alu_control = AluControl::SetOnLessThanSigned,
-            3 => self.signals.alu_control = AluControl::SetOnLessThanUnsigned,
-            4 => self.signals.alu_control = AluControl::Xor,
+            1 => self.signals.alu_op = AluOp::ShiftLeftLogical(self.state.rs2),
+            2 => self.signals.alu_op = AluOp::SetOnLessThanSigned,
+            3 => self.signals.alu_op = AluOp::SetOnLessThanUnsigned,
+            4 => self.signals.alu_op = AluOp::Xor,
             5 => match r.funct7 {
-                0b0000000 => self.signals.alu_control = AluControl::ShiftRightLogical(self.state.rs2),
-                0b0100000 => self.signals.alu_control = AluControl::ShiftRightArithmetic(self.state.rs2)
+                0b0000000 => self.signals.alu_op = AluOp::ShiftRightLogical(self.state.rs2),
+                0b0100000 => self.signals.alu_op = AluOp::ShiftRightArithmetic(self.state.rs2)
             }
-            6 => self.signals.alu_control = AluControl::Or,
-            7 => self.signals.alu_control = AluControl::And
+            6 => self.signals.alu_op = AluOp::Or,
+            7 => self.signals.alu_op = AluOp::And
         }
     }
 
@@ -568,49 +567,41 @@ impl RiscDatapath {
     /// case where the instruction is an I-type.
     fn set_itype_control_signals(&mut self, i: IType) {
         self.signals = ControlSignals {
-            alu_src: AluSrc::SignExtendedImmediate,
-            branch: Branch::NoBranch,
-            jump: Jump::NoJump,
-            mem_read: MemRead::NoRead,
-            mem_write: MemWrite::NoWrite,
-            mem_to_reg: MemToReg::UseAlu,
             reg_dst: RegDst::Reg3,
-            reg_width: RegWidth::Word,
-            reg_write: RegWrite::YesWrite,
+            reg_write_en: RegWriteEn::YesWrite,
             ..Default::default()
         };
         
         match i.op {
             OPCODE_IMM => match i.funct3 {
-                0 => self.signals.alu_control = AluControl::Addition,
-                1 => self.signals.alu_control = AluControl::ShiftLeftLogical(self.state.shamt),
+                0 => self.signals.alu_op = AluOp::Addition,
+                1 => self.signals.alu_op = AluOp::ShiftLeftLogical(self.state.shamt),
 
-                2 => self.signals.alu_control = AluControl::SetOnLessThanSigned,
-                3 => self.signals.alu_control = AluControl::SetOnLessThanUnsigned,
-                4 => self.signals.alu_control = AluControl::Xor,
+                2 => self.signals.alu_op = AluOp::SetOnLessThanSigned,
+                3 => self.signals.alu_op = AluOp::SetOnLessThanUnsigned,
+                4 => self.signals.alu_op = AluOp::Xor,
                 5 => { 
                     match (i.imm >> 5) {
-                        0b0000000 => self.signals.alu_control = AluControl::ShiftRightLogical(self.state.shamt),
-                        0b0100000 => self.signals.alu_control = AluControl::ShiftRightArithmetic(self.state.shamt),
+                        0b0000000 => self.signals.alu_op = AluOp::ShiftRightLogical(self.state.shamt),
+                        0b0100000 => self.signals.alu_op = AluOp::ShiftRightArithmetic(self.state.shamt),
                     };
                 }
-                6 => self.signals.alu_control = AluControl::Or,
-                7 => self.signals.alu_control = AluControl::And,
+                6 => self.signals.alu_op = AluOp::Or,
+                7 => self.signals.alu_op = AluOp::And,
             }
             OPCODE_JALR => {
-                self.signals.alu_src = AluSrc::ZeroExtendedImmediate;
-                self.signals.mem_to_reg = MemToReg::UsePcPlusFour;
-                self.signals.jump = Jump::YesJumpJalr;
+                self.signals.imm_select = ImmSelect::IUnsigned;
+                self.signals.wb_sel = WBSel::UsePcPlusFour;
+                self.signals.branch_jump = BranchJump::J;
             }
             OPCODE_LOAD => {
-                self.signals.mem_to_reg = MemToReg::UseMemory;
-                self.signals.mem_write = MemWrite::YesWrite;
+                self.signals.wb_sel = WBSel::UseMemory;
                 match i.funct3 {
-                    0 => self.signals.reg_width = RegWidth::Byte,
-                    1 => self.signals.reg_width = RegWidth::HalfWord,
-                    2 => self.signals.reg_width = RegWidth::Word,
-                    4 => self.signals.reg_width = RegWidth::ByteUnsigned,
-                    5 => self.signals.reg_width = RegWidth::HalfWordUnsigned
+                    0 => self.signals.read_write = ReadWrite::LoadByte,
+                    1 => self.signals.read_write = ReadWrite::LoadHalf,
+                    2 => self.signals.read_write = ReadWrite::LoadWord,
+                    4 => self.signals.read_write = ReadWrite::LoadByteUnsigned,
+                    5 => self.signals.read_write = ReadWrite::LoadHalfUnsigned,
                 }
             }
         }
@@ -620,19 +611,15 @@ impl RiscDatapath {
     /// case where the instruction is an S-type.
     fn set_stype_control_signals(&mut self, s: SType) {
         self.signals = ControlSignals {
-            alu_src: AluSrc::ZeroExtendedImmediate,
-            branch: Branch::NoBranch,
-            jump: Jump::NoJump,
-            mem_read: MemRead::YesRead,
-            mem_write: MemWrite::NoWrite,
-            reg_write: RegWrite::NoWrite,
+            imm_select: ImmSelect::IUnsigned,
+            reg_write_en: RegWriteEn::NoWrite,
             ..Default::default()
         };
         
         match s.funct3 {
-            0 => self.signals.reg_width = RegWidth::Byte,
-            1 => self.signals.reg_width = RegWidth::HalfWord,
-            2 => self.signals.reg_width = RegWidth::Word,
+            0 => self.signals.read_write = ReadWrite::StoreByte,
+            1 => self.signals.read_write = ReadWrite::StoreHalf,
+            2 => self.signals.read_write = ReadWrite::StoreWord,
         }
     }
 
@@ -640,23 +627,18 @@ impl RiscDatapath {
     /// case where the instruction is an B-type.
     fn set_btype_control_signals(&mut self, b: BType) {
         self.signals = ControlSignals {
-            alu_src: AluSrc::ZeroExtendedImmediate,
-            branch: Branch::YesBranch,
-            jump: Jump::NoJump,
-            mem_read: MemRead::NoRead,
-            mem_write: MemWrite::NoWrite,
-            reg_write: RegWrite::NoWrite,
-            reg_width: RegWidth::Word,
+            imm_select: ImmSelect::IUnsigned,
+            reg_write_en: RegWriteEn::NoWrite,
             ..Default::default()
         };
         
         match b.funct3 {
-            0 => self.signals.branch_type = BranchType::OnEqual,
-            1 => self.signals.branch_type = BranchType::OnNotEqual,
-            4 => self.signals.branch_type = BranchType::OnLessThan,
-            5 => self.signals.branch_type = BranchType::OnGreaterEqual,
-            6 => self.signals.branch_type = BranchType::OnLessThanUnsigned,
-            7 => self.signals.branch_type = BranchType::OnGreaterEqualUnsigned,
+            0 => self.signals.branch_jump = BranchJump::Beq,
+            1 => self.signals.branch_jump = BranchJump::Bne,
+            4 => self.signals.branch_jump = BranchJump::Blt,
+            5 => self.signals.branch_jump = BranchJump::Bge,
+            6 => self.signals.branch_jump = BranchJump::Bltu,
+            7 => self.signals.branch_jump = BranchJump::Bgeu,
         }
     }
 
@@ -664,33 +646,25 @@ impl RiscDatapath {
     /// case where the instruction is an U-type.
     fn set_utype_control_signals(&mut self, u: UType) {
         self.signals = ControlSignals {
-            alu_src: AluSrc::ZeroExtendedImmediate,
-            branch: Branch::NoBranch,
-            jump: Jump::NoJump,
-            mem_read: MemRead::NoRead,
-            mem_write: MemWrite::NoWrite,
+            imm_select: ImmSelect::IUnsigned,
             reg_dst: RegDst::Reg3,
-            reg_width: RegWidth::Word,
-            reg_write: RegWrite::YesWrite,
+            reg_write_en: RegWriteEn::YesWrite,
             ..Default::default()
         };
         
         match u.op {
-            OPCODE_AUIPC => self.signals.mem_to_reg = MemToReg::UseAlu,
-            OPCODE_LUI => self.signals.mem_to_reg = MemToReg::UseImmediate,
+            OPCODE_AUIPC => self.signals.wb_sel = WBSel::UseAlu,
+            OPCODE_LUI => self.signals.wb_sel = WBSel::UseImmediate,
         }
     }
 
     /// Set control signals for J-Type instructions
     fn set_jtype_control_signals(&mut self, j: JType) {
         self.signals = ControlSignals {
-            alu_src: AluSrc::ZeroExtendedImmediate,
-            branch: Branch::NoBranch,
-            jump: Jump::YesJump,
-            mem_read: MemRead::NoRead,
-            mem_write: MemWrite::NoWrite,
-            mem_to_reg: MemToReg::UsePcPlusFour,
-            reg_write: RegWrite::YesWrite,
+            imm_select: ImmSelect::IUnsigned,
+            branch_jump: BranchJump::J,
+            wb_sel: WBSel::UsePcPlusFour,
+            reg_write_en: RegWriteEn::YesWrite,
             ..Default::default()
         };
     }
@@ -700,16 +674,6 @@ impl RiscDatapath {
     fn read_registers(&mut self) {
         self.state.read_data_1 = self.registers.gpr[self.state.rs1 as usize];
         self.state.read_data_2 = self.registers.gpr[self.state.rs2 as usize];
-
-        // Truncate the variable data if a 32-bit word is requested.
-        if let RegWidth::Word = self.signals.reg_width {
-            self.state.read_data_1 = self.state.read_data_1 as u32 as u64;
-            self.state.read_data_2 = self.state.read_data_2 as u32 as u64;
-        }
-    }
-
-    fn shift_lower_26_left_by_2(&mut self) {
-        self.state.lower_26_shifted_left_by_2 = self.state.lower_26 << 2;
     }
 
     fn construct_jump_address(&mut self) {
@@ -731,62 +695,51 @@ impl RiscDatapath {
         // second register, the sign-extended immediate value, or the
         // zero-extended immediate value.
         self.state.alu_input1 = self.state.read_data_1;
-        self.state.alu_input2 = match self.signals.alu_src {
-            AluSrc::ReadRegister2 => self.state.read_data_2,
-            AluSrc::SignExtendedImmediate => alu_immediate,
-            AluSrc::ZeroExtendedImmediate => self.state.imm as u64,
+        self.state.alu_input2 = match self.signals.op2_select {
+            OP2Select::DATA2 => self.state.read_data_2,
+            OP2Select::IMM => self.state.imm as u64,
         };
 
-        // Truncate the inputs if 32-bit operations are expected.
-        if let RegWidth::Word = self.signals.reg_width {
-            self.state.alu_input1 = self.state.alu_input1 as i32 as u64;
-            self.state.alu_input2 = self.state.alu_input2 as i32 as u64;
-        }
-
         // Set the result.
-        self.state.alu_result = match self.signals.alu_control {
-            AluControl::Addition => self.state.alu_input1.wrapping_add(self.state.alu_input2),
-            AluControl::Subtraction => {
+        self.state.alu_result = match self.signals.alu_op {
+            AluOp::Addition => self.state.alu_input1.wrapping_add(self.state.alu_input2),
+            AluOp::Subtraction => {
                 (self.state.alu_input1 as i64).wrapping_sub(self.state.alu_input2 as i64) as u64
             }
-            AluControl::SetOnLessThanSigned => {
+            AluOp::SetOnLessThanSigned => {
                 ((self.state.alu_input1 as i64) < (self.state.alu_input2 as i64)) as u64
             }
-            AluControl::SetOnLessThanUnsigned => {
+            AluOp::SetOnLessThanUnsigned => {
                 (self.state.alu_input1 < self.state.alu_input2) as u64
             }
-            AluControl::And => self.state.alu_input1 & self.state.alu_input2,
-            AluControl::Or => self.state.alu_input1 | self.state.alu_input2,
-            AluControl::Xor => self.state.alu_input1 ^ self.state.alu_input2,
-            AluControl::ShiftLeftLogical(shamt) => self.state.alu_input2 << shamt,
-            AluControl::ShiftRightLogical(shamt) => self.state.alu_input2 >> shamt,
-            AluControl::ShiftRightArithmetic(shamt) => (self.state.alu_input2 as i32 >> shamt) as u64,
-            AluControl::MultiplicationSigned => {
+            AluOp::And => self.state.alu_input1 & self.state.alu_input2,
+            AluOp::Or => self.state.alu_input1 | self.state.alu_input2,
+            AluOp::Xor => self.state.alu_input1 ^ self.state.alu_input2,
+            AluOp::ShiftLeftLogical(shamt) => self.state.alu_input2 << shamt,
+            AluOp::ShiftRightLogical(shamt) => self.state.alu_input2 >> shamt,
+            AluOp::ShiftRightArithmetic(shamt) => (self.state.alu_input2 as i32 >> shamt) as u64,
+            AluOp::MultiplicationSigned => {
                 ((self.state.alu_input1 as i128) * (self.state.alu_input2 as i128)) as u64
             }
-            AluControl::MultiplicationUnsigned => {
+            AluOp::MultiplicationUnsigned => {
                 ((self.state.alu_input1 as u128) * (self.state.alu_input2 as u128)) as u64
             }
-            AluControl::DivisionSigned => {
+            AluOp::DivisionSigned => {
                 if self.state.alu_input2 == 0 {
                     0
                 } else {
                     ((self.state.alu_input1 as i64) / (self.state.alu_input2 as i64)) as u64
                 }
             }
-            AluControl::DivisionUnsigned => {
+            AluOp::DivisionUnsigned => {
                 if self.state.alu_input2 == 0 {
                     0
                 } else {
                     self.state.alu_input1 / self.state.alu_input2
                 }
             }
+            _ => 0,
         };
-
-        // Truncate and sign-extend the output if 32-bit operations are expected.
-        if let RegWidth::Word = self.signals.reg_width {
-            self.state.alu_result = self.state.alu_result as i32 as i64 as u64;
-        }
 
         // Set the zero bit/signal.
         self.datapath_signals.alu_z = match self.state.alu_result {
@@ -815,12 +768,12 @@ impl RiscDatapath {
         //
         // Depending on the branch type, this may use the ALU's Zero signal
         // as-is or inverted.
-        let condition_is_true = match self.signals.branch_type {
-            BranchType::OnEqual => self.datapath_signals.alu_z == AluZ::YesZero,
-            BranchType::OnNotEqual => self.datapath_signals.alu_z == AluZ::NoZero,
+        let condition_is_true = match self.signals.branch_jump {
+            BranchJump::Beq => self.datapath_signals.alu_z == AluZ::YesZero,
+            _ => self.datapath_signals.alu_z == AluZ::NoZero,
         };
 
-        if self.signals.branch == Branch::YesBranch && condition_is_true {
+        if self.signals.branch_jump != BranchJump::NoBranch && condition_is_true {
             self.datapath_signals.cpu_branch = CpuBranch::YesBranch;
         }
     }
@@ -903,17 +856,17 @@ impl RiscDatapath {
     fn register_write(&mut self) {
         // Determine what data will be sent to the register: either
         // the result from the ALU, or data retrieved from memory.
-        self.state.data_result = match self.signals.mem_to_reg {
-            MemToReg::UseAlu => self.state.alu_result,
-            MemToReg::UseMemory => self.state.memory_data,
-            MemToReg::UsePcPlusFour => self.state.pc_plus_4,
+        self.state.data_result = match self.signals.wb_sel {
+            WBSel::UseAlu => self.state.alu_result,
+            WBSel::UseMemory => self.state.memory_data,
+            WBSel::UsePcPlusFour => self.state.pc_plus_4,
         };
 
         // Decide to retrieve data either from the main processor or the coprocessor.
         self.state.register_write_data = self.state.data_result;
 
         // Abort if the RegWrite signal is not set.
-        if self.signals.reg_write == RegWrite::NoWrite {
+        if self.signals.reg_write_en == RegWriteEn::NoWrite {
             return;
         }
 
@@ -929,11 +882,6 @@ impl RiscDatapath {
         // If we are attempting to write to register $zero, stop.
         if self.state.write_register_destination == 0 {
             return;
-        }
-
-        // If a 32-bit word is requested, ensure data is truncated and sign-extended.
-        if let RegWidth::Word = self.signals.reg_width {
-            self.state.data_result = self.state.data_result as i32 as u64;
         }
 
         // Write.

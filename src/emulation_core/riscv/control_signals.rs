@@ -3,20 +3,42 @@
 /// Full collection of control signals.
 #[derive(Clone, Default, PartialEq)]
 pub struct ControlSignals {
-    pub alu_control: AluControl,
+    pub imm_select: ImmSelect,
+    pub op1_select: OP1Select,
+    pub op2_select: OP2Select,
     pub alu_op: AluOp,
-    pub alu_src: AluSrc,
-    pub branch: Branch,
-    pub branch_type: BranchType,
-    pub imm_shift: ImmShift,
-    pub jump: Jump,
-    pub mem_read: MemRead,
-    pub mem_to_reg: MemToReg,
-    pub mem_write: MemWrite,
+    pub branch_jump: BranchJump,
+    pub read_write: ReadWrite,
+    pub wb_sel: WBSel,
     pub mem_write_src: MemWriteSrc,
     pub reg_dst: RegDst,
-    pub reg_width: RegWidth,
-    pub reg_write: RegWrite,
+    pub reg_write_en: RegWriteEn,
+}
+
+#[derive(Clone, Default, PartialEq)]
+pub enum ImmSelect {
+    UType,
+    JType,
+    SType,
+    BType,
+    #[default]
+    ISigned,
+    IShamt,
+    IUnsigned,
+}
+
+#[derive(Clone, Default, PartialEq)]
+pub enum OP1Select {
+    #[default]
+    DATA1,
+    PC,
+}
+
+#[derive(Clone, Default, PartialEq)]
+pub enum OP2Select {
+    DATA2,
+    #[default]
+    IMM,
 }
 
 /// The output of the ALU control unit that directly controls the ALU.
@@ -29,7 +51,7 @@ pub struct ControlSignals {
 /// the input and output data within the datapath. See [`RegWidth`] for
 /// more details.
 #[derive(Clone, Default, PartialEq)]
-pub enum AluControl {
+pub enum AluOp {
     /// `_0000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
     #[default]
     Addition,
@@ -37,175 +59,73 @@ pub enum AluControl {
     /// `_0001` (1) - Perform a subtraction. Will not set any underflow signal on underflow.
     Subtraction,
 
-    /// `_0010` (2) - Perform a "set on less than" operation.
-    SetOnLessThanSigned,
-
-    /// `_0011` (3) - Perform a "set on less than unsigned" operation.
-    SetOnLessThanUnsigned,
-
-    /// `_0100` (4) - Perform a bitwise "AND" operation.
-    And,
-
-    /// `_0101` (5) - Perform a bitwise "OR" operation.
-    Or,
-
-    /// `_0110` (6) - Left shift the sign-extended immediate value 16 bits.
-    LeftShift16,
-
-    /// `_0111` (7) - Perform a bitwise "Xor" operation.
-    Xor,
-
-    /// `_1000` (8) - Perform signed multiplication.
-    MultiplicationSigned,
-
-    /// `_1001` (9) - Perform unsigned multiplication.
-    MultiplicationUnsigned,
-
-    /// `_1010` (10) - Perform signed integer division. (Returns the integer quotient.)
-    DivisionSigned,
-
-    /// `_1011` (11) - Perform unsigned integer division. (Returns the integer quotient.)
-    DivisionUnsigned,
-
-    /// `_1100` (12) - Perform a shift left logical operation by `shamt` bits.
+    /// `_0010` (2) - Perform a shift left logical operation by `shamt` bits.
     ShiftLeftLogical(u32),
 
-    /// `_1101` (13) - Perform a shift right logical operation by `shamt` bits.
+    /// `_0011` (3) - Perform a "set on less than" operation.
+    SetOnLessThanSigned,
+
+    /// `_0100` (4) - Perform a "set on less than unsigned" operation.
+    SetOnLessThanUnsigned,
+
+    /// `_0101` (5) - Perform a bitwise "Xor" operation.
+    Xor,
+
+    /// `_0110` (6) - Perform a shift right logical operation by `shamt` bits.
     ShiftRightLogical(u32),
 
-    /// `_1110` (14) - Perform a shift right arithmetic operation by `shamt` bits.
+    /// `_0111` (7) - Perform a shift right arithmetic operation by `shamt` bits.
     ShiftRightArithmetic(u32),
+
+    /// `_1000` (8) - Perform a bitwise "OR" operation.
+    Or,
+
+    /// `_1001` (9) - Perform a bitwise "AND" operation.
+    And,
+
+    /// `_1010` (10) - Left shift the sign-extended immediate value 16 bits.
+    LeftShift16,
+
+    /// `_1011` (11) - Perform signed multiplication.
+    MultiplicationSigned,
+
+    /// `_1100` (12) - Perform unsigned multiplication.
+    MultiplicationUnsigned,
+
+    /// `_1101` (13) - Perform signed integer division. (Returns the integer quotient.)
+    DivisionSigned,
+
+    /// `_1110` (14) - Perform unsigned integer division. (Returns the integer quotient.)
+    DivisionUnsigned,
 }
 
-/// This determines the operation sent to the ALU control unit.
-///
-/// This is on a higher abstraction than the output of this control
-/// unit, which more specifically determines what operation the ALU
-/// will perform.
 #[derive(Clone, Default, PartialEq)]
-pub enum AluOp {
-    /// `0000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
+pub enum BranchJump {
+    Beq,
+    Bne,
     #[default]
-    Addition = 0,
-
-    /// `0001` (1) - Perform a subtraction. Will not set any underflow signal on underflow.
-    Subtraction = 1,
-
-    /// `0010` (2) - Perform a "set on less than" operation.
-    SetOnLessThanSigned = 2,
-
-    /// `0011` (3) - Perform a "set on less than unsigned" operation.
-    SetOnLessThanUnsigned = 3,
-
-    /// `0100` (4) - Perform a binary "AND" operation.
-    And = 4,
-
-    /// `0101` (5) - Perform a binary "OR" operation.
-    Or = 5,
-
-    /// `0110` (6) - Left shift the sign-extended immediate value 16 bits.
-    LeftShift16 = 6,
-
-    /// `0111` (7) - This is an R-type instruction and the operation
-    /// should instead refer to the `funct` field in the instruction.
-    ///
-    /// (Note: For the `mul` and `div` instructions, the operation of
-    /// the ALU may additionally be determined by bits 10-6 of the
-    /// instruction (same bits as the `shamt` field), as the `funct`
-    /// field alone does not provide the full description of those
-    /// instructions.)
-    UseFunctField = 7,
+    NoBranch,
+    J,
+    Blt,
+    Bge,
+    Bltu,
+    Bgeu,
 }
 
-/// Determines the second source of the ALU.
-///
-/// The first input is always the data read from the register `rs1` (or
-/// called `base` in some contexts.)
 #[derive(Clone, Default, PartialEq)]
-pub enum AluSrc {
-    /// Use the data from the from the second source register `rs2`.
+pub enum ReadWrite {
     #[default]
-    ReadRegister2 = 0,
-
-    /// Use the sign-extended 16-bit immediate field in the instruction. This may be left-shifted by some amount given by the [`ImmShift`] control signal.
-    SignExtendedImmediate = 1,
-
-    /// Use the zero-extended 16-bit immediate field in the instruction.
-    ZeroExtendedImmediate = 2,
+    NoLoadStore,
+    LoadByte,
+    LoadHalf,
+    LoadWord,
+    LoadByteUnsigned,
+    LoadHalfUnsigned,
+    StoreByte,
+    StoreHalf,
+    StoreWord,
 }
 
-/// Determines if the datapath should consider branching.
-///
-/// Exact choice of branching or not branching relies on the result from the ALU.
-/// This can be overridden by the [`Jump`] signal.
-#[derive(Clone, Default, PartialEq)]
-pub enum Branch {
-    /// Do not consider branching.
-    #[default]
-    NoBranch = 0,
-
-    /// Consider branching.
-    YesBranch = 1,
-}
-
-/// Determines, given [`Branch`] is set, whether to branch when the [`AluZ`](super::datapath_signals::AluZ) signal is set,
-/// or when [`AluZ`](super::datapath_signals::AluZ) is not set.
-///
-/// In effect, this decides whether or not to invert the [`AluZ`](super::datapath_signals::AluZ) signal, which is
-/// used between the `beq` and `bne` instructions.
-#[derive(Clone, Default, PartialEq)]
-pub enum BranchType {
-    /// Branch based on [`AluZ`](super::datapath_signals::AluZ). (Used in `beq`.)
-    #[default]
-    OnEqual = 0,
-
-    /// Branch based on the inverse of [`AluZ`](super::datapath_signals::AluZ). (Used in `bne`.)
-    OnNotEqual = 1,
-
-    /// Branch based on being less than [`AluZ`](super::datapath_signals::AluZ). (Used in `blt`)
-    OnLessThan = 2,
-
-    OnGreaterEqual = 3,
-    OnLessThanUnsigned = 4,
-    OnGreaterEqualUnsigned = 5,
-}
-
-/// Determines the amount of bits to left-shift the immediate value before being passed to the ALU.
-#[derive(Clone, Default, PartialEq)]
-pub enum ImmShift {
-    #[default]
-    Shift0 = 0,
-    Shift16 = 1,
-    Shift32 = 2,
-    Shift48 = 3,
-}
-
-/// Determines if the datapath should jump. This is an unconditional branch.
-///
-/// The [`Branch`] signal may be overridden depending on the value of this signal.
-#[derive(Clone, Default, PartialEq)]
-pub enum Jump {
-    /// Do not jump. Defer to the [`Branch`] signal.
-    #[default]
-    NoJump = 0,
-
-    /// Jump by using the address specified in the instruction's lower bits.
-    YesJump = 1,
-
-    /// Jump by using the address specified in the contents of register `rs`.
-    /// This is used in `jr` and `jalr` instructions.
-    YesJumpJalr = 2,
-}
-
-/// Determines if memory should be read.
-///
-/// This should not be set in combination with [`MemWrite`].
-#[derive(Clone, Default, PartialEq)]
-pub enum MemRead {
-    #[default]
-    NoRead = 0,
-    YesRead = 1,
-}
 
 /// Determines, given [`RegWrite`] is set, what the source of a
 /// register's new data will be.
@@ -216,22 +136,12 @@ pub enum MemRead {
 /// This control signal also applies to what data is sent to the
 /// floating-point unit to be stored in its registers.
 #[derive(Clone, Default, PartialEq)]
-pub enum MemToReg {
+pub enum WBSel {
     #[default]
     UseAlu = 0,
     UseMemory = 1,
-    UsePcPlusFour = 2,
-    UseImmediate = 3,
-}
-
-/// Determines if memory should be written to.
-///
-/// This should not be set in combination with the [`MemRead`] control signal.
-#[derive(Clone, Default, PartialEq)]
-pub enum MemWrite {
-    #[default]
-    NoWrite = 0,
-    YesWrite = 1,
+    UseImmediate = 2,
+    UsePcPlusFour = 3,
 }
 
 /// Determines, given that [`MemWrite`] is set, the source of the data
@@ -269,35 +179,9 @@ pub enum RegDst {
     ReturnRegister = 3,
 }
 
-/// Determines the amount of data to be sent or recieved from registers
-/// and the ALU. While all buses carrying information are 64 bits wide,
-/// some bits of the bus may be ignored in the case of this control
-/// signal.
-#[derive(Clone, Default, PartialEq)]
-pub enum RegWidth {
-    /// Use words (32 bits).
-    Word = 0,
-
-    /// Use doublewords (64 bits).
-    #[default]
-    DoubleWord = 1,
-
-    /// Use bytes (8 bits).
-    Byte = 2,
-
-    /// Use halfwords (16 bits).
-    HalfWord = 3,
-
-    /// Use unsigned bytes (8 bits).
-    ByteUnsigned = 4,
-
-    /// Use unsigned halfwords (16 bits).
-    HalfWordUnsigned = 5,
-}
-
 /// Determines if the register file should be written to.
 #[derive(Clone, Default, Eq, PartialEq)]
-pub enum RegWrite {
+pub enum RegWriteEn {
     #[default]
     NoWrite = 0,
     YesWrite = 1,
