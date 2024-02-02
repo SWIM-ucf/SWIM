@@ -1,5 +1,7 @@
 //! Module for the API of a generic datapath.
 
+use crate::emulation_core::mips::line_info::LineInformation;
+
 /// A generic datapath.
 ///
 /// This has the ability to execute instructions, and to interface with
@@ -96,10 +98,7 @@ pub trait Datapath {
 /// This requires a corresponding visual diagram with labels that can be mapped
 /// to the datapath.
 pub trait VisualDatapath {
-    /// The information about a piece of the diagram that is returned from the datapath.
-    type LineInformation;
-
     /// Return the information from the datapath corresponding to the `variable` attribute on a
     /// part of the visual datapath diagram.
-    fn visual_line_to_data(&self, variable: &str) -> Self::LineInformation;
+    fn visual_line_to_data(&self, variable: &str) -> LineInformation;
 }
