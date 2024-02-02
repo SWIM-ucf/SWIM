@@ -1,6 +1,7 @@
 //! Module for the API of a generic datapath.
 
 use crate::emulation_core::mips::line_info::LineInformation;
+use crate::emulation_core::mips::memory::Memory;
 
 /// A generic datapath.
 ///
@@ -23,11 +24,6 @@ pub trait Datapath {
     /// contain a list of registers. Further implementation details are
     /// at the discretion of the developer.
     type RegisterEnum;
-
-    /// The data type that describes memory for this datapath. This must be
-    /// defined separately. This allows raw access to any parts of memory
-    /// or its own interface at will.
-    type MemoryType;
 
     /// This enum describes all possible stages in the datapath. This is
     /// used primarily for the visual datapath view. Must be convertable
@@ -60,15 +56,15 @@ pub trait Datapath {
     /// Loads the instructions from the provided array into an emulation core's
     /// memory. This will also clear the memory of the emulation core and reset
     /// the core's program counter.
-    fn load_instructions(&mut self, instructions: &[Self::MemoryType]) {
+    fn load_instructions(&mut self, instructions: &[u8]) {
         self.reset();
         self.set_memory(0, instructions);
     }
 
     /// Retrieve all memory as-is.
-    fn get_memory(&self) -> &Self::MemoryType;
+    fn get_memory(&self) -> &Memory;
 
-    fn set_memory(&mut self, _ptr: usize, _data: &[Self::MemoryType]) {
+    fn set_memory(&mut self, _ptr: usize, _data: &[u8]) {
         todo!()
     }
 
