@@ -222,7 +222,6 @@ impl Default for MipsDatapath {
 impl Datapath for MipsDatapath {
     type RegisterData = u64;
     type RegisterEnum = super::registers::GpRegisterType;
-    type MemoryType = Memory;
 
     type StageEnum = Stage;
 
@@ -269,7 +268,7 @@ impl Datapath for MipsDatapath {
         self.registers[register]
     }
 
-    fn get_memory(&self) -> &Self::MemoryType {
+    fn get_memory(&self) -> &Memory {
         &self.memory
     }
 

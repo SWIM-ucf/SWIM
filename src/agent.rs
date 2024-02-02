@@ -3,7 +3,6 @@
 use crate::agent::messages::{Command, StateUpdate};
 use crate::emulation_core::datapath::Datapath;
 use crate::emulation_core::mips::datapath::{MipsDatapath, Stage};
-use crate::emulation_core::mips::memory::Memory;
 use crate::emulation_core::mips::registers::GpRegisterType;
 use futures::{FutureExt, StreamExt};
 use gloo_console::log;
@@ -38,14 +37,8 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, StateUpdate>) {
 }
 
 struct EmulatorCoreAgentState {
-    current_datapath: Box<
-        dyn Datapath<
-            MemoryType = Memory,
-            RegisterData = u64,
-            RegisterEnum = GpRegisterType,
-            StageEnum = Stage,
-        >,
-    >,
+    current_datapath:
+        Box<dyn Datapath<RegisterData = u64, RegisterEnum = GpRegisterType, StageEnum = Stage>>,
     pub scope: ReactorScope<Command, StateUpdate>,
     speed: u32,
     executing: bool,
