@@ -19,8 +19,6 @@ pub struct LineInformation {
 }
 
 impl VisualDatapath for MipsDatapath {
-    type LineInformation = LineInformation;
-
     fn visual_line_to_data(&self, variable: &str) -> LineInformation {
         match variable {
             "alu_input2" => LineInformation {
