@@ -1,3 +1,4 @@
+use crate::agent::messages::Command;
 use crate::agent::EmulationCoreAgent;
 use crate::emulation_core::architectures::AvailableDatapaths;
 use crate::emulation_core::datapath::VisualDatapath;
@@ -18,7 +19,7 @@ use yew_agent::reactor::ReactorBridge;
 /// The DatapathCommunicator will also handle receiving information about the state of the emulation core and maintain
 /// internal state that can be displayed by the UI.
 pub struct DatapathCommunicator {
-    writer: RefCell<SplitSink<ReactorBridge<EmulationCoreAgent>, i32>>,
+    writer: RefCell<SplitSink<ReactorBridge<EmulationCoreAgent>, Command>>,
     reader: RefCell<SplitStream<ReactorBridge<EmulationCoreAgent>>>,
 }
 
@@ -68,11 +69,14 @@ impl DatapathCommunicator {
     }
 
     /// Sends a test message to the worker thread.
-    pub fn send_test_message(&self) {
+    fn send_message(&self, command: Command) {
         let mut writer = self.writer.borrow_mut();
         writer
-            .send(1)
-            // The
+            .send(command)
+            // The logic for sending a message is synchronous but the API for writing to a SplitSink is asynchronous,
+            // so we attempt to resolve the future immediately so we can expose a synchronous API for sending commands.
+            // If the future doesn't return immediately, there's serious logic changes that need to happen so we just
+            // log an error message and panic.
             .now_or_never()
             .expect("Send function did not immediately return, async logic needed.")
             .expect("Sending test message error")
@@ -103,13 +107,13 @@ impl DatapathCommunicator {
 
     /// Copies the contents of `data` to the emulator core's memory at `ptr`. Copies until either the end of `data` or
     /// the end of the emulaot core's memory.
-    pub fn set_memory(&self, _ptr: usize, _data: &[u8]) {
-        todo!()
+    pub fn set_memory(&self, ptr: usize, data: Vec<u8>) {
+        self.send_message(Command::SetMemory(ptr, data));
     }
 
     /// Executes the emulator core at the current set speed.
     pub fn execute(&self) {
-        todo!()
+        self.send_message(Command::Execute);
     }
 
     /// Executes a single instruction on the emulator core and pauses.

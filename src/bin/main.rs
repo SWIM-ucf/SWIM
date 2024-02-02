@@ -99,7 +99,6 @@ fn app(props: &AppProps) -> Html {
 
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
-        let communicator = props.communicator;
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
         let parser_text_output = parser_text_output.clone();
@@ -110,7 +109,6 @@ fn app(props: &AppProps) -> Html {
 
         use_callback(
             move |_, text_model| {
-                communicator.send_test_message(); // Test message, remove later.
                 let mut datapath = datapath.borrow_mut();
                 let text_model = text_model.borrow_mut();
 
