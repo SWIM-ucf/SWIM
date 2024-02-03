@@ -18,12 +18,12 @@ pub struct SwimEditorProps {
     pub program_info: ProgramInfo,
     pub binary: Vec<u32>,
     pub pc: u64,
-    pub memory_curr_line: Rc<RefCell<f64>>,
-    pub curr_line: Rc<RefCell<f64>>
+    pub memory_curr_line: UseStateHandle<f64>,
+    pub editor_curr_line: UseStateHandle<f64>
 }
 
 #[derive(Default, PartialEq)]
-enum EditorTabState {
+pub enum EditorTabState {
     #[default]
     Editor,
     TextSegment,
@@ -61,13 +61,11 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     let link = CodeEditorLink::new();
 
     let on_editor_created = {
-        let text_model = Rc::clone(&props.text_model);
-        let curr_line = Rc::clone(&props.curr_line);
+        let curr_line = props.editor_curr_line.clone();
         let lines_content = Rc::clone(&props.lines_content);
 
         use_callback(
-            move |editor_link: CodeEditorLink, _text_model| {
-                let curr_line = curr_line.borrow_mut();
+            move |editor_link: CodeEditorLink, curr_line| {
                 match editor_link.with_editor(|editor| {
                     let raw_editor = editor.as_ref();
                     let model = raw_editor.get_model().unwrap();
@@ -82,13 +80,13 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                         string_lines.push(string_value);
 
                     };
-                    raw_editor.reveal_line_in_center(*curr_line, Some(ScrollType::Smooth));
+                    raw_editor.reveal_line_in_center(**curr_line, Some(ScrollType::Smooth));
                 }) {
                     Some(()) => debug!("Editor linked!"),
                     None => debug!("No editor :<")
                 };
             },
-            text_model,
+            curr_line,
         )
     };
 
@@ -136,7 +134,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             if *active_tab == EditorTabState::Editor {
                 <CodeEditor classes={"editor"} link={link.clone()} options={get_options()} model={props.text_model.borrow().clone()} on_editor_created={on_editor_created.clone()}/>
             } else if *active_tab == EditorTabState::TextSegment {
-                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} pc={props.pc.clone()}/>
+                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} pc={props.pc.clone()} active_tab={active_tab.clone()} memory_curr_line={props.memory_curr_line.clone()} editor_curr_line={props.editor_curr_line.clone()}/>
             } else if *active_tab == EditorTabState::DataSegment {
                 <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()}/>
             }

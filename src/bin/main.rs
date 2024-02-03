@@ -67,8 +67,9 @@ fn app(props: &AppProps) -> Html {
     // was executed after the execute button is pressed.
     let executed_line = js_sys::Array::new();
     let not_highlighted = js_sys::Array::new();
-    let curr_line = use_mut_ref(|| 0.0);
-    let memory_curr_line = use_mut_ref(|| 0.0);
+    let editor_curr_line = use_state_eq(|| 0.0);
+    // let memory_curr_line = use_mut_ref(|| 0.0);
+    let memory_curr_line = use_state_eq(|| 0.0);
 
     // Setting up the options/parameters which
     // will highlight the previously executed line.
@@ -222,7 +223,7 @@ fn app(props: &AppProps) -> Html {
         let executed_line = executed_line.clone();
         let not_highlighted = not_highlighted.clone();
         let highlight_decor = highlight_decor.clone();
-        let curr_line = Rc::clone(&curr_line);
+        let editor_curr_line = editor_curr_line.clone();
 
         // Hex editor
         let memory_text_model = Rc::clone(&memory_text_model);
@@ -230,13 +231,13 @@ fn app(props: &AppProps) -> Html {
         let trigger = use_force_update();
 
         use_callback(
-            move |_, _| {
+            move |_, editor_curr_line| {
                 let mut datapath = datapath.borrow_mut();
                 let text_model = text_model.borrow_mut();
                 let highlight_decor = highlight_decor.borrow_mut();
                 let memory_text_model = memory_text_model.borrow_mut();
                 let last_memory_text_model = last_memory_text_model.borrow_mut();
-                let mut curr_line = curr_line.borrow_mut();
+                // let mut editor_curr_line = editor_curr_line.borrow_mut();
 
                 // Pull ProgramInfo from the parser
                 let (programinfo, _) = parser(text_model.get_value());
@@ -244,11 +245,12 @@ fn app(props: &AppProps) -> Html {
                 // Get the current line and convert it to f64
                 let list_of_line_numbers = programinfo.address_to_line_number;
                 let index = datapath.registers.pc as usize / 4;
-                *curr_line = *list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0; // add one to account for the editor's line numbers
+                editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0); // add one to account for the editor's line numbers
+                debug!("Setting curr line to {}", **editor_curr_line);
 
                 // Setup the range
                 let curr_model = text_model.as_ref();
-                let curr_range = monaco::sys::Range::new(*curr_line, 0.0, *curr_line, 0.0);
+                let curr_range = monaco::sys::Range::new(**editor_curr_line, 0.0, **editor_curr_line, 0.0);
 
                 // element to be stored in the stack to highlight the line
                 let highlight_line: monaco::sys::editor::IModelDeltaDecoration =
@@ -301,7 +303,7 @@ fn app(props: &AppProps) -> Html {
 
                 trigger.force_update();
             },
-            (),
+            editor_curr_line,
         )
     };
 
@@ -333,9 +335,9 @@ fn app(props: &AppProps) -> Html {
                     let (programinfo, _) = parser(text_model.get_value());
                     let list_of_line_numbers = programinfo.address_to_line_number;
                     let index = datapath.registers.pc as usize / 4;
-                    let curr_line = *list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0;
+                    let editor_curr_line = *list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0;
                     let curr_model = text_model.as_ref();
-                    let curr_range = monaco::sys::Range::new(curr_line, 0.0, curr_line, 0.0);
+                    let curr_range = monaco::sys::Range::new(editor_curr_line, 0.0, editor_curr_line, 0.0);
                     let highlight_line: monaco::sys::editor::IModelDeltaDecoration =
                         Object::new().unchecked_into();
                     highlight_line.set_options(&highlight_decor);
@@ -652,7 +654,7 @@ fn app(props: &AppProps) -> Html {
 
                     // Editor
                     <div class="code">
-                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} binary={binary_ref.borrow().clone()} memory_curr_line={memory_curr_line.clone()} curr_line={curr_line.clone()} pc={(*datapath.borrow()).clone().registers.pc}/>
+                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} binary={binary_ref.borrow().clone()} memory_curr_line={memory_curr_line.clone()} editor_curr_line={editor_curr_line.clone()} pc={(*datapath.borrow()).clone().registers.pc}/>
                     </div>
 
                     // Console

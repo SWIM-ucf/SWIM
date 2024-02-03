@@ -1,6 +1,6 @@
 use js_sys::Object;
 use wasm_bindgen::{closure::Closure, JsValue};
-use yew::{function_component, html, Html, Properties, use_callback};
+use yew::{function_component, html, use_callback, Html, Properties, UseStateHandle};
 use std::rc::Rc;
 use std::cell::RefCell;
 use log::debug;
@@ -10,25 +10,22 @@ use monaco::{
     api::TextModel,
     sys::
         editor::{
-            IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions, ISuggestOptions
+            IEditorMinimapOptions, IEditorScrollbarOptions, IStandaloneEditorConstructionOptions, ISuggestOptions, ScrollType
         },
     yew::{CodeEditor, CodeEditorLink},
 };
 #[derive(PartialEq, Properties)]
 pub struct HexEditorProps {
     pub memory_text_model: Rc<RefCell<TextModel>>,
-    pub curr_line: Rc<RefCell<f64>>
+    pub curr_line: UseStateHandle<f64>
 }
 
 #[function_component(HexEditor)]
 pub fn hex_editor(props: &HexEditorProps) -> Html {
     let editor_link = CodeEditorLink::new();
-    // let text_model = Rc::clone(&props.memory_text_model);
-    // let curr_line = Rc::clone(&props.curr_line);
-    // let not_highlighted = js_sys::Array::new();
-    // let mut mutated = false;
+    let curr_line = *props.curr_line;
 
-    // create a JavaScript closure
+    // create a JavaScript closure for hex highlighting
     let cb = Closure::wrap(Box::new(move |event: monaco::sys::editor::ICursorSelectionChangedEvent| {
         let highlight_decor = monaco::sys::editor::IModelDecorationOptions::default();
         highlight_decor.set_class_name("hexHighlight".into());
@@ -65,27 +62,23 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
     }) as Box<dyn FnMut(_)>);
 
     let on_editor_created = {
-        let text_model = Rc::clone(&props.memory_text_model);
-        // let curr_line = Rc::clone(&curr_line);
+        let curr_line = curr_line;
 
         use_callback(
-            move |editor_link: CodeEditorLink, _text_model| {
-                // let curr_line = curr_line.borrow_mut();
+            move |editor_link: CodeEditorLink, curr_line| {
                 match editor_link.with_editor(|editor| {
                     let raw_editor = editor.as_ref();
-
-                    debug!("Helo!");
                     let cb_func = &cb.as_ref().unchecked_ref();
 
                     raw_editor.on_did_change_cursor_selection(cb_func);
-                    // raw_editor.reveal_line_in_center(*curr_line, Some(ScrollType::Smooth))
+                    raw_editor.reveal_line_in_center(*curr_line, Some(ScrollType::Smooth))
 
                 }) {
                     Some(()) => debug!("Hex Editor linked!"),
                     None => debug!("No editor :<")
                 };
             },
-            text_model,
+            curr_line,
         )
     };
     html! {

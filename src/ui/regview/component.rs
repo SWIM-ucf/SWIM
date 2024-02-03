@@ -292,8 +292,7 @@ pub fn regview(props: &Regviewprops) -> Html {
                         UnitState::Dec => "Decimal",
                         UnitState::Hex => "Hex",
                         UnitState::Float => "Float",
-                        UnitState::Double => "Double",
-                        _ => "dec",
+                        UnitState::Double => "Double"
                     }
                 }>
                     <option value="dec">{"Decimal"}</option>

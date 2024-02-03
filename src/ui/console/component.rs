@@ -19,7 +19,7 @@ pub struct Consoleprops {
     pub datapath: MipsDatapath,
     pub parsermsg: String,
     pub memory_text_model: Rc<RefCell<TextModel>>,
-    pub memory_curr_line: Rc<RefCell<f64>>
+    pub memory_curr_line: UseStateHandle<f64>
 }
 
 #[derive(Default, PartialEq)]
@@ -98,7 +98,7 @@ pub fn console(props: &Consoleprops) -> Html {
                 </div>
             } else if *active_tab == TabState::HexEditor {
                 <div class="hex-wrapper">
-                    <HexEditor memory_text_model={&props.memory_text_model} curr_line={&props.memory_curr_line}/>
+                    <HexEditor memory_text_model={&props.memory_text_model} curr_line={props.memory_curr_line.clone()}/>
                 </div>
             }
             <div class="button-bar">

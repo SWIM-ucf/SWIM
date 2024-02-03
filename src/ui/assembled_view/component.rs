@@ -8,13 +8,17 @@ use yew::prelude::*;
 use wasm_bindgen::JsCast;
 use log::debug;
 use crate::parser::parser_structs_and_enums::ProgramInfo;
+use crate::ui::swim_editor::component::EditorTabState;
 
 
 #[derive(PartialEq, Properties)]
 pub struct TextSegmentProps {
     pub program_info: ProgramInfo,
     pub lines_content: Rc<RefCell<Vec<String>>>,
-    pub pc: u64
+    pub memory_curr_line: UseStateHandle<f64>,
+    pub editor_curr_line: UseStateHandle<f64>,
+    pub pc: u64,
+    pub active_tab: UseStateHandle<EditorTabState>,
 }
 #[derive(PartialEq, Properties)]
 pub struct DataSegmentProps {
@@ -27,6 +31,9 @@ pub struct DataSegmentProps {
 pub fn TextSegment(props: &TextSegmentProps) -> Html {
     let program_info = &props.program_info;
     let lines_content = props.lines_content.borrow_mut().clone();
+    let memory_curr_line = &props.memory_curr_line;
+    let editor_curr_line = &props.editor_curr_line;
+    let active_tab = &props.active_tab;
 
     let on_check = Callback::from(move |args: (MouseEvent, i64)| {
         let (e, address) = args;
@@ -39,25 +46,23 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
 
     });
 
-    let on_address_click = Callback::from(move |args: (MouseEvent, i64)| {
-        let (_e, address) = args;
-        // let target = e.target();
-        // let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+    let on_address_click = {
+        let memory_curr_line = memory_curr_line.clone();
+        use_callback(move |args: (MouseEvent, i64), memory_curr_line| {
+            let (_e, address) = args;
+            memory_curr_line.set((address / 4) as f64);
+        }, memory_curr_line)
+    };
 
-        debug!("Go to address {:08x}", address);
-        debug!("Go to line {:?}", (address / 4) as f64);
-        // memory_curr_line.set((address / 4) as f64);
-
-    });
-
-    let on_assembled_click = Callback::from(move |args: (MouseEvent, i64)| {
-        let (_e, line_number) = args;
-        // let target = e.target();
-        // let input = target.unwrap().unchecked_into::<HtmlInputElement>();
-
-        debug!("Go to line number {:08x}", line_number);
-
-    });
+    let on_assembled_click = {
+        let editor_curr_line = editor_curr_line.clone();
+        let active_tab = active_tab.clone();
+        use_callback(move |args: (MouseEvent, usize), _| {
+            let (_e, line_number) = args;
+            editor_curr_line.set(line_number as f64);
+            active_tab.set(EditorTabState::Editor);
+        }, ())
+    };
 
     let mut address = -4;
     html! {
@@ -82,6 +87,8 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                     if props.pc as i64 == address {
                         conditional_class = "executing";
                     }
+
+                    let line_number = instruction.line_number.clone();
                     html!{
 
                         <tr key={index} class={classes!("row", conditional_class)}>
@@ -98,11 +105,11 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                             <td>
                                 {format!("0x{:08x}", instruction.binary)}
                             </td>
-                            <td class="assembled-string" title="Go to line" onclick={move |e: MouseEvent| {on_assembled_click.emit((e, address))}}>
+                            <td class="assembled-string" title="Go to line" onclick={move |e: MouseEvent| {on_assembled_click.emit((e, line_number))}}>
                                 {recreated_string}
                             </td>
                             <td>
-                                {format!("{}: {:?}", instruction.line_number, lines_content.get(instruction.line_number).unwrap_or(&String::from("")))}
+                                {format!("{}: {:?}", line_number, lines_content.get(line_number).unwrap_or(&String::from("")))}
                             </td>
                         </tr>
                     }
