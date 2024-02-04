@@ -17,8 +17,8 @@ use monaco::{
 use swim::{parser::parser_assembler_main::parser, ui::{console::component::TabState, swim_editor::component::EditorTabState}};
 use swim::parser::parser_structs_and_enums::ProgramInfo;
 use std::rc::Rc;
-use swim::agent::datapath_communicator::DatapathCommunicator;
 use swim::agent::EmulationCoreAgent;
+use swim::agent::datapath_communicator::DatapathCommunicator;
 use swim::emulation_core::datapath::Datapath;
 use swim::emulation_core::mips::datapath::MipsDatapath;
 use swim::emulation_core::mips::datapath::Stage;
@@ -98,12 +98,9 @@ fn app(props: &AppProps) -> Html {
     // and will force updates whenever its internal state changes.
     {
         let trigger = use_force_update();
-        use_effect_with_deps(
-            move |communicator| {
-                spawn_local(communicator.listen_for_updates(trigger));
-            },
-            props.communicator,
-        );
+        use_effect_with_deps(move |communicator| {
+            spawn_local(communicator.listen_for_updates(trigger));
+        }, props.communicator);
     }
 
     // This is where code is assembled and loaded into the emulation core's memory.
@@ -118,6 +115,7 @@ fn app(props: &AppProps) -> Html {
         let last_memory_text_model = last_memory_text_model.clone();
         let datapath = Rc::clone(&datapath);
         let parser_text_output = parser_text_output.clone();
+        let trigger = use_force_update();
         let editor_curr_line = editor_curr_line.clone();
 
         // Clone the value before moving it into the closure
@@ -188,6 +186,8 @@ fn app(props: &AppProps) -> Html {
                     last_memory_text_model.set_value(hexdump);
                     datapath.registers.pc = program_info.pc_starting_point as u64;
                 }
+
+                trigger.force_update();
             },
             (text_model, editor_curr_line),
         )
@@ -212,6 +212,7 @@ fn app(props: &AppProps) -> Html {
         let memory_text_model = memory_text_model.clone();
         // let last_memory_text_model = Rc::clone(&last_memory_text_model);
         let last_memory_text_model = last_memory_text_model.clone();
+        let trigger = use_force_update();
 
         use_callback(
             move |_, editor_curr_line| {
@@ -239,6 +240,8 @@ fn app(props: &AppProps) -> Html {
 
                 memory_text_model.set_value(hexdump);
                 last_memory_text_model.set_value(hexdump);
+
+                trigger.force_update();
             },
             editor_curr_line,
         )
@@ -251,6 +254,7 @@ fn app(props: &AppProps) -> Html {
         // let text_model = Rc::clone(&text_model);
         let text_model = text_model.clone();
         let editor_curr_line = editor_curr_line.clone();
+        let trigger = use_force_update();
 
         // Hex editor
         // let memory_text_model = Rc::clone(&memory_text_model);
@@ -284,6 +288,7 @@ fn app(props: &AppProps) -> Html {
 
                 memory_text_model.set_value(hexdump);
                 last_memory_text_model.set_value(hexdump);
+                trigger.force_update();
             },
             editor_curr_line,
         )
@@ -291,6 +296,7 @@ fn app(props: &AppProps) -> Html {
 
     let on_memory_clicked = {
         let datapath = Rc::clone(&datapath);
+        let trigger = use_force_update();
 
         // Code editor
         // let text_model = Rc::clone(&text_model);
@@ -392,6 +398,8 @@ fn app(props: &AppProps) -> Html {
                 memory_text_model.set_value(hexdump);
                 last_memory_text_model.set_value(hexdump);
 
+                trigger.force_update();
+
             },
             (),
         )
@@ -401,6 +409,7 @@ fn app(props: &AppProps) -> Html {
     // This will also clear any highlight on the editor.
     let on_reset_clicked = {
         let datapath = Rc::clone(&datapath);
+        let trigger = use_force_update();
 
         // Code editor
         let parser_text_output = parser_text_output.clone();
@@ -430,6 +439,8 @@ fn app(props: &AppProps) -> Html {
 
                 memory_text_model.set_value("");
                 last_memory_text_model.set_value("");
+
+                trigger.force_update();
             },
             editor_curr_line,
         )
@@ -614,8 +625,7 @@ pub fn on_upload_file_clicked() {
 fn main() {
     console_log::init_with_level(Level::Debug).unwrap();
     // Initialize and leak the communicator to ensure that the thread spawns immediately and the bridge to it lives
-    // for the remainder of the program. We can use the communicator exclusively through immutable references for the
-    // rest of the program.
+    // for the remainder of the program.
     let bridge = EmulationCoreAgent::spawner().spawn("./worker.js");
     let communicator = Box::new(DatapathCommunicator::new(bridge));
     yew::Renderer::<App>::with_props(AppProps {
