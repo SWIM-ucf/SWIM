@@ -14,7 +14,7 @@ use monaco::{
         IMarkdownString, MarkerSeverity,
     }
 };
-use swim::{parser::parser_assembler_main::parser, ui::{console::component::TabState, swim_editor::component::EditorTabState}};
+use swim::{parser::parser_assembler_main::parser, ui::{console::component::ConsoleTabState, swim_editor::component::EditorTabState}};
 use swim::parser::parser_structs_and_enums::ProgramInfo;
 use std::rc::Rc;
 use swim::agent::EmulationCoreAgent;
@@ -65,7 +65,7 @@ fn app(props: &AppProps) -> Html {
 
     // Store the currently executed line in code editor and hex editor
     let editor_curr_line = use_state_eq(|| 0.0);
-    let memory_curr_line = use_state_eq(|| 0.0);
+    let memory_curr_instr = use_state_eq(|| 0);
 
     // Output strings for the console and memory viewers.
     let parser_text_output = use_state_eq(String::new);
@@ -84,7 +84,7 @@ fn app(props: &AppProps) -> Html {
     let memory_text_model = use_state_eq(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
 
     // Store the currently selected tabs in windows
-    let console_active_tab = use_state_eq(TabState::default);
+    let console_active_tab = use_state_eq(ConsoleTabState::default);
     let editor_active_tab = use_state_eq(EditorTabState::default);
 
     // Since we want the Datapath to be independent from all the
@@ -111,6 +111,7 @@ fn app(props: &AppProps) -> Html {
         let text_model = text_model.clone();
         // let memory_text_model = Rc::clone(&memory_text_model);
         let memory_text_model = memory_text_model.clone();
+        let memory_curr_instr = memory_curr_instr.clone();
         // let last_memory_text_model = Rc::clone(&last_memory_text_model);
         let last_memory_text_model = last_memory_text_model.clone();
         let datapath = Rc::clone(&datapath);
@@ -124,7 +125,7 @@ fn app(props: &AppProps) -> Html {
         let binary_ref = Rc::clone(&binary_ref);
 
         use_callback(
-            move |_, (text_model, editor_curr_line)| {
+            move |_, (text_model, editor_curr_line, memory_curr_instr)| {
                 let mut datapath = datapath.borrow_mut();
                 let text_model = text_model.clone();
                 let memory_text_model = memory_text_model.clone();
@@ -179,6 +180,7 @@ fn app(props: &AppProps) -> Html {
                             parser_text_output.set(format!("This program failed to load into the datapath. Message returned by datapath: {msg}"));
                         }
                     }
+                    memory_curr_instr.set(datapath.registers.pc);
                     // log!(datapath.memory.to_string());
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
                     let hexdump = &datapath.memory.generate_formatted_hex();
@@ -189,7 +191,7 @@ fn app(props: &AppProps) -> Html {
 
                 trigger.force_update();
             },
-            (text_model, editor_curr_line),
+            (text_model, editor_curr_line, memory_curr_instr),
         )
     };
 
@@ -206,6 +208,7 @@ fn app(props: &AppProps) -> Html {
         // let text_model = Rc::clone(&text_model);
         let text_model = text_model.clone();
         let editor_curr_line = editor_curr_line.clone();
+        let memory_curr_instr = memory_curr_instr.clone();
 
         // Hex editor
         // let memory_text_model = Rc::clone(&memory_text_model);
@@ -215,7 +218,7 @@ fn app(props: &AppProps) -> Html {
         let trigger = use_force_update();
 
         use_callback(
-            move |_, editor_curr_line| {
+            move |_, (editor_curr_line, memory_curr_instr)| {
                 let mut datapath = datapath.borrow_mut();
                 let text_model = text_model.clone();
                 // let memory_text_model = Rc::clone(&memory_text_model);
@@ -231,6 +234,7 @@ fn app(props: &AppProps) -> Html {
                 let list_of_line_numbers = programinfo.address_to_line_number;
                 let index = datapath.registers.pc as usize / 4;
                 editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0); // add one to account for the editor's line numbers
+                memory_curr_instr.set(datapath.registers.pc);
 
                 // Execute instruction
                 datapath.execute_instruction();
@@ -243,7 +247,7 @@ fn app(props: &AppProps) -> Html {
 
                 trigger.force_update();
             },
-            editor_curr_line,
+            (editor_curr_line, memory_curr_instr),
         )
     };
 
@@ -261,9 +265,10 @@ fn app(props: &AppProps) -> Html {
         let memory_text_model = memory_text_model.clone();
         // let last_memory_text_model = Rc::clone(&last_memory_text_model);
         let last_memory_text_model = last_memory_text_model.clone();
+        let memory_curr_instr = memory_curr_instr.clone();
 
         use_callback(
-            move |_, editor_curr_line| {
+            move |_, (editor_curr_line, memory_curr_instr)| {
                 let mut datapath = datapath.borrow_mut();
 
                 // let memory_text_model = Rc::clone(&memory_text_model);
@@ -278,6 +283,7 @@ fn app(props: &AppProps) -> Html {
                     let list_of_line_numbers = programinfo.address_to_line_number;
                     let index = datapath.registers.pc as usize / 4;
                     editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0);
+                    memory_curr_instr.set(datapath.registers.pc);
                     datapath.execute_stage();
                 } else {
                     datapath.execute_stage();
@@ -290,7 +296,7 @@ fn app(props: &AppProps) -> Html {
                 last_memory_text_model.set_value(hexdump);
                 trigger.force_update();
             },
-            editor_curr_line,
+            (editor_curr_line, memory_curr_instr),
         )
     };
 
@@ -420,6 +426,7 @@ fn app(props: &AppProps) -> Html {
         let memory_text_model = memory_text_model.clone();
         // let last_memory_text_model = Rc::clone(&last_memory_text_model);
         let last_memory_text_model = last_memory_text_model.clone();
+        let memory_curr_instr = memory_curr_instr.clone();
 
         use_callback(
             move |_, editor_curr_line| {
@@ -427,6 +434,7 @@ fn app(props: &AppProps) -> Html {
 
                 // Set highlighted line to 0
                 editor_curr_line.set(0.0);
+                memory_curr_instr.set(datapath.registers.pc);
 
                 parser_text_output.set("".to_string());
                 datapath.reset();
@@ -580,11 +588,11 @@ fn app(props: &AppProps) -> Html {
 
                     // Editor
                     <div class="code">
-                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} binary={binary_ref.borrow().clone()} memory_curr_line={memory_curr_line.clone()} editor_curr_line={editor_curr_line.clone()} active_tab={editor_active_tab.clone()} pc={(*datapath.borrow()).clone().registers.pc}/>
+                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} binary={binary_ref.borrow().clone()} memory_curr_instr={memory_curr_instr.clone()} editor_curr_line={editor_curr_line.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} pc={(*datapath.borrow()).clone().registers.pc}/>
                     </div>
 
                     // Console
-                    <Console parsermsg={(*parser_text_output).clone()} datapath={(*datapath.borrow()).clone()} memory_text_model={memory_text_model} memory_curr_line={memory_curr_line.clone()} active_tab={console_active_tab.clone()}/>
+                    <Console parsermsg={(*parser_text_output).clone()} datapath={(*datapath.borrow()).clone()} memory_text_model={memory_text_model} memory_curr_instr={memory_curr_instr.clone()} active_tab={console_active_tab.clone()}/>
                 </div>
 
                 // Right column

@@ -7,9 +7,7 @@ use yew::{Callback, Properties};
 use yew::prelude::*;
 use wasm_bindgen::{JsCast, JsValue};
 
-use crate::{parser::parser_structs_and_enums::ProgramInfo, ui::assembled_view::component::{DataSegment, TextSegment}};
-
-use log::debug;
+use crate::{parser::parser_structs_and_enums::ProgramInfo, ui::{assembled_view::component::{DataSegment, TextSegment}, console::component::ConsoleTabState}};
 
 #[derive(PartialEq, Properties)]
 pub struct SwimEditorProps {
@@ -18,9 +16,10 @@ pub struct SwimEditorProps {
     pub program_info: ProgramInfo,
     pub binary: Vec<u32>,
     pub pc: u64,
-    pub memory_curr_line: UseStateHandle<f64>,
+    pub memory_curr_instr: UseStateHandle<u64>,
     pub editor_curr_line: UseStateHandle<f64>,
-    pub active_tab: UseStateHandle<EditorTabState>
+    pub editor_active_tab: UseStateHandle<EditorTabState>,
+    pub console_active_tab: UseStateHandle<ConsoleTabState>
 }
 
 #[derive(Default, PartialEq)]
@@ -61,6 +60,8 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     let link = CodeEditorLink::new();
     let text_model = &*props.text_model;
+    let editor_active_tab = &props.editor_active_tab;
+    let console_active_tab = &props.console_active_tab;
 
     let on_editor_created = {
         let curr_line = props.editor_curr_line.clone();
@@ -91,7 +92,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                     let options: IModelDecorationOptions = js_sys::Object::new().unchecked_into();
                     if **curr_line != 0.0 {
                         // Show highlight if current line is not 0
-                        options.set_inline_class_name("myInlineDecoration".into());
+                        options.set_inline_class_name("executedLine".into());
                         options.set_is_whole_line(true.into());
                     }
                     decoration.set_options(&options);
@@ -114,9 +115,8 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         )
     };
 
-    let active_tab = &props.active_tab;
     let change_tab = {
-        let active_tab = active_tab.clone();
+        let editor_active_tab = editor_active_tab.clone();
         Callback::from(move |event: MouseEvent| {
             let target = event.target().unwrap().dyn_into::<web_sys::HtmlElement>().unwrap();
             let tab_name = target
@@ -130,36 +130,36 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                 _ => EditorTabState::default(),
             };
 
-            active_tab.set(new_tab);
+            editor_active_tab.set(new_tab);
         })
     };
     html! {
         <>
             // Editor buttons
             <div class="bar tabs">
-                if **active_tab == EditorTabState::Editor {
+                if **editor_active_tab == EditorTabState::Editor {
                     <button class={classes!("tab", "pressed")} label="editor" onclick={change_tab.clone()}>{"Editor"}</button>
                 } else {
                     <button class="tab" label="editor" onclick={change_tab.clone()}>{"Editor"}</button>
                 }
 
-                if **active_tab == EditorTabState::TextSegment {
+                if **editor_active_tab == EditorTabState::TextSegment {
                     <button class={classes!("tab", "pressed")} label="text" onclick={change_tab.clone()}>{"Text Segment"}</button>
                 } else {
                     <button class="tab" label="text" onclick={change_tab.clone()}>{"Text Segment"}</button>
                 }
 
-                if **active_tab == EditorTabState::DataSegment {
+                if **editor_active_tab == EditorTabState::DataSegment {
                     <button class={classes!("tab", "pressed")} label="data" onclick={change_tab.clone()}>{"Data Segment"}</button>
                 } else {
                     <button class="tab" label="data" onclick={change_tab.clone()}>{"Data Segment"}</button>
                 }
             </div>
-            if **active_tab == EditorTabState::Editor {
+            if **editor_active_tab == EditorTabState::Editor {
                 <CodeEditor classes={"editor"} link={link.clone()} options={get_options()} model={text_model.clone()} on_editor_created={on_editor_created.clone()}/>
-            } else if **active_tab == EditorTabState::TextSegment {
-                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} pc={props.pc.clone()} active_tab={active_tab.clone()} memory_curr_line={props.memory_curr_line.clone()} editor_curr_line={props.editor_curr_line.clone()}/>
-            } else if **active_tab == EditorTabState::DataSegment {
+            } else if **editor_active_tab == EditorTabState::TextSegment {
+                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} pc={props.pc.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()}/>
+            } else if **editor_active_tab == EditorTabState::DataSegment {
                 <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()}/>
             }
         </>

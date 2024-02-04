@@ -45,7 +45,7 @@ body {
 .code {
   display: flex;
   flex-direction: column;
-  flex-grow: 1; 
+  flex-grow: 1;
   min-height: 4em;
   margin-top: 8px;
 }
@@ -55,13 +55,47 @@ body {
   min-height: 96%;
   min-width: 100%;
 }
-.myInlineDecoration {
-	color: rgb(49, 212, 144) !important;
+.executedLine {
+	/* color: rgb(49, 212, 144) !important; */
 	font-weight: bold;
+  animation-name: flash_executed;
+  animation-duration: 3s;
+  animation-fill-mode: forwards;
 }
-.hexHighlight {
-	color: rgb(49, 212, 144) !important;
+.updatedLine {
+	/* color: rgb(49, 212, 144) !important; */
 	font-weight: bold;
+  animation-name: flash_updated;
+  animation-duration: 1s;
+  animation-timing-function: ease-in;
+}
+
+.highlightHex {
+  background-color: rgb(71 188 255 / 41%);
+}
+
+@keyframes flash_executed {
+  from {
+    color: rgb(49, 212, 144);
+  }
+  to {
+    color: rgb(49, 212, 144);
+  }
+  to {
+    color: white;
+  }
+}
+
+@keyframes flash_updated {
+  from {
+    color: red;
+  }
+  to {
+    color: red;
+  }
+  to {
+    color: white;
+  }
 }
 
 /****** Assembled View ******/
@@ -221,7 +255,7 @@ tr:nth-child(even)
 {
   background-color: #1e1e1e;
   input {
-    
+
     background-color: #1e1e1e;
   }
 }
@@ -229,7 +263,7 @@ tr:nth-child(odd)
 {
   background-color: #101010;
   input {
-    
+
     background-color: #101010;
   }
 }
