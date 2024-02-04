@@ -1,5 +1,8 @@
 //! Module for the API of a generic datapath.
 
+use crate::emulation_core::mips::line_info::LineInformation;
+use crate::emulation_core::mips::memory::Memory;
+
 /// A generic datapath.
 ///
 /// This has the ability to execute instructions, and to interface with
@@ -22,10 +25,10 @@ pub trait Datapath {
     /// at the discretion of the developer.
     type RegisterEnum;
 
-    /// The data type that describes memory for this datapath. This must be
-    /// defined separately. This allows raw access to any parts of memory
-    /// or its own interface at will.
-    type MemoryType;
+    /// This enum describes all possible stages in the datapath. This is
+    /// used primarily for the visual datapath view. Must be convertable
+    /// into a string for highlighting purposes.
+    type StageEnum: Into<String>;
 
     /// Execute a single instruction based on the current state of the
     /// datapath. Should the datapath support stages, if the datapath is
@@ -45,8 +48,25 @@ pub trait Datapath {
     /// registers should be listed within [`Self::RegisterEnum`].
     fn get_register_by_enum(&self, register: Self::RegisterEnum) -> Self::RegisterData;
 
+    /// Sets the data in the register indicated by the provided enum.
+    fn set_register_by_enum(&self, _register: Self::RegisterEnum, _data: Self::RegisterData) {
+        todo!()
+    }
+
+    /// Loads the instructions from the provided array into an emulation core's
+    /// memory. This will also clear the memory of the emulation core and reset
+    /// the core's program counter.
+    fn load_instructions(&mut self, instructions: &[u8]) {
+        self.reset();
+        self.set_memory(0, instructions);
+    }
+
     /// Retrieve all memory as-is.
-    fn get_memory(&self) -> &Self::MemoryType;
+    fn get_memory(&self) -> &Memory;
+
+    fn set_memory(&mut self, _ptr: usize, _data: &[u8]) {
+        todo!()
+    }
 
     /// Returns if the datapath is in a "halted" or "stopped" state. This may
     /// be true in the case where an error had occurred previously.
@@ -54,6 +74,19 @@ pub trait Datapath {
 
     /// Restore the datapath to its default state.
     fn reset(&mut self);
+
+    // Information retrieval
+
+    /// Get the program counter from an emulation core, regardless of what
+    /// it's called.
+    fn get_pc(&self) -> Self::RegisterData {
+        todo!()
+    }
+
+    /// Gets the current stage the emulator core is in.
+    fn get_stage(&self) -> Self::StageEnum {
+        todo!()
+    }
 }
 
 /// A datapath that supports a visual diagram component.
@@ -61,10 +94,7 @@ pub trait Datapath {
 /// This requires a corresponding visual diagram with labels that can be mapped
 /// to the datapath.
 pub trait VisualDatapath {
-    /// The information about a piece of the diagram that is returned from the datapath.
-    type LineInformation;
-
     /// Return the information from the datapath corresponding to the `variable` attribute on a
     /// part of the visual datapath diagram.
-    fn visual_line_to_data(&self, variable: &str) -> Self::LineInformation;
+    fn visual_line_to_data(&self, variable: &str) -> LineInformation;
 }
