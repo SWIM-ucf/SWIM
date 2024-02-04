@@ -18,12 +18,13 @@ use crate::ui::hex_editor::component::HexEditor;
 pub struct Consoleprops {
     pub datapath: MipsDatapath,
     pub parsermsg: String,
-    pub memory_text_model: Rc<RefCell<TextModel>>,
-    pub memory_curr_line: UseStateHandle<f64>
+    pub memory_text_model: UseStateHandle<TextModel>,
+    pub memory_curr_line: UseStateHandle<f64>,
+    pub active_tab: UseStateHandle<TabState>,
 }
 
 #[derive(Default, PartialEq)]
-enum TabState {
+pub enum TabState {
     #[default]
     Console,
     Datapath,
@@ -32,7 +33,7 @@ enum TabState {
 
 #[function_component(Console)]
 pub fn console(props: &Consoleprops) -> Html {
-    let active_tab = use_state_eq(TabState::default);
+    let active_tab = &props.active_tab;
     let zoom_datapath = use_bool_toggle(false);
     let switch_datapath = use_bool_toggle(false);
     let change_tab = {
@@ -88,41 +89,41 @@ pub fn console(props: &Consoleprops) -> Html {
     html! {
     <>
             // Console buttons
-            if *active_tab == TabState::Console {
+            if **active_tab == TabState::Console {
                 <pre class="console">
                     { props.parsermsg.clone() }
                 </pre>
-            } else if *active_tab == TabState::Datapath {
+            } else if **active_tab == TabState::Datapath {
                 <div class="datapath-wrapper">
                     <VisualDatapath datapath={props.datapath.clone()} svg_path={svg_path} size={datapath_size} />
                 </div>
-            } else if *active_tab == TabState::HexEditor {
+            } else if **active_tab == TabState::HexEditor {
                 <div class="hex-wrapper">
-                    <HexEditor memory_text_model={&props.memory_text_model} curr_line={props.memory_curr_line.clone()}/>
+                    <HexEditor memory_text_model={props.memory_text_model.clone()} curr_line={props.memory_curr_line.clone()}/>
                 </div>
             }
             <div class="button-bar">
                 <div class="tabs">
-                    if *active_tab == TabState::Console {
+                    if **active_tab == TabState::Console {
                         <button class={classes!("bottom-tab", "pressed")} label="console" onclick={change_tab.clone()}>{"Console"}</button>
                     } else {
                         <button class="bottom-tab" label="console" onclick={change_tab.clone()}>{"Console"}</button>
                     }
 
-                    if *active_tab == TabState::Datapath {
+                    if **active_tab == TabState::Datapath {
                         <button class={classes!("bottom-tab", "pressed")} label="datapath" onclick={change_tab.clone()}>{"Datapath"}</button>
                     } else {
                         <button class="bottom-tab" label="datapath" onclick={change_tab.clone()}>{"Datapath"}</button>
                     }
 
-                    if *active_tab == TabState::HexEditor {
+                    if **active_tab == TabState::HexEditor {
                         <button class={classes!("bottom-tab", "pressed")} label="hex_editor" onclick={change_tab.clone()}>{"Hex Editor"}</button>
                     } else {
                         <button class="bottom-tab" label="hex_editor" onclick={change_tab.clone()}>{"Hex Editor"}</button>
                     }
                 </div>
 
-                if *active_tab == TabState::Datapath {
+                if **active_tab == TabState::Datapath {
                     <div class="buttons">
                         <button class={ classes!("bg-red-500", "button") } onclick={toggle_zoom}>{"Toggle Zoom"}</button>
                         <button class="button" onclick={switch_datapath_type}>{switch_datapath_button_label}</button>

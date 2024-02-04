@@ -16,7 +16,7 @@ use monaco::{
 };
 #[derive(PartialEq, Properties)]
 pub struct HexEditorProps {
-    pub memory_text_model: Rc<RefCell<TextModel>>,
+    pub memory_text_model: UseStateHandle<TextModel>,
     pub curr_line: UseStateHandle<f64>
 }
 
@@ -24,6 +24,7 @@ pub struct HexEditorProps {
 pub fn hex_editor(props: &HexEditorProps) -> Html {
     let editor_link = CodeEditorLink::new();
     let curr_line = *props.curr_line;
+    let text_model = &*props.memory_text_model;
 
     // create a JavaScript closure for hex highlighting
     let cb = Closure::wrap(Box::new(move |event: monaco::sys::editor::ICursorSelectionChangedEvent| {
@@ -86,7 +87,7 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             classes={"editor"}
             link={editor_link}
             options={get_options()}
-            model={props.memory_text_model.borrow().clone()}
+            model={text_model.clone()}
             on_editor_created={on_editor_created}
         />
     }

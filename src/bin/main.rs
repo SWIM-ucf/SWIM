@@ -14,7 +14,7 @@ use monaco::{
         IMarkdownString, MarkerSeverity,
     }
 };
-use swim::parser::parser_assembler_main::parser;
+use swim::{parser::parser_assembler_main::parser, ui::{console::component::TabState, swim_editor::component::EditorTabState}};
 use swim::parser::parser_structs_and_enums::ProgramInfo;
 use std::rc::Rc;
 use swim::agent::EmulationCoreAgent;
@@ -56,32 +56,16 @@ fn app(props: &AppProps) -> Html {
     // use_state_eq hook is created so that the component can be updated
     // when the text model changes.
     //let text_model = use_mut_ref(|| TextModel::create(&code, Some(&language), None).unwrap());
-    let text_model = use_mut_ref(|| TextModel::create(CONTENT, Some("mips"), None).unwrap());
+    let text_model = use_state_eq(|| TextModel::create(CONTENT, Some("mips"), None).unwrap());
 
     // Setup the array that would store decorations applied to the
     // text model and initialize the options for it.
     let hover_jsarray = js_sys::Array::new();
     let hover_decor_array = use_mut_ref(js_sys::Array::new);
 
-    // Setup the highlight stacks that would store which line
-    // was executed after the execute button is pressed.
-    let executed_line = js_sys::Array::new();
-    let not_highlighted = js_sys::Array::new();
+    // Store the currently executed line in code editor and hex editor
     let editor_curr_line = use_state_eq(|| 0.0);
-    // let memory_curr_line = use_mut_ref(|| 0.0);
     let memory_curr_line = use_state_eq(|| 0.0);
-
-    // Setting up the options/parameters which
-    // will highlight the previously executed line.
-    // The highlight decor does not need to be changed,
-    // the only parameter that will change is the range.
-    let highlight_decor = use_mut_ref(monaco::sys::editor::IModelDecorationOptions::default);
-    (*highlight_decor)
-        .borrow_mut()
-        .set_is_whole_line(true.into());
-    (*highlight_decor)
-        .borrow_mut()
-        .set_inline_class_name("myInlineDecoration".into());
 
     // Output strings for the console and memory viewers.
     let parser_text_output = use_state_eq(String::new);
@@ -94,9 +78,14 @@ fn app(props: &AppProps) -> Html {
     let program_info_ref = use_mut_ref(ProgramInfo::default);
     let binary_ref = use_mut_ref(Vec::<u32>::new);
 
-    let last_memory_text_model = use_mut_ref(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
+    // let last_memory_text_model = use_mut_ref(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
+    // let memory_text_model = use_mut_ref(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
+    let last_memory_text_model = use_state_eq(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
+    let memory_text_model = use_state_eq(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
 
-    let memory_text_model = use_mut_ref(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
+    // Store the currently selected tabs in windows
+    let console_active_tab = use_state_eq(TabState::default);
+    let editor_active_tab = use_state_eq(EditorTabState::default);
 
     // Since we want the Datapath to be independent from all the
     // events within the app, we will create it when the app loads. This is also done
@@ -118,33 +107,34 @@ fn app(props: &AppProps) -> Html {
     let on_assemble_clicked = {
         // props.communicator.send_test_message(1); // Test message, remove later.
         let communicator = props.communicator;
-        let text_model = Rc::clone(&text_model);
-        let memory_text_model = Rc::clone(&memory_text_model);
+        // let text_model = Rc::clone(&text_model);
+        let text_model = text_model.clone();
+        // let memory_text_model = Rc::clone(&memory_text_model);
+        let memory_text_model = memory_text_model.clone();
+        // let last_memory_text_model = Rc::clone(&last_memory_text_model);
+        let last_memory_text_model = last_memory_text_model.clone();
         let datapath = Rc::clone(&datapath);
         let parser_text_output = parser_text_output.clone();
-        let trigger = use_force_update();
+        let editor_curr_line = editor_curr_line.clone();
 
-        let executed_line = executed_line.clone();
-        let not_highlighted = not_highlighted.clone();
         // Clone the value before moving it into the closure
-        let last_memory_text_model = Rc::clone(&last_memory_text_model);
         let pc_limit = pc_limit.clone();
         let program_info_ref = Rc::clone(&program_info_ref);
         let binary_ref = Rc::clone(&binary_ref);
 
         use_callback(
-            move |_, text_model| {
+            move |_, (text_model, editor_curr_line)| {
                 communicator.send_test_message(); // Test message, remove later.
                 let mut datapath = datapath.borrow_mut();
-                let text_model = text_model.borrow_mut();
-                let memory_text_model = memory_text_model.borrow_mut();
+                let text_model = text_model.clone();
+                let memory_text_model = memory_text_model.clone();
                 // parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
                 let (program_info, assembled) = parser(text_model.get_value());
                 *program_info_ref.borrow_mut() = program_info.clone();
                 *binary_ref.borrow_mut() = assembled.clone();
                 pc_limit.set(assembled.len() * 4);
                 parser_text_output.set(program_info.console_out_post_assembly);
-                let last_memory_text_model = last_memory_text_model.borrow_mut();
+                let last_memory_text_model = last_memory_text_model.clone();
 
                 let mut markers: Vec<IMarkerData> = vec![];
 
@@ -175,15 +165,9 @@ fn app(props: &AppProps) -> Html {
                     "owner",
                     &marker_jsarray,
                 );
-                // Acts like reset and clears the highlight
-                let curr_model = text_model.as_ref();
-                executed_line.pop();
-                not_highlighted.set(
-                    0,
-                    curr_model
-                        .delta_decorations(&not_highlighted, &executed_line, None)
-                        .into(),
-                );
+
+                // Reset highlighted line to 0
+                editor_curr_line.set(0.0);
 
                 // Proceed with loading into memory and expand pseudo-instructions if there are no errors.
                 if marker_jsarray.length() == 0 {
@@ -202,10 +186,8 @@ fn app(props: &AppProps) -> Html {
                     last_memory_text_model.set_value(hexdump);
                     datapath.registers.pc = program_info.pc_starting_point as u64;
                 }
-
-                trigger.force_update();
             },
-            text_model,
+            (text_model, editor_curr_line),
         )
     };
 
@@ -219,24 +201,24 @@ fn app(props: &AppProps) -> Html {
         let datapath = Rc::clone(&datapath);
 
         // Code editor
-        let text_model = Rc::clone(&text_model);
-        let executed_line = executed_line.clone();
-        let not_highlighted = not_highlighted.clone();
-        let highlight_decor = highlight_decor.clone();
+        // let text_model = Rc::clone(&text_model);
+        let text_model = text_model.clone();
         let editor_curr_line = editor_curr_line.clone();
 
         // Hex editor
-        let memory_text_model = Rc::clone(&memory_text_model);
-        let last_memory_text_model = Rc::clone(&last_memory_text_model);
-        let trigger = use_force_update();
+        // let memory_text_model = Rc::clone(&memory_text_model);
+        let memory_text_model = memory_text_model.clone();
+        // let last_memory_text_model = Rc::clone(&last_memory_text_model);
+        let last_memory_text_model = last_memory_text_model.clone();
 
         use_callback(
             move |_, editor_curr_line| {
                 let mut datapath = datapath.borrow_mut();
-                let text_model = text_model.borrow_mut();
-                let highlight_decor = highlight_decor.borrow_mut();
-                let memory_text_model = memory_text_model.borrow_mut();
-                let last_memory_text_model = last_memory_text_model.borrow_mut();
+                let text_model = text_model.clone();
+                // let memory_text_model = Rc::clone(&memory_text_model);
+                let memory_text_model = memory_text_model.clone();
+                // let last_memory_text_model = Rc::clone(&last_memory_text_model);
+                let last_memory_text_model = last_memory_text_model.clone();
                 // let mut editor_curr_line = editor_curr_line.borrow_mut();
 
                 // Pull ProgramInfo from the parser
@@ -246,44 +228,6 @@ fn app(props: &AppProps) -> Html {
                 let list_of_line_numbers = programinfo.address_to_line_number;
                 let index = datapath.registers.pc as usize / 4;
                 editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0); // add one to account for the editor's line numbers
-                debug!("Setting curr line to {}", **editor_curr_line);
-
-                // Setup the range
-                let curr_model = text_model.as_ref();
-                let curr_range = monaco::sys::Range::new(**editor_curr_line, 0.0, **editor_curr_line, 0.0);
-
-                // element to be stored in the stack to highlight the line
-                let highlight_line: monaco::sys::editor::IModelDeltaDecoration =
-                    Object::new().unchecked_into();
-                highlight_line.set_options(&highlight_decor);
-                let range_js = curr_range
-                    .dyn_into::<JsValue>()
-                    .expect("Range is not found.");
-                highlight_line.set_range(&monaco::sys::IRange::from(range_js));
-                let highlight_js = highlight_line
-                    .dyn_into::<JsValue>()
-                    .expect("Highlight is not found.");
-
-                // log!("These are the stacks before the push");
-                // log!(executed_line.at(0));
-                // log!(not_highlighted.at(0));
-
-                // push the decoration onto the executed_line stack
-                executed_line.push(&highlight_js);
-
-                // it may look ugly, but it makes sense. Uncomment debug statements to see why.
-                not_highlighted.set(
-                    0,
-                    curr_model
-                        .delta_decorations(&not_highlighted, &executed_line, None)
-                        .into(),
-                );
-
-                // memory_text_model.as_ref().delta_decorations(&not_highlighted, &executed_line, None);
-
-                // log!("These are the stacks after the push");
-                // log!(executed_line.at(0));
-                // log!(not_highlighted.at(0));
 
                 // Execute instruction
                 datapath.execute_instruction();
@@ -293,15 +237,6 @@ fn app(props: &AppProps) -> Html {
 
                 memory_text_model.set_value(hexdump);
                 last_memory_text_model.set_value(hexdump);
-
-                // done with the highlight, prepare for the next one.
-                executed_line.pop();
-
-                // log!("These are the stacks after the pop");
-                // log!(executed_line.at(0));
-                // log!(not_highlighted.at(0));
-
-                trigger.force_update();
             },
             editor_curr_line,
         )
@@ -309,54 +244,35 @@ fn app(props: &AppProps) -> Html {
 
     let on_execute_stage_clicked = {
         let datapath = Rc::clone(&datapath);
-        let trigger = use_force_update();
 
         // Code editor
-        let text_model = Rc::clone(&text_model);
-        let executed_line = executed_line.clone();
-        let not_highlighted = not_highlighted.clone();
-        let highlight_decor = highlight_decor;
+        // let text_model = Rc::clone(&text_model);
+        let text_model = text_model.clone();
+        let editor_curr_line = editor_curr_line.clone();
 
         // Hex editor
-        let memory_text_model = Rc::clone(&memory_text_model);
-        let last_memory_text_model = Rc::clone(&last_memory_text_model);
+        // let memory_text_model = Rc::clone(&memory_text_model);
+        let memory_text_model = memory_text_model.clone();
+        // let last_memory_text_model = Rc::clone(&last_memory_text_model);
+        let last_memory_text_model = last_memory_text_model.clone();
 
         use_callback(
-            move |_, _| {
+            move |_, editor_curr_line| {
                 let mut datapath = datapath.borrow_mut();
-                let highlight_decor = highlight_decor.borrow_mut();
 
-                let memory_text_model = memory_text_model.borrow_mut();
-                let last_memory_text_model = last_memory_text_model.borrow_mut();
+                // let memory_text_model = Rc::clone(&memory_text_model);
+                let memory_text_model = memory_text_model.clone();
+                // let last_memory_text_model = Rc::clone(&last_memory_text_model);
+                let last_memory_text_model = last_memory_text_model.clone();
 
                 if datapath.current_stage == Stage::InstructionDecode {
                     // highlight on InstructionDecode since syscall stops at that stage.
-                    let text_model = text_model.borrow_mut();
+                    let text_model = text_model.clone();
                     let (programinfo, _) = parser(text_model.get_value());
                     let list_of_line_numbers = programinfo.address_to_line_number;
                     let index = datapath.registers.pc as usize / 4;
-                    let editor_curr_line = *list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0;
-                    let curr_model = text_model.as_ref();
-                    let curr_range = monaco::sys::Range::new(editor_curr_line, 0.0, editor_curr_line, 0.0);
-                    let highlight_line: monaco::sys::editor::IModelDeltaDecoration =
-                        Object::new().unchecked_into();
-                    highlight_line.set_options(&highlight_decor);
-                    let range_js = curr_range
-                        .dyn_into::<JsValue>()
-                        .expect("Range is not found.");
-                    highlight_line.set_range(&monaco::sys::IRange::from(range_js));
-                    let highlight_js = highlight_line
-                        .dyn_into::<JsValue>()
-                        .expect("Highlight is not found.");
-                    executed_line.push(&highlight_js);
-                    not_highlighted.set(
-                        0,
-                        curr_model
-                            .delta_decorations(&not_highlighted, &executed_line, None)
-                            .into(),
-                    );
+                    editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0);
                     datapath.execute_stage();
-                    executed_line.pop();
                 } else {
                     datapath.execute_stage();
                 }
@@ -366,33 +282,36 @@ fn app(props: &AppProps) -> Html {
 
                 memory_text_model.set_value(hexdump);
                 last_memory_text_model.set_value(hexdump);
-                trigger.force_update();
             },
-            (),
+            editor_curr_line,
         )
     };
 
     let on_memory_clicked = {
         let datapath = Rc::clone(&datapath);
-        let trigger = use_force_update();
 
         // Code editor
-        let text_model = Rc::clone(&text_model);
+        // let text_model = Rc::clone(&text_model);
+        let text_model = text_model.clone();
 
         // Hex editor
-        let memory_text_model = Rc::clone(&memory_text_model);
-        let last_memory_text_model = Rc::clone(&last_memory_text_model);
+        // let memory_text_model = Rc::clone(&memory_text_model);
+        let memory_text_model = memory_text_model.clone();
+        // let last_memory_text_model = Rc::clone(&last_memory_text_model);
+        let last_memory_text_model = last_memory_text_model.clone();
 
         use_callback(
             move |_, _| {
                 let mut datapath = datapath.borrow_mut();
-                let text_model = text_model.borrow_mut();
+                let text_model = text_model.clone();
 
                 let (programinfo, binary) = parser(text_model.get_value());
 
                 // Update memory
-                let memory_text_model = memory_text_model.borrow_mut();
-                let last_memory_text_model = last_memory_text_model.borrow_mut();
+                // let memory_text_model = Rc::clone(&memory_text_model);
+                let memory_text_model = memory_text_model.clone();
+                // let last_memory_text_model = Rc::clone(&last_memory_text_model);
+                let last_memory_text_model = last_memory_text_model.clone();
 
                 let last_memory_text_model_value = last_memory_text_model.get_value();
                 let current_memory_text_model_value = memory_text_model.get_value();
@@ -471,8 +390,6 @@ fn app(props: &AppProps) -> Html {
                 memory_text_model.set_value(hexdump);
                 last_memory_text_model.set_value(hexdump);
 
-                trigger.force_update();
-
             },
             (),
         )
@@ -482,53 +399,47 @@ fn app(props: &AppProps) -> Html {
     // This will also clear any highlight on the editor.
     let on_reset_clicked = {
         let datapath = Rc::clone(&datapath);
-        let trigger = use_force_update();
 
         // Code editor
-        let text_model = Rc::clone(&text_model);
         let parser_text_output = parser_text_output.clone();
-
-        let executed_line = executed_line;
-        let not_highlighted = not_highlighted;
+        let editor_curr_line = editor_curr_line.clone();
 
         // Hex editor
-        let memory_text_model = Rc::clone(&memory_text_model);
-        let last_memory_text_model = Rc::clone(&last_memory_text_model);
+        // let memory_text_model = Rc::clone(&memory_text_model);
+        let memory_text_model = memory_text_model.clone();
+        // let last_memory_text_model = Rc::clone(&last_memory_text_model);
+        let last_memory_text_model = last_memory_text_model.clone();
 
         use_callback(
-            move |_, _| {
+            move |_, editor_curr_line| {
                 let mut datapath = datapath.borrow_mut();
-                let text_model = text_model.borrow_mut();
-                let curr_model = text_model.as_ref();
-                executed_line.pop();
-                not_highlighted.set(
-                    0,
-                    curr_model
-                        .delta_decorations(&not_highlighted, &executed_line, None)
-                        .into(),
-                );
+
+                // Set highlighted line to 0
+                editor_curr_line.set(0.0);
+
                 parser_text_output.set("".to_string());
                 datapath.reset();
 
                 // Clear hex editor content
-                let memory_text_model = memory_text_model.borrow_mut();
-                let last_memory_text_model = last_memory_text_model.borrow_mut();
+                // let memory_text_model = Rc::clone(&memory_text_model);
+                let memory_text_model = memory_text_model.clone();
+                // let last_memory_text_model = Rc::clone(&last_memory_text_model);
+                let last_memory_text_model = last_memory_text_model.clone();
 
                 memory_text_model.set_value("");
                 last_memory_text_model.set_value("");
-
-                trigger.force_update();
             },
-            (),
+            editor_curr_line,
         )
     };
 
     // Copies text to the user's clipboard
     let on_clipboard_clicked = {
-        let text_model = Rc::clone(&text_model);
+        // let text_model = Rc::clone(&text_model);
+        let text_model = text_model.clone();
         let clipboard = use_clipboard();
         Callback::from(move |_: _| {
-            let text_model = text_model.borrow_mut();
+            let text_model = text_model.clone();
             clipboard.write_text(text_model.get_value());
             alert("Your code is saved to the clipboard.\nPaste it onto a text file to save it.\n(Ctrl/Cmd + V)");
         })
@@ -536,11 +447,12 @@ fn app(props: &AppProps) -> Html {
 
     // We'll have the Mouse Hover event running at all times.
     {
-        let text_model = Rc::clone(&text_model);
+        // let text_model = Rc::clone(&text_model);
+        let text_model = text_model.clone();
         use_event_with_window("mouseover", move |_: MouseEvent| {
             let hover_jsarray = hover_jsarray.clone();
             let hover_decor_array = hover_decor_array.clone();
-            let text_model = text_model.borrow_mut();
+            let text_model = text_model.clone();
             let curr_model = text_model.as_ref();
             let (program_info, _) = parser(text_model.get_value());
 
@@ -609,10 +521,11 @@ fn app(props: &AppProps) -> Html {
 
     // This is the callback to get the file's contents and load it onto the Editor
     let file_picked_callback = {
-        let text_model = Rc::clone(&text_model);
+        // let text_model = Rc::clone(&text_model);
+        let text_model = text_model.clone();
         use_callback(
             move |e: Event, _| {
-                let text_model = text_model.borrow_mut().clone();
+                let text_model = text_model.clone();
                 let input: HtmlInputElement = e.target_unchecked_into();
                 // gloo making the code readable and easy to implement
                 let filelist = FileList::from(input.files().unwrap());
@@ -654,11 +567,11 @@ fn app(props: &AppProps) -> Html {
 
                     // Editor
                     <div class="code">
-                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} binary={binary_ref.borrow().clone()} memory_curr_line={memory_curr_line.clone()} editor_curr_line={editor_curr_line.clone()} pc={(*datapath.borrow()).clone().registers.pc}/>
+                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} binary={binary_ref.borrow().clone()} memory_curr_line={memory_curr_line.clone()} editor_curr_line={editor_curr_line.clone()} active_tab={editor_active_tab.clone()} pc={(*datapath.borrow()).clone().registers.pc}/>
                     </div>
 
                     // Console
-                    <Console parsermsg={(*parser_text_output).clone()} datapath={(*datapath.borrow()).clone()} memory_text_model={memory_text_model} memory_curr_line={memory_curr_line.clone()}/>
+                    <Console parsermsg={(*parser_text_output).clone()} datapath={(*datapath.borrow()).clone()} memory_text_model={memory_text_model} memory_curr_line={memory_curr_line.clone()} active_tab={console_active_tab.clone()}/>
                 </div>
 
                 // Right column
