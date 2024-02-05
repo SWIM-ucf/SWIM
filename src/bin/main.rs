@@ -6,13 +6,11 @@ use js_sys::Object;
 use monaco::{
     api::TextModel,
     sys::{
-        editor::{
-            IMarkerData
-        },
+        editor::IMarkerData,
         MarkerSeverity,
     }
 };
-use swim::{parser::parser_assembler_main::parser, ui::{console::component::ConsoleTabState, swim_editor::component::EditorTabState}};
+use swim::{parser::parser_assembler_main::parser, ui::{footer::component::FooterTabState, swim_editor::component::EditorTabState}};
 use swim::parser::parser_structs_and_enums::ProgramInfo;
 use std::rc::Rc;
 use swim::agent::EmulationCoreAgent;
@@ -20,7 +18,7 @@ use swim::agent::datapath_communicator::DatapathCommunicator;
 use swim::emulation_core::datapath::Datapath;
 use swim::emulation_core::mips::datapath::MipsDatapath;
 use swim::emulation_core::mips::datapath::Stage;
-use swim::ui::console::component::Console;
+use swim::ui::footer::component::Footer;
 use swim::ui::regview::component::Regview;
 use swim::ui::swim_editor::component::SwimEditor;
 use wasm_bindgen::{JsCast, JsValue};
@@ -73,8 +71,12 @@ fn app(props: &AppProps) -> Html {
 
     let memory_text_model = use_state_eq(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
 
+    // Show input
+    let show_input = use_state_eq(|| bool::default());
+    show_input.set(true);
+
     // Store the currently selected tabs in windows
-    let console_active_tab = use_state_eq(ConsoleTabState::default);
+    let console_active_tab = use_state_eq(FooterTabState::default);
     let editor_active_tab = use_state_eq(EditorTabState::default);
 
     // Since we want the Datapath to be independent from all the
@@ -483,7 +485,7 @@ fn app(props: &AppProps) -> Html {
                     </div>
 
                     // Console
-                    <Console parsermsg={(*parser_text_output).clone()} datapath={(*datapath.borrow()).clone()} memory_text_model={memory_text_model} memory_curr_instr={memory_curr_instr.clone()} active_tab={console_active_tab.clone()}/>
+                    <Footer parsermsg={(*parser_text_output).clone()} datapath={(*datapath.borrow()).clone()} memory_text_model={memory_text_model} memory_curr_instr={memory_curr_instr.clone()} active_tab={console_active_tab.clone()} communicator={props.communicator} show_input={show_input.clone()}/>
                 </div>
 
                 // Right column

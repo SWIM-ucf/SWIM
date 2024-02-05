@@ -8,7 +8,7 @@ use yew::prelude::*;
 use wasm_bindgen::JsCast;
 use log::debug;
 use crate::parser::parser_structs_and_enums::ProgramInfo;
-use crate::ui::console::component::ConsoleTabState;
+use crate::ui::footer::component::FooterTabState;
 use crate::ui::swim_editor::component::EditorTabState;
 
 
@@ -20,7 +20,7 @@ pub struct TextSegmentProps {
     pub editor_curr_line: UseStateHandle<f64>,
     pub pc: u64,
     pub editor_active_tab: UseStateHandle<EditorTabState>,
-    pub console_active_tab: UseStateHandle<ConsoleTabState>
+    pub console_active_tab: UseStateHandle<FooterTabState>
 }
 #[derive(PartialEq, Properties)]
 pub struct DataSegmentProps {
@@ -30,7 +30,7 @@ pub struct DataSegmentProps {
     pub memory_curr_instr: UseStateHandle<u64>,
     pub editor_curr_line: UseStateHandle<f64>,
     pub editor_active_tab: UseStateHandle<EditorTabState>,
-    pub console_active_tab: UseStateHandle<ConsoleTabState>,
+    pub console_active_tab: UseStateHandle<FooterTabState>,
     pub pc_limit: usize
 }
 
@@ -72,7 +72,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
         use_callback(move |args: (MouseEvent, usize), memory_curr_instr| {
             let (_e, address) = args;
             memory_curr_instr.set(address as u64);
-            console_active_tab.set(ConsoleTabState::HexEditor);
+            console_active_tab.set(FooterTabState::HexEditor);
         }, memory_curr_instr)
     };
 
@@ -185,7 +185,7 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
         use_callback(move |args: (MouseEvent, usize), memory_curr_instr| {
             let (_e, address) = args;
             memory_curr_instr.set(address as u64);
-            console_active_tab.set(ConsoleTabState::HexEditor);
+            console_active_tab.set(FooterTabState::HexEditor);
         }, memory_curr_instr)
     };
 

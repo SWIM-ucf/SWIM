@@ -160,8 +160,8 @@ body {
   }
 }
 
-/****** Console ******/
-.console {
+/****** Footer ******/
+.console-wrapper {
   border: 3px groove #ccc;
   background: #012456;
   color: #ccc;
@@ -174,6 +174,29 @@ body {
   padding-left: 25px;
   min-height: max(20%, 8em);
   max-height: 50%;
+}
+
+.console-input {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  color: white;
+  position: relative;
+}
+
+.console-input input {
+  width: 100%;
+  background: #012456;
+  color: white !important;
+  margin-left: 25px;
+}
+
+.console-arrow {
+  height: 15px;
+  width: 15px;
+  fill: white;
+  position: absolute;
+  left: 0px;
 }
 
 .hex-wrapper {

@@ -8,7 +8,7 @@ use yew_hooks::prelude::*;
 use yew::prelude::*;
 use wasm_bindgen::{JsCast, JsValue};
 
-use crate::{parser::parser_structs_and_enums::ProgramInfo, ui::{assembled_view::component::{DataSegment, TextSegment}, console::component::ConsoleTabState}};
+use crate::{parser::parser_structs_and_enums::ProgramInfo, ui::{assembled_view::component::{DataSegment, TextSegment}, footer::component::FooterTabState}};
 
 #[derive(PartialEq, Properties)]
 pub struct SwimEditorProps {
@@ -21,7 +21,7 @@ pub struct SwimEditorProps {
     pub memory_curr_instr: UseStateHandle<u64>,
     pub editor_curr_line: UseStateHandle<f64>,
     pub editor_active_tab: UseStateHandle<EditorTabState>,
-    pub console_active_tab: UseStateHandle<ConsoleTabState>
+    pub console_active_tab: UseStateHandle<FooterTabState>
 }
 
 #[derive(Default, PartialEq)]
@@ -84,7 +84,6 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                     let mut lines_content = lines_content.borrow_mut();
                     let mut lines = Vec::new();
                     for i in 1..line_count {
-                        log::debug!("line {}: {}", i, model.get_line_content(i as f64));
                         lines.push(model.get_line_content(i as f64));
                     }
                     *lines_content = lines;

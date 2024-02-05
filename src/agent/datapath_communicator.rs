@@ -159,4 +159,8 @@ impl DatapathCommunicator {
     ) -> Box<dyn VisualDatapath> {
         todo!()
     }
+
+    pub fn get_accepting_input(&self) -> bool {
+        todo!()
+    }
 }
