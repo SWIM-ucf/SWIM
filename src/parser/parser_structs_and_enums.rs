@@ -13,6 +13,7 @@ pub struct ProgramInfo {
     pub instructions: Vec<Instruction>,
     pub data: Vec<Data>,
     pub pc_starting_point: usize,
+    pub data_starting_point: usize,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]

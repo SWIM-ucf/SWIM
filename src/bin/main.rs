@@ -7,11 +7,9 @@ use monaco::{
     api::TextModel,
     sys::{
         editor::{
-            IMarkerData,
-            IModelDecorationOptions,
-            IModelDeltaDecoration,
+            IMarkerData
         },
-        IMarkdownString, MarkerSeverity,
+        MarkerSeverity,
     }
 };
 use swim::{parser::parser_assembler_main::parser, ui::{console::component::ConsoleTabState, swim_editor::component::EditorTabState}};
@@ -58,11 +56,6 @@ fn app(props: &AppProps) -> Html {
     //let text_model = use_mut_ref(|| TextModel::create(&code, Some(&language), None).unwrap());
     let text_model = use_state_eq(|| TextModel::create(CONTENT, Some("mips"), None).unwrap());
 
-    // Setup the array that would store decorations applied to the
-    // text model and initialize the options for it.
-    let hover_jsarray = js_sys::Array::new();
-    let hover_decor_array = use_mut_ref(js_sys::Array::new);
-
     // Store the currently executed line in code editor and hex editor
     let editor_curr_line = use_state_eq(|| 0.0);
     let memory_curr_instr = use_state_eq(|| 0);
@@ -78,9 +71,6 @@ fn app(props: &AppProps) -> Html {
     let program_info_ref = use_mut_ref(ProgramInfo::default);
     let binary_ref = use_mut_ref(Vec::<u32>::new);
 
-    // let last_memory_text_model = use_mut_ref(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
-    // let memory_text_model = use_mut_ref(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
-    let last_memory_text_model = use_state_eq(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
     let memory_text_model = use_state_eq(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
 
     // Store the currently selected tabs in windows
@@ -107,13 +97,9 @@ fn app(props: &AppProps) -> Html {
     let on_assemble_clicked = {
         // props.communicator.send_test_message(1); // Test message, remove later.
         let communicator = props.communicator;
-        // let text_model = Rc::clone(&text_model);
         let text_model = text_model.clone();
-        // let memory_text_model = Rc::clone(&memory_text_model);
         let memory_text_model = memory_text_model.clone();
         let memory_curr_instr = memory_curr_instr.clone();
-        // let last_memory_text_model = Rc::clone(&last_memory_text_model);
-        let last_memory_text_model = last_memory_text_model.clone();
         let datapath = Rc::clone(&datapath);
         let parser_text_output = parser_text_output.clone();
         let trigger = use_force_update();
@@ -135,7 +121,6 @@ fn app(props: &AppProps) -> Html {
                 *binary_ref.borrow_mut() = assembled.clone();
                 pc_limit.set(assembled.len() * 4);
                 parser_text_output.set(program_info.console_out_post_assembly);
-                let last_memory_text_model = last_memory_text_model.clone();
 
                 let mut markers: Vec<IMarkerData> = vec![];
 
@@ -185,7 +170,6 @@ fn app(props: &AppProps) -> Html {
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
                     let hexdump = &datapath.memory.generate_formatted_hex();
                     memory_text_model.set_value(hexdump);
-                    last_memory_text_model.set_value(hexdump);
                     datapath.registers.pc = program_info.pc_starting_point as u64;
                 }
 
@@ -203,34 +187,25 @@ fn app(props: &AppProps) -> Html {
     // code, the previously executed line is highlighted.
     let on_execute_clicked = {
         let datapath = Rc::clone(&datapath);
+        let program_info_ref = Rc::clone(&program_info_ref);
 
         // Code editor
-        // let text_model = Rc::clone(&text_model);
-        let text_model = text_model.clone();
         let editor_curr_line = editor_curr_line.clone();
         let memory_curr_instr = memory_curr_instr.clone();
 
         // Hex editor
-        // let memory_text_model = Rc::clone(&memory_text_model);
         let memory_text_model = memory_text_model.clone();
-        // let last_memory_text_model = Rc::clone(&last_memory_text_model);
-        let last_memory_text_model = last_memory_text_model.clone();
+
         let trigger = use_force_update();
 
         use_callback(
             move |_, (editor_curr_line, memory_curr_instr)| {
                 let mut datapath = datapath.borrow_mut();
-                let text_model = text_model.clone();
-                // let memory_text_model = Rc::clone(&memory_text_model);
                 let memory_text_model = memory_text_model.clone();
-                // let last_memory_text_model = Rc::clone(&last_memory_text_model);
-                let last_memory_text_model = last_memory_text_model.clone();
-                // let mut editor_curr_line = editor_curr_line.borrow_mut();
-
-                // Pull ProgramInfo from the parser
-                let (programinfo, _) = parser(text_model.get_value());
 
                 // Get the current line and convert it to f64
+                let programinfo = Rc::clone(&program_info_ref);
+                let programinfo = programinfo.borrow().clone();
                 let list_of_line_numbers = programinfo.address_to_line_number;
                 let index = datapath.registers.pc as usize / 4;
                 editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0); // add one to account for the editor's line numbers
@@ -243,7 +218,6 @@ fn app(props: &AppProps) -> Html {
                 let hexdump = &datapath.memory.generate_formatted_hex();
 
                 memory_text_model.set_value(hexdump);
-                last_memory_text_model.set_value(hexdump);
 
                 trigger.force_update();
             },
@@ -253,33 +227,27 @@ fn app(props: &AppProps) -> Html {
 
     let on_execute_stage_clicked = {
         let datapath = Rc::clone(&datapath);
+        let program_info_ref = Rc::clone(&program_info_ref);
 
         // Code editor
-        // let text_model = Rc::clone(&text_model);
-        let text_model = text_model.clone();
         let editor_curr_line = editor_curr_line.clone();
-        let trigger = use_force_update();
 
         // Hex editor
-        // let memory_text_model = Rc::clone(&memory_text_model);
         let memory_text_model = memory_text_model.clone();
-        // let last_memory_text_model = Rc::clone(&last_memory_text_model);
-        let last_memory_text_model = last_memory_text_model.clone();
         let memory_curr_instr = memory_curr_instr.clone();
+
+        let trigger = use_force_update();
 
         use_callback(
             move |_, (editor_curr_line, memory_curr_instr)| {
                 let mut datapath = datapath.borrow_mut();
 
-                // let memory_text_model = Rc::clone(&memory_text_model);
                 let memory_text_model = memory_text_model.clone();
-                // let last_memory_text_model = Rc::clone(&last_memory_text_model);
-                let last_memory_text_model = last_memory_text_model.clone();
 
                 if datapath.current_stage == Stage::InstructionDecode {
                     // highlight on InstructionDecode since syscall stops at that stage.
-                    let text_model = text_model.clone();
-                    let (programinfo, _) = parser(text_model.get_value());
+                    let programinfo = Rc::clone(&program_info_ref);
+                    let programinfo = programinfo.borrow().clone();
                     let list_of_line_numbers = programinfo.address_to_line_number;
                     let index = datapath.registers.pc as usize / 4;
                     editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0);
@@ -293,7 +261,7 @@ fn app(props: &AppProps) -> Html {
                 let hexdump = &datapath.memory.generate_formatted_hex();
 
                 memory_text_model.set_value(hexdump);
-                last_memory_text_model.set_value(hexdump);
+
                 trigger.force_update();
             },
             (editor_curr_line, memory_curr_instr),
@@ -302,107 +270,104 @@ fn app(props: &AppProps) -> Html {
 
     let on_memory_clicked = {
         let datapath = Rc::clone(&datapath);
-        let trigger = use_force_update();
+        let program_info_ref = Rc::clone(&program_info_ref);
 
         // Code editor
-        // let text_model = Rc::clone(&text_model);
         let text_model = text_model.clone();
 
         // Hex editor
-        // let memory_text_model = Rc::clone(&memory_text_model);
         let memory_text_model = memory_text_model.clone();
-        // let last_memory_text_model = Rc::clone(&last_memory_text_model);
-        let last_memory_text_model = last_memory_text_model.clone();
+
+        let trigger = use_force_update();
 
         use_callback(
             move |_, _| {
                 let mut datapath = datapath.borrow_mut();
                 let text_model = text_model.clone();
 
-                let (programinfo, binary) = parser(text_model.get_value());
+                let program_info_ref = Rc::clone(&program_info_ref);
 
                 // Update memory
-                // let memory_text_model = Rc::clone(&memory_text_model);
                 let memory_text_model = memory_text_model.clone();
-                // let last_memory_text_model = Rc::clone(&last_memory_text_model);
-                let last_memory_text_model = last_memory_text_model.clone();
 
-                let last_memory_text_model_value = last_memory_text_model.get_value();
                 let current_memory_text_model_value = memory_text_model.get_value();
 
-                if current_memory_text_model_value != last_memory_text_model_value {
-                    match datapath.memory.parse_hexdump(&current_memory_text_model_value) {
-                        Ok(instructions) => {
-                            debug!("Memory parsed with no errors.");
-                            match datapath.memory.store_hexdump(instructions) {
-                                Ok(changed_lines) => {
-                                    debug!("Memory updated successfully. Changed lines:");
-                                    debug!("{:?}", changed_lines);
-                                    let mut lines_beyond_counter = programinfo.address_to_line_number.len();
-                                    let mut curr_value = text_model.get_value().to_owned();
-                                    let mut add_new_lines = false;
-                                    for line in changed_lines {
-                                        if line.line_number < programinfo.address_to_line_number.len() {
-                                            debug!("{}", binary[line.line_number]);
-                                            debug!("{}", programinfo.address_to_line_number[line.line_number]);
-                                            let updated_line = programinfo.address_to_line_number[line.line_number] as f64 + 1.0;
-                                            let curr_model = text_model.as_ref();
+                match datapath.memory.parse_hexdump(&current_memory_text_model_value) {
+                    Ok(instructions) => {
+                        // Memory parsed with no errors
+                        match datapath.memory.store_hexdump(instructions) {
+                            Ok(changed_lines) => {
+                                // Memory updated successfully
+                                let program_info = program_info_ref.borrow().clone();
+                                let mut lines_beyond_counter = program_info.address_to_line_number.len();
+                                let mut curr_value = text_model.get_value().to_owned();
+                                let mut add_new_lines = false;
+                                for line in changed_lines {
+                                    // Check if we're updating or appending instruction
+                                    if line.line_number < program_info.address_to_line_number.len() {
+                                        let updated_line = program_info.address_to_line_number[line.line_number] as f64 + 1.0;
+                                        let curr_model = text_model.as_ref();
 
-                                            let line_to_replace = curr_model.get_line_content(updated_line);
-                                            let mut start_line_column = 0.0;
-                                            let end_line_column = line_to_replace.len() as f64 + 2.0;
-                                            for (i, c) in line_to_replace.chars().enumerate() {
-                                                if c.is_alphanumeric() {
-                                                    start_line_column = i as f64 + 1.0;
-                                                    break;
-                                                }
+                                        // Get the current line's contents in the code editor
+                                        let line_to_replace = curr_model.get_line_content(updated_line);
+                                        // Create the range to replace
+                                        let mut start_line_column = 0.0;
+                                        let end_line_column = line_to_replace.len() as f64 + 2.0;
+                                        for (i, c) in line_to_replace.chars().enumerate() {
+                                            if c.is_alphanumeric() {
+                                                start_line_column = i as f64 + 1.0;
+                                                break;
                                             }
-                                            debug!("Line to replace -> {:?}, {:?}: {:?}: {:?}: {:?}", line_to_replace, updated_line, start_line_column, updated_line, end_line_column);
-
-                                            let edit_range = monaco::sys::Range::new(updated_line, start_line_column, updated_line, end_line_column);
-                                            let before_cursor_state = monaco::sys::Selection::new(updated_line, start_line_column, updated_line,end_line_column);
-                                            let edit_operations: monaco::sys::editor::IIdentifiedSingleEditOperation = Object::new().unchecked_into();
-                                            edit_operations.set_range(&edit_range);
-                                            edit_operations.set_text(Some(&line.text));
-                                            let edit_operations_array = js_sys::Array::new();
-                                            edit_operations_array.push(&edit_operations);
-                                            let before_cursor_state_array = js_sys::Array::new();
-                                            before_cursor_state_array.push(&before_cursor_state);
-                                            curr_model.push_edit_operations(&before_cursor_state_array, &edit_operations_array, None);
-                                        } else if line.line_number == lines_beyond_counter {
-                                            debug!("Adding new line: {}", &line.text);
-                                            // check if we've added new lines already
-                                            if !add_new_lines {
-                                                // start adding new lines by getting a copy of the current text model to append to
-                                                add_new_lines = true;
-                                                curr_value = text_model.get_value();
-                                            }
-                                            curr_value.push_str("\n");
-                                            curr_value.push_str(&line.text);
-                                            lines_beyond_counter += 1;
                                         }
+                                        let edit_range = monaco::sys::Range::new(updated_line, start_line_column, updated_line, end_line_column);
+                                        let before_cursor_state = monaco::sys::Selection::new(updated_line, start_line_column, updated_line,end_line_column);
+                                        // Create the edit operation using the range and new text
+                                        let edit_operations: monaco::sys::editor::IIdentifiedSingleEditOperation = Object::new().unchecked_into();
+                                        edit_operations.set_range(&edit_range);
+                                        edit_operations.set_text(Some(&line.text));
+                                        // Append it to JavaScript Array
+                                        let edit_operations_array = js_sys::Array::new();
+                                        edit_operations_array.push(&edit_operations);
+                                        let before_cursor_state_array = js_sys::Array::new();
+                                        before_cursor_state_array.push(&before_cursor_state);
+                                        // Do the edit!
+                                        curr_model.push_edit_operations(&before_cursor_state_array, &edit_operations_array, None);
+                                    } else if line.line_number == lines_beyond_counter {
+                                        // Append instruction
+                                        if !add_new_lines {
+                                            // If we've added new lines already,
+                                            // start adding new lines by getting a copy of the current text model to append to
+                                            add_new_lines = true;
+                                            curr_value = text_model.get_value();
+                                        }
+                                        curr_value.push_str("\n");
+                                        curr_value.push_str(&line.text);
+                                        lines_beyond_counter += 1;
                                     }
-                                    if add_new_lines {
-                                        text_model.set_value(&curr_value);
-                                    }
-
-                                },
-                                Err(err) => {
-                                    debug!("Error: {}", err)
                                 }
-                            };
-                            ()
-                        },
-                        Err(err) => {
-                            debug!("Error updating memory: {}", err)
-                        }
+                                if add_new_lines {
+                                    text_model.set_value(&curr_value);
+                                }
+
+                            },
+                            Err(err) => {
+                                debug!("Error: {}", err)
+                            }
+                        };
+                        ()
+                    },
+                    Err(err) => {
+                        debug!("Error updating memory: {}", err)
                     }
                 }
 
                 let hexdump = &datapath.memory.generate_formatted_hex();
 
                 memory_text_model.set_value(hexdump);
-                last_memory_text_model.set_value(hexdump);
+
+                // Update the parsed info for text and data segment views
+                let (program_info, _) = parser(text_model.get_value());
+                *program_info_ref.borrow_mut() = program_info.clone();
 
                 trigger.force_update();
 
@@ -422,10 +387,7 @@ fn app(props: &AppProps) -> Html {
         let editor_curr_line = editor_curr_line.clone();
 
         // Hex editor
-        // let memory_text_model = Rc::clone(&memory_text_model);
         let memory_text_model = memory_text_model.clone();
-        // let last_memory_text_model = Rc::clone(&last_memory_text_model);
-        let last_memory_text_model = last_memory_text_model.clone();
         let memory_curr_instr = memory_curr_instr.clone();
 
         use_callback(
@@ -440,13 +402,9 @@ fn app(props: &AppProps) -> Html {
                 datapath.reset();
 
                 // Clear hex editor content
-                // let memory_text_model = Rc::clone(&memory_text_model);
                 let memory_text_model = memory_text_model.clone();
-                // let last_memory_text_model = Rc::clone(&last_memory_text_model);
-                let last_memory_text_model = last_memory_text_model.clone();
 
                 memory_text_model.set_value("");
-                last_memory_text_model.set_value("");
 
                 trigger.force_update();
             },
@@ -456,7 +414,6 @@ fn app(props: &AppProps) -> Html {
 
     // Copies text to the user's clipboard
     let on_clipboard_clicked = {
-        // let text_model = Rc::clone(&text_model);
         let text_model = text_model.clone();
         let clipboard = use_clipboard();
         Callback::from(move |_: _| {
@@ -464,71 +421,6 @@ fn app(props: &AppProps) -> Html {
             clipboard.write_text(text_model.get_value());
             alert("Your code is saved to the clipboard.\nPaste it onto a text file to save it.\n(Ctrl/Cmd + V)");
         })
-    };
-
-    // We'll have the Mouse Hover event running at all times.
-    {
-        // let text_model = Rc::clone(&text_model);
-        let text_model = text_model.clone();
-        use_event_with_window("mouseover", move |_: MouseEvent| {
-            let hover_jsarray = hover_jsarray.clone();
-            let hover_decor_array = hover_decor_array.clone();
-            let text_model = text_model.clone();
-            let curr_model = text_model.as_ref();
-            let (program_info, _) = parser(text_model.get_value());
-
-            // Parse output from parser and create an instance of IModelDeltaDecoration for each line.
-            for (line_number, line_information) in program_info.monaco_line_info.iter().enumerate()
-            {
-                let decoration: IModelDeltaDecoration = new_object().into();
-
-                let hover_range = monaco::sys::Range::new(
-                    (line_number + 1) as f64,
-                    0.0,
-                    (line_number + 1) as f64,
-                    0.0,
-                );
-                let hover_range_js = hover_range
-                    .dyn_into::<JsValue>()
-                    .expect("Range is not found.");
-                decoration.set_range(&monaco::sys::IRange::from(hover_range_js));
-
-                let hover_opts: IModelDecorationOptions = new_object().into();
-                hover_opts.set_is_whole_line(true.into());
-                let hover_message: IMarkdownString = new_object().into();
-                js_sys::Reflect::set(
-                    &hover_message,
-                    &JsValue::from_str("value"),
-                    &JsValue::from_str(&line_information.mouse_hover_string),
-                )
-                .unwrap();
-                hover_opts.set_hover_message(&hover_message);
-                decoration.set_options(&hover_opts);
-                let hover_js = decoration
-                    .dyn_into::<JsValue>()
-                    .expect("Hover is not found.");
-                hover_jsarray.push(&hover_js);
-            }
-
-            // log!("This is the array after the push");
-            // log!(hover_jsarray.clone());
-
-            // properly pass the handlers onto the array
-            let new_hover_decor_array =
-                curr_model.delta_decorations(&hover_decor_array.borrow_mut(), &hover_jsarray, None);
-            *hover_decor_array.borrow_mut() = new_hover_decor_array;
-
-            // log!("These are the arrays after calling Delta Decorations");
-            // log!(hover_jsarray.clone());
-            // log!(hover_decor_array.borrow_mut().clone());
-
-            // empty out the array that hold the decorations
-            hover_jsarray.set_length(0);
-
-            // log!("These are the arrays after calling popping the hover_jsarray");
-            // log!(hover_jsarray.clone());
-            // log!(hover_decor_array.borrow_mut().clone());
-        });
     };
 
     // This is where we will have the user prompted to load in a file
@@ -542,7 +434,6 @@ fn app(props: &AppProps) -> Html {
 
     // This is the callback to get the file's contents and load it onto the Editor
     let file_picked_callback = {
-        // let text_model = Rc::clone(&text_model);
         let text_model = text_model.clone();
         use_callback(
             move |e: Event, _| {
@@ -588,7 +479,7 @@ fn app(props: &AppProps) -> Html {
 
                     // Editor
                     <div class="code">
-                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} binary={binary_ref.borrow().clone()} memory_curr_instr={memory_curr_instr.clone()} editor_curr_line={editor_curr_line.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} pc={(*datapath.borrow()).clone().registers.pc}/>
+                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} pc_limit={*pc_limit} binary={binary_ref.borrow().clone()} memory_curr_instr={memory_curr_instr.clone()} editor_curr_line={editor_curr_line.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} pc={(*datapath.borrow()).clone().registers.pc}/>
                     </div>
 
                     // Console

@@ -56,11 +56,11 @@ body {
   min-width: 100%;
 }
 .executedLine {
-	/* color: rgb(49, 212, 144) !important; */
+  color: rgb(0 255 149) !important;
 	font-weight: bold;
-  animation-name: flash_executed;
-  animation-duration: 3s;
-  animation-fill-mode: forwards;
+  /* animation-name: flash_executed;
+  animation-duration: 2s;
+  animation-fill-mode: forwards; */
 }
 .updatedLine {
 	/* color: rgb(49, 212, 144) !important; */
@@ -76,13 +76,13 @@ body {
 
 @keyframes flash_executed {
   from {
-    color: rgb(49, 212, 144);
+    color: transparent;
   }
   to {
-    color: rgb(49, 212, 144);
+    color: transparent;
   }
   to {
-    color: white;
+    color: rgb(0 255 149);
   }
 }
 

@@ -2,8 +2,9 @@ use std::{cell::RefCell, rc::Rc};
 
 use monaco::{api::TextModel, sys::{editor::{
     IEditorMinimapOptions, IEditorScrollbarOptions, IModelDecorationOptions, IModelDeltaDecoration, IStandaloneEditorConstructionOptions, ISuggestOptions, ScrollType
-}, Range}, yew::{CodeEditor, CodeEditorLink}};
-use yew::{Callback, Properties};
+}, IMarkdownString, Range}, yew::{CodeEditor, CodeEditorLink}};
+use yew::{html, Callback, Properties};
+use yew_hooks::prelude::*;
 use yew::prelude::*;
 use wasm_bindgen::{JsCast, JsValue};
 
@@ -16,6 +17,7 @@ pub struct SwimEditorProps {
     pub program_info: ProgramInfo,
     pub binary: Vec<u32>,
     pub pc: u64,
+    pub pc_limit: usize,
     pub memory_curr_instr: UseStateHandle<u64>,
     pub editor_curr_line: UseStateHandle<f64>,
     pub editor_active_tab: UseStateHandle<EditorTabState>,
@@ -63,6 +65,11 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     let editor_active_tab = &props.editor_active_tab;
     let console_active_tab = &props.console_active_tab;
 
+    // Setup the array that would store hover decorations applied to the
+    // text model and initialize the options for it.
+    let hover_jsarray = js_sys::Array::new();
+    let hover_decor_array = use_mut_ref(js_sys::Array::new);
+
     let on_editor_created = {
         let curr_line = props.editor_curr_line.clone();
         let lines_content = Rc::clone(&props.lines_content);
@@ -73,16 +80,14 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                     let raw_editor = editor.as_ref();
                     let model = raw_editor.get_model().unwrap();
                     // store each line from the original code editor's contents for assembled view
-                    let js_lines = model.get_lines_content();
-                    let mut string_lines = lines_content.borrow_mut();
-                    for js_string in js_lines.into_iter() {
-                        let string_value = match js_string.as_string() {
-                            Some(string) => string,
-                            None => String::from("")
-                        };
-                        string_lines.push(string_value);
-
-                    };
+                    let line_count = model.get_line_count() as usize;
+                    let mut lines_content = lines_content.borrow_mut();
+                    let mut lines = Vec::new();
+                    for i in 1..line_count {
+                        log::debug!("line {}: {}", i, model.get_line_content(i as f64));
+                        lines.push(model.get_line_content(i as f64));
+                    }
+                    *lines_content = lines;
                     // Scroll to current line
                     raw_editor.reveal_line_in_center(**curr_line, Some(ScrollType::Smooth));
                     // Highlight current line using delta decorations
@@ -133,6 +138,72 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             editor_active_tab.set(new_tab);
         })
     };
+
+
+    // We'll have the Mouse Hover event running at all times.
+    {
+        let text_model = text_model.clone();
+        let program_info = props.program_info.clone();
+        use_event_with_window("mouseover", move |_: MouseEvent| {
+            let hover_jsarray = hover_jsarray.clone();
+            let hover_decor_array = hover_decor_array.clone();
+            let text_model = text_model.clone();
+            let curr_model = text_model.as_ref();
+
+            // Parse output from parser and create an instance of IModelDeltaDecoration for each line.
+            for (line_number, line_information) in program_info.monaco_line_info.iter().enumerate()
+            {
+                let decoration: IModelDeltaDecoration = js_sys::Object::new().unchecked_into();
+
+                let hover_range = monaco::sys::Range::new(
+                    (line_number + 1) as f64,
+                    0.0,
+                    (line_number + 1) as f64,
+                    0.0,
+                );
+                let hover_range_js = hover_range
+                    .dyn_into::<JsValue>()
+                    .expect("Range is not found.");
+                decoration.set_range(&monaco::sys::IRange::from(hover_range_js));
+
+                let hover_opts: IModelDecorationOptions = js_sys::Object::new().unchecked_into();
+                hover_opts.set_is_whole_line(true.into());
+                let hover_message: IMarkdownString = js_sys::Object::new().unchecked_into();
+                js_sys::Reflect::set(
+                    &hover_message,
+                    &JsValue::from_str("value"),
+                    &JsValue::from_str(&line_information.mouse_hover_string),
+                )
+                .unwrap();
+                hover_opts.set_hover_message(&hover_message);
+                decoration.set_options(&hover_opts);
+                let hover_js = decoration
+                    .dyn_into::<JsValue>()
+                    .expect("Hover is not found.");
+                hover_jsarray.push(&hover_js);
+            }
+
+            // log!("This is the array after the push");
+            // log!(hover_jsarray.clone());
+
+            // properly pass the handlers onto the array
+            let new_hover_decor_array =
+                curr_model.delta_decorations(&hover_decor_array.borrow_mut(), &hover_jsarray, None);
+            *hover_decor_array.borrow_mut() = new_hover_decor_array;
+
+            // log!("These are the arrays after calling Delta Decorations");
+            // log!(hover_jsarray.clone());
+            // log!(hover_decor_array.borrow_mut().clone());
+
+            // empty out the array that hold the decorations
+            hover_jsarray.set_length(0);
+
+            // log!("These are the arrays after calling popping the hover_jsarray");
+            // log!(hover_jsarray.clone());
+            // log!(hover_decor_array.borrow_mut().clone());
+        });
+    };
+
     html! {
         <>
             // Editor buttons
@@ -160,7 +231,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             } else if **editor_active_tab == EditorTabState::TextSegment {
                 <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} pc={props.pc.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()}/>
             } else if **editor_active_tab == EditorTabState::DataSegment {
-                <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()}/>
+                <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} pc_limit={props.pc_limit}/>
             }
         </>
     }

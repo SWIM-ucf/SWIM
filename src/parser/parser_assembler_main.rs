@@ -50,7 +50,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
         &mut program_info.monaco_line_info,
     );
 
-    let binary = create_binary_vec(program_info.instructions.clone(), vec_of_data);
+    let (binary, data_starting_point) = create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
     for entry in &program_info.monaco_line_info {
         program_info
@@ -65,6 +65,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
     }
 
     program_info.pc_starting_point = determine_pc_starting_point(labels);
+    program_info.data_starting_point = data_starting_point;
 
     (program_info.clone(), binary)
 }
@@ -1531,12 +1532,14 @@ pub fn determine_pc_starting_point(labels: HashMap<String, usize>) -> usize {
 }
 
 ///Creates a vector of u32 from the data found in the parser / assembler to put into memory.
-pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8>) -> Vec<u32> {
+pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8>) -> (Vec<u32>, usize) {
     //push all instructions
     let mut binary: Vec<u32> = Vec::new();
     for instruction in instructions {
         binary.push(instruction.binary);
     }
+
+    let data_starting_point = binary.len();
 
     //makes sure the byte array length is a multiple of 4
     let mut mod4 = 4 - (vec_of_data.len() % 4);
@@ -1563,5 +1566,5 @@ pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8
         i += 1;
     }
 
-    binary
+    (binary, data_starting_point)
 }
