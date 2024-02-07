@@ -223,8 +223,6 @@ impl Datapath for MipsDatapath {
     type RegisterData = u64;
     type RegisterEnum = super::registers::GpRegisterType;
 
-    type StageEnum = Stage;
-
     fn execute_instruction(&mut self) {
         loop {
             // Stop early if the datapath has halted.
@@ -266,6 +264,10 @@ impl Datapath for MipsDatapath {
 
     fn get_register_by_enum(&self, register: Self::RegisterEnum) -> u64 {
         self.registers[register]
+    }
+
+    fn set_register_by_str(&mut self, _register: &str, _data: Self::RegisterData) {
+        todo!()
     }
 
     fn get_memory(&self) -> &Memory {

@@ -2,7 +2,7 @@
 
 use crate::agent::messages::{Command, StateUpdate};
 use crate::emulation_core::datapath::Datapath;
-use crate::emulation_core::mips::datapath::{MipsDatapath, Stage};
+use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::emulation_core::mips::registers::GpRegisterType;
 use futures::{FutureExt, StreamExt};
 use gloo_console::log;
@@ -37,8 +37,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, StateUpdate>) {
 }
 
 struct EmulatorCoreAgentState {
-    current_datapath:
-        Box<dyn Datapath<RegisterData = u64, RegisterEnum = GpRegisterType, StageEnum = Stage>>,
+    current_datapath: Box<dyn Datapath<RegisterData = u64, RegisterEnum = GpRegisterType>>,
     pub scope: ReactorScope<Command, StateUpdate>,
     speed: u32,
     executing: bool,
@@ -59,21 +58,17 @@ impl EmulatorCoreAgentState {
             Command::SetCore(_architecture) => {
                 todo!() // Implement once we have a RISCV datapath
             }
-            Command::LoadInstructions(_mem) => {
-                // FIXME: Uncomment once refactoring is done on the trait
-                // self.current_datapath.load_instructions(mem);
-                todo!()
+            Command::LoadInstructions(mem) => {
+                self.current_datapath.load_instructions(&mem);
             }
             Command::SetExecuteSpeed(speed) => {
                 self.speed = speed;
             }
-            Command::SetRegister(_register, _value) => {
-                todo!()
+            Command::SetRegister(register, value) => {
+                self.current_datapath.set_register_by_str(&register, value);
             }
-            Command::SetMemory(_ptr, _data) => {
-                // FIXME: Uncomment once refectoring is done on the trait
-                // self.current_datapath.set_memory(ptr, &data);
-                todo!()
+            Command::SetMemory(ptr, data) => {
+                self.current_datapath.set_memory(ptr, &data);
             }
             Command::Execute => {
                 self.executing = true;
