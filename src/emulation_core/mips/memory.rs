@@ -1,9 +1,11 @@
 //! Data and instruction memory implementation and API.
 
+use serde::{Deserialize, Serialize};
+
 // pub const CAPACITY_BYTES: usize = 2^12; // 4KB
 pub const CAPACITY_BYTES: usize = 64 * 1024; // 64 KB
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Memory {
     pub memory: Vec<u8>,
 }
