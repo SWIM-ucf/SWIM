@@ -3,3 +3,4 @@
 pub mod architectures;
 pub mod datapath;
 pub mod mips;
+pub mod riscv;

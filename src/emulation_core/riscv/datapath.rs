@@ -46,11 +46,15 @@
 //!   setting the boolean flag `is_halted`.
 //! - Invalid instructions will cause the datapath to set the `is_halted` flag.
 
+use crate::tests::emulation_core::mips::add;
+
 use super::super::datapath::Datapath;
 use super::constants::*;
 use super::control_signals::*;
+use super::control_signals::*;
 use super::datapath_signals::*;
 use super::instruction::*;
+use super::{memory::Memory, registers::GpRegisters};
 use super::{memory::Memory, registers::GpRegisters};
 
 /// An implementation of a datapath for the MIPS64 ISA.
@@ -315,6 +319,9 @@ impl RiscDatapath {
         self.set_control_signals();
         self.set_immediate();
         self.read_registers();
+
+        // Upper part of datapath, PC calculation
+        self.construct_jump_address();
 
         /* Finish this instruction out of the datapath and halt if this is a syscall.
         if let Instruction::SyscallType(_) = self.instruction {
