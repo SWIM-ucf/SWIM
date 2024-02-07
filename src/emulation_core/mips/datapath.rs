@@ -52,6 +52,8 @@ use super::control_signals::{floating_point::*, *};
 use super::datapath_signals::*;
 use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
+use crate::emulation_core::architectures::DatapathRef;
+use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.
 #[derive(Clone, PartialEq)]
@@ -76,7 +78,7 @@ pub struct MipsDatapath {
 }
 
 /// A collection of all the data lines and wires in the datapath.
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct DatapathState {
     /// *Data line.* The currently loaded instruction. Initialized after the
     /// Instruction Fetch stage.
@@ -280,6 +282,10 @@ impl Datapath for MipsDatapath {
 
     fn reset(&mut self) {
         std::mem::take(self);
+    }
+
+    fn as_datapath_ref(&self) -> DatapathRef {
+        DatapathRef::MIPS(self)
     }
 }
 

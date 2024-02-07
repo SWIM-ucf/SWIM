@@ -1,5 +1,6 @@
 //! Module for the API of a generic datapath.
 
+use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::mips::line_info::LineInformation;
 use crate::emulation_core::mips::memory::Memory;
 
@@ -68,6 +69,8 @@ pub trait Datapath {
 
     /// Restore the datapath to its default state.
     fn reset(&mut self);
+
+    fn as_datapath_ref(&self) -> DatapathRef;
 }
 
 /// A datapath that supports a visual diagram component.
