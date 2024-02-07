@@ -46,19 +46,20 @@
 //!   setting the boolean flag `is_halted`.
 //! - Invalid instructions will cause the datapath to set the `is_halted` flag.
 
+use crate::tests::emulation_core::mips::add;
+
 use super::super::datapath::Datapath;
 use super::constants::*;
-use super::control_signals::{floating_point::*, *};
+use super::control_signals::*;
 use super::datapath_signals::*;
 use super::instruction::*;
-use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
+use super::{memory::Memory, registers::GpRegisters};
 
 /// An implementation of a datapath for the MIPS64 ISA.
 #[derive(Clone, PartialEq)]
 pub struct RiscDatapath {
     pub registers: GpRegisters,
     pub memory: Memory,
-    pub coprocessor: MipsFpCoprocessor,
 
     pub instruction: Instruction,
     pub signals: ControlSignals,
@@ -193,7 +194,6 @@ impl Default for RiscDatapath {
         let mut datapath = RiscDatapath {
             registers: GpRegisters::default(),
             memory: Memory::default(),
-            coprocessor: MipsFpCoprocessor::default(),
             instruction: Instruction::default(),
             signals: ControlSignals::default(),
             datapath_signals: DatapathSignals::default(),
@@ -246,10 +246,6 @@ impl Datapath for RiscDatapath {
             Stage::WriteBack => self.stage_writeback(),
         }
 
-        // If the FPU has halted, reflect this in the main unit.
-        if self.coprocessor.is_halted {
-            self.is_halted = true;
-        }
 
         self.current_stage = Stage::get_next_stage(self.current_stage);
     }
@@ -308,8 +304,6 @@ impl RiscDatapath {
 
         // Upper part of datapath, PC calculation
         self.pc_plus_4();
-
-        self.coprocessor.set_instruction(self.state.instruction);
     }
 
     /// Stage 2 of 5: Instruction Decode (ID)
@@ -327,10 +321,6 @@ impl RiscDatapath {
         // Upper part of datapath, PC calculation
         self.construct_jump_address();
 
-        self.coprocessor.stage_instruction_decode();
-        self.coprocessor
-            .set_data_from_main_processor(self.state.read_data_2);
-
         /* Finish this instruction out of the datapath and halt if this is a syscall.
         if let Instruction::SyscallType(_) = self.instruction {
             self.is_halted = true;
@@ -344,30 +334,32 @@ impl RiscDatapath {
         self.alu();
         self.calc_relative_pc_branch();
         self.calc_cpu_branch_signal();
-        self.coprocessor.stage_execute();
     }
 
     /// Stage 4 of 5: Memory (MEM)
     ///
     /// Read or write to memory.
     fn stage_memory(&mut self) {
-        if let MemRead::YesRead = self.signals.mem_read {
-            self.memory_read();
-        }
-
-        if let MemWrite::YesWrite = self.signals.mem_write {
-            self.memory_write();
+        match self.signals.read_write {
+            ReadWrite::LoadByte => self.memory_read(),
+            ReadWrite::LoadByteUnsigned => self.memory_read(),
+            ReadWrite::LoadHalf => self.memory_read(),
+            ReadWrite::LoadHalfUnsigned => self.memory_read(),
+            ReadWrite::LoadWord => self.memory_read(),
+            ReadWrite::NoLoadStore => (),
+            ReadWrite::StoreByte => self.memory_write(),
+            ReadWrite::StoreHalf => self.memory_write(),
+            ReadWrite::StoreWord => self.memory_write(),
         }
 
         // Determine what data will be sent to the registers: either
         // the result from the ALU, or data retrieved from memory.
-        self.state.data_result = match self.signals.mem_to_reg {
-            MemToReg::UseAlu => self.state.alu_result,
-            MemToReg::UseMemory => self.state.memory_data,
-            MemToReg::UsePcPlusFour => self.state.pc_plus_4,
+        self.state.data_result = match self.signals.wb_sel {
+            WBSel::UseAlu => self.state.alu_result,
+            WBSel::UseMemory => self.state.memory_data,
+            WBSel::UsePcPlusFour => self.state.pc_plus_4,
+            WBSel::UseImmediate => self.state.imm as u64,
         };
-
-        self.coprocessor.stage_memory();
 
         // PC calculation stuff from upper part of datapath
         self.calc_general_branch_signal();
@@ -380,11 +372,8 @@ impl RiscDatapath {
     /// Write the result of the instruction's operation to a register,
     /// if desired. Additionally, set the PC for the next instruction.
     fn stage_writeback(&mut self) {
-        self.coprocessor
-            .set_fp_register_data_from_main_processor(self.state.data_result);
         self.register_write();
         self.set_pc();
-        self.coprocessor.stage_writeback();
     }
 
     // ================== Instruction Fetch (IF) ==================
@@ -790,9 +779,13 @@ impl RiscDatapath {
         // Load memory, first choosing the correct load function by the
         // RegWidth control signal, then reading the result from this
         // memory access.
-        self.state.memory_data = match self.signals.reg_width {
-            RegWidth::Word => self.memory.load_word(address).unwrap_or(0) as u64,
-            RegWidth::DoubleWord => self.memory.load_double_word(address).unwrap_or(0),
+        self.state.memory_data = match self.signals.read_write {
+            ReadWrite::LoadByte => self.memory.load_byte(address).unwrap_or(0) as i64 as u64,
+            ReadWrite::LoadByteUnsigned => self.memory.load_byte(address).unwrap_or(0) as u64,
+            ReadWrite::LoadHalf => self.memory.load_half(address).unwrap_or(0) as i64 as u64,
+            ReadWrite::LoadHalfUnsigned => self.memory.load_half(address).unwrap_or(0) as u64,
+            ReadWrite::LoadWord => self.memory.load_word(address).unwrap_or(0) as u64,
+            _ => 0,
         };
     }
 
@@ -806,17 +799,17 @@ impl RiscDatapath {
 
         // Choose the correct store function based on the RegWidth
         // control signal.
-        match self.signals.reg_width {
-            RegWidth::Word => {
-                self.memory
-                    .store_word(address, self.state.write_data as u32)
-                    .ok();
+        match self.signals.read_write {
+            ReadWrite::StoreByte => {
+                self.memory.store_byte(address, self.state.write_data as u8).ok();
             }
-            RegWidth::DoubleWord => {
-                self.memory
-                    .store_double_word(address, self.state.write_data)
-                    .ok();
+            ReadWrite::StoreHalf => {
+                self.memory.store_half(address, self.state.write_data as u16).ok();
             }
+            ReadWrite::StoreWord => {
+                self.memory.store_word(address, self.state.write_data as u32).ok();
+            }
+            _ => (),
         };
     }
 
@@ -827,10 +820,6 @@ impl RiscDatapath {
         if let CpuBranch::YesBranch = self.datapath_signals.cpu_branch {
             self.datapath_signals.general_branch = GeneralBranch::YesBranch;
             return;
-        }
-
-        if let FpuTakeBranch::YesBranch = self.coprocessor.signals.fpu_take_branch {
-            self.datapath_signals.general_branch = GeneralBranch::YesBranch;
         }
     }
 
@@ -860,6 +849,7 @@ impl RiscDatapath {
             WBSel::UseAlu => self.state.alu_result,
             WBSel::UseMemory => self.state.memory_data,
             WBSel::UsePcPlusFour => self.state.pc_plus_4,
+            WBSel::UseImmediate => self.state.imm as u64,
         };
 
         // Decide to retrieve data either from the main processor or the coprocessor.
