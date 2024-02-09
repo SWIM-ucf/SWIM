@@ -10,7 +10,7 @@ use monaco::{
         MarkerSeverity,
     }
 };
-use swim::ui::{footer::component::FooterTabState, swim_editor::component::EditorTabState};
+use swim::{emulation_core::{architectures::AvailableDatapaths, mips::instruction::get_string_version}, ui::{footer::component::FooterTabState, hex_editor::component::{parse_hexdump, UpdatedLine}, swim_editor::component::EditorTabState}};
 use swim::parser::parser_structs_and_enums::ProgramInfo;
 use std::rc::Rc;
 use swim::agent::datapath_communicator::DatapathCommunicator;
@@ -298,10 +298,13 @@ fn app(props: &AppProps) -> Html {
 
         let trigger = use_force_update();
         let communicator = props.communicator;
+        let datapath_state = datapath_state.clone();
 
         use_callback(
             move |_, _| {
-                let mut datapath = datapath.borrow_mut();
+                let datapath = datapath.borrow_mut();
+
+                let communicator = communicator.clone();
                 let text_model = text_model.clone();
 
                 let program_info_ref = Rc::clone(&program_info_ref);
@@ -311,78 +314,100 @@ fn app(props: &AppProps) -> Html {
 
                 let current_memory_text_model_value = memory_text_model.get_value();
 
-                match datapath.memory.parse_hexdump(&current_memory_text_model_value) {
+                match parse_hexdump(&current_memory_text_model_value) {
                     Ok(instructions) => {
-                        // Memory parsed with no errors
-                        match datapath.memory.store_hexdump(instructions) {
-                            Ok(changed_lines) => {
-                                // Memory updated successfully
-                                let program_info = program_info_ref.borrow().clone();
-                                let mut lines_beyond_counter = program_info.address_to_line_number.len();
-                                let mut curr_value = text_model.get_value().to_owned();
-                                let mut add_new_lines = false;
-                                for line in changed_lines {
-                                    // Check if we're updating or appending instruction
-                                    if line.line_number < program_info.address_to_line_number.len() {
-                                        let updated_line = program_info.address_to_line_number[line.line_number] as f64 + 1.0;
-                                        let curr_model = text_model.as_ref();
 
-                                        // Get the current line's contents in the code editor
-                                        let line_to_replace = curr_model.get_line_content(updated_line);
-                                        // Create the range to replace
-                                        let mut start_line_column = 0.0;
-                                        let end_line_column = line_to_replace.len() as f64 + 2.0;
-                                        for (i, c) in line_to_replace.chars().enumerate() {
-                                            if c.is_alphanumeric() {
-                                                start_line_column = i as f64 + 1.0;
-                                                break;
-                                            }
-                                        }
-                                        let edit_range = monaco::sys::Range::new(updated_line, start_line_column, updated_line, end_line_column);
-                                        let before_cursor_state = monaco::sys::Selection::new(updated_line, start_line_column, updated_line,end_line_column);
-                                        // Create the edit operation using the range and new text
-                                        let edit_operations: monaco::sys::editor::IIdentifiedSingleEditOperation = Object::new().unchecked_into();
-                                        edit_operations.set_range(&edit_range);
-                                        edit_operations.set_text(Some(&line.text));
-                                        // Append it to JavaScript Array
-                                        let edit_operations_array = js_sys::Array::new();
-                                        edit_operations_array.push(&edit_operations);
-                                        let before_cursor_state_array = js_sys::Array::new();
-                                        before_cursor_state_array.push(&before_cursor_state);
-                                        // Do the edit!
-                                        curr_model.push_edit_operations(&before_cursor_state_array, &edit_operations_array, None);
-                                    } else if line.line_number == lines_beyond_counter {
-                                        // Append instruction
-                                        if !add_new_lines {
-                                            // If we've added new lines already,
-                                            // start adding new lines by getting a copy of the current text model to append to
-                                            add_new_lines = true;
-                                            curr_value = text_model.get_value();
-                                        }
-                                        curr_value.push_str("\n");
-                                        curr_value.push_str(&line.text);
-                                        lines_beyond_counter += 1;
+                        let mut changed_lines: Vec<UpdatedLine> = vec![];
+                        for (i, data) in instructions.iter().enumerate() {
+                            let address = i as u64;
+                            // change string version based on architecture
+                            let string_version = match datapath_state.current_architecture {
+                                AvailableDatapaths::MIPS => {
+                                    match get_string_version(*data) {
+                                        Ok(string) => string,
+                                        Err(string) => string,
+                                    }
+                                },
+                                AvailableDatapaths::RISCV => {
+                                    String::from("")
+                                }
+                            };
+
+                            let curr_word = match datapath.memory.load_word(address * 4) {
+                                Ok(data) => data,
+                                Err(e) => {
+                                    debug!("{:?}", e);
+                                    0
+                                }
+                            };
+                            if curr_word != *data {
+                                debug!("address: {:?}", address * 4);
+                                log::debug!("curr word: {}, new word: {}", curr_word, data);
+                                changed_lines.push(UpdatedLine::new(string_version, i));
+
+                                communicator.set_memory(address * 4, *data);
+                            }
+                        }
+                        // Memory updated successfully
+                        let program_info = program_info_ref.borrow().clone();
+                        let mut lines_beyond_counter = program_info.address_to_line_number.len();
+                        let mut curr_value = text_model.get_value().to_owned();
+                        let mut add_new_lines = false;
+                        for line in changed_lines {
+                            // Check if we're updating or appending instruction
+                            if line.line_number < program_info.address_to_line_number.len() {
+                                let updated_line = program_info.address_to_line_number[line.line_number] as f64 + 1.0;
+                                let curr_model = text_model.as_ref();
+
+                                // Get the current line's contents in the code editor
+                                let line_to_replace = curr_model.get_line_content(updated_line);
+                                // Create the range to replace
+                                let mut start_line_column = 0.0;
+                                let end_line_column = line_to_replace.len() as f64 + 2.0;
+                                for (i, c) in line_to_replace.chars().enumerate() {
+                                    if c.is_alphanumeric() {
+                                        start_line_column = i as f64 + 1.0;
+                                        break;
                                     }
                                 }
-                                if add_new_lines {
-                                    text_model.set_value(&curr_value);
+                                let edit_range = monaco::sys::Range::new(updated_line, start_line_column, updated_line, end_line_column);
+                                let before_cursor_state = monaco::sys::Selection::new(updated_line, start_line_column, updated_line,end_line_column);
+                                // Create the edit operation using the range and new text
+                                let edit_operations: monaco::sys::editor::IIdentifiedSingleEditOperation = Object::new().unchecked_into();
+                                edit_operations.set_range(&edit_range);
+                                edit_operations.set_text(Some(&line.text));
+                                // Append it to JavaScript Array
+                                let edit_operations_array = js_sys::Array::new();
+                                edit_operations_array.push(&edit_operations);
+                                let before_cursor_state_array = js_sys::Array::new();
+                                before_cursor_state_array.push(&before_cursor_state);
+                                // Do the edit!
+                                curr_model.push_edit_operations(&before_cursor_state_array, &edit_operations_array, None);
+                            } else if line.line_number == lines_beyond_counter {
+                                // Append instruction
+                                if !add_new_lines {
+                                    // If we've added new lines already,
+                                    // start adding new lines by getting a copy of the current text model to append to
+                                    add_new_lines = true;
+                                    curr_value = text_model.get_value();
                                 }
-
-                            },
-                            Err(err) => {
-                                debug!("Error: {}", err)
+                                curr_value.push_str("\n");
+                                curr_value.push_str(&line.text);
+                                lines_beyond_counter += 1;
                             }
-                        };
-                        ()
+                        }
+                        if add_new_lines {
+                            text_model.set_value(&curr_value);
+                        }
                     },
                     Err(err) => {
                         debug!("Error updating memory: {}", err)
                     }
                 }
 
-                let hexdump = &datapath.memory.generate_formatted_hex();
+                let hexdump = datapath.memory.generate_formatted_hex();
 
-                memory_text_model.set_value(hexdump);
+                memory_text_model.set_value(&hexdump);
 
                 // Update the parsed info for text and data segment views
                 let (program_info, _) = parser(text_model.get_value());

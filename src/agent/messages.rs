@@ -11,7 +11,7 @@ pub enum Command {
     Initialize(usize, Vec<u8>),
     SetExecuteSpeed(u32),
     SetRegister(String, u64),
-    SetMemory(usize, Vec<u8>),
+    SetMemory(u64, u32),
     Execute,
     ExecuteInstruction,
     ExecuteStage,

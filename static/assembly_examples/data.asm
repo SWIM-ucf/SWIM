@@ -1,5 +1,7 @@
 .text
 addi $t0, $zero, 300
+addi $t1, $zero, 340
+addi $t2, $zero, 380
 syscall
 .data
 a_secret: .ascii "hi"

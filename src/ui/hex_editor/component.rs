@@ -33,6 +33,20 @@ pub struct HexEditorProps {
     pub instruction_num: UseStateHandle<u64>,
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct UpdatedLine {
+    pub text: String,
+    pub line_number: usize
+}
+impl UpdatedLine {
+    pub fn new(text: String, line_number: usize) -> Self {
+        UpdatedLine {
+            text,
+            line_number
+        }
+    }
+}
+
 #[function_component(HexEditor)]
 pub fn hex_editor(props: &HexEditorProps) -> Html {
     let editor_link = CodeEditorLink::new();
@@ -203,4 +217,16 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
     options.set_suggest(Some(&suggest));
 
     options
+}
+
+pub fn parse_hexdump(input: &str) -> Result<Vec<u32>, String> {
+    let mut words = Vec::new();
+    for line in input.lines() {
+        let parts: Vec<&str> = line.split('\t').collect();
+        for &part in &parts[2..6] {
+            let data = u32::from_str_radix(part, 16).map_err(|e| e.to_string())?;
+            words.push(data);
+        }
+    }
+    Ok(words)
 }

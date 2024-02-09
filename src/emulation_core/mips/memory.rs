@@ -12,20 +12,20 @@ pub struct Memory {
     pub memory: Vec<u8>,
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct UpdatedLine {
-    pub text: String,
-    pub line_number: usize
-}
+// #[derive(Clone, Debug, PartialEq)]
+// pub struct UpdatedLine {
+//     pub text: String,
+//     pub line_number: usize
+// }
 
-impl UpdatedLine {
-    pub fn new(text: String, line_number: usize) -> Self {
-        UpdatedLine {
-            text,
-            line_number
-        }
-    }
-}
+// impl UpdatedLine {
+//     pub fn new(text: String, line_number: usize) -> Self {
+//         UpdatedLine {
+//             text,
+//             line_number
+//         }
+//     }
+// }
 
 impl Default for Memory {
     fn default() -> Self {
@@ -128,44 +128,32 @@ impl Memory {
         Ok(result)
     }
 
-    pub fn parse_hexdump(&mut self, input: &str) -> Result<Vec<u32>, String> {
-        let mut words = Vec::new();
-        for line in input.lines() {
-            let parts: Vec<&str> = line.split('\t').collect();
-            for &part in &parts[2..6] {
-                let data = u32::from_str_radix(part, 16).map_err(|e| e.to_string())?;
-                words.push(data);
-            }
-        }
-        Ok(words)
-    }
+    // // Returns instructions that were updated with their string versions and line numbers
+    // pub fn store_hexdump(&mut self, instructions: Vec<u32>) -> Result<Vec<UpdatedLine>, String> {
+    //     let mut changed_lines: Vec<UpdatedLine> = vec![];
+    //     for (i, data) in instructions.iter().enumerate() {
+    //         let address = i as u64;
+    //         let line = match get_string_version(*data) {
+    //             Ok(string) => string,
+    //             Err(string) => string,
+    //         };
+    //         let curr_word = match self.load_word(address * 4) {
+    //             Ok(data) => data,
+    //             Err(e) => {
+    //                 debug!("{:?}", e);
+    //                 0
+    //             }
+    //         };
+    //         if curr_word != *data {
+    //             changed_lines.push(UpdatedLine::new(line, i));
+    //             self.store_word(address * 4, *data)?
+    //         }
+    //     }
 
-    // Returns instructions that were updated with their string versions and line numbers
-    pub fn store_hexdump(&mut self, instructions: Vec<u32>) -> Result<Vec<UpdatedLine>, String> {
-        let mut changed_lines: Vec<UpdatedLine> = vec![];
-        for (i, data) in instructions.iter().enumerate() {
-            let address = i as u64;
-            let line = match get_string_version(*data) {
-                Ok(string) => string,
-                Err(string) => string,
-            };
-            let curr_word = match self.load_word(address * 4) {
-                Ok(data) => data,
-                Err(e) => {
-                    debug!("{:?}", e);
-                    0
-                }
-            };
-            if curr_word != *data {
-                changed_lines.push(UpdatedLine::new(line, i));
-                self.store_word(address * 4, *data)?
-            }
-        }
+    //     Ok(changed_lines)
+    // }
 
-        Ok(changed_lines)
-    }
-
-    pub fn generate_formatted_hex(&mut self) -> String {
+    pub fn generate_formatted_hex(&self) -> String {
         let iterator = MemoryIter::new(&self);
 
         let mut string: String = "".to_string();

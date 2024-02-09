@@ -287,8 +287,8 @@ impl Datapath for MipsDatapath {
         &self.memory
     }
 
-    fn set_memory(&mut self, _ptr: usize, _data: Vec<u8>) {
-        todo!()
+    fn set_memory(&mut self, _ptr: u64, _data: u32) {
+        self.memory.store_word(_ptr, _data);
     }
 
     fn is_halted(&self) -> bool {
