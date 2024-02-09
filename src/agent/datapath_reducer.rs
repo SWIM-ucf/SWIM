@@ -9,11 +9,11 @@ use yew::Reducible;
 
 pub struct DatapathReducer {
     pub current_architecture: AvailableDatapaths,
-    pub mips: MipsState,
+    pub mips: MipsCoreState,
 }
 
 #[derive(Default)]
-pub struct MipsState {
+pub struct MipsCoreState {
     pub state: DatapathState,
     pub registers: GpRegisters,
     pub memory: Memory,
@@ -23,7 +23,7 @@ impl Default for DatapathReducer {
     fn default() -> Self {
         Self {
             current_architecture: MIPS,
-            mips: MipsState::default(),
+            mips: MipsCoreState::default(),
         }
     }
 }
@@ -34,19 +34,19 @@ impl Reducible for DatapathReducer {
     fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
         Rc::from(match action {
             DatapathUpdate::MIPS(update) => Self {
-                current_architecture: AvailableDatapaths::MIPS,
+                current_architecture: MIPS,
                 mips: match update {
-                    MipsStateUpdate::UpdateState(state) => MipsState {
+                    MipsStateUpdate::UpdateState(state) => MipsCoreState {
                         state,
                         registers: self.mips.registers,
                         memory: self.mips.memory.clone(),
                     },
-                    MipsStateUpdate::UpdateRegisters(registers) => MipsState {
+                    MipsStateUpdate::UpdateRegisters(registers) => MipsCoreState {
                         state: self.mips.state.clone(),
                         registers,
                         memory: self.mips.memory.clone(),
                     },
-                    MipsStateUpdate::UpdateMemory(memory) => MipsState {
+                    MipsStateUpdate::UpdateMemory(memory) => MipsCoreState {
                         state: self.mips.state.clone(),
                         registers: self.mips.registers,
                         memory,
