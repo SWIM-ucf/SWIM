@@ -17,7 +17,7 @@ akin! {
 
         let instructions = String::from(*instruction);
         let (_, instruction_bits) = parser(instructions);
-        datapath.initialize(instruction_bits)?;
+        datapath.initialize_legacy(instruction_bits)?;
 
         datapath.coprocessor.fpr[15] = *value1;
         datapath.coprocessor.fpr[16] = *value2;
@@ -46,7 +46,7 @@ akin! {
 
         let instructions = String::from(*instruction);
         let (_, instruction_bits) = parser(instructions);
-        datapath.initialize(instruction_bits)?;
+        datapath.initialize_legacy(instruction_bits)?;
 
         datapath.coprocessor.fpr[15] = *value1;
         datapath.coprocessor.fpr[16] = *value2;

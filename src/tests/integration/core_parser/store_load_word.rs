@@ -13,7 +13,7 @@ sw r25, 0(r14)"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -34,7 +34,7 @@ lw r25, 0(r14)"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     datapath.memory.memory[403] = 36;
 
@@ -62,7 +62,7 @@ sw $s2, secret_number"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -89,7 +89,7 @@ swc1 $f25, 0($s0)"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -110,7 +110,7 @@ lwc1 $f12, 0($t4)"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     datapath.memory.memory[403] = 36;
 

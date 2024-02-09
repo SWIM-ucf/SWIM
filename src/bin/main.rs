@@ -10,15 +10,18 @@ use monaco::{
         MarkerSeverity,
     }
 };
-use swim::{parser::parser_assembler_main::parser, ui::{footer::component::FooterTabState, swim_editor::component::EditorTabState}};
+use swim::ui::{footer::component::FooterTabState, swim_editor::component::EditorTabState};
 use swim::parser::parser_structs_and_enums::ProgramInfo;
 use std::rc::Rc;
-use swim::agent::EmulationCoreAgent;
 use swim::agent::datapath_communicator::DatapathCommunicator;
+use swim::agent::datapath_reducer::DatapathReducer;
+use swim::agent::EmulationCoreAgent;
 use swim::emulation_core::datapath::Datapath;
 use swim::emulation_core::mips::datapath::MipsDatapath;
 use swim::emulation_core::mips::datapath::Stage;
 use swim::ui::footer::component::Footer;
+use swim::parser::parser_assembler_main::parser;
+use swim::shims;
 use swim::ui::regview::component::Regview;
 use swim::ui::swim_editor::component::SwimEditor;
 use wasm_bindgen::{JsCast, JsValue};
@@ -86,13 +89,18 @@ fn app(props: &AppProps) -> Html {
     // the ability to access and change its contents be mutable.
     let datapath = use_mut_ref(MipsDatapath::default);
 
+    let datapath_state = use_reducer(DatapathReducer::default);
+
     // Start listening for messages from the communicator. This effectively links the worker thread to the main thread
     // and will force updates whenever its internal state changes.
     {
-        let trigger = use_force_update();
-        use_effect_with_deps(move |communicator| {
-            spawn_local(communicator.listen_for_updates(trigger));
-        }, props.communicator);
+        let dispatcher = datapath_state.dispatcher();
+        use_effect_with_deps(
+            move |communicator| {
+                spawn_local(communicator.listen_for_updates(dispatcher));
+            },
+            props.communicator,
+        );
     }
 
     // This is where code is assembled and loaded into the emulation core's memory.
@@ -106,6 +114,7 @@ fn app(props: &AppProps) -> Html {
         let parser_text_output = parser_text_output.clone();
         let trigger = use_force_update();
         let editor_curr_line = editor_curr_line.clone();
+        let communicator = props.communicator;
 
         // Clone the value before moving it into the closure
         let pc_limit = pc_limit.clone();
@@ -160,7 +169,7 @@ fn app(props: &AppProps) -> Html {
                 // Proceed with loading into memory and expand pseudo-instructions if there are no errors.
                 if marker_jsarray.length() == 0 {
                     // Load the binary into the datapath's memory
-                    match datapath.initialize(assembled) {
+                    match datapath.initialize_legacy(assembled.clone()) {
                         Ok(_) => (),
                         Err(msg) => {
                             // In the case of an error, note this and stop early.
@@ -173,6 +182,11 @@ fn app(props: &AppProps) -> Html {
                     let hexdump = &datapath.memory.generate_formatted_hex();
                     memory_text_model.set_value(hexdump);
                     datapath.registers.pc = program_info.pc_starting_point as u64;
+                    // Send the binary over to the emulation core thread
+                    communicator.initialize(
+                        program_info.pc_starting_point,
+                        shims::convert_to_u8_bytes(assembled),
+                    )
                 }
 
                 trigger.force_update();
@@ -199,6 +213,7 @@ fn app(props: &AppProps) -> Html {
         let memory_text_model = memory_text_model.clone();
 
         let trigger = use_force_update();
+        let communicator = props.communicator;
 
         use_callback(
             move |_, (editor_curr_line, memory_curr_instr)| {
@@ -215,6 +230,7 @@ fn app(props: &AppProps) -> Html {
 
                 // Execute instruction
                 datapath.execute_instruction();
+                communicator.execute_instruction();
 
                 // Update memory
                 let hexdump = &datapath.memory.generate_formatted_hex();
@@ -281,6 +297,7 @@ fn app(props: &AppProps) -> Html {
         let memory_text_model = memory_text_model.clone();
 
         let trigger = use_force_update();
+        let communicator = props.communicator;
 
         use_callback(
             move |_, _| {
@@ -371,6 +388,7 @@ fn app(props: &AppProps) -> Html {
                 let (program_info, _) = parser(text_model.get_value());
                 *program_info_ref.borrow_mut() = program_info.clone();
 
+                communicator.execute_stage();
                 trigger.force_update();
 
             },
@@ -383,6 +401,8 @@ fn app(props: &AppProps) -> Html {
     let on_reset_clicked = {
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
+        let parser_text_output = parser_text_output.clone();
+        let communicator = props.communicator;
 
         // Code editor
         let parser_text_output = parser_text_output.clone();
@@ -408,6 +428,7 @@ fn app(props: &AppProps) -> Html {
 
                 memory_text_model.set_value("");
 
+                communicator.reset();
                 trigger.force_update();
             },
             editor_curr_line,
@@ -489,7 +510,7 @@ fn app(props: &AppProps) -> Html {
                 </div>
 
                 // Right column
-                <Regview gp={datapath.borrow_mut().registers} fp={datapath.borrow().coprocessor.fpr} datapath={datapath} pc_limit={*pc_limit} communicator={props.communicator}/>
+                <Regview gp={datapath_state.mips.registers} fp={datapath.borrow().coprocessor.fpr} datapath={datapath} pc_limit={*pc_limit} communicator={props.communicator}/>
             </div>
         </>
     }

@@ -1,7 +1,7 @@
+use crate::agent::datapath_reducer::DatapathReducer;
 use crate::agent::messages::Command;
 use crate::agent::EmulationCoreAgent;
 use crate::emulation_core::architectures::AvailableDatapaths;
-use crate::emulation_core::datapath::VisualDatapath;
 use futures::stream::{SplitSink, SplitStream};
 use futures::FutureExt;
 use futures::SinkExt;
@@ -9,8 +9,7 @@ use futures::StreamExt;
 use gloo_console::log;
 use gloo_console::warn;
 use std::cell::RefCell;
-use std::collections::HashMap;
-use yew::UseForceUpdateHandle;
+use yew::UseReducerDispatcher;
 use yew_agent::reactor::ReactorBridge;
 
 /// This struct provides an abstraction over all communication with the worker thread. Any commands to the worker
@@ -48,7 +47,10 @@ impl DatapathCommunicator {
     /// from the main app component. After updating internal state, the component this was called from will be force
     /// updated.
     #[allow(clippy::await_holding_refcell_ref)]
-    pub async fn listen_for_updates(&self, update_handle: UseForceUpdateHandle) {
+    pub async fn listen_for_updates(
+        &self,
+        dispatcher_handle: UseReducerDispatcher<DatapathReducer>,
+    ) {
         let mut reader = match self.reader.try_borrow_mut() {
             Ok(reader) => reader,
             Err(_) => {
@@ -61,10 +63,10 @@ impl DatapathCommunicator {
             log!("Waiting...");
             let update = reader.next().await;
             log!(format!("Got update {:?}", update));
-            if update.is_none() {
-                return;
+            match update {
+                None => return,
+                Some(update) => dispatcher_handle.dispatch(update),
             }
-            update_handle.force_update();
         }
     }
 
@@ -89,20 +91,20 @@ impl DatapathCommunicator {
         todo!()
     }
 
-    /// Loads the parsed/assembled instructions provided into the current emulator core.
-    pub fn load_instructions(&self, _instructions: &[u8]) {
-        todo!()
+    /// Resets and loads the parsed/assembled instructions provided into the current emulator core.
+    pub fn initialize(&self, initial_pc: usize, instructions: Vec<u8>) {
+        self.send_message(Command::Initialize(initial_pc, instructions));
     }
 
     /// Sets the execution speed of the emulator core to the provided speed in hz. If set to zero, the emulator core
     /// will execute as fast as possible.
-    pub fn set_execute_speed(&self, _speed: u32) {
-        todo!()
+    pub fn set_execute_speed(&self, speed: u32) {
+        self.send_message(Command::SetExecuteSpeed(speed));
     }
 
     /// Sets the register with the provided name to the provided value.
-    pub fn set_register(&self, _register: &str, _data: &str) {
-        todo!()
+    pub fn set_register(&self, register: String, data: u64) {
+        self.send_message(Command::SetRegister(register, data));
     }
 
     /// Copies the contents of `data` to the emulator core's memory at `ptr`. Copies until either the end of `data` or
@@ -118,46 +120,22 @@ impl DatapathCommunicator {
 
     /// Executes a single instruction on the emulator core and pauses.
     pub fn execute_instruction(&self) {
-        todo!()
+        self.send_message(Command::ExecuteInstruction);
     }
 
     /// Executes a single stage on the emulator core and pauses.
     pub fn execute_stage(&self) {
-        todo!()
+        self.send_message(Command::ExecuteStage);
     }
 
     /// Pauses the core. Does nothing if the emulator core is already paused.
-    pub fn pause_core(&self) {}
-
-    // Getters for internal state
-
-    /// Returns a list of all the registers on the current emulator core.
-    pub fn get_registers(&self) -> HashMap<String, String> {
-        todo!()
+    pub fn pause_core(&self) {
+        self.send_message(Command::Pause);
     }
 
-    /// Returns the emulator core's memory as an array of bytes.
-    pub fn get_memory(&self) -> Vec<u8> {
-        todo!()
-    }
-
-    /// Gets the current stage of the emulator core as a string.
-    pub fn get_current_stage(&self) -> String {
-        todo!()
-    }
-
-    /// Gets the currently executing instruction on the emulator core. This is generally based on the value of the
-    /// program counter.
-    pub fn get_current_instruction(&self) -> usize {
-        todo!()
-    }
-
-    /// Returns the appropriate visual datapath for the current architecture. Returns a boxed generic VisualDatapath.
-    pub fn get_visual_datapath(
-        &self,
-        _architecture: AvailableDatapaths,
-    ) -> Box<dyn VisualDatapath> {
-        todo!()
+    /// Resets the current core to its default state.
+    pub fn reset(&self) {
+        self.send_message(Command::Reset);
     }
 
     pub fn get_accepting_input(&self) -> bool {

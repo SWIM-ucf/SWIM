@@ -1,5 +1,6 @@
 //! Module for the API of a generic datapath.
 
+use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::mips::line_info::LineInformation;
 use crate::emulation_core::mips::memory::Memory;
 
@@ -25,11 +26,6 @@ pub trait Datapath {
     /// at the discretion of the developer.
     type RegisterEnum;
 
-    /// This enum describes all possible stages in the datapath. This is
-    /// used primarily for the visual datapath view. Must be convertable
-    /// into a string for highlighting purposes.
-    type StageEnum: Into<String>;
-
     /// Execute a single instruction based on the current state of the
     /// datapath. Should the datapath support stages, if the datapath is
     /// midway through a stage, the current instruction will be finished
@@ -48,25 +44,18 @@ pub trait Datapath {
     /// registers should be listed within [`Self::RegisterEnum`].
     fn get_register_by_enum(&self, register: Self::RegisterEnum) -> Self::RegisterData;
 
-    /// Sets the data in the register indicated by the provided enum.
-    fn set_register_by_enum(&self, _register: Self::RegisterEnum, _data: Self::RegisterData) {
-        todo!()
-    }
+    /// Sets the data in the register indicated by the provided string. If it doesn't exist,
+    /// this function returns Err.
+    fn set_register_by_str(&mut self, register: &str, data: Self::RegisterData);
 
-    /// Loads the instructions from the provided array into an emulation core's
-    /// memory. This will also clear the memory of the emulation core and reset
-    /// the core's program counter.
-    fn load_instructions(&mut self, instructions: &[u8]) {
-        self.reset();
-        self.set_memory(0, instructions);
-    }
+    /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
+    /// flag. If the process fails, an [`Err`] is returned.
+    fn initialize(&mut self, initial_pc: usize, instructions: Vec<u8>) -> Result<(), String>;
 
     /// Retrieve all memory as-is.
     fn get_memory(&self) -> &Memory;
 
-    fn set_memory(&mut self, _ptr: usize, _data: &[u8]) {
-        todo!()
-    }
+    fn set_memory(&mut self, ptr: usize, data: Vec<u8>);
 
     /// Returns if the datapath is in a "halted" or "stopped" state. This may
     /// be true in the case where an error had occurred previously.
@@ -75,18 +64,9 @@ pub trait Datapath {
     /// Restore the datapath to its default state.
     fn reset(&mut self);
 
-    // Information retrieval
-
-    /// Get the program counter from an emulation core, regardless of what
-    /// it's called.
-    fn get_pc(&self) -> Self::RegisterData {
-        todo!()
-    }
-
-    /// Gets the current stage the emulator core is in.
-    fn get_stage(&self) -> Self::StageEnum {
-        todo!()
-    }
+    /// Obtain a reference to the concrete datapath type. Used when datapath-specific logic is
+    /// needed while dealing with a datapath as a trait object.
+    fn as_datapath_ref(&self) -> DatapathRef;
 }
 
 /// A datapath that supports a visual diagram component.
