@@ -37,7 +37,7 @@ use yew_hooks::prelude::*;
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
-const CONTENT: &str = include_str!("../../static/assembly_examples/fibonacci.asm");
+const CONTENT: &str = include_str!("../../static/assembly_examples/data.asm");
 
 #[derive(Properties, Clone, PartialEq)]
 struct AppProps {
@@ -510,7 +510,7 @@ fn app(props: &AppProps) -> Html {
                 </div>
 
                 // Right column
-                <Regview gp={datapath_state.mips.registers} fp={datapath.borrow().coprocessor.fpr} datapath={datapath} pc_limit={*pc_limit} communicator={props.communicator}/>
+                <Regview gp={datapath_state.mips.registers} fp={datapath.borrow().coprocessor.fpr} pc_limit={*pc_limit} communicator={props.communicator}/>
             </div>
         </>
     }

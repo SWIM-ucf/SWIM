@@ -263,6 +263,10 @@ th, td {
   padding: 2px 16px 2px 16px;
 }
 
+td input.invalid {
+  color: red;
+}
+
 th:not(:last-child), td:not(:last-child) {
   border-right: 1px solid black;
 }

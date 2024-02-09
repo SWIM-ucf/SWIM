@@ -1,22 +1,14 @@
 use crate::agent::datapath_communicator::DatapathCommunicator;
-use crate::emulation_core::mips::datapath::MipsDatapath;
-use crate::emulation_core::mips::memory::CAPACITY_BYTES;
-use crate::emulation_core::mips::registers::{GpRegisterType, GpRegisters};
-//use gloo::console::log;
+use crate::emulation_core::mips::registers::GpRegisters;
 use wasm_bindgen::JsCast;
 use web_sys::{InputEvent, HtmlInputElement};
 use yew::prelude::*;
 use yew::{html, Html};
-use std::rc::Rc;
-use std::cell::RefCell;
-// use log::debug;
 
-// datapath.coprocessor.fpr
 #[derive(PartialEq, Properties)]
 pub struct Regviewprops {
     pub gp: GpRegisters,
     pub fp: [u64; 32],
-    pub datapath: Rc<RefCell<MipsDatapath>>,
     pub pc_limit: usize,
     pub communicator: &'static DatapathCommunicator
 }
@@ -24,7 +16,8 @@ pub struct Regviewprops {
 pub struct Regrowprops {
     pub gp: GpRegisters,
     pub fp: [u64; 32],
-    pub on_input: Callback<(InputEvent, GpRegisterType)>
+    pub pc_limit: usize,
+    pub communicator: &'static DatapathCommunicator
 }
 #[derive(PartialEq, Properties)]
 pub struct Viewswitch {
@@ -40,12 +33,6 @@ enum UnitState {
     Float,
     Double,
 }
-
-// #[derive(Debug)]
-// enum Msg {
-//     UpdateRegister(GpRegisterType, i64),
-// }
-
 pub struct InputData {
     pub value: String,
     pub event: InputEvent,
@@ -53,16 +40,36 @@ pub struct InputData {
 
 //Convert register to html through iterator
 pub fn generate_gpr_rows(props: &Regrowprops) -> Html {
+    let communicator = props.communicator;
+    let pc_limit = props.pc_limit;
 
     props.gp.into_iter()
         .map(|(register, data)| {
-            let on_input = Callback::clone(&props.on_input);
             html! {
                 <tr>
-                    <td>{get_gpr_name(register)}</td>
+                    <td>{register.get_gpr_name()}</td>
                     <td>
                         <input type="text" id={register.to_string()}
-                        oninput={move |e: InputEvent| {on_input.emit((e, register))}}
+                        oninput={move |e: InputEvent| {
+                            let target = e.target();
+                            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+                            let val: u64 = match input.value().parse() {
+                                Ok(value) => {
+                                    input.set_class_name("valid");
+                                    value
+                                },
+                                Err(_err) => {
+                                    input.set_class_name("invalid");
+                                    return
+                                }
+                            };
+                            if register.is_valid_register_value(val, pc_limit) {
+                                communicator.set_register(register.to_string(), val);
+                                input.set_class_name("valid");
+                            } else {
+                                input.set_class_name("invalid");
+                            }
+                        }}
                         value={(data as i64).to_string()}/>
                     </td>
                 </tr>
@@ -75,7 +82,7 @@ pub fn generate_gpr_rows_hex(gp: GpRegisters) -> Html {
         .map(|(register, data)| {
             html! {
                 <tr>
-                    <td>{get_gpr_name(register)}</td>
+                    <td>{register.get_gpr_name()}</td>
                     <td>{format!("{data:#04x?}").to_string()}</td>
                 </tr>
             }
@@ -87,7 +94,7 @@ pub fn generate_gpr_rows_bin(gp: GpRegisters) -> Html {
         .map(|(register, data)| {
             html! {
                 <tr>
-                    <td>{get_gpr_name(register)}</td>
+                    <td>{register.get_gpr_name()}</td>
                     <td>{format!("{data:#b}").to_string()}</td>
                 </tr>
             }
@@ -162,22 +169,11 @@ pub fn generate_fpr_rows_double(fp: [u64; 32]) -> Html {
         .collect::<Html>()
 }
 
-/// Returns the text to be shown for a general-purpose register.
-pub fn get_gpr_name(register: GpRegisterType) -> String {
-    if register == GpRegisterType::Pc {
-        register.to_string()
-    } else {
-        format!("{} (r{})", register, register as u32)
-    }
-}
-
 #[function_component(Regview)]
 pub fn regview(props: &Regviewprops) -> Html {
     let active_view = use_state_eq(UnitState::default);
     let switch_flag = use_state_eq(|| true);
 
-    let datapath = Rc::clone(&props.datapath);
-    let pc_limit = props.pc_limit;
     let change_view = {
         let active_view = active_view.clone();
         Callback::from(move |event: Event| {
@@ -219,55 +215,11 @@ pub fn regview(props: &Regviewprops) -> Html {
         )
     };
 
-    let on_input = Callback::from(move |args: (InputEvent, GpRegisterType)| {
-        let (e, register) = args;
-        // let communicator = props.communicator;
-        let target = e.target();
-        let input = target.unwrap().unchecked_into::<HtmlInputElement>();
-        let val: i64 = match input.value().parse() {
-            Ok(value) => {
-                input.style().set_property("color", "black").unwrap_or_default();
-                value
-            },
-            Err(_err) => {
-                input.style().set_property("color", "red").unwrap_or_default();
-                return
-            }
-        };
-        // let msg = Msg::UpdateRegister(register, val);
-
-        let mut datapath = datapath.borrow_mut();
-
-        let write_destination: usize = register as usize;
-        if register == GpRegisterType::Pc {
-            // check if pc is more than the number of instructions
-            // or if it's not word aligned
-            if val > pc_limit as i64 || val % 4 != 0
-            {
-                input.style().set_property("color", "red").unwrap_or_default();
-                return
-            }
-
-            datapath.registers.pc = val as u64;
-            // communicator.send_test_message(val);
-        }
-        // check if pc is more than memory capacity
-        // or if it's not word aligned
-        else if register == GpRegisterType::Sp {
-            if val > CAPACITY_BYTES as i64 || val < 0 || val % 4 != 0 {
-                input.style().set_property("color", "red").unwrap_or_default();
-                return
-            }
-        }
-        else {
-            datapath.registers.gpr[write_destination] = val as u64;
-        }
-    });
-
     let rowprops = Regrowprops {
         gp: props.gp,
         fp: props.fp,
-        on_input
+        pc_limit: props.pc_limit,
+        communicator: props.communicator
     };
 
     //log!("This is ", *switch_flag);

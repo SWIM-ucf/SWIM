@@ -51,7 +51,7 @@ use super::constants::*;
 use super::control_signals::{floating_point::*, *};
 use super::datapath_signals::*;
 use super::instruction::*;
-use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
+use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::{GpRegisters, GpRegisterType}};
 use crate::emulation_core::architectures::DatapathRef;
 use crate::shims;
 use serde::{Deserialize, Serialize};
@@ -270,7 +270,8 @@ impl Datapath for MipsDatapath {
     }
 
     fn set_register_by_str(&mut self, _register: &str, _data: Self::RegisterData) {
-        todo!()
+        let register = &mut self.registers[_register];
+        *register = _data;
     }
 
     fn initialize(&mut self, initial_pc: usize, instructions: Vec<u8>) -> Result<(), String> {
