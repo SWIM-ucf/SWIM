@@ -85,8 +85,8 @@ impl EmulatorCoreAgentState {
             Command::SetCore(_architecture) => {
                 todo!() // Implement once we have a RISCV datapath
             }
-            Command::Initialize(mem) => {
-                self.current_datapath.initialize(mem).unwrap();
+            Command::Initialize(initial_pc, mem) => {
+                self.current_datapath.initialize(initial_pc, mem).unwrap();
             }
             Command::SetExecuteSpeed(speed) => {
                 self.speed = speed;

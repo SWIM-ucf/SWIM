@@ -273,9 +273,10 @@ impl Datapath for MipsDatapath {
         todo!()
     }
 
-    fn initialize(&mut self, instructions: Vec<u8>) -> Result<(), String> {
+    fn initialize(&mut self, initial_pc: usize, instructions: Vec<u8>) -> Result<(), String> {
         self.reset();
         self.load_instructions(shims::convert_from_u8_bytes(instructions))?;
+        self.registers.pc = initial_pc as u64;
         self.is_halted = false;
 
         Ok(())
@@ -300,6 +301,7 @@ impl Datapath for MipsDatapath {
 
 impl MipsDatapath {
     // ===================== General Functions =====================
+    /// Legacy initialize function, to be removed later.
     pub fn initialize_legacy(&mut self, instructions: Vec<u32>) -> Result<(), String> {
         self.reset();
         self.load_instructions(instructions)?;

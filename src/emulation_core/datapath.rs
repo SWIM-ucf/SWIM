@@ -50,7 +50,7 @@ pub trait Datapath {
 
     /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
     /// flag. If the process fails, an [`Err`] is returned.
-    fn initialize(&mut self, instructions: Vec<u8>) -> Result<(), String>;
+    fn initialize(&mut self, initial_pc: usize, instructions: Vec<u8>) -> Result<(), String>;
 
     /// Retrieve all memory as-is.
     fn get_memory(&self) -> &Memory;

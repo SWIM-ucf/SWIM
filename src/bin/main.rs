@@ -19,6 +19,7 @@ use swim::emulation_core::datapath::Datapath;
 use swim::emulation_core::mips::datapath::MipsDatapath;
 use swim::emulation_core::mips::datapath::Stage;
 use swim::parser::parser_assembler_main::parser;
+use swim::shims;
 use swim::ui::console::component::Console;
 use swim::ui::regview::component::Regview;
 use wasm_bindgen::{JsCast, JsValue};
@@ -103,6 +104,7 @@ fn app(props: &AppProps) -> Html {
         let datapath = Rc::clone(&datapath);
         let parser_text_output = parser_text_output.clone();
         let trigger = use_force_update();
+        let communicator = props.communicator;
 
         let executed_line = executed_line.clone();
         let not_highlighted = not_highlighted.clone();
@@ -158,7 +160,7 @@ fn app(props: &AppProps) -> Html {
                 // Proceed with loading into memory and expand pseudo-instructions if there are no errors.
                 if marker_jsarray.length() == 0 {
                     // Load the binary into the datapath's memory
-                    match datapath.initialize_legacy(assembled) {
+                    match datapath.initialize_legacy(assembled.clone()) {
                         Ok(_) => (),
                         Err(msg) => {
                             // In the case of an error, note this and stop early.
@@ -168,6 +170,11 @@ fn app(props: &AppProps) -> Html {
                     // log!(datapath.memory.to_string());
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
                     datapath.registers.pc = program_info.pc_starting_point as u64;
+                    // Send the binary over to the emulation core thread
+                    communicator.initialize(
+                        program_info.pc_starting_point,
+                        shims::convert_to_u8_bytes(assembled),
+                    )
                 }
 
                 trigger.force_update();
