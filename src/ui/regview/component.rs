@@ -13,13 +13,6 @@ pub struct Regviewprops {
     pub communicator: &'static DatapathCommunicator
 }
 #[derive(PartialEq, Properties)]
-pub struct Regrowprops {
-    pub gp: GpRegisters,
-    pub fp: [u64; 32],
-    pub pc_limit: usize,
-    pub communicator: &'static DatapathCommunicator
-}
-#[derive(PartialEq, Properties)]
 pub struct Viewswitch {
     pub switch_view: bool,
 }
@@ -39,7 +32,7 @@ pub struct InputData {
 }
 
 //Convert register to html through iterator
-pub fn generate_gpr_rows(props: &Regrowprops) -> Html {
+pub fn generate_gpr_rows(props: &Regviewprops) -> Html {
     let communicator = props.communicator;
     let pc_limit = props.pc_limit;
 
@@ -214,14 +207,6 @@ pub fn regview(props: &Regviewprops) -> Html {
             switch_flag,
         )
     };
-
-    let rowprops = Regrowprops {
-        gp: props.gp,
-        fp: props.fp,
-        pc_limit: props.pc_limit,
-        communicator: props.communicator
-    };
-
     //log!("This is ", *switch_flag);
     html! {
         <div style="flex-grow: 1; display: flex; flex-direction: column; flex-wrap: nowrap; margin-top: 36px;">
@@ -272,7 +257,7 @@ pub fn regview(props: &Regviewprops) -> Html {
                             else if *active_view == UnitState::Hex {
                                 {generate_gpr_rows_hex(props.gp)}
                             } else {
-                                {generate_gpr_rows(&rowprops)}
+                                {generate_gpr_rows(&props)}
                             }
                         } else {
                             if *active_view == UnitState::Bin {
