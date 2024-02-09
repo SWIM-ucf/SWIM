@@ -36,6 +36,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                 _ = sleep(Duration::from_millis(execution_delay)).fuse() => {},
             }
         } else {
+            // If we're not currently executing, wait indefinitely until the next message comes in.
             match state.scope.next().await {
                 Some(msg) => state.handle_command(msg),
                 None => return,
@@ -48,6 +49,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
 
         // Part 3: Processing State/Sending Updates to UI
         // TODO: This is a very naive implementation. Optimization is probably a good idea.
+        // TODO: Add support for the FP coprocessor updates in MIPS
         match state.current_datapath.as_datapath_ref() {
             DatapathRef::MIPS(datapath) => {
                 let state_update =
@@ -96,7 +98,7 @@ impl EmulatorCoreAgentState {
                 self.current_datapath.set_register_by_str(&register, value);
             }
             Command::SetMemory(ptr, data) => {
-                self.current_datapath.set_memory(ptr, &data);
+                self.current_datapath.set_memory(ptr, data);
             }
             Command::Execute => {
                 self.executing = true;
