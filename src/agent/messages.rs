@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Command {
     SetCore(AvailableDatapaths),
-    LoadInstructions(Vec<u8>),
+    Initialize(Vec<u8>),
     SetExecuteSpeed(u32),
     SetRegister(String, u64),
     SetMemory(usize, Vec<u8>),

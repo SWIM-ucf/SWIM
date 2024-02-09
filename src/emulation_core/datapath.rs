@@ -48,13 +48,9 @@ pub trait Datapath {
     /// this function returns Err.
     fn set_register_by_str(&mut self, register: &str, data: Self::RegisterData);
 
-    /// Loads the instructions from the provided array into an emulation core's
-    /// memory. This will also clear the memory of the emulation core and reset
-    /// the core's program counter.
-    fn load_instructions(&mut self, instructions: &[u8]) {
-        self.reset();
-        self.set_memory(0, instructions);
-    }
+    /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
+    /// flag. If the process fails, an [`Err`] is returned.
+    fn initialize(&mut self, instructions: Vec<u8>) -> Result<(), String>;
 
     /// Retrieve all memory as-is.
     fn get_memory(&self) -> &Memory;
