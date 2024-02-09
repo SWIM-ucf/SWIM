@@ -8,7 +8,7 @@ fn basic_mtc1() -> Result<(), String> {
 
     let instructions = String::from("mtc1 $t2, $f5");
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     datapath.registers.gpr[10] = 658461658; // $t2
 
@@ -26,7 +26,7 @@ fn truncate_32_bit_mtc1() -> Result<(), String> {
 
     let instructions = String::from("mtc1 $t3, $f6");
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     datapath.registers.gpr[11] = 0x0000_02F2_AC71_AC41; // $t3
 
@@ -44,7 +44,7 @@ fn basic_mfc1() -> Result<(), String> {
 
     let instructions = String::from("mfc1 $t3, $f5");
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     datapath.coprocessor.fpr[5] = 657861659;
 
@@ -62,7 +62,7 @@ fn truncate_32_bit_mfc1() -> Result<(), String> {
 
     let instructions = String::from("mfc1 $t4, $f6");
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     datapath.coprocessor.fpr[6] = 0x0003_7F80_E5E7_D785;
 
@@ -80,7 +80,7 @@ fn basic_dmtc1() -> Result<(), String> {
 
     let instructions = String::from("dmtc1 $t3, $f6");
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     datapath.registers.gpr[11] = 0x0120_02F2_AC71_AC41; // $t3
 
@@ -98,7 +98,7 @@ fn basic_dmfc1() -> Result<(), String> {
 
     let instructions = String::from("dmfc1 $t4, $f6");
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     datapath.coprocessor.fpr[6] = 0x0003_7F90_E5E7_D785;
 

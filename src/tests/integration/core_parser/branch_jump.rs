@@ -17,7 +17,7 @@ j loop"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     // Execute the ori instruction.
     datapath.execute_instruction();
@@ -45,7 +45,7 @@ jr r15"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     // Execute 2 instructions.
     for _ in 0..2 {
@@ -70,7 +70,7 @@ function: ori $t0, $zero, 5831"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -96,7 +96,7 @@ function: ori $t1, $zero, 9548"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     // Execute 3 instructions.
     for _ in 0..3 {
@@ -145,7 +145,7 @@ change10: daddiu $s2, $s2, 10"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -186,7 +186,7 @@ changez: daddiu $s2, $s2, 20"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -218,7 +218,7 @@ bne $s0, $s2, loop"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     let mut iterations = 0;
 
