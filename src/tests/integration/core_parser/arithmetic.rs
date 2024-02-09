@@ -9,7 +9,7 @@ fn basic_addu() -> Result<(), String> {
     let instructions = String::from("addu r20, r19, r18");
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     datapath.registers.gpr[18] = 6849841;
     datapath.registers.gpr[19] = 99816512;
@@ -33,7 +33,7 @@ sll $s1, $s1, 3"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -54,7 +54,7 @@ move $s5, $s4"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -72,7 +72,7 @@ fn basic_nop() -> Result<(), String> {
     let instructions = String::from(r#"nop"#);
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     let mut expected_registers = datapath.registers;
     expected_registers.pc = 4;

@@ -17,7 +17,7 @@ akin! {
 
         let instructions = String::from(*instruction);
         let (_, instruction_bits) = parser(instructions);
-        datapath.initialize(instruction_bits)?;
+        datapath.initialize_legacy(instruction_bits)?;
 
         datapath.registers.gpr[16] = *value1;
         datapath.registers.gpr[17] = *value2;
@@ -46,7 +46,7 @@ akin! {
 
         let instructions = String::from(*instruction);
         let (_, instruction_bits) = parser(instructions);
-        datapath.initialize(instruction_bits)?;
+        datapath.initialize_legacy(instruction_bits)?;
 
         datapath.registers.gpr[25] = *value1;
         datapath.registers.gpr[26] = *value2;
