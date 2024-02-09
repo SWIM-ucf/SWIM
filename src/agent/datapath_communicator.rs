@@ -1,3 +1,4 @@
+use crate::agent::datapath_reducer::DatapathReducer;
 use crate::agent::messages::Command;
 use crate::agent::EmulationCoreAgent;
 use crate::emulation_core::architectures::AvailableDatapaths;
@@ -8,7 +9,7 @@ use futures::StreamExt;
 use gloo_console::log;
 use gloo_console::warn;
 use std::cell::RefCell;
-use yew::UseForceUpdateHandle;
+use yew::UseReducerDispatcher;
 use yew_agent::reactor::ReactorBridge;
 
 /// This struct provides an abstraction over all communication with the worker thread. Any commands to the worker
@@ -46,7 +47,10 @@ impl DatapathCommunicator {
     /// from the main app component. After updating internal state, the component this was called from will be force
     /// updated.
     #[allow(clippy::await_holding_refcell_ref)]
-    pub async fn listen_for_updates(&self, update_handle: UseForceUpdateHandle) {
+    pub async fn listen_for_updates(
+        &self,
+        dispatcher_handle: UseReducerDispatcher<DatapathReducer>,
+    ) {
         let mut reader = match self.reader.try_borrow_mut() {
             Ok(reader) => reader,
             Err(_) => {
@@ -59,10 +63,10 @@ impl DatapathCommunicator {
             log!("Waiting...");
             let update = reader.next().await;
             log!(format!("Got update {:?}", update));
-            if update.is_none() {
-                return;
+            match update {
+                None => return,
+                Some(update) => dispatcher_handle.dispatch(update),
             }
-            update_handle.force_update();
         }
     }
 
@@ -127,5 +131,10 @@ impl DatapathCommunicator {
     /// Pauses the core. Does nothing if the emulator core is already paused.
     pub fn pause_core(&self) {
         self.send_message(Command::Pause);
+    }
+
+    /// Resets the current core to its default state.
+    pub fn reset(&self) {
+        self.send_message(Command::Reset);
     }
 }

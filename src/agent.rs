@@ -12,6 +12,7 @@ use yew::platform::time::sleep;
 use yew_agent::prelude::*;
 
 pub mod datapath_communicator;
+pub mod datapath_reducer;
 pub mod messages;
 
 /// The main logic for the emulation core agent. All code within this function runs on a worker thread as opposed to
@@ -108,6 +109,9 @@ impl EmulatorCoreAgentState {
             }
             Command::Pause => {
                 self.executing = false;
+            }
+            Command::Reset => {
+                self.current_datapath.reset();
             }
         }
     }

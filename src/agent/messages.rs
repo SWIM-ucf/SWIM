@@ -16,6 +16,7 @@ pub enum Command {
     ExecuteInstruction,
     ExecuteStage,
     Pause,
+    Reset,
 }
 
 /// Information about the emulator core's state sent from the worker thread to the UI thread.
