@@ -55,9 +55,7 @@ pub trait Datapath {
     /// Retrieve all memory as-is.
     fn get_memory(&self) -> &Memory;
 
-    fn set_memory(&mut self, _ptr: usize, _data: &[u8]) {
-        todo!()
-    }
+    fn set_memory(&mut self, ptr: usize, data: Vec<u8>);
 
     /// Returns if the datapath is in a "halted" or "stopped" state. This may
     /// be true in the case where an error had occurred previously.
@@ -66,6 +64,8 @@ pub trait Datapath {
     /// Restore the datapath to its default state.
     fn reset(&mut self);
 
+    /// Obtain a reference to the concrete datapath type. Used when datapath-specific logic is
+    /// needed while dealing with a datapath as a trait object.
     fn as_datapath_ref(&self) -> DatapathRef;
 }
 

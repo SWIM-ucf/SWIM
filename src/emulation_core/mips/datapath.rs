@@ -41,7 +41,7 @@
 //! # Notes on `is_halted`
 //!
 //! - The datapath starts with the `is_halted` flag set.
-//! - [`MipsDatapath::initialize_legacy()`] should be used to un-set `is_halted`.
+//! - [`MipsDatapath::initialize()`] should be used to un-set `is_halted`.
 //! - The `syscall` instruction simply performs a no-operation instruction, except for
 //!   setting the boolean flag `is_halted`.
 //! - Invalid instructions will cause the datapath to set the `is_halted` flag.
@@ -284,6 +284,10 @@ impl Datapath for MipsDatapath {
 
     fn get_memory(&self) -> &Memory {
         &self.memory
+    }
+
+    fn set_memory(&mut self, _ptr: usize, _data: Vec<u8>) {
+        todo!()
     }
 
     fn is_halted(&self) -> bool {
