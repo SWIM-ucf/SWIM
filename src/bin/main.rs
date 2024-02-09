@@ -158,7 +158,7 @@ fn app(props: &AppProps) -> Html {
                 // Proceed with loading into memory and expand pseudo-instructions if there are no errors.
                 if marker_jsarray.length() == 0 {
                     // Load the binary into the datapath's memory
-                    match datapath.initialize(assembled) {
+                    match datapath.initialize_legacy(assembled) {
                         Ok(_) => (),
                         Err(msg) => {
                             // In the case of an error, note this and stop early.

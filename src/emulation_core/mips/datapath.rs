@@ -41,7 +41,7 @@
 //! # Notes on `is_halted`
 //!
 //! - The datapath starts with the `is_halted` flag set.
-//! - [`MipsDatapath::initialize()`] should be used to un-set `is_halted`.
+//! - [`MipsDatapath::initialize_legacy()`] should be used to un-set `is_halted`.
 //! - The `syscall` instruction simply performs a no-operation instruction, except for
 //!   setting the boolean flag `is_halted`.
 //! - Invalid instructions will cause the datapath to set the `is_halted` flag.
@@ -53,6 +53,7 @@ use super::datapath_signals::*;
 use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
+use crate::shims;
 use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.
@@ -272,6 +273,14 @@ impl Datapath for MipsDatapath {
         todo!()
     }
 
+    fn initialize(&mut self, instructions: Vec<u8>) -> Result<(), String> {
+        self.reset();
+        self.load_instructions(shims::convert_from_u8_bytes(instructions))?;
+        self.is_halted = false;
+
+        Ok(())
+    }
+
     fn get_memory(&self) -> &Memory {
         &self.memory
     }
@@ -291,9 +300,7 @@ impl Datapath for MipsDatapath {
 
 impl MipsDatapath {
     // ===================== General Functions =====================
-    /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
-    /// flag. If the process fails, an [`Err`] is returned.
-    pub fn initialize(&mut self, instructions: Vec<u32>) -> Result<(), String> {
+    pub fn initialize_legacy(&mut self, instructions: Vec<u32>) -> Result<(), String> {
         self.reset();
         self.load_instructions(instructions)?;
         self.is_halted = false;

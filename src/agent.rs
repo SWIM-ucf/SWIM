@@ -22,15 +22,23 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
     let mut state = EmulatorCoreAgentState::new(scope);
     loop {
         let execution_delay = state.get_delay();
+
         // Part 1: Delay/Command Handling
-        futures::select! {
-            // If we get a message, handle the command before attempting to execute.
-            msg = state.scope.next() => match msg {
+        if state.executing {
+            futures::select! {
+                // If we get a message, handle the command before attempting to execute.
+                msg = state.scope.next() => match msg {
+                    Some(msg) => state.handle_command(msg),
+                    None => return,
+                },
+                // Delay to slow execution down to the intended speed.
+                _ = sleep(Duration::from_millis(execution_delay)).fuse() => {},
+            }
+        } else {
+            match state.scope.next().await {
                 Some(msg) => state.handle_command(msg),
                 None => return,
-            },
-            // Delay to slow execution down to the intended speed.
-            _ = sleep(Duration::from_millis(execution_delay)).fuse() => {},
+            }
         }
 
         // Part 2: Execution
@@ -77,8 +85,8 @@ impl EmulatorCoreAgentState {
             Command::SetCore(_architecture) => {
                 todo!() // Implement once we have a RISCV datapath
             }
-            Command::LoadInstructions(mem) => {
-                self.current_datapath.load_instructions(&mem);
+            Command::Initialize(mem) => {
+                self.current_datapath.initialize(mem).unwrap();
             }
             Command::SetExecuteSpeed(speed) => {
                 self.speed = speed;
