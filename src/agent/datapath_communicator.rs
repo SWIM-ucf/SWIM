@@ -88,8 +88,8 @@ impl DatapathCommunicator {
     }
 
     /// Resets and loads the parsed/assembled instructions provided into the current emulator core.
-    pub fn initialize(&self, instructions: Vec<u8>) {
-        self.send_message(Command::Initialize(instructions));
+    pub fn initialize(&self, initial_pc: usize, instructions: Vec<u8>) {
+        self.send_message(Command::Initialize(initial_pc, instructions));
     }
 
     /// Sets the execution speed of the emulator core to the provided speed in hz. If set to zero, the emulator core
