@@ -51,7 +51,7 @@ use super::constants::*;
 use super::control_signals::{floating_point::*, *};
 use super::datapath_signals::*;
 use super::instruction::*;
-use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::{GpRegisters, GpRegisterType}};
+use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
 use crate::shims;
 use serde::{Deserialize, Serialize};
@@ -288,7 +288,7 @@ impl Datapath for MipsDatapath {
     }
 
     fn set_memory(&mut self, _ptr: u64, _data: u32) {
-        self.memory.store_word(_ptr, _data);
+        self.memory.store_word(_ptr, _data).unwrap_or_default();
     }
 
     fn is_halted(&self) -> bool {

@@ -70,92 +70,283 @@ pub fn generate_gpr_rows(props: &Regviewprops) -> Html {
         })
         .collect::<Html>()
 }
-pub fn generate_gpr_rows_hex(gp: GpRegisters) -> Html {
-    gp.into_iter()
+pub fn generate_gpr_rows_hex(props: &Regviewprops) -> Html {
+    let communicator = props.communicator;
+    let pc_limit = props.pc_limit;
+
+    props.gp.into_iter()
         .map(|(register, data)| {
             html! {
                 <tr>
                     <td>{register.get_gpr_name()}</td>
-                    <td>{format!("{data:#04x?}").to_string()}</td>
+                    <td>
+                        <input type="text" id={register.to_string()}
+                        oninput={move |e: InputEvent| {
+                            let target = e.target();
+                            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+                            let input_string = input.value();
+                            let val = match u64::from_str_radix(&input_string[2..], 16) {
+                                Ok(value) => {
+                                    input.set_class_name("valid");
+                                    value
+                                },
+                                Err(_err) => {
+                                    input.set_class_name("invalid");
+                                    return
+                                }
+                            };
+                            if register.is_valid_register_value(val, pc_limit) {
+                                communicator.set_register(register.to_string(), val);
+                                input.set_class_name("valid");
+                            } else {
+                                input.set_class_name("invalid");
+                            }
+                        }}
+                        value={format!("{data:#04x?}").to_string()}/>
+                    </td>
                 </tr>
             }
         })
         .collect::<Html>()
 }
-pub fn generate_gpr_rows_bin(gp: GpRegisters) -> Html {
-    gp.into_iter()
+pub fn generate_gpr_rows_bin(props: &Regviewprops) -> Html {
+    let communicator = props.communicator;
+    let pc_limit = props.pc_limit;
+
+    props.gp.into_iter()
         .map(|(register, data)| {
             html! {
                 <tr>
                     <td>{register.get_gpr_name()}</td>
-                    <td>{format!("{data:#b}").to_string()}</td>
-                </tr>
-            }
-        })
-        .collect::<Html>()
-}
-pub fn generate_fpr_rows(fp: [u64; 32]) -> Html {
-    fp.iter()
-        .enumerate()
-        .map(|(register, data)| {
-            html! {
-                <tr>
-                    <td>{format!("f{register}")}</td>
-                    <td>{(*data as i64).to_string()}</td>
-                </tr>
-            }
-        })
-        .collect::<Html>()
-}
-pub fn generate_fpr_rows_hex(fp: [u64; 32]) -> Html {
-    fp.iter()
-        .enumerate()
-        .map(|(register, data)| {
-            html! {
-                <tr>
-                    <td>{format!("f{register}")}</td>
-                    <td>{format!("{data:#04x?}").to_string()}</td>
-                </tr>
-            }
-        })
-        .collect::<Html>()
-}
-pub fn generate_fpr_rows_bin(fp: [u64; 32]) -> Html {
-    fp.iter()
-        .enumerate()
-        .map(|(register, data)| {
-            html! {
-                <tr>
-                    <td>{format!("f{register}")}</td>
-                    <td>{format!("{data:#b}").to_string()}</td>
+                    <td>
+                        <input type="text" id={register.to_string()}
+                        oninput={move |e: InputEvent| {
+                            let target = e.target();
+                            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+                            let input_string = input.value();
+                            let val = match u64::from_str_radix(&input_string[2..], 2) {
+                                Ok(value) => {
+                                    input.set_class_name("valid");
+                                    value
+                                },
+                                Err(_err) => {
+                                    input.set_class_name("invalid");
+                                    return
+                                }
+                            };
+                            if register.is_valid_register_value(val, pc_limit) {
+                                communicator.set_register(register.to_string(), val);
+                                input.set_class_name("valid");
+                            } else {
+                                input.set_class_name("invalid");
+                            }
+                        }}
+                        value={format!("{data:#b}").to_string()}/>
+                    </td>
                 </tr>
             }
         })
         .collect::<Html>()
 }
 
-pub fn generate_fpr_rows_float(fp: [u64; 32]) -> Html {
-    fp.iter()
+// ============= Coprocessor Registers =============
+pub fn generate_fpr_rows(props: &Regviewprops) -> Html {
+    // let communicator = props.communicator;
+
+    props.fp.iter()
         .enumerate()
         .map(|(register, data)| {
             html! {
                 <tr>
                     <td>{format!("f{register}")}</td>
-                    <td>{format!("{:e}",f32::from_bits((*data).try_into().unwrap())).to_string()}</td>
+                    <td>
+                        <input type="text" id={register.to_string()}
+                        oninput={move |e: InputEvent| {
+                            let target = e.target();
+                            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+                            let input_string = input.value();
+                            let val = match u64::from_str_radix(&input_string, 10) {
+                                Ok(value) => {
+                                    input.set_class_name("valid");
+                                    value
+                                },
+                                Err(_err) => {
+                                    input.set_class_name("invalid");
+                                    return
+                                }
+                            };
+                            log::debug!("{}", val as i64);
+                            // communicator.set_register(register.to_string(), val);
+                            // if register.is_valid_register_value(val, pc_limit) {
+                            //     input.set_class_name("valid");
+                            // } else {
+                            //     input.set_class_name("invalid");
+                            // }
+                        }}
+                        value={(*data as i64).to_string()}/>
+                    </td>
+                </tr>
+            }
+        })
+        .collect::<Html>()
+}
+pub fn generate_fpr_rows_hex(props: &Regviewprops) -> Html {
+    // let communicator = props.communicator;
+
+    props.fp.iter()
+        .enumerate()
+        .map(|(register, data)| {
+            html! {
+                <tr>
+                    <td>{format!("f{register}")}</td>
+                    <td>
+                        <input type="text" id={register.to_string()}
+                        oninput={move |e: InputEvent| {
+                            let target = e.target();
+                            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+                            let input_string = input.value();
+                            let val = match u64::from_str_radix(&input_string[2..], 16) {
+                                Ok(value) => {
+                                    input.set_class_name("valid");
+                                    value
+                                },
+                                Err(_err) => {
+                                    input.set_class_name("invalid");
+                                    return
+                                }
+                            };
+                            log::debug!("{val:#04x?}");
+                            // communicator.set_register(register.to_string(), val);
+                            // if register.is_valid_register_value(val, pc_limit) {
+                            //     input.set_class_name("valid");
+                            // } else {
+                            //     input.set_class_name("invalid");
+                            // }
+                        }}
+                        value={format!("{data:#04x?}").to_string()}/>
+                    </td>
+                </tr>
+            }
+        })
+        .collect::<Html>()
+}
+pub fn generate_fpr_rows_bin(props: &Regviewprops) -> Html {
+    // let communicator = props.communicator;
+
+    props.fp.iter()
+        .enumerate()
+        .map(|(register, data)| {
+            html! {
+                <tr>
+                    <td>{format!("f{register}")}</td>
+                    <td>
+                        <input type="text" id={register.to_string()}
+                        oninput={move |e: InputEvent| {
+                            let target = e.target();
+                            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+                            let input_string = input.value();
+                            let val = match u64::from_str_radix(&input_string[2..], 2) {
+                                Ok(value) => {
+                                    input.set_class_name("valid");
+                                    value
+                                },
+                                Err(_err) => {
+                                    input.set_class_name("invalid");
+                                    return
+                                }
+                            };
+                            log::debug!("{val:#b}");
+                            // communicator.set_register(register.to_string(), val);
+                            // if register.is_valid_register_value(val, pc_limit) {
+                            //     input.set_class_name("valid");
+                            // } else {
+                            //     input.set_class_name("invalid");
+                            // }
+                        }}
+                        value={format!("{data:#b}").to_string()}/>
+                    </td>
                 </tr>
             }
         })
         .collect::<Html>()
 }
 
-pub fn generate_fpr_rows_double(fp: [u64; 32]) -> Html {
-    fp.iter()
+pub fn generate_fpr_rows_float(props: &Regviewprops) -> Html {
+    // let communicator = props.communicator;
+
+    props.fp.iter()
         .enumerate()
         .map(|(register, data)| {
             html! {
                 <tr>
                     <td>{format!("f{register}")}</td>
-                    <td>{format!("{:e}", f64::from_bits(*data)).to_string()}</td>
+                    <td>
+                        <input type="text" id={register.to_string()}
+                        oninput={move |e: InputEvent| {
+                            let target = e.target();
+                            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+                            let input_string = input.value();
+                            let value = match input_string.parse::<f32>() {
+                                Ok(value) => {
+                                    input.set_class_name("valid");
+                                    value
+                                },
+                                Err(_err) => {
+                                    input.set_class_name("invalid");
+                                    return
+                                }
+                            };
+                            log::debug!("{:e}", value);
+                            // communicator.set_register(register.to_string(), val);
+                            // if register.is_valid_register_value(val, pc_limit) {
+                            //     input.set_class_name("valid");
+                            // } else {
+                            //     input.set_class_name("invalid");
+                            // }
+                        }}
+                        value={format!("{:e}",f32::from_bits((*data).try_into().unwrap())).to_string()}/>
+                    </td>
+                </tr>
+            }
+        })
+        .collect::<Html>()
+}
+
+pub fn generate_fpr_rows_double(props: &Regviewprops) -> Html {
+    // let communicator = props.communicator;
+
+    props.fp.iter()
+        .enumerate()
+        .map(|(register, data)| {
+            html! {
+                <tr>
+                    <td>{format!("f{register}")}</td>
+                    <td>
+                        <input type="text" id={register.to_string()}
+                        oninput={move |e: InputEvent| {
+                            let target = e.target();
+                            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+                            let input_string = input.value();
+                            let value = match input_string.parse::<f64>() {
+                                Ok(value) => {
+                                    input.set_class_name("valid");
+                                    value
+                                },
+                                Err(_err) => {
+                                    input.set_class_name("invalid");
+                                    return
+                                }
+                            };
+                            log::debug!("{:e}", value);
+                            // communicator.set_register(register.to_string(), val);
+                            // if register.is_valid_register_value(val, pc_limit) {
+                            //     input.set_class_name("valid");
+                            // } else {
+                            //     input.set_class_name("invalid");
+                            // }
+                        }}
+                        value={format!("{:e}", f64::from_bits(*data)).to_string()}/>
+                    </td>
                 </tr>
             }
         })
@@ -232,9 +423,9 @@ pub fn regview(props: &Regviewprops) -> Html {
                         UnitState::Double => "Double"
                     }
                 }>
-                    <option value="dec">{"Decimal"}</option>
-                    <option value="bin">{"Binary"}</option>
                     <option value="hex">{"Hex"}</option>
+                    <option value="bin">{"Binary"}</option>
+                    <option value="dec">{"Decimal"}</option>
                     if !*switch_flag {
                         <option value="float">{"Float"}</option>
                         <option value="double">{"Double"}</option>
@@ -252,24 +443,24 @@ pub fn regview(props: &Regviewprops) -> Html {
                     <tbody>
                         if *switch_flag{
                             if *active_view == UnitState::Bin {
-                                {generate_gpr_rows_bin(props.gp)}
+                                {generate_gpr_rows_bin(&props)}
                             }
                             else if *active_view == UnitState::Hex {
-                                {generate_gpr_rows_hex(props.gp)}
+                                {generate_gpr_rows_hex(&props)}
                             } else {
                                 {generate_gpr_rows(&props)}
                             }
                         } else {
                             if *active_view == UnitState::Bin {
-                                {generate_fpr_rows_bin(props.fp)}
+                                {generate_fpr_rows_bin(&props)}
                             } else if *active_view == UnitState::Hex{
-                                {generate_fpr_rows_hex(props.fp)}
+                                {generate_fpr_rows_hex(&props)}
                             } else if *active_view == UnitState::Float{
-                                {generate_fpr_rows_float(props.fp)}
+                                {generate_fpr_rows_float(&props)}
                             } else if *active_view == UnitState::Double{
-                                {generate_fpr_rows_double(props.fp)}
+                                {generate_fpr_rows_double(&props)}
                             } else if *active_view == UnitState::Dec {
-                                {generate_fpr_rows(props.fp)}
+                                {generate_fpr_rows(&props)}
                             }
                         }
                     </tbody>

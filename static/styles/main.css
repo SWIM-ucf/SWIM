@@ -114,7 +114,8 @@ body {
   }
 
   .executing {
-    color:rgb(49, 212, 144);
+    background-color:rgb(0 160 93 / 17%);
+    box-shadow: inset 0px 0px 20px 0px #12ff77;
   }
 
   .assembled-string {
@@ -174,6 +175,7 @@ body {
   padding-left: 25px;
   min-height: max(20%, 8em);
   max-height: 50%;
+  z-index: 1;
 }
 
 .console-input {
@@ -182,13 +184,18 @@ body {
   flex-direction: row;
   color: white;
   position: relative;
+  width: 100%;
+}
+
+.console-input .command {
+  margin-left: 25px;
 }
 
 .console-input input {
-  width: 100%;
   background: #012456;
   color: white !important;
-  margin-left: 25px;
+  margin-left: 10px;
+  outline: none;
 }
 
 .console-arrow {
@@ -206,6 +213,7 @@ body {
   word-break: break-all;
   min-height: max(20%, 8em);
   max-height: 50%;
+  z-index: 1;
 }
 
 .memory-view {
@@ -219,6 +227,7 @@ body {
   width: 100%;
   flex-basis: 50%;
   background-color: #FFF;
+  z-index: 1;
 }
 
 .button-bar {
@@ -278,7 +287,14 @@ table {
   overflow-y: auto;
   color: #fff;
 }
-tr:nth-child(even)
+tr {
+  background-color: #1e1e1e;
+  input {
+
+    background-color: #1e1e1e;
+  }
+}
+/* tr:nth-child(even)
 {
   background-color: #1e1e1e;
   input {
@@ -293,7 +309,7 @@ tr:nth-child(odd)
 
     background-color: #101010;
   }
-}
+} */
 
 td:nth-child(2) {
   font-family: 'Iosevka', 'Droid Sans Mono', 'Consolas', monospace;

@@ -82,7 +82,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
         let editor_active_tab = editor_active_tab.clone();
         use_callback(move |args: (MouseEvent, usize), _| {
             let (_e, line_number) = args;
-            editor_curr_line.set(line_number as f64);
+            editor_curr_line.set(line_number as f64 + 1.0);
             editor_active_tab.set(EditorTabState::Editor);
         }, ())
     };
@@ -112,7 +112,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
 
                     let mut conditional_class = "";
                     if props.pc as i64 == address + 4 {
-                        conditional_class = "executedLine";
+                        conditional_class = "executing";
                         html!{
                             <tr ref={executed_ref} key={index} class={classes!("row", conditional_class)}>
                                 <td class={classes!("bkpt")}>
