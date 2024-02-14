@@ -46,8 +46,6 @@
 //!   setting the boolean flag `is_halted`.
 //! - Invalid instructions will cause the datapath to set the `is_halted` flag.
 
-use crate::tests::emulation_core::mips::add;
-
 use super::super::datapath::Datapath;
 use super::constants::*;
 use super::control_signals::*;
@@ -318,9 +316,6 @@ impl RiscDatapath {
         self.set_immediate();
         self.read_registers();
 
-        // Upper part of datapath, PC calculation
-        self.construct_jump_address();
-
         /* Finish this instruction out of the datapath and halt if this is a syscall.
         if let Instruction::SyscallType(_) = self.instruction {
             self.is_halted = true;
@@ -488,7 +483,7 @@ impl RiscDatapath {
             }
         };
 
-        if (self.signals.imm_select == ImmSelect::IUnsigned) {
+        if self.signals.imm_select == ImmSelect::IUnsigned {
             signed_imm = signed_imm & 0x00000fff;
         }
 
@@ -570,7 +565,7 @@ impl RiscDatapath {
                 3 => self.signals.alu_op = AluOp::SetOnLessThanUnsigned,
                 4 => self.signals.alu_op = AluOp::Xor,
                 5 => { 
-                    match (i.imm >> 5) {
+                    match i.imm >> 5 {
                         0b0000000 => self.signals.alu_op = AluOp::ShiftRightLogical(self.state.shamt),
                         0b0100000 => self.signals.alu_op = AluOp::ShiftRightArithmetic(self.state.shamt),
                     };
@@ -665,11 +660,6 @@ impl RiscDatapath {
         self.state.read_data_2 = self.registers.gpr[self.state.rs2 as usize];
     }
 
-    fn construct_jump_address(&mut self) {
-        self.state.jump_address = (self.state.pc_plus_4 & 0xffff_ffff_f000_0000)
-            | self.state.lower_26_shifted_left_by_2 as u64;
-    }
-
     // ======================= Execute (EX) =======================
     /// Perform an ALU operation.
     ///
@@ -677,7 +667,7 @@ impl RiscDatapath {
     /// does not handle exceptions due to integer overflow.
     fn alu(&mut self) {
         // Left shift the immediate value based on the ImmShift control signal.
-        let alu_immediate = self.state.sign_extend;
+        let alu_immediate = self.state.imm;
 
         // Specify the inputs for the operation. The first will always
         // be the first register, but the second may be either the
@@ -730,6 +720,10 @@ impl RiscDatapath {
             _ => 0,
         };
 
+        if self.signals.branch_jump == BranchJump::J {
+            self.construct_jump_address();
+        }
+
         // Set the zero bit/signal.
         self.datapath_signals.alu_z = match self.state.alu_result {
             0 => AluZ::YesZero,
@@ -737,12 +731,16 @@ impl RiscDatapath {
         };
     }
 
+    fn construct_jump_address(&mut self) {
+        self.state.rd = self.state.pc_plus_4 as u32;
+        self.state.jump_address = match self.state.instruction {
+            IType => (self.state.imm as u64 + self.state.read_data_1) & 0xfffffffffffffff0,
+            JType => self.state.imm as u64 + self.registers.pc,
+        }
+    }
+
     fn calc_relative_pc_branch(&mut self) {
-        self.state.sign_extend_shift_left_by_2 = self.state.sign_extend << 2;
-        self.state.relative_pc_branch = self
-            .state
-            .sign_extend_shift_left_by_2
-            .wrapping_add(self.state.pc_plus_4);
+        self.state.relative_pc_branch = ((self.state.imm & 0x00000fff) as u64) + self.registers.pc;
     }
 
     /// Determine the value of the [`CpuBranch`] signal.
@@ -758,11 +756,16 @@ impl RiscDatapath {
         // Depending on the branch type, this may use the ALU's Zero signal
         // as-is or inverted.
         let condition_is_true = match self.signals.branch_jump {
-            BranchJump::Beq => self.datapath_signals.alu_z == AluZ::YesZero,
-            _ => self.datapath_signals.alu_z == AluZ::NoZero,
+            BranchJump::Beq => self.state.read_data_1 == self.state.read_data_2,
+            BranchJump::Bne => self.state.read_data_1 != self.state.read_data_2,
+            BranchJump::Bge => self.state.read_data_1 as i64 >= self.state.read_data_2 as i64,
+            BranchJump::Bgeu => self.state.read_data_1 as u64 >= self.state.read_data_2 as u64,
+            BranchJump::Blt => (self.state.read_data_1 as i64) < (self.state.read_data_2 as i64),
+            BranchJump::Bltu => (self.state.read_data_1 as u64) < (self.state.read_data_2 as u64),
+            _ => false,
         };
 
-        if self.signals.branch_jump != BranchJump::NoBranch && condition_is_true {
+        if condition_is_true {
             self.datapath_signals.cpu_branch = CpuBranch::YesBranch;
         }
     }
@@ -832,10 +835,9 @@ impl RiscDatapath {
     }
 
     fn set_new_pc_mux2(&mut self) {
-        self.state.new_pc = match self.signals.jump {
-            Jump::NoJump => self.state.mem_mux1_to_mem_mux2,
-            Jump::YesJump => self.state.jump_address,
-            Jump::YesJumpJalr => self.state.read_data_1,
+        self.state.new_pc = match self.signals.branch_jump {
+            BranchJump::J => self.state.jump_address,
+            _ => self.state.mem_mux1_to_mem_mux2,
         };
     }
 
