@@ -31,7 +31,7 @@ bc1t loop"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -74,7 +74,7 @@ bc1f loop"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();

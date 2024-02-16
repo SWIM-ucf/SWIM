@@ -31,7 +31,7 @@ add $s1, $s0, $s0"#,
 
     // Parse instructions and load into emulation core memory.
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     // Execute 2 instructions.
     for _ in 0..2 {
@@ -70,7 +70,7 @@ dati r1, 43982"#,
 
     // Parse instructions and load into emulation core memory.
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     // Execute 4 instructions.
     for _ in 0..4 {
@@ -97,7 +97,7 @@ dmuli r8, r7, 2"#,
     );
 
     let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();

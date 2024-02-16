@@ -14,6 +14,7 @@ use monaco::{
 };
 use std::rc::Rc;
 use swim::agent::datapath_communicator::DatapathCommunicator;
+use swim::agent::datapath_reducer::DatapathReducer;
 use swim::agent::EmulationCoreAgent;
 use swim::emulation_core::datapath::Datapath;
 use swim::emulation_core::mips::datapath::MipsDatapath;
@@ -85,13 +86,15 @@ fn app(props: &AppProps) -> Html {
     // the ability to access and change its contents be mutable.
     let datapath = use_mut_ref(MipsDatapath::default);
 
+    let datapath_state = use_reducer(DatapathReducer::default);
+
     // Start listening for messages from the communicator. This effectively links the worker thread to the main thread
     // and will force updates whenever its internal state changes.
     {
-        let trigger = use_force_update();
+        let dispatcher = datapath_state.dispatcher();
         use_effect_with_deps(
             move |communicator| {
-                spawn_local(communicator.listen_for_updates(trigger));
+                spawn_local(communicator.listen_for_updates(dispatcher));
             },
             props.communicator,
         );
@@ -99,18 +102,17 @@ fn app(props: &AppProps) -> Html {
 
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
-        let communicator = props.communicator;
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
         let parser_text_output = parser_text_output.clone();
         let trigger = use_force_update();
+        let communicator = props.communicator;
 
         let executed_line = executed_line.clone();
         let not_highlighted = not_highlighted.clone();
 
         use_callback(
             move |_, text_model| {
-                communicator.send_test_message(); // Test message, remove later.
                 let mut datapath = datapath.borrow_mut();
                 let text_model = text_model.borrow_mut();
 
@@ -160,7 +162,7 @@ fn app(props: &AppProps) -> Html {
                 // Proceed with loading into memory and expand pseudo-instructions if there are no errors.
                 if marker_jsarray.length() == 0 {
                     // Load the binary into the datapath's memory
-                    match datapath.initialize(assembled) {
+                    match datapath.initialize_legacy(assembled.clone()) {
                         Ok(_) => (),
                         Err(msg) => {
                             // In the case of an error, note this and stop early.
@@ -170,6 +172,8 @@ fn app(props: &AppProps) -> Html {
                     // log!(datapath.memory.to_string());
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
                     datapath.registers.pc = program_info.pc_starting_point as u64;
+                    // Send the binary over to the emulation core thread
+                    communicator.initialize(program_info.pc_starting_point, assembled)
                 }
 
                 trigger.force_update();
@@ -188,6 +192,7 @@ fn app(props: &AppProps) -> Html {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
+        let communicator = props.communicator;
 
         let executed_line = executed_line.clone();
         let not_highlighted = not_highlighted.clone();
@@ -243,6 +248,7 @@ fn app(props: &AppProps) -> Html {
                 // log!(not_highlighted.at(0));
 
                 datapath.execute_instruction();
+                communicator.execute_instruction();
 
                 // done with the highlight, prepare for the next one.
                 executed_line.pop();
@@ -264,6 +270,7 @@ fn app(props: &AppProps) -> Html {
         let not_highlighted = not_highlighted.clone();
         let highlight_decor = highlight_decor;
         let trigger = use_force_update();
+        let communicator = props.communicator;
 
         use_callback(
             move |_, _| {
@@ -300,6 +307,7 @@ fn app(props: &AppProps) -> Html {
                 } else {
                     datapath.execute_stage();
                 }
+                communicator.execute_stage();
                 trigger.force_update();
             },
             (),
@@ -313,6 +321,7 @@ fn app(props: &AppProps) -> Html {
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
         let parser_text_output = parser_text_output.clone();
+        let communicator = props.communicator;
 
         let executed_line = executed_line;
         let not_highlighted = not_highlighted;
@@ -331,6 +340,7 @@ fn app(props: &AppProps) -> Html {
                 );
                 parser_text_output.set("".to_string());
                 datapath.reset();
+                communicator.reset();
                 trigger.force_update();
             },
             (),
@@ -476,7 +486,7 @@ fn app(props: &AppProps) -> Html {
                 </div>
 
                 // Right column
-                <Regview gp={datapath.borrow().registers} fp={datapath.borrow().coprocessor.fpr}/>
+                <Regview gp={datapath_state.mips.registers} fp={datapath.borrow().coprocessor.fpr}/>
             </div>
         </>
     }

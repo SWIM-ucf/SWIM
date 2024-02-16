@@ -52,6 +52,8 @@ use super::control_signals::{floating_point::*, *};
 use super::datapath_signals::*;
 use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
+use crate::emulation_core::architectures::DatapathRef;
+use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.
 #[derive(Clone, PartialEq)]
@@ -76,7 +78,7 @@ pub struct MipsDatapath {
 }
 
 /// A collection of all the data lines and wires in the datapath.
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct DatapathState {
     /// *Data line.* The currently loaded instruction. Initialized after the
     /// Instruction Fetch stage.
@@ -185,6 +187,18 @@ impl Stage {
     }
 }
 
+impl From<Stage> for String {
+    fn from(val: Stage) -> String {
+        String::from(match val {
+            Stage::InstructionFetch => "writeback",
+            Stage::InstructionDecode => "instruction_fetch",
+            Stage::Execute => "instruction_decode",
+            Stage::Memory => "execute",
+            Stage::WriteBack => "memory",
+        })
+    }
+}
+
 impl Default for MipsDatapath {
     fn default() -> Self {
         let mut datapath = MipsDatapath {
@@ -210,7 +224,6 @@ impl Default for MipsDatapath {
 impl Datapath for MipsDatapath {
     type RegisterData = u64;
     type RegisterEnum = super::registers::GpRegisterType;
-    type MemoryType = Memory;
 
     fn execute_instruction(&mut self) {
         loop {
@@ -255,8 +268,25 @@ impl Datapath for MipsDatapath {
         self.registers[register]
     }
 
-    fn get_memory(&self) -> &Self::MemoryType {
+    fn set_register_by_str(&mut self, _register: &str, _data: Self::RegisterData) {
+        todo!()
+    }
+
+    fn initialize(&mut self, initial_pc: usize, instructions: Vec<u32>) -> Result<(), String> {
+        self.reset();
+        self.load_instructions(instructions)?;
+        self.registers.pc = initial_pc as u64;
+        self.is_halted = false;
+
+        Ok(())
+    }
+
+    fn get_memory(&self) -> &Memory {
         &self.memory
+    }
+
+    fn set_memory(&mut self, _ptr: usize, _data: Vec<u8>) {
+        todo!()
     }
 
     fn is_halted(&self) -> bool {
@@ -266,13 +296,16 @@ impl Datapath for MipsDatapath {
     fn reset(&mut self) {
         std::mem::take(self);
     }
+
+    fn as_datapath_ref(&self) -> DatapathRef {
+        DatapathRef::MIPS(self)
+    }
 }
 
 impl MipsDatapath {
     // ===================== General Functions =====================
-    /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
-    /// flag. If the process fails, an [`Err`] is returned.
-    pub fn initialize(&mut self, instructions: Vec<u32>) -> Result<(), String> {
+    /// Legacy initialize function, to be removed later.
+    pub fn initialize_legacy(&mut self, instructions: Vec<u32>) -> Result<(), String> {
         self.reset();
         self.load_instructions(instructions)?;
         self.is_halted = false;
