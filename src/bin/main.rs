@@ -20,7 +20,6 @@ use swim::emulation_core::datapath::Datapath;
 use swim::emulation_core::mips::datapath::MipsDatapath;
 use swim::emulation_core::mips::datapath::Stage;
 use swim::parser::parser_assembler_main::parser;
-use swim::shims;
 use swim::ui::console::component::Console;
 use swim::ui::regview::component::Regview;
 use wasm_bindgen::{JsCast, JsValue};
@@ -174,10 +173,7 @@ fn app(props: &AppProps) -> Html {
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
                     datapath.registers.pc = program_info.pc_starting_point as u64;
                     // Send the binary over to the emulation core thread
-                    communicator.initialize(
-                        program_info.pc_starting_point,
-                        shims::convert_to_u8_bytes(assembled),
-                    )
+                    communicator.initialize(program_info.pc_starting_point, assembled)
                 }
 
                 trigger.force_update();
