@@ -163,7 +163,7 @@ pub struct DatapathState {
 }
 
 /// The possible stages the datapath could be in during execution.
-#[derive(Clone, Copy, Default, Eq, PartialEq)]
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Stage {
     #[default]
     InstructionFetch,

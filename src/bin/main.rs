@@ -16,7 +16,6 @@ use std::rc::Rc;
 use swim::agent::datapath_communicator::DatapathCommunicator;
 use swim::agent::datapath_reducer::DatapathReducer;
 use swim::agent::EmulationCoreAgent;
-use swim::emulation_core::datapath::Datapath;
 use swim::emulation_core::mips::datapath::MipsDatapath;
 use swim::emulation_core::mips::datapath::Stage;
 use swim::ui::footer::component::Footer;
@@ -106,11 +105,10 @@ fn app(props: &AppProps) -> Html {
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
         // props.communicator.send_test_message(1); // Test message, remove later.
-        let communicator = props.communicator;
+        // let communicator = props.communicator;
         let text_model = text_model.clone();
         let memory_text_model = memory_text_model.clone();
         let memory_curr_instr = memory_curr_instr.clone();
-        let datapath = Rc::clone(&datapath);
         let datapath_state = datapath_state.clone();
         let parser_text_output = parser_text_output.clone();
         let trigger = use_force_update();
@@ -124,7 +122,6 @@ fn app(props: &AppProps) -> Html {
 
         use_callback(
             move |_, (text_model, editor_curr_line, memory_curr_instr, datapath_state)| {
-                let mut datapath = datapath.borrow_mut();
                 let text_model = text_model.clone();
                 let memory_text_model = memory_text_model.clone();
                 // parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
@@ -169,22 +166,12 @@ fn app(props: &AppProps) -> Html {
 
                 // Proceed with loading into memory and expand pseudo-instructions if there are no errors.
                 if marker_jsarray.length() == 0 {
-                    // Load the binary into the datapath's memory
-                    match datapath.initialize_legacy(assembled.clone()) {
-                        Ok(_) => (),
-                        Err(msg) => {
-                            // In the case of an error, note this and stop early.
-                            parser_text_output.set(format!("This program failed to load into the datapath. Message returned by datapath: {msg}"));
-                        }
-                    }
-                    memory_curr_instr.set(datapath.registers.pc);
-                    // log!(datapath.memory.to_string());
+                    // Send the binary over to the emulation core thread
+                    communicator.initialize(program_info.pc_starting_point, assembled);
+                    memory_curr_instr.set(datapath_state.mips.registers.pc);
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
                     let hexdump = &datapath_state.mips.memory.generate_formatted_hex();
                     memory_text_model.set_value(hexdump);
-                    datapath.registers.pc = program_info.pc_starting_point as u64;
-                    // Send the binary over to the emulation core thread
-                    communicator.initialize(program_info.pc_starting_point, assembled)
                 }
 
                 trigger.force_update();
@@ -200,7 +187,6 @@ fn app(props: &AppProps) -> Html {
     // syscall instruction, which will halt the datapath. As you execute the
     // code, the previously executed line is highlighted.
     let on_execute_clicked = {
-        let datapath = Rc::clone(&datapath);
         let datapath_state = datapath_state.clone();
         let program_info_ref = Rc::clone(&program_info_ref);
 
@@ -216,19 +202,17 @@ fn app(props: &AppProps) -> Html {
 
         use_callback(
             move |_, (editor_curr_line, memory_curr_instr, datapath_state)| {
-                let mut datapath = datapath.borrow_mut();
                 let memory_text_model = memory_text_model.clone();
 
                 // Get the current line and convert it to f64
                 let programinfo = Rc::clone(&program_info_ref);
                 let programinfo = programinfo.borrow().clone();
                 let list_of_line_numbers = programinfo.address_to_line_number;
-                let index = datapath.registers.pc as usize / 4;
+                let index = datapath_state.mips.registers.pc as usize / 4;
                 editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0); // add one to account for the editor's line numbers
-                memory_curr_instr.set(datapath.registers.pc);
+                memory_curr_instr.set(datapath_state.mips.registers.pc);
 
                 // Execute instruction
-                datapath.execute_instruction();
                 communicator.execute_instruction();
 
                 // Update memory
@@ -243,9 +227,9 @@ fn app(props: &AppProps) -> Html {
     };
 
     let on_execute_stage_clicked = {
-        let datapath = Rc::clone(&datapath);
         let datapath_state = datapath_state.clone();
         let program_info_ref = Rc::clone(&program_info_ref);
+        let communicator = props.communicator;
 
         // Code editor
         let editor_curr_line = editor_curr_line.clone();
@@ -258,21 +242,19 @@ fn app(props: &AppProps) -> Html {
 
         use_callback(
             move |_, (editor_curr_line, memory_curr_instr, datapath_state)| {
-                let mut datapath = datapath.borrow_mut();
-
                 let memory_text_model = memory_text_model.clone();
 
-                if datapath.current_stage == Stage::InstructionDecode {
+                if datapath_state.mips.current_stage == Stage::InstructionDecode {
                     // highlight on InstructionDecode since syscall stops at that stage.
                     let programinfo = Rc::clone(&program_info_ref);
                     let programinfo = programinfo.borrow().clone();
                     let list_of_line_numbers = programinfo.address_to_line_number;
-                    let index = datapath.registers.pc as usize / 4;
+                    let index = datapath_state.mips.registers.pc as usize / 4;
                     editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0);
-                    memory_curr_instr.set(datapath.registers.pc);
-                    datapath.execute_stage();
+                    memory_curr_instr.set(datapath_state.mips.registers.pc);
+                    communicator.execute_stage();
                 } else {
-                    datapath.execute_stage();
+                    communicator.execute_stage();
                 }
 
                 // Update memory
@@ -414,7 +396,7 @@ fn app(props: &AppProps) -> Html {
     // This is how we will reset the datapath.
     // This will also clear any highlight on the editor.
     let on_reset_clicked = {
-        let datapath = Rc::clone(&datapath);
+        let datapath_state = datapath_state.clone();
         let trigger = use_force_update();
         let parser_text_output = parser_text_output.clone();
         let communicator = props.communicator;
@@ -428,15 +410,14 @@ fn app(props: &AppProps) -> Html {
         let memory_curr_instr = memory_curr_instr.clone();
 
         use_callback(
-            move |_, editor_curr_line| {
-                let mut datapath = datapath.borrow_mut();
+            move |_, (editor_curr_line, datapath_state)| {
 
                 // Set highlighted line to 0
                 editor_curr_line.set(0.0);
-                memory_curr_instr.set(datapath.registers.pc);
+                memory_curr_instr.set(datapath_state.mips.registers.pc);
 
                 parser_text_output.set("".to_string());
-                datapath.reset();
+                communicator.reset();
 
                 // Clear hex editor content
                 let memory_text_model = memory_text_model.clone();
@@ -446,7 +427,7 @@ fn app(props: &AppProps) -> Html {
                 communicator.reset();
                 trigger.force_update();
             },
-            editor_curr_line,
+            (editor_curr_line, datapath_state),
         )
     };
 
@@ -504,8 +485,8 @@ fn app(props: &AppProps) -> Html {
                     <div>
                         <div class="buttons">
                             <button class="button" onclick={on_assemble_clicked}>{ "Assemble " }<i class="fa-sharp fa-solid fa-hammer"></i></button>
-                            <button class="button" onclick={on_execute_clicked} disabled={datapath.borrow().is_halted()}>{ "Execute " }<i class="fa-regular fa-circle-play"></i></button>
-                            <button class="button" onclick={on_execute_stage_clicked} disabled={datapath.borrow().is_halted()}> { "Execute Stage " }<i class="fa-solid fa-play"></i></button>
+                            <button class="button" onclick={on_execute_clicked} disabled={false}>{ "Execute " }<i class="fa-regular fa-circle-play"></i></button>
+                            <button class="button" onclick={on_execute_stage_clicked} disabled={false}> { "Execute Stage " }<i class="fa-solid fa-play"></i></button>
                             <button class="button" onclick={on_reset_clicked}>{ "Reset " }<i class="fa-solid fa-arrow-rotate-left"></i></button>
                             //<input type="button" value="Load File" onclick={upload_clicked_callback} />
                             <button class="button" onclick={upload_clicked_callback}>{"Upload File "}<i class="fa-sharp fa-solid fa-upload"></i></button>
@@ -517,7 +498,7 @@ fn app(props: &AppProps) -> Html {
 
                     // Editor
                     <div class="code">
-                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} pc_limit={*pc_limit} binary={binary_ref.borrow().clone()} memory_curr_instr={memory_curr_instr.clone()} editor_curr_line={editor_curr_line.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} pc={(*datapath.borrow()).clone().registers.pc}/>
+                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} pc_limit={*pc_limit} binary={binary_ref.borrow().clone()} memory_curr_instr={memory_curr_instr.clone()} editor_curr_line={editor_curr_line.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} pc={datapath_state.mips.registers.pc}/>
                     </div>
 
                     // Console

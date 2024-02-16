@@ -1,4 +1,4 @@
-use crate::emulation_core::architectures::AvailableDatapaths;
+use crate::emulation_core::{architectures::AvailableDatapaths, mips::datapath::Stage};
 use crate::emulation_core::mips::datapath::DatapathState;
 use crate::emulation_core::mips::memory::Memory;
 use crate::emulation_core::mips::registers::GpRegisters;
@@ -25,4 +25,5 @@ pub enum MipsStateUpdate {
     UpdateState(DatapathState),
     UpdateRegisters(GpRegisters),
     UpdateMemory(Memory),
+    UpdateStage(Stage)
 }
