@@ -21,11 +21,6 @@ use swim::emulation_core::mips::datapath::MipsDatapath;
 use swim::emulation_core::mips::datapath::Stage;
 use swim::ui::footer::component::Footer;
 use swim::parser::parser_assembler_main::parser;
-<<<<<<< HEAD
-use swim::shims;
-=======
-use swim::ui::console::component::Console;
->>>>>>> 0c78fd0aa063b873ebe3afa961a8b9ac352b2329
 use swim::ui::regview::component::Regview;
 use swim::ui::swim_editor::component::SwimEditor;
 use wasm_bindgen::{JsCast, JsValue};
@@ -116,6 +111,7 @@ fn app(props: &AppProps) -> Html {
         let memory_text_model = memory_text_model.clone();
         let memory_curr_instr = memory_curr_instr.clone();
         let datapath = Rc::clone(&datapath);
+        let datapath_state = datapath_state.clone();
         let parser_text_output = parser_text_output.clone();
         let trigger = use_force_update();
         let editor_curr_line = editor_curr_line.clone();
@@ -127,7 +123,7 @@ fn app(props: &AppProps) -> Html {
         let binary_ref = Rc::clone(&binary_ref);
 
         use_callback(
-            move |_, (text_model, editor_curr_line, memory_curr_instr)| {
+            move |_, (text_model, editor_curr_line, memory_curr_instr, datapath_state)| {
                 let mut datapath = datapath.borrow_mut();
                 let text_model = text_model.clone();
                 let memory_text_model = memory_text_model.clone();
@@ -184,7 +180,7 @@ fn app(props: &AppProps) -> Html {
                     memory_curr_instr.set(datapath.registers.pc);
                     // log!(datapath.memory.to_string());
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
-                    let hexdump = &datapath.memory.generate_formatted_hex();
+                    let hexdump = &datapath_state.mips.memory.generate_formatted_hex();
                     memory_text_model.set_value(hexdump);
                     datapath.registers.pc = program_info.pc_starting_point as u64;
                     // Send the binary over to the emulation core thread
@@ -193,7 +189,7 @@ fn app(props: &AppProps) -> Html {
 
                 trigger.force_update();
             },
-            (text_model, editor_curr_line, memory_curr_instr),
+            (text_model, editor_curr_line, memory_curr_instr, datapath_state),
         )
     };
 
@@ -205,6 +201,7 @@ fn app(props: &AppProps) -> Html {
     // code, the previously executed line is highlighted.
     let on_execute_clicked = {
         let datapath = Rc::clone(&datapath);
+        let datapath_state = datapath_state.clone();
         let program_info_ref = Rc::clone(&program_info_ref);
 
         // Code editor
@@ -218,7 +215,7 @@ fn app(props: &AppProps) -> Html {
         let communicator = props.communicator;
 
         use_callback(
-            move |_, (editor_curr_line, memory_curr_instr)| {
+            move |_, (editor_curr_line, memory_curr_instr, datapath_state)| {
                 let mut datapath = datapath.borrow_mut();
                 let memory_text_model = memory_text_model.clone();
 
@@ -235,18 +232,19 @@ fn app(props: &AppProps) -> Html {
                 communicator.execute_instruction();
 
                 // Update memory
-                let hexdump = &datapath.memory.generate_formatted_hex();
+                let hexdump = &datapath_state.mips.memory.generate_formatted_hex();
 
                 memory_text_model.set_value(hexdump);
 
                 trigger.force_update();
             },
-            (editor_curr_line, memory_curr_instr),
+            (editor_curr_line, memory_curr_instr, datapath_state),
         )
     };
 
     let on_execute_stage_clicked = {
         let datapath = Rc::clone(&datapath);
+        let datapath_state = datapath_state.clone();
         let program_info_ref = Rc::clone(&program_info_ref);
 
         // Code editor
@@ -259,7 +257,7 @@ fn app(props: &AppProps) -> Html {
         let trigger = use_force_update();
 
         use_callback(
-            move |_, (editor_curr_line, memory_curr_instr)| {
+            move |_, (editor_curr_line, memory_curr_instr, datapath_state)| {
                 let mut datapath = datapath.borrow_mut();
 
                 let memory_text_model = memory_text_model.clone();
@@ -278,18 +276,17 @@ fn app(props: &AppProps) -> Html {
                 }
 
                 // Update memory
-                let hexdump = &datapath.memory.generate_formatted_hex();
+                let hexdump = &datapath_state.mips.memory.generate_formatted_hex();
 
                 memory_text_model.set_value(hexdump);
 
                 trigger.force_update();
             },
-            (editor_curr_line, memory_curr_instr),
+            (editor_curr_line, memory_curr_instr, datapath_state),
         )
     };
 
     let on_memory_clicked = {
-        let datapath = Rc::clone(&datapath);
         let program_info_ref = Rc::clone(&program_info_ref);
 
         // Code editor
@@ -303,9 +300,7 @@ fn app(props: &AppProps) -> Html {
         let datapath_state = datapath_state.clone();
 
         use_callback(
-            move |_, _| {
-                let datapath = datapath.borrow_mut();
-
+            move |_, datapath_state| {
                 let communicator = communicator.clone();
                 let text_model = text_model.clone();
 
@@ -335,7 +330,7 @@ fn app(props: &AppProps) -> Html {
                                 }
                             };
 
-                            let curr_word = match datapath.memory.load_word(address * 4) {
+                            let curr_word = match datapath_state.mips.memory.load_word(address * 4) {
                                 Ok(data) => data,
                                 Err(e) => {
                                     debug!("{:?}", e);
@@ -343,8 +338,6 @@ fn app(props: &AppProps) -> Html {
                                 }
                             };
                             if curr_word != *data {
-                                debug!("address: {:?}", address * 4);
-                                log::debug!("curr word: {}, new word: {}", curr_word, data);
                                 changed_lines.push(UpdatedLine::new(string_version, i));
 
                                 communicator.set_memory(address * 4, *data);
@@ -407,19 +400,14 @@ fn app(props: &AppProps) -> Html {
                     }
                 }
 
-                let hexdump = datapath.memory.generate_formatted_hex();
-
-                memory_text_model.set_value(&hexdump);
-
                 // Update the parsed info for text and data segment views
                 let (program_info, _) = parser(text_model.get_value());
                 *program_info_ref.borrow_mut() = program_info.clone();
 
-                communicator.execute_stage();
                 trigger.force_update();
 
             },
-            (),
+            datapath_state,
         )
     };
 

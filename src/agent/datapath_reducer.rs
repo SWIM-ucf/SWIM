@@ -7,12 +7,13 @@ use crate::emulation_core::mips::registers::GpRegisters;
 use std::rc::Rc;
 use yew::Reducible;
 
+#[derive(PartialEq)]
 pub struct DatapathReducer {
     pub current_architecture: AvailableDatapaths,
     pub mips: MipsCoreState,
 }
 
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub struct MipsCoreState {
     pub state: DatapathState,
     pub registers: GpRegisters,
