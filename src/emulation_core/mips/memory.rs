@@ -48,6 +48,29 @@ impl Memory {
         }
     }
 
+    // A byte is 8 bits.
+    pub fn store_byte(&mut self, address: u64, data: u8) -> Result<(), String> {
+        let address = address as usize;
+
+        self.check_valid_address(address)?;
+
+        self.memory[address] = (data & 0b11111111) as u8;
+
+        Ok(())
+    }
+
+    // A word is 32 bits.
+    pub fn store_half(&mut self, address: u64, data: u16) -> Result<(), String> {
+        let address = address as usize;
+
+        self.check_valid_address(address)?;
+
+        self.memory[address] = ((data >> 8) & 0b11111111) as u8;
+        self.memory[address + 1] = (data & 0b11111111) as u8;
+
+        Ok(())
+    }
+
     // A word is 32 bits.
     pub fn store_word(&mut self, address: u64, data: u32) -> Result<(), String> {
         let address = address as usize;
@@ -71,6 +94,31 @@ impl Memory {
         self.store_word(address + 4, data_lower)?;
 
         Ok(())
+    }
+
+    // A byte is 8 bits.
+    pub fn load_byte(&self, address: u64) -> Result<u8, String> {
+        let address = address as usize;
+
+        self.check_valid_address(address)?;
+
+        let mut result: u8 = 0;
+        result |= self.memory[address];
+
+        Ok(result)
+    }
+
+    // A half-word is 16 bits.
+    pub fn load_half(&self, address: u64) -> Result<u16, String> {
+        let address = address as usize;
+
+        self.check_valid_address(address)?;
+
+        let mut result: u16 = 0;
+        result |= (self.memory[address] as u16) << 8;
+        result |= self.memory[address + 1] as u16;
+
+        Ok(result)
     }
 
     // A word is 32 bits.

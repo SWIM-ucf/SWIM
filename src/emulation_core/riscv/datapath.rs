@@ -46,16 +46,13 @@
 //!   setting the boolean flag `is_halted`.
 //! - Invalid instructions will cause the datapath to set the `is_halted` flag.
 
-use crate::tests::emulation_core::mips::add;
-
 use super::super::datapath::Datapath;
 use super::constants::*;
 use super::control_signals::*;
-use super::control_signals::*;
 use super::datapath_signals::*;
 use super::instruction::*;
-use super::{memory::Memory, registers::GpRegisters};
-use super::{memory::Memory, registers::GpRegisters};
+use crate::emulation_core::architectures::DatapathRef;
+use super::{super::mips::memory::Memory, registers::GpRegisters};
 
 /// An implementation of a datapath for the MIPS64 ISA.
 #[derive(Clone, PartialEq)]
@@ -215,7 +212,16 @@ impl Default for RiscDatapath {
 impl Datapath for RiscDatapath {
     type RegisterData = u64;
     type RegisterEnum = super::registers::GpRegisterType;
-    type MemoryType = Memory;
+
+    /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
+    /// flag. If the process fails, an [`Err`] is returned.
+    fn initialize(&mut self, initial_pc: usize, instructions: Vec<u32>) -> Result<(), String> {
+        self.reset();
+        self.load_instructions(instructions)?;
+        self.is_halted = false;
+
+        Ok(())
+    }
 
     fn execute_instruction(&mut self) {
         loop {
@@ -256,8 +262,16 @@ impl Datapath for RiscDatapath {
         self.registers[register]
     }
 
-    fn get_memory(&self) -> &Self::MemoryType {
+    fn set_register_by_str(&mut self, _register: &str, _data: Self::RegisterData) {
+        todo!()
+    }
+
+    fn get_memory(&self) -> &Memory {
         &self.memory
+    }
+
+    fn set_memory(&mut self, ptr: usize, data: Vec<u8>) {
+        todo!();
     }
 
     fn is_halted(&self) -> bool {
@@ -267,19 +281,14 @@ impl Datapath for RiscDatapath {
     fn reset(&mut self) {
         std::mem::take(self);
     }
+    
+    fn as_datapath_ref(&self) -> DatapathRef {
+        todo!();
+    }
 }
 
 impl RiscDatapath {
     // ===================== General Functions =====================
-    /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
-    /// flag. If the process fails, an [`Err`] is returned.
-    pub fn initialize(&mut self, instructions: Vec<u32>) -> Result<(), String> {
-        self.reset();
-        self.load_instructions(instructions)?;
-        self.is_halted = false;
-
-        Ok(())
-    }
 
     /// Load a vector of 32-bit instructions into memory. If the process fails,
     /// from a lack of space or otherwise, an [`Err`] is returned.
@@ -319,9 +328,6 @@ impl RiscDatapath {
         self.set_control_signals();
         self.set_immediate();
         self.read_registers();
-
-        // Upper part of datapath, PC calculation
-        self.construct_jump_address();
 
         /* Finish this instruction out of the datapath and halt if this is a syscall.
         if let Instruction::SyscallType(_) = self.instruction {
