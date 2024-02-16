@@ -3,8 +3,8 @@ use std::ops::Deref;
 use std::rc::Rc;
 use wasm_bindgen::JsCast;
 use wasm_bindgen::{closure::Closure, JsValue};
-use yew::{function_component, html, use_callback, Html, Properties, UseStateHandle};
 use yew::prelude::*;
+use yew::{function_component, html, use_callback, Html, Properties, UseStateHandle};
 
 use monaco::{
     api::TextModel,
@@ -36,14 +36,11 @@ pub struct HexEditorProps {
 #[derive(Clone, Debug, PartialEq)]
 pub struct UpdatedLine {
     pub text: String,
-    pub line_number: usize
+    pub line_number: usize,
 }
 impl UpdatedLine {
     pub fn new(text: String, line_number: usize) -> Self {
-        UpdatedLine {
-            text,
-            line_number
-        }
+        UpdatedLine { text, line_number }
     }
 }
 
@@ -69,7 +66,8 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             let start_line_number = selection.selection_start_line_number();
             let start_column = selection.start_column();
             let end_column = selection.end_column();
-            let (start_column, end_column) = calculate_ascii_columns(start_column as usize, end_column as usize);
+            let (start_column, end_column) =
+                calculate_ascii_columns(start_column as usize, end_column as usize);
             let range = Range::new(
                 start_line_number,
                 start_column,
@@ -78,14 +76,13 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             );
 
             // Style the highlighting
-            let highlight_decoration: IModelDeltaDecoration = js_sys::Object::new().unchecked_into();
+            let highlight_decoration: IModelDeltaDecoration =
+                js_sys::Object::new().unchecked_into();
             let highlight_options: IModelDecorationOptions = js_sys::Object::new().unchecked_into();
             highlight_options.set_inline_class_name("highlightHex".into());
             highlight_options.set_is_whole_line(false.into());
             highlight_decoration.set_options(&highlight_options);
-            let range_js = range
-                .dyn_into::<JsValue>()
-                .expect("Range is not found.");
+            let range_js = range.dyn_into::<JsValue>().expect("Range is not found.");
             highlight_decoration.set_range(&monaco::sys::IRange::from(range_js));
             let decoration_js = highlight_decoration
                 .dyn_into::<JsValue>()
@@ -103,7 +100,8 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             let existing_decorations = text_model.get_all_decorations(None, None);
             text_model.delta_decorations(&decorations, &not_highlighted, None);
             // Set new decorations and save their IDs
-            *decorations = text_model.delta_decorations(&existing_decorations, &executed_line, None);
+            *decorations =
+                text_model.delta_decorations(&existing_decorations, &executed_line, None);
         },
     ) as Box<dyn FnMut(_)>);
 
@@ -126,7 +124,12 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
 
     // Calculates which columns in the ASCII portion belong to the given hex portion
     fn calculate_ascii_columns(hex_start_column: usize, hex_end_column: usize) -> (f64, f64) {
-        if hex_start_column > 8 && hex_start_column < 46 && hex_end_column > 8 && hex_end_column < 46 && hex_end_column > hex_start_column {
+        if hex_start_column > 8
+            && hex_start_column < 46
+            && hex_end_column > 8
+            && hex_end_column < 46
+            && hex_end_column > hex_start_column
+        {
             let ascii_length = (hex_end_column - hex_start_column) / 2;
             let start_column = 46 + ((hex_start_column - 8) / 2) - 1;
             let end_column = start_column + ascii_length;

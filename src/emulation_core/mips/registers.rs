@@ -69,11 +69,11 @@ impl GpRegisterType {
             GpRegisterType::Pc => {
                 // Check if PC is more than the number of instructions or not word-aligned
                 value <= pc_limit as u64 && value % 4 == 0
-            },
+            }
             GpRegisterType::Sp => {
                 // Check if SP is more than memory capacity or not word-aligned
                 value <= CAPACITY_BYTES as u64 && value % 4 == 0
-            },
+            }
             _ => true, // Other registers are always considered valid
         }
     }

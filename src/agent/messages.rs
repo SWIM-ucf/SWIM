@@ -1,7 +1,7 @@
-use crate::emulation_core::{architectures::AvailableDatapaths, mips::datapath::Stage};
 use crate::emulation_core::mips::datapath::DatapathState;
 use crate::emulation_core::mips::memory::Memory;
 use crate::emulation_core::mips::registers::GpRegisters;
+use crate::emulation_core::{architectures::AvailableDatapaths, mips::datapath::Stage};
 use serde::{Deserialize, Serialize};
 
 /// Commands sent from the UI thread to the worker thread.
@@ -25,5 +25,5 @@ pub enum MipsStateUpdate {
     UpdateState(DatapathState),
     UpdateRegisters(GpRegisters),
     UpdateMemory(Memory),
-    UpdateStage(Stage)
+    UpdateStage(Stage),
 }

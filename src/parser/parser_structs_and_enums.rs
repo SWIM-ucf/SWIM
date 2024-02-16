@@ -150,10 +150,7 @@ impl Data {
     ///Takes the operator, operands, and label(optional) associated with an instruction and recreates the string version
     pub fn recreate_string(&self) -> String {
         let mut recreated_string = "".to_string();
-        recreated_string.push_str(&format!(
-            "{}: ",
-            self.label.clone().token_name
-        ));
+        recreated_string.push_str(&format!("{}: ", self.label.clone().token_name));
         recreated_string.push_str(&self.data_type.token_name.to_string());
 
         for token in &self.data_entries {

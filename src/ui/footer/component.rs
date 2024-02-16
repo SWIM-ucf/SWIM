@@ -1,13 +1,13 @@
+use crate::agent::datapath_communicator::DatapathCommunicator;
+use crate::emulation_core::mips::datapath::MipsDatapath;
+use crate::ui::console::component::Console;
+use crate::ui::hex_editor::component::HexEditor;
+use crate::ui::visual_datapath::{DatapathSize, VisualDatapath};
+use monaco::api::TextModel;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
-use monaco::api::TextModel;
-use crate::agent::datapath_communicator::DatapathCommunicator;
-use crate::emulation_core::mips::datapath::MipsDatapath;
-use crate::ui::visual_datapath::{DatapathSize, VisualDatapath};
-use crate::ui::hex_editor::component::HexEditor;
-use crate::ui::console::component::Console;
 
 #[derive(PartialEq, Properties)]
 pub struct Footerprops {
@@ -26,7 +26,7 @@ pub enum FooterTabState {
     #[default]
     Console,
     Datapath,
-    HexEditor
+    HexEditor,
 }
 
 #[function_component(Footer)]

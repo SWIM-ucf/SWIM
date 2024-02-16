@@ -50,7 +50,8 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
         &mut program_info.monaco_line_info,
     );
 
-    let (binary, data_starting_point) = create_binary_vec(program_info.instructions.clone(), vec_of_data);
+    let (binary, data_starting_point) =
+        create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
     for entry in &program_info.monaco_line_info {
         program_info
@@ -1532,7 +1533,10 @@ pub fn determine_pc_starting_point(labels: HashMap<String, usize>) -> usize {
 }
 
 ///Creates a vector of u32 from the data found in the parser / assembler to put into memory.
-pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8>) -> (Vec<u32>, usize) {
+pub fn create_binary_vec(
+    instructions: Vec<Instruction>,
+    mut vec_of_data: Vec<u8>,
+) -> (Vec<u32>, usize) {
     //push all instructions
     let mut binary: Vec<u32> = Vec::new();
     for instruction in instructions {

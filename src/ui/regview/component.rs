@@ -1,7 +1,7 @@
 use crate::agent::datapath_communicator::DatapathCommunicator;
 use crate::emulation_core::mips::registers::GpRegisters;
 use wasm_bindgen::JsCast;
-use web_sys::{InputEvent, HtmlInputElement};
+use web_sys::{HtmlInputElement, InputEvent};
 use yew::prelude::*;
 use yew::{html, Html};
 
@@ -10,7 +10,7 @@ pub struct Regviewprops {
     pub gp: GpRegisters,
     pub fp: [u64; 32],
     pub pc_limit: usize,
-    pub communicator: &'static DatapathCommunicator
+    pub communicator: &'static DatapathCommunicator,
 }
 #[derive(PartialEq, Properties)]
 pub struct Viewswitch {
@@ -36,7 +36,9 @@ pub fn generate_gpr_rows(props: &Regviewprops) -> Html {
     let communicator = props.communicator;
     let pc_limit = props.pc_limit;
 
-    props.gp.into_iter()
+    props
+        .gp
+        .into_iter()
         .map(|(register, data)| {
             html! {
                 <tr>
@@ -74,7 +76,9 @@ pub fn generate_gpr_rows_hex(props: &Regviewprops) -> Html {
     let communicator = props.communicator;
     let pc_limit = props.pc_limit;
 
-    props.gp.into_iter()
+    props
+        .gp
+        .into_iter()
         .map(|(register, data)| {
             html! {
                 <tr>
@@ -113,7 +117,9 @@ pub fn generate_gpr_rows_bin(props: &Regviewprops) -> Html {
     let communicator = props.communicator;
     let pc_limit = props.pc_limit;
 
-    props.gp.into_iter()
+    props
+        .gp
+        .into_iter()
         .map(|(register, data)| {
             html! {
                 <tr>
@@ -153,7 +159,9 @@ pub fn generate_gpr_rows_bin(props: &Regviewprops) -> Html {
 pub fn generate_fpr_rows(props: &Regviewprops) -> Html {
     // let communicator = props.communicator;
 
-    props.fp.iter()
+    props
+        .fp
+        .iter()
         .enumerate()
         .map(|(register, data)| {
             html! {
@@ -193,7 +201,9 @@ pub fn generate_fpr_rows(props: &Regviewprops) -> Html {
 pub fn generate_fpr_rows_hex(props: &Regviewprops) -> Html {
     // let communicator = props.communicator;
 
-    props.fp.iter()
+    props
+        .fp
+        .iter()
         .enumerate()
         .map(|(register, data)| {
             html! {
@@ -233,7 +243,9 @@ pub fn generate_fpr_rows_hex(props: &Regviewprops) -> Html {
 pub fn generate_fpr_rows_bin(props: &Regviewprops) -> Html {
     // let communicator = props.communicator;
 
-    props.fp.iter()
+    props
+        .fp
+        .iter()
         .enumerate()
         .map(|(register, data)| {
             html! {
@@ -315,7 +327,9 @@ pub fn generate_fpr_rows_float(props: &Regviewprops) -> Html {
 pub fn generate_fpr_rows_double(props: &Regviewprops) -> Html {
     // let communicator = props.communicator;
 
-    props.fp.iter()
+    props
+        .fp
+        .iter()
         .enumerate()
         .map(|(register, data)| {
             html! {

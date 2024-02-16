@@ -3,31 +3,35 @@ use log::debug;
 // use monaco::sys::editor::IModelContentChangedEvent;
 use gloo_console::log;
 use js_sys::Object;
+use log::Level;
 use monaco::{
     api::TextModel,
-    sys::{
-        editor::IMarkerData,
-        MarkerSeverity,
-    }
+    sys::{editor::IMarkerData, MarkerSeverity},
 };
-use swim::{emulation_core::{architectures::AvailableDatapaths, mips::instruction::get_string_version}, ui::{footer::component::FooterTabState, hex_editor::component::{parse_hexdump, UpdatedLine}, swim_editor::component::EditorTabState}};
-use swim::parser::parser_structs_and_enums::ProgramInfo;
 use std::rc::Rc;
 use swim::agent::datapath_communicator::DatapathCommunicator;
 use swim::agent::datapath_reducer::DatapathReducer;
 use swim::agent::EmulationCoreAgent;
 use swim::emulation_core::mips::datapath::MipsDatapath;
 use swim::emulation_core::mips::datapath::Stage;
-use swim::ui::footer::component::Footer;
 use swim::parser::parser_assembler_main::parser;
+use swim::parser::parser_structs_and_enums::ProgramInfo;
+use swim::ui::footer::component::Footer;
 use swim::ui::regview::component::Regview;
 use swim::ui::swim_editor::component::SwimEditor;
+use swim::{
+    emulation_core::{architectures::AvailableDatapaths, mips::instruction::get_string_version},
+    ui::{
+        footer::component::FooterTabState,
+        hex_editor::component::{parse_hexdump, UpdatedLine},
+        swim_editor::component::EditorTabState,
+    },
+};
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew::{html, Html, Properties};
-use log::Level;
 
 use yew_agent::Spawnable;
 use yew_hooks::prelude::*;
@@ -70,7 +74,8 @@ fn app(props: &AppProps) -> Html {
     let program_info_ref = use_mut_ref(ProgramInfo::default);
     let binary_ref = use_mut_ref(Vec::<u32>::new);
 
-    let memory_text_model = use_state_eq(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
+    let memory_text_model =
+        use_state_eq(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
 
     // Show input
     let show_input = use_state_eq(|| bool::default());
@@ -176,7 +181,12 @@ fn app(props: &AppProps) -> Html {
 
                 trigger.force_update();
             },
-            (text_model, editor_curr_line, memory_curr_instr, datapath_state),
+            (
+                text_model,
+                editor_curr_line,
+                memory_curr_instr,
+                datapath_state,
+            ),
         )
     };
 
@@ -250,7 +260,8 @@ fn app(props: &AppProps) -> Html {
                     let programinfo = programinfo.borrow().clone();
                     let list_of_line_numbers = programinfo.address_to_line_number;
                     let index = datapath_state.mips.registers.pc as usize / 4;
-                    editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0);
+                    editor_curr_line
+                        .set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0);
                     memory_curr_instr.set(datapath_state.mips.registers.pc);
                     communicator.execute_stage();
                 } else {
@@ -295,24 +306,20 @@ fn app(props: &AppProps) -> Html {
 
                 match parse_hexdump(&current_memory_text_model_value) {
                     Ok(instructions) => {
-
                         let mut changed_lines: Vec<UpdatedLine> = vec![];
                         for (i, data) in instructions.iter().enumerate() {
                             let address = i as u64;
                             // change string version based on architecture
                             let string_version = match datapath_state.current_architecture {
-                                AvailableDatapaths::MIPS => {
-                                    match get_string_version(*data) {
-                                        Ok(string) => string,
-                                        Err(string) => string,
-                                    }
+                                AvailableDatapaths::MIPS => match get_string_version(*data) {
+                                    Ok(string) => string,
+                                    Err(string) => string,
                                 },
-                                AvailableDatapaths::RISCV => {
-                                    String::from("")
-                                }
+                                AvailableDatapaths::RISCV => String::from(""),
                             };
 
-                            let curr_word = match datapath_state.mips.memory.load_word(address * 4) {
+                            let curr_word = match datapath_state.mips.memory.load_word(address * 4)
+                            {
                                 Ok(data) => data,
                                 Err(e) => {
                                     debug!("{:?}", e);
@@ -333,7 +340,9 @@ fn app(props: &AppProps) -> Html {
                         for line in changed_lines {
                             // Check if we're updating or appending instruction
                             if line.line_number < program_info.address_to_line_number.len() {
-                                let updated_line = program_info.address_to_line_number[line.line_number] as f64 + 1.0;
+                                let updated_line =
+                                    program_info.address_to_line_number[line.line_number] as f64
+                                        + 1.0;
                                 let curr_model = text_model.as_ref();
 
                                 // Get the current line's contents in the code editor
@@ -347,8 +356,18 @@ fn app(props: &AppProps) -> Html {
                                         break;
                                     }
                                 }
-                                let edit_range = monaco::sys::Range::new(updated_line, start_line_column, updated_line, end_line_column);
-                                let before_cursor_state = monaco::sys::Selection::new(updated_line, start_line_column, updated_line,end_line_column);
+                                let edit_range = monaco::sys::Range::new(
+                                    updated_line,
+                                    start_line_column,
+                                    updated_line,
+                                    end_line_column,
+                                );
+                                let before_cursor_state = monaco::sys::Selection::new(
+                                    updated_line,
+                                    start_line_column,
+                                    updated_line,
+                                    end_line_column,
+                                );
                                 // Create the edit operation using the range and new text
                                 let edit_operations: monaco::sys::editor::IIdentifiedSingleEditOperation = Object::new().unchecked_into();
                                 edit_operations.set_range(&edit_range);
@@ -359,7 +378,11 @@ fn app(props: &AppProps) -> Html {
                                 let before_cursor_state_array = js_sys::Array::new();
                                 before_cursor_state_array.push(&before_cursor_state);
                                 // Do the edit!
-                                curr_model.push_edit_operations(&before_cursor_state_array, &edit_operations_array, None);
+                                curr_model.push_edit_operations(
+                                    &before_cursor_state_array,
+                                    &edit_operations_array,
+                                    None,
+                                );
                             } else if line.line_number == lines_beyond_counter {
                                 // Append instruction
                                 if !add_new_lines {
@@ -376,7 +399,7 @@ fn app(props: &AppProps) -> Html {
                         if add_new_lines {
                             text_model.set_value(&curr_value);
                         }
-                    },
+                    }
                     Err(err) => {
                         debug!("Error updating memory: {}", err)
                     }
@@ -387,7 +410,6 @@ fn app(props: &AppProps) -> Html {
                 *program_info_ref.borrow_mut() = program_info.clone();
 
                 trigger.force_update();
-
             },
             datapath_state,
         )
@@ -411,7 +433,6 @@ fn app(props: &AppProps) -> Html {
 
         use_callback(
             move |_, (editor_curr_line, datapath_state)| {
-
                 // Set highlighted line to 0
                 editor_curr_line.set(0.0);
                 memory_curr_instr.set(datapath_state.mips.registers.pc);

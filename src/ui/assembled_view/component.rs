@@ -2,15 +2,14 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 // use monaco::api::TextModel;
-use web_sys::{HtmlElement, HtmlInputElement};
-use yew::{Properties, Html};
-use yew::prelude::*;
-use wasm_bindgen::JsCast;
-use log::debug;
 use crate::parser::parser_structs_and_enums::ProgramInfo;
 use crate::ui::footer::component::FooterTabState;
 use crate::ui::swim_editor::component::EditorTabState;
-
+use log::debug;
+use wasm_bindgen::JsCast;
+use web_sys::{HtmlElement, HtmlInputElement};
+use yew::prelude::*;
+use yew::{Html, Properties};
 
 #[derive(PartialEq, Properties)]
 pub struct TextSegmentProps {
@@ -20,7 +19,7 @@ pub struct TextSegmentProps {
     pub editor_curr_line: UseStateHandle<f64>,
     pub pc: u64,
     pub editor_active_tab: UseStateHandle<EditorTabState>,
-    pub console_active_tab: UseStateHandle<FooterTabState>
+    pub console_active_tab: UseStateHandle<FooterTabState>,
 }
 #[derive(PartialEq, Properties)]
 pub struct DataSegmentProps {
@@ -31,7 +30,7 @@ pub struct DataSegmentProps {
     pub editor_curr_line: UseStateHandle<f64>,
     pub editor_active_tab: UseStateHandle<EditorTabState>,
     pub console_active_tab: UseStateHandle<FooterTabState>,
-    pub pc_limit: usize
+    pub pc_limit: usize,
 }
 
 #[function_component]
@@ -62,29 +61,34 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
         if input.checked() {
             debug!("Breakpoint set at {:08x}", address);
         }
-
     });
 
     // Go to the memory address in hex editor
     let on_address_click = {
         let memory_curr_instr = memory_curr_instr.clone();
         let console_active_tab = console_active_tab.clone();
-        use_callback(move |args: (MouseEvent, usize), memory_curr_instr| {
-            let (_e, address) = args;
-            memory_curr_instr.set(address as u64);
-            console_active_tab.set(FooterTabState::HexEditor);
-        }, memory_curr_instr)
+        use_callback(
+            move |args: (MouseEvent, usize), memory_curr_instr| {
+                let (_e, address) = args;
+                memory_curr_instr.set(address as u64);
+                console_active_tab.set(FooterTabState::HexEditor);
+            },
+            memory_curr_instr,
+        )
     };
 
     // Go to the line in code editor
     let on_assembled_click = {
         let editor_curr_line = editor_curr_line.clone();
         let editor_active_tab = editor_active_tab.clone();
-        use_callback(move |args: (MouseEvent, usize), _| {
-            let (_e, line_number) = args;
-            editor_curr_line.set(line_number as f64 + 1.0);
-            editor_active_tab.set(EditorTabState::Editor);
-        }, ())
+        use_callback(
+            move |args: (MouseEvent, usize), _| {
+                let (_e, line_number) = args;
+                editor_curr_line.set(line_number as f64 + 1.0);
+                editor_active_tab.set(EditorTabState::Editor);
+            },
+            (),
+        )
     };
 
     let mut address = -4;
@@ -182,22 +186,28 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
     let on_address_click = {
         let memory_curr_instr = memory_curr_instr.clone();
         let console_active_tab = console_active_tab.clone();
-        use_callback(move |args: (MouseEvent, usize), memory_curr_instr| {
-            let (_e, address) = args;
-            memory_curr_instr.set(address as u64);
-            console_active_tab.set(FooterTabState::HexEditor);
-        }, memory_curr_instr)
+        use_callback(
+            move |args: (MouseEvent, usize), memory_curr_instr| {
+                let (_e, address) = args;
+                memory_curr_instr.set(address as u64);
+                console_active_tab.set(FooterTabState::HexEditor);
+            },
+            memory_curr_instr,
+        )
     };
 
     // Go to the line in code editor
     let on_assembled_click = {
         let editor_curr_line = editor_curr_line.clone();
         let editor_active_tab = editor_active_tab.clone();
-        use_callback(move |args: (MouseEvent, usize), _| {
-            let (_e, line_number) = args;
-            editor_curr_line.set(line_number as f64);
-            editor_active_tab.set(EditorTabState::Editor);
-        }, ())
+        use_callback(
+            move |args: (MouseEvent, usize), _| {
+                let (_e, line_number) = args;
+                editor_curr_line.set(line_number as f64);
+                editor_active_tab.set(EditorTabState::Editor);
+            },
+            (),
+        )
     };
 
     html! {

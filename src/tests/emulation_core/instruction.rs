@@ -7,7 +7,7 @@ fn get_string_version_from_binary() {
     assert!(match get_string_version(instruction) {
         Ok(string) => {
             string.contains("ori $t6 $zero 500")
-        },
+        }
         _ => false,
     });
 }
@@ -18,14 +18,13 @@ fn get_string_version_from_hex() {
     assert!(match get_string_version(instruction) {
         Ok(string) => {
             string.contains("ori $t6 $zero 500")
-        },
+        }
         _ => false,
     });
 }
 
 #[test]
 fn err_on_empty_instruction() {
-
     let instruction: u32 = 0b00000000000000000000000000000000;
 
     assert!(match get_string_version(instruction) {

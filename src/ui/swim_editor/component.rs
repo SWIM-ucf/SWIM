@@ -1,14 +1,29 @@
 use std::{cell::RefCell, rc::Rc};
 
-use monaco::{api::TextModel, sys::{editor::{
-    IEditorMinimapOptions, IEditorScrollbarOptions, IModelDecorationOptions, IModelDeltaDecoration, IStandaloneEditorConstructionOptions, ISuggestOptions, ScrollType
-}, IMarkdownString, Range}, yew::{CodeEditor, CodeEditorLink}};
+use monaco::{
+    api::TextModel,
+    sys::{
+        editor::{
+            IEditorMinimapOptions, IEditorScrollbarOptions, IModelDecorationOptions,
+            IModelDeltaDecoration, IStandaloneEditorConstructionOptions, ISuggestOptions,
+            ScrollType,
+        },
+        IMarkdownString, Range,
+    },
+    yew::{CodeEditor, CodeEditorLink},
+};
+use wasm_bindgen::{JsCast, JsValue};
+use yew::prelude::*;
 use yew::{html, Callback, Properties};
 use yew_hooks::prelude::*;
-use yew::prelude::*;
-use wasm_bindgen::{JsCast, JsValue};
 
-use crate::{parser::parser_structs_and_enums::ProgramInfo, ui::{assembled_view::component::{DataSegment, TextSegment}, footer::component::FooterTabState}};
+use crate::{
+    parser::parser_structs_and_enums::ProgramInfo,
+    ui::{
+        assembled_view::component::{DataSegment, TextSegment},
+        footer::component::FooterTabState,
+    },
+};
 
 #[derive(PartialEq, Properties)]
 pub struct SwimEditorProps {
@@ -21,7 +36,7 @@ pub struct SwimEditorProps {
     pub memory_curr_instr: UseStateHandle<u64>,
     pub editor_curr_line: UseStateHandle<f64>,
     pub editor_active_tab: UseStateHandle<EditorTabState>,
-    pub console_active_tab: UseStateHandle<FooterTabState>
+    pub console_active_tab: UseStateHandle<FooterTabState>,
 }
 
 #[derive(Default, PartialEq)]
@@ -29,7 +44,7 @@ pub enum EditorTabState {
     #[default]
     Editor,
     TextSegment,
-    DataSegment
+    DataSegment,
 }
 
 fn get_options() -> IStandaloneEditorConstructionOptions {
@@ -112,7 +127,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                     raw_editor.delta_decorations(&not_highlighted, &executed_line);
                 }) {
                     Some(_) => (),
-                    None => ()
+                    None => (),
                 };
             },
             curr_line,
@@ -122,7 +137,11 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     let change_tab = {
         let editor_active_tab = editor_active_tab.clone();
         Callback::from(move |event: MouseEvent| {
-            let target = event.target().unwrap().dyn_into::<web_sys::HtmlElement>().unwrap();
+            let target = event
+                .target()
+                .unwrap()
+                .dyn_into::<web_sys::HtmlElement>()
+                .unwrap();
             let tab_name = target
                 .get_attribute("label")
                 .unwrap_or(String::from("editor"));
@@ -137,7 +156,6 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             editor_active_tab.set(new_tab);
         })
     };
-
 
     // We'll have the Mouse Hover event running at all times.
     {

@@ -179,7 +179,7 @@ impl<'a> MemoryIter<'a> {
     pub fn new(memory: &'a Memory) -> MemoryIter<'a> {
         MemoryIter {
             memory,
-            current_address: 0
+            current_address: 0,
         }
     }
 }
@@ -192,9 +192,7 @@ impl<'a> Iterator for MemoryIter<'a> {
         if self.current_address + 16 <= self.memory.memory.len() {
             let address = self.current_address;
             let words = (0..4)
-                .map(|i| self.memory
-                    .load_word(address as u64 + (i * 4))
-                    .unwrap())
+                .map(|i| self.memory.load_word(address as u64 + (i * 4)).unwrap())
                 .collect();
 
             self.current_address += 16;

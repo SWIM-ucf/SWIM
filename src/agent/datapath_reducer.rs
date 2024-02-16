@@ -18,7 +18,7 @@ pub struct MipsCoreState {
     pub state: DatapathState,
     pub registers: GpRegisters,
     pub memory: Memory,
-    pub current_stage: Stage
+    pub current_stage: Stage,
 }
 
 impl Default for DatapathReducer {

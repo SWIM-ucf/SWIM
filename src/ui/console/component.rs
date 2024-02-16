@@ -1,14 +1,14 @@
 use crate::agent::datapath_communicator::DatapathCommunicator;
-use web_sys::{KeyboardEvent, InputEvent, HtmlInputElement};
-use yew::prelude::*;
 use wasm_bindgen::JsCast;
+use web_sys::{HtmlInputElement, InputEvent, KeyboardEvent};
+use yew::prelude::*;
 
 #[derive(PartialEq, Properties)]
 pub struct Consoleprops {
     pub communicator: &'static DatapathCommunicator,
     pub parsermsg: String,
     pub command: UseStateHandle<String>,
-    pub show_input: UseStateHandle<bool>
+    pub show_input: UseStateHandle<bool>,
 }
 
 #[function_component(Console)]
@@ -23,44 +23,48 @@ pub fn console(props: &Consoleprops) -> Html {
         let error_msg = error_msg.clone();
         let input_value = input_value.clone();
         let answered = answered.clone();
-        use_callback(move |event: KeyboardEvent, (input_value, error_msg, answered)| {
-            // let communicator = props.communicator;
-            let key_code = event.key_code();
-            let error_msg = error_msg.clone();
-            let input_value = input_value.clone();
-            let answered = answered.clone();
-            // If Enter was pressed parse and send input to emulator core
-            if key_code == 13 {
-                let input_value = &*input_value;
-                log::debug!("Input: {}", (input_value));
-                // Parse based on syscall type (int, float, string)
-                let val: String = match input_value.parse() {
-                    Ok(value) => {
-                        value
-                    },
-                    Err(_err) => {
-                        error_msg.set("Invalid input");
-                        return
-                    }
-                };
-                answered.set(true);
-                log::debug!("{}", val);
-                // Send Input command
-            }
-        }, (input_value, error_msg, answered))
+        use_callback(
+            move |event: KeyboardEvent, (input_value, error_msg, answered)| {
+                // let communicator = props.communicator;
+                let key_code = event.key_code();
+                let error_msg = error_msg.clone();
+                let input_value = input_value.clone();
+                let answered = answered.clone();
+                // If Enter was pressed parse and send input to emulator core
+                if key_code == 13 {
+                    let input_value = &*input_value;
+                    log::debug!("Input: {}", (input_value));
+                    // Parse based on syscall type (int, float, string)
+                    let val: String = match input_value.parse() {
+                        Ok(value) => value,
+                        Err(_err) => {
+                            error_msg.set("Invalid input");
+                            return;
+                        }
+                    };
+                    answered.set(true);
+                    log::debug!("{}", val);
+                    // Send Input command
+                }
+            },
+            (input_value, error_msg, answered),
+        )
     };
 
     let on_input = {
         let input_value = input_value.clone();
         let answered = answered.clone();
-        use_callback(move |event: InputEvent, (input_value, answered)| {
-            // let communicator = props.communicator;
-            let target = event.target();
-            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+        use_callback(
+            move |event: InputEvent, (input_value, answered)| {
+                // let communicator = props.communicator;
+                let target = event.target();
+                let input = target.unwrap().unchecked_into::<HtmlInputElement>();
 
-            input_value.set(input.value());
-            answered.set(false);
-        }, (input_value, answered))
+                input_value.set(input.value());
+                answered.set(false);
+            },
+            (input_value, answered),
+        )
     };
 
     html! {
