@@ -2,7 +2,7 @@
 //! and variables in the coded datapath.
 
 use super::super::datapath::VisualDatapath;
-use super::datapath::MipsDatapath;
+use super::datapath::RiscDatapath;
 
 /// A collection of data surrounding a line in the visual datapath.
 pub struct LineInformation {
@@ -18,7 +18,9 @@ pub struct LineInformation {
     pub bits: u64,
 }
 
-impl VisualDatapath for MipsDatapath {
+impl VisualDatapath for RiscDatapath {
+    type LineInformation = LineInformation;
+
     fn visual_line_to_data(&self, variable: &str) -> LineInformation {
         match variable {
             "alu_input2" => LineInformation {

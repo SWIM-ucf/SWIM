@@ -1,5 +1,9 @@
 //! Module for the API of a generic datapath.
 
+use crate::emulation_core::architectures::DatapathRef;
+use crate::emulation_core::mips::line_info::LineInformation;
+use crate::emulation_core::mips::memory::Memory;
+
 /// A generic datapath.
 ///
 /// This has the ability to execute instructions, and to interface with
@@ -22,11 +26,6 @@ pub trait Datapath {
     /// at the discretion of the developer.
     type RegisterEnum;
 
-    /// The data type that describes memory for this datapath. This must be
-    /// defined separately. This allows raw access to any parts of memory
-    /// or its own interface at will.
-    type MemoryType;
-
     /// Execute a single instruction based on the current state of the
     /// datapath. Should the datapath support stages, if the datapath is
     /// midway through a stage, the current instruction will be finished
@@ -45,8 +44,18 @@ pub trait Datapath {
     /// registers should be listed within [`Self::RegisterEnum`].
     fn get_register_by_enum(&self, register: Self::RegisterEnum) -> Self::RegisterData;
 
+    /// Sets the data in the register indicated by the provided string. If it doesn't exist,
+    /// this function returns Err.
+    fn set_register_by_str(&mut self, register: &str, data: Self::RegisterData);
+
+    /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
+    /// flag. If the process fails, an [`Err`] is returned.
+    fn initialize(&mut self, initial_pc: usize, instructions: Vec<u32>) -> Result<(), String>;
+
     /// Retrieve all memory as-is.
-    fn get_memory(&self) -> &Self::MemoryType;
+    fn get_memory(&self) -> &Memory;
+
+    fn set_memory(&mut self, ptr: usize, data: Vec<u8>);
 
     /// Returns if the datapath is in a "halted" or "stopped" state. This may
     /// be true in the case where an error had occurred previously.
@@ -54,6 +63,10 @@ pub trait Datapath {
 
     /// Restore the datapath to its default state.
     fn reset(&mut self);
+
+    /// Obtain a reference to the concrete datapath type. Used when datapath-specific logic is
+    /// needed while dealing with a datapath as a trait object.
+    fn as_datapath_ref(&self) -> DatapathRef;
 }
 
 /// A datapath that supports a visual diagram component.
@@ -61,10 +74,7 @@ pub trait Datapath {
 /// This requires a corresponding visual diagram with labels that can be mapped
 /// to the datapath.
 pub trait VisualDatapath {
-    /// The information about a piece of the diagram that is returned from the datapath.
-    type LineInformation;
-
     /// Return the information from the datapath corresponding to the `variable` attribute on a
     /// part of the visual datapath diagram.
-    fn visual_line_to_data(&self, variable: &str) -> Self::LineInformation;
+    fn visual_line_to_data(&self, variable: &str) -> LineInformation;
 }

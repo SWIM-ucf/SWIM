@@ -1,13 +1,5 @@
-pub mod emulation_core;
-pub mod parser;
-#[cfg(test)]
-pub mod tests;
-pub mod ui;
-
-use emulation_core::datapath::Datapath;
-use emulation_core::mips::datapath::MipsDatapath;
-use emulation_core::mips::datapath::Stage;
 use gloo::{dialogs::alert, file::FileList};
+use gloo_console::log;
 use js_sys::Object;
 use monaco::{
     api::TextModel,
@@ -20,27 +12,36 @@ use monaco::{
     },
     yew::CodeEditor,
 };
-use parser::parser_assembler_main::parser;
 use std::rc::Rc;
-use ui::console::component::Console;
-use ui::regview::component::Regview;
+use swim::agent::datapath_communicator::DatapathCommunicator;
+use swim::agent::datapath_reducer::DatapathReducer;
+use swim::agent::EmulationCoreAgent;
+use swim::emulation_core::datapath::Datapath;
+use swim::emulation_core::mips::datapath::MipsDatapath;
+use swim::emulation_core::mips::datapath::Stage;
+use swim::parser::parser_assembler_main::parser;
+use swim::ui::console::component::Console;
+use swim::ui::regview::component::Regview;
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew::{html, Html, Properties};
+use yew_agent::Spawnable;
 use yew_hooks::prelude::*;
-
-//use gloo_console::log;
 
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
-const CONTENT: &str = include_str!("../static/assembly_examples/fibonacci.asm");
-// const CONTENT: &str = include_str!("../static/assembly_examples/riscv_test.asm");
+const CONTENT: &str = include_str!("../../static/assembly_examples/fibonacci.asm");
+
+#[derive(Properties, Clone, PartialEq)]
+struct AppProps {
+    communicator: &'static DatapathCommunicator,
+}
 
 #[function_component(App)]
-fn app() -> Html {
+fn app(props: &AppProps) -> Html {
     // This contains the binary representation of "ori $s0, $zero, 12345", which
     // stores 12345 in register $s0.
     // let code = String::from("ori $s0, $zero, 12345\n");
@@ -85,12 +86,27 @@ fn app() -> Html {
     // the ability to access and change its contents be mutable.
     let datapath = use_mut_ref(MipsDatapath::default);
 
+    let datapath_state = use_reducer(DatapathReducer::default);
+
+    // Start listening for messages from the communicator. This effectively links the worker thread to the main thread
+    // and will force updates whenever its internal state changes.
+    {
+        let dispatcher = datapath_state.dispatcher();
+        use_effect_with_deps(
+            move |communicator| {
+                spawn_local(communicator.listen_for_updates(dispatcher));
+            },
+            props.communicator,
+        );
+    }
+
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
         let parser_text_output = parser_text_output.clone();
         let trigger = use_force_update();
+        let communicator = props.communicator;
 
         let executed_line = executed_line.clone();
         let not_highlighted = not_highlighted.clone();
@@ -146,7 +162,7 @@ fn app() -> Html {
                 // Proceed with loading into memory and expand pseudo-instructions if there are no errors.
                 if marker_jsarray.length() == 0 {
                     // Load the binary into the datapath's memory
-                    match datapath.initialize(assembled) {
+                    match datapath.initialize_legacy(assembled.clone()) {
                         Ok(_) => (),
                         Err(msg) => {
                             // In the case of an error, note this and stop early.
@@ -156,6 +172,8 @@ fn app() -> Html {
                     // log!(datapath.memory.to_string());
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
                     datapath.registers.pc = program_info.pc_starting_point as u64;
+                    // Send the binary over to the emulation core thread
+                    communicator.initialize(program_info.pc_starting_point, assembled)
                 }
 
                 trigger.force_update();
@@ -163,6 +181,8 @@ fn app() -> Html {
             text_model,
         )
     };
+
+    log!("Re-rendered!");
 
     // This is where the code will get executed. If you execute further
     // than when the code ends, the program crashes. This is remedied via the
@@ -172,6 +192,7 @@ fn app() -> Html {
         let text_model = Rc::clone(&text_model);
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
+        let communicator = props.communicator;
 
         let executed_line = executed_line.clone();
         let not_highlighted = not_highlighted.clone();
@@ -227,6 +248,7 @@ fn app() -> Html {
                 // log!(not_highlighted.at(0));
 
                 datapath.execute_instruction();
+                communicator.execute_instruction();
 
                 // done with the highlight, prepare for the next one.
                 executed_line.pop();
@@ -248,6 +270,7 @@ fn app() -> Html {
         let not_highlighted = not_highlighted.clone();
         let highlight_decor = highlight_decor;
         let trigger = use_force_update();
+        let communicator = props.communicator;
 
         use_callback(
             move |_, _| {
@@ -284,6 +307,7 @@ fn app() -> Html {
                 } else {
                     datapath.execute_stage();
                 }
+                communicator.execute_stage();
                 trigger.force_update();
             },
             (),
@@ -297,6 +321,7 @@ fn app() -> Html {
         let datapath = Rc::clone(&datapath);
         let trigger = use_force_update();
         let parser_text_output = parser_text_output.clone();
+        let communicator = props.communicator;
 
         let executed_line = executed_line;
         let not_highlighted = not_highlighted;
@@ -315,6 +340,7 @@ fn app() -> Html {
                 );
                 parser_text_output.set("".to_string());
                 datapath.reset();
+                communicator.reset();
                 trigger.force_update();
             },
             (),
@@ -460,7 +486,7 @@ fn app() -> Html {
                 </div>
 
                 // Right column
-                <Regview gp={datapath.borrow().registers} fp={datapath.borrow().coprocessor.fpr}/>
+                <Regview gp={datapath_state.mips.registers} fp={datapath.borrow().coprocessor.fpr}/>
             </div>
         </>
     }
@@ -541,5 +567,13 @@ pub fn on_upload_file_clicked() {
 }
 
 fn main() {
-    yew::Renderer::<App>::new().render();
+    // Initialize and leak the communicator to ensure that the thread spawns immediately and the bridge to it lives
+    // for the remainder of the program. We can use the communicator exclusively through immutable references for the
+    // rest of the program.
+    let bridge = EmulationCoreAgent::spawner().spawn("./worker.js");
+    let communicator = Box::new(DatapathCommunicator::new(bridge));
+    yew::Renderer::<App>::with_props(AppProps {
+        communicator: Box::leak(communicator),
+    })
+    .render();
 }
