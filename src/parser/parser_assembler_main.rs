@@ -15,7 +15,8 @@ use gloo_console::log;
 /// program and builds the binary of the instructions while cataloging any errors that are found.
 pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
 
-    let arch = Architecture::RISCV; // Force RISC-V for testing purposes
+    // Force MIPS to pass unit tests until I change the function arguments for SWIMv1 test cases``
+    let arch = Architecture::MIPS;
 
     if arch == Architecture::MIPS
     {
