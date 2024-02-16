@@ -54,7 +54,7 @@ impl Memory {
 
         self.check_valid_address(address)?;
 
-        self.memory[address] = (data & 0b11111111) as u8;
+        self.memory[address] = data;
 
         Ok(())
     }
