@@ -244,9 +244,9 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                 }
             </div>
             if **editor_active_tab == EditorTabState::Editor {
-                <CodeEditor classes={"editor"} link={link.clone()} options={get_options()} model={text_model.clone()} on_editor_created={on_editor_created.clone()}/>
+                <CodeEditor classes={"editor"} link={link} options={get_options()} model={text_model.clone()} on_editor_created={on_editor_created}/>
             } else if **editor_active_tab == EditorTabState::TextSegment {
-                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} pc={props.pc.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()}/>
+                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} pc={props.pc} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()}/>
             } else if **editor_active_tab == EditorTabState::DataSegment {
                 <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} pc_limit={props.pc_limit}/>
             }

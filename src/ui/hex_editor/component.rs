@@ -113,13 +113,13 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
         let start_column = offset + ((instruction_num % 16) * 2 + ((instruction_num % 16) / 4));
         let end_column = start_column + 8;
 
-        let coords = HexCoord {
+        
+
+        HexCoord {
             line_number: line_number as f64,
             start_column: start_column as f64,
             end_column: end_column as f64,
-        };
-
-        coords
+        }
     }
 
     // Calculates which columns in the ASCII portion belong to the given hex portion

@@ -42,19 +42,19 @@ impl Reducible for DatapathReducer {
                         state,
                         registers: self.mips.registers,
                         memory: self.mips.memory.clone(),
-                        current_stage: self.mips.current_stage.clone(),
+                        current_stage: self.mips.current_stage,
                     },
                     MipsStateUpdate::UpdateRegisters(registers) => MipsCoreState {
                         state: self.mips.state.clone(),
                         registers,
                         memory: self.mips.memory.clone(),
-                        current_stage: self.mips.current_stage.clone(),
+                        current_stage: self.mips.current_stage,
                     },
                     MipsStateUpdate::UpdateMemory(memory) => MipsCoreState {
                         state: self.mips.state.clone(),
                         registers: self.mips.registers,
                         memory,
-                        current_stage: self.mips.current_stage.clone(),
+                        current_stage: self.mips.current_stage,
                     },
                     MipsStateUpdate::UpdateStage(stage) => MipsCoreState {
                         state: self.mips.state.clone(),

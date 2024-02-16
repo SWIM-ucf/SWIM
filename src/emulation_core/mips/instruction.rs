@@ -333,21 +333,12 @@ pub fn get_string_version(value: u32) -> Result<String, String> {
     if value & 0xF000 > 0 {
         imm_is_negative = true;
         immediate = !(immediate) + 1;
-        imm_with_sign = -1 * immediate as i32;
+        imm_with_sign = -(immediate as i32);
     }
 
-    let str_rt = match find_register_name(rt) {
-        Some(name) => name,
-        None => "##",
-    };
-    let str_rs = match find_register_name(rs) {
-        Some(name) => name,
-        None => "##",
-    };
-    let str_rd = match find_register_name(rd) {
-        Some(name) => name,
-        None => "##",
-    };
+    let str_rt = find_register_name(rt).unwrap_or("##");
+    let str_rs = find_register_name(rs).unwrap_or("##");
+    let str_rd = find_register_name(rd).unwrap_or("##");
     let mut string_imm = immediate.to_string();
     let mut str_immediate = string_imm.as_str();
 
@@ -431,7 +422,7 @@ pub fn get_string_version(value: u32) -> Result<String, String> {
                     string_version = format!("{} {} {} {}", "or", str_rd, str_rs, str_rt);
                     Ok(string_version)
                 }
-                FUNCT_SOP36 => match shamt as u8 {
+                FUNCT_SOP36 => match shamt {
                     // ENC_DIV == ENC_DDIV
                     ENC_DIV => {
                         string_version = format!("{} {} {}", "div", str_rs, str_rt);
@@ -442,7 +433,7 @@ pub fn get_string_version(value: u32) -> Result<String, String> {
                         Ok(string_version)
                     }
                 },
-                FUNCT_SOP33 | FUNCT_SOP37 => match shamt as u8 {
+                FUNCT_SOP33 | FUNCT_SOP37 => match shamt {
                     // ENC_DIVU == ENC_DDIVU
                     ENC_DIVU => {
                         string_version = format!("{} {} {}", "divu", str_rs, str_rt);
@@ -453,7 +444,7 @@ pub fn get_string_version(value: u32) -> Result<String, String> {
                         Ok(string_version)
                     }
                 },
-                FUNCT_SOP30 | FUNCT_SOP34 => match shamt as u8 {
+                FUNCT_SOP30 | FUNCT_SOP34 => match shamt {
                     // ENC_MUL == ENC_DMUL
                     ENC_MUL => {
                         string_version = format!("{} {} {} {}", "mul", str_rd, str_rs, str_rt);
@@ -464,7 +455,7 @@ pub fn get_string_version(value: u32) -> Result<String, String> {
                         Ok(string_version)
                     }
                 },
-                FUNCT_SOP31 | FUNCT_SOP35 => match shamt as u8 {
+                FUNCT_SOP31 | FUNCT_SOP35 => match shamt {
                     // ENC_MULU == ENC_DMULU
                     ENC_MULU => {
                         string_version = format!("{} {} {} {}", "mulu", str_rd, str_rs, str_rt);
@@ -492,18 +483,9 @@ pub fn get_string_version(value: u32) -> Result<String, String> {
             let fs = ((value >> 11) & 0x1F) as u8; // also rs
             let fd = ((value >> 6) & 0x1F) as u8;
             let function = (value & 0x3F) as u8;
-            let str_fs = match find_register_name(fs) {
-                Some(name) => name,
-                None => "##",
-            };
-            let str_ft = match find_register_name(ft) {
-                Some(name) => name,
-                None => "##",
-            };
-            let str_fd = match find_register_name(fd) {
-                Some(name) => name,
-                None => "##",
-            };
+            let str_fs = find_register_name(fs).unwrap_or("##");
+            let str_ft = find_register_name(ft).unwrap_or("##");
+            let str_fd = find_register_name(fd).unwrap_or("##");
 
             match sub {
                 // If it is the "s" or "d" fmts, use the `function` field.

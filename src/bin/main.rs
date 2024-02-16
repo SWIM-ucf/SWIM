@@ -78,7 +78,7 @@ fn app(props: &AppProps) -> Html {
         use_state_eq(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
 
     // Show input
-    let show_input = use_state_eq(|| bool::default());
+    let show_input = use_state_eq(bool::default);
     show_input.set(true);
     let command = use_state_eq(|| String::from("(Test) Enter a string"));
 
@@ -294,7 +294,7 @@ fn app(props: &AppProps) -> Html {
 
         use_callback(
             move |_, datapath_state| {
-                let communicator = communicator.clone();
+                // let communicator = communicator.clone();
                 let text_model = text_model.clone();
 
                 let program_info_ref = Rc::clone(&program_info_ref);
@@ -335,7 +335,7 @@ fn app(props: &AppProps) -> Html {
                         // Memory updated successfully
                         let program_info = program_info_ref.borrow().clone();
                         let mut lines_beyond_counter = program_info.address_to_line_number.len();
-                        let mut curr_value = text_model.get_value().to_owned();
+                        let mut curr_value = text_model.get_value();
                         let mut add_new_lines = false;
                         for line in changed_lines {
                             // Check if we're updating or appending instruction
@@ -391,7 +391,7 @@ fn app(props: &AppProps) -> Html {
                                     add_new_lines = true;
                                     curr_value = text_model.get_value();
                                 }
-                                curr_value.push_str("\n");
+                                curr_value.push('\n');
                                 curr_value.push_str(&line.text);
                                 lines_beyond_counter += 1;
                             }
@@ -407,7 +407,7 @@ fn app(props: &AppProps) -> Html {
 
                 // Update the parsed info for text and data segment views
                 let (program_info, _) = parser(text_model.get_value());
-                *program_info_ref.borrow_mut() = program_info.clone();
+                *program_info_ref.borrow_mut() = program_info;
 
                 trigger.force_update();
             },
@@ -424,7 +424,7 @@ fn app(props: &AppProps) -> Html {
         let communicator = props.communicator;
 
         // Code editor
-        let parser_text_output = parser_text_output.clone();
+        let parser_text_output = parser_text_output;
         let editor_curr_line = editor_curr_line.clone();
 
         // Hex editor

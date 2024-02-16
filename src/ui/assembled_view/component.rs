@@ -112,7 +112,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                     let executed_ref = executed_ref.clone();
                     address += 4;
 
-                    let line_number = instruction.line_number.clone();
+                    let line_number = instruction.line_number;
 
                     let mut conditional_class = "";
                     if props.pc as i64 == address + 4 {
@@ -220,7 +220,7 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
                 <th>{"Source"}</th>
             </tr>
             {
-                if program_info.instructions.len() > 0 && binary.len() > 0 {
+                if !program_info.instructions.is_empty() && !binary.is_empty() {
                     let mut address = program_info.instructions.len() * 4 - 4;
                     let mut data_binary_index = program_info.data_starting_point - 1;
                     program_info.data.iter().enumerate().map(|(index, data)| {

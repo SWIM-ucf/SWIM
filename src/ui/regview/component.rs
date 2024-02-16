@@ -457,24 +457,24 @@ pub fn regview(props: &Regviewprops) -> Html {
                     <tbody>
                         if *switch_flag{
                             if *active_view == UnitState::Bin {
-                                {generate_gpr_rows_bin(&props)}
+                                {generate_gpr_rows_bin(props)}
                             }
                             else if *active_view == UnitState::Hex {
-                                {generate_gpr_rows_hex(&props)}
+                                {generate_gpr_rows_hex(props)}
                             } else {
-                                {generate_gpr_rows(&props)}
+                                {generate_gpr_rows(props)}
                             }
                         } else {
                             if *active_view == UnitState::Bin {
-                                {generate_fpr_rows_bin(&props)}
+                                {generate_fpr_rows_bin(props)}
                             } else if *active_view == UnitState::Hex{
-                                {generate_fpr_rows_hex(&props)}
+                                {generate_fpr_rows_hex(props)}
                             } else if *active_view == UnitState::Float{
-                                {generate_fpr_rows_float(&props)}
+                                {generate_fpr_rows_float(props)}
                             } else if *active_view == UnitState::Double{
-                                {generate_fpr_rows_double(&props)}
+                                {generate_fpr_rows_double(props)}
                             } else if *active_view == UnitState::Dec {
-                                {generate_fpr_rows(&props)}
+                                {generate_fpr_rows(props)}
                             }
                         }
                     </tbody>

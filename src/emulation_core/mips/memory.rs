@@ -137,7 +137,7 @@ impl Memory {
     // }
 
     pub fn generate_formatted_hex(&self) -> String {
-        let iterator = MemoryIter::new(&self);
+        let iterator = MemoryIter::new(self);
 
         let mut string: String = "".to_string();
 
