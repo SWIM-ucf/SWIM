@@ -113,8 +113,6 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
         let start_column = offset + ((instruction_num % 16) * 2 + ((instruction_num % 16) / 4));
         let end_column = start_column + 8;
 
-        
-
         HexCoord {
             line_number: line_number as f64,
             start_column: start_column as f64,
