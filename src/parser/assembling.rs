@@ -194,7 +194,8 @@ pub fn read_operands_riscv(
     expected_operands: Vec<OperandType>,
     concat_order: Vec<usize>,
     labels_option: Option<HashMap<String, usize>>,
-    funct3: Option<u32>
+    funct3: Option<u32>,
+    fmt: Option<u32>
 ) -> &mut Instruction {
     //if the number of operands in the instruction does not match the expected number, there is an error
     if instruction.operands.len() != expected_operands.len() {
@@ -302,7 +303,7 @@ pub fn read_operands_riscv(
                 instruction.operands[i].token_type = TokenType::RegisterFP;
 
                 bit_lengths.push(5);
-                let register_results = read_register(
+                let register_results = read_register_riscv(
                     &instruction.operands[i].token_name,
                     instruction.operands[i].start_end_columns,
                     FloatingPoint,
@@ -367,9 +368,13 @@ pub fn read_operands_riscv(
             binary_representation[element - 1],
             bit_lengths[element - 1],
         );
-        if index == 1 && funct3.is_some() // Set funct3 value before the final argument
+        if index == concat_order.len() - 2 && funct3.is_some() // Set funct3 value before the final argument
         {
-            instruction.binary = append_binary(instruction.binary, funct3.unwrap_or(0), 3) // Shift amount may need to be adjusted using function argument
+            instruction.binary = append_binary(instruction.binary, funct3.unwrap_or(0), 3)
+        }
+        else if index == 0 && fmt.is_some()
+        {
+            instruction.binary = append_binary(instruction.binary, fmt.unwrap_or(0), 2)
         }
     }
 

@@ -1,4 +1,3 @@
-# Currently there is a problem with using tabs to space out instructions
 main:
- jal x1, 50
- ret
+    jal x1, 2047
+    ret
