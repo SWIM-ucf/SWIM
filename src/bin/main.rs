@@ -294,7 +294,6 @@ fn app(props: &AppProps) -> Html {
 
         use_callback(
             move |_, datapath_state| {
-                // let communicator = communicator.clone();
                 let text_model = text_model.clone();
 
                 let program_info_ref = Rc::clone(&program_info_ref);
