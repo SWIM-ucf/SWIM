@@ -3,6 +3,7 @@
 use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::mips::line_info::LineInformation;
 use crate::emulation_core::mips::memory::Memory;
+use std::ops::BitOrAssign;
 
 /// A generic datapath.
 ///
@@ -31,13 +32,13 @@ pub trait Datapath {
     /// midway through a stage, the current instruction will be finished
     /// instead of executing a new instruction. Should the datapath be in
     /// a "halted" state, behavior is undefined.
-    fn execute_instruction(&mut self);
+    fn execute_instruction(&mut self) -> DatapathUpdateSignal;
 
     /// Execute a single stage of execution based on the current state of
     /// the datapath. Should the datapath not support stages, assume the
     /// same behavior as [`Self::execute_instruction()`]. Should the
     /// datapath be in a "halted" state, behavior is undefined.
-    fn execute_stage(&mut self);
+    fn execute_stage(&mut self) -> DatapathUpdateSignal;
 
     /// Retrieve the data in the register indicated by the provided enum.
     /// It can be assumed valid data will be retrieved since any valid
@@ -78,4 +79,29 @@ pub trait VisualDatapath {
     /// Return the information from the datapath corresponding to the `variable` attribute on a
     /// part of the visual datapath diagram.
     fn visual_line_to_data(&self, variable: &str) -> LineInformation;
+}
+
+/// Struct used for signalling the results of execution. This can then be used to determine which
+/// additional actions the emulator core thread needs to perform after it executes a cycle/stage.
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
+pub struct DatapathUpdateSignal {
+    pub changed_state: bool,
+    pub changed_registers: bool,
+    pub changed_coprocessor_state: bool,
+    pub changed_coprocessor_registers: bool,
+    pub changed_memory: bool,
+    pub hit_syscall: bool,
+    pub hit_breakpoint: bool,
+}
+
+impl BitOrAssign for DatapathUpdateSignal {
+    fn bitor_assign(&mut self, rhs: Self) {
+        self.changed_state |= rhs.changed_state;
+        self.changed_registers |= rhs.changed_registers;
+        self.changed_coprocessor_state |= rhs.changed_coprocessor_state;
+        self.changed_coprocessor_registers |= rhs.changed_coprocessor_registers;
+        self.changed_memory |= rhs.changed_memory;
+        self.hit_syscall |= rhs.hit_syscall;
+        self.hit_breakpoint |= rhs.hit_breakpoint;
+    }
 }

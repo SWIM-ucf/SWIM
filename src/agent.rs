@@ -2,7 +2,7 @@
 
 use crate::agent::messages::{Command, MipsStateUpdate};
 use crate::emulation_core::architectures::{DatapathRef, DatapathUpdate};
-use crate::emulation_core::datapath::Datapath;
+use crate::emulation_core::datapath::{Datapath, DatapathUpdateSignal};
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::emulation_core::mips::registers::GpRegisterType;
 use futures::{FutureExt, SinkExt, StreamExt};
@@ -71,6 +71,10 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
 
 struct EmulatorCoreAgentState {
     current_datapath: Box<dyn Datapath<RegisterData = u64, RegisterEnum = GpRegisterType>>,
+    /// The changes to the emulator core's memory/registers/etc. are tracked in this variable. When
+    /// it's time to send updates back to the main thread, this variable determines which updates
+    /// get sent.
+    pub updates: DatapathUpdateSignal,
     pub scope: ReactorScope<Command, DatapathUpdate>,
     speed: u32,
     executing: bool,
@@ -80,6 +84,7 @@ impl EmulatorCoreAgentState {
     pub fn new(scope: ReactorScope<Command, DatapathUpdate>) -> EmulatorCoreAgentState {
         EmulatorCoreAgentState {
             current_datapath: Box::<MipsDatapath>::default(),
+            updates: DatapathUpdateSignal::default(),
             scope,
             speed: 0,
             executing: false,
@@ -107,10 +112,10 @@ impl EmulatorCoreAgentState {
                 self.executing = true;
             }
             Command::ExecuteInstruction => {
-                self.current_datapath.execute_instruction();
+                self.updates |= self.current_datapath.execute_instruction();
             }
             Command::ExecuteStage => {
-                self.current_datapath.execute_stage();
+                self.updates |= self.current_datapath.execute_stage();
             }
             Command::Pause => {
                 self.executing = false;

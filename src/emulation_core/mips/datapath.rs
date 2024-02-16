@@ -53,6 +53,7 @@ use super::datapath_signals::*;
 use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
+use crate::emulation_core::datapath::DatapathUpdateSignal;
 use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.
@@ -225,14 +226,15 @@ impl Datapath for MipsDatapath {
     type RegisterData = u64;
     type RegisterEnum = super::registers::GpRegisterType;
 
-    fn execute_instruction(&mut self) {
+    fn execute_instruction(&mut self) -> DatapathUpdateSignal {
+        let mut result_signals = DatapathUpdateSignal::default();
         loop {
             // Stop early if the datapath has halted.
             if self.is_halted {
                 break;
             }
 
-            self.execute_stage();
+            result_signals |= self.execute_stage();
 
             // This instruction is finished when the datapath has returned
             // to the IF stage.
@@ -240,12 +242,13 @@ impl Datapath for MipsDatapath {
                 break;
             }
         }
+        result_signals
     }
 
-    fn execute_stage(&mut self) {
+    fn execute_stage(&mut self) -> DatapathUpdateSignal {
         // If the datapath is halted, do nothing.
         if self.is_halted {
-            return;
+            return DatapathUpdateSignal::default();
         }
 
         match self.current_stage {
@@ -254,7 +257,7 @@ impl Datapath for MipsDatapath {
             Stage::Execute => self.stage_execute(),
             Stage::Memory => self.stage_memory(),
             Stage::WriteBack => self.stage_writeback(),
-        }
+        };
 
         // If the FPU has halted, reflect this in the main unit.
         if self.coprocessor.is_halted {
@@ -262,6 +265,7 @@ impl Datapath for MipsDatapath {
         }
 
         self.current_stage = Stage::get_next_stage(self.current_stage);
+        DatapathUpdateSignal::default()
     }
 
     fn get_register_by_enum(&self, register: Self::RegisterEnum) -> u64 {
