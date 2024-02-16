@@ -92,7 +92,7 @@ impl DatapathCommunicator {
     }
 
     /// Resets and loads the parsed/assembled instructions provided into the current emulator core.
-    pub fn initialize(&self, initial_pc: usize, instructions: Vec<u8>) {
+    pub fn initialize(&self, initial_pc: usize, instructions: Vec<u32>) {
         self.send_message(Command::Initialize(initial_pc, instructions));
     }
 

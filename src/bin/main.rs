@@ -21,7 +21,11 @@ use swim::emulation_core::mips::datapath::MipsDatapath;
 use swim::emulation_core::mips::datapath::Stage;
 use swim::ui::footer::component::Footer;
 use swim::parser::parser_assembler_main::parser;
+<<<<<<< HEAD
 use swim::shims;
+=======
+use swim::ui::console::component::Console;
+>>>>>>> 0c78fd0aa063b873ebe3afa961a8b9ac352b2329
 use swim::ui::regview::component::Regview;
 use swim::ui::swim_editor::component::SwimEditor;
 use wasm_bindgen::{JsCast, JsValue};
@@ -184,10 +188,7 @@ fn app(props: &AppProps) -> Html {
                     memory_text_model.set_value(hexdump);
                     datapath.registers.pc = program_info.pc_starting_point as u64;
                     // Send the binary over to the emulation core thread
-                    communicator.initialize(
-                        program_info.pc_starting_point,
-                        shims::convert_to_u8_bytes(assembled),
-                    )
+                    communicator.initialize(program_info.pc_starting_point, assembled)
                 }
 
                 trigger.force_update();

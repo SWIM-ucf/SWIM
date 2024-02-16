@@ -53,7 +53,6 @@ use super::datapath_signals::*;
 use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
-use crate::shims;
 use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.
@@ -274,9 +273,9 @@ impl Datapath for MipsDatapath {
         *register = _data;
     }
 
-    fn initialize(&mut self, initial_pc: usize, instructions: Vec<u8>) -> Result<(), String> {
+    fn initialize(&mut self, initial_pc: usize, instructions: Vec<u32>) -> Result<(), String> {
         self.reset();
-        self.load_instructions(shims::convert_from_u8_bytes(instructions))?;
+        self.load_instructions(instructions)?;
         self.registers.pc = initial_pc as u64;
         self.is_halted = false;
 
