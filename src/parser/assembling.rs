@@ -6,7 +6,8 @@ use crate::parser::parser_structs_and_enums::ErrorType::{
     NonIntImmediate, UnrecognizedDataType, UnrecognizedFPRegister, UnrecognizedGPRegister,
 };
 use crate::parser::parser_structs_and_enums::OperandType::{
-    Immediate, UpperImmediate, LabelAbsolute, LabelRelative, MemoryAddress, RegisterFP, RegisterGP, ShiftAmount
+    Immediate, LabelAbsolute, LabelRelative, MemoryAddress, RegisterFP, RegisterGP, ShiftAmount,
+    UpperImmediate,
 };
 use crate::parser::parser_structs_and_enums::RegisterType::{FloatingPoint, GeneralPurpose};
 use crate::parser::parser_structs_and_enums::TokenType::{
@@ -17,7 +18,7 @@ use crate::parser::parser_structs_and_enums::{
 };
 use std::collections::HashMap;
 
-use super::parser_structs_and_enums::{RISCV_GP_REGISTERS, RISCV_FP_REGISTERS};
+use super::parser_structs_and_enums::{RISCV_FP_REGISTERS, RISCV_GP_REGISTERS};
 
 use gloo_console::log;
 
@@ -91,8 +92,7 @@ pub fn read_operands(
                     instruction.errors.push(immediate_results.1.unwrap());
                 }
             }
-            UpperImmediate =>
-            {
+            UpperImmediate => {
                 // Don't need to handle for MIPS
             }
             MemoryAddress => {
@@ -195,7 +195,7 @@ pub fn read_operands_riscv(
     concat_order: Vec<usize>,
     labels_option: Option<HashMap<String, usize>>,
     funct3: Option<u32>,
-    fmt: Option<u32>
+    fmt: Option<u32>,
 ) -> &mut Instruction {
     //if the number of operands in the instruction does not match the expected number, there is an error
     if instruction.operands.len() != expected_operands.len() {
@@ -238,7 +238,7 @@ pub fn read_operands_riscv(
                     instruction.operands[i].start_end_columns,
                     GeneralPurpose,
                 );
-                
+
                 log!("Register Results:  ", format!("{:?}", register_results));
 
                 // Vector holding all register arguments
@@ -262,7 +262,8 @@ pub fn read_operands_riscv(
                     instruction.errors.push(immediate_results.1.unwrap());
                 }
             }
-            UpperImmediate => // Can be used to represent offsets for J-type instructions
+            UpperImmediate =>
+            // Can be used to represent offsets for J-type instructions
             {
                 log!("Upper Immediate");
                 instruction.operands[i].token_type = TokenType::Immediate;
@@ -368,12 +369,11 @@ pub fn read_operands_riscv(
             binary_representation[element - 1],
             bit_lengths[element - 1],
         );
-        if index == concat_order.len() - 2 && funct3.is_some() // Set funct3 value before the final argument
+        if index == concat_order.len() - 2 && funct3.is_some()
+        // Set funct3 value before the final argument
         {
             instruction.binary = append_binary(instruction.binary, funct3.unwrap_or(0), 3)
-        }
-        else if index == 0 && fmt.is_some()
-        {
+        } else if index == 0 && fmt.is_some() {
             instruction.binary = append_binary(instruction.binary, fmt.unwrap_or(0), 2)
         }
     }
@@ -584,7 +584,8 @@ pub fn read_register(
         let general_result = match_gp_register(register);
         if let Some(..) = general_result {
             (general_result.unwrap(), None)
-        } else if match_fp_register(register).is_some() { // Creates Error if supplied a fp register for gp
+        } else if match_fp_register(register).is_some() {
+            // Creates Error if supplied a fp register for gp
             (
                 0,
                 Some(Error {
@@ -646,7 +647,8 @@ pub fn read_register_riscv(
         let general_result = match_gp_register_riscv(register);
         if let Some(..) = general_result {
             (general_result.unwrap(), None)
-        } else if match_fp_register_riscv(register).is_some() { // Creates Error if supplied a fp register for gp
+        } else if match_fp_register_riscv(register).is_some() {
+            // Creates Error if supplied a fp register for gp
             (
                 0,
                 Some(Error {

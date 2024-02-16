@@ -14,12 +14,10 @@ use gloo_console::log;
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
 pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
-
     // Force MIPS to pass unit tests until I change the function arguments for SWIMv1 test cases``
     let arch = Architecture::MIPS;
 
-    if arch == Architecture::MIPS
-    {
+    if arch == Architecture::MIPS {
         let mut program_info = ProgramInfo {
             monaco_line_info: tokenize_program(file_string),
             ..Default::default()
@@ -75,9 +73,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
         program_info.pc_starting_point = determine_pc_starting_point(labels);
 
         (program_info.clone(), binary)
-    }
-    else
-    {
+    } else {
         let mut program_info = ProgramInfo {
             monaco_line_info: tokenize_program(file_string),
             ..Default::default()
@@ -1554,19 +1550,21 @@ pub fn read_instructions_riscv(
     instruction_list: &mut [Instruction],
     _labels: &HashMap<String, usize>,
     monaco_line_info: &mut [MonacoLineInfo],
-) 
-{
-    for mut instruction in &mut instruction_list.iter_mut()
-    {
-        match &*instruction.operator.token_name.to_lowercase()
-        {
-            "add" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+) {
+    for mut instruction in &mut instruction_list.iter_mut() {
+        match &*instruction.operator.token_name.to_lowercase() {
+            "add" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -1574,12 +1572,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b000),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -1593,13 +1594,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "sub" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "sub" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0100000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -1607,12 +1613,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b000),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -1626,13 +1635,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "sll" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "sll" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -1640,12 +1654,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b001),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -1659,13 +1676,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "slt" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "slt" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -1673,12 +1695,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b010),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -1692,13 +1717,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "sltu" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "sltu" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -1706,12 +1736,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b011),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -1725,13 +1758,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "xor" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "xor" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -1739,12 +1777,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b100),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -1758,13 +1799,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "srl" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "srl" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -1772,12 +1818,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b101),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -1791,13 +1840,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "sra" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "sra" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0100000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -1805,12 +1859,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b101),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -1824,13 +1881,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "or" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "or" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -1838,12 +1900,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b110),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -1857,13 +1922,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "and" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "and" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -1871,12 +1941,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b111),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -1890,9 +1963,13 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "addi" => // This instruction requires the 12-bit immediate to be sign extended before moving to the emulator's register
+            "addi" =>
+            // This instruction requires the 12-bit immediate to be sign extended before moving to the emulator's register
             {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -1900,12 +1977,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -1919,9 +1999,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "slti" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "slti" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -1929,12 +2011,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b010),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -1948,9 +2033,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "sltiu" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "sltiu" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -1958,12 +2045,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b011),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -1977,9 +2067,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "xori" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "xori" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -1987,12 +2079,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b100),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2006,9 +2101,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "ori" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "ori" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2016,12 +2113,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b110),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2035,9 +2135,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "andi" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "andi" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2045,12 +2147,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b111),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2064,9 +2169,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "slli" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "slli" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5); // Check if the next 2 bits are needed
@@ -2077,12 +2184,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b001),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2096,9 +2206,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "srli" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "srli" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b00000, 5); // Check if the next 2 bits are needed
@@ -2109,12 +2221,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b101),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2128,9 +2243,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "srai" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "srai" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b01000, 5); // Check if the next 2 bits are needed
@@ -2141,12 +2258,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b101),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2160,9 +2280,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "lb" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "lb" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2170,12 +2292,15 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b000),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2189,9 +2314,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "lh" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "lh" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2199,12 +2326,15 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b001),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2218,9 +2348,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "lw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "lw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2228,12 +2360,15 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b010),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2247,9 +2382,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "lbu" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "lbu" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2257,12 +2394,15 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b100),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2276,9 +2416,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "lhu" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "lhu" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2286,12 +2428,15 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b101),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2305,9 +2450,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "sb" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "sb" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2315,12 +2462,15 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b000),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0100011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Encoded as I-type, but needs reordering for S-type
                 instruction.binary = immediate_to_stored(instruction.binary);
@@ -2331,16 +2481,20 @@ pub fn read_instructions_riscv(
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "sb rs2, offset(rs1)".to_string(),
-                        description: "Store 8-bit, values from the low bits of register rs2 to memory.".to_string(),
+                        description:
+                            "Store 8-bit, values from the low bits of register rs2 to memory."
+                                .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "sh" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "sh" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2348,12 +2502,15 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b001),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0100011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Encoded as I-type, but needs reordering for S-type
                 instruction.binary = immediate_to_stored(instruction.binary);
@@ -2364,16 +2521,20 @@ pub fn read_instructions_riscv(
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "sh rs2, offset(rs1)".to_string(),
-                        description: "Store 16-bit, values from the low bits of register rs2 to memory.".to_string(),
+                        description:
+                            "Store 16-bit, values from the low bits of register rs2 to memory."
+                                .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "sw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "sw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2381,12 +2542,15 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b010),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0100011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Encoded as I-type, but needs reordering for S-type
                 instruction.binary = immediate_to_stored(instruction.binary);
@@ -2397,17 +2561,23 @@ pub fn read_instructions_riscv(
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "sw rs2, offset(rs1)".to_string(),
-                        description: "Store 32-bit, values from the low bits of register rs2 to memory.".to_string(),
+                        description:
+                            "Store 32-bit, values from the low bits of register rs2 to memory."
+                                .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "jal" => // Finish J instructions
+            "jal" =>
+            // Finish J instructions
             {
                 log!("jal instruction");
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Read as U-type instruction and reorder immediate value after
                 read_operands_riscv(
@@ -2416,32 +2586,40 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     None,
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1101111, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Reorder immediate
                 instruction.binary = upper_to_jump(instruction.binary);
-                log!("3. Reordered Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "3. Reordered Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "jal rd, offset".to_string(),
                         description: "Jump to address and place return address in rd.".to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "jalr" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "jalr" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2449,28 +2627,33 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b000),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1100111, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "jalr rd, rs1, offset".to_string(),
                         description: "Jump to address and place return address in rd.".to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "beq" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "beq" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2478,31 +2661,40 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b000),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1100011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 instruction.binary = immediate_to_branch(instruction.binary);
-                log!("3. Reordered Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "3. Reordered Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "beq rs1, rs2, offset".to_string(),
-                        description: "Take the branch if registers rs1 and rs2 are equal.".to_string(),
+                        description: "Take the branch if registers rs1 and rs2 are equal."
+                            .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "bne" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "bne" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2510,31 +2702,40 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b001),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1100011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 instruction.binary = immediate_to_branch(instruction.binary);
-                log!("3. Reordered Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "3. Reordered Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "bne rs1, rs2, offset".to_string(),
-                        description: "Take the branch if registers rs1 and rs2 are not equal.".to_string(),
+                        description: "Take the branch if registers rs1 and rs2 are not equal."
+                            .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "blt" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "blt" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2542,15 +2743,21 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b100),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1100011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 instruction.binary = immediate_to_branch(instruction.binary);
-                log!("3. Reordered Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "3. Reordered Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2564,9 +2771,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "bge" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "bge" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2574,15 +2783,21 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b101),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1100011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 instruction.binary = immediate_to_branch(instruction.binary);
-                log!("3. Reordered Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "3. Reordered Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2596,9 +2811,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "bltu" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "bltu" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2606,15 +2823,21 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b110),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1100011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 instruction.binary = immediate_to_branch(instruction.binary);
-                log!("3. Reordered Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "3. Reordered Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2628,9 +2851,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "bgeu" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "bgeu" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2638,15 +2863,21 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b111),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1100011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 instruction.binary = immediate_to_branch(instruction.binary);
-                log!("3. Reordered Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "3. Reordered Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2660,13 +2891,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "ecall" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "ecall" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // ecall instruction encoding does not change
                 instruction.binary = 0b00000000000000000000000001110011;
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2680,13 +2916,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "ebreak" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "ebreak" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // ebreak instruction encoding does not change
                 instruction.binary = 0b00000000000100000000000001110011;
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2700,13 +2941,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "uret" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "uret" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // uret instruction encoding does not change
                 instruction.binary = 0b00000000001000000000000001110011;
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2720,13 +2966,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "sret" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "sret" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // uret instruction encoding does not change
                 instruction.binary = 0b00010000001000000000000001110011;
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2740,13 +2991,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "mret" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "mret" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // uret instruction encoding does not change
                 instruction.binary = 0b00110000001000000000000001110011;
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2760,13 +3016,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "wfi" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "wfi" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // uret instruction encoding does not change
                 instruction.binary = 0b00010000010100000000000001110011;
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2780,13 +3041,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fence.i" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fence.i" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // fence.i instruction encoding does not change
                 instruction.binary = 0b00000000000000000001000000001111;
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2800,9 +3066,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "lui" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "lui" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2810,12 +3078,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     None,
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110111, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2829,10 +3100,12 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "auipc" =>
-            {
+            "auipc" => {
                 log!("auipc instruction");
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2840,12 +3113,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     None,
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0010111, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2859,9 +3135,13 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "addiw" => // Start of RV64I Instructions
+            "addiw" =>
+            // Start of RV64I Instructions
             {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2869,12 +3149,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b000),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0011011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2888,9 +3171,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "slliw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "slliw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000000, 7);
@@ -2901,12 +3186,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b001),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0011011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2920,9 +3208,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "srliw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "srliw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000000, 7);
@@ -2933,12 +3223,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b101),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0011011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2952,25 +3245,30 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "sraiw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "sraiw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b01000, 7);
-                
+
                 read_operands_riscv(
                     instruction,
                     vec![RegisterGP, RegisterGP, ShiftAmount],
                     vec![1, 2, 3],
                     None,
                     Some(0b101),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0011011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2984,13 +3282,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "addw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "addw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -2998,12 +3301,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b000),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0111011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3017,13 +3323,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "subw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "subw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0100000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3031,12 +3342,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b000),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0111011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3050,13 +3364,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "sllw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "sllw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3064,12 +3383,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b001),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0111011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3083,13 +3405,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "srlw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "srlw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3097,12 +3424,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b101),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0111011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3116,13 +3446,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "sraw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "sraw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0100000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3130,12 +3465,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b101),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0111011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3149,9 +3487,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "lwu" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "lwu" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3159,12 +3499,15 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b110),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3178,9 +3521,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "ld" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "ld" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3188,28 +3533,34 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b011),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0000011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "ld rd, offset(rs1)".to_string(),
-                        description: "Loads a 64-bit value from memory into register rd for RV64I.".to_string(),
+                        description: "Loads a 64-bit value from memory into register rd for RV64I."
+                            .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "sd" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "sd" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3217,12 +3568,15 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b011),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0100011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Encoded as I-type, but needs reordering for S-type
                 instruction.binary = immediate_to_stored(instruction.binary);
@@ -3233,20 +3587,28 @@ pub fn read_instructions_riscv(
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "sd rs2, offset(rs1)".to_string(),
-                        description: "Store 64-bit, values from register rs2 to memory.".to_string(),
+                        description: "Store 64-bit, values from register rs2 to memory."
+                            .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "mul" => // Start of RV32M
+            "mul" =>
+            // Start of RV32M
             {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3254,12 +3616,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b000),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3273,13 +3638,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "mulh" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "mulh" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3287,12 +3657,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b001),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3307,13 +3680,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "mulhsu" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "mulhsu" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3321,12 +3699,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b010),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3340,13 +3721,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "mulhu" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "mulhu" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3354,12 +3740,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b011),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3373,13 +3762,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "div" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "div" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3387,12 +3781,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b100),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3406,13 +3803,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "divu" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "divu" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3420,12 +3822,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b101),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3439,13 +3844,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "rem" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "rem" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3453,12 +3863,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b110),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3472,13 +3885,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "remu" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "remu" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3486,12 +3904,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b111),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0110011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3505,13 +3926,20 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "mulw" => // Start of RV64M
+            "mulw" =>
+            // Start of RV64M
             {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3519,12 +3947,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b000),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0111011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3538,13 +3969,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "divw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "divw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3552,12 +3988,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b100),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0111011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3571,13 +4010,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "divuw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "divuw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3585,12 +4029,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b101),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0111011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3604,13 +4051,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "remw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "remw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3618,12 +4070,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b110),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0111011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3637,13 +4092,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "remuw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "remuw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3651,12 +4111,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b111),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0111011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3670,9 +4133,13 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fmadd.s" => // Start of RV32F
+            "fmadd.s" =>
+            // Start of RV32F
             {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3680,12 +4147,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3, 4],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    Some(0b00)
+                    Some(0b00),
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1000011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3699,9 +4169,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fmsub.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fmsub.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3709,12 +4181,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3, 4],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    Some(0b00)
+                    Some(0b00),
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1000111, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3728,9 +4203,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fnmsub.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fnmsub.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3738,12 +4215,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3, 4],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    Some(0b00)
+                    Some(0b00),
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1001011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3757,9 +4237,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fnmadd.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fnmadd.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3767,12 +4249,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3, 4],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    Some(0b00)
+                    Some(0b00),
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1001111, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3786,13 +4271,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fadd.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fadd.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0000000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3800,32 +4290,41 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "fadd.s rd, rs1, rs2".to_string(),
-                        description: "Perform single-precision floating-point addition.".to_string(),
+                        description: "Perform single-precision floating-point addition."
+                            .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fsub.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fsub.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0000100, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3833,32 +4332,41 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "fsub.s rd, rs1, rs2".to_string(),
-                        description: "Perform single-precision floating-point substraction.".to_string(),
+                        description: "Perform single-precision floating-point substraction."
+                            .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fmul.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fmul.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0001000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3866,32 +4374,41 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "fmul.s rd, rs1, rs2".to_string(),
-                        description: "Perform single-precision floating-point multiplication.".to_string(),
+                        description: "Perform single-precision floating-point multiplication."
+                            .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fdiv.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fdiv.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0001100, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3899,32 +4416,41 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "fdiv.s rd, rs1, rs2".to_string(),
-                        description: "Perform single-precision floating-point division.".to_string(),
+                        description: "Perform single-precision floating-point division."
+                            .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fsqrt.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fsqrt.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + padding for absent register
                 instruction.binary = append_binary(instruction.binary, 0b010110000000, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3932,32 +4458,40 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "fsqrt.s rd, rs1".to_string(),
                         description: "Perform single-precision square root.".to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fsgnj.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fsgnj.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0010000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3965,12 +4499,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b000), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -3984,13 +4521,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fsgnjn.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fsgnjn.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0010000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -3998,12 +4540,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b001), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4017,13 +4562,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fsgnjx.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fsgnjx.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0010000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4031,12 +4581,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b010), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4050,13 +4603,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fmin.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fmin.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0010100, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4064,32 +4622,42 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b000), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "fmin.s rd, rs1, rs2".to_string(),
-                        description: "Write the smaller of single precision data in rs1 and rs2 to rd.".to_string(),
+                        description:
+                            "Write the smaller of single precision data in rs1 and rs2 to rd."
+                                .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fmax.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fmax.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0010100, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4097,32 +4665,42 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b001), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "fmax.s rd, rs1, rs2".to_string(),
-                        description: "Write the larger of single precision data in rs1 and rs2 to rd.".to_string(),
+                        description:
+                            "Write the larger of single precision data in rs1 and rs2 to rd."
+                                .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fcvt.w.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fcvt.w.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + padding for absent register
                 instruction.binary = append_binary(instruction.binary, 0b110000000000, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4130,12 +4708,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4149,13 +4730,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fcvt.wu.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fcvt.wu.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b110000000001, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4163,12 +4749,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4182,13 +4771,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fmv.x.w" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fmv.x.w" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b111000000000, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4196,12 +4790,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b000), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4215,13 +4812,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "feq.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "feq.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b1010000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4229,12 +4831,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b010), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4248,13 +4853,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "flt.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "flt.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b1010000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4262,12 +4872,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b001), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4281,13 +4894,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fle.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fle.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b1010000, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4295,12 +4913,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b000), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4314,13 +4935,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fclass.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fclass.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b111000000000, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4328,12 +4954,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b001), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4347,13 +4976,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fcvt.s.w" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fcvt.s.w" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b110100000000, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4361,12 +4995,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4380,13 +5017,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fcvt.s.wu" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fcvt.s.wu" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b110100000001, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4394,12 +5036,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4413,13 +5058,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fmv.w.x" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fmv.w.x" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b111100000000, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4427,12 +5077,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b000), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4446,9 +5099,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fmadd.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fmadd.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4456,12 +5111,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3, 4],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    Some(0b01)
+                    Some(0b01),
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1000011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4475,9 +5133,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fmsub.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fmsub.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4485,12 +5145,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3, 4],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    Some(0b01)
+                    Some(0b01),
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1000111, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4504,9 +5167,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fnmsub.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fnmsub.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4514,12 +5179,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3, 4],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    Some(0b01)
+                    Some(0b01),
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1001011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4533,9 +5201,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fnmadd.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fnmadd.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4543,12 +5213,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3, 4],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    Some(0b01)
+                    Some(0b01),
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1001111, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4562,13 +5235,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fadd.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fadd.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4576,32 +5254,41 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "fadd.d rd, rs1, rs2".to_string(),
-                        description: "Perform single-precision floating-point addition.".to_string(),
+                        description: "Perform single-precision floating-point addition."
+                            .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fsub.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fsub.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0000101, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4609,32 +5296,41 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "fsub.d rd, rs1, rs2".to_string(),
-                        description: "Perform single-precision floating-point subtraction.".to_string(),
+                        description: "Perform single-precision floating-point subtraction."
+                            .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fmul.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fmul.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0001001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4642,32 +5338,41 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "fmul.d rd, rs1, rs2".to_string(),
-                        description: "Perform single-precision floating-point multiplication.".to_string(),
+                        description: "Perform single-precision floating-point multiplication."
+                            .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fdiv.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fdiv.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0001101, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4675,32 +5380,41 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "fdiv.d rd, rs1, rs2".to_string(),
-                        description: "Perform single-precision floating-point division.".to_string(),
+                        description: "Perform single-precision floating-point division."
+                            .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fsqrt.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fsqrt.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b010110100000, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4708,32 +5422,40 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "fsqrt.d rd, rs1".to_string(),
                         description: "Perform single-precision square root.".to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fsgnj.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fsgnj.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0010001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4741,12 +5463,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b000), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4760,13 +5485,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fsgnjn.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fsgnjn.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0010001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4774,12 +5504,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b001), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4793,13 +5526,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fsgnjx.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fsgnjx.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0010001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4807,12 +5545,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b010), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4826,13 +5567,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fmin.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fmin.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0010101, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4840,32 +5586,42 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b000), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "fmin.d rd, rs1, rs2".to_string(),
-                        description: "Write the smaller of single precision data in rs1 and rs2 to rd.".to_string(),
+                        description:
+                            "Write the smaller of single precision data in rs1 and rs2 to rd."
+                                .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fmax.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fmax.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b0010101, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4873,32 +5629,42 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b001), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
                 {
-                    let info = InstructionDescription{
+                    let info = InstructionDescription {
                         syntax: "fmax.d rd, rs1, rs2".to_string(),
-                        description: "Write the larger of single precision data in rs1 and rs2 to rd.".to_string(),
+                        description:
+                            "Write the larger of single precision data in rs1 and rs2 to rd."
+                                .to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fcvt.s.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fcvt.s.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b010000000001, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4906,12 +5672,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4925,13 +5694,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fcvt.d.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fcvt.d.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b010000100000, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4939,12 +5713,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4958,13 +5735,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "feq.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "feq.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b1010001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -4972,12 +5754,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b010), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -4991,13 +5776,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "flt.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "flt.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b1010001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -5005,12 +5795,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b001), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -5024,13 +5817,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fle.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fle.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt
                 instruction.binary = append_binary(instruction.binary, 0b1010001, 7);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -5038,12 +5836,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2, 3],
                     None,
                     Some(0b000), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -5057,13 +5858,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fclass.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fclass.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b111000100000, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -5071,12 +5877,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b001), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -5090,13 +5899,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fcvt.w.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fcvt.w.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b110000100000, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -5104,12 +5918,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -5123,13 +5940,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fcvt.wu.d" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fcvt.wu.d" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b110000100001, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -5137,12 +5959,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -5156,13 +5981,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fcvt.d.w" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fcvt.d.w" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b110100100000, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -5170,12 +6000,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -5189,13 +6022,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fcvt.d.wu" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fcvt.d.wu" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b110100100001, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -5203,12 +6041,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -5222,9 +6063,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "flw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "flw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -5232,12 +6075,15 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b010),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0000111, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -5251,9 +6097,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fsw" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fsw" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -5261,12 +6109,15 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b010),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0100111, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Encoded as I-type, but needs reordering for S-type
                 instruction.binary = immediate_to_stored(instruction.binary);
@@ -5284,9 +6135,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fld" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fld" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -5294,12 +6147,15 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b011),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0000111, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -5313,9 +6169,11 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fsd" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fsd" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -5323,12 +6181,15 @@ pub fn read_instructions_riscv(
                     vec![1, 3, 2],
                     None,
                     Some(0b011),
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b0100111, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Encoded as I-type, but needs reordering for S-type
                 instruction.binary = immediate_to_stored(instruction.binary);
@@ -5346,13 +6207,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fcvt.l.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fcvt.l.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b110000000010, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -5360,12 +6226,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -5379,13 +6248,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fcvt.lu.s" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fcvt.lu.s" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b110000000011, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -5393,12 +6267,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -5412,13 +6289,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fcvt.s.l" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fcvt.s.l" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b110100000010, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -5426,12 +6308,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -5445,13 +6330,18 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fcvt.s.lu" =>
-            {
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+            "fcvt.s.lu" => {
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b110100000011, 12);
-                log!("Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 read_operands_riscv(
                     instruction,
@@ -5459,12 +6349,15 @@ pub fn read_instructions_riscv(
                     vec![1, 2],
                     None,
                     Some(0b111), // This funct3 is used for the rm value
-                    None
+                    None,
                 );
 
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1010011, 7);
-                log!("2. Instruction Binary: ", format!("{:032b}", instruction.binary));
+                log!(
+                    "2. Instruction Binary: ",
+                    format!("{:032b}", instruction.binary)
+                );
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -5478,8 +6371,7 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            _ =>
-            {
+            _ => {
                 if UNSUPPORTED_INSTRUCTIONS.contains(&&*instruction.operator.token_name) {
                     instruction.errors.push(Error {
                         error_name: UnsupportedInstruction,
@@ -5501,8 +6393,7 @@ pub fn read_instructions_riscv(
 }
 
 // Reorder store instruction to the correct format
-fn immediate_to_stored(mut bin: u32) -> u32
-{
+fn immediate_to_stored(mut bin: u32) -> u32 {
     // Extract bits 24-20 from the first segment
     let lower_imm = (bin >> 20) & 0b11111;
 
@@ -5524,15 +6415,14 @@ fn immediate_to_stored(mut bin: u32) -> u32
     let moved_rs2 = rs2 << 20;
 
     // Combine the manipulated bits
-    bin |=   moved_imm | moved_rs2;
+    bin |= moved_imm | moved_rs2;
 
     bin
 }
 
 // Converts an I-type instruction to B-type instruction
 // Easier to encode in this manner
-fn immediate_to_branch(mut bin: u32) -> u32 
-{
+fn immediate_to_branch(mut bin: u32) -> u32 {
     log!("Binary: ", format!("{:032b}", bin));
     log!("Immediate: ", format!("{:012b}", (bin >> 20)));
 
@@ -5555,7 +6445,7 @@ fn immediate_to_branch(mut bin: u32) -> u32
 
     // Move bits imm[4:1] to positions 10-8
     let moved_lower = lower_imm << 8;
-    
+
     let moved_upper = upper_imm << 25;
 
     let moved_bit_11 = bit_11 << 7;
@@ -5569,14 +6459,13 @@ fn immediate_to_branch(mut bin: u32) -> u32
     let moved_rs1 = rs1 << 15;
 
     // Combine the manipulated bits
-    bin |=   moved_bit_12 | moved_upper | moved_rs2 | moved_rs1 | moved_lower | moved_bit_11;
+    bin |= moved_bit_12 | moved_upper | moved_rs2 | moved_rs1 | moved_lower | moved_bit_11;
 
     bin
 }
 
 // Reorder the immediate value to comply with J-type format
-fn upper_to_jump(mut bin: u32) -> u32
-{
+fn upper_to_jump(mut bin: u32) -> u32 {
     // Extract bits 24-20 from the first segment
     let lower_imm = (bin >> 20) & 0b11111;
 
@@ -5598,11 +6487,10 @@ fn upper_to_jump(mut bin: u32) -> u32
     let moved_rs2 = rs2 << 20;
 
     // Combine the manipulated bits
-    bin |=   moved_imm | moved_rs2;
+    bin |= moved_imm | moved_rs2;
 
     bin
 }
-
 
 ///This function takes two numbers and inserts the binary of the second at a given index in the binary of the first.
 ///All binary values at and past the insertion index of the original string will be moved to the end of the resultant string.

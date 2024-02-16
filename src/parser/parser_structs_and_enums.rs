@@ -21,7 +21,7 @@ pub struct ProgramInfo {
 pub enum Architecture {
     #[default]
     MIPS,
-    RISCV
+    RISCV,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -666,7 +666,6 @@ pub const UNSUPPORTED_INSTRUCTIONS: [&str; 408] = [
     "xor",
     "xori",
     // RISC-V Instructions
-    
 ];
 
 ///Contains every general purpose register's binary value and the various names they are recognized as. Any reference to gp registers throughout the parser/assembler should reference this array
@@ -1078,7 +1077,6 @@ pub const RISCV_GP_REGISTERS: &[GPRegisterRiscv; 32] = &[
         binary: 0b11111,
     },
 ];
-
 
 pub struct FPRegisterRiscv<'a> {
     pub names: &'a [&'a str],
