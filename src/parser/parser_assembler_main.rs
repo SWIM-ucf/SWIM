@@ -32,43 +32,6 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
             &mut program_info.monaco_line_info,
         );
 
-        let labels: HashMap<String, usize> =
-            create_label_map(&mut program_info.instructions, &mut program_info.data);
-
-        complete_lw_sw_pseudo_instructions(
-            &mut program_info.instructions,
-            &labels,
-            &mut program_info.monaco_line_info,
-        );
-
-        read_instructions(
-            &mut program_info.instructions,
-            &labels,
-            &mut program_info.monaco_line_info,
-        );
-
-        program_info.console_out_post_assembly = suggest_error_corrections(
-            &mut program_info.instructions,
-            &mut program_info.data,
-            &labels,
-            &mut program_info.monaco_line_info,
-        );
-
-        for entry in &program_info.monaco_line_info {
-            program_info
-                .updated_monaco_string
-                .push_str(&format!("{}\n", entry.updated_monaco_string));
-        }
-
-        (program_info.instructions, program_info.data) =
-            separate_data_and_text(&mut program_info.monaco_line_info);
-
-        expand_pseudo_instructions_and_assign_instruction_numbers(
-            &mut program_info.instructions,
-            &program_info.data,
-            &mut program_info.monaco_line_info,
-        );
-
         let vec_of_data = assemble_data_binary(&mut program_info.data);
 
         let labels: HashMap<String, usize> =
@@ -93,13 +56,18 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
             &mut program_info.monaco_line_info,
         );
 
-        let (binary, data_starting_point) =
-            create_binary_vec(program_info.instructions.clone(), vec_of_data);
+        let (binary, data_starting_point) = create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
         for entry in &program_info.monaco_line_info {
             program_info
                 .updated_monaco_string
                 .push_str(&format!("{}\n", entry.updated_monaco_string));
+        }
+
+        for instruction in program_info.instructions.clone() {
+            program_info
+                .address_to_line_number
+                .push(instruction.line_number);
         }
 
         program_info.pc_starting_point = determine_pc_starting_point(labels);
@@ -147,7 +115,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
             &mut program_info.monaco_line_info,
         );
 
-        let (binary, data_starting_point): (Vec<u32>, usize) = create_binary_vec(program_info.instructions.clone(), vec_of_data);
+        let (binary, data_starting_point) = create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
         for entry in &program_info.monaco_line_info {
             program_info
