@@ -109,7 +109,7 @@ impl DatapathCommunicator {
 
     /// Copies the contents of `data` to the emulator core's memory at `ptr`. Copies until either the end of `data` or
     /// the end of the emulaot core's memory.
-    pub fn set_memory(&self, ptr: usize, data: Vec<u8>) {
+    pub fn set_memory(&self, ptr: u64, data: u32) {
         self.send_message(Command::SetMemory(ptr, data));
     }
 
@@ -136,5 +136,9 @@ impl DatapathCommunicator {
     /// Resets the current core to its default state.
     pub fn reset(&self) {
         self.send_message(Command::Reset);
+    }
+
+    pub fn get_accepting_input(&self) -> bool {
+        todo!()
     }
 }

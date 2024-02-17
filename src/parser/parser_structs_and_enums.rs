@@ -15,6 +15,7 @@ pub struct ProgramInfo {
     pub instructions: Vec<Instruction>,
     pub data: Vec<Data>,
     pub pc_starting_point: usize,
+    pub data_starting_point: usize,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -152,6 +153,23 @@ pub struct Data {
     pub label: Token,
     pub data_type: Token,
     pub data_entries: Vec<Token>,
+}
+
+impl Data {
+    ///Takes the operator, operands, and label(optional) associated with an instruction and recreates the string version
+    pub fn recreate_string(&self) -> String {
+        let mut recreated_string = "".to_string();
+        recreated_string.push_str(&format!("{}: ", self.label.clone().token_name));
+        recreated_string.push_str(&self.data_type.token_name.to_string());
+
+        for token in &self.data_entries {
+            recreated_string.push_str(&format!(" {},", token.token_name.clone()));
+        }
+        //pop the extra comma
+        recreated_string.pop();
+
+        recreated_string
+    }
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]

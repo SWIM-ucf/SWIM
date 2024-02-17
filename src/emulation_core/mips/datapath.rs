@@ -163,7 +163,7 @@ pub struct DatapathState {
 }
 
 /// The possible stages the datapath could be in during execution.
-#[derive(Clone, Copy, Default, Eq, PartialEq)]
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Stage {
     #[default]
     InstructionFetch,
@@ -269,7 +269,8 @@ impl Datapath for MipsDatapath {
     }
 
     fn set_register_by_str(&mut self, _register: &str, _data: Self::RegisterData) {
-        todo!()
+        let register = &mut self.registers[_register];
+        *register = _data;
     }
 
     fn initialize(&mut self, initial_pc: usize, instructions: Vec<u32>) -> Result<(), String> {
@@ -285,8 +286,8 @@ impl Datapath for MipsDatapath {
         &self.memory
     }
 
-    fn set_memory(&mut self, _ptr: usize, _data: Vec<u8>) {
-        todo!()
+    fn set_memory(&mut self, _ptr: u64, _data: u32) {
+        self.memory.store_word(_ptr, _data).unwrap_or_default();
     }
 
     fn is_halted(&self) -> bool {

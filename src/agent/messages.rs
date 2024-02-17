@@ -1,7 +1,7 @@
-use crate::emulation_core::architectures::AvailableDatapaths;
 use crate::emulation_core::mips::datapath::DatapathState;
 use crate::emulation_core::mips::memory::Memory;
 use crate::emulation_core::mips::registers::GpRegisters;
+use crate::emulation_core::{architectures::AvailableDatapaths, mips::datapath::Stage};
 use serde::{Deserialize, Serialize};
 
 /// Commands sent from the UI thread to the worker thread.
@@ -11,7 +11,7 @@ pub enum Command {
     Initialize(usize, Vec<u32>),
     SetExecuteSpeed(u32),
     SetRegister(String, u64),
-    SetMemory(usize, Vec<u8>),
+    SetMemory(u64, u32),
     Execute,
     ExecuteInstruction,
     ExecuteStage,
@@ -25,4 +25,5 @@ pub enum MipsStateUpdate {
     UpdateState(DatapathState),
     UpdateRegisters(GpRegisters),
     UpdateMemory(Memory),
+    UpdateStage(Stage),
 }

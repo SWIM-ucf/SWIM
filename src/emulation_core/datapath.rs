@@ -55,7 +55,8 @@ pub trait Datapath {
     /// Retrieve all memory as-is.
     fn get_memory(&self) -> &Memory;
 
-    fn set_memory(&mut self, ptr: usize, data: Vec<u8>);
+    // Store word in memory at ptr
+    fn set_memory(&mut self, ptr: u64, data: u32);
 
     /// Returns if the datapath is in a "halted" or "stopped" state. This may
     /// be true in the case where an error had occurred previously.

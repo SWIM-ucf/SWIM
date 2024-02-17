@@ -64,10 +64,46 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
                 .push_str(&format!("{}\n", entry.updated_monaco_string));
         }
 
-        for instruction in program_info.instructions.clone() {
+        (program_info.instructions, program_info.data) =
+            separate_data_and_text(&mut program_info.monaco_line_info);
+
+        expand_pseudo_instructions_and_assign_instruction_numbers(
+            &mut program_info.instructions,
+            &program_info.data,
+            &mut program_info.monaco_line_info,
+        );
+
+        let vec_of_data = assemble_data_binary(&mut program_info.data);
+
+        let labels: HashMap<String, usize> =
+            create_label_map(&mut program_info.instructions, &mut program_info.data);
+
+        complete_lw_sw_pseudo_instructions(
+            &mut program_info.instructions,
+            &labels,
+            &mut program_info.monaco_line_info,
+        );
+
+        read_instructions(
+            &mut program_info.instructions,
+            &labels,
+            &mut program_info.monaco_line_info,
+        );
+
+        program_info.console_out_post_assembly = suggest_error_corrections(
+            &mut program_info.instructions,
+            &mut program_info.data,
+            &labels,
+            &mut program_info.monaco_line_info,
+        );
+
+        let (binary, data_starting_point) =
+            create_binary_vec(program_info.instructions.clone(), vec_of_data);
+
+        for entry in &program_info.monaco_line_info {
             program_info
-                .address_to_line_number
-                .push(instruction.line_number);
+                .updated_monaco_string
+                .push_str(&format!("{}\n", entry.updated_monaco_string));
         }
 
         program_info.pc_starting_point = determine_pc_starting_point(labels);
@@ -129,6 +165,7 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
         }
 
         program_info.pc_starting_point = determine_pc_starting_point(labels);
+        program_info.data_starting_point = data_starting_point;
 
         (program_info.clone(), binary)
     }
@@ -983,7 +1020,7 @@ pub fn read_instructions(
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 let info = InstructionDescription{
-                    syntax: "lwc1 ft offset(base)".to_string(),
+                    syntax: "lwc1 ft, offset(base)".to_string(),
                     description: "Loads the contents of the 32-bit word at the specified memory address into `ft`.\n\nMemory address is calculated as the sum of `offset` and the contents of the `base` register.".to_string(),
                 };
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
@@ -6543,12 +6580,17 @@ pub fn determine_pc_starting_point(labels: HashMap<String, usize>) -> usize {
 }
 
 ///Creates a vector of u32 from the data found in the parser / assembler to put into memory.
-pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8>) -> Vec<u32> {
+pub fn create_binary_vec(
+    instructions: Vec<Instruction>,
+    mut vec_of_data: Vec<u8>,
+) -> (Vec<u32>, usize) {
     //push all instructions
     let mut binary: Vec<u32> = Vec::new();
     for instruction in instructions {
         binary.push(instruction.binary);
     }
+
+    let data_starting_point = binary.len();
 
     //makes sure the byte array length is a multiple of 4
     let mut mod4 = 4 - (vec_of_data.len() % 4);
@@ -6575,5 +6617,5 @@ pub fn create_binary_vec(instructions: Vec<Instruction>, mut vec_of_data: Vec<u8
         i += 1;
     }
 
-    binary
+    (binary, data_starting_point)
 }

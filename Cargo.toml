@@ -20,7 +20,7 @@ js-sys = "0.3.61"
 monaco = { git = "https://github.com/SWIM-ucf/rust-monaco", rev = "c9586e4af77131a15daf53e91e1ad5161a5265e8", features = ["yew-components"]  }
 wasm-bindgen = "0.2.83"
 wasm-bindgen-futures = "0.4.33"
-web-sys = {version = "0.3.60", features = ["CssStyleDeclaration", "Event", "HtmlCollection", "HtmlElement", "HtmlInputElement", "HtmlObjectElement", "SvgElement"]}
+web-sys = {version = "0.3.60", features = ["CssStyleDeclaration", "Event", "HtmlCollection", "HtmlElement", "HtmlInputElement", "HtmlObjectElement", "SvgElement", "CanvasRenderingContext2d", "Document", "HtmlCanvasElement", "EventTarget", "InputEvent", "ScrollLogicalPosition", "ScrollIntoViewOptions"]}
 yew = {version = "0.20.0", features = ["csr"] }
 yew-hooks = "0.2.0"
 yew-agent = "0.3.0"
@@ -32,3 +32,9 @@ levenshtein = "1.0.5"
 
 # Tests
 akin = "0.4"
+
+# Logging
+cfg-if = "0.1"
+log = "0.4"
+console_log = { version = "1", features = ["color"] }
+humantime = "2.1.0"

@@ -7,7 +7,7 @@ on:
   workflow_call:
 
 env:
-  PROJECT_TRUNK_VERSION: 'v0.16.0'
+  PROJECT_TRUNK_VERSION: 'v0.18.8'
 
 jobs:
   check:
@@ -37,7 +37,7 @@ jobs:
     - name: Build
       run: trunk build
       if: success() || failure()
-    
+
     - name: Check documentation
       run: cargo doc --no-deps
       if: success() || failure()

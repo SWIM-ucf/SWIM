@@ -886,7 +886,7 @@ fn create_binary_vec_works_with_data() {
         &mut program_info.monaco_line_info,
     );
 
-    let result = create_binary_vec(program_info.instructions.clone(), vec_of_data);
+    let (result, _) = create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
     assert_eq!(result[3], 0b01110100011010000110100101110011);
     assert_eq!(result[4], 0b00100000011010010111001100100000);

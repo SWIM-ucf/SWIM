@@ -6,6 +6,8 @@ use std::str::FromStr;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
 
+use super::memory::CAPACITY_BYTES;
+
 /// Collection of general-purpose registers used by the datapath.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct GpRegisters {
@@ -52,6 +54,29 @@ pub enum GpRegisterType {
     Sp = 29,
     Fp = 30,
     Ra = 31,
+}
+
+impl GpRegisterType {
+    pub fn get_gpr_name(&self) -> String {
+        match self {
+            GpRegisterType::Pc => self.to_string(),
+            _ => format!("{} (r{})", self, *self as u32),
+        }
+    }
+    pub fn is_valid_register_value(&self, value: u64, pc_limit: usize) -> bool {
+        match self {
+            GpRegisterType::Zero => false, // Zero register is immutable
+            GpRegisterType::Pc => {
+                // Check if PC is more than the number of instructions or not word-aligned
+                value <= pc_limit as u64 && value % 4 == 0
+            }
+            GpRegisterType::Sp => {
+                // Check if SP is more than memory capacity or not word-aligned
+                value <= CAPACITY_BYTES as u64 && value % 4 == 0
+            }
+            _ => true, // Other registers are always considered valid
+        }
+    }
 }
 
 impl ToString for GpRegisters {

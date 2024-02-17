@@ -28,6 +28,7 @@ pub mod utils;
 use std::{cell::RefCell, rc::Rc};
 
 use gloo_events::EventListener;
+use log::debug;
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{Element, Event, HtmlCollection, HtmlElement};
 use yew::prelude::*;
@@ -112,6 +113,7 @@ impl Component for VisualDatapath {
             Stage::WriteBack => "memory",
         });
 
+        debug!("Current stage: {:?}", current_stage);
         if first_render || self.should_reinitialize {
             self.initialize(current_stage, ctx.props().datapath.clone());
             self.should_reinitialize = false;
@@ -208,7 +210,6 @@ impl VisualDatapath {
                     });
                 }
             });
-
             Self::highlight_stage(&nodes, current_stage.clone(), datapath.clone())
         });
 
@@ -375,6 +376,7 @@ impl VisualDatapath {
             } else {
                 Self::set_inactive(&path)?;
             }
+            path.style().set_property("stroke-width", "10").unwrap();
 
             if path.tag_name() == "path" {
                 // Set the initial state of this path:
