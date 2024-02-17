@@ -1,11 +1,9 @@
 //! Data and instruction memory implementation and API.
 
-use serde::{Deserialize, Serialize};
-
 // pub const CAPACITY_BYTES: usize = 2^12; // 4KB
 pub const CAPACITY_BYTES: usize = 64 * 1024; // 64 KB
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Memory {
     pub memory: Vec<u8>,
 }
@@ -54,7 +52,7 @@ impl Memory {
 
         self.check_valid_address(address)?;
 
-        self.memory[address] = data;
+        self.memory[address] = (data & 0b11111111) as u8;
 
         Ok(())
     }
@@ -159,94 +157,37 @@ impl Memory {
         Ok(result)
     }
 
-    // // Returns instructions that were updated with their string versions and line numbers
-    // pub fn store_hexdump(&mut self, instructions: Vec<u32>) -> Result<Vec<UpdatedLine>, String> {
-    //     let mut changed_lines: Vec<UpdatedLine> = vec![];
-    //     for (i, data) in instructions.iter().enumerate() {
-    //         let address = i as u64;
-    //         let line = match get_string_version(*data) {
-    //             Ok(string) => string,
-    //             Err(string) => string,
-    //         };
-    //         let curr_word = match self.load_word(address * 4) {
-    //             Ok(data) => data,
-    //             Err(e) => {
-    //                 debug!("{:?}", e);
-    //                 0
-    //             }
-    //         };
-    //         if curr_word != *data {
-    //             changed_lines.push(UpdatedLine::new(line, i));
-    //             self.store_word(address * 4, *data)?
-    //         }
-    //     }
-
-    //     Ok(changed_lines)
-    // }
-
     pub fn generate_formatted_hex(&self) -> String {
-        let iterator = MemoryIter::new(self);
-
         let mut string: String = "".to_string();
 
-        for (address, words) in iterator {
-            string.push_str(&format!("0x{address:04x}:\t\t"));
+        let mut base = 0;
+        while base < self.memory.len() {
+            string.push_str(&format!("0x{base:04x}:\t\t"));
             let mut char_version: String = "".to_string();
 
-            for word in words {
-                string.push_str(&format!("{:08x}\t", word));
-                char_version.push_str(&Self::convert_word_to_chars(word));
+            for offset in 0..4 {
+                let word_address = base as u64 + (offset * 4);
+                if let Ok(word) = self.load_word(word_address) {
+                    string.push_str(&format!("{word:08x}\t"));
+                    char_version.push_str(&convert_word_to_chars(word))
+                };
             }
-
             string.push_str(&format!("{char_version}\n"));
+            base += 16;
         }
-
         string
     }
-
-    pub fn convert_word_to_chars(word: u32) -> String {
-        let mut chars = "".to_string();
-        for shift in (0..4).rev() {
-            let byte = (word >> (shift * 8)) as u8;
-            if byte > 32 && byte < 127 {
-                chars.push(byte as char);
-            } else {
-                chars.push('.');
-            }
-        }
-        chars
-    }
 }
 
-pub struct MemoryIter<'a> {
-    memory: &'a Memory,
-    current_address: usize,
-}
-
-impl<'a> MemoryIter<'a> {
-    pub fn new(memory: &'a Memory) -> MemoryIter<'a> {
-        MemoryIter {
-            memory,
-            current_address: 0,
-        }
-    }
-}
-
-impl<'a> Iterator for MemoryIter<'a> {
-    // Words are 32 bits
-    type Item = (usize, Vec<u32>);
-    fn next(&mut self) -> Option<Self::Item> {
-        self.current_address = (self.current_address + 3) & !3;
-        if self.current_address + 16 <= self.memory.memory.len() {
-            let address = self.current_address;
-            let words = (0..4)
-                .map(|i| self.memory.load_word(address as u64 + (i * 4)).unwrap())
-                .collect();
-
-            self.current_address += 16;
-            Some((address, words))
+fn convert_word_to_chars(word: u32) -> String {
+    let mut chars = "".to_string();
+    for shift in (0..4).rev() {
+        let byte = (word >> (shift * 8)) as u8;
+        if byte > 32 && byte < 127 {
+            chars.push(byte as char);
         } else {
-            None
+            chars.push('.');
         }
     }
+    chars
 }
