@@ -126,8 +126,8 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                     executed_line.push(&decoration_js);
                     raw_editor.delta_decorations(&not_highlighted, &executed_line);
                 }) {
-                    Some(_) => (),
-                    None => (),
+                    Some(()) => log::debug!("Swim Editor linked!"),
+                    None => log::debug!("No swim editor :<"),
                 };
             },
             curr_line,

@@ -173,7 +173,7 @@ pub fn generate_fpr_rows(props: &Regviewprops) -> Html {
                             let target = e.target();
                             let input = target.unwrap().unchecked_into::<HtmlInputElement>();
                             let input_string = input.value();
-                            let val = match u64::from_str_radix(&input_string, 10) {
+                            let val = match input_string.parse::<u64>() {
                                 Ok(value) => {
                                     input.set_class_name("valid");
                                     value
