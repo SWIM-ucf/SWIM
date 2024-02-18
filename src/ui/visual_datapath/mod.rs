@@ -33,9 +33,10 @@ use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{Element, Event, HtmlCollection, HtmlElement};
 use yew::prelude::*;
 
-use crate::{agent::datapath_reducer::DatapathReducer, emulation_core::{architectures::AvailableDatapaths, datapath::Datapath, mips::{coprocessor, datapath::{MipsDatapath, Stage}}}};
 use consts::*;
 use utils::*;
+
+use crate::{agent::datapath_reducer::DatapathReducer, emulation_core::mips::datapath::Stage};
 
 #[derive(PartialEq, Properties)]
 pub struct VisualDatapathProps {
