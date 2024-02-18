@@ -33,13 +33,13 @@ use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{Element, Event, HtmlCollection, HtmlElement};
 use yew::prelude::*;
 
-use crate::emulation_core::mips::datapath::{MipsDatapath, Stage};
+use crate::{agent::datapath_reducer::DatapathReducer, emulation_core::{architectures::AvailableDatapaths, datapath::Datapath, mips::{coprocessor, datapath::{MipsDatapath, Stage}}}};
 use consts::*;
 use utils::*;
 
 #[derive(PartialEq, Properties)]
 pub struct VisualDatapathProps {
-    pub datapath: MipsDatapath,
+    pub datapath_state: UseReducerHandle<DatapathReducer>,
 
     /// A path to the location of the datapath SVG file. This path should be
     /// relative to the project root.
@@ -105,7 +105,7 @@ impl Component for VisualDatapath {
         // there is actual data to view. A better way to see this is "when stage X is
         // set on the datapath, highlight the lines for stage Y." The datapath stage
         // tells where it will start the next time "execute" is pressed.
-        let current_stage = String::from(match ctx.props().datapath.current_stage {
+        let current_stage = String::from(match ctx.props().datapath_state.mips.current_stage {
             Stage::InstructionFetch => "writeback",
             Stage::InstructionDecode => "instruction_fetch",
             Stage::Execute => "instruction_decode",
@@ -115,13 +115,13 @@ impl Component for VisualDatapath {
 
         debug!("Current stage: {:?}", current_stage);
         if first_render || self.should_reinitialize {
-            self.initialize(current_stage, ctx.props().datapath.clone());
+            self.initialize(current_stage, ctx.props().datapath_state.clone());
             self.should_reinitialize = false;
         } else {
             let result = Self::highlight_stage(
                 &get_g_elements(),
                 current_stage,
-                ctx.props().datapath.clone(),
+                &ctx.props().datapath_state.clone(),
             );
 
             // Capture new event listeners.
@@ -181,7 +181,7 @@ impl VisualDatapath {
     /// circumvented by creating an event listener on the `<object>` element for the
     /// "load" event, which will guarantee when that virtual DOM is actually ready
     /// to be manipulated.
-    pub fn initialize(&mut self, current_stage: String, datapath: MipsDatapath) {
+    pub fn initialize(&mut self, current_stage: String, datapath_state: UseReducerHandle<DatapathReducer>) {
         let on_load = Callback::from(move |_| {
             let nodes = get_g_elements();
 
@@ -210,7 +210,7 @@ impl VisualDatapath {
                     });
                 }
             });
-            Self::highlight_stage(&nodes, current_stage.clone(), datapath.clone())
+            Self::highlight_stage(&nodes, current_stage.clone(), &datapath_state.clone())
         });
 
         let active_listeners = Rc::clone(&self.active_listeners);
@@ -253,7 +253,7 @@ impl VisualDatapath {
     pub fn highlight_stage(
         nodes: &HtmlCollection,
         stage: String,
-        datapath: MipsDatapath,
+        datapath_state: &UseReducerHandle<DatapathReducer>,
     ) -> Result<Vec<EventListener>, JsValue> {
         let mut active_listeners: Vec<EventListener> = vec![];
 
@@ -261,7 +261,7 @@ impl VisualDatapath {
             if element.has_attribute("data-stage") {
                 let is_in_current_stage = element.get_attribute("data-stage").unwrap() == stage;
                 if let Ok(listeners) =
-                    Self::enable_interactivity(element, datapath.clone(), is_in_current_stage)
+                    Self::enable_interactivity(element, datapath_state, is_in_current_stage)
                 {
                     for l in listeners {
                         active_listeners.push(l);
@@ -281,7 +281,7 @@ impl VisualDatapath {
     /// If successful, returns a [`Vec<EventListener>`] containing the newly created event listeners.
     pub fn enable_interactivity(
         element: &Element,
-        datapath: MipsDatapath,
+        datapath_state: &UseReducerHandle<DatapathReducer>,
         is_active: bool,
     ) -> Result<Vec<EventListener>, JsValue> {
         // Color a line when hovering.
@@ -298,39 +298,6 @@ impl VisualDatapath {
             } else {
                 Self::set_inactive(&target).ok();
             }
-        });
-
-        // Show the popup when hovering.
-        let popup_on_mouseover = Callback::from(move |event: web_sys::Event| {
-            let event = event.unchecked_into::<MouseEvent>();
-
-            // Get relevant elements.
-            let target = event.target().unwrap().unchecked_into::<HtmlElement>();
-            let popup = get_popup_element();
-
-            // Show popup.
-            let variable = target
-                .parent_element()
-                .unwrap()
-                .get_attribute("data-variable")
-                .unwrap_or_default();
-            populate_popup_information(&datapath, &variable);
-
-            // Calculate popup position.
-            let mouse_position = get_datapath_iframe_mouse_position(event);
-            let popup_size = (popup.offset_width(), popup.offset_height());
-            let popup_position =
-                calculate_popup_position(mouse_position, popup_size, get_window_size());
-
-            popup
-                .style()
-                .set_property("left", &format!("{}px", popup_position.0))
-                .ok();
-            popup
-                .style()
-                .set_property("top", &format!("{}px", popup_position.1))
-                .ok();
-            popup.style().set_property("display", "block").ok();
         });
 
         // Move the popup if the mouse moves while still hovering.
@@ -396,10 +363,37 @@ impl VisualDatapath {
                         color_on_mouseout.emit(event.clone())
                     });
 
-                let popup_on_mouseover = popup_on_mouseover.clone();
+                let datapath_state_ref = datapath_state.clone();
                 let popup_on_mouseover_listener =
                     EventListener::new(&path, "mouseover", move |event| {
-                        popup_on_mouseover.emit(event.clone())
+                        let event = event.clone().unchecked_into::<MouseEvent>();
+                        // Get relevant elements.
+                        let target = event.target().unwrap().unchecked_into::<HtmlElement>();
+                        let popup = get_popup_element();
+
+                        // Show popup.
+                        let variable = target
+                            .parent_element()
+                            .unwrap()
+                            .get_attribute("data-variable")
+                            .unwrap_or_default();
+                        populate_popup_information(&datapath_state_ref, &variable);
+
+                        // Calculate popup position.
+                        let mouse_position = get_datapath_iframe_mouse_position(event);
+                        let popup_size = (popup.offset_width(), popup.offset_height());
+                        let popup_position =
+                            calculate_popup_position(mouse_position, popup_size, get_window_size());
+
+                        popup
+                            .style()
+                            .set_property("left", &format!("{}px", popup_position.0))
+                            .ok();
+                        popup
+                            .style()
+                            .set_property("top", &format!("{}px", popup_position.1))
+                            .ok();
+                        popup.style().set_property("display", "block").ok();
                     });
 
                 let popup_on_mousemove = popup_on_mousemove.clone();

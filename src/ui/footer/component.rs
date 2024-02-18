@@ -1,5 +1,4 @@
 use crate::agent::datapath_communicator::DatapathCommunicator;
-use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::ui::console::component::Console;
 use crate::ui::hex_editor::component::HexEditor;
 use crate::ui::visual_datapath::{DatapathSize, VisualDatapath};
@@ -8,11 +7,12 @@ use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
+use crate::agent::datapath_reducer::DatapathReducer;
 
 #[derive(PartialEq, Properties)]
 pub struct Footerprops {
     pub communicator: &'static DatapathCommunicator,
-    pub datapath: MipsDatapath,
+    pub datapath_state: UseReducerHandle<DatapathReducer>,
     pub parsermsg: String,
     pub show_input: UseStateHandle<bool>,
     pub command: UseStateHandle<String>,
@@ -93,7 +93,7 @@ pub fn footer(props: &Footerprops) -> Html {
                 </div>
             } else if **active_tab == FooterTabState::Datapath {
                 <div class="datapath-wrapper">
-                    <VisualDatapath datapath={props.datapath.clone()} svg_path={svg_path} size={datapath_size} />
+                    <VisualDatapath datapath_state={props.datapath_state.clone()} svg_path={svg_path} size={datapath_size} />
                 </div>
             } else if **active_tab == FooterTabState::HexEditor {
                 <div class="hex-wrapper">

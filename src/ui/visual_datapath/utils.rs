@@ -3,8 +3,9 @@
 use gloo::utils::{document, window};
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlCollection, HtmlElement, HtmlObjectElement, MouseEvent};
+use yew::UseReducerHandle;
 
-use crate::emulation_core::{datapath::VisualDatapath, mips::datapath::MipsDatapath};
+use crate::{agent::datapath_reducer::DatapathReducer, emulation_core::{self, architectures::AvailableDatapaths}};
 
 use super::consts::*;
 
@@ -138,7 +139,7 @@ where
 /// Parameters:
 /// - `datapath`: A reference to the datapath that information will be pulled from.
 /// - `variable`: The "variable" attribute of the line in the diagram that will have information.
-pub fn populate_popup_information(datapath: &MipsDatapath, variable: &str) {
+pub fn populate_popup_information(datapath_state: &UseReducerHandle<DatapathReducer>, variable: &str) {
     let popup = get_popup_element();
 
     let title = popup.query_selector(".title").unwrap().unwrap();
@@ -146,7 +147,17 @@ pub fn populate_popup_information(datapath: &MipsDatapath, variable: &str) {
     let bits = popup.query_selector(".data .code").unwrap().unwrap();
     let meaning = popup.query_selector(".meaning").unwrap().unwrap();
 
-    let information = datapath.visual_line_to_data(variable);
+    let information;
+    match datapath_state.current_architecture {
+        AvailableDatapaths::MIPS => {
+            information = emulation_core::mips::line_info::visual_line_to_data(variable, datapath_state);
+        },
+        AvailableDatapaths::RISCV => {
+            // replace with RISC-V version
+            // information = emulation_core::riscv::line_info::visual_line_to_data(variable, datapath_state);
+            information = emulation_core::mips::line_info::visual_line_to_data(variable, datapath_state);
+        }
+    };
 
     title.set_text_content(Some(&information.title));
     description.set_text_content(Some(&information.description));

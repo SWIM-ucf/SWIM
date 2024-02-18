@@ -1,5 +1,6 @@
 //! Implementation of a MIPS64 floating-point coprocessor.
 
+use serde::{Deserialize, Serialize};
 use super::constants::*;
 use super::control_signals::floating_point::*;
 use super::instruction::Instruction;
@@ -8,7 +9,7 @@ use super::instruction::Instruction;
 ///
 /// Different from the main processor, much of the functionality of the coprocessor
 /// is controlled remotely using its available API calls.
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, Default, PartialEq, Serialize, Debug, Deserialize)]
 pub struct MipsFpCoprocessor {
     instruction: Instruction,
     pub signals: FpuControlSignals,
@@ -20,7 +21,7 @@ pub struct MipsFpCoprocessor {
     pub data: u64,
 }
 
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, Default, PartialEq, Debug, Serialize, Deserialize)]
 pub struct FpuState {
     pub instruction: u32,
     pub op: u32,
