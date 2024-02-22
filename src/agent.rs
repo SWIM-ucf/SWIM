@@ -16,6 +16,23 @@ pub mod datapath_communicator;
 pub mod datapath_reducer;
 pub mod messages;
 
+macro_rules! send_update {
+    ($scope:expr, $condition:expr, $value:expr) => {
+        if $condition {
+            $scope
+                .send($value)
+                .await
+                .expect("ReactorScope's send() function should not fail.")
+        }
+    };
+}
+
+macro_rules! send_update_mips {
+    ($scope:expr, $cond:expr, $data:expr) => {
+        send_update!($scope, $cond, DatapathUpdate::MIPS($data))
+    };
+}
+
 /// The main logic for the emulation core agent. All code within this function runs on a worker thread as opposed to
 /// the UI thread.
 #[reactor(EmulationCoreAgent)]
@@ -49,56 +66,37 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
         state.execute();
 
         // Part 3: Processing State/Sending Updates to UI
-        // TODO: This is a very naive implementation. Optimization is probably a good idea.
-        // TODO: Add support for the FP coprocessor updates in MIPS
         match state.current_datapath.as_datapath_ref() {
             DatapathRef::MIPS(datapath) => {
                 // Stage always updates
-                state
-                    .scope
-                    .send(DatapathUpdate::MIPS(UpdateStage(datapath.current_stage)))
-                    .await
-                    .unwrap();
+                send_update_mips!(state.scope, true, UpdateStage(datapath.current_stage));
 
-                if state.updates.changed_state {
-                    state
-                        .scope
-                        .send(DatapathUpdate::MIPS(UpdateState(datapath.state.clone())))
-                        .await
-                        .unwrap();
-                }
-                if state.updates.changed_registers {
-                    state
-                        .scope
-                        .send(DatapathUpdate::MIPS(UpdateRegisters(datapath.registers)))
-                        .await
-                        .unwrap();
-                }
-                if state.updates.changed_coprocessor_state {
-                    state
-                        .scope
-                        .send(DatapathUpdate::MIPS(UpdateCoprocessorState(
-                            datapath.coprocessor.state.clone(),
-                        )))
-                        .await
-                        .unwrap();
-                }
-                if state.updates.changed_coprocessor_registers {
-                    state
-                        .scope
-                        .send(DatapathUpdate::MIPS(UpdateCoprocessorRegisters(
-                            datapath.coprocessor.fpr,
-                        )))
-                        .await
-                        .unwrap();
-                }
-                if state.updates.changed_memory {
-                    state
-                        .scope
-                        .send(DatapathUpdate::MIPS(UpdateMemory(datapath.memory.clone())))
-                        .await
-                        .unwrap();
-                }
+                // Send all other updates based on the state.updates variable.
+                send_update_mips!(
+                    state.scope,
+                    state.updates.changed_state,
+                    UpdateState(datapath.state.clone())
+                );
+                send_update_mips!(
+                    state.scope,
+                    state.updates.changed_registers,
+                    UpdateRegisters(datapath.registers)
+                );
+                send_update_mips!(
+                    state.scope,
+                    state.updates.changed_coprocessor_state,
+                    UpdateCoprocessorState(datapath.coprocessor.state.clone())
+                );
+                send_update_mips!(
+                    state.scope,
+                    state.updates.changed_coprocessor_registers,
+                    UpdateCoprocessorRegisters(datapath.coprocessor.fpr)
+                );
+                send_update_mips!(
+                    state.scope,
+                    state.updates.changed_memory,
+                    UpdateMemory(datapath.memory.clone())
+                );
             }
         }
     }
