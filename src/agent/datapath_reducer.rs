@@ -13,7 +13,7 @@ pub struct DatapathReducer {
     pub mips: MipsCoreState,
 }
 
-#[derive(Default, PartialEq)]
+#[derive(Default, PartialEq, Clone)]
 pub struct MipsCoreState {
     pub state: DatapathState,
     pub registers: GpRegisters,
@@ -40,27 +40,19 @@ impl Reducible for DatapathReducer {
                 mips: match update {
                     MipsStateUpdate::UpdateState(state) => MipsCoreState {
                         state,
-                        registers: self.mips.registers,
-                        memory: self.mips.memory.clone(),
-                        current_stage: self.mips.current_stage,
+                        ..self.mips.clone()
                     },
                     MipsStateUpdate::UpdateRegisters(registers) => MipsCoreState {
-                        state: self.mips.state.clone(),
                         registers,
-                        memory: self.mips.memory.clone(),
-                        current_stage: self.mips.current_stage,
+                        ..self.mips.clone()
                     },
                     MipsStateUpdate::UpdateMemory(memory) => MipsCoreState {
-                        state: self.mips.state.clone(),
-                        registers: self.mips.registers,
                         memory,
-                        current_stage: self.mips.current_stage,
+                        ..self.mips.clone()
                     },
                     MipsStateUpdate::UpdateStage(stage) => MipsCoreState {
-                        state: self.mips.state.clone(),
-                        registers: self.mips.registers,
-                        memory: self.mips.memory.clone(),
                         current_stage: stage,
+                        ..self.mips.clone()
                     },
                 },
             },
