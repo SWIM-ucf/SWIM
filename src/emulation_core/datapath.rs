@@ -94,6 +94,18 @@ pub struct DatapathUpdateSignal {
     pub hit_breakpoint: bool,
 }
 
+/// Constant used to easily trigger an update for everything but to avoid triggering any other
+/// execution (i.e. breakpoints or syscalls).
+pub const UPDATE_EVERYTHING: DatapathUpdateSignal = DatapathUpdateSignal {
+    changed_state: true,
+    changed_registers: true,
+    changed_coprocessor_state: true,
+    changed_coprocessor_registers: true,
+    changed_memory: true,
+    hit_syscall: false,
+    hit_breakpoint: false,
+};
+
 impl BitOrAssign for DatapathUpdateSignal {
     fn bitor_assign(&mut self, rhs: Self) {
         self.changed_state |= rhs.changed_state;

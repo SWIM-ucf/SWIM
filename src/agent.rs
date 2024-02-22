@@ -1,8 +1,9 @@
 //! The agent responsible for running the emulator core on the worker thread and communication functionalities.
 
-use crate::agent::messages::{Command, MipsStateUpdate};
+use crate::agent::messages::Command;
+use crate::agent::messages::MipsStateUpdate::*;
 use crate::emulation_core::architectures::{DatapathRef, DatapathUpdate};
-use crate::emulation_core::datapath::{Datapath, DatapathUpdateSignal};
+use crate::emulation_core::datapath::{Datapath, DatapathUpdateSignal, UPDATE_EVERYTHING};
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::emulation_core::mips::registers::GpRegisterType;
 use futures::{FutureExt, SinkExt, StreamExt};
@@ -52,26 +53,52 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
         // TODO: Add support for the FP coprocessor updates in MIPS
         match state.current_datapath.as_datapath_ref() {
             DatapathRef::MIPS(datapath) => {
-                let state_update =
-                    DatapathUpdate::MIPS(MipsStateUpdate::UpdateState(datapath.state.clone()));
-                let register_update =
-                    DatapathUpdate::MIPS(MipsStateUpdate::UpdateRegisters(datapath.registers));
-                let coprocessor_state = DatapathUpdate::MIPS(
-                    MipsStateUpdate::UpdateCoprocessorState(datapath.coprocessor.state.clone()),
-                );
-                let coprocessor_registers = DatapathUpdate::MIPS(
-                    MipsStateUpdate::UpdateCoprocessorRegisters(datapath.coprocessor.fpr),
-                );
-                let memory_update =
-                    DatapathUpdate::MIPS(MipsStateUpdate::UpdateMemory(datapath.memory.clone()));
-                let stage_update =
-                    DatapathUpdate::MIPS(MipsStateUpdate::UpdateStage(datapath.current_stage));
-                state.scope.send(state_update).await.unwrap();
-                state.scope.send(register_update).await.unwrap();
-                state.scope.send(coprocessor_state).await.unwrap();
-                state.scope.send(coprocessor_registers).await.unwrap();
-                state.scope.send(memory_update).await.unwrap();
-                state.scope.send(stage_update).await.unwrap();
+                // Stage always updates
+                state
+                    .scope
+                    .send(DatapathUpdate::MIPS(UpdateStage(datapath.current_stage)))
+                    .await
+                    .unwrap();
+
+                if state.updates.changed_state {
+                    state
+                        .scope
+                        .send(DatapathUpdate::MIPS(UpdateState(datapath.state.clone())))
+                        .await
+                        .unwrap();
+                }
+                if state.updates.changed_registers {
+                    state
+                        .scope
+                        .send(DatapathUpdate::MIPS(UpdateRegisters(datapath.registers)))
+                        .await
+                        .unwrap();
+                }
+                if state.updates.changed_coprocessor_state {
+                    state
+                        .scope
+                        .send(DatapathUpdate::MIPS(UpdateCoprocessorState(
+                            datapath.coprocessor.state.clone(),
+                        )))
+                        .await
+                        .unwrap();
+                }
+                if state.updates.changed_coprocessor_registers {
+                    state
+                        .scope
+                        .send(DatapathUpdate::MIPS(UpdateCoprocessorRegisters(
+                            datapath.coprocessor.fpr,
+                        )))
+                        .await
+                        .unwrap();
+                }
+                if state.updates.changed_memory {
+                    state
+                        .scope
+                        .send(DatapathUpdate::MIPS(UpdateMemory(datapath.memory.clone())))
+                        .await
+                        .unwrap();
+                }
             }
         }
     }
@@ -106,15 +133,19 @@ impl EmulatorCoreAgentState {
             }
             Command::Initialize(initial_pc, mem) => {
                 self.current_datapath.initialize(initial_pc, mem).unwrap();
+                self.updates.changed_memory = true;
+                self.updates.changed_registers = true;
             }
             Command::SetExecuteSpeed(speed) => {
                 self.speed = speed;
             }
             Command::SetRegister(register, value) => {
                 self.current_datapath.set_register_by_str(&register, value);
+                self.updates.changed_registers = true;
             }
             Command::SetMemory(ptr, data) => {
                 self.current_datapath.set_memory(ptr, data);
+                self.updates.changed_memory = true;
             }
             Command::Execute => {
                 self.executing = true;
@@ -130,6 +161,7 @@ impl EmulatorCoreAgentState {
             }
             Command::Reset => {
                 self.current_datapath.reset();
+                self.updates |= UPDATE_EVERYTHING;
             }
         }
     }
