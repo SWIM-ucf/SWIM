@@ -1,6 +1,7 @@
 use crate::agent::messages::MipsStateUpdate;
 use crate::emulation_core::architectures::AvailableDatapaths::MIPS;
 use crate::emulation_core::architectures::{AvailableDatapaths, DatapathUpdate};
+use crate::emulation_core::mips::coprocessor::FpuState;
 use crate::emulation_core::mips::datapath::{DatapathState, Stage};
 use crate::emulation_core::mips::memory::Memory;
 use crate::emulation_core::mips::registers::GpRegisters;
@@ -17,6 +18,8 @@ pub struct DatapathReducer {
 pub struct MipsCoreState {
     pub state: DatapathState,
     pub registers: GpRegisters,
+    pub coprocessor_state: FpuState,
+    pub coprocessor_registers: [u64; 32],
     pub memory: Memory,
     pub current_stage: Stage,
 }
@@ -46,6 +49,16 @@ impl Reducible for DatapathReducer {
                         registers,
                         ..self.mips.clone()
                     },
+                    MipsStateUpdate::UpdateCoprocessorState(coprocessor_state) => MipsCoreState {
+                        coprocessor_state,
+                        ..self.mips.clone()
+                    },
+                    MipsStateUpdate::UpdateCoprocessorRegisters(coprocessor_registers) => {
+                        MipsCoreState {
+                            coprocessor_registers,
+                            ..self.mips.clone()
+                        }
+                    }
                     MipsStateUpdate::UpdateMemory(memory) => MipsCoreState {
                         memory,
                         ..self.mips.clone()

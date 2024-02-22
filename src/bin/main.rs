@@ -526,7 +526,7 @@ fn app(props: &AppProps) -> Html {
                 </div>
 
                 // Right column
-                <Regview gp={datapath_state.mips.registers} fp={datapath.borrow().coprocessor.fpr} pc_limit={*pc_limit} communicator={props.communicator}/>
+                <Regview gp={datapath_state.mips.registers} fp={datapath_state.mips.coprocessor_registers} pc_limit={*pc_limit} communicator={props.communicator}/>
             </div>
         </>
     }
