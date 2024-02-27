@@ -68,6 +68,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
         // Part 3: Processing State/Sending Updates to UI
         match state.current_datapath.as_datapath_ref() {
             DatapathRef::MIPS(datapath) => {
+                log!(format!("Updates: {:?}", state.updates));
                 // Stage always updates
                 send_update_mips!(state.scope, true, UpdateStage(datapath.current_stage));
 
@@ -99,6 +100,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                 );
             }
         }
+        state.updates = Default::default();
     }
 }
 

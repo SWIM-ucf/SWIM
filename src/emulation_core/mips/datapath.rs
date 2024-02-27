@@ -346,9 +346,10 @@ impl MipsDatapath {
 
         self.coprocessor.set_instruction(self.state.instruction);
 
-        // PC always updates in this function, therefore registers need to be updated on the UI
+        // Both state and coprocessor state always update
         DatapathUpdateSignal {
-            changed_registers: true,
+            changed_state: true,
+            changed_coprocessor_state: true,
             ..Default::default()
         }
     }
@@ -382,6 +383,7 @@ impl MipsDatapath {
         // Instruction decode always involves a state update
         DatapathUpdateSignal {
             changed_state: true,
+            changed_coprocessor_state: true,
             ..Default::default()
         }
     }
@@ -451,9 +453,9 @@ impl MipsDatapath {
         DatapathUpdateSignal {
             changed_state: true,
             changed_coprocessor_state: true,
-            changed_registers: self.signals.reg_write != RegWrite::NoWrite,
+            changed_registers: true, // Always true because pc always gets updated
             changed_coprocessor_registers: self.coprocessor.signals.fpu_reg_write
-                != FpuRegWrite::NoWrite,
+                == FpuRegWrite::YesWrite,
             ..Default::default()
         }
     }
