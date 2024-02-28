@@ -384,6 +384,7 @@ impl MipsDatapath {
         DatapathUpdateSignal {
             changed_state: true,
             changed_coprocessor_state: true,
+            hit_syscall: matches!(self.instruction, Instruction::SyscallType(_)),
             ..Default::default()
         }
     }
