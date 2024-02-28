@@ -53,7 +53,8 @@ use super::datapath_signals::*;
 use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
-use crate::emulation_core::datapath::DatapathUpdateSignal;
+use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
+use crate::emulation_core::mips::registers::GpRegisterType::{V0, V1};
 use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.
@@ -304,6 +305,15 @@ impl Datapath for MipsDatapath {
 
     fn as_datapath_ref(&self) -> DatapathRef {
         DatapathRef::MIPS(self)
+    }
+
+    fn get_syscall_arguments(&self) -> Syscall {
+        Syscall::from_register_data(
+            self.get_register_by_enum(V0),
+            self.get_register_by_enum(V1),
+            f32::from_bits(self.coprocessor.fpr[0] as u32),
+            f64::from_bits(self.coprocessor.fpr[0]),
+        )
     }
 }
 
