@@ -299,6 +299,10 @@ impl Datapath for MipsDatapath {
         self.is_halted
     }
 
+    fn halt(&mut self) {
+        self.is_halted = true;
+    }
+
     fn reset(&mut self) {
         std::mem::take(self);
     }

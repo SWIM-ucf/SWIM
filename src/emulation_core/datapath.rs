@@ -67,6 +67,9 @@ pub trait Datapath {
     /// be true in the case where an error had occurred previously.
     fn is_halted(&self) -> bool;
 
+    /// Halts the datapath. In order to un-halt the datapath, either call reset() or initialize().
+    fn halt(&mut self);
+
     /// Restore the datapath to its default state.
     fn reset(&mut self);
 
