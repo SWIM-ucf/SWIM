@@ -315,6 +315,23 @@ impl Datapath for MipsDatapath {
             f64::from_bits(self.coprocessor.fpr[0]),
         )
     }
+
+    fn return_syscall_results(
+        &mut self,
+        integer_return: Option<u64>,
+        float_return: Option<f32>,
+        double_return: Option<f64>,
+    ) {
+        if let Some(val) = integer_return {
+            self.registers[V1] = val;
+        }
+        if let Some(val) = float_return {
+            self.coprocessor.fpr[1] = val.to_bits() as u64;
+        }
+        if let Some(val) = double_return {
+            self.coprocessor.fpr[1] = val.to_bits();
+        }
+    }
 }
 
 impl MipsDatapath {

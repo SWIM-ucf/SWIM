@@ -77,6 +77,14 @@ pub trait Datapath {
     /// Returns the type of syscall and its arguments (if any exist for that syscall). See the
     /// syscall enum for a list of syscalls and what they do.
     fn get_syscall_arguments(&self) -> Syscall;
+
+    /// Places the provided results from a syscall into the appropriate registers.
+    fn return_syscall_results(
+        &mut self,
+        integer_return: Option<u64>,
+        float_return: Option<f32>,
+        double_return: Option<f64>,
+    );
 }
 
 /// A datapath that supports a visual diagram component.
