@@ -354,10 +354,13 @@ impl RiscDatapath {
             ReadWrite::LoadHalf => self.memory_read(),
             ReadWrite::LoadHalfUnsigned => self.memory_read(),
             ReadWrite::LoadWord => self.memory_read(),
+            ReadWrite::LoadWordUnsigned => self.memory_read(),
+            ReadWrite::LoadDouble => self.memory_read(),
             ReadWrite::NoLoadStore => (),
             ReadWrite::StoreByte => self.memory_write(),
             ReadWrite::StoreHalf => self.memory_write(),
             ReadWrite::StoreWord => self.memory_write(),
+            ReadWrite::StoreDouble => self.memory_write(),
         }
 
         // Determine what data will be sent to the registers: either
@@ -427,7 +430,7 @@ impl RiscDatapath {
             Instruction::IType(i) => {
                 self.state.rs1 = i.rs1 as u32;
                 self.state.funct3 = i.funct3 as u32;
-                self.state.rd = 0; // Placeholder
+                self.state.rd = i.rd as u32;
                 self.state.imm = i.imm as u32;
                 self.state.shamt = (i.imm & 0x001f) as u32;
             }
@@ -463,7 +466,7 @@ impl RiscDatapath {
     /// 64-bit value.
     fn sign_extend(&mut self) {
         // self.state.sign_extend = ((self.state.imm as i16) as i64) as u64;
-        self.state.sign_extend = self.state.imm as i32 as i64 as u64;
+        self.state.sign_extend = self.state.imm as i64 as u64;
     }
 
     fn set_immediate(&mut self) {
@@ -541,6 +544,10 @@ impl RiscDatapath {
             reg_write_en: RegWriteEn::YesWrite,
             ..Default::default()
         };
+
+        if r.op == OPCODE_OP_32 {
+            self.datapath_signals.reg_width = RegisterWidth::HalfWidth;
+        }
         
         match r.funct3 {
             0 => match r.funct7 {
@@ -568,9 +575,13 @@ impl RiscDatapath {
             reg_write_en: RegWriteEn::YesWrite,
             ..Default::default()
         };
+
+        if i.op == OPCODE_IMM_32 {
+            self.datapath_signals.reg_width = RegisterWidth::HalfWidth;
+        }
         
         match i.op {
-            OPCODE_IMM => match i.funct3 {
+            OPCODE_IMM | OPCODE_IMM_32 => match i.funct3 {
                 0 => self.signals.alu_op = AluOp::Addition,
                 1 => self.signals.alu_op = AluOp::ShiftLeftLogical(self.state.shamt),
 
@@ -597,8 +608,10 @@ impl RiscDatapath {
                     0 => self.signals.read_write = ReadWrite::LoadByte,
                     1 => self.signals.read_write = ReadWrite::LoadHalf,
                     2 => self.signals.read_write = ReadWrite::LoadWord,
+                    3 => self.signals.read_write = ReadWrite::LoadDouble,
                     4 => self.signals.read_write = ReadWrite::LoadByteUnsigned,
                     5 => self.signals.read_write = ReadWrite::LoadHalfUnsigned,
+                    6 => self.signals.read_write = ReadWrite::LoadWordUnsigned,
                 }
             }
         }
@@ -617,6 +630,7 @@ impl RiscDatapath {
             0 => self.signals.read_write = ReadWrite::StoreByte,
             1 => self.signals.read_write = ReadWrite::StoreHalf,
             2 => self.signals.read_write = ReadWrite::StoreWord,
+            3 => self.signals.read_write = ReadWrite::StoreDouble,
         }
     }
 
@@ -671,6 +685,7 @@ impl RiscDatapath {
     fn read_registers(&mut self) {
         self.state.read_data_1 = self.registers.gpr[self.state.rs1 as usize];
         self.state.read_data_2 = self.registers.gpr[self.state.rs2 as usize];
+
     }
 
     // ======================= Execute (EX) =======================
@@ -689,8 +704,13 @@ impl RiscDatapath {
         self.state.alu_input1 = self.state.read_data_1;
         self.state.alu_input2 = match self.signals.op2_select {
             OP2Select::DATA2 => self.state.read_data_2,
-            OP2Select::IMM => self.state.imm as u64,
+            OP2Select::IMM => self.state.imm as i64 as u64,
         };
+
+        if self.datapath_signals.reg_width == RegisterWidth::HalfWidth {
+            self.state.alu_input1 = self.state.alu_input1 as u32 as u64;
+            self.state.alu_input2 = self.state.alu_input2 as u32 as u64;
+        }
 
         // Set the result.
         self.state.alu_result = match self.signals.alu_op {
@@ -709,7 +729,7 @@ impl RiscDatapath {
             AluOp::Xor => self.state.alu_input1 ^ self.state.alu_input2,
             AluOp::ShiftLeftLogical(shamt) => self.state.alu_input2 << shamt,
             AluOp::ShiftRightLogical(shamt) => self.state.alu_input2 >> shamt,
-            AluOp::ShiftRightArithmetic(shamt) => (self.state.alu_input2 as i32 >> shamt) as u64,
+            AluOp::ShiftRightArithmetic(shamt) => (self.state.alu_input2 as i64 >> shamt) as u64,
             AluOp::MultiplicationSigned => {
                 ((self.state.alu_input1 as i128) * (self.state.alu_input2 as i128)) as u64
             }
@@ -732,6 +752,10 @@ impl RiscDatapath {
             }
             _ => 0,
         };
+
+        if self.datapath_signals.reg_width == RegisterWidth::HalfWidth {
+            self.state.alu_result = self.state.alu_result as u32 as i64 as u64;
+        }
 
         if self.signals.branch_jump == BranchJump::J {
             self.construct_jump_address();
@@ -800,7 +824,9 @@ impl RiscDatapath {
             ReadWrite::LoadByteUnsigned => self.memory.load_byte(address).unwrap_or(0) as u64,
             ReadWrite::LoadHalf => self.memory.load_half(address).unwrap_or(0) as i64 as u64,
             ReadWrite::LoadHalfUnsigned => self.memory.load_half(address).unwrap_or(0) as u64,
-            ReadWrite::LoadWord => self.memory.load_word(address).unwrap_or(0) as u64,
+            ReadWrite::LoadWord => self.memory.load_word(address).unwrap_or(0) as i64 as u64,
+            ReadWrite::LoadWordUnsigned => self.memory.load_word(address).unwrap_or(0) as u64,
+            ReadWrite::LoadDouble => self.memory.load_double_word(address).unwrap_or(0),
             _ => 0,
         };
     }
@@ -824,6 +850,9 @@ impl RiscDatapath {
             }
             ReadWrite::StoreWord => {
                 self.memory.store_word(address, self.state.write_data as u32).ok();
+            }
+            ReadWrite::StoreDouble => {
+                self.memory.store_double_word(address, self.state.write_data).ok();
             }
             _ => (),
         };
