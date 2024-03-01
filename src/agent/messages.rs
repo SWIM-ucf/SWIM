@@ -2,6 +2,10 @@ use crate::emulation_core::mips::coprocessor::MipsFpCoprocessor;
 use crate::emulation_core::mips::datapath::DatapathState;
 use crate::emulation_core::mips::gp_registers::GpRegisters;
 use crate::emulation_core::mips::memory::Memory;
+<<<<<<< HEAD
+=======
+use crate::emulation_core::mips::registers::GpRegisters;
+>>>>>>> visual-datapath-upgrade
 use crate::emulation_core::{architectures::AvailableDatapaths, mips::datapath::Stage};
 use serde::{Deserialize, Serialize};
 
