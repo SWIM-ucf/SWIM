@@ -704,8 +704,8 @@ impl RiscDatapath {
         };
 
         if self.datapath_signals.reg_width == RegisterWidth::HalfWidth {
-            self.state.alu_input1 = self.state.alu_input1 as u32 as u64;
-            self.state.alu_input2 = self.state.alu_input2 as u32 as u64;
+            self.state.alu_input1 = self.state.alu_input1 as u32 as i64 as u64;
+            self.state.alu_input2 = self.state.alu_input2 as u32 as i64 as u64;
         }
 
         // Set the result.
