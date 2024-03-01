@@ -89,7 +89,6 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
         .fp
         .into_iter()
         .map(|(register, data)| {
-            let unit_type = unit_type.clone();
             html! {
                 <tr>
                     <td>{format!("{register}")}</td>
@@ -128,7 +127,7 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                                     match u64::from_str_radix(&input_string[2..], 16) {
                                         Ok(value) => {
                                             input.set_class_name("valid");
-                                            value as u64
+                                            value
                                         },
                                         Err(_err) => {
                                             input.set_class_name("invalid");
@@ -140,7 +139,7 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                                     match u64::from_str_radix(&input_string[2..], 2) {
                                         Ok(value) => {
                                             input.set_class_name("valid");
-                                            value as u64
+                                            value
                                         },
                                         Err(_err) => {
                                             input.set_class_name("invalid");

@@ -170,7 +170,7 @@ impl MipsFpCoprocessor {
                 }
             }
         }
-        return None;
+        None
     }
 
     // ================== Instruction Decode (ID) ==================

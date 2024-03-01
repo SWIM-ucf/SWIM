@@ -12,7 +12,6 @@ use std::rc::Rc;
 use swim::agent::datapath_communicator::DatapathCommunicator;
 use swim::agent::datapath_reducer::DatapathReducer;
 use swim::agent::EmulationCoreAgent;
-use swim::emulation_core::mips::datapath::MipsDatapath;
 use swim::emulation_core::mips::datapath::Stage;
 use swim::parser::parser_assembler_main::parser;
 use swim::parser::parser_structs_and_enums::ProgramInfo;
@@ -85,13 +84,6 @@ fn app(props: &AppProps) -> Html {
     // Store the currently selected tabs in windows
     let console_active_tab = use_state_eq(FooterTabState::default);
     let editor_active_tab = use_state_eq(EditorTabState::default);
-
-    // Since we want the Datapath to be independent from all the
-    // events within the app, we will create it when the app loads. This is also done
-    // since the scope will be open across all events involved with it. To achieve this,
-    // we use interior mutability to have the reference to the Datapath immutable, but
-    // the ability to access and change its contents be mutable.
-    let datapath = use_mut_ref(MipsDatapath::default);
 
     let datapath_state = use_reducer(DatapathReducer::default);
 

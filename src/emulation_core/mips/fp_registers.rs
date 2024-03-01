@@ -54,11 +54,10 @@ pub enum FpRegisterType {
 
 impl FpRegisterType {
     pub fn get_fpr_name(&self) -> String {
-        match self {
-            _ => format!("f{}", *self as u32),
-        }
+        format!("f{}", *self as u32)
     }
-    pub fn is_valid_register_value(&self, value: u64) -> bool {
+    pub fn is_valid_register_value(&self, _value: u64) -> bool {
+
         true
     }
 }
