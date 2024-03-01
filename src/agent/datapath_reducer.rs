@@ -74,7 +74,7 @@ impl Reducible for DatapathReducer {
                         memory: self.mips.memory.clone(),
                         current_stage: self.mips.current_stage.clone(),
                         coprocessor
-                    },
+                    }
                 },
             },
         })
