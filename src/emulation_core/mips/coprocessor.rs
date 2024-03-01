@@ -1,10 +1,10 @@
 //! Implementation of a MIPS64 floating-point coprocessor.
 
-use serde::{Deserialize, Serialize};
 use super::constants::*;
 use super::control_signals::floating_point::*;
 use super::fp_registers::FpRegisters;
 use super::instruction::Instruction;
+use serde::{Deserialize, Serialize};
 
 /// An implementation of a floating-point coprocessor for the MIPS64 ISA.
 ///
@@ -151,7 +151,7 @@ impl MipsFpCoprocessor {
 
     pub fn set_register(&mut self, _register: usize, _data: u64) -> Result<(), String> {
         if _register >= 32 {
-            return Err(format!("Register index out of bounds: {}", _register))
+            return Err(format!("Register index out of bounds: {}", _register));
         }
 
         let register = &mut self.registers.fpr[_register];
@@ -659,7 +659,11 @@ impl MipsFpCoprocessor {
             FpuMemToReg::UseDataWrite => self.state.register_write_mux_to_mux,
             FpuMemToReg::UseMemory => self.state.fp_register_data_from_main_processor,
         };
-        log::debug!("Writing to register f{}: {}", self.state.destination, self.state.register_write_data);
+        log::debug!(
+            "Writing to register f{}: {}",
+            self.state.destination,
+            self.state.register_write_data
+        );
         self.registers.fpr[self.state.destination] = self.state.register_write_data;
     }
 }

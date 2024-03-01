@@ -85,7 +85,9 @@ pub fn generate_gpr_rows(props: &Regviewprops, radix: u32) -> Html {
 pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
     let communicator = props.communicator;
 
-    props.fp.into_iter()
+    props
+        .fp
+        .into_iter()
         .map(|(register, data)| {
             let unit_type = unit_type.clone();
             html! {

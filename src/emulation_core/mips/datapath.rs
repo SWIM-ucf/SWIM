@@ -51,7 +51,7 @@ use super::constants::*;
 use super::control_signals::{floating_point::*, *};
 use super::datapath_signals::*;
 use super::instruction::*;
-use super::{coprocessor::MipsFpCoprocessor, memory::Memory, gp_registers::GpRegisters};
+use super::{coprocessor::MipsFpCoprocessor, gp_registers::GpRegisters, memory::Memory};
 use crate::emulation_core::architectures::DatapathRef;
 use serde::{Deserialize, Serialize};
 

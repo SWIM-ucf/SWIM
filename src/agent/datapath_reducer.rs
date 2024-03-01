@@ -3,8 +3,8 @@ use crate::emulation_core::architectures::AvailableDatapaths::MIPS;
 use crate::emulation_core::architectures::{AvailableDatapaths, DatapathUpdate};
 use crate::emulation_core::mips::coprocessor::MipsFpCoprocessor;
 use crate::emulation_core::mips::datapath::{DatapathState, Stage};
-use crate::emulation_core::mips::memory::Memory;
 use crate::emulation_core::mips::gp_registers::GpRegisters;
+use crate::emulation_core::mips::memory::Memory;
 use std::rc::Rc;
 use yew::Reducible;
 
@@ -20,7 +20,7 @@ pub struct MipsCoreState {
     pub registers: GpRegisters,
     pub memory: Memory,
     pub current_stage: Stage,
-    pub coprocessor: MipsFpCoprocessor
+    pub coprocessor: MipsFpCoprocessor,
 }
 
 impl Default for DatapathReducer {
@@ -73,8 +73,8 @@ impl Reducible for DatapathReducer {
                         registers: self.mips.registers.clone(),
                         memory: self.mips.memory.clone(),
                         current_stage: self.mips.current_stage.clone(),
-                        coprocessor
-                    }
+                        coprocessor,
+                    },
                 },
             },
         })

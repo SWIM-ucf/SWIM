@@ -1,7 +1,7 @@
 //! Abstract representation of an instruction.
 
-use serde::{Deserialize, Serialize};
 use crate::parser::parser_structs_and_enums::GP_REGISTERS;
+use serde::{Deserialize, Serialize};
 
 use super::constants::*;
 

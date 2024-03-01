@@ -1728,7 +1728,10 @@ pub mod coprocessor {
 
         // The result should be 0.75, represented in a 32-bit value as per the
         // IEEE 754 single-precision floating-point specification.
-        assert_eq!(f32::from_bits(datapath.coprocessor.registers.fpr[2] as u32), 0.75);
+        assert_eq!(
+            f32::from_bits(datapath.coprocessor.registers.fpr[2] as u32),
+            0.75
+        );
         Ok(())
     }
 
@@ -1751,7 +1754,10 @@ pub mod coprocessor {
 
         // The result should be 123.625, represented in a 64-bit value as per the
         // IEEE 754 double-precision floating-point specification.
-        assert_eq!(f64::from_bits(datapath.coprocessor.registers.fpr[2]), 123.625);
+        assert_eq!(
+            f64::from_bits(datapath.coprocessor.registers.fpr[2]),
+            123.625
+        );
         Ok(())
     }
 
@@ -1773,7 +1779,10 @@ pub mod coprocessor {
 
         datapath.execute_instruction();
 
-        assert_eq!(f32::from_bits(datapath.coprocessor.registers.fpr[2] as u32), -2.5);
+        assert_eq!(
+            f32::from_bits(datapath.coprocessor.registers.fpr[2] as u32),
+            -2.5
+        );
         Ok(())
     }
 
@@ -1795,7 +1804,10 @@ pub mod coprocessor {
 
         datapath.execute_instruction();
 
-        assert_eq!(f64::from_bits(datapath.coprocessor.registers.fpr[2]), 98327.375);
+        assert_eq!(
+            f64::from_bits(datapath.coprocessor.registers.fpr[2]),
+            98327.375
+        );
         Ok(())
     }
 
@@ -1817,7 +1829,10 @@ pub mod coprocessor {
 
         datapath.execute_instruction();
 
-        assert_eq!(f32::from_bits(datapath.coprocessor.registers.fpr[9] as u32), 12.25f32);
+        assert_eq!(
+            f32::from_bits(datapath.coprocessor.registers.fpr[9] as u32),
+            12.25f32
+        );
         Ok(())
     }
 
@@ -1839,7 +1854,10 @@ pub mod coprocessor {
 
         datapath.execute_instruction();
 
-        assert_eq!(f64::from_bits(datapath.coprocessor.registers.fpr[4]), -1425.59375);
+        assert_eq!(
+            f64::from_bits(datapath.coprocessor.registers.fpr[4]),
+            -1425.59375
+        );
         Ok(())
     }
 
@@ -1886,7 +1904,10 @@ pub mod coprocessor {
 
         datapath.execute_instruction();
 
-        assert_eq!(f64::from_bits(datapath.coprocessor.registers.fpr[1]), 47702.6875);
+        assert_eq!(
+            f64::from_bits(datapath.coprocessor.registers.fpr[1]),
+            47702.6875
+        );
         Ok(())
     }
 
@@ -2724,7 +2745,10 @@ pub mod coprocessor {
 
         datapath.execute_instruction();
 
-        assert_eq!(datapath.coprocessor.registers.fpr[30], 0xDEAD_BEEF_FEED_DEED);
+        assert_eq!(
+            datapath.coprocessor.registers.fpr[30],
+            0xDEAD_BEEF_FEED_DEED
+        );
 
         Ok(())
     }

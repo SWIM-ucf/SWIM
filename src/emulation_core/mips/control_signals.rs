@@ -278,8 +278,8 @@ pub enum RegWrite {
 }
 
 pub mod floating_point {
-    use serde::{Deserialize, Serialize};
     use super::super::constants::*;
+    use serde::{Deserialize, Serialize};
 
     #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub struct FpuControlSignals {
