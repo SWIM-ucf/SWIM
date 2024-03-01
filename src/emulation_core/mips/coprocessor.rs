@@ -1,9 +1,9 @@
 //! Implementation of a MIPS64 floating-point coprocessor.
 
-use serde::{Deserialize, Serialize};
 use super::constants::*;
 use super::control_signals::floating_point::*;
 use super::instruction::Instruction;
+use serde::{Deserialize, Serialize};
 
 /// An implementation of a floating-point coprocessor for the MIPS64 ISA.
 ///

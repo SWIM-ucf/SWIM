@@ -1,8 +1,8 @@
 //! Module for mapping lines in the visual datapath to information
 //! and variables in the coded datapath.
 
-use yew::UseReducerHandle;
 use crate::agent::datapath_reducer::DatapathReducer;
+use yew::UseReducerHandle;
 
 use super::super::datapath::VisualDatapath;
 use super::datapath::MipsDatapath;
@@ -334,7 +334,10 @@ impl VisualDatapath for MipsDatapath {
     }
 }
 
-pub fn visual_line_to_data(variable: &str, datapath_state: &UseReducerHandle<DatapathReducer>) -> LineInformation {
+pub fn visual_line_to_data(
+    variable: &str,
+    datapath_state: &UseReducerHandle<DatapathReducer>,
+) -> LineInformation {
     match variable {
         "alu_input2" => LineInformation {
             title: String::from("ALU Input 2"),

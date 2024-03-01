@@ -206,7 +206,11 @@ impl VisualDatapath {
     /// circumvented by creating an event listener on the `<object>` element for the
     /// "load" event, which will guarantee when that virtual DOM is actually ready
     /// to be manipulated.
-    pub fn initialize(&mut self, current_stage: String, datapath_state: UseReducerHandle<DatapathReducer>) {
+    pub fn initialize(
+        &mut self,
+        current_stage: String,
+        datapath_state: UseReducerHandle<DatapathReducer>,
+    ) {
         let on_load = Callback::from(move |_| {
             let nodes = get_g_elements();
 

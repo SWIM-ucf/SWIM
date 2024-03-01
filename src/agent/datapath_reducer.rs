@@ -20,7 +20,7 @@ pub struct MipsCoreState {
     pub registers: GpRegisters,
     pub memory: Memory,
     pub current_stage: Stage,
-    pub coprocessor: MipsFpCoprocessor
+    pub coprocessor: MipsFpCoprocessor,
 }
 
 impl Default for DatapathReducer {
@@ -73,7 +73,7 @@ impl Reducible for DatapathReducer {
                         registers: self.mips.registers,
                         memory: self.mips.memory.clone(),
                         current_stage: self.mips.current_stage.clone(),
-                        coprocessor
+                        coprocessor,
                     },
                 },
             },

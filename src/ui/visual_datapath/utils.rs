@@ -5,7 +5,10 @@ use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlCollection, HtmlElement, HtmlObjectElement, MouseEvent};
 use yew::UseReducerHandle;
 
-use crate::{agent::datapath_reducer::DatapathReducer, emulation_core::{architectures::AvailableDatapaths, mips::line_info::LineInformation}};
+use crate::{
+    agent::datapath_reducer::DatapathReducer,
+    emulation_core::{architectures::AvailableDatapaths, mips::line_info::LineInformation},
+};
 
 use super::consts::*;
 
@@ -139,7 +142,10 @@ where
 /// Parameters:
 /// - `datapath`: A reference to the datapath that information will be pulled from.
 /// - `variable`: The "variable" attribute of the line in the diagram that will have information.
-pub fn populate_popup_information(datapath_state: &UseReducerHandle<DatapathReducer>, variable: &str) {
+pub fn populate_popup_information(
+    datapath_state: &UseReducerHandle<DatapathReducer>,
+    variable: &str,
+) {
     let popup = get_popup_element();
 
     let title = popup.query_selector(".title").unwrap().unwrap();
@@ -172,7 +178,10 @@ pub fn u64_to_bits(mut value: u64, bits: u64) -> String {
     output
 }
 
-pub fn visual_line_to_data(variable: &str, datapath_state: &UseReducerHandle<DatapathReducer>) -> LineInformation {
+pub fn visual_line_to_data(
+    variable: &str,
+    datapath_state: &UseReducerHandle<DatapathReducer>,
+) -> LineInformation {
     match datapath_state.current_architecture {
         AvailableDatapaths::MIPS => {
             match variable {

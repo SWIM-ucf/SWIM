@@ -1,4 +1,5 @@
 use crate::agent::datapath_communicator::DatapathCommunicator;
+use crate::agent::datapath_reducer::DatapathReducer;
 use crate::ui::console::component::Console;
 use crate::ui::hex_editor::component::HexEditor;
 use crate::ui::visual_datapath::VisualDatapath;
@@ -7,7 +8,6 @@ use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
-use crate::agent::datapath_reducer::DatapathReducer;
 
 #[derive(PartialEq, Properties)]
 pub struct Footerprops {

@@ -56,7 +56,8 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
             &mut program_info.monaco_line_info,
         );
 
-        let (binary, data_starting_point) = create_binary_vec(program_info.instructions.clone(), vec_of_data);
+        let (binary, data_starting_point) =
+            create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
         for entry in &program_info.monaco_line_info {
             program_info
@@ -115,7 +116,8 @@ pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
             &mut program_info.monaco_line_info,
         );
 
-        let (binary, data_starting_point) = create_binary_vec(program_info.instructions.clone(), vec_of_data);
+        let (binary, data_starting_point) =
+            create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
         for entry in &program_info.monaco_line_info {
             program_info
