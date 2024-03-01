@@ -261,7 +261,6 @@ impl Datapath for MipsDatapath {
 
         // If the FPU has halted, reflect this in the main unit.
         if self.coprocessor.is_halted {
-            log::debug!("FPU has halted, halting main unit.");
             self.is_halted = true;
         }
 
@@ -349,7 +348,6 @@ impl MipsDatapath {
 
         // Upper part of datapath, PC calculation
         self.pc_plus_4();
-        log::debug!("PC + 4: {}", self.state.pc_plus_4);
         self.coprocessor.set_instruction(self.state.instruction);
 
         // Both state and coprocessor state always update
