@@ -57,7 +57,6 @@ impl FpRegisterType {
         format!("f{}", *self as u32)
     }
     pub fn is_valid_register_value(&self, _value: u64) -> bool {
-
         true
     }
 }
