@@ -3,6 +3,7 @@
 use super::constants::*;
 use super::control_signals::floating_point::*;
 use super::instruction::Instruction;
+use serde::{Deserialize, Serialize};
 
 /// An implementation of a floating-point coprocessor for the MIPS64 ISA.
 ///
@@ -20,7 +21,7 @@ pub struct MipsFpCoprocessor {
     pub data: u64,
 }
 
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
 pub struct FpuState {
     pub instruction: u32,
     pub op: u32,

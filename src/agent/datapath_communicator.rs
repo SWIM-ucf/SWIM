@@ -6,7 +6,6 @@ use futures::stream::{SplitSink, SplitStream};
 use futures::FutureExt;
 use futures::SinkExt;
 use futures::StreamExt;
-use gloo_console::log;
 use gloo_console::warn;
 use std::cell::RefCell;
 use yew::UseReducerDispatcher;
@@ -60,9 +59,7 @@ impl DatapathCommunicator {
         };
 
         loop {
-            log!("Waiting...");
             let update = reader.next().await;
-            log!(format!("Got update {:?}", update));
             match update {
                 None => return,
                 Some(update) => dispatcher_handle.dispatch(update),

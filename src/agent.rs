@@ -1,8 +1,9 @@
 //! The agent responsible for running the emulator core on the worker thread and communication functionalities.
 
-use crate::agent::messages::{Command, MipsStateUpdate};
+use crate::agent::messages::Command;
+use crate::agent::messages::MipsStateUpdate::*;
 use crate::emulation_core::architectures::{DatapathRef, DatapathUpdate};
-use crate::emulation_core::datapath::Datapath;
+use crate::emulation_core::datapath::{Datapath, DatapathUpdateSignal, UPDATE_EVERYTHING};
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::emulation_core::mips::registers::GpRegisterType;
 use futures::{FutureExt, SinkExt, StreamExt};
@@ -14,6 +15,23 @@ use yew_agent::prelude::*;
 pub mod datapath_communicator;
 pub mod datapath_reducer;
 pub mod messages;
+
+macro_rules! send_update {
+    ($scope:expr, $condition:expr, $value:expr) => {
+        if $condition {
+            $scope
+                .send($value)
+                .await
+                .expect("ReactorScope's send() function should not fail.")
+        }
+    };
+}
+
+macro_rules! send_update_mips {
+    ($scope:expr, $cond:expr, $data:expr) => {
+        send_update!($scope, $cond, DatapathUpdate::MIPS($data))
+    };
+}
 
 /// The main logic for the emulation core agent. All code within this function runs on a worker thread as opposed to
 /// the UI thread.
@@ -48,29 +66,50 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
         state.execute();
 
         // Part 3: Processing State/Sending Updates to UI
-        // TODO: This is a very naive implementation. Optimization is probably a good idea.
-        // TODO: Add support for the FP coprocessor updates in MIPS
         match state.current_datapath.as_datapath_ref() {
             DatapathRef::MIPS(datapath) => {
-                let state_update =
-                    DatapathUpdate::MIPS(MipsStateUpdate::UpdateState(datapath.state.clone()));
-                let register_update =
-                    DatapathUpdate::MIPS(MipsStateUpdate::UpdateRegisters(datapath.registers));
-                let memory_update =
-                    DatapathUpdate::MIPS(MipsStateUpdate::UpdateMemory(datapath.memory.clone()));
-                let stage_update =
-                    DatapathUpdate::MIPS(MipsStateUpdate::UpdateStage(datapath.current_stage));
-                state.scope.send(state_update).await.unwrap();
-                state.scope.send(register_update).await.unwrap();
-                state.scope.send(memory_update).await.unwrap();
-                state.scope.send(stage_update).await.unwrap();
+                log!(format!("Updates: {:?}", state.updates));
+                // Stage always updates
+                send_update_mips!(state.scope, true, UpdateStage(datapath.current_stage));
+
+                // Send all other updates based on the state.updates variable.
+                send_update_mips!(
+                    state.scope,
+                    state.updates.changed_state,
+                    UpdateState(datapath.state.clone())
+                );
+                send_update_mips!(
+                    state.scope,
+                    state.updates.changed_registers,
+                    UpdateRegisters(datapath.registers)
+                );
+                send_update_mips!(
+                    state.scope,
+                    state.updates.changed_coprocessor_state,
+                    UpdateCoprocessorState(datapath.coprocessor.state.clone())
+                );
+                send_update_mips!(
+                    state.scope,
+                    state.updates.changed_coprocessor_registers,
+                    UpdateCoprocessorRegisters(datapath.coprocessor.fpr)
+                );
+                send_update_mips!(
+                    state.scope,
+                    state.updates.changed_memory,
+                    UpdateMemory(datapath.memory.clone())
+                );
             }
         }
+        state.updates = Default::default();
     }
 }
 
 struct EmulatorCoreAgentState {
     current_datapath: Box<dyn Datapath<RegisterData = u64, RegisterEnum = GpRegisterType>>,
+    /// The changes to the emulator core's memory/registers/etc. are tracked in this variable. When
+    /// it's time to send updates back to the main thread, this variable determines which updates
+    /// get sent.
+    pub updates: DatapathUpdateSignal,
     pub scope: ReactorScope<Command, DatapathUpdate>,
     speed: u32,
     executing: bool,
@@ -80,6 +119,7 @@ impl EmulatorCoreAgentState {
     pub fn new(scope: ReactorScope<Command, DatapathUpdate>) -> EmulatorCoreAgentState {
         EmulatorCoreAgentState {
             current_datapath: Box::<MipsDatapath>::default(),
+            updates: DatapathUpdateSignal::default(),
             scope,
             speed: 0,
             executing: false,
@@ -93,30 +133,35 @@ impl EmulatorCoreAgentState {
             }
             Command::Initialize(initial_pc, mem) => {
                 self.current_datapath.initialize(initial_pc, mem).unwrap();
+                self.updates.changed_memory = true;
+                self.updates.changed_registers = true;
             }
             Command::SetExecuteSpeed(speed) => {
                 self.speed = speed;
             }
             Command::SetRegister(register, value) => {
                 self.current_datapath.set_register_by_str(&register, value);
+                self.updates.changed_registers = true;
             }
             Command::SetMemory(ptr, data) => {
                 self.current_datapath.set_memory(ptr, data);
+                self.updates.changed_memory = true;
             }
             Command::Execute => {
                 self.executing = true;
             }
             Command::ExecuteInstruction => {
-                self.current_datapath.execute_instruction();
+                self.updates |= self.current_datapath.execute_instruction();
             }
             Command::ExecuteStage => {
-                self.current_datapath.execute_stage();
+                self.updates |= self.current_datapath.execute_stage();
             }
             Command::Pause => {
                 self.executing = false;
             }
             Command::Reset => {
                 self.current_datapath.reset();
+                self.updates |= UPDATE_EVERYTHING;
             }
         }
     }

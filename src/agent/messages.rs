@@ -1,3 +1,4 @@
+use crate::emulation_core::mips::coprocessor::FpuState;
 use crate::emulation_core::mips::datapath::DatapathState;
 use crate::emulation_core::mips::memory::Memory;
 use crate::emulation_core::mips::registers::GpRegisters;
@@ -24,6 +25,8 @@ pub enum Command {
 pub enum MipsStateUpdate {
     UpdateState(DatapathState),
     UpdateRegisters(GpRegisters),
+    UpdateCoprocessorState(FpuState),
+    UpdateCoprocessorRegisters([u64; 32]),
     UpdateMemory(Memory),
     UpdateStage(Stage),
 }
