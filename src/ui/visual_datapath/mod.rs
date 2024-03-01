@@ -85,7 +85,7 @@ impl Component for VisualDatapath {
         html! {
             <div class="datapath-wrapper">
                 <div class="datapath-object-wrapper">
-                    <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID} class={classes!("datapath", format!("size-{}", self.size.borrow().to_string()))}></object>
+                    <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID} class={classes!("datapath", format!("size-{}", self.size.borrow()))}></object>
                 </div>
                 <div id="popup">
                     <h1 class="title">{ "[Title]" }</h1>

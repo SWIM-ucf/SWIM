@@ -59,7 +59,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                 let memory_update =
                     DatapathUpdate::MIPS(MipsStateUpdate::UpdateMemory(datapath.memory.clone()));
                 let stage_update = DatapathUpdate::MIPS(MipsStateUpdate::UpdateStage(
-                    datapath.current_stage.clone(),
+                    datapath.current_stage,
                 ));
                 let coprocessor_update = DatapathUpdate::MIPS(MipsStateUpdate::UpdateCoprocessor(
                     datapath.coprocessor.clone(),
