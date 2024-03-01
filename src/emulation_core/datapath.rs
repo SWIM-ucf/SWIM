@@ -44,9 +44,12 @@ pub trait Datapath {
     /// registers should be listed within [`Self::RegisterEnum`].
     fn get_register_by_enum(&self, register: Self::RegisterEnum) -> Self::RegisterData;
 
-    /// Sets the data in the register indicated by the provided string. If it doesn't exist,
+    /// Sets the data in the GP register indicated by the provided string. If it doesn't exist,
     /// this function returns Err.
     fn set_register_by_str(&mut self, register: &str, data: Self::RegisterData);
+
+    // Set the data in the FP register indicated by the provided string
+    fn set_fp_register_by_str(&mut self, register: &str, data: Self::RegisterData);
 
     /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
     /// flag. If the process fails, an [`Err`] is returned.

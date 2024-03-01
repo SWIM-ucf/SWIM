@@ -2,20 +2,20 @@
 
 use super::constants::*;
 use super::control_signals::floating_point::*;
+use super::fp_registers::FpRegisters;
 use super::instruction::Instruction;
 
 /// An implementation of a floating-point coprocessor for the MIPS64 ISA.
 ///
 /// Different from the main processor, much of the functionality of the coprocessor
 /// is controlled remotely using its available API calls.
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct MipsFpCoprocessor {
     instruction: Instruction,
     pub signals: FpuControlSignals,
     pub state: FpuState,
     pub is_halted: bool,
-
-    pub fpr: [u64; 32],
+    pub registers: FpRegisters,
     pub condition_code: u64,
     pub data: u64,
 }
@@ -56,6 +56,22 @@ pub struct FpuState {
 
     pub alu_result: u64,
     pub comparator_result: u64,
+}
+
+impl Default for MipsFpCoprocessor {
+    fn default() -> Self {
+        let coprocessor: MipsFpCoprocessor = MipsFpCoprocessor {
+            instruction: Instruction::default(),
+            signals: FpuControlSignals::default(),
+            state: FpuState::default(),
+            is_halted: false,
+            registers: FpRegisters::default(),
+            condition_code: 0,
+            data: 0,
+        };
+
+        coprocessor
+    }
 }
 
 impl MipsFpCoprocessor {
@@ -125,6 +141,30 @@ impl MipsFpCoprocessor {
     /// in the main processor controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
     pub fn get_fp_register_to_memory(&mut self) -> u64 {
         self.state.fp_register_to_memory
+    }
+
+    pub fn set_register(&mut self, _register: usize, _data: u64) -> Result<(), String> {
+        if _register >= 32 {
+            return Err(format!("Register index out of bounds: {}", _register))
+        }
+
+        let register = &mut self.registers.fpr[_register];
+        *register = _data;
+
+        Ok(())
+    }
+
+    pub fn register_from_str(&self, _register: &str) -> Option<usize> {
+        // Check if register matches a register between f0 and f31
+        if _register.len() >= 2 && &_register[0..1] == "f" && _register.len() <= 3 {
+            let register = &_register[1..];
+            if let Ok(register) = register.parse::<usize>() {
+                if register < 32 {
+                    return Some(register);
+                }
+            }
+        }
+        return None;
     }
 
     // ================== Instruction Decode (ID) ==================
@@ -398,13 +438,13 @@ impl MipsFpCoprocessor {
         let reg1 = self.state.fs as usize;
         let reg2 = self.state.ft as usize;
 
-        self.state.read_data_1 = self.fpr[reg1];
-        self.state.read_data_2 = self.fpr[reg2];
+        self.state.read_data_1 = self.registers.fpr[reg1];
+        self.state.read_data_2 = self.registers.fpr[reg2];
 
         // Truncate the variable data if a 32-bit word is requested.
         if let FpuRegWidth::Word = self.signals.fpu_reg_width {
-            self.state.read_data_1 = self.fpr[reg1] as u32 as u64;
-            self.state.read_data_2 = self.fpr[reg2] as u32 as u64;
+            self.state.read_data_1 = self.registers.fpr[reg1] as u32 as u64;
+            self.state.read_data_2 = self.registers.fpr[reg2] as u32 as u64;
         }
     }
 
@@ -613,7 +653,7 @@ impl MipsFpCoprocessor {
             FpuMemToReg::UseDataWrite => self.state.register_write_mux_to_mux,
             FpuMemToReg::UseMemory => self.state.fp_register_data_from_main_processor,
         };
-
-        self.fpr[self.state.destination] = self.state.register_write_data;
+        log::debug!("Writing to register f{}: {}", self.state.destination, self.state.register_write_data);
+        self.registers.fpr[self.state.destination] = self.state.register_write_data;
     }
 }

@@ -3,7 +3,7 @@ use crate::emulation_core::architectures::AvailableDatapaths::MIPS;
 use crate::emulation_core::architectures::{AvailableDatapaths, DatapathUpdate};
 use crate::emulation_core::mips::datapath::{DatapathState, Stage};
 use crate::emulation_core::mips::memory::Memory;
-use crate::emulation_core::mips::registers::GpRegisters;
+use crate::emulation_core::mips::gp_registers::GpRegisters;
 use std::rc::Rc;
 use yew::Reducible;
 

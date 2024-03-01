@@ -9,4 +9,5 @@ pub mod datapath_signals;
 pub mod instruction;
 pub mod line_info;
 pub mod memory;
-pub mod registers;
+pub mod gp_registers;
+pub mod fp_registers;

@@ -107,6 +107,11 @@ impl DatapathCommunicator {
         self.send_message(Command::SetRegister(register, data));
     }
 
+    // Sets the FP register with the provided name to the provided value.
+    pub fn set_fp_register(&self, register: String, data: u64) {
+        self.send_message(Command::SetFPRegister(register, data));
+    }
+
     /// Copies the contents of `data` to the emulator core's memory at `ptr`. Copies until either the end of `data` or
     /// the end of the emulaot core's memory.
     pub fn set_memory(&self, ptr: u64, data: u32) {

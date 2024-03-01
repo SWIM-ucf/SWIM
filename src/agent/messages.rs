@@ -1,6 +1,6 @@
 use crate::emulation_core::mips::datapath::DatapathState;
 use crate::emulation_core::mips::memory::Memory;
-use crate::emulation_core::mips::registers::GpRegisters;
+use crate::emulation_core::mips::gp_registers::GpRegisters;
 use crate::emulation_core::{architectures::AvailableDatapaths, mips::datapath::Stage};
 use serde::{Deserialize, Serialize};
 
@@ -11,6 +11,7 @@ pub enum Command {
     Initialize(usize, Vec<u32>),
     SetExecuteSpeed(u32),
     SetRegister(String, u64),
+    SetFPRegister(String, u64),
     SetMemory(u64, u32),
     Execute,
     ExecuteInstruction,
