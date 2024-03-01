@@ -1,13 +1,14 @@
 //! The agent responsible for running the emulator core on the worker thread and communication functionalities.
 
-use crate::agent::messages::Command;
 use crate::agent::messages::MipsStateUpdate::*;
-use crate::emulation_core::architectures::{DatapathRef, DatapathUpdate};
-use crate::emulation_core::datapath::{Datapath, DatapathUpdateSignal, UPDATE_EVERYTHING};
+use crate::agent::messages::{Command, SystemUpdate};
+use crate::emulation_core::architectures::DatapathRef;
+use crate::emulation_core::datapath::{Datapath, DatapathUpdateSignal, Syscall, UPDATE_EVERYTHING};
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::emulation_core::mips::registers::GpRegisterType;
 use futures::{FutureExt, SinkExt, StreamExt};
 use gloo_console::log;
+use messages::DatapathUpdate;
 use std::time::Duration;
 use yew::platform::time::sleep;
 use yew_agent::prelude::*;
@@ -64,6 +65,9 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
         // Part 2: Execution
         // Execute a single instruction if the emulator core should be executing.
         state.execute();
+
+        // Part 3: Performing Syscalls
+        state.execute_syscall_stage().await;
 
         // Part 3: Processing State/Sending Updates to UI
         match state.current_datapath.as_datapath_ref() {
@@ -181,6 +185,55 @@ impl EmulatorCoreAgentState {
             0
         } else {
             (1000 / self.speed).into()
+        }
+    }
+
+    pub async fn execute_syscall_stage(&mut self) {
+        if !self.updates.hit_syscall {
+            return;
+        }
+        let syscall = self.current_datapath.get_syscall_arguments();
+
+        match syscall {
+            Syscall::Exit => {
+                self.current_datapath.halt();
+            }
+            Syscall::PrintInt(val) => {
+                self.scope
+                    .send(DatapathUpdate::System(SystemUpdate::Message(
+                        val.to_string(),
+                    )))
+                    .await
+                    .unwrap();
+            }
+            Syscall::PrintFloat(val) => {
+                self.scope
+                    .send(DatapathUpdate::System(SystemUpdate::Message(
+                        val.to_string(),
+                    )))
+                    .await
+                    .unwrap();
+            }
+            Syscall::PrintDouble(val) => {
+                self.scope
+                    .send(DatapathUpdate::System(SystemUpdate::Message(
+                        val.to_string(),
+                    )))
+                    .await
+                    .unwrap();
+            }
+            Syscall::PrintString(val) => {
+                self.scope
+                    .send(DatapathUpdate::System(SystemUpdate::Message(
+                        val.to_string(),
+                    )))
+                    .await
+                    .unwrap();
+            }
+            Syscall::ReadInt => {}
+            Syscall::ReadFloat => {}
+            Syscall::ReadDouble => {}
+            Syscall::ReadString(_) => {}
         }
     }
 }

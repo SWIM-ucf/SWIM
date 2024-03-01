@@ -75,11 +75,15 @@ fn basic_nop() -> Result<(), String> {
     datapath.initialize_legacy(instruction_bits)?;
 
     let mut expected_registers = datapath.registers;
-    expected_registers.pc = 4;
+    expected_registers.pc = 8;
     let expected_memory = datapath.memory.clone();
 
-    while !datapath.is_halted() {
-        datapath.execute_instruction();
+    // Execute until hitting a syscall
+    loop {
+        let result = datapath.execute_instruction();
+        if result.hit_syscall {
+            break;
+        }
     }
 
     // Register and memory contents should be unchanged, except for the PC.

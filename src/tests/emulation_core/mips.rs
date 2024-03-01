@@ -3118,7 +3118,7 @@ pub mod syscall {
     use super::*;
 
     #[test]
-    fn halts_on_syscall() -> Result<(), String> {
+    fn recognizes_syscall() -> Result<(), String> {
         let mut datapath = MipsDatapath::default();
 
         assert!(datapath.is_halted());
@@ -3139,12 +3139,11 @@ pub mod syscall {
         datapath.registers.gpr[9] = 5; // $t1
 
         // Execute 2 instructions.
-        for _ in 0..2 {
-            datapath.execute_instruction();
-        }
+        datapath.execute_instruction();
+        let execution_result = datapath.execute_instruction();
 
         assert_eq!(datapath.registers.gpr[9], 10); // $t1
-        assert!(datapath.is_halted());
+        assert!(execution_result.hit_syscall);
         Ok(())
     }
 }

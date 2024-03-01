@@ -406,11 +406,6 @@ impl MipsDatapath {
         self.coprocessor
             .set_data_from_main_processor(self.state.read_data_2);
 
-        // Finish this instruction out of the datapath and halt if this is a syscall.
-        if let Instruction::SyscallType(_) = self.instruction {
-            self.is_halted = true;
-        }
-
         // Instruction decode always involves a state update
         DatapathUpdateSignal {
             changed_state: true,

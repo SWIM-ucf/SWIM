@@ -102,6 +102,7 @@ pub trait VisualDatapath {
 
 /// Enum describing all syscalls that can be executed. The register used for indicating the syscall
 /// (and its argument) is different for each architecture.
+#[derive(Clone, Debug, PartialEq)]
 pub enum Syscall {
     /// Halts the emulator core. This should generally be the default syscall if the syscall number
     /// does not match any of the other variants.

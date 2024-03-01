@@ -30,3 +30,17 @@ pub enum MipsStateUpdate {
     UpdateMemory(Memory),
     UpdateStage(Stage),
 }
+
+/// Information about the effects of system calls sent from the worker thread to the UI thread.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum SystemUpdate {
+    Message(String),
+}
+
+/// Enum containing all types of updates sent from the worker thread to the UI thread.
+#[allow(clippy::large_enum_variant)] // Temporary allow while the System enum is tiny
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum DatapathUpdate {
+    MIPS(MipsStateUpdate),
+    System(SystemUpdate),
+}
