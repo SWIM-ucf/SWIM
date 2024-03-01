@@ -30,7 +30,7 @@ use std::{cell::RefCell, rc::Rc};
 use gloo_events::EventListener;
 use log::debug;
 use wasm_bindgen::{JsCast, JsValue};
-use web_sys::{Element, Event, HtmlCollection, HtmlElement};
+use web_sys::{Element, Event, HtmlCollection, HtmlElement, HtmlInputElement};
 use yew::prelude::*;
 
 use consts::*;
@@ -47,8 +47,6 @@ pub struct VisualDatapathProps {
     ///
     /// For example, "`static/datapath_full.svg`".
     pub svg_path: String,
-
-    pub size: Option<DatapathSize>,
 }
 
 pub struct VisualDatapath {
@@ -57,6 +55,7 @@ pub struct VisualDatapath {
     ///
     /// This can occur if the `svg_path` property of the component changes.
     should_reinitialize: bool,
+    size: Rc<RefCell<i32>>,
 }
 
 #[derive(Clone, Copy, Default, PartialEq)]
@@ -74,20 +73,20 @@ impl Component for VisualDatapath {
         VisualDatapath {
             active_listeners: Rc::new(RefCell::new(vec![])),
             should_reinitialize: false,
+            size: Rc::new(RefCell::new(50)),
         }
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        // Set the size of the datapath based on props.
-        let size = ctx.props().size.unwrap_or_default();
-        let size_class = match size {
-            DatapathSize::Big => "big-datapath",
-            DatapathSize::Small => "small-datapath",
-        };
-
+        let zoom_in_size = Rc::clone(&self.size);
+        let zoom_range_size = Rc::clone(&self.size);
+        let zoom_value_size = Rc::clone(&self.size);
+        let zoom_out_size = Rc::clone(&self.size);
         html! {
-            <>
-                <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID} class={size_class}></object>
+            <div class="datapath-wrapper">
+                <div class="datapath-object-wrapper">
+                    <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID} class={classes!("datapath", format!("size-{}", self.size.borrow().to_string()))}></object>
+                </div>
                 <div id="popup">
                     <h1 class="title">{ "[Title]" }</h1>
                     <p class="description">{ "[Description]" }</p>
@@ -97,7 +96,32 @@ impl Component for VisualDatapath {
                         <span class="meaning">{ "[base 10]" }</span>
                     </div>
                 </div>
-            </>
+                <div id="datapath-zoom-controls">
+                    <button class="zoom-button" onclick={ctx.link().callback(move |_| {
+                        let mut size = zoom_out_size.borrow_mut();
+                        *size -= 10;
+                    })}>
+                        <svg class="icon icon-minus" viewBox="0 0 32 32">
+                            <path d="M0 13v6c0 0.552 0.448 1 1 1h30c0.552 0 1-0.448 1-1v-6c0-0.552-0.448-1-1-1h-30c-0.552 0-1 0.448-1 1z"></path>
+                        </svg>
+                    </button>
+                    <input type="range" min="0" max="200" step="10" value={zoom_value_size.borrow().to_string()} class="slider" id="datapath-zoom-slider" onchange={ctx.link().callback(move |e: Event| {
+                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                        let value = target.value().parse::<i32>().unwrap();
+                        log::debug!("Value: {:?}", value);
+                        let mut size = zoom_range_size.borrow_mut();
+                        *size = value;
+                    })}/>
+                    <button class="zoom-button" onclick={ctx.link().callback(move |_| {
+                        let mut size = zoom_in_size.borrow_mut();
+                        *size += 10;
+                    })}>
+                        <svg class="icon icon-plus" viewBox="0 0 32 32">
+                            <path d="M31 12h-11v-11c0-0.552-0.448-1-1-1h-6c-0.552 0-1 0.448-1 1v11h-11c-0.552 0-1 0.448-1 1v6c0 0.552 0.448 1 1 1h11v11c0 0.552 0.448 1 1 1h6c0.552 0 1-0.448 1-1v-11h11c0.552 0 1-0.448 1-1v-6c0-0.552-0.448-1-1-1z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
         }
     }
 
