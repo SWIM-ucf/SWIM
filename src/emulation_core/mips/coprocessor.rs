@@ -78,14 +78,12 @@ impl Default for MipsFpCoprocessor {
 impl MipsFpCoprocessor {
     // ========================== Stages ==========================
     pub fn stage_instruction_decode(&mut self) {
-        log::debug!("Decode stage");
         self.instruction_decode();
         self.set_control_signals();
         self.read_registers();
     }
 
     pub fn stage_execute(&mut self) {
-        log::debug!("Execution stage");
         self.alu();
         self.comparator();
         self.write_condition_code();
@@ -94,14 +92,12 @@ impl MipsFpCoprocessor {
     }
 
     pub fn stage_memory(&mut self) {
-        log::debug!("Memory stage");
         self.write_data();
         self.set_data_writeback();
         self.set_fpu_branch();
     }
 
     pub fn stage_writeback(&mut self) {
-        log::debug!("Writeback stage");
         self.register_write();
     }
 
@@ -116,7 +112,6 @@ impl MipsFpCoprocessor {
     /// operates in lieu of any "instruction fetch" functionality since the coprocessor
     /// does not fetch instructions.
     pub fn set_instruction(&mut self, instruction_bits: u32) {
-        log::debug!("Setting instruction: {:#010x}", instruction_bits);
         self.state.instruction = instruction_bits;
         if let Ok(instruction) = Instruction::try_from(self.state.instruction) {
             self.instruction = instruction;
@@ -659,11 +654,6 @@ impl MipsFpCoprocessor {
             FpuMemToReg::UseDataWrite => self.state.register_write_mux_to_mux,
             FpuMemToReg::UseMemory => self.state.fp_register_data_from_main_processor,
         };
-        log::debug!(
-            "Writing to register f{}: {}",
-            self.state.destination,
-            self.state.register_write_data
-        );
         self.registers.fpr[self.state.destination] = self.state.register_write_data;
     }
 }
