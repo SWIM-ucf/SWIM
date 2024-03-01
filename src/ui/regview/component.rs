@@ -171,7 +171,7 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
             let unit_type = unit_type.clone();
             html! {
                 <tr>
-                    <td>{format!("f{register}")}</td>
+                    <td>{format!("{register}")}</td>
                     <td>
                         <input type="text" id={register.to_string()}
                         oninput={move |e: InputEvent| {

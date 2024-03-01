@@ -1,18 +1,18 @@
 use crate::agent::datapath_communicator::DatapathCommunicator;
-use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::ui::console::component::Console;
 use crate::ui::hex_editor::component::HexEditor;
-use crate::ui::visual_datapath::{DatapathSize, VisualDatapath};
+use crate::ui::visual_datapath::VisualDatapath;
 use monaco::api::TextModel;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
+use crate::agent::datapath_reducer::DatapathReducer;
 
 #[derive(PartialEq, Properties)]
 pub struct Footerprops {
     pub communicator: &'static DatapathCommunicator,
-    pub datapath: MipsDatapath,
+    pub datapath_state: UseReducerHandle<DatapathReducer>,
     pub parsermsg: String,
     pub show_input: UseStateHandle<bool>,
     pub command: UseStateHandle<String>,
@@ -32,7 +32,6 @@ pub enum FooterTabState {
 #[function_component(Footer)]
 pub fn footer(props: &Footerprops) -> Html {
     let active_tab = &props.active_tab;
-    let zoom_datapath = use_bool_toggle(false);
     let switch_datapath = use_bool_toggle(false);
     let change_tab = {
         let active_tab = active_tab.clone();
@@ -51,19 +50,6 @@ pub fn footer(props: &Footerprops) -> Html {
 
             active_tab.set(new_tab);
         })
-    };
-
-    let toggle_zoom = {
-        let zoom_datapath = zoom_datapath.clone();
-
-        Callback::from(move |_| {
-            zoom_datapath.toggle();
-        })
-    };
-
-    let datapath_size = match *zoom_datapath {
-        true => DatapathSize::Big,
-        false => DatapathSize::Small,
     };
 
     let switch_datapath_type = {
@@ -92,9 +78,7 @@ pub fn footer(props: &Footerprops) -> Html {
                     <Console communicator={props.communicator} parsermsg={props.parsermsg.clone()} show_input={props.show_input.clone()} command={props.command.clone()}/>
                 </div>
             } else if **active_tab == FooterTabState::Datapath {
-                <div class="datapath-wrapper">
-                    <VisualDatapath datapath={props.datapath.clone()} svg_path={svg_path} size={datapath_size} />
-                </div>
+                <VisualDatapath datapath_state={props.datapath_state.clone()} svg_path={svg_path} />
             } else if **active_tab == FooterTabState::HexEditor {
                 <div class="hex-wrapper">
                     <HexEditor memory_text_model={props.memory_text_model.clone()} instruction_num={props.memory_curr_instr.clone()}/>
@@ -123,7 +107,6 @@ pub fn footer(props: &Footerprops) -> Html {
 
                 if **active_tab == FooterTabState::Datapath {
                     <div class="buttons">
-                        <button class={ classes!("bg-red-500", "button") } onclick={toggle_zoom}>{"Toggle Zoom"}</button>
                         <button class="button" onclick={switch_datapath_type}>{switch_datapath_button_label}</button>
                     </div>
                 }

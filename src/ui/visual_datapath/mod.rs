@@ -30,24 +30,23 @@ use std::{cell::RefCell, rc::Rc};
 use gloo_events::EventListener;
 use log::debug;
 use wasm_bindgen::{JsCast, JsValue};
-use web_sys::{Element, Event, HtmlCollection, HtmlElement};
+use web_sys::{Element, Event, HtmlCollection, HtmlElement, HtmlInputElement};
 use yew::prelude::*;
 
-use crate::emulation_core::mips::datapath::{MipsDatapath, Stage};
 use consts::*;
 use utils::*;
 
+use crate::{agent::datapath_reducer::DatapathReducer, emulation_core::mips::datapath::Stage};
+
 #[derive(PartialEq, Properties)]
 pub struct VisualDatapathProps {
-    pub datapath: MipsDatapath,
+    pub datapath_state: UseReducerHandle<DatapathReducer>,
 
     /// A path to the location of the datapath SVG file. This path should be
     /// relative to the project root.
     ///
     /// For example, "`static/datapath_full.svg`".
     pub svg_path: String,
-
-    pub size: Option<DatapathSize>,
 }
 
 pub struct VisualDatapath {
@@ -56,6 +55,7 @@ pub struct VisualDatapath {
     ///
     /// This can occur if the `svg_path` property of the component changes.
     should_reinitialize: bool,
+    size: Rc<RefCell<i32>>,
 }
 
 #[derive(Clone, Copy, Default, PartialEq)]
@@ -73,20 +73,20 @@ impl Component for VisualDatapath {
         VisualDatapath {
             active_listeners: Rc::new(RefCell::new(vec![])),
             should_reinitialize: false,
+            size: Rc::new(RefCell::new(50)),
         }
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        // Set the size of the datapath based on props.
-        let size = ctx.props().size.unwrap_or_default();
-        let size_class = match size {
-            DatapathSize::Big => "big-datapath",
-            DatapathSize::Small => "small-datapath",
-        };
-
+        let zoom_in_size = Rc::clone(&self.size);
+        let zoom_range_size = Rc::clone(&self.size);
+        let zoom_value_size = Rc::clone(&self.size);
+        let zoom_out_size = Rc::clone(&self.size);
         html! {
-            <>
-                <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID} class={size_class}></object>
+            <div class="datapath-wrapper">
+                <div class="datapath-object-wrapper">
+                    <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID} class={classes!("datapath", format!("size-{}", self.size.borrow().to_string()))}></object>
+                </div>
                 <div id="popup">
                     <h1 class="title">{ "[Title]" }</h1>
                     <p class="description">{ "[Description]" }</p>
@@ -96,7 +96,32 @@ impl Component for VisualDatapath {
                         <span class="meaning">{ "[base 10]" }</span>
                     </div>
                 </div>
-            </>
+                <div id="datapath-zoom-controls">
+                    <button class="zoom-button" onclick={ctx.link().callback(move |_| {
+                        let mut size = zoom_out_size.borrow_mut();
+                        *size -= 10;
+                    })}>
+                        <svg class="icon icon-minus" viewBox="0 0 32 32">
+                            <path d="M0 13v6c0 0.552 0.448 1 1 1h30c0.552 0 1-0.448 1-1v-6c0-0.552-0.448-1-1-1h-30c-0.552 0-1 0.448-1 1z"></path>
+                        </svg>
+                    </button>
+                    <input type="range" min="0" max="200" step="10" value={zoom_value_size.borrow().to_string()} class="slider" id="datapath-zoom-slider" onchange={ctx.link().callback(move |e: Event| {
+                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                        let value = target.value().parse::<i32>().unwrap();
+                        log::debug!("Value: {:?}", value);
+                        let mut size = zoom_range_size.borrow_mut();
+                        *size = value;
+                    })}/>
+                    <button class="zoom-button" onclick={ctx.link().callback(move |_| {
+                        let mut size = zoom_in_size.borrow_mut();
+                        *size += 10;
+                    })}>
+                        <svg class="icon icon-plus" viewBox="0 0 32 32">
+                            <path d="M31 12h-11v-11c0-0.552-0.448-1-1-1h-6c-0.552 0-1 0.448-1 1v11h-11c-0.552 0-1 0.448-1 1v6c0 0.552 0.448 1 1 1h11v11c0 0.552 0.448 1 1 1h6c0.552 0 1-0.448 1-1v-11h11c0.552 0 1-0.448 1-1v-6c0-0.552-0.448-1-1-1z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
         }
     }
 
@@ -105,7 +130,7 @@ impl Component for VisualDatapath {
         // there is actual data to view. A better way to see this is "when stage X is
         // set on the datapath, highlight the lines for stage Y." The datapath stage
         // tells where it will start the next time "execute" is pressed.
-        let current_stage = String::from(match ctx.props().datapath.current_stage {
+        let current_stage = String::from(match ctx.props().datapath_state.mips.current_stage {
             Stage::InstructionFetch => "writeback",
             Stage::InstructionDecode => "instruction_fetch",
             Stage::Execute => "instruction_decode",
@@ -115,13 +140,13 @@ impl Component for VisualDatapath {
 
         debug!("Current stage: {:?}", current_stage);
         if first_render || self.should_reinitialize {
-            self.initialize(current_stage, ctx.props().datapath.clone());
+            self.initialize(current_stage, ctx.props().datapath_state.clone());
             self.should_reinitialize = false;
         } else {
             let result = Self::highlight_stage(
                 &get_g_elements(),
                 current_stage,
-                ctx.props().datapath.clone(),
+                &ctx.props().datapath_state.clone(),
             );
 
             // Capture new event listeners.
@@ -181,7 +206,7 @@ impl VisualDatapath {
     /// circumvented by creating an event listener on the `<object>` element for the
     /// "load" event, which will guarantee when that virtual DOM is actually ready
     /// to be manipulated.
-    pub fn initialize(&mut self, current_stage: String, datapath: MipsDatapath) {
+    pub fn initialize(&mut self, current_stage: String, datapath_state: UseReducerHandle<DatapathReducer>) {
         let on_load = Callback::from(move |_| {
             let nodes = get_g_elements();
 
@@ -210,7 +235,7 @@ impl VisualDatapath {
                     });
                 }
             });
-            Self::highlight_stage(&nodes, current_stage.clone(), datapath.clone())
+            Self::highlight_stage(&nodes, current_stage.clone(), &datapath_state.clone())
         });
 
         let active_listeners = Rc::clone(&self.active_listeners);
@@ -253,7 +278,7 @@ impl VisualDatapath {
     pub fn highlight_stage(
         nodes: &HtmlCollection,
         stage: String,
-        datapath: MipsDatapath,
+        datapath_state: &UseReducerHandle<DatapathReducer>,
     ) -> Result<Vec<EventListener>, JsValue> {
         let mut active_listeners: Vec<EventListener> = vec![];
 
@@ -261,7 +286,7 @@ impl VisualDatapath {
             if element.has_attribute("data-stage") {
                 let is_in_current_stage = element.get_attribute("data-stage").unwrap() == stage;
                 if let Ok(listeners) =
-                    Self::enable_interactivity(element, datapath.clone(), is_in_current_stage)
+                    Self::enable_interactivity(element, datapath_state, is_in_current_stage)
                 {
                     for l in listeners {
                         active_listeners.push(l);
@@ -281,7 +306,7 @@ impl VisualDatapath {
     /// If successful, returns a [`Vec<EventListener>`] containing the newly created event listeners.
     pub fn enable_interactivity(
         element: &Element,
-        datapath: MipsDatapath,
+        datapath_state: &UseReducerHandle<DatapathReducer>,
         is_active: bool,
     ) -> Result<Vec<EventListener>, JsValue> {
         // Color a line when hovering.
@@ -298,39 +323,6 @@ impl VisualDatapath {
             } else {
                 Self::set_inactive(&target).ok();
             }
-        });
-
-        // Show the popup when hovering.
-        let popup_on_mouseover = Callback::from(move |event: web_sys::Event| {
-            let event = event.unchecked_into::<MouseEvent>();
-
-            // Get relevant elements.
-            let target = event.target().unwrap().unchecked_into::<HtmlElement>();
-            let popup = get_popup_element();
-
-            // Show popup.
-            let variable = target
-                .parent_element()
-                .unwrap()
-                .get_attribute("data-variable")
-                .unwrap_or_default();
-            populate_popup_information(&datapath, &variable);
-
-            // Calculate popup position.
-            let mouse_position = get_datapath_iframe_mouse_position(event);
-            let popup_size = (popup.offset_width(), popup.offset_height());
-            let popup_position =
-                calculate_popup_position(mouse_position, popup_size, get_window_size());
-
-            popup
-                .style()
-                .set_property("left", &format!("{}px", popup_position.0))
-                .ok();
-            popup
-                .style()
-                .set_property("top", &format!("{}px", popup_position.1))
-                .ok();
-            popup.style().set_property("display", "block").ok();
         });
 
         // Move the popup if the mouse moves while still hovering.
@@ -396,10 +388,37 @@ impl VisualDatapath {
                         color_on_mouseout.emit(event.clone())
                     });
 
-                let popup_on_mouseover = popup_on_mouseover.clone();
+                let datapath_state_ref = datapath_state.clone();
                 let popup_on_mouseover_listener =
                     EventListener::new(&path, "mouseover", move |event| {
-                        popup_on_mouseover.emit(event.clone())
+                        let event = event.clone().unchecked_into::<MouseEvent>();
+                        // Get relevant elements.
+                        let target = event.target().unwrap().unchecked_into::<HtmlElement>();
+                        let popup = get_popup_element();
+
+                        // Show popup.
+                        let variable = target
+                            .parent_element()
+                            .unwrap()
+                            .get_attribute("data-variable")
+                            .unwrap_or_default();
+                        populate_popup_information(&datapath_state_ref, &variable);
+
+                        // Calculate popup position.
+                        let mouse_position = get_datapath_iframe_mouse_position(event);
+                        let popup_size = (popup.offset_width(), popup.offset_height());
+                        let popup_position =
+                            calculate_popup_position(mouse_position, popup_size, get_window_size());
+
+                        popup
+                            .style()
+                            .set_property("left", &format!("{}px", popup_position.0))
+                            .ok();
+                        popup
+                            .style()
+                            .set_property("top", &format!("{}px", popup_position.1))
+                            .ok();
+                        popup.style().set_property("display", "block").ok();
                     });
 
                 let popup_on_mousemove = popup_on_mousemove.clone();

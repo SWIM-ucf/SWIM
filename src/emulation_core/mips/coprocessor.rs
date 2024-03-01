@@ -1,5 +1,6 @@
 //! Implementation of a MIPS64 floating-point coprocessor.
 
+use serde::{Deserialize, Serialize};
 use super::constants::*;
 use super::control_signals::floating_point::*;
 use super::fp_registers::FpRegisters;
@@ -9,7 +10,7 @@ use super::instruction::Instruction;
 ///
 /// Different from the main processor, much of the functionality of the coprocessor
 /// is controlled remotely using its available API calls.
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct MipsFpCoprocessor {
     instruction: Instruction,
     pub signals: FpuControlSignals,
@@ -20,7 +21,7 @@ pub struct MipsFpCoprocessor {
     pub data: u64,
 }
 
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, Default, PartialEq, Debug, Serialize, Deserialize)]
 pub struct FpuState {
     pub instruction: u32,
     pub op: u32,
@@ -77,12 +78,14 @@ impl Default for MipsFpCoprocessor {
 impl MipsFpCoprocessor {
     // ========================== Stages ==========================
     pub fn stage_instruction_decode(&mut self) {
+        log::debug!("Decode stage");
         self.instruction_decode();
         self.set_control_signals();
         self.read_registers();
     }
 
     pub fn stage_execute(&mut self) {
+        log::debug!("Execution stage");
         self.alu();
         self.comparator();
         self.write_condition_code();
@@ -91,12 +94,14 @@ impl MipsFpCoprocessor {
     }
 
     pub fn stage_memory(&mut self) {
+        log::debug!("Memory stage");
         self.write_data();
         self.set_data_writeback();
         self.set_fpu_branch();
     }
 
     pub fn stage_writeback(&mut self) {
+        log::debug!("Writeback stage");
         self.register_write();
     }
 
@@ -111,6 +116,7 @@ impl MipsFpCoprocessor {
     /// operates in lieu of any "instruction fetch" functionality since the coprocessor
     /// does not fetch instructions.
     pub fn set_instruction(&mut self, instruction_bits: u32) {
+        log::debug!("Setting instruction: {:#010x}", instruction_bits);
         self.state.instruction = instruction_bits;
         if let Ok(instruction) = Instruction::try_from(self.state.instruction) {
             self.instruction = instruction;
