@@ -1,8 +1,9 @@
 use crate::agent::messages::MipsStateUpdate;
 use crate::emulation_core::architectures::AvailableDatapaths::MIPS;
 use crate::emulation_core::architectures::{AvailableDatapaths, DatapathUpdate};
-use crate::emulation_core::mips::coprocessor::MipsFpCoprocessor;
+use crate::emulation_core::mips::coprocessor::FpuState;
 use crate::emulation_core::mips::datapath::{DatapathState, Stage};
+use crate::emulation_core::mips::fp_registers::FpRegisters;
 use crate::emulation_core::mips::gp_registers::GpRegisters;
 use crate::emulation_core::mips::memory::Memory;
 use std::rc::Rc;
@@ -14,13 +15,14 @@ pub struct DatapathReducer {
     pub mips: MipsCoreState,
 }
 
-#[derive(Default, PartialEq)]
+#[derive(Default, PartialEq, Clone)]
 pub struct MipsCoreState {
     pub state: DatapathState,
     pub registers: GpRegisters,
+    pub coprocessor_state: FpuState,
+    pub coprocessor_registers: FpRegisters,
     pub memory: Memory,
     pub current_stage: Stage,
-    pub coprocessor: MipsFpCoprocessor,
 }
 
 impl Default for DatapathReducer {
@@ -42,38 +44,29 @@ impl Reducible for DatapathReducer {
                 mips: match update {
                     MipsStateUpdate::UpdateState(state) => MipsCoreState {
                         state,
-                        registers: self.mips.registers,
-                        memory: self.mips.memory.clone(),
-                        current_stage: self.mips.current_stage,
-                        coprocessor: self.mips.coprocessor.clone(),
+                        ..self.mips.clone()
                     },
                     MipsStateUpdate::UpdateRegisters(registers) => MipsCoreState {
-                        state: self.mips.state.clone(),
                         registers,
-                        memory: self.mips.memory.clone(),
-                        current_stage: self.mips.current_stage,
-                        coprocessor: self.mips.coprocessor.clone(),
+                        ..self.mips.clone()
                     },
+                    MipsStateUpdate::UpdateCoprocessorState(coprocessor_state) => MipsCoreState {
+                        coprocessor_state,
+                        ..self.mips.clone()
+                    },
+                    MipsStateUpdate::UpdateCoprocessorRegisters(coprocessor_registers) => {
+                        MipsCoreState {
+                            coprocessor_registers,
+                            ..self.mips.clone()
+                        }
+                    }
                     MipsStateUpdate::UpdateMemory(memory) => MipsCoreState {
-                        state: self.mips.state.clone(),
-                        registers: self.mips.registers,
                         memory,
-                        current_stage: self.mips.current_stage,
-                        coprocessor: self.mips.coprocessor.clone(),
+                        ..self.mips.clone()
                     },
                     MipsStateUpdate::UpdateStage(stage) => MipsCoreState {
-                        state: self.mips.state.clone(),
-                        registers: self.mips.registers,
-                        memory: self.mips.memory.clone(),
                         current_stage: stage,
-                        coprocessor: self.mips.coprocessor.clone(),
-                    },
-                    MipsStateUpdate::UpdateCoprocessor(coprocessor) => MipsCoreState {
-                        state: self.mips.state.clone(),
-                        registers: self.mips.registers,
-                        memory: self.mips.memory.clone(),
-                        current_stage: self.mips.current_stage,
-                        coprocessor,
+                        ..self.mips.clone()
                     },
                 },
             },

@@ -21,7 +21,7 @@ pub struct MipsFpCoprocessor {
     pub data: u64,
 }
 
-#[derive(Clone, Default, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
 pub struct FpuState {
     pub instruction: u32,
     pub op: u32,
