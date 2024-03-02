@@ -56,7 +56,11 @@ pub fn generate_gpr_rows(props: &Regviewprops, radix: u32) -> Html {
                             let target = e.target();
                             let input = target.unwrap().unchecked_into::<HtmlInputElement>();
                             let input_string = input.value();
-                            let val = match u64::from_str_radix(&input_string[2..], radix) {
+                            let mut number = input_string.as_str();
+                            if radix == 2 || radix == 16 {
+                                number = &input_string[2..];
+                            }
+                            let val = match u64::from_str_radix(number, radix) {
                                 Ok(value) => {
                                     input.set_class_name("valid");
                                     value
@@ -160,8 +164,8 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                                     }
                                 }
                             };
-                            communicator.set_fp_register(register.to_string(), value);
                             if register.is_valid_register_value(value) {
+                                communicator.set_fp_register(register.to_string(), value);
                                 input.set_class_name("valid");
                             } else {
                                 input.set_class_name("invalid");
