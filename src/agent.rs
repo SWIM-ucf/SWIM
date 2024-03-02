@@ -16,6 +16,7 @@ use yew_agent::prelude::*;
 pub mod datapath_communicator;
 pub mod datapath_reducer;
 pub mod messages;
+mod system_scanner;
 
 macro_rules! send_update {
     ($scope:expr, $condition:expr, $value:expr) => {
@@ -69,7 +70,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
         // Part 3: Performing Syscalls
         state.execute_syscall_stage().await;
 
-        // Part 3: Processing State/Sending Updates to UI
+        // Part 4: Processing State/Sending Updates to UI
         match state.current_datapath.as_datapath_ref() {
             DatapathRef::MIPS(datapath) => {
                 log!(format!("Updates: {:?}", state.updates));
