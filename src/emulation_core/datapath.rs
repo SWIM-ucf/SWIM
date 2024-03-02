@@ -1,7 +1,7 @@
 //! Module for the API of a generic datapath.
 
 use crate::emulation_core::architectures::DatapathRef;
-use crate::emulation_core::mips::line_info::LineInformation;
+use crate::emulation_core::line_info::LineInformation;
 use crate::emulation_core::mips::memory::Memory;
 use std::ops::BitOrAssign;
 
@@ -79,9 +79,7 @@ pub trait Datapath {
 /// This requires a corresponding visual diagram with labels that can be mapped
 /// to the datapath.
 pub trait VisualDatapath {
-    /// Return the information from the datapath corresponding to the `variable` attribute on a
-    /// part of the visual datapath diagram.
-    fn visual_line_to_data(&self, variable: &str) -> LineInformation;
+
 }
 
 /// Struct used for signalling the results of execution. This can then be used to determine which

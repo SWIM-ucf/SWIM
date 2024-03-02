@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// Different from the main processor, much of the functionality of the coprocessor
 /// is controlled remotely using its available API calls.
-#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Default, Debug, Serialize, Deserialize)]
 pub struct MipsFpCoprocessor {
     instruction: Instruction,
     pub signals: FpuControlSignals,
@@ -57,22 +57,6 @@ pub struct FpuState {
 
     pub alu_result: u64,
     pub comparator_result: u64,
-}
-
-impl Default for MipsFpCoprocessor {
-    fn default() -> Self {
-        let coprocessor: MipsFpCoprocessor = MipsFpCoprocessor {
-            instruction: Instruction::default(),
-            signals: FpuControlSignals::default(),
-            state: FpuState::default(),
-            is_halted: false,
-            registers: FpRegisters::default(),
-            condition_code: 0,
-            data: 0,
-        };
-
-        coprocessor
-    }
 }
 
 impl MipsFpCoprocessor {

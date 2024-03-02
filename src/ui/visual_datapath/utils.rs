@@ -7,7 +7,7 @@ use yew::UseReducerHandle;
 
 use crate::{
     agent::datapath_reducer::DatapathReducer,
-    emulation_core::{architectures::AvailableDatapaths, mips::line_info::LineInformation},
+    emulation_core::{architectures::AvailableDatapaths, line_info::LineInformation},
 };
 
 use super::consts::*;
