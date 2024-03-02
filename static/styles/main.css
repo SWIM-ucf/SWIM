@@ -63,6 +63,9 @@ body {
 .button:active {
   background-color: #2e2b2b;
 }
+#file_input {
+  display: none;
+}
 
 /****** Icons ******/
 .icon {
@@ -72,6 +75,24 @@ body {
   stroke-width: 0;
   stroke: currentColor;
   fill: currentColor;
+}
+
+/****** Body ********/
+.columns {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  height: 100vh;
+  padding: 8px;
+  gap: 8px;
+}
+
+.left-column {
+  flex-basis: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
 }
 
 /****** Editor ******/
@@ -278,6 +299,13 @@ body {
 }
 
 /****** Register View ******/
+.regview {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  margin-top: 46px;
+}
 .regview-menu {
   display: flex;
   flex-direction: row;
@@ -298,6 +326,9 @@ body {
 .table-wrapper {
   /* border: 1px solid black; */
   overflow-y: auto;
+  table {
+    background-color: #ffffff
+  }
 }
 
 thead {

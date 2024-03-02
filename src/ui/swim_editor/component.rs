@@ -13,16 +13,16 @@ use monaco::{
     yew::{CodeEditor, CodeEditorLink},
 };
 use wasm_bindgen::{JsCast, JsValue};
+use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew::{html, Callback, Properties};
 use yew_hooks::prelude::*;
 
 use crate::{
-    parser::parser_structs_and_enums::ProgramInfo,
-    ui::{
+    agent::datapath_communicator::DatapathCommunicator, emulation_core::architectures::AvailableDatapaths, parser::parser_structs_and_enums::ProgramInfo, ui::{
         assembled_view::component::{DataSegment, TextSegment},
         footer::component::FooterTabState,
-    },
+    }
 };
 
 #[derive(PartialEq, Properties)]
@@ -37,6 +37,8 @@ pub struct SwimEditorProps {
     pub editor_curr_line: UseStateHandle<f64>,
     pub editor_active_tab: UseStateHandle<EditorTabState>,
     pub console_active_tab: UseStateHandle<FooterTabState>,
+    pub current_architecture: AvailableDatapaths,
+    pub communicator: &'static DatapathCommunicator
 }
 
 #[derive(Default, PartialEq)]
@@ -157,6 +159,22 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         })
     };
 
+    let change_architecture = {
+        let communicator = props.communicator;
+        Callback::from(move |event: Event| {
+            let target = event.target();
+            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+            let architecture = input.value();
+            let new_architecture: AvailableDatapaths = match architecture.as_str() {
+                "mips" => AvailableDatapaths::MIPS,
+                "riscv" => AvailableDatapaths::RISCV,
+                _ => AvailableDatapaths::MIPS,
+            };
+            communicator.set_core(new_architecture.clone());
+            log::debug!("New architecture: {:?}", new_architecture);
+        })
+    };
+
     // We'll have the Mouse Hover event running at all times.
     {
         let text_model = text_model.clone();
@@ -224,7 +242,8 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     html! {
         <>
             // Editor buttons
-            <div class="bar tabs">
+            <div class="editor-toolbar">
+                <div class="bar tabs">
                 if **editor_active_tab == EditorTabState::Editor {
                     <button class={classes!("tab", "pressed")} label="editor" onclick={change_tab.clone()}>{"Editor"}</button>
                 } else {
@@ -242,6 +261,16 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                 } else {
                     <button class="tab" label="data" onclick={change_tab.clone()}>{"Data Segment"}</button>
                 }
+                </div>
+                <select class="architecture-selector" name="architecture" onchange={change_architecture.clone()} value={
+                    match props.current_architecture {
+                        AvailableDatapaths::MIPS => "mips",
+                        AvailableDatapaths::RISCV => "riscv",
+                    }
+                }>
+                    <option value="mips">{"MIPS"}</option>
+                    <option value="riscv">{"RISC-V"}</option>
+                </select>
             </div>
             if **editor_active_tab == EditorTabState::Editor {
                 <CodeEditor classes={"editor"} link={link} options={get_options()} model={text_model.clone()} on_editor_created={on_editor_created}/>

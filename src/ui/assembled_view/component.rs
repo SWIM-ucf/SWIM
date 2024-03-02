@@ -231,7 +231,7 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
                         data_binary_index += 1;
                         html!{
 
-                            <tr key={index} class={classes!("row")}>
+                            <tr key={index} class="row">
                                 <td class="address" title={format!("Go to address {:08x}", address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, address))}}>
                                     {format!("0x{:08x}", address as u64)}
                                 </td>

@@ -220,6 +220,8 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
     options
 }
 
+// ** Helper functions **
+// Parse hexdump into a vector of u32 (ready to be stored in memory)
 pub fn parse_hexdump(input: &str) -> Result<Vec<u32>, String> {
     let mut words = Vec::new();
     for line in input.lines() {

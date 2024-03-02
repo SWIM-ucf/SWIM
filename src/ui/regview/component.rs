@@ -232,9 +232,8 @@ pub fn regview(props: &Regviewprops) -> Html {
             switch_flag,
         )
     };
-    //log!("This is ", *switch_flag);
     html! {
-        <div style="flex-grow: 1; display: flex; flex-direction: column; flex-wrap: nowrap; margin-top: 36px;">
+        <div class="regview">
             <div class="regview-menu bar">
                 <div class="tabs">
                     if *switch_flag {
@@ -267,7 +266,7 @@ pub fn regview(props: &Regviewprops) -> Html {
                 </select>
             </div>
             <div class="table-wrapper">
-                <table style="background-color: #ffffff">
+                <table>
                     <thead>
                         <tr>
                             <th>{"Register Name"}</th>

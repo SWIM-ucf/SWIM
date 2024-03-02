@@ -489,10 +489,10 @@ fn app(props: &AppProps) -> Html {
     html! {
         <>
             // button tied to the input file element, which is hidden to be more clean
-            <input type="file" id="file_input" style="display: none;" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
-            <div style="display: flex; flex-direction: row; flex-wrap: nowrap; height: 100vh; padding: 8px; gap: 8px;">
+            <input type="file" id="file_input" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
+            <div class="columns">
                 // Left column
-                <div style="flex-basis: 70%; display: flex; flex-direction: column; align-items: stretch; min-width: 0;">
+                <div class="left-column">
                     // Top buttons
                     <div>
                         <div class="debugger-buttons">
@@ -552,7 +552,7 @@ fn app(props: &AppProps) -> Html {
 
                     // Editor
                     <div class="code">
-                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} pc_limit={*pc_limit} binary={binary_ref.borrow().clone()} memory_curr_instr={memory_curr_instr.clone()} editor_curr_line={editor_curr_line.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} pc={datapath_state.mips.registers.pc}/>
+                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} pc_limit={*pc_limit} binary={binary_ref.borrow().clone()} memory_curr_instr={memory_curr_instr.clone()} editor_curr_line={editor_curr_line.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} pc={datapath_state.mips.registers.pc} communicator={props.communicator} current_architecture={datapath_state.current_architecture.clone()}/>
                     </div>
 
                     // Console
