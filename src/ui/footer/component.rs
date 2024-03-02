@@ -19,6 +19,7 @@ pub struct Footerprops {
     pub memory_text_model: UseStateHandle<TextModel>,
     pub memory_curr_instr: UseStateHandle<u64>,
     pub active_tab: UseStateHandle<FooterTabState>,
+    pub on_memory_clicked: Callback<MouseEvent>,
 }
 
 #[derive(Default, PartialEq)]
@@ -108,6 +109,11 @@ pub fn footer(props: &Footerprops) -> Html {
                 if **active_tab == FooterTabState::Datapath {
                     <div class="buttons">
                         <button class="button" onclick={switch_datapath_type}>{switch_datapath_button_label}</button>
+                    </div>
+                }
+                else if **active_tab == FooterTabState::HexEditor {
+                    <div class="buttons">
+                        <button class="button" onclick={props.on_memory_clicked.clone()}>{"Update Memory"}</button>
                     </div>
                 }
             </div>

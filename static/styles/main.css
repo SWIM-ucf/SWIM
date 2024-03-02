@@ -8,6 +8,13 @@ body {
   display: inline-block;
   margin: 0 auto;
 }
+.debugger-buttons {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
 .buttons .button:first-child {
   border-radius: 300px 0 0 300px;
 }
@@ -25,7 +32,23 @@ body {
   text-align: center;
   display: inline-block;
   cursor: pointer;
+  opacity: 0.9;
   transition-duration: 0.3s;
+}
+.debugger-button {
+  opacity: 0.9;
+  transition-duration: 0.3s;
+}
+.debugger-button:disabled {
+  opacity: 0.3;
+}
+.debugger-button:hover:not(:disabled) path, .debugger-button:hover:not([disabled]) path {
+  opacity: 1;
+  stroke: white;
+  fill: white;
+}
+#execute-stage-button:hover path, #reset-button:hover * {
+  fill: transparent;
 }
 .button:hover:not(:disabled), .button:hover:not([disabled]) {
   opacity: 1;
