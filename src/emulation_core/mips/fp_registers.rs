@@ -106,79 +106,13 @@ impl Index<FpRegisterType> for FpRegisters {
     type Output = u64;
 
     fn index(&self, index: FpRegisterType) -> &Self::Output {
-        match index {
-            FpRegisterType::F0 => &self.fpr[0],
-            FpRegisterType::F1 => &self.fpr[1],
-            FpRegisterType::F2 => &self.fpr[2],
-            FpRegisterType::F3 => &self.fpr[3],
-            FpRegisterType::F4 => &self.fpr[4],
-            FpRegisterType::F5 => &self.fpr[5],
-            FpRegisterType::F6 => &self.fpr[6],
-            FpRegisterType::F7 => &self.fpr[7],
-            FpRegisterType::F8 => &self.fpr[8],
-            FpRegisterType::F9 => &self.fpr[9],
-            FpRegisterType::F10 => &self.fpr[10],
-            FpRegisterType::F11 => &self.fpr[11],
-            FpRegisterType::F12 => &self.fpr[12],
-            FpRegisterType::F13 => &self.fpr[13],
-            FpRegisterType::F14 => &self.fpr[14],
-            FpRegisterType::F15 => &self.fpr[15],
-            FpRegisterType::F16 => &self.fpr[16],
-            FpRegisterType::F17 => &self.fpr[17],
-            FpRegisterType::F18 => &self.fpr[18],
-            FpRegisterType::F19 => &self.fpr[19],
-            FpRegisterType::F20 => &self.fpr[20],
-            FpRegisterType::F21 => &self.fpr[21],
-            FpRegisterType::F22 => &self.fpr[22],
-            FpRegisterType::F23 => &self.fpr[23],
-            FpRegisterType::F24 => &self.fpr[24],
-            FpRegisterType::F25 => &self.fpr[25],
-            FpRegisterType::F26 => &self.fpr[26],
-            FpRegisterType::F27 => &self.fpr[27],
-            FpRegisterType::F28 => &self.fpr[28],
-            FpRegisterType::F29 => &self.fpr[29],
-            FpRegisterType::F30 => &self.fpr[30],
-            FpRegisterType::F31 => &self.fpr[31],
-        }
+        &self.fpr[index as usize]
     }
 }
 
 impl IndexMut<FpRegisterType> for FpRegisters {
     fn index_mut(&mut self, index: FpRegisterType) -> &mut Self::Output {
-        match index {
-            FpRegisterType::F0 => &mut self.fpr[0],
-            FpRegisterType::F1 => &mut self.fpr[1],
-            FpRegisterType::F2 => &mut self.fpr[2],
-            FpRegisterType::F3 => &mut self.fpr[3],
-            FpRegisterType::F4 => &mut self.fpr[4],
-            FpRegisterType::F5 => &mut self.fpr[5],
-            FpRegisterType::F6 => &mut self.fpr[6],
-            FpRegisterType::F7 => &mut self.fpr[7],
-            FpRegisterType::F8 => &mut self.fpr[8],
-            FpRegisterType::F9 => &mut self.fpr[9],
-            FpRegisterType::F10 => &mut self.fpr[10],
-            FpRegisterType::F11 => &mut self.fpr[11],
-            FpRegisterType::F12 => &mut self.fpr[12],
-            FpRegisterType::F13 => &mut self.fpr[13],
-            FpRegisterType::F14 => &mut self.fpr[14],
-            FpRegisterType::F15 => &mut self.fpr[15],
-            FpRegisterType::F16 => &mut self.fpr[16],
-            FpRegisterType::F17 => &mut self.fpr[17],
-            FpRegisterType::F18 => &mut self.fpr[18],
-            FpRegisterType::F19 => &mut self.fpr[19],
-            FpRegisterType::F20 => &mut self.fpr[20],
-            FpRegisterType::F21 => &mut self.fpr[21],
-            FpRegisterType::F22 => &mut self.fpr[22],
-            FpRegisterType::F23 => &mut self.fpr[23],
-            FpRegisterType::F24 => &mut self.fpr[24],
-            FpRegisterType::F25 => &mut self.fpr[25],
-            FpRegisterType::F26 => &mut self.fpr[26],
-            FpRegisterType::F27 => &mut self.fpr[27],
-            FpRegisterType::F28 => &mut self.fpr[28],
-            FpRegisterType::F29 => &mut self.fpr[29],
-            FpRegisterType::F30 => &mut self.fpr[30],
-            FpRegisterType::F31 => &mut self.fpr[31],
-        }
+        &mut self.fpr[index as usize]
     }
 }
 

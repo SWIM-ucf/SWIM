@@ -126,81 +126,13 @@ impl Index<GpRegisterType> for GpRegisters {
     type Output = u64;
 
     fn index(&self, index: GpRegisterType) -> &Self::Output {
-        match index {
-            GpRegisterType::Pc => &self.pc,
-            GpRegisterType::Zero => &self.gpr[0],
-            GpRegisterType::At => &self.gpr[1],
-            GpRegisterType::V0 => &self.gpr[2],
-            GpRegisterType::V1 => &self.gpr[3],
-            GpRegisterType::A0 => &self.gpr[4],
-            GpRegisterType::A1 => &self.gpr[5],
-            GpRegisterType::A2 => &self.gpr[6],
-            GpRegisterType::A3 => &self.gpr[7],
-            GpRegisterType::T0 => &self.gpr[8],
-            GpRegisterType::T1 => &self.gpr[9],
-            GpRegisterType::T2 => &self.gpr[10],
-            GpRegisterType::T3 => &self.gpr[11],
-            GpRegisterType::T4 => &self.gpr[12],
-            GpRegisterType::T5 => &self.gpr[13],
-            GpRegisterType::T6 => &self.gpr[14],
-            GpRegisterType::T7 => &self.gpr[15],
-            GpRegisterType::S0 => &self.gpr[16],
-            GpRegisterType::S1 => &self.gpr[17],
-            GpRegisterType::S2 => &self.gpr[18],
-            GpRegisterType::S3 => &self.gpr[19],
-            GpRegisterType::S4 => &self.gpr[20],
-            GpRegisterType::S5 => &self.gpr[21],
-            GpRegisterType::S6 => &self.gpr[22],
-            GpRegisterType::S7 => &self.gpr[23],
-            GpRegisterType::T8 => &self.gpr[24],
-            GpRegisterType::T9 => &self.gpr[25],
-            GpRegisterType::K0 => &self.gpr[26],
-            GpRegisterType::K1 => &self.gpr[27],
-            GpRegisterType::Gp => &self.gpr[28],
-            GpRegisterType::Sp => &self.gpr[29],
-            GpRegisterType::Fp => &self.gpr[30],
-            GpRegisterType::Ra => &self.gpr[31],
-        }
+        &self.gpr[index as usize]
     }
 }
 
 impl IndexMut<GpRegisterType> for GpRegisters {
     fn index_mut(&mut self, index: GpRegisterType) -> &mut Self::Output {
-        match index {
-            GpRegisterType::Pc => &mut self.pc,
-            GpRegisterType::Zero => panic!("The $zero register cannot be accessed as mutable"),
-            GpRegisterType::At => &mut self.gpr[1],
-            GpRegisterType::V0 => &mut self.gpr[2],
-            GpRegisterType::V1 => &mut self.gpr[3],
-            GpRegisterType::A0 => &mut self.gpr[4],
-            GpRegisterType::A1 => &mut self.gpr[5],
-            GpRegisterType::A2 => &mut self.gpr[6],
-            GpRegisterType::A3 => &mut self.gpr[7],
-            GpRegisterType::T0 => &mut self.gpr[8],
-            GpRegisterType::T1 => &mut self.gpr[9],
-            GpRegisterType::T2 => &mut self.gpr[10],
-            GpRegisterType::T3 => &mut self.gpr[11],
-            GpRegisterType::T4 => &mut self.gpr[12],
-            GpRegisterType::T5 => &mut self.gpr[13],
-            GpRegisterType::T6 => &mut self.gpr[14],
-            GpRegisterType::T7 => &mut self.gpr[15],
-            GpRegisterType::S0 => &mut self.gpr[16],
-            GpRegisterType::S1 => &mut self.gpr[17],
-            GpRegisterType::S2 => &mut self.gpr[18],
-            GpRegisterType::S3 => &mut self.gpr[19],
-            GpRegisterType::S4 => &mut self.gpr[20],
-            GpRegisterType::S5 => &mut self.gpr[21],
-            GpRegisterType::S6 => &mut self.gpr[22],
-            GpRegisterType::S7 => &mut self.gpr[23],
-            GpRegisterType::T8 => &mut self.gpr[24],
-            GpRegisterType::T9 => &mut self.gpr[25],
-            GpRegisterType::K0 => &mut self.gpr[26],
-            GpRegisterType::K1 => &mut self.gpr[27],
-            GpRegisterType::Gp => &mut self.gpr[28],
-            GpRegisterType::Sp => &mut self.gpr[29],
-            GpRegisterType::Fp => &mut self.gpr[30],
-            GpRegisterType::Ra => &mut self.gpr[31],
-        }
+        &mut self.gpr[index as usize]
     }
 }
 

@@ -273,14 +273,14 @@ impl Datapath for MipsDatapath {
         self.registers[register]
     }
 
-    fn set_register_by_str(&mut self, _register: &str, _data: Self::RegisterData) {
-        let register = &mut self.registers[_register];
-        *register = _data;
+    fn set_register_by_str(&mut self, register: &str, data: Self::RegisterData) {
+        let register = &mut self.registers[register];
+        *register = data;
     }
 
-    fn set_fp_register_by_str(&mut self, _register: &str, _data: Self::RegisterData) {
-        let register = &mut self.coprocessor.registers[_register];
-        *register = _data;
+    fn set_fp_register_by_str(&mut self, register: &str, data: Self::RegisterData) {
+        let register = &mut self.coprocessor.registers[register];
+        *register = data;
     }
 
     fn initialize(&mut self, initial_pc: usize, instructions: Vec<u32>) -> Result<(), String> {
