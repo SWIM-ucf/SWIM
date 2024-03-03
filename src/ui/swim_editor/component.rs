@@ -81,6 +81,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     let text_model = &*props.text_model;
     let editor_active_tab = &props.editor_active_tab;
     let console_active_tab = &props.console_active_tab;
+    let speed_class = use_state(|| "valid".to_string());
 
     // Setup the array that would store hover decorations applied to the
     // text model and initialize the options for it.
@@ -175,6 +176,34 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         })
     };
 
+    let change_execution_speed = {
+        let communicator = props.communicator;
+        Callback::from(move |event: Event| {
+            let target = event.target();
+            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+            let speed = input.value().parse::<u32>().unwrap_or(1);
+            if speed > 0 {
+                log::debug!("New execution speed: {:?}", speed);
+                communicator.set_execute_speed(speed);
+                input.set_class_name("valid");
+            } else {
+                // get element by id and make it red
+                input.set_class_name("invalid");
+            }
+        })
+    };
+
+    // Copies text to the user's clipboard
+    let on_clipboard_clicked = {
+        let text_model = text_model.clone();
+        let clipboard = use_clipboard();
+        Callback::from(move |_: _| {
+            let text_model = text_model.clone();
+            clipboard.write_text(text_model.get_value());
+            gloo::dialogs::alert("Your code is saved to the clipboard.\nPaste it onto a text file to save it.\n(Ctrl/Cmd + V)");
+        })
+    };
+
     // We'll have the Mouse Hover event running at all times.
     {
         let text_model = text_model.clone();
@@ -239,6 +268,11 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         });
     };
 
+    let conditional_class = if **editor_active_tab == EditorTabState::Editor {
+        ""
+    } else {
+        "hidden"
+    };
     html! {
         <>
             // Editor buttons
@@ -262,20 +296,25 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                     <button class="tab" label="data" onclick={change_tab.clone()}>{"Data Segment"}</button>
                 }
                 </div>
-                <select class="architecture-selector" name="architecture" onchange={change_architecture.clone()} value={
-                    match props.current_architecture {
-                        AvailableDatapaths::MIPS => "mips",
-                        AvailableDatapaths::RISCV => "riscv",
-                    }
-                }>
-                    <option value="mips">{"MIPS"}</option>
-                    <option value="riscv">{"RISC-V"}</option>
-                </select>
+                <div class="bar emulator-options">
+                    <button class={classes!("copy-button", conditional_class)} title="Copy to Clipboard" onclick={on_clipboard_clicked}>{"Copy to Clipboard "}<i class={classes!("fa-regular", "fa-copy")}></i></button>
+                    <input type="number" id="execution-speed" title="Execution Speed" name="execution-speed" placeholder="1" min="1" onchange={change_execution_speed} />
+                    <span title="Execution Speed">{"Hz"}</span>
+                    <select class="architecture-selector" name="architecture" onchange={change_architecture.clone()} value={
+                        match props.current_architecture {
+                            AvailableDatapaths::RISCV => "riscv",
+                            AvailableDatapaths::MIPS => "mips",
+                        }
+                    }>
+                        <option value="riscv">{"RISC-V"}</option>
+                        <option value="mips">{"MIPS"}</option>
+                    </select>
+                </div>
             </div>
             if **editor_active_tab == EditorTabState::Editor {
                 <CodeEditor classes={"editor"} link={link} options={get_options()} model={text_model.clone()} on_editor_created={on_editor_created}/>
             } else if **editor_active_tab == EditorTabState::TextSegment {
-                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} pc={props.pc} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()}/>
+                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} pc={props.pc} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} communicator={props.communicator}/>
             } else if **editor_active_tab == EditorTabState::DataSegment {
                 <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} pc_limit={props.pc_limit}/>
             }

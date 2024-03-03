@@ -90,6 +90,9 @@ pub struct DatapathUpdateSignal {
     pub changed_memory: bool,
     pub hit_syscall: bool,
     pub hit_breakpoint: bool,
+    pub changed_speed: bool,
+    pub changed_executing: bool,
+    pub changed_initialized: bool,
 }
 
 /// Constant used to easily trigger an update for everything but to avoid triggering any other
@@ -102,6 +105,9 @@ pub const UPDATE_EVERYTHING: DatapathUpdateSignal = DatapathUpdateSignal {
     changed_memory: true,
     hit_syscall: false,
     hit_breakpoint: false,
+    changed_speed: true,
+    changed_executing: true,
+    changed_initialized: true,
 };
 
 impl BitOrAssign for DatapathUpdateSignal {
@@ -113,5 +119,8 @@ impl BitOrAssign for DatapathUpdateSignal {
         self.changed_memory |= rhs.changed_memory;
         self.hit_syscall |= rhs.hit_syscall;
         self.hit_breakpoint |= rhs.hit_breakpoint;
+        self.changed_speed |= rhs.changed_speed;
+        self.changed_executing |= rhs.changed_executing;
+        self.changed_initialized |= rhs.changed_initialized;
     }
 }

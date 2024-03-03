@@ -1,6 +1,11 @@
 body {
   background-color: #474343;
+  color: #aeaeae;
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+}
+
+.hidden {
+  display: none;
 }
 
 /****** Buttons ******/
@@ -42,13 +47,24 @@ body {
 .debugger-button:disabled {
   opacity: 0.3;
 }
-.debugger-button:hover:not(:disabled) path, .debugger-button:hover:not([disabled]) path {
+.debugger-button:hover:not(:disabled) path,
+.debugger-button:hover:not([disabled]) path,
+.copy-button:hover {
   opacity: 1;
   stroke: white;
   fill: white;
+  color: white;
+}
+#upload-file-btn {
+  border-right: 4px solid #aeaeae;
+  padding-right: 10px;
 }
 #execute-stage-button:hover path, #reset-button:hover * {
   fill: transparent;
+}
+#pause-btn path {
+  stroke: #74a770;
+  fill: #74a770;
 }
 .button:hover:not(:disabled), .button:hover:not([disabled]) {
   opacity: 1;
@@ -156,7 +172,6 @@ body {
 .memory_segment {
   height: 96%;
   background-color: #1e1e1e;
-  color: #ddd;
 
   .address {
     color:#5F894D;
@@ -219,7 +234,7 @@ body {
 .console-wrapper {
   border: 3px groove #ccc;
   background: #012456;
-  color: #ccc;
+  color: #aeaeae;
   overflow-y: auto;
   overflow-wrap: break-word;
   word-break: break-all;
@@ -236,7 +251,7 @@ body {
   display: flex;
   align-items: center;
   flex-direction: row;
-  color: white;
+  color: #aeaeae;
   position: relative;
   width: 100%;
 }
@@ -247,7 +262,7 @@ body {
 
 .console-input input {
   background: #012456;
-  color: white !important;
+  color: #aeaeae !important;
   margin-left: 10px;
   outline: none;
 }
@@ -263,7 +278,6 @@ body {
 .hex-wrapper {
   border: 3px groove #ccc;
   background: #1E1E1E;
-  color: #ccc;
   word-break: break-all;
   min-height: max(20%, 8em);
   max-height: 50%;
@@ -280,7 +294,6 @@ body {
 
 .datapath-object-wrapper {
   flex-grow: 1.4;
-  /* border: 2px solid black; */
   overflow: auto;
   width: 100%;
   height: 100%;
@@ -313,7 +326,7 @@ body {
 
   select {
     background-color: #474343;
-    color: #ddd;
+    color: #aeaeae;
     display: flex;
     align-items: center;
     flex-direction: row;
@@ -324,7 +337,6 @@ body {
   }
 }
 .table-wrapper {
-  /* border: 1px solid black; */
   overflow-y: auto;
   table {
     background-color: #ffffff
@@ -338,11 +350,11 @@ th {
   background-color: #303030;
 }
 th, td {
-  /* border: 1px solid black; */
   padding: 2px 16px 2px 16px;
+  text-wrap: nowrap;
 }
 
-td input.invalid {
+input.invalid {
   color: red;
 }
 
@@ -355,7 +367,6 @@ table {
   border-spacing: 0;
   display: block;
   overflow-y: auto;
-  color: #fff;
 }
 tr {
   background-color: #1e1e1e;
@@ -364,23 +375,6 @@ tr {
     background-color: #1e1e1e;
   }
 }
-/* tr:nth-child(even)
-{
-  background-color: #1e1e1e;
-  input {
-
-    background-color: #1e1e1e;
-  }
-}
-tr:nth-child(odd)
-{
-  background-color: #101010;
-  input {
-
-    background-color: #101010;
-  }
-} */
-
 td:nth-child(2) {
   font-family: 'Iosevka', 'Droid Sans Mono', 'Consolas', monospace;
 }

@@ -23,6 +23,9 @@ pub struct MipsCoreState {
     pub coprocessor_registers: FpRegisters,
     pub memory: Memory,
     pub current_stage: Stage,
+    pub speed: u32,
+    pub executing: bool,
+    pub initialized: bool,
 }
 
 impl Default for DatapathReducer {
@@ -66,6 +69,18 @@ impl Reducible for DatapathReducer {
                     },
                     MipsStateUpdate::UpdateStage(stage) => MipsCoreState {
                         current_stage: stage,
+                        ..self.mips.clone()
+                    },
+                    MipsStateUpdate::UpdateSpeed(speed) => MipsCoreState {
+                        speed,
+                        ..self.mips.clone()
+                    },
+                    MipsStateUpdate::UpdateExecuting(executing) => MipsCoreState {
+                        executing,
+                        ..self.mips.clone()
+                    },
+                    MipsStateUpdate::UpdateInitialized(initialized) => MipsCoreState {
+                        initialized,
                         ..self.mips.clone()
                     },
                 },

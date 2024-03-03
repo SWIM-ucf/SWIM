@@ -4,71 +4,46 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: 0 8px 0 8px;
     border-bottom: 3px solid gray;
-
-    select {
-        background-color: #474343;
-        color: #ddd;
-        display: flex;
-        align-items: center;
-        flex-direction: row;
-    }
 }
 
 .tabs {
     display: inline-block;
-    /* margin: 0 auto; */
 }
 .tabs .tab {
     border-radius: 5px 5px 0 0;
-}
-.tabs .tab:first-child {
-    /* border-radius: 300px 0 0 300px; */
-}
-.tabs .tab:last-child {
-    /* border-radius: 0 300px 300px 0; */
 }
 .tabs .tab:only-child {
     border-radius: 300px;
 }
 .tab {
     overflow: hidden;
-    /* background-color: rgb(255, 255, 255); */
     background-color: #383838;
     padding: 2px 16px 2px 16px;
-    /* color: black; */
-    color: white;
     text-align: center;
     display: inline-block;
     cursor: pointer;
     transition-duration: 0.3s;
 }
-.tab:hover {
+.tab:focus, .tab:hover {
     opacity: 1;
-    background-color: gray;
+    background-color: rgb(78, 78, 78);
 }
-.tab:focus,
 .tab:active {
-    /* background-color: #2e2b2b !important;
-    color: white !important; */
-    background-color: gray;
+    background-color: rgb(97, 97, 97);
 }
 .tab::after {
     background-color: #2e2b2b;
 }
 .tab.pressed {
-    /* background-color: #2e2b2b ; */
-    background-color: #666666;
+    background-color: rgb(97, 97, 97);
     padding: 2px 16px 2px 16px;
-    /* color: white; */
     text-align: center;
     display: inline-block;
 }
 .bottom-tab {
     overflow: hidden;
     padding: 10px 16px 2px 16px;
-    color: rgb(198, 198, 198);
     text-align: center;
     display: inline-block;
     cursor: pointer;
@@ -86,4 +61,33 @@
 .bottom-tab:hover,
 .bottom-tab:active {
     color: rgb(244, 244, 244);
+}
+
+.emulator-options {
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    align-items: center;
+    gap: 10px;
+    cursor: default;
+
+    input {
+        background-color: #383838;
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+        text-align: right;
+        width: 100px;
+    }
+
+    select {
+        background-color: #47434300;
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+
+        option {
+            background-color: #38383800;
+        }
+    }
 }

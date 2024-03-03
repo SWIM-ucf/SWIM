@@ -98,6 +98,21 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                     state.updates.changed_memory,
                     UpdateMemory(datapath.memory.clone())
                 );
+                send_update_mips!(
+                    state.scope,
+                    state.updates.changed_speed,
+                    UpdateSpeed(state.speed)
+                );
+                send_update_mips!(
+                    state.scope,
+                    state.updates.changed_executing,
+                    UpdateExecuting(state.executing)
+                );
+                send_update_mips!(
+                    state.scope,
+                    state.updates.changed_initialized,
+                    UpdateInitialized(state.initialized)
+                );
             }
         }
         state.updates = Default::default();
@@ -113,6 +128,7 @@ struct EmulatorCoreAgentState {
     pub scope: ReactorScope<Command, DatapathUpdate>,
     speed: u32,
     executing: bool,
+    initialized: bool,
 }
 
 impl EmulatorCoreAgentState {
@@ -123,21 +139,25 @@ impl EmulatorCoreAgentState {
             scope,
             speed: 0,
             executing: false,
+            initialized: false,
         }
     }
 
     pub fn handle_command(&mut self, command: Command) {
         match command {
             Command::SetCore(_architecture) => {
-                todo!() // Implement once we have a RISCV datapath
+                todo!("Implement setting cores.") // Implement once we have a RISCV datapath
             }
             Command::Initialize(initial_pc, mem) => {
                 self.current_datapath.initialize(initial_pc, mem).unwrap();
+                self.initialized = true;
                 self.updates.changed_memory = true;
                 self.updates.changed_registers = true;
+                self.updates.changed_initialized = true;
             }
             Command::SetExecuteSpeed(speed) => {
                 self.speed = speed;
+                self.updates.changed_speed = true;
             }
             Command::SetRegister(register, value) => {
                 self.current_datapath.set_register_by_str(&register, value);
@@ -153,6 +173,7 @@ impl EmulatorCoreAgentState {
             }
             Command::Execute => {
                 self.executing = true;
+                self.updates.changed_executing = true;
             }
             Command::ExecuteInstruction => {
                 self.updates |= self.current_datapath.execute_instruction();
@@ -162,10 +183,15 @@ impl EmulatorCoreAgentState {
             }
             Command::Pause => {
                 self.executing = false;
+                self.updates.changed_executing = true;
             }
             Command::Reset => {
                 self.current_datapath.reset();
+                self.initialized = false;
                 self.updates |= UPDATE_EVERYTHING;
+            }
+            Command::SetBreakpoint(_address) => {
+                todo!("Implement setting breakpoints.")
             }
         }
     }

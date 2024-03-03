@@ -113,7 +113,7 @@ pub fn footer(props: &Footerprops) -> Html {
                 }
                 else if **active_tab == FooterTabState::HexEditor {
                     <div class="buttons">
-                        <button class="button" onclick={props.on_memory_clicked.clone()}>{"Update Memory"}</button>
+                        <button class="button" onclick={props.on_memory_clicked.clone()} disabled={!props.datapath_state.mips.initialized}>{"Update Memory"}</button>
                     </div>
                 }
             </div>

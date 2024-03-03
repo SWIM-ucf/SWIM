@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use crate::agent::datapath_communicator::DatapathCommunicator;
 // use monaco::api::TextModel;
 use crate::parser::parser_structs_and_enums::ProgramInfo;
 use crate::ui::footer::component::FooterTabState;
@@ -20,6 +21,7 @@ pub struct TextSegmentProps {
     pub pc: u64,
     pub editor_active_tab: UseStateHandle<EditorTabState>,
     pub console_active_tab: UseStateHandle<FooterTabState>,
+    pub communicator: &'static DatapathCommunicator,
 }
 #[derive(PartialEq, Properties)]
 pub struct DataSegmentProps {
@@ -42,6 +44,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
     let editor_active_tab = &props.editor_active_tab;
     let console_active_tab = &props.console_active_tab;
     let executed_ref = use_node_ref();
+    let communicator = props.communicator;
 
     {
         // Always scroll to the executed row on execution
@@ -59,7 +62,8 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
         let input = target.unwrap().unchecked_into::<HtmlInputElement>();
 
         if input.checked() {
-            debug!("Breakpoint set at {:08x}", address);
+            debug!("Breakpoint set at {:08x}", address as u64);
+            communicator.set_breakpoint(address as u64);
         }
     });
 
