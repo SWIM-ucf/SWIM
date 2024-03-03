@@ -1,8 +1,7 @@
-use gloo::{dialogs::alert, file::FileList};
-use log::debug;
-// use monaco::sys::editor::IModelContentChangedEvent;
+use gloo::file::FileList;
 use gloo_console::log;
 use js_sys::Object;
+use log::debug;
 use log::Level;
 use monaco::{
     api::TextModel,
@@ -100,8 +99,6 @@ fn app(props: &AppProps) -> Html {
 
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
-        // props.communicator.send_test_message(1); // Test message, remove later.
-        // let communicator = props.communicator;
         let text_model = text_model.clone();
         let memory_text_model = memory_text_model.clone();
         let memory_curr_instr = memory_curr_instr.clone();
@@ -560,7 +557,7 @@ fn app(props: &AppProps) -> Html {
 
                     // Editor
                     <div class="code">
-                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} pc_limit={*pc_limit} binary={binary_ref.borrow().clone()} memory_curr_instr={memory_curr_instr.clone()} editor_curr_line={editor_curr_line.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} pc={datapath_state.mips.registers.pc} communicator={props.communicator} current_architecture={datapath_state.current_architecture.clone()}/>
+                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} pc_limit={*pc_limit} binary={binary_ref.borrow().clone()} memory_curr_instr={memory_curr_instr.clone()} editor_curr_line={editor_curr_line.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} pc={datapath_state.mips.registers.pc} communicator={props.communicator} current_architecture={datapath_state.current_architecture.clone()} speed={datapath_state.mips.speed}/>
                     </div>
 
                     // Console
@@ -581,8 +578,6 @@ fn new_object() -> JsValue {
 
 /**********************  File I/O Function ***********************/
 pub fn on_upload_file_clicked() {
-    // log!("Upload clicked!");
-
     let window = web_sys::window().expect("should have a window in this context");
     let document = window.document().expect("window should have a document");
 
@@ -594,12 +589,10 @@ pub fn on_upload_file_clicked() {
         .dyn_into::<HtmlInputElement>()
         .expect("Element should be an HtmlInputElement");
 
-    // log!("Before click");
     // workaround for https://github.com/yewstack/yew/pull/3037 since it's not in 0.20
     spawn_local(async move {
         file_input_elem.click();
     });
-    // log!("After click");
 }
 
 fn main() {

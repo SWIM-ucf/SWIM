@@ -19,10 +19,13 @@ use yew::{html, Callback, Properties};
 use yew_hooks::prelude::*;
 
 use crate::{
-    agent::datapath_communicator::DatapathCommunicator, emulation_core::architectures::AvailableDatapaths, parser::parser_structs_and_enums::ProgramInfo, ui::{
+    agent::datapath_communicator::DatapathCommunicator,
+    emulation_core::architectures::AvailableDatapaths,
+    parser::parser_structs_and_enums::ProgramInfo,
+    ui::{
         assembled_view::component::{DataSegment, TextSegment},
         footer::component::FooterTabState,
-    }
+    },
 };
 
 #[derive(PartialEq, Properties)]
@@ -38,7 +41,8 @@ pub struct SwimEditorProps {
     pub editor_active_tab: UseStateHandle<EditorTabState>,
     pub console_active_tab: UseStateHandle<FooterTabState>,
     pub current_architecture: AvailableDatapaths,
-    pub communicator: &'static DatapathCommunicator
+    pub speed: u32,
+    pub communicator: &'static DatapathCommunicator,
 }
 
 #[derive(Default, PartialEq)]
@@ -81,7 +85,6 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     let text_model = &*props.text_model;
     let editor_active_tab = &props.editor_active_tab;
     let console_active_tab = &props.console_active_tab;
-    let speed_class = use_state(|| "valid".to_string());
 
     // Setup the array that would store hover decorations applied to the
     // text model and initialize the options for it.
@@ -298,8 +301,8 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                 </div>
                 <div class="bar emulator-options">
                     <button class={classes!("copy-button", conditional_class)} title="Copy to Clipboard" onclick={on_clipboard_clicked}>{"Copy to Clipboard "}<i class={classes!("fa-regular", "fa-copy")}></i></button>
-                    <input type="number" id="execution-speed" title="Execution Speed" name="execution-speed" placeholder="1" min="1" onchange={change_execution_speed} />
-                    <span title="Execution Speed">{"Hz"}</span>
+                    <input type="number" id="execution-speed" title="Execution Speed. Setting this to 0 will make it run as fast as possible." name="execution-speed" placeholder="1" min="1" value={format!("{}", props.speed)} onchange={change_execution_speed} />
+                    <span title="Execution Speed.">{"Hz"}</span>
                     <select class="architecture-selector" name="architecture" onchange={change_architecture.clone()} value={
                         match props.current_architecture {
                             AvailableDatapaths::RISCV => "riscv",

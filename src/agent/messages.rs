@@ -20,7 +20,7 @@ pub enum Command {
     ExecuteStage,
     Pause,
     Reset,
-    SetBreakpoint(u64)
+    SetBreakpoint(u64),
 }
 
 /// Information about the emulator core's state sent from the worker thread to the UI thread.
@@ -34,5 +34,5 @@ pub enum MipsStateUpdate {
     UpdateStage(Stage),
     UpdateSpeed(u32),
     UpdateExecuting(bool),
-    UpdateInitialized(bool)
+    UpdateInitialized(bool),
 }
