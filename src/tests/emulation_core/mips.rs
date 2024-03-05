@@ -6,7 +6,7 @@ use crate::emulation_core::mips::registers::GpRegisterType;
 
 pub mod api {
     use super::*;
-    use crate::parser::parser_assembler_main::parser;
+    use crate::parser::{parser_assembler_main::parser, parser_structs_and_enums::Architecture};
 
     #[test]
     fn reset_datapath() -> Result<(), String> {
@@ -14,7 +14,7 @@ pub mod api {
 
         // Add instruction into emulation core memory.
         let instruction = String::from("ori $s0, $zero, 5");
-        let (_, instruction_bits) = parser(instruction);
+        let (_, instruction_bits) = parser(instruction, Architecture::MIPS);
         datapath.initialize_legacy(instruction_bits)?;
 
         datapath.execute_instruction();

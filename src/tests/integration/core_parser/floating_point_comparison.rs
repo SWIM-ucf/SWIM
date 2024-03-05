@@ -1,5 +1,7 @@
 //! Tests for the floating-point comparison instructions: c.eq.s, c.eq.d, c.lt.s, c.lt.d, c.le.s, c.le.d, c.ngt.s, c.ngt.d, c.nge.s, c.nge.d
 
+use crate::parser::parser_structs_and_enums::Architecture;
+
 use super::*;
 
 akin! {
@@ -16,7 +18,7 @@ akin! {
         let mut datapath = MipsDatapath::default();
 
         let instructions = String::from(*instruction);
-        let (_, instruction_bits) = parser(instructions);
+        let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
         datapath.initialize_legacy(instruction_bits)?;
 
         datapath.coprocessor.fpr[15] = *value1;
@@ -45,7 +47,7 @@ akin! {
         let mut datapath = MipsDatapath::default();
 
         let instructions = String::from(*instruction);
-        let (_, instruction_bits) = parser(instructions);
+        let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
         datapath.initialize_legacy(instruction_bits)?;
 
         datapath.coprocessor.fpr[15] = *value1;

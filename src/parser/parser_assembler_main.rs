@@ -13,10 +13,7 @@ use gloo_console::log;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
-pub fn parser(file_string: String) -> (ProgramInfo, Vec<u32>) {
-    // Force MIPS to pass unit tests until I change the function arguments for SWIMv1 test cases``
-    let arch = Architecture::MIPS;
-
+pub fn parser(file_string: String, arch: Architecture) -> (ProgramInfo, Vec<u32>) {
     if arch == Architecture::MIPS {
         let mut program_info = ProgramInfo {
             monaco_line_info: tokenize_program(file_string),
@@ -2574,9 +2571,7 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "jal" =>
-            // Finish J instructions
-            {
+            "jal" => {
                 log!("jal instruction");
                 log!(
                     "Instruction Binary: ",

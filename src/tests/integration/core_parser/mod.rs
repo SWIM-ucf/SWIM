@@ -3,6 +3,7 @@ use akin::akin;
 use crate::emulation_core::datapath::Datapath;
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::parser::parser_assembler_main::parser;
+use crate::parser::parser_structs_and_enums::Architecture;
 
 pub mod arithmetic;
 pub mod basic_immediate;
@@ -30,7 +31,7 @@ add $s1, $s0, $s0"#,
     );
 
     // Parse instructions and load into emulation core memory.
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     // Execute 2 instructions.
@@ -69,7 +70,7 @@ dati r1, 43982"#,
     // dati r1, 43982    | ABCD 8765 CCCC EEEE | 43982 == 0xABCE. FFFF + ABCE = ABCD.
 
     // Parse instructions and load into emulation core memory.
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     // Execute 4 instructions.
@@ -96,7 +97,7 @@ dadd r7, r5, r6
 dmuli r8, r7, 2"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {

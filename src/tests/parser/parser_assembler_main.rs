@@ -1,11 +1,13 @@
 #[cfg(test)]
 mod parser_main_function_tests {
-    use crate::parser::parser_assembler_main::*;
+    use crate::parser::{parser_assembler_main::*, parser_structs_and_enums::Architecture};
 
     #[test]
     fn parser_takes_string_and_returns_vec_of_instructions() {
-        let results =
-            parser("lw $t1, 512($t1)\nadd $t1, $s6, $t2\naddi $t1, $t2, 43690".to_string());
+        let results = parser(
+            "lw $t1, 512($t1)\nadd $t1, $s6, $t2\naddi $t1, $t2, 43690".to_string(),
+            Architecture::MIPS,
+        );
 
         assert_eq!(
             results.0.instructions[0].binary,
@@ -797,7 +799,7 @@ use crate::parser::parser_structs_and_enums::ErrorType::{
     UnrecognizedInstruction, UnsupportedInstruction,
 };
 use crate::parser::parser_structs_and_enums::{
-    ProgramInfo, SUPPORTED_INSTRUCTIONS, UNSUPPORTED_INSTRUCTIONS,
+    Architecture, ProgramInfo, SUPPORTED_INSTRUCTIONS, UNSUPPORTED_INSTRUCTIONS,
 };
 use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
 use crate::parser::pseudo_instruction_parsing::{
@@ -896,7 +898,11 @@ fn create_binary_vec_works_with_data() {
 
 #[test]
 fn read_instructions_recognizes_valid_but_unsupported_instructions() {
-    let program_info = parser("nor $t1, $t2, $t3\ndsrav $t1, $t2, $t3\n".to_string()).0;
+    let program_info = parser(
+        "nor $t1, $t2, $t3\ndsrav $t1, $t2, $t3\n".to_string(),
+        Architecture::MIPS,
+    )
+    .0;
 
     assert_eq!(
         program_info.instructions[0].errors[0].error_name,
@@ -912,6 +918,7 @@ fn read_instructions_recognizes_valid_but_unsupported_instructions() {
 fn console_output_post_assembly_works_with_errors() {
     let result = parser(
         ".text\nadd $t1, $t2, 1235\n.data\nlabel: .ascii 100\n.text\nlw t1, address".to_string(),
+        Architecture::MIPS,
     )
     .0
     .console_out_post_assembly;
@@ -924,6 +931,7 @@ fn console_output_post_assembly_works_with_no_errors_present() {
     let result = parser(
         ".text\nadd $t1, $t2, $t3\n.data\nlabel: .ascii \"string\"\n.text\nlw $t1, 40($t1)"
             .to_string(),
+        Architecture::MIPS,
     )
     .0
     .console_out_post_assembly;
@@ -933,7 +941,11 @@ fn console_output_post_assembly_works_with_no_errors_present() {
 
 #[test]
 fn mouse_hover_holds_information_about_valid_instructions() {
-    let program_info = parser(".text\nori $t1, $t2, 100\nsyscall".to_string()).0;
+    let program_info = parser(
+        ".text\nori $t1, $t2, 100\nsyscall".to_string(),
+        Architecture::MIPS,
+    )
+    .0;
 
     assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
     assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "**Syntax:** `ori rt, rs, immediate`\n\nBitwise ors the contents of `rs` with the left zero-extended `immediate` value, and stores the result in `rt`.\n\n\n\n**Binary:** `0b00110101010010010000000001100100`");
@@ -941,7 +953,11 @@ fn mouse_hover_holds_information_about_valid_instructions() {
 
 #[test]
 fn mouse_hover_holds_information_about_pseudo_instructions() {
-    let program_info = parser(".text\nlabel: subi $t1, $t2, 100\nsyscall".to_string()).0;
+    let program_info = parser(
+        ".text\nlabel: subi $t1, $t2, 100\nsyscall".to_string(),
+        Architecture::MIPS,
+    )
+    .0;
 
     assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
     assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "`subi` is a pseudo-instruction.\n\n```\nsubi rt, rs, immediate =>\nori $at, $zero, immediate\nsub rt, rs, $at\n\n```\n\n\n\n**Binary:** `0b00110100000000010000000001100100`\n\n**Binary:** `0b00000001010000010100100000100010`");
@@ -949,7 +965,11 @@ fn mouse_hover_holds_information_about_pseudo_instructions() {
 
 #[test]
 fn errors_do_not_go_into_mouse_hover() {
-    let program_info = parser(".text\nori $t1, $t2, $t3\nsyscall".to_string()).0;
+    let program_info = parser(
+        ".text\nori $t1, $t2, $t3\nsyscall".to_string(),
+        Architecture::MIPS,
+    )
+    .0;
 
     assert_eq!(program_info.monaco_line_info[0].mouse_hover_string, "");
     assert_eq!(program_info.monaco_line_info[1].mouse_hover_string, "**Syntax:** `ori rt, rs, immediate`\n\nBitwise ors the contents of `rs` with the left zero-extended `immediate` value, and stores the result in `rt`.\n\n");
@@ -959,6 +979,7 @@ fn errors_do_not_go_into_mouse_hover() {
 fn syscall_message_and_binary_does_not_go_in_mouse_hover_if_the_syscall_was_added_by_parser() {
     let monaco_line_info = parser(
         ".text\nori $t1, $t2, 100\nlabel: subi $t1, $t2, 100\nadd $t1, $t2, $t3\n".to_string(),
+        Architecture::MIPS,
     )
     .0
     .monaco_line_info;
@@ -968,7 +989,9 @@ fn syscall_message_and_binary_does_not_go_in_mouse_hover_if_the_syscall_was_adde
     assert_eq!(monaco_line_info[2].mouse_hover_string, "`subi` is a pseudo-instruction.\n\n```\nsubi rt, rs, immediate =>\nori $at, $zero, immediate\nsub rt, rs, $at\n\n```\n\n\n\n**Binary:** `0b00110100000000010000000001100100`\n\n**Binary:** `0b00000001010000010100100000100010`");
     assert_eq!(monaco_line_info[3].mouse_hover_string, "**Syntax:** `add rd, rs, rt`\n\nAdds the 32-bit values in `rs` and `rt`, and places the result in `rd`.\n\nIn hardware implementations, the result is not placed in `rd` if adding `rs` and `rt` causes a 32-bit overflow. However, SWIM places the result in `rd` regardless since there is no exception handling.\n\n**Binary:** `0b00000001010010110100100000100000`\n\n");
 
-    let monaco_line_info = parser(".text".to_string()).0.monaco_line_info;
+    let monaco_line_info = parser(".text".to_string(), Architecture::MIPS)
+        .0
+        .monaco_line_info;
     assert_eq!(monaco_line_info[0].mouse_hover_string, "\n\n");
 }
 
@@ -977,6 +1000,7 @@ fn mouse_hover_holds_information_info_for_various_instruction_types() {
     let program_info = parser(
         ".text\nori $t1, $t2, 100\nlabel: subi $t1, $t2, 100\nadd $t1, $t2, $t3\nsyscall\n"
             .to_string(),
+        Architecture::MIPS,
     )
     .0;
 
@@ -989,11 +1013,15 @@ fn mouse_hover_holds_information_info_for_various_instruction_types() {
 
 #[test]
 fn instructions_directives_and_registers_work_regardless_of_capitalization() {
-    let result =
-        parser(".TexT\nOR $t1, $T2, $t3\nor $t1, $t2, $t3\n.DATA\nabel: .WOrD 100".to_string());
+    let result = parser(
+        ".TexT\nOR $t1, $T2, $t3\nor $t1, $t2, $t3\n.DATA\nabel: .WOrD 100".to_string(),
+        Architecture::MIPS,
+    );
 
-    let correct =
-        parser(".TexT\nOR $t1, $T2, $t3\nor $t1, $t2, $t3\n.DATA\nabel: .WOrD 100".to_lowercase());
+    let correct = parser(
+        ".TexT\nOR $t1, $T2, $t3\nor $t1, $t2, $t3\n.DATA\nabel: .WOrD 100".to_lowercase(),
+        Architecture::MIPS,
+    );
     assert_eq!(result.1, correct.1);
     assert_eq!(
         result.0.console_out_post_assembly,
@@ -1013,21 +1041,23 @@ fn instructions_directives_and_registers_work_regardless_of_capitalization() {
 
 #[test]
 fn parser_assembler_works_with_empty_strings() {
-    let _ = parser("".to_string());
-    let _ = parser("\n".to_string());
-    let _ = parser("\n\n".to_string());
+    let _ = parser("".to_string(), Architecture::MIPS);
+    let _ = parser("\n".to_string(), Architecture::MIPS);
+    let _ = parser("\n\n".to_string(), Architecture::MIPS);
 }
 
 #[test]
 fn create_binary_vec_works_with_all_mod_4_options() {
     let result = parser(
         "ori $s0, $zero, 12345\nori $s0, $zero, 12345\n.data\nlab: .ascii \"h\"".to_string(),
+        Architecture::MIPS,
     )
     .1;
     assert_eq!(result, vec![873476153, 873476153, 12, 1744830464]);
 
     let result = parser(
         "ori $s0, $zero, 12345\nori $s0, $zero, 12345\n.data\nlab: .ascii \"ha\"".to_string(),
+        Architecture::MIPS,
     )
     .1;
     assert_eq!(
@@ -1037,6 +1067,7 @@ fn create_binary_vec_works_with_all_mod_4_options() {
 
     let result = parser(
         "ori $s0, $zero, 12345\nori $s0, $zero, 12345\n.data\nlab: .ascii \"han\"".to_string(),
+        Architecture::MIPS,
     )
     .1;
     assert_eq!(
@@ -1046,6 +1077,7 @@ fn create_binary_vec_works_with_all_mod_4_options() {
 
     let result = parser(
         "ori $s0, $zero, 12345\nori $s0, $zero, 12345\n.data\nlab: .ascii \"hank\"".to_string(),
+        Architecture::MIPS,
     )
     .1;
     assert_eq!(
@@ -1057,7 +1089,9 @@ fn create_binary_vec_works_with_all_mod_4_options() {
 #[test]
 fn no_unsupported_instructions_are_recognized_by_parser() {
     for instruction in UNSUPPORTED_INSTRUCTIONS {
-        let result = parser(instruction.to_string()).0.monaco_line_info;
+        let result = parser(instruction.to_string(), Architecture::MIPS)
+            .0
+            .monaco_line_info;
         assert_eq!(result[0].errors[0].error_name, UnsupportedInstruction);
     }
 }
@@ -1065,7 +1099,9 @@ fn no_unsupported_instructions_are_recognized_by_parser() {
 #[test]
 fn supported_instructions_are_recognized_by_parser() {
     for instruction in SUPPORTED_INSTRUCTIONS {
-        let result = parser(instruction.to_string()).0.monaco_line_info;
+        let result = parser(instruction.to_string(), Architecture::MIPS)
+            .0
+            .monaco_line_info;
         for error in &result[0].errors {
             assert_ne!(error.error_name, UnsupportedInstruction);
             assert_ne!(error.error_name, UnrecognizedInstruction);
@@ -1075,25 +1111,33 @@ fn supported_instructions_are_recognized_by_parser() {
 
 #[test]
 fn main_and_start_labelled_instructions_change_program_info_pc_starting_point() {
-    let result = parser("addi $t1, $t2, 100\nsw $t1, 400($zero)".to_string())
-        .0
-        .pc_starting_point;
+    let result = parser(
+        "addi $t1, $t2, 100\nsw $t1, 400($zero)".to_string(),
+        Architecture::MIPS,
+    )
+    .0
+    .pc_starting_point;
     assert_eq!(result, 0);
 
-    let result =
-        parser("addi $t1, $t2, 100\nsw $t1, 400($zero)\nmain: lw $t2, 320($zero)".to_string())
-            .0
-            .pc_starting_point;
+    let result = parser(
+        "addi $t1, $t2, 100\nsw $t1, 400($zero)\nmain: lw $t2, 320($zero)".to_string(),
+        Architecture::MIPS,
+    )
+    .0
+    .pc_starting_point;
     assert_eq!(result, 8);
 
-    let result =
-        parser("addi $t1, $t2, 100\nstart: sw $t1, 400($zero)\nlw $t2, 320($zero)".to_string())
-            .0
-            .pc_starting_point;
+    let result = parser(
+        "addi $t1, $t2, 100\nstart: sw $t1, 400($zero)\nlw $t2, 320($zero)".to_string(),
+        Architecture::MIPS,
+    )
+    .0
+    .pc_starting_point;
     assert_eq!(result, 4);
 
     let result = parser(
         "addi $t1, $t2, 100\nstart: sw $t1, 400($zero)\nmain: lw $t2, 320($zero)".to_string(),
+        Architecture::MIPS,
     )
     .0
     .pc_starting_point;

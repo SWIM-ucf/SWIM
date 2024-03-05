@@ -1,5 +1,7 @@
 //! Tests for the floating-point arithmetic instructions: add.s, add.d, sub.s, sub.d, mul.s, mul.d, div.s, div.d
 
+use crate::parser::parser_structs_and_enums::Architecture;
+
 use super::*;
 
 akin! {
@@ -18,7 +20,7 @@ akin! {
         let mut datapath = MipsDatapath::default();
 
         let instructions = String::from(*instruction);
-        let (_, instruction_bits) = parser(instructions);
+        let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
         datapath.initialize_legacy(instruction_bits)?;
 
         datapath.coprocessor.fpr[15] = *value1;
@@ -49,7 +51,7 @@ akin! {
         let mut datapath = MipsDatapath::default();
 
         let instructions = String::from(*instruction);
-        let (_, instruction_bits) = parser(instructions);
+        let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
         datapath.initialize_legacy(instruction_bits)?;
 
         datapath.coprocessor.fpr[15] = *value1;

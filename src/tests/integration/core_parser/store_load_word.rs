@@ -12,7 +12,7 @@ li r25, 1234
 sw r25, 0(r14)"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
@@ -33,7 +33,7 @@ fn basic_lw() -> Result<(), String> {
 lw r25, 0(r14)"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     datapath.memory.memory[403] = 36;
@@ -61,7 +61,7 @@ daddiu $s2, $s1, 1
 sw $s2, secret_number"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
@@ -88,7 +88,7 @@ mtc1 $s1, $f25
 swc1 $f25, 0($s0)"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
@@ -109,7 +109,7 @@ fn basic_lwc1() -> Result<(), String> {
 lwc1 $f12, 0($t4)"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     datapath.memory.memory[403] = 36;
