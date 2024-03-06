@@ -82,7 +82,11 @@ impl Reducible for DatapathReducer {
                 SystemUpdate::Message(msg) => Self {
                     current_architecture: self.current_architecture.clone(),
                     mips: self.mips.clone(),
-                    messages: [self.messages.clone().as_slice(), &[msg]].concat().to_vec(),
+                    messages: {
+                        let mut new_messages = self.messages.clone();
+                        new_messages.push(msg);
+                        new_messages
+                    },
                 },
             },
         })
