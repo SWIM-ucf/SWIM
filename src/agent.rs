@@ -2,6 +2,7 @@
 
 use crate::agent::messages::MipsStateUpdate::*;
 use crate::agent::messages::{Command, SystemUpdate};
+use crate::agent::system_scanner::Scanner;
 use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::datapath::{Datapath, DatapathUpdateSignal, Syscall, UPDATE_EVERYTHING};
 use crate::emulation_core::mips::datapath::MipsDatapath;
@@ -109,6 +110,12 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
     }
 }
 
+#[derive(Clone)]
+enum BlockedOn {
+    Nothing,
+    Syscall(Syscall),
+}
+
 struct EmulatorCoreAgentState {
     current_datapath: Box<dyn Datapath<RegisterData = u64, RegisterEnum = GpRegisterType>>,
     /// The changes to the emulator core's memory/registers/etc. are tracked in this variable. When
@@ -118,6 +125,8 @@ struct EmulatorCoreAgentState {
     pub scope: ReactorScope<Command, DatapathUpdate>,
     speed: u32,
     executing: bool,
+    scanner: Scanner,
+    blocked_on: BlockedOn,
 }
 
 impl EmulatorCoreAgentState {
@@ -128,6 +137,8 @@ impl EmulatorCoreAgentState {
             scope,
             speed: 0,
             executing: false,
+            scanner: Scanner::new(),
+            blocked_on: BlockedOn::Nothing,
         }
     }
 
@@ -173,7 +184,7 @@ impl EmulatorCoreAgentState {
 
     pub fn execute(&mut self) {
         // Skip the execution phase if the emulator core is not currently executing.
-        if !self.executing {
+        if !self.executing || matches!(self.blocked_on, BlockedOn::Syscall(_)) {
             return;
         }
         self.current_datapath.execute_instruction();
@@ -193,7 +204,10 @@ impl EmulatorCoreAgentState {
         if !self.updates.hit_syscall {
             return;
         }
-        let syscall = self.current_datapath.get_syscall_arguments();
+        let syscall = match &self.blocked_on {
+            BlockedOn::Nothing => self.current_datapath.get_syscall_arguments(),
+            BlockedOn::Syscall(syscall) => syscall.clone(),
+        };
 
         match syscall {
             Syscall::Exit => {
@@ -231,9 +245,56 @@ impl EmulatorCoreAgentState {
                     .await
                     .unwrap();
             }
-            Syscall::ReadInt => {}
-            Syscall::ReadFloat => {}
-            Syscall::ReadDouble => {}
+            Syscall::ReadInt => {
+                let scan_result = self.scanner.next_int();
+                match scan_result {
+                    None => {
+                        self.blocked_on = BlockedOn::Syscall(syscall);
+                    }
+                    Some(scan_result) => {
+                        self.blocked_on = BlockedOn::Nothing;
+                        match self.current_datapath.as_datapath_ref() {
+                            DatapathRef::MIPS(_) => {
+                                self.current_datapath.set_register_by_str("v1", scan_result);
+                            }
+                        }
+                    }
+                }
+            }
+            Syscall::ReadFloat => {
+                let scan_result = self.scanner.next_float();
+                match scan_result {
+                    None => {
+                        self.blocked_on = BlockedOn::Nothing;
+                    }
+                    Some(scan_result) => {
+                        self.blocked_on = BlockedOn::Syscall(syscall);
+                        match self.current_datapath.as_datapath_ref() {
+                            DatapathRef::MIPS(_) => {
+                                self.current_datapath
+                                    .set_register_by_str("f0", f32::to_bits(scan_result) as u64);
+                            }
+                        }
+                    }
+                }
+            }
+            Syscall::ReadDouble => {
+                let scan_result = self.scanner.next_double();
+                match scan_result {
+                    None => {
+                        self.blocked_on = BlockedOn::Nothing;
+                    }
+                    Some(scan_result) => {
+                        self.blocked_on = BlockedOn::Syscall(syscall);
+                        match self.current_datapath.as_datapath_ref() {
+                            DatapathRef::MIPS(_) => {
+                                self.current_datapath
+                                    .set_register_by_str("f0", f64::to_bits(scan_result));
+                            }
+                        }
+                    }
+                }
+            }
             Syscall::ReadString(_) => {}
         }
     }

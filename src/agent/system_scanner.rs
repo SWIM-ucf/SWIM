@@ -1,5 +1,6 @@
 use std::collections::VecDeque;
 
+#[derive(Default)]
 pub struct Scanner {
     input: VecDeque<char>,
 }
@@ -82,7 +83,7 @@ impl Scanner {
         }
 
         let parsed = result.parse();
-        if result.len() > 0 {
+        if !result.is_empty() {
             match parsed {
                 Ok(res) => Some(res),
                 Err(_) => Some(u64::MAX),
@@ -145,7 +146,7 @@ impl Scanner {
         }
 
         let parsed = result.parse();
-        if result.len() > 0 {
+        if !result.is_empty() {
             match parsed {
                 Ok(res) => Some(res),
                 Err(_) => Some(f64::INFINITY),
