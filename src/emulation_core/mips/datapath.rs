@@ -410,11 +410,21 @@ impl MipsDatapath {
         self.coprocessor
             .set_data_from_main_processor(self.state.read_data_2);
 
+        // Check if we hit a syscall or breakpoint and signal it to the caller.
+        let (hit_syscall, hit_breakpoint) = match self.instruction {
+            Instruction::SyscallType(instruction) => (
+                instruction.funct == FUNCT_SYSCALL,
+                instruction.funct == FUNCT_BREAK,
+            ),
+            _ => (false, false),
+        };
+
         // Instruction decode always involves a state update
         DatapathUpdateSignal {
             changed_state: true,
             changed_coprocessor_state: true,
-            hit_syscall: matches!(self.instruction, Instruction::SyscallType(_)),
+            hit_syscall,
+            hit_breakpoint,
             ..Default::default()
         }
     }

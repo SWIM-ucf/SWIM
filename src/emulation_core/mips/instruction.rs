@@ -61,7 +61,7 @@ pub struct JType {
 ///
 /// - opcode: SPECIAL (`000000`)
 /// - code: Available for use as software parameters.
-/// - funct: SYSCALL (`001100`)
+/// - funct: SYSCALL (`001100`), BREAK (`001101`)
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct SyscallType {
     pub op: u8,
@@ -195,6 +195,11 @@ impl TryFrom<u32> for Instruction {
                     FUNCT_SYSCALL => Ok(Instruction::SyscallType(SyscallType {
                         op: ((value >> 26) & 0x3F) as u8,
                         code: ((value >> 6) & 0xFFFFF),
+                        funct: (value & 0x3F) as u8,
+                    })),
+                    FUNCT_BREAK => Ok(Instruction::SyscallType(SyscallType {
+                        op: ((value >> 26) & 0x3F) as u8,
+                        code: (value >> 6) & 0xFFFFF,
                         funct: (value & 0x3F) as u8,
                     })),
                     _ => Ok(Instruction::RType(RType {
@@ -370,6 +375,7 @@ pub fn get_string_version(value: u32) -> Result<String, String> {
         OPCODE_SPECIAL => {
             match funct {
                 FUNCT_SYSCALL => Ok(String::from("syscall")),
+                FUNCT_BREAK => Ok(String::from("break")),
                 FUNCT_ADD => {
                     string_version = format!("{} {} {} {}", "add", str_rd, str_rs, str_rt);
                     Ok(string_version)
