@@ -108,3 +108,32 @@ fn next_double_return_none_on_no_matches() {
     scanner.feed("This is a non-numeric string.".to_string());
     assert_eq!(scanner.next_double(), None);
 }
+
+#[test]
+fn next_line_basic() {
+    let mut scanner = Scanner::new();
+    scanner.feed("This is a line123".to_string());
+    scanner.feed("This is another line".to_string());
+    assert_eq!(scanner.next_line().unwrap(), "This is a line123");
+    scanner.feed("This is a final line456".to_string());
+    assert_eq!(scanner.next_line().unwrap(), "This is another line");
+    assert_eq!(scanner.next_line().unwrap(), "This is a final line456");
+}
+
+#[test]
+fn mixed_reads() {
+    let mut scanner = Scanner::new();
+    scanner.feed("This should be ignored | 123.45".to_string());
+    scanner.feed("Hello world!".to_string());
+    scanner.feed("44 <-- int float --> 10.2".to_string());
+    scanner.feed("Read as an int, then a float: 56.2".to_string());
+    assert_eq!(scanner.next_float().unwrap(), 123.45f32);
+    // Since the only thing left in the buffer is the newline from the last string.
+    // Java does this, I promise people are used to it.
+    assert_eq!(scanner.next_line().unwrap(), "");
+    assert_eq!(scanner.next_line().unwrap(), "Hello world!");
+    assert_eq!(scanner.next_int().unwrap(), 44);
+    assert_eq!(scanner.next_double().unwrap(), 10.2f64);
+    assert_eq!(scanner.next_int().unwrap(), 56);
+    assert_eq!(scanner.next_double().unwrap(), 2f64);
+}

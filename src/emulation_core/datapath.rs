@@ -60,6 +60,9 @@ pub trait Datapath {
     /// Retrieve all memory as-is.
     fn get_memory(&self) -> &Memory;
 
+    /// Retrieve a mutable reference to memory.
+    fn get_memory_mut(&mut self) -> &mut Memory;
+
     // Store word in memory at ptr
     fn set_memory(&mut self, ptr: u64, data: u32);
 

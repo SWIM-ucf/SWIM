@@ -164,6 +164,22 @@ impl Scanner {
     /// Returns the remainder of the current line in the Scanner. If the Scanner is empty, this
     /// function will return None.
     pub fn next_line(&mut self) -> Option<String> {
-        todo!()
+        let mut result = String::new();
+
+        // If the feed is empty, block here. Checking for an empty buffer here allows the function
+        // to return an empty string if the only thing left in the queue is a newline character.
+        if self.input.is_empty() {
+            return None;
+        }
+
+        while !self.input.is_empty() {
+            let character = self.input.pop_front().unwrap();
+            if character == '\n' {
+                break;
+            }
+            result.push(character);
+        }
+
+        Some(result)
     }
 }

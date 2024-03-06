@@ -110,7 +110,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 enum BlockedOn {
     Nothing,
     Syscall(Syscall),
@@ -167,10 +167,14 @@ impl EmulatorCoreAgentState {
                 self.executing = true;
             }
             Command::ExecuteInstruction => {
-                self.updates |= self.current_datapath.execute_instruction();
+                if self.blocked_on == BlockedOn::Nothing {
+                    self.updates |= self.current_datapath.execute_instruction();
+                }
             }
             Command::ExecuteStage => {
-                self.updates |= self.current_datapath.execute_stage();
+                if self.blocked_on == BlockedOn::Nothing {
+                    self.updates |= self.current_datapath.execute_stage();
+                }
             }
             Command::Pause => {
                 self.executing = false;
@@ -178,6 +182,9 @@ impl EmulatorCoreAgentState {
             Command::Reset => {
                 self.current_datapath.reset();
                 self.updates |= UPDATE_EVERYTHING;
+            }
+            Command::Input(line) => {
+                self.scanner.feed(line);
             }
         }
     }
@@ -201,9 +208,12 @@ impl EmulatorCoreAgentState {
     }
 
     pub async fn execute_syscall_stage(&mut self) {
-        if !self.updates.hit_syscall {
+        if !self.updates.hit_syscall && !matches!(self.blocked_on, BlockedOn::Syscall(_)) {
             return;
         }
+
+        // Determine if we should attempt to execute a new syscall or poll on a previous syscall
+        // the processor blocked on.
         let syscall = match &self.blocked_on {
             BlockedOn::Nothing => self.current_datapath.get_syscall_arguments(),
             BlockedOn::Syscall(syscall) => syscall.clone(),
@@ -265,10 +275,10 @@ impl EmulatorCoreAgentState {
                 let scan_result = self.scanner.next_float();
                 match scan_result {
                     None => {
-                        self.blocked_on = BlockedOn::Nothing;
+                        self.blocked_on = BlockedOn::Syscall(syscall);
                     }
                     Some(scan_result) => {
-                        self.blocked_on = BlockedOn::Syscall(syscall);
+                        self.blocked_on = BlockedOn::Nothing;
                         match self.current_datapath.as_datapath_ref() {
                             DatapathRef::MIPS(_) => {
                                 self.current_datapath
@@ -282,10 +292,10 @@ impl EmulatorCoreAgentState {
                 let scan_result = self.scanner.next_double();
                 match scan_result {
                     None => {
-                        self.blocked_on = BlockedOn::Nothing;
+                        self.blocked_on = BlockedOn::Syscall(syscall);
                     }
                     Some(scan_result) => {
-                        self.blocked_on = BlockedOn::Syscall(syscall);
+                        self.blocked_on = BlockedOn::Nothing;
                         match self.current_datapath.as_datapath_ref() {
                             DatapathRef::MIPS(_) => {
                                 self.current_datapath
@@ -295,7 +305,31 @@ impl EmulatorCoreAgentState {
                     }
                 }
             }
-            Syscall::ReadString(_) => {}
+            Syscall::ReadString(addr) => {
+                let scan_result = self.scanner.next_line();
+                match scan_result {
+                    None => {
+                        self.blocked_on = BlockedOn::Syscall(syscall);
+                    }
+                    Some(scan_result) => {
+                        self.blocked_on = BlockedOn::Nothing;
+
+                        let bytes = scan_result.as_bytes();
+                        let memory = self.current_datapath.get_memory_mut();
+                        for (i, byte) in (0..bytes.len()).zip(bytes) {
+                            // Attempt to store the byte in memory, but if the store process fails,
+                            // end the syscall and return to normal operation.
+                            let result = memory.store_byte(addr + i as u64, *byte);
+                            if result.is_err() {
+                                break;
+                            }
+                        }
+                        match self.current_datapath.as_datapath_ref() {
+                            DatapathRef::MIPS(_) => {}
+                        }
+                    }
+                }
+            }
         }
     }
 }

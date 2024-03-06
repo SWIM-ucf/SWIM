@@ -291,6 +291,10 @@ impl Datapath for MipsDatapath {
         &self.memory
     }
 
+    fn get_memory_mut(&mut self) -> &mut Memory {
+        &mut self.memory
+    }
+
     fn set_memory(&mut self, _ptr: u64, _data: u32) {
         self.memory.store_word(_ptr, _data).unwrap_or_default();
     }
