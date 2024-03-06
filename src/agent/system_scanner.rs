@@ -100,7 +100,59 @@ impl Scanner {
     /// If no matches are found in the entire remainder of the unscanned input, the function will
     /// return None.
     pub fn next_double(&mut self) -> Option<f64> {
-        todo!()
+        let mut state = ScannerState::Waiting;
+        let mut result = String::new();
+
+        // Process the Scanner's queue character by character
+        while !self.input.is_empty() {
+            let character = self.input.pop_front().unwrap();
+
+            match state {
+                ScannerState::Waiting => {
+                    if character.is_ascii_digit() {
+                        result.push(character);
+                        state = ScannerState::ReadingInt;
+                    }
+                }
+                ScannerState::ReadingInt => {
+                    if character.is_ascii_digit() {
+                        result.push(character);
+                    } else if character == '.' {
+                        state = ScannerState::ReadingDecimalPoint;
+                        result.push(character);
+                    } else {
+                        state = ScannerState::Finished;
+                        // Put the character back since we never actually utilized it.
+                        self.input.push_front(character);
+                    }
+                }
+                ScannerState::ReadingDecimalPoint => {
+                    if character.is_ascii_digit() {
+                        result.push(character);
+                    } else {
+                        state = ScannerState::Finished;
+                        // Put the character back since we never actually utilized it.
+                        self.input.push_front(character);
+                    }
+                }
+                ScannerState::Finished => {
+                    // Put the character back in the queue to avoid consuming it and break out of
+                    // the loop to return the int to the user.
+                    self.input.push_front(character);
+                    break;
+                }
+            }
+        }
+
+        let parsed = result.parse();
+        if result.len() > 0 {
+            match parsed {
+                Ok(res) => Some(res),
+                Err(_) => Some(f64::INFINITY),
+            }
+        } else {
+            None
+        }
     }
 
     /// Identical to next_double(), but it returns an f32 instead.
