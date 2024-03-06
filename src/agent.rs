@@ -16,7 +16,7 @@ use yew_agent::prelude::*;
 pub mod datapath_communicator;
 pub mod datapath_reducer;
 pub mod messages;
-mod system_scanner;
+pub mod system_scanner;
 
 macro_rules! send_update {
     ($scope:expr, $condition:expr, $value:expr) => {
