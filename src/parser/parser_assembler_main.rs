@@ -5,7 +5,7 @@ use crate::parser::parser_structs_and_enums::ProgramInfo;
 use crate::parser::parser_structs_and_enums::*;
 use crate::parser::parsing::*;
 use crate::parser::pseudo_instruction_parsing::{
-    complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers,
+    complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers, expand_pseudo_instructions_and_assign_instruction_numbers_riscv
 };
 use std::collections::HashMap;
 
@@ -51,6 +51,7 @@ pub fn parser(file_string: String, arch: Architecture) -> (ProgramInfo, Vec<u32>
             &mut program_info.data,
             &labels,
             &mut program_info.monaco_line_info,
+            arch
         );
 
         let (binary, data_starting_point) =
@@ -82,23 +83,16 @@ pub fn parser(file_string: String, arch: Architecture) -> (ProgramInfo, Vec<u32>
             separate_data_and_text(&mut program_info.monaco_line_info);
 
         // Implement a RISC-V version
-        /*expand_pseudo_instructions_and_assign_instruction_numbers(
+        expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
             &mut program_info.instructions,
             &program_info.data,
             &mut program_info.monaco_line_info,
-        );*/
+        );
 
         let vec_of_data = assemble_data_binary(&mut program_info.data);
 
         let labels: HashMap<String, usize> =
             create_label_map(&mut program_info.instructions, &mut program_info.data);
-
-        // Implement a RISC-V version
-        /*complete_lw_sw_pseudo_instructions(
-            &mut program_info.instructions,
-            &labels,
-            &mut program_info.monaco_line_info,
-        );*/
 
         read_instructions_riscv(
             &mut program_info.instructions,
@@ -111,6 +105,7 @@ pub fn parser(file_string: String, arch: Architecture) -> (ProgramInfo, Vec<u32>
             &mut program_info.data,
             &labels,
             &mut program_info.monaco_line_info,
+            arch
         );
 
         let (binary, data_starting_point) =
@@ -1526,7 +1521,7 @@ pub fn read_instructions(
             }
 
             _ => {
-                if UNSUPPORTED_INSTRUCTIONS.contains(&&*instruction.operator.token_name) {
+                if UNSUPPORTED_INSTRUCTIONS_MIPS.contains(&&*instruction.operator.token_name) {
                     instruction.errors.push(Error {
                         error_name: UnsupportedInstruction,
                         token_causing_error: instruction.operator.token_name.to_string(),
@@ -2619,6 +2614,8 @@ pub fn read_instructions_riscv(
                     "Instruction Binary: ",
                     format!("{:032b}", instruction.binary)
                 );
+
+                log!("Instruction: ", format!("{:?}", instruction));
 
                 read_operands_riscv(
                     instruction,
@@ -6371,7 +6368,7 @@ pub fn read_instructions_riscv(
                 }
             }
             _ => {
-                if UNSUPPORTED_INSTRUCTIONS.contains(&&*instruction.operator.token_name) {
+                if UNSUPPORTED_INSTRUCTIONS_RISCV.contains(&&*instruction.operator.token_name) {
                     instruction.errors.push(Error {
                         error_name: UnsupportedInstruction,
                         token_causing_error: instruction.operator.token_name.to_string(),
@@ -6429,15 +6426,24 @@ fn immediate_to_branch(mut bin: u32) -> u32 {
     let lower_imm = (bin >> 21) & 0b1111;
 
     // Extract imm[10:5]
-    let upper_imm = (bin >> 24) & 0b111111;
+    let upper_imm = (bin >> 25) & 0b111111;
+
+    log!("lower_imm: ", format!("{:032b}", lower_imm));
+    log!("upper_imm: ", format!("{:032b}", upper_imm));
+    
 
     // Extract bit 11 and bit 12
     let bit_11 = (bin >> 30) & 0b1;
     let bit_12 = (bin >> 31) & 0b1;
-
+    log!("bit 11: ", format!("{:032b}", bit_11));
+    log!("bit 12: ", format!("{:032b}", bit_12));
+    
     // Extract rs1 and rs2
     let rs1 = (bin >> 7) & 0b11111;
     let rs2 = (bin >> 15) & 0b11111;
+
+    log!("rs1: ", format!("{:032b}", rs1));
+    log!("rs2: ", format!("{:032b}", rs2));
 
     // Clear bits 24-20, rs1, and rs2
     bin &= !((0b11111 << 20) | (0b11111 << 15) | (0b11111 << 7));

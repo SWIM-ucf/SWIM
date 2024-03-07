@@ -5,6 +5,8 @@ use crate::parser::parser_structs_and_enums::{
 };
 use std::collections::HashMap;
 
+use gloo_console::log;
+
 ///Iterates through the instruction list and translates pseudo-instructions into real instructions.
 /// LW and SW with labelled memory are not completely translated in this step because they require
 /// the address of the labelled memory to be known which is not found until after all other pseudo-instructions
@@ -1234,6 +1236,976 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 labels: Vec::new(),
             })
         }
+    }
+}
+
+///Iterates through the instruction list and translates pseudo-instructions into real instructions.
+/// LW and SW with labelled memory are not completely translated in this step because they require
+/// the address of the labelled memory to be known which is not found until after all other pseudo-instructions
+/// have been translated. Updated pseudo-instructions are added to updated_monaco_string to appear in the editor after assembly.
+/// Also ensures a syscall is at the end of the program
+pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
+    instructions: &mut Vec<Instruction>,
+    data: &Vec<Data>,
+    monaco_line_info: &mut [MonacoLineInfo],
+) {
+    //figure out list of labels to be used for lw and sw labels
+    let mut list_of_labels: Vec<String> = Vec::new();
+    for instruction in instructions.clone() {
+        for label in instruction.labels {
+            list_of_labels.push(label.token.token_name);
+        }
+    }
+    for data in data {
+        list_of_labels.push(data.label.token_name.clone());
+    }
+
+    //vec_of_added_instructions is needed because of rust ownership rules. It will not let us
+    //insert into instruction_list while instruction_list is being iterated over.
+    let mut vec_of_added_instructions: Vec<Instruction> = Vec::new();
+
+    //iterate through every instruction and check if the operator is a pseudo-instruction
+    for (i, mut instruction) in &mut instructions.iter_mut().enumerate() {
+        instruction.instruction_number = i + vec_of_added_instructions.len();
+        match &*instruction.operator.token_name.to_lowercase() {
+            "nop" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "nop".to_string(),
+                    syntax: "nop".to_string(),
+                    translation_lines: vec!["addi x0, x0, 0".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 0 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "addi".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "mv" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "mv".to_string(),
+                    syntax: "mv rd, rs1".to_string(),
+                    translation_lines: vec!["addi rd, rs, 0".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "addi".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "not" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "not".to_string(),
+                    syntax: "not rd, rs1".to_string(),
+                    translation_lines: vec!["xori rd, rs, -1".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "xori".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "-1".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "neg" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "neg".to_string(),
+                    syntax: "neg rd, rs1".to_string(),
+                    translation_lines: vec!["sub rd, x0, rs".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "sub".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "negw" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "negw".to_string(),
+                    syntax: "negw rd, rs1".to_string(),
+                    translation_lines: vec!["subw rd, x0, rs".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "subw".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "sext.w" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "sext.w".to_string(),
+                    syntax: "sext.w rd, rs1".to_string(),
+                    translation_lines: vec!["addiw rd, rs, 0".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "addiw".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "seqz" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "seqz".to_string(),
+                    syntax: "seqz rd, rs1".to_string(),
+                    translation_lines: vec!["sltiu rd, rs, 1".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "sltiu".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "1".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "snez" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "snez".to_string(),
+                    syntax: "snez rd, rs1".to_string(),
+                    translation_lines: vec!["sltu rd, x0, rs".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "sltu".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "sltz" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "sltz".to_string(),
+                    syntax: "sltz rd, rs1".to_string(),
+                    translation_lines: vec!["slt rd, rs, x0".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "slt".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "sgtz" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "sgtz".to_string(),
+                    syntax: "sgtz rd, rs1".to_string(),
+                    translation_lines: vec!["slt rd, x0, rs".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "slt".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "beqz" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "beqz".to_string(),
+                    syntax: "beqz rs1, offset".to_string(),
+                    translation_lines: vec!["beq rs, x0, offset".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "beq".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "bnez" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "bnez".to_string(),
+                    syntax: "bnez rs1, offset".to_string(),
+                    translation_lines: vec!["bne rs, x0, offset".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "bne".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+                instruction.operands[2].start_end_columns = (0, 0);
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "blez" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "blez".to_string(),
+                    syntax: "blez rs1, offset".to_string(),
+                    translation_lines: vec!["bge x0, rs, offset".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "bge".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "bgez" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "bgez".to_string(),
+                    syntax: "bgez rs1, offset".to_string(),
+                    translation_lines: vec!["bge rs, x0, offset".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "bge".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "bltz" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "bltz".to_string(),
+                    syntax: "bltz rs1, offset".to_string(),
+                    translation_lines: vec!["blt rs, x0, offset".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "blt".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "bgtz" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "bgtz".to_string(),
+                    syntax: "bgtz rs1, offset".to_string(),
+                    translation_lines: vec!["blt x0, rs, offset".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "blt".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "bgt" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "bgt".to_string(),
+                    syntax: "bgt rs, rt, offset".to_string(),
+                    translation_lines: vec!["blt rt, rs, offset".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 3 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "blt".to_string();
+                
+                // Reorder Operands
+                let tmp = instruction.operands[0].token_name.clone();
+                instruction.operands[0].token_name = instruction.operands[1].token_name.clone();
+                instruction.operands[1].token_name = tmp;
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "ble" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "ble".to_string(),
+                    syntax: "ble rs, rt, offset".to_string(),
+                    translation_lines: vec!["bge rt, rs, offset".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 3 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "bge".to_string();
+                
+                // Reorder Operands
+                let tmp = instruction.operands[0].token_name.clone();
+                instruction.operands[0].token_name = instruction.operands[1].token_name.clone();
+                instruction.operands[1].token_name = tmp;
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "bgtu" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "bgtu".to_string(),
+                    syntax: "bgtu rs, rt, offset".to_string(),
+                    translation_lines: vec!["bltu rt, rs, offset".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 3 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "bltu".to_string();
+                
+                // Reorder Operands
+                let tmp = instruction.operands[0].token_name.clone();
+                instruction.operands[0].token_name = instruction.operands[1].token_name.clone();
+                instruction.operands[1].token_name = tmp;
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "bleu" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "bleu".to_string(),
+                    syntax: "bleu rs, rt, offset".to_string(),
+                    translation_lines: vec!["bgeu rt, rs, offset".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 3 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "bgeu".to_string();
+                
+                // Reorder Operands
+                let tmp = instruction.operands[0].token_name.clone();
+                instruction.operands[0].token_name = instruction.operands[1].token_name.clone();
+                instruction.operands[1].token_name = tmp;
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            // Start of Jump Pseudo-Instructions
+            "j" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "j".to_string(),
+                    syntax: "j offset".to_string(),
+                    translation_lines: vec!["jal x0, offset".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 1 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "jal".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "jr" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "jr".to_string(),
+                    syntax: "jr offset".to_string(),
+                    translation_lines: vec!["jal x1, offset".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 1 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "jal".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "x1".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "ret" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "ret".to_string(),
+                    syntax: "ret".to_string(),
+                    translation_lines: vec!["jalr x1, 0(x0)".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 0 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "jalr".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "x1".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "0(x0)".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            // Start of F extension pseudo-instructions
+            "fmv.s" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "fmv.s".to_string(),
+                    syntax: "fmv.s frd, frs1".to_string(),
+                    translation_lines: vec!["fsgnj.s frd, frs, frs".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "fsgnj.s".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    2,
+                    instruction.operands[1].clone()
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "fabs.s" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "fabs.s".to_string(),
+                    syntax: "fabs.s frd, frs1".to_string(),
+                    translation_lines: vec!["fsgnjx.s frd, frs, frs".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "fsgnjx.s".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    2,
+                    instruction.operands[1].clone()
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "fneg.s" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "fneg.s".to_string(),
+                    syntax: "fneg.s frd, frs1".to_string(),
+                    translation_lines: vec!["fsgnjn.s frd, frs, frs".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if instruction.operands.len() != 2 {
+                    instruction.errors.push(Error {
+                        error_name: IncorrectNumberOfOperands,
+                        token_causing_error: "".to_string(),
+                        start_end_columns: instruction.operator.start_end_columns,
+                        message: "".to_string(),
+                    });
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "fsgnjn.s".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    2,
+                    instruction.operands[1].clone()
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            _ => {}
+        }
+    }
+
+    //insert all new new instructions
+    for instruction in vec_of_added_instructions {
+        instructions.insert(instruction.instruction_number, instruction);
     }
 }
 

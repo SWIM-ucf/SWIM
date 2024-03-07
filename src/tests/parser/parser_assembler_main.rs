@@ -799,7 +799,7 @@ use crate::parser::parser_structs_and_enums::ErrorType::{
     UnrecognizedInstruction, UnsupportedInstruction,
 };
 use crate::parser::parser_structs_and_enums::{
-    Architecture, ProgramInfo, SUPPORTED_INSTRUCTIONS, UNSUPPORTED_INSTRUCTIONS,
+    Architecture, ProgramInfo, SUPPORTED_INSTRUCTIONS_MIPS, UNSUPPORTED_INSTRUCTIONS_MIPS,
 };
 use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
 use crate::parser::pseudo_instruction_parsing::{
@@ -1088,7 +1088,7 @@ fn create_binary_vec_works_with_all_mod_4_options() {
 
 #[test]
 fn no_unsupported_instructions_are_recognized_by_parser() {
-    for instruction in UNSUPPORTED_INSTRUCTIONS {
+    for instruction in UNSUPPORTED_INSTRUCTIONS_MIPS {
         let result = parser(instruction.to_string(), Architecture::MIPS)
             .0
             .monaco_line_info;
@@ -1098,7 +1098,7 @@ fn no_unsupported_instructions_are_recognized_by_parser() {
 
 #[test]
 fn supported_instructions_are_recognized_by_parser() {
-    for instruction in SUPPORTED_INSTRUCTIONS {
+    for instruction in SUPPORTED_INSTRUCTIONS_MIPS {
         let result = parser(instruction.to_string(), Architecture::MIPS)
             .0
             .monaco_line_info;
