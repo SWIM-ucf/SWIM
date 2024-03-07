@@ -3,8 +3,9 @@ use crate::emulation_core::architectures::AvailableDatapaths;
 use crate::emulation_core::architectures::AvailableDatapaths::MIPS;
 use crate::emulation_core::mips::coprocessor::FpuState;
 use crate::emulation_core::mips::datapath::{DatapathState, Stage};
+use crate::emulation_core::mips::fp_registers::FpRegisters;
+use crate::emulation_core::mips::gp_registers::GpRegisters;
 use crate::emulation_core::mips::memory::Memory;
-use crate::emulation_core::mips::registers::GpRegisters;
 use gloo_console::log;
 use std::rc::Rc;
 use yew::Reducible;
@@ -21,7 +22,7 @@ pub struct MipsCoreState {
     pub state: DatapathState,
     pub registers: GpRegisters,
     pub coprocessor_state: FpuState,
-    pub coprocessor_registers: [u64; 32],
+    pub coprocessor_registers: FpRegisters,
     pub memory: Memory,
     pub current_stage: Stage,
 }

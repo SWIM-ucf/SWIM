@@ -5,7 +5,6 @@ use crate::emulation_core::datapath::Syscall::{
     Exit, PrintDouble, PrintFloat, PrintInt, PrintString, ReadDouble, ReadFloat, ReadInt,
     ReadString,
 };
-use crate::emulation_core::mips::line_info::LineInformation;
 use crate::emulation_core::mips::memory::Memory;
 use std::ops::BitOrAssign;
 
@@ -49,9 +48,12 @@ pub trait Datapath {
     /// registers should be listed within [`Self::RegisterEnum`].
     fn get_register_by_enum(&self, register: Self::RegisterEnum) -> Self::RegisterData;
 
-    /// Sets the data in the register indicated by the provided string. If it doesn't exist,
+    /// Sets the data in the GP register indicated by the provided string. If it doesn't exist,
     /// this function returns Err.
     fn set_register_by_str(&mut self, register: &str, data: Self::RegisterData);
+
+    // Set the data in the FP register indicated by the provided string
+    fn set_fp_register_by_str(&mut self, register: &str, data: Self::RegisterData);
 
     /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
     /// flag. If the process fails, an [`Err`] is returned.
@@ -97,11 +99,7 @@ pub trait Datapath {
 ///
 /// This requires a corresponding visual diagram with labels that can be mapped
 /// to the datapath.
-pub trait VisualDatapath {
-    /// Return the information from the datapath corresponding to the `variable` attribute on a
-    /// part of the visual datapath diagram.
-    fn visual_line_to_data(&self, variable: &str) -> LineInformation;
-}
+pub trait VisualDatapath {}
 
 /// Enum describing all syscalls that can be executed. The register used for indicating the syscall
 /// (and its argument) is different for each architecture.

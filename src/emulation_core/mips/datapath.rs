@@ -51,7 +51,7 @@ use super::constants::*;
 use super::control_signals::{floating_point::*, *};
 use super::datapath_signals::*;
 use super::instruction::*;
-use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
+use super::{coprocessor::MipsFpCoprocessor, gp_registers::GpRegisters, memory::Memory};
 use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
 use crate::emulation_core::mips::registers::GpRegisterType::{V0, V1};
@@ -225,7 +225,7 @@ impl Default for MipsDatapath {
 
 impl Datapath for MipsDatapath {
     type RegisterData = u64;
-    type RegisterEnum = super::registers::GpRegisterType;
+    type RegisterEnum = super::gp_registers::GpRegisterType;
 
     fn execute_instruction(&mut self) -> DatapathUpdateSignal {
         let mut result_signals = DatapathUpdateSignal::default();
@@ -273,9 +273,14 @@ impl Datapath for MipsDatapath {
         self.registers[register]
     }
 
-    fn set_register_by_str(&mut self, _register: &str, _data: Self::RegisterData) {
-        let register = &mut self.registers[_register];
-        *register = _data;
+    fn set_register_by_str(&mut self, register: &str, data: Self::RegisterData) {
+        let register = &mut self.registers[register];
+        *register = data;
+    }
+
+    fn set_fp_register_by_str(&mut self, register: &str, data: Self::RegisterData) {
+        let register = &mut self.coprocessor.registers[register];
+        *register = data;
     }
 
     fn initialize(&mut self, initial_pc: usize, instructions: Vec<u32>) -> Result<(), String> {
@@ -378,7 +383,6 @@ impl MipsDatapath {
 
         // Upper part of datapath, PC calculation
         self.pc_plus_4();
-
         self.coprocessor.set_instruction(self.state.instruction);
 
         // Both state and coprocessor state always update

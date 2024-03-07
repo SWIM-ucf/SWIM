@@ -41,6 +41,16 @@ body {
   background-color: #2e2b2b;
 }
 
+/****** Icons ******/
+.icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
+}
+
 /****** Editor ******/
 .code {
   display: flex;
@@ -221,13 +231,19 @@ body {
 }
 
 .datapath-wrapper {
+  max-height: 50%;
+}
+
+.datapath-object-wrapper {
   flex-grow: 1.4;
   /* border: 2px solid black; */
   overflow: auto;
   width: 100%;
+  height: 100%;
   flex-basis: 50%;
   background-color: #FFF;
   z-index: 1;
+  position: relative;
 }
 
 .button-bar {

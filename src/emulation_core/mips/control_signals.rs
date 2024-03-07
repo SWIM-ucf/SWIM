@@ -279,8 +279,9 @@ pub enum RegWrite {
 
 pub mod floating_point {
     use super::super::constants::*;
+    use serde::{Deserialize, Serialize};
 
-    #[derive(Clone, Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub struct FpuControlSignals {
         pub cc: Cc,
         pub cc_write: CcWrite,
@@ -300,7 +301,7 @@ pub mod floating_point {
     ///
     /// For the sake of this project, it will usually be assumed that this will
     /// be 0, however the functionality is available to be extended.
-    #[derive(Clone, Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub enum Cc {
         /// Use condition code register 0. Default in most operations. Can be
         /// additionally used in the case where the condition code register is
@@ -310,7 +311,7 @@ pub mod floating_point {
     }
 
     /// Determines if the condition code register file should be written to.
-    #[derive(Clone, Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub enum CcWrite {
         #[default]
         NoWrite = 0,
@@ -321,7 +322,7 @@ pub mod floating_point {
     ///
     /// This is a special intermediary register that facilitates passing data between
     /// the main processing unit and the floating-point unit.
-    #[derive(Clone, Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub enum DataSrc {
         /// Use data from the main processing unit. Specifically, the data from register
         /// `rt` from a given instruction. This value can additionally be used in the cases
@@ -342,7 +343,7 @@ pub mod floating_point {
     /// For the latter two functions, it is imperative to unset the [`RegWrite`](super::RegWrite) and
     /// [`FpuRegWrite`] control signals in cases where registers should not be modified
     /// with unintended data.
-    #[derive(Clone, Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub enum DataWrite {
         /// - Do not write to the data register.
         /// - Source data to write to the main processing unit register file from the main
@@ -373,7 +374,7 @@ pub mod floating_point {
     ///
     /// *Implementation note:* The bits set for the comparator are intended to match
     /// the bits used in the `cond` field of a `c.cond.fmt` instruction.
-    #[derive(Clone, Debug, Default, PartialEq)]
+    #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
     pub enum FpuAluOp {
         #[default]
         /// `_0000` (0):
@@ -437,7 +438,7 @@ pub mod floating_point {
     ///
     /// This directly overrides any branch decisions decided by the main processing unit.
     /// The [`Branch`](super::Branch) control signal should not be set in addition to this signal.
-    #[derive(Clone, Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub enum FpuBranch {
         /// Do not consider branching.
         #[default]
@@ -451,7 +452,7 @@ pub mod floating_point {
     /// register's new data will be.
     ///
     /// This decision, if set, overrides the decision from the [`DataWrite`] control signal.
-    #[derive(Clone, Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub enum FpuMemToReg {
         /// Do not use data from memory. Use the result of the [`DataWrite`] control signal.
         #[default]
@@ -463,7 +464,7 @@ pub mod floating_point {
 
     /// Determines, given that [`FpuRegWrite`] is set, which destination register to write
     /// to, which largely depends on the instruction format.
-    #[derive(Clone, Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub enum FpuRegDst {
         /// Use register `ft`.
         Reg1 = 0,
@@ -480,7 +481,7 @@ pub mod floating_point {
     ///
     /// While all buses carrying information are 64-bits wide, some bits of the bus may be
     /// ignored in the case of this control signal.
-    #[derive(Clone, Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub enum FpuRegWidth {
         /// Use words (32 bits). Equivalent to a single-precision floating-point value.
         Word = 0,
@@ -503,7 +504,7 @@ pub mod floating_point {
     }
 
     /// Determines if the floating-point register file should be written to.
-    #[derive(Clone, Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub enum FpuRegWrite {
         /// Do not write to the floating-point register file.
         #[default]
@@ -517,7 +518,7 @@ pub mod floating_point {
     /// to follow through with a branch.
     ///
     /// This signal is what is sent to the main processor.
-    #[derive(Clone, Default, PartialEq)]
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub enum FpuTakeBranch {
         #[default]
         NoBranch = 0,
