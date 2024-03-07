@@ -54,7 +54,8 @@ use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, gp_registers::GpRegisters, memory::Memory};
 use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
-use crate::emulation_core::mips::registers::GpRegisterType::{V0, V1};
+use crate::emulation_core::mips::fp_registers::FpRegisterType;
+use crate::emulation_core::mips::gp_registers::GpRegisterType::{V0, V1};
 use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.
@@ -324,8 +325,8 @@ impl Datapath for MipsDatapath {
         Syscall::from_register_data(
             self.get_register_by_enum(V0),
             self.get_register_by_enum(V1),
-            f32::from_bits(self.coprocessor.fpr[0] as u32),
-            f64::from_bits(self.coprocessor.fpr[0]),
+            f32::from_bits(self.coprocessor.registers[FpRegisterType::F0] as u32),
+            f64::from_bits(self.coprocessor.registers[FpRegisterType::F0]),
         )
     }
 
@@ -339,10 +340,10 @@ impl Datapath for MipsDatapath {
             self.registers[V1] = val;
         }
         if let Some(val) = float_return {
-            self.coprocessor.fpr[1] = val.to_bits() as u64;
+            self.coprocessor.registers[FpRegisterType::F1] = val.to_bits() as u64;
         }
         if let Some(val) = double_return {
-            self.coprocessor.fpr[1] = val.to_bits();
+            self.coprocessor.registers[FpRegisterType::F1] = val.to_bits();
         }
     }
 }
