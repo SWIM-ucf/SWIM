@@ -10,8 +10,6 @@ use crate::parser::pseudo_instruction_parsing::{
 };
 use std::collections::HashMap;
 
-use gloo_console::log;
-
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
 pub fn parser(file_string: String, arch: Architecture) -> (ProgramInfo, Vec<u32>) {
@@ -1907,7 +1905,6 @@ pub fn read_instructions_riscv(
                 }
             }
             "xori" => {
-
                 read_operands_riscv(
                     instruction,
                     vec![RegisterGP, RegisterGP, Immediate],
@@ -3192,7 +3189,6 @@ pub fn read_instructions_riscv(
                 }
             }
             "remu" => {
-
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
 
@@ -3363,8 +3359,7 @@ pub fn read_instructions_riscv(
                 }
             }
             // Start of RV32F
-            "fmadd.s" =>
-            {
+            "fmadd.s" => {
                 read_operands_riscv(
                     instruction,
                     vec![RegisterFP, RegisterFP, RegisterFP, RegisterFP],
@@ -4251,7 +4246,7 @@ pub fn read_instructions_riscv(
             "fsqrt.d" => {
                 // Funct5 + fmt + rs2
                 instruction.binary = append_binary(instruction.binary, 0b010110100000, 12);
-                
+
                 read_operands_riscv(
                     instruction,
                     vec![RegisterFP, RegisterFP],
@@ -4779,7 +4774,6 @@ pub fn read_instructions_riscv(
                 }
             }
             "fsd" => {
-
                 read_operands_riscv(
                     instruction,
                     vec![RegisterFP, MemoryAddress],
@@ -4972,7 +4966,6 @@ fn immediate_to_branch(mut bin: u32) -> u32 {
     // Extract imm[10:5]
     let upper_imm = (bin >> 25) & 0b111111;
 
-
     // Extract bit 11 and bit 12
     let bit_11 = (bin >> 30) & 0b1;
     let bit_12 = (bin >> 31) & 0b1;
@@ -5009,13 +5002,13 @@ fn immediate_to_branch(mut bin: u32) -> u32 {
 fn upper_to_jump(mut bin: u32) -> u32 {
     // Extract bits immediate
     let imm = bin >> 12;
-    
+
     // Extract bits imm[1-10]
     let lower_imm = (imm >> 1) & 0b1111111111;
-    
+
     // Extracts bits imm[12:19]
     let upper_imm = imm >> 12;
-    
+
     // Extract bit imm[11]
     let bit_11 = (imm >> 11) & 1;
 
@@ -5024,7 +5017,7 @@ fn upper_to_jump(mut bin: u32) -> u32 {
 
     // Clear bits [12-31]
     bin &= !(0b11111111111111111111 << 12);
-    
+
     bin |= (upper_imm << 12) | (bit_11 << 20) | (lower_imm << 21) | (bit_20 << 31);
 
     bin
