@@ -2,7 +2,7 @@
 
 use crate::emulation_core::datapath::Datapath;
 use crate::emulation_core::mips::datapath::MipsDatapath;
-use crate::emulation_core::mips::registers::GpRegisterType;
+use crate::emulation_core::mips::gp_registers::GpRegisterType;
 
 pub mod api {
     use super::*;
@@ -1721,14 +1721,17 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10000_00000_00001_00010_000000];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[0] = f32::to_bits(0.25f32) as u64;
-        datapath.coprocessor.fpr[1] = f32::to_bits(0.5f32) as u64;
+        datapath.coprocessor.registers.fpr[0] = f32::to_bits(0.25f32) as u64;
+        datapath.coprocessor.registers.fpr[1] = f32::to_bits(0.5f32) as u64;
 
         datapath.execute_instruction();
 
         // The result should be 0.75, represented in a 32-bit value as per the
         // IEEE 754 single-precision floating-point specification.
-        assert_eq!(f32::from_bits(datapath.coprocessor.fpr[2] as u32), 0.75);
+        assert_eq!(
+            f32::from_bits(datapath.coprocessor.registers.fpr[2] as u32),
+            0.75
+        );
         Ok(())
     }
 
@@ -1744,14 +1747,17 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10001_00000_00001_00010_000000];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[0] = f64::to_bits(123.125);
-        datapath.coprocessor.fpr[1] = f64::to_bits(0.5);
+        datapath.coprocessor.registers.fpr[0] = f64::to_bits(123.125);
+        datapath.coprocessor.registers.fpr[1] = f64::to_bits(0.5);
 
         datapath.execute_instruction();
 
         // The result should be 123.625, represented in a 64-bit value as per the
         // IEEE 754 double-precision floating-point specification.
-        assert_eq!(f64::from_bits(datapath.coprocessor.fpr[2]), 123.625);
+        assert_eq!(
+            f64::from_bits(datapath.coprocessor.registers.fpr[2]),
+            123.625
+        );
         Ok(())
     }
 
@@ -1768,12 +1774,15 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10000_00000_00001_00010_000001];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[0] = f32::to_bits(5.625f32) as u64;
-        datapath.coprocessor.fpr[1] = f32::to_bits(3.125f32) as u64;
+        datapath.coprocessor.registers.fpr[0] = f32::to_bits(5.625f32) as u64;
+        datapath.coprocessor.registers.fpr[1] = f32::to_bits(3.125f32) as u64;
 
         datapath.execute_instruction();
 
-        assert_eq!(f32::from_bits(datapath.coprocessor.fpr[2] as u32), -2.5);
+        assert_eq!(
+            f32::from_bits(datapath.coprocessor.registers.fpr[2] as u32),
+            -2.5
+        );
         Ok(())
     }
 
@@ -1790,12 +1799,15 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10001_00000_00001_00010_000001];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[0] = f64::to_bits(438.125);
-        datapath.coprocessor.fpr[1] = f64::to_bits(98765.5);
+        datapath.coprocessor.registers.fpr[0] = f64::to_bits(438.125);
+        datapath.coprocessor.registers.fpr[1] = f64::to_bits(98765.5);
 
         datapath.execute_instruction();
 
-        assert_eq!(f64::from_bits(datapath.coprocessor.fpr[2]), 98327.375);
+        assert_eq!(
+            f64::from_bits(datapath.coprocessor.registers.fpr[2]),
+            98327.375
+        );
         Ok(())
     }
 
@@ -1812,12 +1824,15 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10000_00100_00101_01001_000010];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[5] = f32::to_bits(24.5f32) as u64;
-        datapath.coprocessor.fpr[4] = f32::to_bits(0.5f32) as u64;
+        datapath.coprocessor.registers.fpr[5] = f32::to_bits(24.5f32) as u64;
+        datapath.coprocessor.registers.fpr[4] = f32::to_bits(0.5f32) as u64;
 
         datapath.execute_instruction();
 
-        assert_eq!(f32::from_bits(datapath.coprocessor.fpr[9] as u32), 12.25f32);
+        assert_eq!(
+            f32::from_bits(datapath.coprocessor.registers.fpr[9] as u32),
+            12.25f32
+        );
         Ok(())
     }
 
@@ -1834,12 +1849,15 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10001_01001_00110_00100_000010];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[6] = f64::to_bits(-150.0625);
-        datapath.coprocessor.fpr[9] = f64::to_bits(9.5);
+        datapath.coprocessor.registers.fpr[6] = f64::to_bits(-150.0625);
+        datapath.coprocessor.registers.fpr[9] = f64::to_bits(9.5);
 
         datapath.execute_instruction();
 
-        assert_eq!(f64::from_bits(datapath.coprocessor.fpr[4]), -1425.59375);
+        assert_eq!(
+            f64::from_bits(datapath.coprocessor.registers.fpr[4]),
+            -1425.59375
+        );
         Ok(())
     }
 
@@ -1856,13 +1874,13 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10000_10001_10000_01111_000011];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[16] = f32::to_bits(901f32) as u64;
-        datapath.coprocessor.fpr[17] = f32::to_bits(2f32) as u64;
+        datapath.coprocessor.registers.fpr[16] = f32::to_bits(901f32) as u64;
+        datapath.coprocessor.registers.fpr[17] = f32::to_bits(2f32) as u64;
 
         datapath.execute_instruction();
 
         assert_eq!(
-            f32::from_bits(datapath.coprocessor.fpr[15] as u32),
+            f32::from_bits(datapath.coprocessor.registers.fpr[15] as u32),
             450.5f32
         );
         Ok(())
@@ -1881,12 +1899,15 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10001_10100_01010_00001_000011];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[10] = f64::to_bits(95405.375);
-        datapath.coprocessor.fpr[20] = f64::to_bits(2.0);
+        datapath.coprocessor.registers.fpr[10] = f64::to_bits(95405.375);
+        datapath.coprocessor.registers.fpr[20] = f64::to_bits(2.0);
 
         datapath.execute_instruction();
 
-        assert_eq!(f64::from_bits(datapath.coprocessor.fpr[1]), 47702.6875);
+        assert_eq!(
+            f64::from_bits(datapath.coprocessor.registers.fpr[1]),
+            47702.6875
+        );
         Ok(())
     }
 
@@ -1904,7 +1925,7 @@ pub mod coprocessor {
         datapath.initialize_legacy(instructions)?;
 
         datapath.registers.gpr[17] = 1028; // $s1
-        datapath.coprocessor.fpr[3] = f32::to_bits(1.0625f32) as u64;
+        datapath.coprocessor.registers.fpr[3] = f32::to_bits(1.0625f32) as u64;
 
         datapath.execute_instruction();
 
@@ -1930,7 +1951,7 @@ pub mod coprocessor {
         datapath.initialize_legacy(instructions)?;
 
         datapath.registers.gpr[16] = 2000; // $s0
-        datapath.coprocessor.fpr[5] = f32::to_bits(3.5f32) as u64;
+        datapath.coprocessor.registers.fpr[5] = f32::to_bits(3.5f32) as u64;
 
         datapath.execute_instruction();
 
@@ -1960,7 +1981,7 @@ pub mod coprocessor {
         datapath.initialize_legacy(instructions)?;
 
         datapath.registers.gpr[18] = 1000; // $s2
-        datapath.coprocessor.fpr[0] = f64::to_bits(9853114.625);
+        datapath.coprocessor.registers.fpr[0] = f64::to_bits(9853114.625);
 
         datapath.execute_instruction();
 
@@ -1996,7 +2017,7 @@ pub mod coprocessor {
         datapath.execute_instruction();
 
         assert_eq!(
-            f32::from_bits(datapath.coprocessor.fpr[10] as u32),
+            f32::from_bits(datapath.coprocessor.registers.fpr[10] as u32),
             413.125f32
         );
         Ok(())
@@ -2027,7 +2048,7 @@ pub mod coprocessor {
         datapath.execute_instruction();
 
         assert_eq!(
-            f32::from_bits(datapath.coprocessor.fpr[11] as u32),
+            f32::from_bits(datapath.coprocessor.registers.fpr[11] as u32),
             6.1875f32
         );
         Ok(())
@@ -2046,8 +2067,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10000_00010_00001_000_00_110010];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[1] = f32::to_bits(15.5f32) as u64;
-        datapath.coprocessor.fpr[2] = f32::to_bits(15.5f32) as u64;
+        datapath.coprocessor.registers.fpr[1] = f32::to_bits(15.5f32) as u64;
+        datapath.coprocessor.registers.fpr[2] = f32::to_bits(15.5f32) as u64;
 
         datapath.execute_instruction();
 
@@ -2069,8 +2090,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10000_00011_01110_000_00_110010];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[14] = f32::to_bits(20.125f32) as u64;
-        datapath.coprocessor.fpr[3] = f32::to_bits(100f32) as u64;
+        datapath.coprocessor.registers.fpr[14] = f32::to_bits(20.125f32) as u64;
+        datapath.coprocessor.registers.fpr[3] = f32::to_bits(100f32) as u64;
 
         datapath.execute_instruction();
 
@@ -2092,8 +2113,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10001_01001_00101_000_00_110010];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[5] = f64::to_bits(12951.625);
-        datapath.coprocessor.fpr[9] = f64::to_bits(12951.625);
+        datapath.coprocessor.registers.fpr[5] = f64::to_bits(12951.625);
+        datapath.coprocessor.registers.fpr[9] = f64::to_bits(12951.625);
 
         datapath.execute_instruction();
 
@@ -2115,8 +2136,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10001_10011_01111_000_00_110010];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[15] = f64::to_bits(6016.25);
-        datapath.coprocessor.fpr[19] = f64::to_bits(820.43);
+        datapath.coprocessor.registers.fpr[15] = f64::to_bits(6016.25);
+        datapath.coprocessor.registers.fpr[19] = f64::to_bits(820.43);
 
         datapath.execute_instruction();
 
@@ -2138,8 +2159,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10000_00000_10011_000_00_111100];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[19] = f32::to_bits(2.875f32) as u64;
-        datapath.coprocessor.fpr[0] = f32::to_bits(70.6f32) as u64;
+        datapath.coprocessor.registers.fpr[19] = f32::to_bits(2.875f32) as u64;
+        datapath.coprocessor.registers.fpr[0] = f32::to_bits(70.6f32) as u64;
 
         datapath.execute_instruction();
 
@@ -2161,8 +2182,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10000_11111_11110_000_00_111100];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[30] = f32::to_bits(90.7f32) as u64;
-        datapath.coprocessor.fpr[31] = f32::to_bits(-87.44f32) as u64;
+        datapath.coprocessor.registers.fpr[30] = f32::to_bits(90.7f32) as u64;
+        datapath.coprocessor.registers.fpr[31] = f32::to_bits(-87.44f32) as u64;
 
         datapath.execute_instruction();
 
@@ -2184,8 +2205,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10001_11101_01100_000_00_111100];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[12] = f64::to_bits(4.0);
-        datapath.coprocessor.fpr[29] = f64::to_bits(30000.6);
+        datapath.coprocessor.registers.fpr[12] = f64::to_bits(4.0);
+        datapath.coprocessor.registers.fpr[29] = f64::to_bits(30000.6);
 
         datapath.execute_instruction();
 
@@ -2207,8 +2228,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10001_00101_00100_000_00_111100];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[4] = f64::to_bits(413.420);
-        datapath.coprocessor.fpr[5] = f64::to_bits(-6600.9);
+        datapath.coprocessor.registers.fpr[4] = f64::to_bits(413.420);
+        datapath.coprocessor.registers.fpr[5] = f64::to_bits(-6600.9);
 
         datapath.execute_instruction();
 
@@ -2230,8 +2251,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10000_00001_00000_000_00_111110];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[0] = f32::to_bits(171.937f32) as u64;
-        datapath.coprocessor.fpr[1] = f32::to_bits(9930.829f32) as u64;
+        datapath.coprocessor.registers.fpr[0] = f32::to_bits(171.937f32) as u64;
+        datapath.coprocessor.registers.fpr[1] = f32::to_bits(9930.829f32) as u64;
 
         datapath.execute_instruction();
 
@@ -2253,8 +2274,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10000_00011_00010_000_00_111110];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[2] = f32::to_bits(6.5f32) as u64;
-        datapath.coprocessor.fpr[3] = f32::to_bits(6.5f32) as u64;
+        datapath.coprocessor.registers.fpr[2] = f32::to_bits(6.5f32) as u64;
+        datapath.coprocessor.registers.fpr[3] = f32::to_bits(6.5f32) as u64;
 
         datapath.execute_instruction();
 
@@ -2276,8 +2297,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10000_00101_00100_000_00_111110];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[4] = f32::to_bits(5742.006f32) as u64;
-        datapath.coprocessor.fpr[5] = f32::to_bits(1336.568f32) as u64;
+        datapath.coprocessor.registers.fpr[4] = f32::to_bits(5742.006f32) as u64;
+        datapath.coprocessor.registers.fpr[5] = f32::to_bits(1336.568f32) as u64;
 
         datapath.execute_instruction();
 
@@ -2299,8 +2320,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10001_00111_00110_000_00_111110];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[6] = f64::to_bits(3483.70216);
-        datapath.coprocessor.fpr[7] = f64::to_bits(7201.56625);
+        datapath.coprocessor.registers.fpr[6] = f64::to_bits(3483.70216);
+        datapath.coprocessor.registers.fpr[7] = f64::to_bits(7201.56625);
 
         datapath.execute_instruction();
 
@@ -2322,8 +2343,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10001_01001_01000_000_00_111110];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[8] = f64::to_bits(77.4009);
-        datapath.coprocessor.fpr[9] = f64::to_bits(77.4009);
+        datapath.coprocessor.registers.fpr[8] = f64::to_bits(77.4009);
+        datapath.coprocessor.registers.fpr[9] = f64::to_bits(77.4009);
 
         datapath.execute_instruction();
 
@@ -2345,8 +2366,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10001_01011_01010_000_00_111110];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[10] = f64::to_bits(9190.43309);
-        datapath.coprocessor.fpr[11] = f64::to_bits(2869.57622);
+        datapath.coprocessor.registers.fpr[10] = f64::to_bits(9190.43309);
+        datapath.coprocessor.registers.fpr[11] = f64::to_bits(2869.57622);
 
         datapath.execute_instruction();
 
@@ -2368,8 +2389,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10000_01101_01100_000_00_111111];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[12] = f32::to_bits(2469.465f32) as u64;
-        datapath.coprocessor.fpr[13] = f32::to_bits(3505.57f32) as u64;
+        datapath.coprocessor.registers.fpr[12] = f32::to_bits(2469.465f32) as u64;
+        datapath.coprocessor.registers.fpr[13] = f32::to_bits(3505.57f32) as u64;
 
         datapath.execute_instruction();
 
@@ -2391,8 +2412,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10000_01111_01110_000_00_111111];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[14] = f32::to_bits(7099.472f32) as u64;
-        datapath.coprocessor.fpr[15] = f32::to_bits(87.198f32) as u64;
+        datapath.coprocessor.registers.fpr[14] = f32::to_bits(7099.472f32) as u64;
+        datapath.coprocessor.registers.fpr[15] = f32::to_bits(87.198f32) as u64;
 
         datapath.execute_instruction();
 
@@ -2414,8 +2435,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10001_10001_10000_000_00_111111];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[16] = f64::to_bits(7726.4794015);
-        datapath.coprocessor.fpr[17] = f64::to_bits(9345.7753943);
+        datapath.coprocessor.registers.fpr[16] = f64::to_bits(7726.4794015);
+        datapath.coprocessor.registers.fpr[17] = f64::to_bits(9345.7753943);
 
         datapath.execute_instruction();
 
@@ -2437,8 +2458,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10001_10011_10010_000_00_111111];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[18] = f64::to_bits(4688.2854359);
-        datapath.coprocessor.fpr[19] = f64::to_bits(819.7956308);
+        datapath.coprocessor.registers.fpr[18] = f64::to_bits(4688.2854359);
+        datapath.coprocessor.registers.fpr[19] = f64::to_bits(819.7956308);
 
         datapath.execute_instruction();
 
@@ -2460,8 +2481,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10000_10101_10100_000_00_111101];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[20] = f32::to_bits(3090.244f32) as u64;
-        datapath.coprocessor.fpr[21] = f32::to_bits(7396.444f32) as u64;
+        datapath.coprocessor.registers.fpr[20] = f32::to_bits(3090.244f32) as u64;
+        datapath.coprocessor.registers.fpr[21] = f32::to_bits(7396.444f32) as u64;
 
         datapath.execute_instruction();
 
@@ -2483,8 +2504,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10000_10111_10110_000_00_111101];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[22] = f32::to_bits(6269.823f32) as u64;
-        datapath.coprocessor.fpr[23] = f32::to_bits(3089.393f32) as u64;
+        datapath.coprocessor.registers.fpr[22] = f32::to_bits(6269.823f32) as u64;
+        datapath.coprocessor.registers.fpr[23] = f32::to_bits(3089.393f32) as u64;
 
         datapath.execute_instruction();
 
@@ -2506,8 +2527,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10001_11001_11000_000_00_111101];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[24] = f64::to_bits(819.7956308);
-        datapath.coprocessor.fpr[25] = f64::to_bits(4688.2854359);
+        datapath.coprocessor.registers.fpr[24] = f64::to_bits(819.7956308);
+        datapath.coprocessor.registers.fpr[25] = f64::to_bits(4688.2854359);
 
         datapath.execute_instruction();
 
@@ -2529,8 +2550,8 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_10001_11011_11010_000_00_111101];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[26] = f64::to_bits(9776.3465875);
-        datapath.coprocessor.fpr[27] = f64::to_bits(1549.8268716);
+        datapath.coprocessor.registers.fpr[26] = f64::to_bits(9776.3465875);
+        datapath.coprocessor.registers.fpr[27] = f64::to_bits(1549.8268716);
 
         datapath.execute_instruction();
 
@@ -2559,8 +2580,8 @@ pub mod coprocessor {
         ];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[5] = f64::to_bits(12951.625);
-        datapath.coprocessor.fpr[9] = f64::to_bits(12951.625);
+        datapath.coprocessor.registers.fpr[5] = f64::to_bits(12951.625);
+        datapath.coprocessor.registers.fpr[9] = f64::to_bits(12951.625);
 
         datapath.execute_instruction();
         datapath.execute_instruction();
@@ -2590,8 +2611,8 @@ pub mod coprocessor {
         ];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[5] = f64::to_bits(12952.625);
-        datapath.coprocessor.fpr[9] = f64::to_bits(12951.625);
+        datapath.coprocessor.registers.fpr[5] = f64::to_bits(12952.625);
+        datapath.coprocessor.registers.fpr[9] = f64::to_bits(12951.625);
 
         datapath.execute_instruction();
         datapath.execute_instruction();
@@ -2621,8 +2642,8 @@ pub mod coprocessor {
         ];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[4] = f32::to_bits(5742.006f32) as u64;
-        datapath.coprocessor.fpr[5] = f32::to_bits(1336.568f32) as u64;
+        datapath.coprocessor.registers.fpr[4] = f32::to_bits(5742.006f32) as u64;
+        datapath.coprocessor.registers.fpr[5] = f32::to_bits(1336.568f32) as u64;
 
         datapath.execute_instruction();
         datapath.execute_instruction();
@@ -2652,8 +2673,8 @@ pub mod coprocessor {
         ];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[4] = f32::to_bits(742.006f32) as u64;
-        datapath.coprocessor.fpr[5] = f32::to_bits(1336.568f32) as u64;
+        datapath.coprocessor.registers.fpr[4] = f32::to_bits(742.006f32) as u64;
+        datapath.coprocessor.registers.fpr[5] = f32::to_bits(1336.568f32) as u64;
 
         datapath.execute_instruction();
         datapath.execute_instruction();
@@ -2680,7 +2701,7 @@ pub mod coprocessor {
 
         datapath.execute_instruction();
 
-        assert_eq!(datapath.coprocessor.fpr[0], 25);
+        assert_eq!(datapath.coprocessor.registers.fpr[0], 25);
 
         Ok(())
     }
@@ -2702,7 +2723,7 @@ pub mod coprocessor {
 
         datapath.execute_instruction();
 
-        assert_eq!(datapath.coprocessor.fpr[1], 0xABCD_BEEF);
+        assert_eq!(datapath.coprocessor.registers.fpr[1], 0xABCD_BEEF);
 
         Ok(())
     }
@@ -2724,7 +2745,10 @@ pub mod coprocessor {
 
         datapath.execute_instruction();
 
-        assert_eq!(datapath.coprocessor.fpr[30], 0xDEAD_BEEF_FEED_DEED);
+        assert_eq!(
+            datapath.coprocessor.registers.fpr[30],
+            0xDEAD_BEEF_FEED_DEED
+        );
 
         Ok(())
     }
@@ -2742,7 +2766,7 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_00000_10101_10010_00000000000];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[18] = 123;
+        datapath.coprocessor.registers.fpr[18] = 123;
 
         datapath.execute_instruction();
 
@@ -2764,7 +2788,7 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_00000_10110_10011_00000000000];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[19] = 0xABBA_BABB_3ABA_4444;
+        datapath.coprocessor.registers.fpr[19] = 0xABBA_BABB_3ABA_4444;
 
         datapath.execute_instruction();
 
@@ -2786,7 +2810,7 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_00000_10111_10100_00000000000];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[20] = 0xBADA_BEEF_BADA_B00E;
+        datapath.coprocessor.registers.fpr[20] = 0xBADA_BEEF_BADA_B00E;
 
         datapath.execute_instruction();
 
@@ -2808,7 +2832,7 @@ pub mod coprocessor {
         let instructions: Vec<u32> = vec![0b010001_00001_11000_10101_00000000000];
         datapath.initialize_legacy(instructions)?;
 
-        datapath.coprocessor.fpr[21] = 0xADDA_DADD_1BAA_CAFE;
+        datapath.coprocessor.registers.fpr[21] = 0xADDA_DADD_1BAA_CAFE;
 
         datapath.execute_instruction();
 

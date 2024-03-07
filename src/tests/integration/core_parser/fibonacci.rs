@@ -1,4 +1,4 @@
-use crate::emulation_core::mips::registers::GpRegisterType;
+use crate::emulation_core::mips::gp_registers::GpRegisterType;
 
 use super::*;
 
@@ -22,11 +22,11 @@ fn recursive_fibonacci() -> Result<(), String> {
             slt     $v0,$v0,$s1
             beq     $v0,$zero,L2
             nop
-    
+
             lw      $v0,40($fp)
             b       L3
             nop
-    
+
     L2:
             lw      $v0,40($fp)
             nop
@@ -34,7 +34,7 @@ fn recursive_fibonacci() -> Result<(), String> {
             move    $a0,$v0
             jal     fib(int)
             nop
-    
+
             move    $s0,$v0
             lw      $v0,40($fp)
             nop
@@ -42,7 +42,7 @@ fn recursive_fibonacci() -> Result<(), String> {
             move    $a0,$v0
             jal     fib(int)
             nop
-    
+
             addu    $v0,$s0,$v0
     L3:
             move    $sp,$fp
@@ -52,7 +52,7 @@ fn recursive_fibonacci() -> Result<(), String> {
             addiu   $sp,$sp,40
             jr      $ra
             nop
-    
+
     main:
             addiu   $sp,$sp,-40
             sw      $ra,36($sp)
@@ -63,7 +63,7 @@ fn recursive_fibonacci() -> Result<(), String> {
             lw      $a0,24($fp)
             jal     fib(int)
             nop
-    
+
             sw      $v0,28($fp)
             lw      $v0,28($fp)      # This is where the final answer gets loaded off the stack
             move    $sp,$fp

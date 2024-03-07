@@ -5,7 +5,7 @@ use crate::agent::messages::MipsStateUpdate::*;
 use crate::emulation_core::architectures::{DatapathRef, DatapathUpdate};
 use crate::emulation_core::datapath::{Datapath, DatapathUpdateSignal, UPDATE_EVERYTHING};
 use crate::emulation_core::mips::datapath::MipsDatapath;
-use crate::emulation_core::mips::registers::GpRegisterType;
+use crate::emulation_core::mips::gp_registers::GpRegisterType;
 use futures::{FutureExt, SinkExt, StreamExt};
 use gloo_console::log;
 use std::time::Duration;
@@ -91,7 +91,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                 send_update_mips!(
                     state.scope,
                     state.updates.changed_coprocessor_registers,
-                    UpdateCoprocessorRegisters(datapath.coprocessor.fpr)
+                    UpdateCoprocessorRegisters(datapath.coprocessor.registers)
                 );
                 send_update_mips!(
                     state.scope,
@@ -142,6 +142,10 @@ impl EmulatorCoreAgentState {
             Command::SetRegister(register, value) => {
                 self.current_datapath.set_register_by_str(&register, value);
                 self.updates.changed_registers = true;
+            }
+            Command::SetFPRegister(register, value) => {
+                self.current_datapath
+                    .set_fp_register_by_str(&register, value);
             }
             Command::SetMemory(ptr, data) => {
                 self.current_datapath.set_memory(ptr, data);
