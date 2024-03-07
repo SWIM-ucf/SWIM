@@ -20,8 +20,6 @@ use std::collections::HashMap;
 
 use super::parser_structs_and_enums::{RISCV_FP_REGISTERS, RISCV_GP_REGISTERS};
 
-use gloo_console::log;
-
 ///This function takes an instruction whose operands it is supposed to read, the order of expected operand types and then
 ///the order these operands should be concatenated onto the binary representation of the string
 ///the function returns the instruction it was given with any errors and the binary of the operands added on.
@@ -229,7 +227,6 @@ pub fn read_operands_riscv(
         //the binary is pushed to the string representations vec. Otherwise, the errors are pushed to the instruction.errors vec.
         match operand_type {
             RegisterGP => {
-                log!("RegisterGP");
                 instruction.operands[i].token_type = TokenType::RegisterGP;
                 bit_lengths.push(5);
 
@@ -238,8 +235,6 @@ pub fn read_operands_riscv(
                     instruction.operands[i].start_end_columns,
                     GeneralPurpose,
                 );
-
-                log!("Register Results:  ", format!("{:?}", register_results));
 
                 // Vector holding all register arguments
                 binary_representation.push(register_results.0 as u32);
@@ -265,7 +260,6 @@ pub fn read_operands_riscv(
             UpperImmediate =>
             // Can be used to represent offsets for J-type instructions
             {
-                log!("Upper Immediate");
                 instruction.operands[i].token_type = TokenType::Immediate;
                 bit_lengths.push(20); // 20 bits to represent upper immediates
 
@@ -551,9 +545,6 @@ pub fn read_memory_address_riscv(
     //will confirm they are properly formatted
     let immediate_results = read_immediate(offset_str, start_end_columns, 16);
     let register_results = read_register_riscv(&cleaned_base, start_end_columns, GeneralPurpose);
-
-    log!("Immediate: ", format!("{:?}", immediate_results));
-    log!("Register: ", format!("{:?}", register_results));
 
     //any errors found in the read_immediate or read_register functions are collected into a vec
     //if there were any errors, those are returned

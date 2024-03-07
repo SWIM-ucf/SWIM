@@ -5,8 +5,6 @@ use crate::parser::parser_structs_and_enums::{
 };
 use std::collections::HashMap;
 
-use gloo_console::log;
-
 ///Iterates through the instruction list and translates pseudo-instructions into real instructions.
 /// LW and SW with labelled memory are not completely translated in this step because they require
 /// the address of the labelled memory to be known which is not found until after all other pseudo-instructions
@@ -1262,7 +1260,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
 
     //vec_of_added_instructions is needed because of rust ownership rules. It will not let us
     //insert into instruction_list while instruction_list is being iterated over.
-    let mut vec_of_added_instructions: Vec<Instruction> = Vec::new();
+    let vec_of_added_instructions: Vec<Instruction> = Vec::new();
 
     //iterate through every instruction and check if the operator is a pseudo-instruction
     for (i, mut instruction) in &mut instructions.iter_mut().enumerate() {
@@ -1883,7 +1881,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
 
                 // Replace Instruction
                 instruction.operator.token_name = "blt".to_string();
-                
+
                 // Reorder Operands
                 let tmp = instruction.operands[0].token_name.clone();
                 instruction.operands[0].token_name = instruction.operands[1].token_name.clone();
@@ -1914,7 +1912,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
 
                 // Replace Instruction
                 instruction.operator.token_name = "bge".to_string();
-                
+
                 // Reorder Operands
                 let tmp = instruction.operands[0].token_name.clone();
                 instruction.operands[0].token_name = instruction.operands[1].token_name.clone();
@@ -1945,7 +1943,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
 
                 // Replace Instruction
                 instruction.operator.token_name = "bltu".to_string();
-                
+
                 // Reorder Operands
                 let tmp = instruction.operands[0].token_name.clone();
                 instruction.operands[0].token_name = instruction.operands[1].token_name.clone();
@@ -1976,7 +1974,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
 
                 // Replace Instruction
                 instruction.operator.token_name = "bgeu".to_string();
-                
+
                 // Reorder Operands
                 let tmp = instruction.operands[0].token_name.clone();
                 instruction.operands[0].token_name = instruction.operands[1].token_name.clone();
@@ -2127,10 +2125,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 instruction.operator.token_name = "fsgnj.s".to_string();
 
                 // Replace Operands
-                instruction.operands.insert(
-                    2,
-                    instruction.operands[1].clone()
-                );
+                instruction
+                    .operands
+                    .insert(2, instruction.operands[1].clone());
 
                 // Update Line Info
                 //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
@@ -2159,10 +2156,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 instruction.operator.token_name = "fsgnjx.s".to_string();
 
                 // Replace Operands
-                instruction.operands.insert(
-                    2,
-                    instruction.operands[1].clone()
-                );
+                instruction
+                    .operands
+                    .insert(2, instruction.operands[1].clone());
 
                 // Update Line Info
                 //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
@@ -2191,10 +2187,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 instruction.operator.token_name = "fsgnjn.s".to_string();
 
                 // Replace Operands
-                instruction.operands.insert(
-                    2,
-                    instruction.operands[1].clone()
-                );
+                instruction
+                    .operands
+                    .insert(2, instruction.operands[1].clone());
 
                 // Update Line Info
                 //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);

@@ -471,8 +471,7 @@ pub fn suggest_error_corrections(
                         let given_string = &instruction.operator.token_name;
                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
 
-                        if arch == Architecture::MIPS
-                        {
+                        if arch == Architecture::MIPS {
                             for instruction in SUPPORTED_INSTRUCTIONS_MIPS {
                                 if levenshtein(given_string, instruction) < closest.0 {
                                     closest.0 = levenshtein(given_string, instruction);
@@ -480,8 +479,7 @@ pub fn suggest_error_corrections(
                                 }
                             }
                         }
-                        if arch == Architecture::RISCV
-                        {
+                        if arch == Architecture::RISCV {
                             for instruction in SUPPORTED_INSTRUCTIONS_RISCV {
                                 if levenshtein(given_string, instruction) < closest.0 {
                                     closest.0 = levenshtein(given_string, instruction);
