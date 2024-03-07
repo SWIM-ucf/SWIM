@@ -42,7 +42,10 @@ bc1t loop"#,
     // This should end when the loop has iterated 5 times.
     // Thus, $s2 should be 35 and $f0 should be 5.0.
     assert_eq!(datapath.registers.gpr[18], 35); // $s2
-    assert_eq!(f32::from_bits(datapath.coprocessor.fpr[0] as u32), 5.0); // $f0
+    assert_eq!(
+        f32::from_bits(datapath.coprocessor.registers.fpr[0] as u32),
+        5.0
+    ); // $f0
 
     Ok(())
 }
@@ -85,7 +88,10 @@ bc1f loop"#,
     // This should end when the loop has iterated 6 times.
     // Thus, $s2 should be 42 and $f0 should be 6.0.
     assert_eq!(datapath.registers.gpr[18], 42); // $s2
-    assert_eq!(f32::from_bits(datapath.coprocessor.fpr[0] as u32), 6.0); // $f0
+    assert_eq!(
+        f32::from_bits(datapath.coprocessor.registers.fpr[0] as u32),
+        6.0
+    ); // $f0
 
     Ok(())
 }

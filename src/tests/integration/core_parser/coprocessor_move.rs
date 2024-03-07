@@ -18,7 +18,7 @@ fn basic_mtc1() -> Result<(), String> {
         datapath.execute_instruction();
     }
 
-    assert_eq!(datapath.coprocessor.fpr[5], 658461658);
+    assert_eq!(datapath.coprocessor.registers.fpr[5], 658461658);
     Ok(())
 }
 
@@ -36,7 +36,7 @@ fn truncate_32_bit_mtc1() -> Result<(), String> {
         datapath.execute_instruction();
     }
 
-    assert_eq!(datapath.coprocessor.fpr[6], 0xAC71_AC41);
+    assert_eq!(datapath.coprocessor.registers.fpr[6], 0xAC71_AC41);
     Ok(())
 }
 
@@ -48,7 +48,7 @@ fn basic_mfc1() -> Result<(), String> {
     let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
-    datapath.coprocessor.fpr[5] = 657861659;
+    datapath.coprocessor.registers.fpr[5] = 657861659;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -66,7 +66,7 @@ fn truncate_32_bit_mfc1() -> Result<(), String> {
     let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
-    datapath.coprocessor.fpr[6] = 0x0003_7F80_E5E7_D785;
+    datapath.coprocessor.registers.fpr[6] = 0x0003_7F80_E5E7_D785;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -90,7 +90,7 @@ fn basic_dmtc1() -> Result<(), String> {
         datapath.execute_instruction();
     }
 
-    assert_eq!(datapath.coprocessor.fpr[6], 0x0120_02F2_AC71_AC41);
+    assert_eq!(datapath.coprocessor.registers.fpr[6], 0x0120_02F2_AC71_AC41);
     Ok(())
 }
 
@@ -102,7 +102,7 @@ fn basic_dmfc1() -> Result<(), String> {
     let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
-    datapath.coprocessor.fpr[6] = 0x0003_7F90_E5E7_D785;
+    datapath.coprocessor.registers.fpr[6] = 0x0003_7F90_E5E7_D785;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();

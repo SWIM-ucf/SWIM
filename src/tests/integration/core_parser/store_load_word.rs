@@ -118,7 +118,7 @@ lwc1 $f12, 0($t4)"#,
         datapath.execute_instruction();
     }
 
-    assert_eq!(datapath.coprocessor.fpr[12], 36);
+    assert_eq!(datapath.coprocessor.registers.fpr[12], 36);
 
     Ok(())
 }

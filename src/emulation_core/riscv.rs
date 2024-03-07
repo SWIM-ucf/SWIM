@@ -6,6 +6,5 @@ pub mod control_signals;
 pub mod datapath;
 pub mod datapath_signals;
 pub mod instruction;
-pub mod line_info;
 pub mod memory;
 pub mod registers;

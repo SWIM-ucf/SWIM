@@ -1,6 +1,7 @@
 //! Abstract representation of an instruction.
 
 use crate::parser::parser_structs_and_enums::GP_REGISTERS;
+use serde::{Deserialize, Serialize};
 
 use super::constants::*;
 
@@ -24,7 +25,7 @@ use super::constants::*;
 ///   determining the type of instruction executed (in `mul`, `dmul`, `dmulu`, `div`, `ddiv`,
 ///   `ddivu`), or be used as a "hint" field for certain instructions (of note are `jr` and `jalr`).
 /// - function: Secondary field for determining the type of instruction executed.
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct RType {
     pub op: u8,
     pub rs: u8,
@@ -34,7 +35,7 @@ pub struct RType {
     pub funct: u8,
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct IType {
     pub op: u8,
     pub rs: u8,
@@ -42,7 +43,7 @@ pub struct IType {
     pub immediate: u16,
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct JType {
     pub op: u8,
     pub addr: u32,
@@ -62,14 +63,14 @@ pub struct JType {
 /// - opcode: SPECIAL (`000000`)
 /// - code: Available for use as software parameters.
 /// - funct: SYSCALL (`001100`)
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct SyscallType {
     pub op: u8,
     pub code: u32,
     pub funct: u8,
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct FpuRType {
     pub op: u8,
     pub fmt: u8,
@@ -79,7 +80,7 @@ pub struct FpuRType {
     pub function: u8,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FpuIType {
     pub op: u8,
     pub base: u8,
@@ -105,7 +106,7 @@ pub struct FpuIType {
 /// - sub: Operation subcode field for COP1 register immediate-mode instructions.
 /// - rt: CPU register - can be either source or destination.
 /// - fs: FPU register - can be either source or destination.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FpuRegImmType {
     pub op: u8,
     pub sub: u8,
@@ -113,7 +114,7 @@ pub struct FpuRegImmType {
     pub fs: u8,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FpuCompareType {
     pub op: u8,
     pub fmt: u8,
@@ -142,7 +143,7 @@ pub struct FpuCompareType {
 /// - nd: Nullify delay. If set, the branch is Likely, and the delay slot instruction is not executed. (Not necessary for this project.)
 /// - tf: True/False. The type of condition for a comparison.
 /// - offset: Signed offset field used in address calculations.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FpuBranchType {
     pub op: u8,
     pub bcc1: u8,
@@ -152,7 +153,7 @@ pub struct FpuBranchType {
     pub offset: u16,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Instruction {
     RType(RType),
     IType(IType),

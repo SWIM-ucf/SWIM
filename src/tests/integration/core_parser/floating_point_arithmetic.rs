@@ -23,14 +23,14 @@ akin! {
         let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
         datapath.initialize_legacy(instruction_bits)?;
 
-        datapath.coprocessor.fpr[15] = *value1;
-        datapath.coprocessor.fpr[16] = *value2;
+        datapath.coprocessor.registers.fpr[15] = *value1;
+        datapath.coprocessor.registers.fpr[16] = *value2;
 
         while !datapath.is_halted() {
             datapath.execute_instruction();
         }
 
-        assert_eq!(datapath.coprocessor.fpr[*result_register], *expected_result);
+        assert_eq!(datapath.coprocessor.registers.fpr[*result_register], *expected_result);
         Ok(())
     }
 }
@@ -54,14 +54,14 @@ akin! {
         let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
         datapath.initialize_legacy(instruction_bits)?;
 
-        datapath.coprocessor.fpr[15] = *value1;
-        datapath.coprocessor.fpr[16] = *value2;
+        datapath.coprocessor.registers.fpr[15] = *value1;
+        datapath.coprocessor.registers.fpr[16] = *value2;
 
         while !datapath.is_halted() {
             datapath.execute_instruction();
         }
 
-        assert_eq!(datapath.coprocessor.fpr[*result_register], *expected_result);
+        assert_eq!(datapath.coprocessor.registers.fpr[*result_register], *expected_result);
         Ok(())
     }
 }

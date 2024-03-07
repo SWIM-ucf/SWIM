@@ -1,4 +1,4 @@
-use crate::emulation_core::mips::registers::{GpRegisterType, GpRegisters};
+use crate::emulation_core::mips::gp_registers::{GpRegisterType, GpRegisters};
 
 #[test]
 #[allow(clippy::field_reassign_with_default)]
