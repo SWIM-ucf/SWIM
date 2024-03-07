@@ -286,7 +286,7 @@ impl EmulatorCoreAgentState {
                         match self.current_datapath.as_datapath_ref() {
                             DatapathRef::MIPS(_) => {
                                 self.current_datapath
-                                    .set_register_by_str("f0", f32::to_bits(scan_result) as u64);
+                                    .set_fp_register_by_str("f0", f32::to_bits(scan_result) as u64);
                             }
                         }
                     }
@@ -303,7 +303,7 @@ impl EmulatorCoreAgentState {
                         match self.current_datapath.as_datapath_ref() {
                             DatapathRef::MIPS(_) => {
                                 self.current_datapath
-                                    .set_register_by_str("f0", f64::to_bits(scan_result));
+                                    .set_fp_register_by_str("f0", f64::to_bits(scan_result));
                             }
                         }
                     }
