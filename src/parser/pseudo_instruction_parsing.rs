@@ -1276,7 +1276,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 0 {
+                if !instruction.operands.is_empty() {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         token_causing_error: "".to_string(),
@@ -2066,7 +2066,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 0 {
+                if !instruction.operands.is_empty() {
                     instruction.errors.push(Error {
                         error_name: IncorrectNumberOfOperands,
                         token_causing_error: "".to_string(),
