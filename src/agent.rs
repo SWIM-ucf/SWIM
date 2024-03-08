@@ -269,7 +269,7 @@ impl EmulatorCoreAgentState {
                         self.blocked_on = BlockedOn::Nothing;
                         match self.current_datapath.as_datapath_ref() {
                             DatapathRef::MIPS(_) => {
-                                self.current_datapath.set_register_by_str("v1", scan_result);
+                                self.current_datapath.set_register_by_str("v0", scan_result);
                             }
                         }
                     }
@@ -320,16 +320,25 @@ impl EmulatorCoreAgentState {
 
                         let bytes = scan_result.as_bytes();
                         let memory = self.current_datapath.get_memory_mut();
+                        let mut failed_store = false;
                         for (i, byte) in bytes.iter().enumerate() {
                             // Attempt to store the byte in memory, but if the store process fails,
                             // end the syscall and return to normal operation.
                             let result = memory.store_byte(addr + i as u64, *byte);
                             if result.is_err() {
+                                failed_store = true;
                                 break;
                             }
                         }
                         match self.current_datapath.as_datapath_ref() {
-                            DatapathRef::MIPS(_) => {}
+                            DatapathRef::MIPS(_) => {
+                                if failed_store {
+                                    self.current_datapath.set_register_by_str("v0", 0);
+                                } else {
+                                    self.current_datapath
+                                        .set_register_by_str("v0", bytes.len() as u64);
+                                }
+                            }
                         }
                     }
                 }
