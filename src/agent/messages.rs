@@ -37,7 +37,7 @@ pub enum MipsStateUpdate {
 /// Information about the effects of system calls sent from the worker thread to the UI thread.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum SystemUpdate {
-    Message(String),
+    UpdateMessages(Vec<String>),
 }
 
 /// Enum containing all types of updates sent from the worker thread to the UI thread.

@@ -125,6 +125,7 @@ struct EmulatorCoreAgentState {
     pub scope: ReactorScope<Command, DatapathUpdate>,
     speed: u32,
     executing: bool,
+    messages: Vec<String>,
     scanner: Scanner,
     blocked_on: BlockedOn,
 }
@@ -137,6 +138,7 @@ impl EmulatorCoreAgentState {
             scope,
             speed: 0,
             executing: false,
+            messages: Vec::new(),
             scanner: Scanner::new(),
             blocked_on: BlockedOn::Nothing,
         }
@@ -186,6 +188,8 @@ impl EmulatorCoreAgentState {
             Command::Reset => {
                 self.current_datapath.reset();
                 self.updates |= UPDATE_EVERYTHING;
+                self.messages = Vec::new();
+                self.blocked_on = BlockedOn::Nothing;
             }
             Command::Input(line) => {
                 self.scanner.feed(line);
@@ -228,36 +232,16 @@ impl EmulatorCoreAgentState {
                 self.current_datapath.halt();
             }
             Syscall::PrintInt(val) => {
-                self.scope
-                    .send(DatapathUpdate::System(SystemUpdate::Message(
-                        val.to_string(),
-                    )))
-                    .await
-                    .unwrap();
+                self.add_message(val.to_string()).await;
             }
             Syscall::PrintFloat(val) => {
-                self.scope
-                    .send(DatapathUpdate::System(SystemUpdate::Message(
-                        val.to_string(),
-                    )))
-                    .await
-                    .unwrap();
+                self.add_message(val.to_string()).await;
             }
             Syscall::PrintDouble(val) => {
-                self.scope
-                    .send(DatapathUpdate::System(SystemUpdate::Message(
-                        val.to_string(),
-                    )))
-                    .await
-                    .unwrap();
+                self.add_message(val.to_string()).await;
             }
             Syscall::PrintString(val) => {
-                self.scope
-                    .send(DatapathUpdate::System(SystemUpdate::Message(
-                        val.to_string(),
-                    )))
-                    .await
-                    .unwrap();
+                self.add_message(val.to_string()).await;
             }
             Syscall::ReadInt => {
                 let scan_result = self.scanner.next_int();
@@ -344,5 +328,15 @@ impl EmulatorCoreAgentState {
                 }
             }
         }
+    }
+
+    async fn add_message(&mut self, msg: String) {
+        self.messages.push(msg);
+        self.scope
+            .send(DatapathUpdate::System(SystemUpdate::UpdateMessages(
+                self.messages.clone(),
+            )))
+            .await
+            .unwrap();
     }
 }
