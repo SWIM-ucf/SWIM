@@ -1,5 +1,3 @@
-use super::control_signals::RegWidth;
-
 pub const FUNCT_SYSCALL: u8 = 0b001100;
 
 pub const FUNCT_SLL: u8 = 0b000000;
@@ -45,9 +43,11 @@ pub const FUNCT_SOP37: u8 = 0b011111;
 
 /// Used for R-type instructions.
 pub const OPCODE_OP: u8 = 0b0110011;
+pub const OPCODE_OP_32: u8 = 0b0111011;
 
 /// Used for I-type instructions.
 pub const OPCODE_IMM: u8 = 0b0010011;
+pub const OPCODE_IMM_32: u8 = 0b0011011;
 // JALR
 pub const OPCODE_JALR: u8 = 0b1100111;
 // LOAD
@@ -119,22 +119,3 @@ pub const SUB_DMT: u8 = 0b00101;
 pub const FMT_SINGLE: u8 = 16;
 pub const FMT_DOUBLE: u8 = 17;
 
-/// Return the register width associated to an instruction
-/// with the given `funct` code.
-///
-/// Returns [`None`] if the `funct` code is not supported.
-pub fn reg_width_by_funct(funct: u8) -> Option<RegWidth> {
-    match funct {
-        // `syscall` does not have a register width associated with it,
-        // but is set for the purposes of a default signal value.
-        FUNCT_SYSCALL => Some(RegWidth::DoubleWord),
-        FUNCT_ADD | FUNCT_ADDU | FUNCT_SUB | FUNCT_SLL => Some(RegWidth::Word),
-        FUNCT_AND | FUNCT_OR | FUNCT_SLT | FUNCT_SLTU => Some(RegWidth::DoubleWord),
-        FUNCT_DADD | FUNCT_DSUB => Some(RegWidth::DoubleWord),
-        FUNCT_DADDU | FUNCT_DSUBU => Some(RegWidth::DoubleWord),
-        FUNCT_JALR => Some(RegWidth::DoubleWord),
-        FUNCT_SOP30 | FUNCT_SOP31 | FUNCT_SOP32 | FUNCT_SOP33 => Some(RegWidth::Word),
-        FUNCT_SOP34 | FUNCT_SOP35 | FUNCT_SOP36 | FUNCT_SOP37 => Some(RegWidth::DoubleWord),
-        _ => None,
-    }
-}

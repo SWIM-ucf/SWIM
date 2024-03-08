@@ -5,6 +5,7 @@ pub struct DatapathSignals {
     pub alu_z: AluZ,
     pub cpu_branch: CpuBranch,
     pub general_branch: GeneralBranch,
+    pub reg_width: RegisterWidth,
 }
 
 /// The "Zero" line that comes out of the ALU.
@@ -52,4 +53,11 @@ pub enum GeneralBranch {
     #[default]
     NoBranch = 0,
     YesBranch = 1,
+}
+
+#[derive(Clone, Default, PartialEq)]
+pub enum RegisterWidth {
+    #[default]
+    DoubleWidth = 0,
+    HalfWidth = 1,
 }

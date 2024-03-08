@@ -119,11 +119,14 @@ pub enum ReadWrite {
     LoadByte,
     LoadHalf,
     LoadWord,
+    LoadDouble,
     LoadByteUnsigned,
     LoadHalfUnsigned,
+    LoadWordUnsigned,
     StoreByte,
     StoreHalf,
     StoreWord,
+    StoreDouble,
 }
 
 
