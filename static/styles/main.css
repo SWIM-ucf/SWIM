@@ -183,8 +183,7 @@ body {
   padding-right: 25px;
   padding-bottom: 25px;
   padding-left: 25px;
-  min-height: max(20%, 8em);
-  max-height: 50%;
+  height: max(20%, 8em);
   z-index: 1;
 }
 
