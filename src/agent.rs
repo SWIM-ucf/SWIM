@@ -320,7 +320,7 @@ impl EmulatorCoreAgentState {
 
                         let bytes = scan_result.as_bytes();
                         let memory = self.current_datapath.get_memory_mut();
-                        for (i, byte) in (0..bytes.len()).zip(bytes) {
+                        for (i, byte) in bytes.iter().enumerate() {
                             // Attempt to store the byte in memory, but if the store process fails,
                             // end the syscall and return to normal operation.
                             let result = memory.store_byte(addr + i as u64, *byte);
