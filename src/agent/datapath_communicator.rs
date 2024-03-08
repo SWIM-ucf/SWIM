@@ -115,6 +115,11 @@ impl DatapathCommunicator {
         self.send_message(Command::SetMemory(ptr, data));
     }
 
+    /// Sends a line of input to the emulator core, to be read using syscalls.
+    pub fn send_input(&self, line: String) {
+        self.send_message(Command::Input(line));
+    }
+
     /// Executes the emulator core at the current set speed.
     pub fn execute(&self) {
         self.send_message(Command::Execute);

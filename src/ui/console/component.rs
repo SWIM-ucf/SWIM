@@ -1,4 +1,5 @@
 use crate::agent::datapath_communicator::DatapathCommunicator;
+use crate::agent::datapath_reducer::DatapathReducer;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlInputElement, InputEvent, KeyboardEvent};
 use yew::prelude::*;
@@ -6,6 +7,7 @@ use yew::prelude::*;
 #[derive(PartialEq, Properties)]
 pub struct Consoleprops {
     pub communicator: &'static DatapathCommunicator,
+    pub datapath_state: UseReducerHandle<DatapathReducer>,
     pub parsermsg: String,
     pub command: UseStateHandle<String>,
     pub show_input: UseStateHandle<bool>,
@@ -23,6 +25,8 @@ pub fn console(props: &Consoleprops) -> Html {
         let error_msg = error_msg.clone();
         let input_value = input_value.clone();
         let answered = answered.clone();
+        let communicator = props.communicator;
+
         use_callback(
             move |event: KeyboardEvent, (input_value, error_msg, answered)| {
                 // let communicator = props.communicator;
@@ -32,19 +36,7 @@ pub fn console(props: &Consoleprops) -> Html {
                 let answered = answered.clone();
                 // If Enter was pressed parse and send input to emulator core
                 if key_code == 13 {
-                    let input_value = &*input_value;
-                    log::debug!("Input: {}", (input_value));
-                    // Parse based on syscall type (int, float, string)
-                    let val: String = match input_value.parse() {
-                        Ok(value) => value,
-                        Err(_err) => {
-                            error_msg.set("Invalid input");
-                            return;
-                        }
-                    };
-                    answered.set(true);
-                    log::debug!("{}", val);
-                    // Send Input command
+                    communicator.send_input((*input_value).clone());
                 }
             },
             (input_value, error_msg, answered),
@@ -79,6 +71,9 @@ pub fn console(props: &Consoleprops) -> Html {
                     {"You answered: "} { (*input_value).clone() }
                 </div>
             }
+            <div>
+                {props.datapath_state.messages.iter().map(|msg| html! { <div>{msg}</div> }).collect::<Html>()}
+            </div>
             if *show_input {
                 <div class="console-input">
                     <svg viewBox="0 0 330 330" class="console-arrow">

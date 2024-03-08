@@ -75,7 +75,7 @@ pub fn footer(props: &Footerprops) -> Html {
             // Console buttons
             if **active_tab == FooterTabState::Console {
                 <div class="console-wrapper">
-                    <Console communicator={props.communicator} parsermsg={props.parsermsg.clone()} show_input={props.show_input.clone()} command={props.command.clone()}/>
+                    <Console datapath_state={props.datapath_state.clone()} communicator={props.communicator} parsermsg={props.parsermsg.clone()} show_input={props.show_input.clone()} command={props.command.clone()}/>
                 </div>
             } else if **active_tab == FooterTabState::Datapath {
                 <VisualDatapath datapath_state={props.datapath_state.clone()} svg_path={svg_path} />
