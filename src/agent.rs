@@ -50,7 +50,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
             futures::select! {
                 // If we get a message, handle the command before attempting to execute.
                 msg = state.scope.next() => match msg {
-                    Some(msg) => state.handle_command(msg),
+                    Some(msg) => state.handle_command(msg).await,
                     None => return,
                 },
                 // Delay to slow execution down to the intended speed.
@@ -59,7 +59,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
         } else {
             // If we're not currently executing, wait indefinitely until the next message comes in.
             match state.scope.next().await {
-                Some(msg) => state.handle_command(msg),
+                Some(msg) => state.handle_command(msg).await,
                 None => return,
             }
         }
@@ -144,16 +144,15 @@ impl EmulatorCoreAgentState {
         }
     }
 
-    pub fn handle_command(&mut self, command: Command) {
+    pub async fn handle_command(&mut self, command: Command) {
         match command {
             Command::SetCore(_architecture) => {
                 todo!() // Implement once we have a RISCV datapath
             }
             Command::Initialize(initial_pc, mem) => {
                 self.current_datapath.initialize(initial_pc, mem).unwrap();
-                self.blocked_on = BlockedOn::Nothing;
-                self.updates.changed_memory = true;
-                self.updates.changed_registers = true;
+                self.reset_system().await;
+                self.updates |= UPDATE_EVERYTHING;
             }
             Command::SetExecuteSpeed(speed) => {
                 self.speed = speed;
@@ -188,11 +187,11 @@ impl EmulatorCoreAgentState {
             }
             Command::Reset => {
                 self.current_datapath.reset();
+                self.reset_system().await;
                 self.updates |= UPDATE_EVERYTHING;
-                self.messages = Vec::new();
-                self.blocked_on = BlockedOn::Nothing;
             }
             Command::Input(line) => {
+                self.add_message(format!("> {}", line)).await;
                 self.scanner.feed(line);
             }
         }
@@ -334,6 +333,18 @@ impl EmulatorCoreAgentState {
                 }
             }
         }
+    }
+
+    async fn reset_system(&mut self) {
+        self.scanner = Scanner::new();
+        self.blocked_on = BlockedOn::Nothing;
+        self.messages = Vec::new();
+        self.scope
+            .send(DatapathUpdate::System(SystemUpdate::UpdateMessages(
+                self.messages.clone(),
+            )))
+            .await
+            .unwrap();
     }
 
     async fn add_message(&mut self, msg: String) {
