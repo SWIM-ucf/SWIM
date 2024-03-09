@@ -151,6 +151,7 @@ impl EmulatorCoreAgentState {
             }
             Command::Initialize(initial_pc, mem) => {
                 self.current_datapath.initialize(initial_pc, mem).unwrap();
+                self.blocked_on = BlockedOn::Nothing;
                 self.updates.changed_memory = true;
                 self.updates.changed_registers = true;
             }
@@ -256,6 +257,7 @@ impl EmulatorCoreAgentState {
                                 self.current_datapath.set_register_by_str("v0", scan_result);
                             }
                         }
+                        self.updates.changed_registers = true;
                     }
                 }
             }
@@ -273,6 +275,7 @@ impl EmulatorCoreAgentState {
                                     .set_fp_register_by_str("f0", f32::to_bits(scan_result) as u64);
                             }
                         }
+                        self.updates.changed_coprocessor_registers = true;
                     }
                 }
             }
@@ -290,6 +293,7 @@ impl EmulatorCoreAgentState {
                                     .set_fp_register_by_str("f0", f64::to_bits(scan_result));
                             }
                         }
+                        self.updates.changed_coprocessor_registers = true;
                     }
                 }
             }
@@ -324,6 +328,8 @@ impl EmulatorCoreAgentState {
                                 }
                             }
                         }
+                        self.updates.changed_registers = true;
+                        self.updates.changed_memory = true;
                     }
                 }
             }
