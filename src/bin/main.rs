@@ -79,7 +79,6 @@ fn app(props: &AppProps) -> Html {
     // Show input
     let show_input = use_state_eq(bool::default);
     show_input.set(true);
-    let command = use_state_eq(|| String::from("(Test) Enter a string"));
 
     // Store the currently selected tabs in windows
     let console_active_tab = use_state_eq(FooterTabState::default);
@@ -514,7 +513,7 @@ fn app(props: &AppProps) -> Html {
                     </div>
 
                     // Console
-                    <Footer parsermsg={(*parser_text_output).clone()} datapath_state={datapath_state.clone()} memory_text_model={memory_text_model} memory_curr_instr={memory_curr_instr.clone()} active_tab={console_active_tab.clone()} communicator={props.communicator} show_input={show_input.clone()} command={command.clone()}/>
+                    <Footer parsermsg={(*parser_text_output).clone()} datapath_state={datapath_state.clone()} memory_text_model={memory_text_model} memory_curr_instr={memory_curr_instr.clone()} active_tab={console_active_tab.clone()} communicator={props.communicator} show_input={show_input.clone()}/>
                 </div>
 
                 // Right column

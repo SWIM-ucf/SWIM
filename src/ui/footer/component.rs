@@ -15,7 +15,6 @@ pub struct Footerprops {
     pub datapath_state: UseReducerHandle<DatapathReducer>,
     pub parsermsg: String,
     pub show_input: UseStateHandle<bool>,
-    pub command: UseStateHandle<String>,
     pub memory_text_model: UseStateHandle<TextModel>,
     pub memory_curr_instr: UseStateHandle<u64>,
     pub active_tab: UseStateHandle<FooterTabState>,
@@ -75,7 +74,7 @@ pub fn footer(props: &Footerprops) -> Html {
             // Console buttons
             if **active_tab == FooterTabState::Console {
                 <div class="console-wrapper">
-                    <Console datapath_state={props.datapath_state.clone()} communicator={props.communicator} parsermsg={props.parsermsg.clone()} show_input={props.show_input.clone()} command={props.command.clone()}/>
+                    <Console datapath_state={props.datapath_state.clone()} communicator={props.communicator} parsermsg={props.parsermsg.clone()} show_input={props.show_input.clone()}/>
                 </div>
             } else if **active_tab == FooterTabState::Datapath {
                 <VisualDatapath datapath_state={props.datapath_state.clone()} svg_path={svg_path} />

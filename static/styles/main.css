@@ -203,7 +203,6 @@ body {
 .console-input input {
   background: #012456;
   color: white !important;
-  margin-left: 10px;
   outline: none;
 }
 
