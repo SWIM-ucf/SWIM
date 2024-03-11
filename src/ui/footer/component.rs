@@ -75,48 +75,77 @@ pub fn footer(props: &Footerprops) -> Html {
     <>
             // Console buttons
             if **active_tab == FooterTabState::Console {
-                <div class="console-wrapper">
+                <div class="min-h-48 border-primary-200 border-groove border-2 p-4 max-h-[50%] bg-accent-blue-300 text-primary-200 overflow-y-auto overflow-wrap z-10">
                     <Console communicator={props.communicator} parsermsg={props.parsermsg.clone()} show_input={props.show_input.clone()} command={props.command.clone()}/>
                 </div>
             } else if **active_tab == FooterTabState::Datapath {
                 <VisualDatapath datapath_state={props.datapath_state.clone()} svg_path={svg_path} />
             } else if **active_tab == FooterTabState::HexEditor {
-                <div class="hex-wrapper">
+                <div class="min-h-[200px] max-h-[50%] border-primary-200 border-groove border-2 z-10">
                     <HexEditor memory_text_model={props.memory_text_model.clone()} instruction_num={props.memory_curr_instr.clone()}/>
                 </div>
             }
-            <div class="button-bar">
-                <div class="tabs">
-                    if **active_tab == FooterTabState::Console {
-                        <button class={classes!("bottom-tab", "pressed")} label="console" onclick={change_tab.clone()}>{"Console"}</button>
-                    } else {
-                        <button class="bottom-tab" label="console" onclick={change_tab.clone()}>{"Console"}</button>
-                    }
-
-                    if **active_tab == FooterTabState::Datapath {
-                        <button class={classes!("bottom-tab", "pressed")} label="datapath" onclick={change_tab.clone()}>{"Datapath"}</button>
-                    } else {
-                        <button class="bottom-tab" label="datapath" onclick={change_tab.clone()}>{"Datapath"}</button>
-                    }
-
-                    if **active_tab == FooterTabState::HexEditor {
-                        <button class={classes!("bottom-tab", "pressed")} label="hex_editor" onclick={change_tab.clone()}>{"Hex Editor"}</button>
-                    } else {
-                        <button class="bottom-tab" label="hex_editor" onclick={change_tab.clone()}>{"Hex Editor"}</button>
-                    }
+            <div class="flex flex-row justify-between w-full">
+                <div>
+                    <FooterTab
+                        label="console"
+                        on_click={change_tab.clone()}
+                        disabled={false}
+                        active_tab={active_tab.clone()}
+                        tab_name={FooterTabState::Console}
+                        text="Console"
+                    />
+                    <FooterTab
+                        label="datapath"
+                        on_click={change_tab.clone()}
+                        disabled={false}
+                        active_tab={active_tab.clone()}
+                        tab_name={FooterTabState::Datapath}
+                        text="Datapath"
+                    />
+                    <FooterTab
+                        label="hex_editor"
+                        on_click={change_tab.clone()}
+                        disabled={false}
+                        active_tab={active_tab.clone()}
+                        tab_name={FooterTabState::HexEditor}
+                        text="Hex Editor"
+                    />
                 </div>
 
                 if **active_tab == FooterTabState::Datapath {
-                    <div class="buttons">
-                        <button class="button" onclick={switch_datapath_type}>{switch_datapath_button_label}</button>
+                    <div class="inline-block">
+                        <button class="hover:text-primary-100 duration-300 pointer pt-4" onclick={switch_datapath_type}>{switch_datapath_button_label}</button>
                     </div>
                 }
                 else if **active_tab == FooterTabState::HexEditor {
-                    <div class="buttons">
-                        <button class="button" onclick={props.on_memory_clicked.clone()} disabled={!props.datapath_state.mips.initialized}>{"Update Memory"}</button>
+                    <div class="inline-block">
+                        <button class="disabled:hidden hover:text-primary-100 duration-300 pointer pt-4" onclick={props.on_memory_clicked.clone()} disabled={!props.datapath_state.mips.initialized}>{"Update Memory"}</button>
                     </div>
                 }
             </div>
         </>
     }
+}
+
+#[derive(PartialEq, Properties)]
+pub struct FooterTabProps {
+    pub label: String,
+    pub text: String,
+    pub on_click: Callback<MouseEvent>,
+    pub disabled: bool,
+    pub active_tab: UseStateHandle<FooterTabState>,
+    pub tab_name: FooterTabState,
+}
+
+#[function_component(FooterTab)]
+pub fn footer_tab(props: &FooterTabProps) -> Html {
+    let active_tab = &props.active_tab;
+    html!(
+        if **active_tab == props.tab_name {
+            <button class="text-primary-100 font-bold hover:text-primary-100 pt-3 px-8 pointer border-t-4 border-solid border-primary-100 w-40" label={props.label.clone()} onclick={props.on_click.clone()} disabled={props.disabled}>{props.text.clone()}</button>
+        } else {
+            <button class="hover:text-primary-100 pt-3 px-8 pointer border-top-4 border-solid border-transparent w-40" label={props.label.clone()} onclick={props.on_click.clone()} disabled={props.disabled}>{props.text.clone()}</button>
+        }
+    )
 }

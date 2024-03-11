@@ -25,8 +25,10 @@ use crate::{
     ui::{
         assembled_view::component::{DataSegment, TextSegment},
         footer::component::FooterTabState,
+        swim_editor::tab::Tab,
     },
 };
+use strum::IntoEnumIterator;
 
 #[derive(PartialEq, Properties)]
 pub struct SwimEditorProps {
@@ -169,11 +171,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             let target = event.target();
             let input = target.unwrap().unchecked_into::<HtmlInputElement>();
             let architecture = input.value();
-            let new_architecture: AvailableDatapaths = match architecture.as_str() {
-                "mips" => AvailableDatapaths::MIPS,
-                "riscv" => AvailableDatapaths::RISCV,
-                _ => AvailableDatapaths::MIPS,
-            };
+            let new_architecture: AvailableDatapaths = AvailableDatapaths::from(architecture.as_str());
             communicator.set_core(new_architecture.clone());
             log::debug!("New architecture: {:?}", new_architecture);
         })
@@ -184,15 +182,8 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         Callback::from(move |event: Event| {
             let target = event.target();
             let input = target.unwrap().unchecked_into::<HtmlInputElement>();
-            let speed = input.value().parse::<u32>().unwrap_or(1);
-            if speed > 0 {
-                log::debug!("New execution speed: {:?}", speed);
-                communicator.set_execute_speed(speed);
-                input.set_class_name("valid");
-            } else {
-                // get element by id and make it red
-                input.set_class_name("invalid");
-            }
+            let speed = input.value().parse::<u32>().unwrap_or(0);
+            communicator.set_execute_speed(speed);
         })
     };
 
@@ -276,41 +267,28 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     } else {
         "hidden"
     };
+
+    let arch_options = AvailableDatapaths::iter().map(|arch| {
+        html! {
+            <option value={arch.to_string()} class="bg-primary-700">{arch.to_string()}</option>
+        }
+    }).collect::<Html>();
+
     html! {
         <>
             // Editor buttons
-            <div class="editor-toolbar">
-                <div class="bar tabs">
-                if **editor_active_tab == EditorTabState::Editor {
-                    <button class={classes!("tab", "pressed")} label="editor" onclick={change_tab.clone()}>{"Editor"}</button>
-                } else {
-                    <button class="tab" label="editor" onclick={change_tab.clone()}>{"Editor"}</button>
-                }
-
-                if **editor_active_tab == EditorTabState::TextSegment {
-                    <button class={classes!("tab", "pressed")} label="text" onclick={change_tab.clone()}>{"Text Segment"}</button>
-                } else {
-                    <button class="tab" label="text" onclick={change_tab.clone()}>{"Text Segment"}</button>
-                }
-
-                if **editor_active_tab == EditorTabState::DataSegment {
-                    <button class={classes!("tab", "pressed")} label="data" onclick={change_tab.clone()}>{"Data Segment"}</button>
-                } else {
-                    <button class="tab" label="data" onclick={change_tab.clone()}>{"Data Segment"}</button>
-                }
+            <div class="flex flex-row justify-between items-center border-b-2 border-b-solid border-b-primary-200">
+                <div class="bar">
+                    <Tab<EditorTabState> label={"editor".to_string()} text={"Editor".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::Editor}/>
+                    <Tab<EditorTabState> label={"text".to_string()} text={"Text Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::TextSegment}/>
+                    <Tab<EditorTabState> label={"data".to_string()} text={"Data Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::DataSegment}/>
                 </div>
-                <div class="bar emulator-options">
+                <div class="bar flex flex-row justify-end items-center gap-2 cursor-default">
                     <button class={classes!("copy-button", conditional_class)} title="Copy to Clipboard" onclick={on_clipboard_clicked}>{"Copy to Clipboard "}<i class={classes!("fa-regular", "fa-copy")}></i></button>
-                    <input type="number" id="execution-speed" title="Execution Speed. Setting this to 0 will make it run as fast as possible." name="execution-speed" placeholder="1" min="1" value={format!("{}", props.speed)} onchange={change_execution_speed} />
+                    <input type="number" id="execution-speed" title="Execution Speed. Setting this to 0 will make it run as fast as possible." name="execution-speed" placeholder="0" min="0" value={format!("{}", props.speed)} class="bg-primary-700 flex items-center flex-row text-right w-24" onchange={change_execution_speed} />
                     <span title="Execution Speed.">{"Hz"}</span>
-                    <select class="architecture-selector" name="architecture" onchange={change_architecture.clone()} value={
-                        match props.current_architecture {
-                            AvailableDatapaths::RISCV => "riscv",
-                            AvailableDatapaths::MIPS => "mips",
-                        }
-                    }>
-                        <option value="riscv">{"RISC-V"}</option>
-                        <option value="mips">{"MIPS"}</option>
+                    <select class="bg-primary-600 flex flex-row items-center" name="architecture" onchange={change_architecture.clone()} value={props.current_architecture.to_string()}>
+                        {arch_options}
                     </select>
                 </div>
             </div>

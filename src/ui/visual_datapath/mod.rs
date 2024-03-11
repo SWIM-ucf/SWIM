@@ -83,8 +83,8 @@ impl Component for VisualDatapath {
         let zoom_value_size = Rc::clone(&self.size);
         let zoom_out_size = Rc::clone(&self.size);
         html! {
-            <div class="datapath-wrapper">
-                <div class="datapath-object-wrapper">
+            <div class="max-h-[50%]">
+                <div class="overflow-auto w-full h-full basis-1/2 bg-primary-100 z-10 relative">
                     <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID} class={classes!("datapath", format!("size-{}", self.size.borrow()))}></object>
                 </div>
                 <div id="popup">
@@ -96,16 +96,16 @@ impl Component for VisualDatapath {
                         <span class="meaning">{ "[base 10]" }</span>
                     </div>
                 </div>
-                <div id="datapath-zoom-controls">
+                <div class="absolute left-7 bottom-16 z-50 flex items-center gap-4">
                     <button class="zoom-button" onclick={ctx.link().callback(move |_| {
                         let mut size = zoom_out_size.borrow_mut();
                         *size -= 10;
                     })}>
-                        <svg class="icon icon-minus" viewBox="0 0 32 32">
+                        <svg class="inline-block w-4 h-4 stroke-w-0 fill-accent-blue-400 icon-minus" viewBox="0 0 32 32">
                             <path d="M0 13v6c0 0.552 0.448 1 1 1h30c0.552 0 1-0.448 1-1v-6c0-0.552-0.448-1-1-1h-30c-0.552 0-1 0.448-1 1z"></path>
                         </svg>
                     </button>
-                    <input type="range" min="0" max="200" step="10" value={zoom_value_size.borrow().to_string()} class="slider" id="datapath-zoom-slider" onchange={ctx.link().callback(move |e: Event| {
+                    <input type="range" min="0" max="200" step="10" value={zoom_value_size.borrow().to_string()} onchange={ctx.link().callback(move |e: Event| {
                         let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
                         let value = target.value().parse::<i32>().unwrap();
                         log::debug!("Value: {:?}", value);
@@ -116,7 +116,7 @@ impl Component for VisualDatapath {
                         let mut size = zoom_in_size.borrow_mut();
                         *size += 10;
                     })}>
-                        <svg class="icon icon-plus" viewBox="0 0 32 32">
+                        <svg class="inline-block w-4 h-4 stroke-w-0 fill-accent-blue-400 icon-plus" viewBox="0 0 32 32">
                             <path d="M31 12h-11v-11c0-0.552-0.448-1-1-1h-6c-0.552 0-1 0.448-1 1v11h-11c-0.552 0-1 0.448-1 1v6c0 0.552 0.448 1 1 1h11v11c0 0.552 0.448 1 1 1h6c0.552 0 1-0.448 1-1v-11h11c0.552 0 1-0.448 1-1v-6c0-0.552-0.448-1-1-1z"></path>
                         </svg>
                     </button>
