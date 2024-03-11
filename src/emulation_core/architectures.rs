@@ -1,6 +1,4 @@
 use core::fmt;
-
-use crate::agent::messages::MipsStateUpdate;
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
@@ -33,9 +31,4 @@ impl From<&str> for AvailableDatapaths {
 
 pub enum DatapathRef<'a> {
     MIPS(&'a MipsDatapath),
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum DatapathUpdate {
-    MIPS(MipsStateUpdate),
 }

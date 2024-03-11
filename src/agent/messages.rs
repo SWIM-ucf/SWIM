@@ -21,6 +21,7 @@ pub enum Command {
     Pause,
     Reset,
     SetBreakpoint(u64),
+    Input(String),
 }
 
 /// Information about the emulator core's state sent from the worker thread to the UI thread.
@@ -35,4 +36,18 @@ pub enum MipsStateUpdate {
     UpdateSpeed(u32),
     UpdateExecuting(bool),
     UpdateInitialized(bool),
+}
+
+/// Information about the effects of system calls sent from the worker thread to the UI thread.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum SystemUpdate {
+    UpdateMessages(Vec<String>),
+}
+
+/// Enum containing all types of updates sent from the worker thread to the UI thread.
+#[allow(clippy::large_enum_variant)] // Temporary allow while the System enum is tiny
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum DatapathUpdate {
+    MIPS(MipsStateUpdate),
+    System(SystemUpdate),
 }

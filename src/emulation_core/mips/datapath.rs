@@ -53,7 +53,9 @@ use super::datapath_signals::*;
 use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, gp_registers::GpRegisters, memory::Memory};
 use crate::emulation_core::architectures::DatapathRef;
-use crate::emulation_core::datapath::DatapathUpdateSignal;
+use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
+use crate::emulation_core::mips::fp_registers::FpRegisterType;
+use crate::emulation_core::mips::gp_registers::GpRegisterType::{A0, A1};
 use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.
@@ -295,6 +297,10 @@ impl Datapath for MipsDatapath {
         &self.memory
     }
 
+    fn get_memory_mut(&mut self) -> &mut Memory {
+        &mut self.memory
+    }
+
     fn set_memory(&mut self, _ptr: u64, _data: u32) {
         self.memory.store_word(_ptr, _data).unwrap_or_default();
     }
@@ -303,12 +309,25 @@ impl Datapath for MipsDatapath {
         self.is_halted
     }
 
+    fn halt(&mut self) {
+        self.is_halted = true;
+    }
+
     fn reset(&mut self) {
         std::mem::take(self);
     }
 
     fn as_datapath_ref(&self) -> DatapathRef {
         DatapathRef::MIPS(self)
+    }
+
+    fn get_syscall_arguments(&self) -> Syscall {
+        Syscall::from_register_data(
+            self.get_register_by_enum(A0),
+            self.get_register_by_enum(A1),
+            f32::from_bits(self.coprocessor.registers[FpRegisterType::F0] as u32),
+            f64::from_bits(self.coprocessor.registers[FpRegisterType::F0]),
+        )
     }
 }
 
@@ -379,15 +398,21 @@ impl MipsDatapath {
         self.coprocessor
             .set_data_from_main_processor(self.state.read_data_2);
 
-        // Finish this instruction out of the datapath and halt if this is a syscall.
-        if let Instruction::SyscallType(_) = self.instruction {
-            self.is_halted = true;
-        }
+        // Check if we hit a syscall or breakpoint and signal it to the caller.
+        let (hit_syscall, hit_breakpoint) = match self.instruction {
+            Instruction::SyscallType(instruction) => (
+                instruction.funct == FUNCT_SYSCALL,
+                instruction.funct == FUNCT_BREAK,
+            ),
+            _ => (false, false),
+        };
 
         // Instruction decode always involves a state update
         DatapathUpdateSignal {
             changed_state: true,
             changed_coprocessor_state: true,
+            hit_syscall,
+            hit_breakpoint,
             ..Default::default()
         }
     }
