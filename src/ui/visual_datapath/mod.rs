@@ -83,7 +83,7 @@ impl Component for VisualDatapath {
         let zoom_value_size = Rc::clone(&self.size);
         let zoom_out_size = Rc::clone(&self.size);
         html! {
-            <div class="max-h-[50%]">
+            <div id="datapath-wrapper" class="max-h-[50%]">
                 <div class="overflow-auto w-full h-full basis-1/2 bg-primary-100 z-10 relative">
                     <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID} class={classes!("datapath", format!("size-{}", self.size.borrow()))}></object>
                 </div>
