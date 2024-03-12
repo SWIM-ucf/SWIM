@@ -18,7 +18,7 @@ pub struct Regviewprops {
 pub enum RegviewTabState {
     #[default]
     Gp,
-    Fp
+    Fp,
 }
 
 #[derive(Default, PartialEq, Clone, Copy, Debug)]
@@ -221,9 +221,7 @@ pub fn regview(props: &Regviewprops) -> Html {
                 .unwrap()
                 .dyn_into::<web_sys::HtmlElement>()
                 .unwrap();
-            let tab_name = target
-                .get_attribute("label")
-                .unwrap_or(String::from("gp"));
+            let tab_name = target.get_attribute("label").unwrap_or(String::from("gp"));
 
             let new_tab = match tab_name.as_str() {
                 "gp" => RegviewTabState::Gp,

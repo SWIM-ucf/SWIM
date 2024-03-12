@@ -27,7 +27,7 @@ pub struct MipsCoreState {
     pub coprocessor_state: FpuState,
     pub coprocessor_registers: FpRegisters,
     pub memory: Memory,
-    pub current_stage: Stage
+    pub current_stage: Stage,
 }
 
 impl Default for DatapathReducer {
@@ -81,7 +81,7 @@ impl Reducible for DatapathReducer {
                     MipsStateUpdate::UpdateStage(stage) => MipsCoreState {
                         current_stage: stage,
                         ..self.mips.clone()
-                    }
+                    },
                 },
                 messages: self.messages.clone(),
                 speed: self.speed,

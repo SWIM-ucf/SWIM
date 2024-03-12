@@ -1,5 +1,5 @@
-use core::fmt;
 use crate::emulation_core::mips::datapath::MipsDatapath;
+use core::fmt;
 use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
 

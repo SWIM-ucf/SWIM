@@ -171,7 +171,8 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             let target = event.target();
             let input = target.unwrap().unchecked_into::<HtmlInputElement>();
             let architecture = input.value();
-            let new_architecture: AvailableDatapaths = AvailableDatapaths::from(architecture.as_str());
+            let new_architecture: AvailableDatapaths =
+                AvailableDatapaths::from(architecture.as_str());
             communicator.set_core(new_architecture.clone());
             log::debug!("New architecture: {:?}", new_architecture);
         })
@@ -268,11 +269,13 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         "hidden"
     };
 
-    let arch_options = AvailableDatapaths::iter().map(|arch| {
-        html! {
-            <option value={arch.to_string()} class="bg-primary-700">{arch.to_string()}</option>
-        }
-    }).collect::<Html>();
+    let arch_options = AvailableDatapaths::iter()
+        .map(|arch| {
+            html! {
+                <option value={arch.to_string()} class="bg-primary-700">{arch.to_string()}</option>
+            }
+        })
+        .collect::<Html>();
 
     html! {
         <>

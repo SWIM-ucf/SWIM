@@ -12,7 +12,6 @@ use web_sys::{HtmlElement, HtmlInputElement};
 use yew::prelude::*;
 use yew::{Html, Properties};
 
-
 // TODO: Create Segment Viewer component for extendability to any segment
 
 #[derive(PartialEq, Properties)]
@@ -239,7 +238,7 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
                         html!{
 
                             <tr key={index}>
-                                <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, address as usize))}}>
+                                <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, address))}}>
                                     {format!("0x{:08x}", address as u64)}
                                 </td>
                                 <td>

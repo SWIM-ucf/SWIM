@@ -45,6 +45,10 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
     loop {
         let execution_delay = state.get_delay();
 
+        // Save the previous state of the emulator core's execution and initialization status
+        let is_executing = state.executing;
+        let is_initialiized = state.initialized;
+
         // Part 1: Delay/Command Handling
         if state.executing {
             futures::select! {
@@ -106,10 +110,17 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                 );
             }
         }
-
-        send_update!(state.scope, state.updates.changed_speed, DatapathUpdate::System(SystemUpdate::UpdateSpeed(state.speed)));
-        send_update!(state.scope, state.updates.changed_executing, DatapathUpdate::System(SystemUpdate::UpdateExecuting(state.executing)));
-        send_update!(state.scope, state.updates.changed_initialized, DatapathUpdate::System(SystemUpdate::UpdateInitialized(state.initialized)));
+        // Part 5: Sending Non-Syscall System Updates to UI
+        send_update!(
+            state.scope,
+            state.executing != is_executing,
+            DatapathUpdate::System(SystemUpdate::UpdateExecuting(state.executing))
+        );
+        send_update!(
+            state.scope,
+            state.initialized != is_initialiized,
+            DatapathUpdate::System(SystemUpdate::UpdateInitialized(state.initialized))
+        );
         state.updates = Default::default();
     }
 }
@@ -160,11 +171,9 @@ impl EmulatorCoreAgentState {
                 self.initialized = true;
                 self.updates.changed_memory = true;
                 self.updates.changed_registers = true;
-                self.updates.changed_initialized = true;
             }
             Command::SetExecuteSpeed(speed) => {
                 self.speed = speed;
-                self.updates.changed_speed = true;
             }
             Command::SetRegister(register, value) => {
                 self.current_datapath.set_register_by_str(&register, value);
@@ -180,7 +189,6 @@ impl EmulatorCoreAgentState {
             }
             Command::Execute => {
                 self.executing = true;
-                self.updates.changed_executing = true;
             }
             Command::ExecuteInstruction => {
                 if self.blocked_on == BlockedOn::Nothing {
@@ -194,7 +202,6 @@ impl EmulatorCoreAgentState {
             }
             Command::Pause => {
                 self.executing = false;
-                self.updates.changed_executing = true;
             }
             Command::Reset => {
                 self.current_datapath.reset();
