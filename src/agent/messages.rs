@@ -39,7 +39,6 @@ pub enum MipsStateUpdate {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum SystemUpdate {
     UpdateMessages(Vec<String>),
-    UpdateSpeed(u32),
     UpdateExecuting(bool),
     UpdateInitialized(bool),
 }
