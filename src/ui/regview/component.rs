@@ -236,7 +236,7 @@ pub fn regview(props: &Regviewprops) -> Html {
     };
 
     html! {
-        <div class="grow flex flex-col flex-no-wrap mt-12">
+        <div class="grow flex flex-col flex-no-wrap mt-12 min-w-0">
             <div class="flex flex-row justify-between">
                 <div>
                     <Tab<RegviewTabState> label="gp" text="GP" on_click={change_tab.clone()} disabled={false} active_tab={active_tab.clone()} tab_name={RegviewTabState::Gp}/>

@@ -104,23 +104,12 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                     state.updates.changed_memory,
                     UpdateMemory(datapath.memory.clone())
                 );
-                send_update_mips!(
-                    state.scope,
-                    state.updates.changed_speed,
-                    UpdateSpeed(state.speed)
-                );
-                send_update_mips!(
-                    state.scope,
-                    state.updates.changed_executing,
-                    UpdateExecuting(state.executing)
-                );
-                send_update_mips!(
-                    state.scope,
-                    state.updates.changed_initialized,
-                    UpdateInitialized(state.initialized)
-                );
             }
         }
+
+        send_update!(state.scope, state.updates.changed_speed, DatapathUpdate::System(SystemUpdate::UpdateSpeed(state.speed)));
+        send_update!(state.scope, state.updates.changed_executing, DatapathUpdate::System(SystemUpdate::UpdateExecuting(state.executing)));
+        send_update!(state.scope, state.updates.changed_initialized, DatapathUpdate::System(SystemUpdate::UpdateInitialized(state.initialized)));
         state.updates = Default::default();
     }
 }

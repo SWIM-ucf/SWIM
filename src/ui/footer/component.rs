@@ -120,7 +120,7 @@ pub fn footer(props: &Footerprops) -> Html {
                 }
                 else if **active_tab == FooterTabState::HexEditor {
                     <div class="inline-block">
-                        <button class="disabled:hidden hover:text-primary-100 duration-300 pointer pt-4" onclick={props.on_memory_clicked.clone()} disabled={!props.datapath_state.mips.initialized}>{"Update Memory"}</button>
+                        <button class="disabled:hidden hover:text-primary-100 duration-300 pointer pt-4" onclick={props.on_memory_clicked.clone()} disabled={!props.datapath_state.initialized}>{"Update Memory"}</button>
                     </div>
                 }
             </div>

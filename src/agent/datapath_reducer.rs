@@ -15,6 +15,9 @@ pub struct DatapathReducer {
     pub current_architecture: AvailableDatapaths,
     pub mips: MipsCoreState,
     pub messages: Vec<String>,
+    pub speed: u32,
+    pub executing: bool,
+    pub initialized: bool,
 }
 
 #[derive(Default, PartialEq, Clone)]
@@ -24,10 +27,7 @@ pub struct MipsCoreState {
     pub coprocessor_state: FpuState,
     pub coprocessor_registers: FpRegisters,
     pub memory: Memory,
-    pub current_stage: Stage,
-    pub speed: u32,
-    pub executing: bool,
-    pub initialized: bool,
+    pub current_stage: Stage
 }
 
 impl Default for DatapathReducer {
@@ -36,6 +36,9 @@ impl Default for DatapathReducer {
             current_architecture: MIPS,
             mips: MipsCoreState::default(),
             messages: Vec::new(),
+            speed: 0,
+            executing: false,
+            initialized: false,
         }
     }
 }
@@ -78,27 +81,45 @@ impl Reducible for DatapathReducer {
                     MipsStateUpdate::UpdateStage(stage) => MipsCoreState {
                         current_stage: stage,
                         ..self.mips.clone()
-                    },
-                    MipsStateUpdate::UpdateSpeed(speed) => MipsCoreState {
-                        speed,
-                        ..self.mips.clone()
-                    },
-                    MipsStateUpdate::UpdateExecuting(executing) => MipsCoreState {
-                        executing,
-                        ..self.mips.clone()
-                    },
-                    MipsStateUpdate::UpdateInitialized(initialized) => MipsCoreState {
-                        initialized,
-                        ..self.mips.clone()
-                    },
+                    }
                 },
                 messages: self.messages.clone(),
+                speed: self.speed,
+                executing: self.executing,
+                initialized: self.initialized,
             },
             DatapathUpdate::System(update) => match update {
                 SystemUpdate::UpdateMessages(messages) => Self {
                     current_architecture: self.current_architecture.clone(),
                     mips: self.mips.clone(),
                     messages,
+                    speed: self.speed,
+                    executing: self.executing,
+                    initialized: self.initialized,
+                },
+                SystemUpdate::UpdateSpeed(speed) => Self {
+                    current_architecture: self.current_architecture.clone(),
+                    mips: self.mips.clone(),
+                    messages: self.messages.clone(),
+                    speed,
+                    executing: self.executing,
+                    initialized: self.initialized,
+                },
+                SystemUpdate::UpdateExecuting(executing) => Self {
+                    current_architecture: self.current_architecture.clone(),
+                    mips: self.mips.clone(),
+                    messages: self.messages.clone(),
+                    speed: self.speed,
+                    executing,
+                    initialized: self.initialized,
+                },
+                SystemUpdate::UpdateInitialized(initialized) => Self {
+                    current_architecture: self.current_architecture.clone(),
+                    mips: self.mips.clone(),
+                    messages: self.messages.clone(),
+                    speed: self.speed,
+                    executing: self.executing,
+                    initialized,
                 },
             },
         })

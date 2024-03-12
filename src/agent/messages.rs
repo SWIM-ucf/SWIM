@@ -33,15 +33,15 @@ pub enum MipsStateUpdate {
     UpdateCoprocessorRegisters(FpRegisters),
     UpdateMemory(Memory),
     UpdateStage(Stage),
-    UpdateSpeed(u32),
-    UpdateExecuting(bool),
-    UpdateInitialized(bool),
 }
 
 /// Information about the effects of system calls sent from the worker thread to the UI thread.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum SystemUpdate {
     UpdateMessages(Vec<String>),
+    UpdateSpeed(u32),
+    UpdateExecuting(bool),
+    UpdateInitialized(bool),
 }
 
 /// Enum containing all types of updates sent from the worker thread to the UI thread.

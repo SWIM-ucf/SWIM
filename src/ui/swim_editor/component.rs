@@ -278,12 +278,12 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         <>
             // Editor buttons
             <div class="flex flex-row justify-between items-center border-b-2 border-b-solid border-b-primary-200">
-                <div class="bar">
+                <div class="flex flex-row flex-nowrap min-w-0">
                     <Tab<EditorTabState> label={"editor".to_string()} text={"Editor".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::Editor}/>
                     <Tab<EditorTabState> label={"text".to_string()} text={"Text Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::TextSegment}/>
                     <Tab<EditorTabState> label={"data".to_string()} text={"Data Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::DataSegment}/>
                 </div>
-                <div class="bar flex flex-row justify-end items-center gap-2 cursor-default">
+                <div class="flex flex-row flex-wrap justify-end items-center gap-2 cursor-default">
                     <button class={classes!("copy-button", conditional_class)} title="Copy to Clipboard" onclick={on_clipboard_clicked}>{"Copy to Clipboard "}<i class={classes!("fa-regular", "fa-copy")}></i></button>
                     <input type="number" id="execution-speed" title="Execution Speed. Setting this to 0 will make it run as fast as possible." name="execution-speed" placeholder="0" min="0" value={format!("{}", props.speed)} class="bg-primary-700 flex items-center flex-row text-right w-24" onchange={change_execution_speed} />
                     <span title="Execution Speed.">{"Hz"}</span>

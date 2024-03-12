@@ -21,7 +21,7 @@ pub fn tab<T: PartialEq + 'static>(props: &TabProps<T>) -> Html {
 
     html!(
         <button
-            class={format!("rounded-t-md overflow-hidden py-2 px-8 text-center cursor-pointer duration-300 focus:bg-primary-600 hover:bg-primary-600 active:bg-primary-500 {}", active_class)}
+            class={format!("rounded-t-md py-2 px-4 text-center cursor-pointer duration-300 focus:bg-primary-500 hover:bg-primary-600 active:bg-primary-500 whitespace-nowrap text-ellipsis overflow-hidden  min-w-0 {}", active_class)}
             label={props.label.clone()}
             onclick={props.on_click.clone()}
             disabled={props.disabled}
