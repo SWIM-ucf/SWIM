@@ -38,8 +38,8 @@ use yew_hooks::prelude::*;
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
-const CONTENT: &str = include_str!("../../static/assembly_examples/riscv_test.asm");
-const ARCH: AvailableDatapaths = AvailableDatapaths::RISCV;
+const CONTENT: &str = include_str!("../../static/assembly_examples/Fibonacci.asm");
+const ARCH: AvailableDatapaths = AvailableDatapaths::MIPS;
 
 #[derive(Properties, Clone, PartialEq)]
 struct AppProps {
