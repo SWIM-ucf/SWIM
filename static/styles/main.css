@@ -60,10 +60,10 @@ body {
   margin-top: 8px;
 }
 .editor {
-  max-height: 1px;
   max-width: 1px;
-  min-height: 96%;
+  min-height: 0;
   min-width: 100%;
+  flex-grow: 1;
 }
 .executedLine {
   color: rgb(0 255 149) !important;
@@ -222,6 +222,7 @@ body {
   min-height: max(20%, 8em);
   max-height: 50%;
   z-index: 1;
+  display: flex;
 }
 
 .memory-view {
