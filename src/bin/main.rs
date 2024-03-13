@@ -38,7 +38,8 @@ use yew_hooks::prelude::*;
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
-const CONTENT: &str = include_str!("../../static/assembly_examples/floating_point.asm");
+const CONTENT: &str = include_str!("../../static/assembly_examples/fibonacci.asm");
+const ARCH: AvailableDatapaths = AvailableDatapaths::MIPS;
 
 #[derive(Properties, Clone, PartialEq)]
 struct AppProps {
@@ -122,7 +123,7 @@ fn app(props: &AppProps) -> Html {
                 let text_model = text_model.clone();
                 let memory_text_model = memory_text_model.clone();
                 // parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
-                let (program_info, assembled) = parser(text_model.get_value());
+                let (program_info, assembled) = parser(text_model.get_value(), ARCH);
                 *program_info_ref.borrow_mut() = program_info.clone();
                 *binary_ref.borrow_mut() = assembled.clone();
                 pc_limit.set(assembled.len() * 4);
@@ -397,7 +398,7 @@ fn app(props: &AppProps) -> Html {
                 }
 
                 // Update the parsed info for text and data segment views
-                let (program_info, _) = parser(text_model.get_value());
+                let (program_info, _) = parser(text_model.get_value(), ARCH);
                 *program_info_ref.borrow_mut() = program_info;
 
                 trigger.force_update();
