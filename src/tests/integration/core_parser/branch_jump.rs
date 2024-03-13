@@ -222,8 +222,10 @@ bne $s0, $s2, loop"#,
 
     let mut iterations = 0;
 
-    while !datapath.is_halted() {
-        datapath.execute_instruction();
+    loop {
+        if datapath.execute_instruction().hit_syscall {
+            break;
+        }
         iterations += 1;
 
         // Catch an infinite loop. This program should not cause over 300 instructions to run.

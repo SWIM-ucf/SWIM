@@ -1,4 +1,3 @@
-use crate::agent::messages::MipsStateUpdate;
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use serde::{Deserialize, Serialize};
 
@@ -10,9 +9,4 @@ pub enum AvailableDatapaths {
 
 pub enum DatapathRef<'a> {
     MIPS(&'a MipsDatapath),
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum DatapathUpdate {
-    MIPS(MipsStateUpdate),
 }
