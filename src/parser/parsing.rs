@@ -1,3 +1,4 @@
+use crate::emulation_core::architectures::AvailableDatapaths;
 use crate::parser::parser_structs_and_enums::ErrorType::*;
 use crate::parser::parser_structs_and_enums::TokenType::{Directive, Label, Operator, Unknown};
 use crate::parser::parser_structs_and_enums::{
@@ -7,7 +8,7 @@ use crate::parser::parser_structs_and_enums::{
 use levenshtein::levenshtein;
 use std::collections::HashMap;
 
-use super::parser_structs_and_enums::{Architecture, SUPPORTED_INSTRUCTIONS_RISCV};
+use super::parser_structs_and_enums::SUPPORTED_INSTRUCTIONS_RISCV;
 
 ///Takes the initial string of the program given by the editor and turns it into a vector of Line,
 /// a struct that holds tokens and the original line number.
@@ -404,7 +405,7 @@ pub fn suggest_error_corrections(
     data: &mut [Data],
     labels: &HashMap<String, usize>,
     monaco_line_info: &mut [MonacoLineInfo],
-    arch: Architecture,
+    arch: AvailableDatapaths,
 ) -> String {
     let levenshtein_threshold = 2_f32 / 3_f32;
     let mut console_out_string: String = "".to_string();
@@ -471,19 +472,21 @@ pub fn suggest_error_corrections(
                         let given_string = &instruction.operator.token_name;
                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
 
-                        if arch == Architecture::MIPS {
-                            for instruction in SUPPORTED_INSTRUCTIONS_MIPS {
-                                if levenshtein(given_string, instruction) < closest.0 {
-                                    closest.0 = levenshtein(given_string, instruction);
-                                    closest.1 = instruction.to_string();
+                        match arch {
+                            AvailableDatapaths::MIPS => {
+                                for instruction in SUPPORTED_INSTRUCTIONS_MIPS {
+                                    if levenshtein(given_string, instruction) < closest.0 {
+                                        closest.0 = levenshtein(given_string, instruction);
+                                        closest.1 = instruction.to_string();
+                                    }
                                 }
                             }
-                        }
-                        if arch == Architecture::RISCV {
-                            for instruction in SUPPORTED_INSTRUCTIONS_RISCV {
-                                if levenshtein(given_string, instruction) < closest.0 {
-                                    closest.0 = levenshtein(given_string, instruction);
-                                    closest.1 = instruction.to_string();
+                            AvailableDatapaths::RISCV => {
+                                for instruction in SUPPORTED_INSTRUCTIONS_RISCV {
+                                    if levenshtein(given_string, instruction) < closest.0 {
+                                        closest.0 = levenshtein(given_string, instruction);
+                                        closest.1 = instruction.to_string();
+                                    }
                                 }
                             }
                         }

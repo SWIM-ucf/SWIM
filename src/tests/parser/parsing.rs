@@ -1,3 +1,4 @@
+use crate::emulation_core::architectures::AvailableDatapaths;
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::parser;
 use crate::parser::parser_structs_and_enums::ErrorType::{
@@ -5,7 +6,7 @@ use crate::parser::parser_structs_and_enums::ErrorType::{
 };
 use crate::parser::parser_structs_and_enums::TokenType::{Label, Operator, Unknown};
 use crate::parser::parser_structs_and_enums::{
-    Architecture, Data, Error, ErrorType, Instruction, LabelInstance, MonacoLineInfo, Token,
+    Data, Error, ErrorType, Instruction, LabelInstance, MonacoLineInfo, Token,
 };
 use crate::parser::parsing::create_label_map;
 #[cfg(test)]
@@ -327,13 +328,13 @@ fn separate_data_and_text_can_handle_empty_lines() {
     //check that the result generated with empty lines is identical to the result without empty lines save for line number
     let mut result_1 = parser(
         ".text\nori $s0, $zero, 0x1234\n\n.data\nlabel: .word 0xface".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .monaco_line_info;
     let result_2 = parser(
         ".text\nori $s0, $zero, 0x1234\n.data\nlabel: .word 0xface".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .monaco_line_info;
@@ -351,7 +352,7 @@ fn separate_data_and_text_can_handle_empty_lines() {
 fn separate_data_and_text_generates_error_on_missing_commas_text() {
     let result = parser(
         "add, $t1, $t2, $t3,\nlw $t1 400($t2)".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .monaco_line_info;
@@ -746,7 +747,7 @@ fn build_instruction_list_allows_double_label_on_instructions() {
 fn build_instruction_list_generates_error_on_label_on_last_line() {
     let result = parser(
         "lw $t1, 400($zero)\nadd $t1, $t2, $t3\nlabel:\n".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .monaco_line_info;
@@ -845,7 +846,7 @@ fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name() {
 fn suggest_error_corrections_works_with_various_gp_registers() {
     let result = parser(
         "add $t1, $t2, @t3\nori not, ro, 100".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .instructions;
@@ -868,7 +869,7 @@ fn suggest_error_corrections_works_with_various_gp_registers() {
 fn suggest_error_corrections_works_with_various_fp_registers() {
     let result = parser(
         "add.s $f1, $f2, f3\nadd.d fake, $052, 1qp".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .instructions;
@@ -895,7 +896,7 @@ fn suggest_error_corrections_works_with_various_fp_registers() {
 fn suggest_error_corrections_works_with_labels() {
     let result = parser(
         "j stable\nlabel: add $t1, $t2, $t3\ntable: sub $t1, $t2, $t3\nj lapel".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .instructions;
@@ -914,7 +915,7 @@ fn suggest_error_corrections_works_with_labels() {
 fn suggest_error_corrections_works_with_labels_when_no_labels_specified() {
     let result = parser(
         "add $t1, $t2, $t3\nj stable\nlw $t1, 100($zero)\n".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .instructions;
@@ -928,7 +929,7 @@ fn suggest_error_corrections_works_with_labels_when_no_labels_specified() {
 fn suggest_error_corrections_works_with_instructions() {
     let result = parser(
         "sun $t1, $t2, $t3\nqq $t1, 100($zero)\n.c.eqd $f1, $f1, $f3".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .instructions;
@@ -952,7 +953,7 @@ fn suggest_error_corrections_works_with_data_types() {
     let result = parser(
         ".data\nlabel: word 100\ntable: .bite 'c','1'\nlapel: gobbledygook \"this is a string\""
             .to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .data;
@@ -975,7 +976,7 @@ fn suggest_error_corrections_works_with_data_types() {
 fn suggest_error_suggestions_associates_error_with_monaco_line_info() {
     let lines = parser(
         "ori $t1, 100, $t2\nlw $f1, 400($zero)\n.data\nword .wod \"a\"\n".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .monaco_line_info;
@@ -1023,7 +1024,7 @@ fn suggest_error_suggestions_associates_error_with_monaco_line_info() {
 
 #[test]
 fn operators_with_commas_cause_error() {
-    let result = parser("ori, $t1, $t2, 100".to_string(), Architecture::MIPS)
+    let result = parser("ori, $t1, $t2, 100".to_string(), AvailableDatapaths::MIPS)
         .0
         .monaco_line_info;
 

@@ -1,7 +1,8 @@
+use crate::emulation_core::architectures::AvailableDatapaths;
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::parser;
 use crate::parser::parser_structs_and_enums::TokenType::Operator;
-use crate::parser::parser_structs_and_enums::{Architecture, Instruction, ProgramInfo, Token};
+use crate::parser::parser_structs_and_enums::{Instruction, ProgramInfo, Token};
 use crate::parser::parsing::{create_label_map, separate_data_and_text, tokenize_program};
 use crate::parser::pseudo_instruction_parsing::{
     complete_lw_sw_pseudo_instructions, expand_pseudo_instructions_and_assign_instruction_numbers,
@@ -12,7 +13,7 @@ use std::collections::HashMap;
 fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_if_it_is_missing() {
     let result = parser(
         "addi $t1, $t2, 100\nsw $t1, label".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .updated_monaco_string;
@@ -26,7 +27,7 @@ fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_begi
 ) {
     let result = parser(
         ".data\nword .word 100\nother .byte 'a','a'\n".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .updated_monaco_string;
@@ -39,7 +40,7 @@ fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_begi
 #[test]
 fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_after_first_instance_of_text(
 ) {
-    let result = parser(".data\nword .word 100\n.text\n.data\nother .byte 'a','a'\n.text\n.data\nfinal: .space 10\n".to_string(), Architecture::MIPS).0.updated_monaco_string;
+    let result = parser(".data\nword .word 100\n.text\n.data\nother .byte 'a','a'\n.text\n.data\nfinal: .space 10\n".to_string(), AvailableDatapaths::MIPS).0.updated_monaco_string;
 
     let correct_result = ".data\nword .word 100\n.text\nsyscall\n.data\nother .byte 'a','a'\n.text\n.data\nfinal: .space 10\n".to_string();
 
@@ -51,7 +52,7 @@ fn expand_pseudo_instructions_and_assign_instruction_number_does_not_add_syscall
 {
     let result = parser(
         "addi $t1, $t2, 100\nsw $t1, label\nsyscall\n".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .updated_monaco_string;
@@ -66,7 +67,7 @@ fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_prop
 ) {
     let result = parser(
         "addi $t1, $t2, 100\nsw $t1, label\n.data\n word: .word 100\n".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .updated_monaco_string;
@@ -81,7 +82,7 @@ fn expand_pseudo_instructions_and_assign_instruction_number_adds_syscall_at_prop
 fn add_syscall_to_program_info() {
     let result = parser(
         ".text\naddi $t1, $t2, $t3\nsyscall\n.data\n".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .instructions;
@@ -1976,7 +1977,7 @@ fn complete_lw_sw_pseudo_instructions_doesnt_break_with_empty_instruction_list()
 fn expanded_pseudo_instructions_are_added_into_updated_monaco_string() {
     let result = parser(
         ".text\nli $t1, 100\nseq $t1, $t2, $t3\nsne $t1, $t2, $t3\nsle $t1, $t2, $t3\nsleu $t1, $t2, $t3\nsgt $t1, $t2, $t3\nsgtu $t1, $t2, $t3\nsge $t1, $t2, $t3\nsgeu $t1, $t2, $t3\nsubi $t1, $t2, 100\ndsubi $t1, $t2, 100\ndsubiu $t1, $t2, 100\nmuli $t1, $t2, 100\ndmuli $t1, $t2, 100\ndmuliu $t1, $t2, 100\ndivi $t1, 100\nddivi $t1, 100\nddiviu $t1, 100\nlw $t1, memory\n.data\nmemory: .word 200"
-            .to_string(), Architecture::MIPS
+            .to_string(), AvailableDatapaths::MIPS
     )
     .0.updated_monaco_string;
 
@@ -1987,7 +1988,7 @@ fn expanded_pseudo_instructions_are_added_into_updated_monaco_string() {
 fn pseudo_instructions_with_labels_put_label_on_the_first_expanded_instruction() {
     let result = parser(
         "label: ddiviu $t2, $t2, 100\n".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0
     .instructions;

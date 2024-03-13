@@ -1,3 +1,4 @@
+use crate::emulation_core::architectures::AvailableDatapaths;
 use crate::parser::assembling::{assemble_data_binary, read_operands, read_operands_riscv};
 use crate::parser::parser_structs_and_enums::ErrorType::*;
 use crate::parser::parser_structs_and_enums::OperandType::*;
@@ -12,120 +13,123 @@ use std::collections::HashMap;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
-pub fn parser(file_string: String, arch: Architecture) -> (ProgramInfo, Vec<u32>) {
-    if arch == Architecture::MIPS {
-        let mut program_info = ProgramInfo {
-            monaco_line_info: tokenize_program(file_string),
-            ..Default::default()
-        };
+pub fn parser(file_string: String, arch: AvailableDatapaths) -> (ProgramInfo, Vec<u32>) {
+    match arch {
+        AvailableDatapaths::MIPS => {
+            let mut program_info = ProgramInfo {
+                monaco_line_info: tokenize_program(file_string),
+                ..Default::default()
+            };
 
-        (program_info.instructions, program_info.data) =
-            separate_data_and_text(&mut program_info.monaco_line_info);
+            (program_info.instructions, program_info.data) =
+                separate_data_and_text(&mut program_info.monaco_line_info);
 
-        expand_pseudo_instructions_and_assign_instruction_numbers(
-            &mut program_info.instructions,
-            &program_info.data,
-            &mut program_info.monaco_line_info,
-        );
+            expand_pseudo_instructions_and_assign_instruction_numbers(
+                &mut program_info.instructions,
+                &program_info.data,
+                &mut program_info.monaco_line_info,
+            );
 
-        let vec_of_data = assemble_data_binary(&mut program_info.data);
+            let vec_of_data = assemble_data_binary(&mut program_info.data);
 
-        let labels: HashMap<String, usize> =
-            create_label_map(&mut program_info.instructions, &mut program_info.data);
+            let labels: HashMap<String, usize> =
+                create_label_map(&mut program_info.instructions, &mut program_info.data);
 
-        complete_lw_sw_pseudo_instructions(
-            &mut program_info.instructions,
-            &labels,
-            &mut program_info.monaco_line_info,
-        );
+            complete_lw_sw_pseudo_instructions(
+                &mut program_info.instructions,
+                &labels,
+                &mut program_info.monaco_line_info,
+            );
 
-        read_instructions(
-            &mut program_info.instructions,
-            &labels,
-            &mut program_info.monaco_line_info,
-        );
+            read_instructions(
+                &mut program_info.instructions,
+                &labels,
+                &mut program_info.monaco_line_info,
+            );
 
-        program_info.console_out_post_assembly = suggest_error_corrections(
-            &mut program_info.instructions,
-            &mut program_info.data,
-            &labels,
-            &mut program_info.monaco_line_info,
-            arch,
-        );
+            program_info.console_out_post_assembly = suggest_error_corrections(
+                &mut program_info.instructions,
+                &mut program_info.data,
+                &labels,
+                &mut program_info.monaco_line_info,
+                arch,
+            );
 
-        let (binary, data_starting_point) =
-            create_binary_vec(program_info.instructions.clone(), vec_of_data);
+            let (binary, data_starting_point) =
+                create_binary_vec(program_info.instructions.clone(), vec_of_data);
 
-        for entry in &program_info.monaco_line_info {
-            program_info
-                .updated_monaco_string
-                .push_str(&format!("{}\n", entry.updated_monaco_string));
+            for entry in &program_info.monaco_line_info {
+                program_info
+                    .updated_monaco_string
+                    .push_str(&format!("{}\n", entry.updated_monaco_string));
+            }
+
+            for instruction in program_info.instructions.clone() {
+                program_info
+                    .address_to_line_number
+                    .push(instruction.line_number);
+            }
+
+            program_info.pc_starting_point = determine_pc_starting_point(labels);
+            program_info.data_starting_point = data_starting_point;
+
+            return (program_info.clone(), binary);
         }
+        AvailableDatapaths::RISCV => {
+            let mut program_info = ProgramInfo {
+                monaco_line_info: tokenize_program(file_string),
+                ..Default::default()
+            };
 
-        for instruction in program_info.instructions.clone() {
-            program_info
-                .address_to_line_number
-                .push(instruction.line_number);
+            (program_info.instructions, program_info.data) =
+                separate_data_and_text(&mut program_info.monaco_line_info);
+
+            // Implement a RISC-V version
+            expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
+                &mut program_info.instructions,
+                &program_info.data,
+                &mut program_info.monaco_line_info,
+            );
+
+            let vec_of_data = assemble_data_binary(&mut program_info.data);
+
+            let labels: HashMap<String, usize> =
+                create_label_map(&mut program_info.instructions, &mut program_info.data);
+
+            read_instructions_riscv(
+                &mut program_info.instructions,
+                &labels,
+                &mut program_info.monaco_line_info,
+            );
+
+            program_info.console_out_post_assembly = suggest_error_corrections(
+                &mut program_info.instructions,
+                &mut program_info.data,
+                &labels,
+                &mut program_info.monaco_line_info,
+                arch,
+            );
+
+            let (binary, data_starting_point) =
+                create_binary_vec(program_info.instructions.clone(), vec_of_data);
+
+            for entry in &program_info.monaco_line_info {
+                program_info
+                    .updated_monaco_string
+                    .push_str(&format!("{}\n", entry.updated_monaco_string));
+            }
+
+            for instruction in program_info.instructions.clone() {
+                program_info
+                    .address_to_line_number
+                    .push(instruction.line_number);
+            }
+
+            program_info.pc_starting_point = determine_pc_starting_point(labels);
+            program_info.data_starting_point = data_starting_point;
+
+            return (program_info.clone(), binary);
         }
-
-        program_info.pc_starting_point = determine_pc_starting_point(labels);
-        program_info.data_starting_point = data_starting_point;
-
-        (program_info.clone(), binary)
-    } else {
-        let mut program_info = ProgramInfo {
-            monaco_line_info: tokenize_program(file_string),
-            ..Default::default()
-        };
-
-        (program_info.instructions, program_info.data) =
-            separate_data_and_text(&mut program_info.monaco_line_info);
-
-        // Implement a RISC-V version
-        expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
-            &mut program_info.instructions,
-            &program_info.data,
-            &mut program_info.monaco_line_info,
-        );
-
-        let vec_of_data = assemble_data_binary(&mut program_info.data);
-
-        let labels: HashMap<String, usize> =
-            create_label_map(&mut program_info.instructions, &mut program_info.data);
-
-        read_instructions_riscv(
-            &mut program_info.instructions,
-            &labels,
-            &mut program_info.monaco_line_info,
-        );
-
-        program_info.console_out_post_assembly = suggest_error_corrections(
-            &mut program_info.instructions,
-            &mut program_info.data,
-            &labels,
-            &mut program_info.monaco_line_info,
-            arch,
-        );
-
-        let (binary, data_starting_point) =
-            create_binary_vec(program_info.instructions.clone(), vec_of_data);
-
-        for entry in &program_info.monaco_line_info {
-            program_info
-                .updated_monaco_string
-                .push_str(&format!("{}\n", entry.updated_monaco_string));
-        }
-
-        for instruction in program_info.instructions.clone() {
-            program_info
-                .address_to_line_number
-                .push(instruction.line_number);
-        }
-
-        program_info.pc_starting_point = determine_pc_starting_point(labels);
-        program_info.data_starting_point = data_starting_point;
-
-        (program_info.clone(), binary)
     }
 }
 

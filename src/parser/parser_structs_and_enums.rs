@@ -19,13 +19,6 @@ pub struct ProgramInfo {
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
-pub enum Architecture {
-    #[default]
-    MIPS,
-    RISCV,
-}
-
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
 ///This struct holds all the information we gather in the parser & assembler about a single line the user wrote
 pub struct MonacoLineInfo {
     pub mouse_hover_string: String,

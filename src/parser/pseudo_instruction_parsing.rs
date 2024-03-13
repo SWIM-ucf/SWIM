@@ -1276,13 +1276,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if !instruction.operands.is_empty() {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 0) {
                     continue;
                 }
 
@@ -1328,13 +1322,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -1364,13 +1352,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -1400,13 +1382,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -1436,13 +1412,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -1472,13 +1442,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -1508,13 +1472,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -1544,13 +1502,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -1580,13 +1532,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -1616,13 +1562,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -1652,13 +1592,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -1688,13 +1622,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -1710,7 +1638,6 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                         token_type: Default::default(),
                     },
                 );
-                instruction.operands[2].start_end_columns = (0, 0);
 
                 // Update Line Info
                 //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
@@ -1725,13 +1652,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -1761,13 +1682,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -1797,13 +1712,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -1833,13 +1742,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -1869,13 +1772,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 3) {
                     continue;
                 }
 
@@ -1900,13 +1797,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 3) {
                     continue;
                 }
 
@@ -1931,13 +1822,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 3) {
                     continue;
                 }
 
@@ -1962,13 +1847,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 3 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 3) {
                     continue;
                 }
 
@@ -1994,13 +1873,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 1 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 1) {
                     continue;
                 }
 
@@ -2030,13 +1903,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 1 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 1) {
                     continue;
                 }
 
@@ -2066,13 +1933,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if !instruction.operands.is_empty() {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 0) {
                     continue;
                 }
 
@@ -2111,13 +1972,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -2142,13 +1997,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -2173,13 +2022,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if instruction.operands.len() != 2 {
-                    instruction.errors.push(Error {
-                        error_name: IncorrectNumberOfOperands,
-                        token_causing_error: "".to_string(),
-                        start_end_columns: instruction.operator.start_end_columns,
-                        message: "".to_string(),
-                    });
+                if !check_operands(instruction, 2) {
                     continue;
                 }
 
@@ -2244,4 +2087,17 @@ pub fn complete_lw_sw_pseudo_instructions(
             ]);
         }
     }
+}
+
+fn check_operands(instruction: &mut Instruction, num_operands: usize) -> bool {
+    if instruction.operands.len() != num_operands {
+        instruction.errors.push(Error {
+            error_name: IncorrectNumberOfOperands,
+            token_causing_error: "".to_string(),
+            start_end_columns: instruction.operator.start_end_columns,
+            message: "".to_string(),
+        });
+        return false;
+    }
+    return true;
 }

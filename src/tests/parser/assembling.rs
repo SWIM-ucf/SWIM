@@ -1,6 +1,6 @@
+use crate::emulation_core::architectures::AvailableDatapaths;
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::parser;
-use crate::parser::parser_structs_and_enums::Architecture;
 use crate::parser::parser_structs_and_enums::ErrorType::{NonASCIIChar, NonASCIIString};
 use crate::parser::parsing::{separate_data_and_text, tokenize_program};
 mod read_register_tests {
@@ -377,7 +377,7 @@ fn assemble_data_binary_works_for_asciiz() {
 fn assemble_data_binary_gives_errors_on_non_ascii_characters_for_ascii_asciiz_and_byte() {
     let result = parser(
         ".data\nlabel: .ascii \"❤️🦧❤️\"".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0;
 
@@ -388,7 +388,7 @@ fn assemble_data_binary_gives_errors_on_non_ascii_characters_for_ascii_asciiz_an
 
     let result = parser(
         ".data\nlabel: .asciiz \"❤️🦧❤️\"".to_string(),
-        Architecture::MIPS,
+        AvailableDatapaths::MIPS,
     )
     .0;
     assert_eq!(
@@ -396,7 +396,11 @@ fn assemble_data_binary_gives_errors_on_non_ascii_characters_for_ascii_asciiz_an
         NonASCIIString
     );
 
-    let result = parser(".data\nlabel: .byte \'🦧\'".to_string(), Architecture::MIPS).0;
+    let result = parser(
+        ".data\nlabel: .byte \'🦧\'".to_string(),
+        AvailableDatapaths::MIPS,
+    )
+    .0;
     assert_eq!(
         result.monaco_line_info[1].errors[0].error_name,
         NonASCIIChar

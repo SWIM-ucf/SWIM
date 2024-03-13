@@ -9,6 +9,7 @@ use monaco::{
     sys::{editor::IMarkerData, MarkerSeverity},
 };
 use std::rc::Rc;
+use swim::agent::datapath_communicator::DatapathCommunicator;
 use swim::agent::datapath_reducer::DatapathReducer;
 use swim::agent::EmulationCoreAgent;
 use swim::emulation_core::mips::datapath::Stage;
@@ -17,10 +18,6 @@ use swim::parser::parser_structs_and_enums::ProgramInfo;
 use swim::ui::footer::component::Footer;
 use swim::ui::regview::component::Regview;
 use swim::ui::swim_editor::component::SwimEditor;
-use swim::{
-    agent::datapath_communicator::DatapathCommunicator,
-    parser::parser_structs_and_enums::Architecture,
-};
 use swim::{
     emulation_core::{architectures::AvailableDatapaths, mips::instruction::get_string_version},
     ui::{
@@ -42,7 +39,7 @@ use yew_hooks::prelude::*;
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
 const CONTENT: &str = include_str!("../../static/assembly_examples/riscv_test.asm");
-const ARCH: Architecture = Architecture::RISCV;
+const ARCH: AvailableDatapaths = AvailableDatapaths::RISCV;
 
 #[derive(Properties, Clone, PartialEq)]
 struct AppProps {

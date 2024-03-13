@@ -1,7 +1,5 @@
-use crate::{
-    emulation_core::mips::gp_registers::GpRegisterType,
-    parser::parser_structs_and_enums::Architecture,
-};
+use crate::emulation_core::architectures::AvailableDatapaths;
+use crate::emulation_core::mips::gp_registers::GpRegisterType;
 
 use super::*;
 
@@ -77,7 +75,7 @@ fn recursive_fibonacci() -> Result<(), String> {
             nop",
     );
 
-    let (_, instruction_bits) = parser(instructions, Architecture::MIPS);
+    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
