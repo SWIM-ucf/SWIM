@@ -73,7 +73,7 @@ pub fn parser(file_string: String, arch: AvailableDatapaths) -> (ProgramInfo, Ve
             program_info.pc_starting_point = determine_pc_starting_point(labels);
             program_info.data_starting_point = data_starting_point;
 
-            return (program_info.clone(), binary);
+            (program_info.clone(), binary)
         }
         AvailableDatapaths::RISCV => {
             let mut program_info = ProgramInfo {
@@ -128,7 +128,7 @@ pub fn parser(file_string: String, arch: AvailableDatapaths) -> (ProgramInfo, Ve
             program_info.pc_starting_point = determine_pc_starting_point(labels);
             program_info.data_starting_point = data_starting_point;
 
-            return (program_info.clone(), binary);
+            (program_info.clone(), binary)
         }
     }
 }

@@ -2099,5 +2099,5 @@ fn check_operands(instruction: &mut Instruction, num_operands: usize) -> bool {
         });
         return false;
     }
-    return true;
+    true
 }
