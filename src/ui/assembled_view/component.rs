@@ -2,10 +2,10 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use crate::agent::datapath_communicator::DatapathCommunicator;
+use crate::emulation_core::mips::memory::{Memory, MemoryIter, CAPACITY_BYTES};
 // use monaco::api::TextModel;
 use crate::parser::parser_structs_and_enums::ProgramInfo;
-use crate::ui::footer::component::FooterTabState;
-use crate::ui::swim_editor::component::EditorTabState;
+use crate::ui::swim_editor::tab::TabState;
 use log::debug;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, HtmlInputElement};
@@ -21,8 +21,8 @@ pub struct TextSegmentProps {
     pub memory_curr_instr: UseStateHandle<u64>,
     pub editor_curr_line: UseStateHandle<f64>,
     pub pc: u64,
-    pub editor_active_tab: UseStateHandle<EditorTabState>,
-    pub console_active_tab: UseStateHandle<FooterTabState>,
+    pub editor_active_tab: UseStateHandle<TabState>,
+    pub console_active_tab: UseStateHandle<TabState>,
     pub communicator: &'static DatapathCommunicator,
 }
 #[derive(PartialEq, Properties)]
@@ -32,8 +32,8 @@ pub struct DataSegmentProps {
     pub lines_content: Rc<RefCell<Vec<String>>>,
     pub memory_curr_instr: UseStateHandle<u64>,
     pub editor_curr_line: UseStateHandle<f64>,
-    pub editor_active_tab: UseStateHandle<EditorTabState>,
-    pub console_active_tab: UseStateHandle<FooterTabState>,
+    pub editor_active_tab: UseStateHandle<TabState>,
+    pub console_active_tab: UseStateHandle<TabState>,
     pub pc_limit: usize,
 }
 
@@ -77,7 +77,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
             move |args: (MouseEvent, usize), memory_curr_instr| {
                 let (_e, address) = args;
                 memory_curr_instr.set(address as u64);
-                console_active_tab.set(FooterTabState::HexEditor);
+                console_active_tab.set(TabState::HexEditor);
             },
             memory_curr_instr,
         )
@@ -91,7 +91,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
             move |args: (MouseEvent, usize), _| {
                 let (_e, line_number) = args;
                 editor_curr_line.set(line_number as f64 + 1.0);
-                editor_active_tab.set(EditorTabState::Editor);
+                editor_active_tab.set(TabState::Editor);
             },
             (),
         )
@@ -196,7 +196,7 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
             move |args: (MouseEvent, usize), memory_curr_instr| {
                 let (_e, address) = args;
                 memory_curr_instr.set(address as u64);
-                console_active_tab.set(FooterTabState::HexEditor);
+                console_active_tab.set(TabState::HexEditor);
             },
             memory_curr_instr,
         )
@@ -210,7 +210,7 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
             move |args: (MouseEvent, usize), _| {
                 let (_e, line_number) = args;
                 editor_curr_line.set(line_number as f64);
-                editor_active_tab.set(EditorTabState::Editor);
+                editor_active_tab.set(TabState::Editor);
             },
             (),
         )
@@ -249,6 +249,71 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
                                 </td>
                                 <td>
                                     {format!("{}: {:?}", data.line_number + 1, lines_content.get(data.line_number).unwrap_or(&String::from("")))}
+                                </td>
+                            </tr>
+                        }
+                    }).collect::<Html>()
+                }
+                else {
+                    html! {<></>}
+                }
+            }
+        </table>
+    }
+}
+
+#[derive(PartialEq, Properties)]
+pub struct StackSegmentProps {
+    pub memory: Memory,
+    pub sp: u64,
+    pub memory_curr_instr: UseStateHandle<u64>,
+    pub console_active_tab: UseStateHandle<TabState>,
+}
+
+#[function_component]
+pub fn StackSegment(props: &StackSegmentProps) -> Html {
+    let memory = &props.memory;
+    let sp = props.sp;
+    let console_active_tab = &props.console_active_tab;
+    let memory_curr_instr = &props.memory_curr_instr;
+
+    // Go to the memory address in hex editor
+    let on_address_click = {
+        let memory_curr_instr = memory_curr_instr.clone();
+        let console_active_tab = console_active_tab.clone();
+        use_callback(
+            move |args: (MouseEvent, usize), memory_curr_instr| {
+                let (_e, address) = args;
+                memory_curr_instr.set(address as u64);
+                console_active_tab.set(TabState::HexEditor);
+            },
+            memory_curr_instr,
+        )
+    };
+
+    html! {
+        <table class="h-[96%] bg-primary-900">
+        // | address | data in hex
+            <tr>
+                <th>{"Address"}</th>
+                <th>{"Hex"}</th>
+            </tr>
+            {
+                if !memory.memory.is_empty() && sp != 0 {
+                    let memory_iter = MemoryIter::new(memory, sp as usize, memory.memory.len());
+                    memory_iter.map(|(address, words)| {
+                        let on_address_click = Callback::clone(&on_address_click);
+                        html! {
+                            <tr>
+                                <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, address))}}>
+                                    {format!("0x{:08x}", address as u64)}
+                                </td>
+                                <td>
+                                    {
+                                        words.iter().map(|word| {
+                                            format!("0x{:08x} ", word)
+                                        }).collect::<String>()
+                                    }
                                 </td>
                             </tr>
                         }

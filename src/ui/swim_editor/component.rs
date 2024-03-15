@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use std::{cell::RefCell, rc::Rc};
 
 use monaco::{
@@ -18,14 +19,15 @@ use yew::prelude::*;
 use yew::{html, Callback, Properties};
 use yew_hooks::prelude::*;
 
+use crate::emulation_core::mips::memory::Memory;
+use crate::ui::assembled_view::component::StackSegment;
 use crate::{
     agent::datapath_communicator::DatapathCommunicator,
     emulation_core::architectures::AvailableDatapaths,
     parser::parser_structs_and_enums::ProgramInfo,
     ui::{
         assembled_view::component::{DataSegment, TextSegment},
-        footer::component::FooterTabState,
-        swim_editor::tab::Tab,
+        swim_editor::tab::{Tab, TabState},
     },
 };
 use strum::IntoEnumIterator;
@@ -40,19 +42,13 @@ pub struct SwimEditorProps {
     pub pc_limit: usize,
     pub memory_curr_instr: UseStateHandle<u64>,
     pub editor_curr_line: UseStateHandle<f64>,
-    pub editor_active_tab: UseStateHandle<EditorTabState>,
-    pub console_active_tab: UseStateHandle<FooterTabState>,
+    pub editor_active_tab: UseStateHandle<TabState>,
+    pub console_active_tab: UseStateHandle<TabState>,
     pub current_architecture: AvailableDatapaths,
     pub speed: u32,
     pub communicator: &'static DatapathCommunicator,
-}
-
-#[derive(Default, PartialEq)]
-pub enum EditorTabState {
-    #[default]
-    Editor,
-    TextSegment,
-    DataSegment,
+    pub sp: u64,
+    pub memory: Memory,
 }
 
 fn get_options() -> IStandaloneEditorConstructionOptions {
@@ -154,13 +150,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                 .get_attribute("label")
                 .unwrap_or(String::from("editor"));
 
-            let new_tab: EditorTabState = match tab_name.as_str() {
-                "editor" => EditorTabState::Editor,
-                "text" => EditorTabState::TextSegment,
-                "data" => EditorTabState::DataSegment,
-                _ => EditorTabState::default(),
-            };
-
+            let new_tab: TabState = TabState::from_str(&tab_name).unwrap();
             editor_active_tab.set(new_tab);
         })
     };
@@ -263,7 +253,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         });
     };
 
-    let conditional_class = if **editor_active_tab == EditorTabState::Editor {
+    let conditional_class = if **editor_active_tab == TabState::Editor {
         ""
     } else {
         "hidden"
@@ -282,9 +272,10 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             // Editor buttons
             <div class="flex flex-row justify-between items-center border-b-2 border-b-solid border-b-primary-200">
                 <div class="flex flex-row flex-nowrap min-w-0 items-end h-full">
-                    <Tab<EditorTabState> label={"editor".to_string()} text={"Editor".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::Editor}/>
-                    <Tab<EditorTabState> label={"text".to_string()} text={"Text Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::TextSegment}/>
-                    <Tab<EditorTabState> label={"data".to_string()} text={"Data Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::DataSegment}/>
+                    <Tab<TabState> label={TabState::Editor.to_string()} text={"Editor".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={TabState::Editor}/>
+                    <Tab<TabState> label={TabState::TextSegment.to_string()} text={"Text Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={TabState::TextSegment}/>
+                    <Tab<TabState> label={TabState::DataSegment.to_string()} text={"Data Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={TabState::DataSegment}/>
+                    <Tab<TabState> label={TabState::StackSegment.to_string()} text={"Stack Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={TabState::StackSegment}/>
                 </div>
                 <div class="flex flex-row flex-wrap justify-end items-center gap-2 cursor-default">
                     <button class={classes!("copy-button", conditional_class)} title="Copy to Clipboard" onclick={on_clipboard_clicked}>{"Copy to Clipboard "}<i class={classes!("fa-regular", "fa-copy")}></i></button>
@@ -295,12 +286,14 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                     </select>
                 </div>
             </div>
-            if **editor_active_tab == EditorTabState::Editor {
+            if **editor_active_tab == TabState::Editor {
                 <CodeEditor classes={"editor"} link={link} options={get_options()} model={text_model.clone()} on_editor_created={on_editor_created}/>
-            } else if **editor_active_tab == EditorTabState::TextSegment {
+            } else if **editor_active_tab == TabState::TextSegment {
                 <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} pc={props.pc} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} communicator={props.communicator}/>
-            } else if **editor_active_tab == EditorTabState::DataSegment {
+            } else if **editor_active_tab == TabState::DataSegment {
                 <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} pc_limit={props.pc_limit}/>
+            } else if **editor_active_tab == TabState::StackSegment {
+                <StackSegment memory_curr_instr={props.memory_curr_instr.clone()} console_active_tab={console_active_tab.clone()} sp={props.sp} memory={props.memory.clone()}/>
             }
         </>
     }

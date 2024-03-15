@@ -18,11 +18,13 @@ use swim::ui::footer::component::Footer;
 use swim::ui::regview::component::Regview;
 use swim::ui::swim_editor::component::SwimEditor;
 use swim::{
-    emulation_core::{architectures::AvailableDatapaths, mips::instruction::get_string_version},
+    emulation_core::{
+        architectures::AvailableDatapaths, mips::gp_registers::GpRegisterType,
+        mips::instruction::get_string_version,
+    },
     ui::{
-        footer::component::FooterTabState,
         hex_editor::component::{parse_hexdump, UpdatedLine},
-        swim_editor::component::EditorTabState,
+        swim_editor::tab::TabState,
     },
 };
 use wasm_bindgen::{JsCast, JsValue};
@@ -81,8 +83,8 @@ fn app(props: &AppProps) -> Html {
     let command = use_state_eq(|| String::from("(Test) Enter a string"));
 
     // Store the currently selected tabs in windows
-    let console_active_tab = use_state_eq(FooterTabState::default);
-    let editor_active_tab = use_state_eq(|| EditorTabState::Editor);
+    let console_active_tab = use_state_eq(|| TabState::Console);
+    let editor_active_tab = use_state_eq(|| TabState::Editor);
 
     let datapath_state = use_reducer(DatapathReducer::default);
 
@@ -91,7 +93,7 @@ fn app(props: &AppProps) -> Html {
     {
         let dispatcher = datapath_state.dispatcher();
         use_effect_with_deps(
-            move |communicator| {
+            move |communicator: &&DatapathCommunicator| {
                 spawn_local(communicator.listen_for_updates(dispatcher));
             },
             props.communicator,
@@ -463,7 +465,6 @@ fn app(props: &AppProps) -> Html {
         )
     };
 
-    log::debug!("{:?}", datapath_state.executing);
     html! {
         <>
             // button tied to the input file element, which is hidden to be more clean
@@ -522,11 +523,11 @@ fn app(props: &AppProps) -> Html {
 
                     // Editor
                     <div class="flex flex-col grow min-h-16 mt-2">
-                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} pc_limit={*pc_limit} binary={binary_ref.borrow().clone()} memory_curr_instr={memory_curr_instr.clone()} editor_curr_line={editor_curr_line.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} pc={datapath_state.mips.registers.pc} communicator={props.communicator} current_architecture={datapath_state.current_architecture.clone()} speed={datapath_state.speed}/>
+                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} pc_limit={*pc_limit} binary={binary_ref.borrow().clone()} memory_curr_instr={memory_curr_instr.clone()} editor_curr_line={editor_curr_line.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} pc={datapath_state.mips.registers.pc} communicator={props.communicator} current_architecture={datapath_state.current_architecture.clone()} speed={datapath_state.speed} sp={datapath_state.mips.registers[GpRegisterType::Sp]} memory={datapath_state.mips.memory.clone()}/>
                     </div>
 
                     // Console
-                    <Footer parsermsg={(*parser_text_output).clone()} datapath_state={datapath_state.clone()} memory_text_model={memory_text_model} memory_curr_instr={memory_curr_instr.clone()} active_tab={console_active_tab.clone()} communicator={props.communicator} show_input={show_input.clone()} command={command.clone()} on_memory_clicked={on_memory_clicked.clone()}/>
+                    <Footer parsermsg={(*parser_text_output).clone()} datapath_state={datapath_state.clone()} memory_text_model={memory_text_model} memory_curr_instr={memory_curr_instr.clone()} active_tab={console_active_tab.clone()} communicator={props.communicator} show_input={show_input.clone()} command={command.clone()} on_memory_clicked={on_memory_clicked.clone()} pc_limit={pc_limit.clone()}/>
                 </div>
 
                 // Right column

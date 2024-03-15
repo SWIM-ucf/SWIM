@@ -20,6 +20,7 @@ use monaco::{
 };
 
 use crate::agent::datapath_reducer::DatapathReducer;
+use crate::emulation_core::mips::memory::CAPACITY_BYTES;
 
 #[derive(PartialEq, Properties)]
 pub struct HexCoord {
@@ -34,6 +35,7 @@ pub struct HexEditorProps {
     pub datapath_state: UseReducerHandle<DatapathReducer>,
     // The instruction to highlight
     pub memory_curr_instr: UseStateHandle<u64>,
+    pub pc_limit: UseStateHandle<usize>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -144,9 +146,9 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
     let on_editor_created = {
         use_callback(
             move |editor_link: CodeEditorLink,
-                  (datapath_state, memory_text_model, memory_curr_instr)| {
+                  (datapath_state, memory_text_model, _pc_limit, memory_curr_instr)| {
                 match editor_link.with_editor(|editor| {
-                    let hexdump = &datapath_state.mips.memory.generate_formatted_hex();
+                    let hexdump = &datapath_state.mips.memory.generate_formatted_hex(CAPACITY_BYTES);
                     memory_text_model.set_value(hexdump);
 
                     let raw_editor = editor.as_ref();
@@ -191,6 +193,7 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             (
                 props.datapath_state.clone(),
                 props.memory_text_model.clone(),
+                props.pc_limit.clone(),
                 memory_curr_instr,
             ),
         )

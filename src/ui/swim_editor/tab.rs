@@ -1,4 +1,35 @@
+use std::str::FromStr;
+use strum_macros::Display;
 use yew::prelude::*;
+
+#[derive(PartialEq, Clone, Copy, Default, Display)]
+pub enum TabState {
+    #[default]
+    Console,
+    Datapath,
+    HexEditor,
+    Editor,
+    TextSegment,
+    DataSegment,
+    StackSegment,
+}
+
+impl FromStr for TabState {
+    type Err = ();
+
+    fn from_str(tab_name: &str) -> Result<TabState, Self::Err> {
+        match tab_name {
+            "Console" => Ok(TabState::Console),
+            "Datapath" => Ok(TabState::Datapath),
+            "HexEditor" => Ok(TabState::HexEditor),
+            "Editor" => Ok(TabState::Editor),
+            "TextSegment" => Ok(TabState::TextSegment),
+            "DataSegment" => Ok(TabState::DataSegment),
+            "StackSegment" => Ok(TabState::StackSegment),
+            _ => Err(()),
+        }
+    }
+}
 
 #[derive(Clone, PartialEq, Properties)]
 pub struct TabProps<T: std::cmp::PartialEq> {
