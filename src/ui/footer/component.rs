@@ -82,11 +82,11 @@ pub fn footer(props: &Footerprops) -> Html {
                 <VisualDatapath datapath_state={props.datapath_state.clone()} svg_path={svg_path} />
             } else if **active_tab == FooterTabState::HexEditor {
                 <div class="min-h-[200px] max-h-[50%] border-primary-200 border-groove border-2 z-10">
-                    <HexEditor memory_text_model={props.memory_text_model.clone()} instruction_num={props.memory_curr_instr.clone()}/>
+                    <HexEditor memory_text_model={props.memory_text_model.clone()} memory_curr_instr={props.memory_curr_instr.clone()} datapath_state={props.datapath_state.clone()}/>
                 </div>
             }
             <div class="flex flex-row justify-between w-full">
-                <div>
+                <div class="flex flex-row min-w-0">
                     <FooterTab
                         label="console"
                         on_click={change_tab.clone()}
@@ -114,13 +114,13 @@ pub fn footer(props: &Footerprops) -> Html {
                 </div>
 
                 if **active_tab == FooterTabState::Datapath {
-                    <div class="inline-block">
-                        <button class="hover:text-primary-100 duration-300 pointer pt-4" onclick={switch_datapath_type}>{switch_datapath_button_label}</button>
+                    <div class="min-w-0">
+                        <button class="hover:text-primary-100 duration-300 pointer pt-4 min-w-0 text-ellipsis text-nowrap overflow-hidden" onclick={switch_datapath_type}>{switch_datapath_button_label}</button>
                     </div>
                 }
                 else if **active_tab == FooterTabState::HexEditor {
-                    <div class="inline-block">
-                        <button class="disabled:hidden hover:text-primary-100 duration-300 pointer pt-4" onclick={props.on_memory_clicked.clone()} disabled={!props.datapath_state.initialized}>{"Update Memory"}</button>
+                    <div class="min-w-0">
+                        <button class="disabled:hidden hover:text-primary-100 duration-300 pointer pt-4 min-w-0 text-ellipsis text-nowrap overflow-hidden" onclick={props.on_memory_clicked.clone()} disabled={!props.datapath_state.initialized}>{"Update Memory"}</button>
                     </div>
                 }
             </div>
@@ -143,9 +143,9 @@ pub fn footer_tab(props: &FooterTabProps) -> Html {
     let active_tab = &props.active_tab;
     html!(
         if **active_tab == props.tab_name {
-            <button class="text-primary-100 font-bold hover:text-primary-100 pt-3 px-8 pointer border-t-4 border-solid border-primary-100 w-40" label={props.label.clone()} onclick={props.on_click.clone()} disabled={props.disabled}>{props.text.clone()}</button>
+            <button class="text-primary-100 font-bold hover:text-primary-100 pt-3 px-8 pointer border-t-4 border-solid border-primary-100 w-40 min-w-0 overflow-hidden text-ellipsis text-nowrap" label={props.label.clone()} onclick={props.on_click.clone()} disabled={props.disabled}>{props.text.clone()}</button>
         } else {
-            <button class="hover:text-primary-100 pt-3 px-8 pointer border-top-4 border-solid border-transparent w-40" label={props.label.clone()} onclick={props.on_click.clone()} disabled={props.disabled}>{props.text.clone()}</button>
+            <button class="hover:text-primary-100 pt-3 px-8 pointer border-top-4 border-solid border-transparent w-40 min-w-0 text-ellipsis overflow-hidden text-nowrap" label={props.label.clone()} onclick={props.on_click.clone()} disabled={props.disabled}>{props.text.clone()}</button>
         }
     )
 }

@@ -36,7 +36,7 @@ use yew_agent::Spawnable;
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
-const CONTENT: &str = include_str!("../../static/assembly_examples/data.asm");
+const CONTENT: &str = include_str!("../../static/assembly_examples/fibonacci.asm");
 
 #[derive(Properties, Clone, PartialEq)]
 struct AppProps {
@@ -81,7 +81,7 @@ fn app(props: &AppProps) -> Html {
 
     // Store the currently selected tabs in windows
     let console_active_tab = use_state_eq(FooterTabState::default);
-    let editor_active_tab = use_state_eq(|| EditorTabState::TextSegment);
+    let editor_active_tab = use_state_eq(|| EditorTabState::Editor);
 
     let datapath_state = use_reducer(DatapathReducer::default);
 
@@ -100,7 +100,6 @@ fn app(props: &AppProps) -> Html {
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
         let text_model = text_model.clone();
-        let memory_text_model = memory_text_model.clone();
         let memory_curr_instr = memory_curr_instr.clone();
         let datapath_state = datapath_state.clone();
         let parser_text_output = parser_text_output.clone();
@@ -116,7 +115,6 @@ fn app(props: &AppProps) -> Html {
         use_callback(
             move |_, (text_model, editor_curr_line, memory_curr_instr, datapath_state)| {
                 let text_model = text_model.clone();
-                let memory_text_model = memory_text_model.clone();
                 // parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
                 let (program_info, assembled) = parser(text_model.get_value());
                 *program_info_ref.borrow_mut() = program_info.clone();
@@ -163,8 +161,6 @@ fn app(props: &AppProps) -> Html {
                     communicator.initialize(program_info.pc_starting_point, assembled);
                     memory_curr_instr.set(datapath_state.mips.registers.pc);
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
-                    let hexdump = &datapath_state.mips.memory.generate_formatted_hex();
-                    memory_text_model.set_value(hexdump);
                 }
 
                 trigger.force_update();
@@ -192,16 +188,11 @@ fn app(props: &AppProps) -> Html {
         let editor_curr_line = editor_curr_line.clone();
         let memory_curr_instr = memory_curr_instr.clone();
 
-        // Hex editor
-        let memory_text_model = memory_text_model.clone();
-
         let trigger = use_force_update();
         let communicator = props.communicator;
 
         use_callback(
             move |_, (editor_curr_line, memory_curr_instr, datapath_state)| {
-                let memory_text_model = memory_text_model.clone();
-
                 // Get the current line and convert it to f64
                 let programinfo = Rc::clone(&program_info_ref);
                 let programinfo = programinfo.borrow().clone();
@@ -212,11 +203,6 @@ fn app(props: &AppProps) -> Html {
 
                 // Execute instruction
                 communicator.execute_instruction();
-
-                // Update memory
-                let hexdump = &datapath_state.mips.memory.generate_formatted_hex();
-
-                memory_text_model.set_value(hexdump);
 
                 trigger.force_update();
             },
@@ -233,15 +219,12 @@ fn app(props: &AppProps) -> Html {
         let editor_curr_line = editor_curr_line.clone();
 
         // Hex editor
-        let memory_text_model = memory_text_model.clone();
         let memory_curr_instr = memory_curr_instr.clone();
 
         let trigger = use_force_update();
 
         use_callback(
             move |_, (editor_curr_line, memory_curr_instr, datapath_state)| {
-                let memory_text_model = memory_text_model.clone();
-
                 if datapath_state.mips.current_stage == Stage::InstructionDecode {
                     // highlight on InstructionDecode since syscall stops at that stage.
                     let programinfo = Rc::clone(&program_info_ref);
@@ -255,11 +238,6 @@ fn app(props: &AppProps) -> Html {
                 } else {
                     communicator.execute_stage();
                 }
-
-                // Update memory
-                let hexdump = &datapath_state.mips.memory.generate_formatted_hex();
-
-                memory_text_model.set_value(hexdump);
 
                 trigger.force_update();
             },
@@ -435,22 +413,16 @@ fn app(props: &AppProps) -> Html {
         let editor_curr_line = editor_curr_line.clone();
 
         // Hex editor
-        let memory_text_model = memory_text_model.clone();
         let memory_curr_instr = memory_curr_instr.clone();
 
         use_callback(
             move |_, (editor_curr_line, datapath_state)| {
                 // Set highlighted line to 0
                 editor_curr_line.set(0.0);
-                memory_curr_instr.set(datapath_state.mips.registers.pc);
+                memory_curr_instr.set(0);
 
                 parser_text_output.set("".to_string());
                 communicator.reset();
-
-                // Clear hex editor content
-                let memory_text_model = memory_text_model.clone();
-
-                memory_text_model.set_value("");
 
                 communicator.reset();
                 trigger.force_update();

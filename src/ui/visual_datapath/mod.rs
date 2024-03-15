@@ -83,7 +83,7 @@ impl Component for VisualDatapath {
         let zoom_value_size = Rc::clone(&self.size);
         let zoom_out_size = Rc::clone(&self.size);
         html! {
-            <div id="datapath-wrapper" class="max-h-[50%]">
+            <div id="datapath-wrapper" class="max-h-[50%] relative">
                 <div class="overflow-auto w-full h-full basis-1/2 bg-primary-100 z-10 relative">
                     <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID} class={classes!("datapath", format!("size-{}", self.size.borrow()))}></object>
                 </div>
@@ -96,7 +96,7 @@ impl Component for VisualDatapath {
                         <span class="meaning">{ "[base 10]" }</span>
                     </div>
                 </div>
-                <div class="absolute left-7 bottom-16 z-50 flex items-center gap-4">
+                <div class="absolute left-7 bottom-4 z-50 flex items-center gap-4">
                     <button class="zoom-button" onclick={ctx.link().callback(move |_| {
                         let mut size = zoom_out_size.borrow_mut();
                         *size -= 10;

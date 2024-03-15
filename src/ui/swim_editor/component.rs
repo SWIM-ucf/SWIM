@@ -281,7 +281,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         <>
             // Editor buttons
             <div class="flex flex-row justify-between items-center border-b-2 border-b-solid border-b-primary-200">
-                <div class="flex flex-row flex-nowrap min-w-0">
+                <div class="flex flex-row flex-nowrap min-w-0 items-end h-full">
                     <Tab<EditorTabState> label={"editor".to_string()} text={"Editor".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::Editor}/>
                     <Tab<EditorTabState> label={"text".to_string()} text={"Text Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::TextSegment}/>
                     <Tab<EditorTabState> label={"data".to_string()} text={"Data Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::DataSegment}/>

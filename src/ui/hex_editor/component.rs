@@ -19,6 +19,8 @@ use monaco::{
     yew::{CodeEditor, CodeEditorLink},
 };
 
+use crate::agent::datapath_reducer::DatapathReducer;
+
 #[derive(PartialEq, Properties)]
 pub struct HexCoord {
     pub line_number: f64,
@@ -29,8 +31,9 @@ pub struct HexCoord {
 #[derive(PartialEq, Properties)]
 pub struct HexEditorProps {
     pub memory_text_model: UseStateHandle<TextModel>,
+    pub datapath_state: UseReducerHandle<DatapathReducer>,
     // The instruction to highlight
-    pub instruction_num: UseStateHandle<u64>,
+    pub memory_curr_instr: UseStateHandle<u64>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -48,13 +51,14 @@ impl UpdatedLine {
 pub fn hex_editor(props: &HexEditorProps) -> Html {
     let editor_link = CodeEditorLink::new();
     // Program counter - will probably change
-    let instruction_num = *props.instruction_num;
-    let text_model = &props.memory_text_model;
+    let memory_curr_instr = *props.memory_curr_instr;
+    let memory_text_model = &props.memory_text_model;
+
     // Store highlight decoration IDs
     let decorations = use_mut_ref(js_sys::Array::new);
 
     // create a JavaScript closure for hex highlighting
-    let text_model_ref = text_model.clone();
+    let text_model_ref = memory_text_model.clone();
     let cb = Closure::new(Box::new(
         move |event: monaco::sys::editor::ICursorSelectionChangedEvent| {
             // Get a mutable reference to decorations
@@ -94,23 +98,23 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             executed_line.push(&decoration_js);
 
             // Get the monaco text model
-            let text_model = text_model_ref.clone();
-            let text_model = text_model.as_ref();
+            let memory_text_model = text_model_ref.clone();
+            let memory_text_model = memory_text_model.as_ref();
             // Clear previous highlights
-            let existing_decorations = text_model.get_all_decorations(None, None);
-            text_model.delta_decorations(&decorations, &not_highlighted, None);
+            let existing_decorations = memory_text_model.get_all_decorations(None, None);
+            memory_text_model.delta_decorations(&decorations, &not_highlighted, None);
             // Set new decorations and save their IDs
             *decorations =
-                text_model.delta_decorations(&existing_decorations, &executed_line, None);
+                memory_text_model.delta_decorations(&existing_decorations, &executed_line, None);
         },
     ) as Box<dyn FnMut(_)>);
 
     // Returns a struct containing monaco-like coordinates (start and end line numbers and columns)
     // given the program counter (index of a WORD)
-    fn get_hex_coords(instruction_num: u64) -> HexCoord {
-        let line_number = instruction_num / 16 + 1;
+    fn get_hex_coords(memory_curr_instr: u64) -> HexCoord {
+        let line_number = memory_curr_instr / 16 + 1;
         let offset = 10;
-        let start_column = offset + ((instruction_num % 16) * 2 + ((instruction_num % 16) / 4));
+        let start_column = offset + ((memory_curr_instr % 16) * 2 + ((memory_curr_instr % 16) / 4));
         let end_column = start_column + 8;
 
         HexCoord {
@@ -139,12 +143,15 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
 
     let on_editor_created = {
         use_callback(
-            move |editor_link: CodeEditorLink, instruction_num| {
+            move |editor_link: CodeEditorLink, (datapath_state, memory_text_model, memory_curr_instr)| {
                 match editor_link.with_editor(|editor| {
+                    let hexdump = &datapath_state.mips.memory.generate_formatted_hex();
+                    memory_text_model.set_value(hexdump);
+
                     let raw_editor = editor.as_ref();
                     let cb_func = &cb.as_ref().unchecked_ref();
 
-                    let coords = get_hex_coords(*instruction_num);
+                    let coords = get_hex_coords(*memory_curr_instr);
                     raw_editor.on_did_change_cursor_selection(cb_func);
                     raw_editor.reveal_line_in_center(coords.line_number, Some(ScrollType::Smooth));
 
@@ -180,7 +187,7 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
                     None => debug!("No editor :<"),
                 };
             },
-            instruction_num,
+            (props.datapath_state.clone(), props.memory_text_model.clone(), memory_curr_instr),
         )
     };
     html! {
@@ -188,7 +195,7 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             classes={"editor"}
             link={editor_link}
             options={get_options()}
-            model={text_model.deref().clone()}
+            model={memory_text_model.deref().clone()}
             on_editor_created={on_editor_created}
         />
     }
