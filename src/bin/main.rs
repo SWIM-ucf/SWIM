@@ -404,7 +404,6 @@ fn app(props: &AppProps) -> Html {
     // This is how we will reset the datapath.
     // This will also clear any highlight on the editor.
     let on_reset_clicked = {
-        let datapath_state = datapath_state.clone();
         let trigger = use_force_update();
         let parser_text_output = parser_text_output.clone();
         let communicator = props.communicator;
@@ -417,7 +416,7 @@ fn app(props: &AppProps) -> Html {
         let memory_curr_instr = memory_curr_instr.clone();
 
         use_callback(
-            move |_, (editor_curr_line, datapath_state)| {
+            move |_, editor_curr_line| {
                 // Set highlighted line to 0
                 editor_curr_line.set(0.0);
                 memory_curr_instr.set(0);
@@ -428,7 +427,7 @@ fn app(props: &AppProps) -> Html {
                 communicator.reset();
                 trigger.force_update();
             },
-            (editor_curr_line, datapath_state),
+            editor_curr_line,
         )
     };
 

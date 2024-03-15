@@ -143,7 +143,8 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
 
     let on_editor_created = {
         use_callback(
-            move |editor_link: CodeEditorLink, (datapath_state, memory_text_model, memory_curr_instr)| {
+            move |editor_link: CodeEditorLink,
+                  (datapath_state, memory_text_model, memory_curr_instr)| {
                 match editor_link.with_editor(|editor| {
                     let hexdump = &datapath_state.mips.memory.generate_formatted_hex();
                     memory_text_model.set_value(hexdump);
@@ -187,7 +188,11 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
                     None => debug!("No editor :<"),
                 };
             },
-            (props.datapath_state.clone(), props.memory_text_model.clone(), memory_curr_instr),
+            (
+                props.datapath_state.clone(),
+                props.memory_text_model.clone(),
+                memory_curr_instr,
+            ),
         )
     };
     html! {
