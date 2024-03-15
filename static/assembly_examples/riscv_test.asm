@@ -1,3 +1,4 @@
 main:
-    jal x1, 2047
+    jal x1, 2044
+    fmv.s f1, f2
     ret

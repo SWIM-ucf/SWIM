@@ -1,5 +1,7 @@
 //! Tests for additional arithmetic instructions: addu, sll, move, nop.
 
+use crate::emulation_core::architectures::AvailableDatapaths;
+
 use super::*;
 
 #[test]
@@ -8,7 +10,7 @@ fn basic_addu() -> Result<(), String> {
 
     let instructions = String::from("addu r20, r19, r18");
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     datapath.registers.gpr[18] = 6849841;
@@ -32,7 +34,7 @@ fn basic_sll() -> Result<(), String> {
 sll $s1, $s1, 3"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
@@ -53,7 +55,7 @@ fn basic_move() -> Result<(), String> {
 move $s5, $s4"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
@@ -71,7 +73,7 @@ fn basic_nop() -> Result<(), String> {
 
     let instructions = String::from(r#"nop"#);
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     let mut expected_registers = datapath.registers;

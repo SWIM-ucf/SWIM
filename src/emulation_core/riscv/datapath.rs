@@ -354,20 +354,14 @@ impl RiscDatapath {
             ReadWrite::LoadHalf => self.memory_read(),
             ReadWrite::LoadHalfUnsigned => self.memory_read(),
             ReadWrite::LoadWord => self.memory_read(),
+            ReadWrite::LoadWordUnsigned => self.memory_read(),
+            ReadWrite::LoadDouble => self.memory_read(),
             ReadWrite::NoLoadStore => (),
             ReadWrite::StoreByte => self.memory_write(),
             ReadWrite::StoreHalf => self.memory_write(),
             ReadWrite::StoreWord => self.memory_write(),
+            ReadWrite::StoreDouble => self.memory_write(),
         }
-
-        // Determine what data will be sent to the registers: either
-        // the result from the ALU, or data retrieved from memory.
-        self.state.data_result = match self.signals.wb_sel {
-            WBSel::UseAlu => self.state.alu_result,
-            WBSel::UseMemory => self.state.memory_data,
-            WBSel::UsePcPlusFour => self.state.pc_plus_4,
-            WBSel::UseImmediate => self.state.imm as u64,
-        };
 
         // PC calculation stuff from upper part of datapath
         self.calc_general_branch_signal();
@@ -427,9 +421,9 @@ impl RiscDatapath {
             Instruction::IType(i) => {
                 self.state.rs1 = i.rs1 as u32;
                 self.state.funct3 = i.funct3 as u32;
-                self.state.rd = 0; // Placeholder
+                self.state.rd = i.rd as u32;
                 self.state.imm = i.imm as u32;
-                self.state.shamt = (i.imm & 0x001f) as u32;
+                self.state.shamt = (i.imm & 0x003f) as u32;
             }
             Instruction::SType(s) => {
                 self.state.rs2 = s.rs2 as u32;
@@ -463,7 +457,7 @@ impl RiscDatapath {
     /// 64-bit value.
     fn sign_extend(&mut self) {
         // self.state.sign_extend = ((self.state.imm as i16) as i64) as u64;
-        self.state.sign_extend = self.state.imm as i32 as i64 as u64;
+        self.state.sign_extend = self.state.imm as i64 as u64;
     }
 
     fn set_immediate(&mut self) {
@@ -472,33 +466,29 @@ impl RiscDatapath {
             signed_imm = 0xffffffff as u32;
         }
 
-        signed_imm = match self.instruction {
-            Instruction::RType(r) => {
-                signed_imm
-            }
-            Instruction::IType(i) => {
+        signed_imm = match self.signals.imm_select {
+            ImmSelect::ISigned => {
                 (signed_imm << 12) | self.state.imm
             }
-            Instruction::SType(s) => {
+            ImmSelect::IShamt => {
+                (signed_imm << 12) | self.state.imm
+            }
+            ImmSelect::IUnsigned => {
+                self.state.imm
+            }
+            ImmSelect::SType => {
                 ((signed_imm << 7) | self.state.imm1) << 5 | self.state.imm2
             }
-            Instruction::BType(b) => {
+            ImmSelect::BType => {
                 ((((signed_imm << 1) | (self.state.imm2 & 0x01)) << 6) | (self.state.imm1 & 0x3f)) << 5 | (self.state.imm2 & 0x1e)
             }
-            Instruction::UType(u) => {
+            ImmSelect::UType => {
                 ((signed_imm << 20) | self.state.imm) << 12
             }
-            Instruction::JType(j) => {
+            ImmSelect::JType => {
                 (((((signed_imm << 8) | (self.state.imm & 0xff)) << 1) | (self.state.imm >> 8 & 0x01)) << 11) | (self.state.imm >> 8 & 0x7fe)
             }
-            Instruction::R4Type(r) => {
-                signed_imm
-            }
         };
-
-        if self.signals.imm_select == ImmSelect::IUnsigned {
-            signed_imm = signed_imm & 0x00000fff;
-        }
 
         self.state.imm = signed_imm;
     }
@@ -541,6 +531,10 @@ impl RiscDatapath {
             reg_write_en: RegWriteEn::YesWrite,
             ..Default::default()
         };
+
+        if r.op == OPCODE_OP_32 {
+            self.datapath_signals.reg_width = RegisterWidth::HalfWidth;
+        }
         
         match r.funct3 {
             0 => match r.funct7 {
@@ -568,9 +562,16 @@ impl RiscDatapath {
             reg_write_en: RegWriteEn::YesWrite,
             ..Default::default()
         };
+
+        if i.op == OPCODE_IMM_32 {
+            self.datapath_signals.reg_width = RegisterWidth::HalfWidth;
+            if self.state.shamt >> 5 != 0 {
+                self.error(&format!("Unsupported Instruction!"));
+            }
+        }
         
         match i.op {
-            OPCODE_IMM => match i.funct3 {
+            OPCODE_IMM | OPCODE_IMM_32 => match i.funct3 {
                 0 => self.signals.alu_op = AluOp::Addition,
                 1 => self.signals.alu_op = AluOp::ShiftLeftLogical(self.state.shamt),
 
@@ -578,9 +579,9 @@ impl RiscDatapath {
                 3 => self.signals.alu_op = AluOp::SetOnLessThanUnsigned,
                 4 => self.signals.alu_op = AluOp::Xor,
                 5 => { 
-                    match i.imm >> 5 {
-                        0b0000000 => self.signals.alu_op = AluOp::ShiftRightLogical(self.state.shamt),
-                        0b0100000 => self.signals.alu_op = AluOp::ShiftRightArithmetic(self.state.shamt),
+                    match i.imm >> 6 {
+                        0b000000 => self.signals.alu_op = AluOp::ShiftRightLogical(self.state.shamt),
+                        0b010000 => self.signals.alu_op = AluOp::ShiftRightArithmetic(self.state.shamt),
                     };
                 }
                 6 => self.signals.alu_op = AluOp::Or,
@@ -597,8 +598,10 @@ impl RiscDatapath {
                     0 => self.signals.read_write = ReadWrite::LoadByte,
                     1 => self.signals.read_write = ReadWrite::LoadHalf,
                     2 => self.signals.read_write = ReadWrite::LoadWord,
+                    3 => self.signals.read_write = ReadWrite::LoadDouble,
                     4 => self.signals.read_write = ReadWrite::LoadByteUnsigned,
                     5 => self.signals.read_write = ReadWrite::LoadHalfUnsigned,
+                    6 => self.signals.read_write = ReadWrite::LoadWordUnsigned,
                 }
             }
         }
@@ -608,7 +611,7 @@ impl RiscDatapath {
     /// case where the instruction is an S-type.
     fn set_stype_control_signals(&mut self, s: SType) {
         self.signals = ControlSignals {
-            imm_select: ImmSelect::IUnsigned,
+            imm_select: ImmSelect::SType,
             reg_write_en: RegWriteEn::NoWrite,
             ..Default::default()
         };
@@ -617,6 +620,7 @@ impl RiscDatapath {
             0 => self.signals.read_write = ReadWrite::StoreByte,
             1 => self.signals.read_write = ReadWrite::StoreHalf,
             2 => self.signals.read_write = ReadWrite::StoreWord,
+            3 => self.signals.read_write = ReadWrite::StoreDouble,
         }
     }
 
@@ -624,7 +628,7 @@ impl RiscDatapath {
     /// case where the instruction is an B-type.
     fn set_btype_control_signals(&mut self, b: BType) {
         self.signals = ControlSignals {
-            imm_select: ImmSelect::IUnsigned,
+            imm_select: ImmSelect::BType,
             reg_write_en: RegWriteEn::NoWrite,
             ..Default::default()
         };
@@ -643,7 +647,9 @@ impl RiscDatapath {
     /// case where the instruction is an U-type.
     fn set_utype_control_signals(&mut self, u: UType) {
         self.signals = ControlSignals {
-            imm_select: ImmSelect::IUnsigned,
+            imm_select: ImmSelect::UType,
+            op1_select: OP1Select::PC,
+            alu_op: AluOp::Addition,
             reg_dst: RegDst::Reg3,
             reg_write_en: RegWriteEn::YesWrite,
             ..Default::default()
@@ -658,7 +664,7 @@ impl RiscDatapath {
     /// Set control signals for J-Type instructions
     fn set_jtype_control_signals(&mut self, j: JType) {
         self.signals = ControlSignals {
-            imm_select: ImmSelect::IUnsigned,
+            imm_select: ImmSelect::JType,
             branch_jump: BranchJump::J,
             wb_sel: WBSel::UsePcPlusFour,
             reg_write_en: RegWriteEn::YesWrite,
@@ -671,6 +677,7 @@ impl RiscDatapath {
     fn read_registers(&mut self) {
         self.state.read_data_1 = self.registers.gpr[self.state.rs1 as usize];
         self.state.read_data_2 = self.registers.gpr[self.state.rs2 as usize];
+
     }
 
     // ======================= Execute (EX) =======================
@@ -686,11 +693,20 @@ impl RiscDatapath {
         // be the first register, but the second may be either the
         // second register, the sign-extended immediate value, or the
         // zero-extended immediate value.
-        self.state.alu_input1 = self.state.read_data_1;
+        self.state.alu_input1 = match self.signals.op1_select {
+            OP1Select::PC => self.registers.pc,
+            OP1Select::DATA1 => self.state.read_data_1,
+        };
+
         self.state.alu_input2 = match self.signals.op2_select {
             OP2Select::DATA2 => self.state.read_data_2,
-            OP2Select::IMM => self.state.imm as u64,
+            OP2Select::IMM => self.state.imm as i64 as u64,
         };
+
+        if self.datapath_signals.reg_width == RegisterWidth::HalfWidth {
+            self.state.alu_input1 = self.state.alu_input1 as u32 as i64 as u64;
+            self.state.alu_input2 = self.state.alu_input2 as u32 as i64 as u64;
+        }
 
         // Set the result.
         self.state.alu_result = match self.signals.alu_op {
@@ -707,9 +723,9 @@ impl RiscDatapath {
             AluOp::And => self.state.alu_input1 & self.state.alu_input2,
             AluOp::Or => self.state.alu_input1 | self.state.alu_input2,
             AluOp::Xor => self.state.alu_input1 ^ self.state.alu_input2,
-            AluOp::ShiftLeftLogical(shamt) => self.state.alu_input2 << shamt,
-            AluOp::ShiftRightLogical(shamt) => self.state.alu_input2 >> shamt,
-            AluOp::ShiftRightArithmetic(shamt) => (self.state.alu_input2 as i32 >> shamt) as u64,
+            AluOp::ShiftLeftLogical(shamt) => self.state.alu_input1 << shamt,
+            AluOp::ShiftRightLogical(shamt) => self.state.alu_input1 >> shamt,
+            AluOp::ShiftRightArithmetic(shamt) => (self.state.alu_input1 as i64 >> shamt) as u64,
             AluOp::MultiplicationSigned => {
                 ((self.state.alu_input1 as i128) * (self.state.alu_input2 as i128)) as u64
             }
@@ -732,6 +748,10 @@ impl RiscDatapath {
             }
             _ => 0,
         };
+
+        if self.datapath_signals.reg_width == RegisterWidth::HalfWidth {
+            self.state.alu_result = self.state.alu_result as u32 as i64 as u64;
+        }
 
         if self.signals.branch_jump == BranchJump::J {
             self.construct_jump_address();
@@ -800,7 +820,9 @@ impl RiscDatapath {
             ReadWrite::LoadByteUnsigned => self.memory.load_byte(address).unwrap_or(0) as u64,
             ReadWrite::LoadHalf => self.memory.load_half(address).unwrap_or(0) as i64 as u64,
             ReadWrite::LoadHalfUnsigned => self.memory.load_half(address).unwrap_or(0) as u64,
-            ReadWrite::LoadWord => self.memory.load_word(address).unwrap_or(0) as u64,
+            ReadWrite::LoadWord => self.memory.load_word(address).unwrap_or(0) as i64 as u64,
+            ReadWrite::LoadWordUnsigned => self.memory.load_word(address).unwrap_or(0) as u64,
+            ReadWrite::LoadDouble => self.memory.load_double_word(address).unwrap_or(0),
             _ => 0,
         };
     }
@@ -824,6 +846,9 @@ impl RiscDatapath {
             }
             ReadWrite::StoreWord => {
                 self.memory.store_word(address, self.state.write_data as u32).ok();
+            }
+            ReadWrite::StoreDouble => {
+                self.memory.store_double_word(address, self.state.write_data).ok();
             }
             _ => (),
         };
@@ -864,7 +889,7 @@ impl RiscDatapath {
             WBSel::UseAlu => self.state.alu_result,
             WBSel::UseMemory => self.state.memory_data,
             WBSel::UsePcPlusFour => self.state.pc_plus_4,
-            WBSel::UseImmediate => self.state.imm as u64,
+            WBSel::UseImmediate => self.state.imm as i64 as u64,
         };
 
         // Decide to retrieve data either from the main processor or the coprocessor.
