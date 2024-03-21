@@ -33,6 +33,7 @@ pub enum MipsStateUpdate {
     UpdateCoprocessorRegisters(FpRegisters),
     UpdateMemory(Memory),
     UpdateStage(Stage),
+    UpdateStack(Vec<u32>),
 }
 
 /// Information about the effects of system calls sent from the worker thread to the UI thread.

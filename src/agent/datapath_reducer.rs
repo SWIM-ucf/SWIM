@@ -28,6 +28,7 @@ pub struct MipsCoreState {
     pub coprocessor_registers: FpRegisters,
     pub memory: Memory,
     pub current_stage: Stage,
+    pub stack: Vec<u32>,
 }
 
 impl Default for DatapathReducer {
@@ -80,6 +81,10 @@ impl Reducible for DatapathReducer {
                     },
                     MipsStateUpdate::UpdateStage(stage) => MipsCoreState {
                         current_stage: stage,
+                        ..self.mips.clone()
+                    },
+                    MipsStateUpdate::UpdateStack(stack) => MipsCoreState {
+                        stack,
                         ..self.mips.clone()
                     },
                 },

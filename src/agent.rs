@@ -108,6 +108,11 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                     state.updates.changed_memory,
                     UpdateMemory(datapath.memory.clone())
                 );
+                send_update_mips!(
+                    state.scope,
+                    state.updates.hit_branch,
+                    UpdateStack(datapath.stack.clone())
+                )
             }
         }
         // Part 5: Sending Non-Syscall System Updates to UI

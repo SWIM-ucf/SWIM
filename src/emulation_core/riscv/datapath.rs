@@ -270,7 +270,7 @@ impl Datapath for RiscDatapath {
         &self.memory
     }
 
-    fn set_memory(&mut self, ptr: usize, data: Vec<u8>) {
+    fn set_memory(&mut self, ptr: u64, data: u32) {
         todo!();
     }
 
@@ -281,7 +281,7 @@ impl Datapath for RiscDatapath {
     fn reset(&mut self) {
         std::mem::take(self);
     }
-    
+
     fn as_datapath_ref(&self) -> DatapathRef {
         todo!();
     }
@@ -535,7 +535,7 @@ impl RiscDatapath {
         if r.op == OPCODE_OP_32 {
             self.datapath_signals.reg_width = RegisterWidth::HalfWidth;
         }
-        
+
         match r.funct3 {
             0 => match r.funct7 {
                 0b0000000 => self.signals.alu_op = AluOp::Addition,
@@ -569,7 +569,7 @@ impl RiscDatapath {
                 self.error(&format!("Unsupported Instruction!"));
             }
         }
-        
+
         match i.op {
             OPCODE_IMM | OPCODE_IMM_32 => match i.funct3 {
                 0 => self.signals.alu_op = AluOp::Addition,
@@ -578,7 +578,7 @@ impl RiscDatapath {
                 2 => self.signals.alu_op = AluOp::SetOnLessThanSigned,
                 3 => self.signals.alu_op = AluOp::SetOnLessThanUnsigned,
                 4 => self.signals.alu_op = AluOp::Xor,
-                5 => { 
+                5 => {
                     match i.imm >> 6 {
                         0b000000 => self.signals.alu_op = AluOp::ShiftRightLogical(self.state.shamt),
                         0b010000 => self.signals.alu_op = AluOp::ShiftRightArithmetic(self.state.shamt),
@@ -615,7 +615,7 @@ impl RiscDatapath {
             reg_write_en: RegWriteEn::NoWrite,
             ..Default::default()
         };
-        
+
         match s.funct3 {
             0 => self.signals.read_write = ReadWrite::StoreByte,
             1 => self.signals.read_write = ReadWrite::StoreHalf,
@@ -632,7 +632,7 @@ impl RiscDatapath {
             reg_write_en: RegWriteEn::NoWrite,
             ..Default::default()
         };
-        
+
         match b.funct3 {
             0 => self.signals.branch_jump = BranchJump::Beq,
             1 => self.signals.branch_jump = BranchJump::Bne,
@@ -654,7 +654,7 @@ impl RiscDatapath {
             reg_write_en: RegWriteEn::YesWrite,
             ..Default::default()
         };
-        
+
         match u.op {
             OPCODE_AUIPC => self.signals.wb_sel = WBSel::UseAlu,
             OPCODE_LUI => self.signals.wb_sel = WBSel::UseImmediate,

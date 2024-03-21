@@ -35,6 +35,8 @@ pub fn parser(file_string: String, arch: AvailableDatapaths) -> (ProgramInfo, Ve
             let labels: HashMap<String, usize> =
                 create_label_map(&mut program_info.instructions, &mut program_info.data);
 
+            log::debug!("Labels: {:?}", labels);
+
             complete_lw_sw_pseudo_instructions(
                 &mut program_info.instructions,
                 &labels,

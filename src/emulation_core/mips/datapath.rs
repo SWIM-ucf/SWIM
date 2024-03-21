@@ -73,6 +73,9 @@ pub struct MipsDatapath {
     /// The currently-active stage in the datapath.
     pub current_stage: Stage,
 
+    /// The stack of instructions that have been executed
+    pub stack: Vec<u32>,
+
     /// Boolean value that states whether the datapath has halted.
     ///
     /// This is set in the event of any `syscall` instruction. To unset this,
@@ -213,6 +216,7 @@ impl Default for MipsDatapath {
             datapath_signals: DatapathSignals::default(),
             state: DatapathState::default(),
             current_stage: Stage::default(),
+            stack: Vec::new(),
             is_halted: true,
         };
 
@@ -237,6 +241,8 @@ impl Datapath for MipsDatapath {
             }
 
             result_signals |= self.execute_stage();
+
+
 
             // This instruction is finished when the datapath has returned
             // to the IF stage.
@@ -407,12 +413,25 @@ impl MipsDatapath {
             _ => (false, false),
         };
 
+        // Check if we hit a branch and signal it to the caller
+        let hit_branch = match self.signals.branch {
+            Branch::YesBranch => true,
+            _ => false
+        };
+
+        let hit_jump = match self.signals.jump {
+            Jump::YesJump => true,
+            Jump::YesJumpJalr => true,
+            _ => false
+        };
+
         // Instruction decode always involves a state update
         DatapathUpdateSignal {
             changed_state: true,
             changed_coprocessor_state: true,
             hit_syscall,
             hit_breakpoint,
+            hit_branch: hit_branch || hit_jump,
             ..Default::default()
         }
     }
