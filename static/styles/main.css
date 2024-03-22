@@ -6,10 +6,10 @@ body {
 
 /****** Editor ******/
 .editor {
-  max-height: 1px;
   max-width: 1px;
-  min-height: 96%;
+  min-height: 0;
   min-width: 100%;
+  flex-grow: 1;
 }
 .executedLine {
   color: rgb(0 255 149) !important;
@@ -71,9 +71,12 @@ body {
 
 .console-input input {
   background: #012456;
-  color: #aeaeae !important;
-  margin-left: 10px;
+  color: white !important;
   outline: none;
+}
+
+.console-input .prompt {
+  color: white !important;
 }
 
 .console-arrow {
