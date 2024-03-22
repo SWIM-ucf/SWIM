@@ -13,17 +13,22 @@ use monaco::{
     yew::{CodeEditor, CodeEditorLink},
 };
 use wasm_bindgen::{JsCast, JsValue};
+use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew::{html, Callback, Properties};
 use yew_hooks::prelude::*;
 
 use crate::{
+    agent::datapath_communicator::DatapathCommunicator,
+    emulation_core::architectures::AvailableDatapaths,
     parser::parser_structs_and_enums::ProgramInfo,
     ui::{
         assembled_view::component::{DataSegment, TextSegment},
         footer::component::FooterTabState,
+        swim_editor::tab::Tab,
     },
 };
+use strum::IntoEnumIterator;
 
 #[derive(PartialEq, Properties)]
 pub struct SwimEditorProps {
@@ -37,6 +42,9 @@ pub struct SwimEditorProps {
     pub editor_curr_line: UseStateHandle<f64>,
     pub editor_active_tab: UseStateHandle<EditorTabState>,
     pub console_active_tab: UseStateHandle<FooterTabState>,
+    pub current_architecture: AvailableDatapaths,
+    pub speed: u32,
+    pub communicator: &'static DatapathCommunicator,
 }
 
 #[derive(Default, PartialEq)]
@@ -157,6 +165,40 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         })
     };
 
+    let change_architecture = {
+        let communicator = props.communicator;
+        Callback::from(move |event: Event| {
+            let target = event.target();
+            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+            let architecture = input.value();
+            let new_architecture: AvailableDatapaths =
+                AvailableDatapaths::from(architecture.as_str());
+            communicator.set_core(new_architecture.clone());
+            log::debug!("New architecture: {:?}", new_architecture);
+        })
+    };
+
+    let change_execution_speed = {
+        let communicator = props.communicator;
+        Callback::from(move |event: Event| {
+            let target = event.target();
+            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+            let speed = input.value().parse::<u32>().unwrap_or(0);
+            communicator.set_execute_speed(speed);
+        })
+    };
+
+    // Copies text to the user's clipboard
+    let on_clipboard_clicked = {
+        let text_model = text_model.clone();
+        let clipboard = use_clipboard();
+        Callback::from(move |_: _| {
+            let text_model = text_model.clone();
+            clipboard.write_text(text_model.get_value());
+            gloo::dialogs::alert("Your code is saved to the clipboard.\nPaste it onto a text file to save it.\n(Ctrl/Cmd + V)");
+        })
+    };
+
     // We'll have the Mouse Hover event running at all times.
     {
         let text_model = text_model.clone();
@@ -221,32 +263,42 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         });
     };
 
+    let conditional_class = if **editor_active_tab == EditorTabState::Editor {
+        ""
+    } else {
+        "hidden"
+    };
+
+    let arch_options = AvailableDatapaths::iter()
+        .map(|arch| {
+            html! {
+                <option value={arch.to_string()} class="bg-primary-700">{arch.to_string()}</option>
+            }
+        })
+        .collect::<Html>();
+
     html! {
         <>
             // Editor buttons
-            <div class="bar tabs">
-                if **editor_active_tab == EditorTabState::Editor {
-                    <button class={classes!("tab", "pressed")} label="editor" onclick={change_tab.clone()}>{"Editor"}</button>
-                } else {
-                    <button class="tab" label="editor" onclick={change_tab.clone()}>{"Editor"}</button>
-                }
-
-                if **editor_active_tab == EditorTabState::TextSegment {
-                    <button class={classes!("tab", "pressed")} label="text" onclick={change_tab.clone()}>{"Text Segment"}</button>
-                } else {
-                    <button class="tab" label="text" onclick={change_tab.clone()}>{"Text Segment"}</button>
-                }
-
-                if **editor_active_tab == EditorTabState::DataSegment {
-                    <button class={classes!("tab", "pressed")} label="data" onclick={change_tab.clone()}>{"Data Segment"}</button>
-                } else {
-                    <button class="tab" label="data" onclick={change_tab.clone()}>{"Data Segment"}</button>
-                }
+            <div class="flex flex-row justify-between items-center border-b-2 border-b-solid border-b-primary-200">
+                <div class="flex flex-row flex-nowrap min-w-0 items-end h-full">
+                    <Tab<EditorTabState> label={"editor".to_string()} text={"Editor".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::Editor}/>
+                    <Tab<EditorTabState> label={"text".to_string()} text={"Text Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::TextSegment}/>
+                    <Tab<EditorTabState> label={"data".to_string()} text={"Data Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::DataSegment}/>
+                </div>
+                <div class="flex flex-row flex-wrap justify-end items-center gap-2 cursor-default">
+                    <button class={classes!("copy-button", conditional_class)} title="Copy to Clipboard" onclick={on_clipboard_clicked}>{"Copy to Clipboard "}<i class={classes!("fa-regular", "fa-copy")}></i></button>
+                    <input type="number" id="execution-speed" title="Execution Speed. Setting this to 0 will make it run as fast as possible." name="execution-speed" placeholder="0" min="0" value={format!("{}", props.speed)} class="bg-primary-700 flex items-center flex-row text-right w-24" onchange={change_execution_speed} />
+                    <span title="Execution Speed.">{"Hz"}</span>
+                    <select class="bg-primary-600 flex flex-row items-center" name="architecture" onchange={change_architecture.clone()} value={props.current_architecture.to_string()}>
+                        {arch_options}
+                    </select>
+                </div>
             </div>
             if **editor_active_tab == EditorTabState::Editor {
                 <CodeEditor classes={"editor"} link={link} options={get_options()} model={text_model.clone()} on_editor_created={on_editor_created}/>
             } else if **editor_active_tab == EditorTabState::TextSegment {
-                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} pc={props.pc} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()}/>
+                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} pc={props.pc} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} communicator={props.communicator}/>
             } else if **editor_active_tab == EditorTabState::DataSegment {
                 <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} pc_limit={props.pc_limit}/>
             }

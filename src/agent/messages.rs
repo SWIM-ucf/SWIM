@@ -20,6 +20,7 @@ pub enum Command {
     ExecuteStage,
     Pause,
     Reset,
+    SetBreakpoint(u64),
     Input(String),
 }
 
@@ -38,6 +39,8 @@ pub enum MipsStateUpdate {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum SystemUpdate {
     UpdateMessages(Vec<String>),
+    UpdateExecuting(bool),
+    UpdateInitialized(bool),
 }
 
 /// Enum containing all types of updates sent from the worker thread to the UI thread.
