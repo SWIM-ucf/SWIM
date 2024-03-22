@@ -223,7 +223,7 @@ impl EmulatorCoreAgentState {
         if !self.executing || matches!(self.blocked_on, BlockedOn::Syscall(_)) {
             return;
         }
-        self.current_datapath.execute_instruction();
+        self.updates |= self.current_datapath.execute_instruction();
     }
 
     /// Returns the delay between CPU cycles in milliseconds for the current execution speed. Will return zero if the
