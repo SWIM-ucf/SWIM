@@ -12,6 +12,7 @@ pub enum TabState {
     TextSegment,
     DataSegment,
     StackSegment,
+    StackFrameView
 }
 
 impl FromStr for TabState {
@@ -26,6 +27,7 @@ impl FromStr for TabState {
             "TextSegment" => Ok(TabState::TextSegment),
             "DataSegment" => Ok(TabState::DataSegment),
             "StackSegment" => Ok(TabState::StackSegment),
+            "StackFrameView" => Ok(TabState::StackFrameView),
             _ => Err(()),
         }
     }

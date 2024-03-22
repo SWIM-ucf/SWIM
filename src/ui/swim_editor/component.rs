@@ -20,7 +20,8 @@ use yew::{html, Callback, Properties};
 use yew_hooks::prelude::*;
 
 use crate::emulation_core::mips::memory::Memory;
-use crate::ui::assembled_view::component::StackSegment;
+use crate::emulation_core::mips::stack::Stack;
+use crate::ui::assembled_view::component::{StackFrameView, StackSegment};
 use crate::{
     agent::datapath_communicator::DatapathCommunicator,
     emulation_core::architectures::AvailableDatapaths,
@@ -49,6 +50,7 @@ pub struct SwimEditorProps {
     pub communicator: &'static DatapathCommunicator,
     pub sp: u64,
     pub memory: Memory,
+    pub stack: Stack,
 }
 
 fn get_options() -> IStandaloneEditorConstructionOptions {
@@ -276,6 +278,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                     <Tab<TabState> label={TabState::TextSegment.to_string()} text={"Text Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={TabState::TextSegment}/>
                     <Tab<TabState> label={TabState::DataSegment.to_string()} text={"Data Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={TabState::DataSegment}/>
                     <Tab<TabState> label={TabState::StackSegment.to_string()} text={"Stack Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={TabState::StackSegment}/>
+                    <Tab<TabState> label={TabState::StackFrameView.to_string()} text={"Stack Frame".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={TabState::StackFrameView}/>
                 </div>
                 <div class="flex flex-row flex-wrap justify-end items-center gap-2 cursor-default">
                     <button class={classes!("copy-button", conditional_class)} title="Copy to Clipboard" onclick={on_clipboard_clicked}>{"Copy to Clipboard "}<i class={classes!("fa-regular", "fa-copy")}></i></button>
@@ -294,6 +297,8 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                 <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} pc_limit={props.pc_limit}/>
             } else if **editor_active_tab == TabState::StackSegment {
                 <StackSegment memory_curr_instr={props.memory_curr_instr.clone()} console_active_tab={console_active_tab.clone()} sp={props.sp} memory={props.memory.clone()}/>
+            } else if **editor_active_tab == TabState::StackFrameView {
+                <StackFrameView memory_curr_instr={props.memory_curr_instr.clone()} stack={props.stack.clone()} console_active_tab={console_active_tab.clone()}/>
             }
         </>
     }

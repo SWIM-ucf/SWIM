@@ -56,6 +56,7 @@ use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
 use crate::emulation_core::mips::fp_registers::FpRegisterType;
 use crate::emulation_core::mips::gp_registers::GpRegisterType::{A0, A1};
+use crate::emulation_core::mips::stack::{Stack, StackFrame};
 use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.
@@ -74,7 +75,7 @@ pub struct MipsDatapath {
     pub current_stage: Stage,
 
     /// The stack of instructions that have been executed
-    pub stack: Vec<u32>,
+    pub stack: Stack,
 
     /// Boolean value that states whether the datapath has halted.
     ///
@@ -216,7 +217,7 @@ impl Default for MipsDatapath {
             datapath_signals: DatapathSignals::default(),
             state: DatapathState::default(),
             current_stage: Stage::default(),
-            stack: Vec::new(),
+            stack: Stack::default(),
             is_halted: true,
         };
 
@@ -424,6 +425,15 @@ impl MipsDatapath {
             Jump::YesJumpJalr => true,
             _ => false
         };
+
+        if hit_branch || hit_jump {
+            // Add current line to stack if branch is taken
+            let frame = StackFrame::new(
+                self.state.instruction,
+                self.registers.pc as u32,
+            );
+            self.stack.push(frame);
+        }
 
         // Instruction decode always involves a state update
         DatapathUpdateSignal {

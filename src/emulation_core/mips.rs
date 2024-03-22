@@ -10,3 +10,4 @@ pub mod fp_registers;
 pub mod gp_registers;
 pub mod instruction;
 pub mod memory;
+pub mod stack;

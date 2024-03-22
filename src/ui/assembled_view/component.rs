@@ -2,7 +2,8 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use crate::agent::datapath_communicator::DatapathCommunicator;
-use crate::emulation_core::mips::memory::{Memory, MemoryIter, CAPACITY_BYTES};
+use crate::emulation_core::mips::memory::{Memory, MemoryIter};
+use crate::emulation_core::mips::stack::{Stack, StackFrame, StackIter};
 // use monaco::api::TextModel;
 use crate::parser::parser_structs_and_enums::ProgramInfo;
 use crate::ui::swim_editor::tab::TabState;
@@ -318,6 +319,82 @@ pub fn StackSegment(props: &StackSegmentProps) -> Html {
                             </tr>
                         }
                     }).collect::<Html>()
+                }
+                else {
+                    html! {<></>}
+                }
+            }
+        </table>
+    }
+}
+
+
+#[derive(PartialEq, Properties)]
+pub struct StackFrameProps {
+    pub stack: Stack,
+    pub memory_curr_instr: UseStateHandle<u64>,
+    pub console_active_tab: UseStateHandle<TabState>,
+}
+
+#[function_component]
+pub fn StackFrameView(props: &StackFrameProps) -> Html {
+    let console_active_tab = &props.console_active_tab;
+    let memory_curr_instr = &props.memory_curr_instr;
+    let stack = &props.stack;
+    log::debug!("Stack: {:?}", stack.stack);
+
+    // Go to the memory address in hex editor
+    let on_address_click = {
+        let memory_curr_instr = memory_curr_instr.clone();
+        let console_active_tab = console_active_tab.clone();
+        use_callback(
+            move |args: (MouseEvent, usize), memory_curr_instr| {
+                let (_e, address) = args;
+                memory_curr_instr.set(address as u64);
+                console_active_tab.set(TabState::HexEditor);
+            },
+            memory_curr_instr,
+        )
+    };
+
+    html! {
+        <table class="h-[96%] bg-primary-900">
+        // | address | data in hex
+            <tr>
+                <th>{"Address"}</th>
+                <th>{"Hex"}</th>
+            </tr>
+            {
+                if !stack.stack.is_empty() {
+                    let stack = stack.stack.clone();
+                    stack.into_iter().enumerate().map(|(address, frame)| {
+                        let on_address_click = Callback::clone(&on_address_click);
+                        log::debug!("Frame: {:?}", frame);
+                        html! {
+                            <tr>
+                                <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", frame.address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, frame.address as usize))}}>
+                                    {format!("0x{:08x}", frame.address as u64)}
+                                </td>
+                                <td>
+                                    {format!("0x{:08x}", frame.instruction)}
+                                </td>
+                            </tr>
+                        }
+                    }).collect::<Html>()
+                    // let stack_iter = StackIter::new(&stack, 0);
+                    // stack_iter.map(|frame| {
+                    //     let on_address_click = Callback::clone(&on_address_click);
+                    //     html! {
+                    //         <tr>
+                    //             <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", frame.address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, frame.address as usize))}}>
+                    //                 {format!("0x{:08x}", frame.address as u64)}
+                    //             </td>
+                    //             <td>
+                    //                 {format!("0x{:08x}", frame.instruction)}
+                    //             </td>
+                    //         </tr>
+                    //     }
+                    // }).collect::<Html>()
                 }
                 else {
                     html! {<></>}

@@ -6,6 +6,7 @@ use crate::emulation_core::mips::datapath::{DatapathState, Stage};
 use crate::emulation_core::mips::fp_registers::FpRegisters;
 use crate::emulation_core::mips::gp_registers::GpRegisters;
 use crate::emulation_core::mips::memory::Memory;
+use crate::emulation_core::mips::stack::Stack;
 use gloo_console::log;
 use std::rc::Rc;
 use yew::Reducible;
@@ -28,7 +29,7 @@ pub struct MipsCoreState {
     pub coprocessor_registers: FpRegisters,
     pub memory: Memory,
     pub current_stage: Stage,
-    pub stack: Vec<u32>,
+    pub stack: Stack,
 }
 
 impl Default for DatapathReducer {

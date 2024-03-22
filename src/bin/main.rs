@@ -518,7 +518,7 @@ fn app(props: &AppProps) -> Html {
 
                     // Editor
                     <div class="flex flex-col grow min-h-16 mt-2">
-                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} pc_limit={*pc_limit} binary={binary_ref.borrow().clone()} memory_curr_instr={memory_curr_instr.clone()} editor_curr_line={editor_curr_line.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} pc={datapath_state.mips.registers.pc} communicator={props.communicator} current_architecture={datapath_state.current_architecture.clone()} speed={datapath_state.speed} sp={datapath_state.mips.registers[GpRegisterType::Sp]} memory={datapath_state.mips.memory.clone()}/>
+                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} pc_limit={*pc_limit} binary={binary_ref.borrow().clone()} memory_curr_instr={memory_curr_instr.clone()} editor_curr_line={editor_curr_line.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} pc={datapath_state.mips.registers.pc} communicator={props.communicator} current_architecture={datapath_state.current_architecture.clone()} speed={datapath_state.speed} sp={datapath_state.mips.registers[GpRegisterType::Sp]} memory={datapath_state.mips.memory.clone()} stack={datapath_state.mips.stack.clone()}/>
                     </div>
 
                     // Console
