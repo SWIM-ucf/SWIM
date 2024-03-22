@@ -60,7 +60,7 @@ pub fn console(props: &Consoleprops) -> Html {
             </div>
             if *show_input {
                 <div class="console-input">
-                    <div>{">\u{00a0}"}</div> // Prompt followed by a non-breaking space
+                    <div class="prompt">{">\u{00a0}"}</div> // Prompt followed by a non-breaking space
                     <input type="text" onkeyup={on_keyup} oninput={on_input} value={(*input_value).clone()}/>
                 </div>
             }
