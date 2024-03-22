@@ -1,3 +1,4 @@
+use crate::emulation_core::architectures::AvailableDatapaths;
 use crate::parser::assembling::assemble_data_binary;
 use crate::parser::parser_assembler_main::parser;
 use crate::parser::parser_structs_and_enums::ErrorType::{
@@ -325,13 +326,18 @@ fn separate_data_and_text_works_basic_version() {
 fn separate_data_and_text_can_handle_empty_lines() {
     //this test realistically is only important to check that it does not panic but we might as well go a step further and
     //check that the result generated with empty lines is identical to the result without empty lines save for line number
-    let mut result_1 =
-        parser(".text\nori $s0, $zero, 0x1234\n\n.data\nlabel: .word 0xface".to_string())
-            .0
-            .monaco_line_info;
-    let result_2 = parser(".text\nori $s0, $zero, 0x1234\n.data\nlabel: .word 0xface".to_string())
-        .0
-        .monaco_line_info;
+    let mut result_1 = parser(
+        ".text\nori $s0, $zero, 0x1234\n\n.data\nlabel: .word 0xface".to_string(),
+        AvailableDatapaths::MIPS,
+    )
+    .0
+    .monaco_line_info;
+    let result_2 = parser(
+        ".text\nori $s0, $zero, 0x1234\n.data\nlabel: .word 0xface".to_string(),
+        AvailableDatapaths::MIPS,
+    )
+    .0
+    .monaco_line_info;
     result_1[2].line_number = 1;
     result_1[3].line_number = 2;
     result_1[4].line_number = 3;
@@ -344,9 +350,12 @@ fn separate_data_and_text_can_handle_empty_lines() {
 
 #[test]
 fn separate_data_and_text_generates_error_on_missing_commas_text() {
-    let result = parser("add, $t1, $t2, $t3,\nlw $t1 400($t2)".to_string())
-        .0
-        .monaco_line_info;
+    let result = parser(
+        "add, $t1, $t2, $t3,\nlw $t1 400($t2)".to_string(),
+        AvailableDatapaths::MIPS,
+    )
+    .0
+    .monaco_line_info;
 
     let error_0_line_0 = Error {
         error_name: UnnecessaryComma,
@@ -736,9 +745,12 @@ fn build_instruction_list_allows_double_label_on_instructions() {
 
 #[test]
 fn build_instruction_list_generates_error_on_label_on_last_line() {
-    let result = parser("lw $t1, 400($zero)\nadd $t1, $t2, $t3\nlabel:\n".to_string())
-        .0
-        .monaco_line_info;
+    let result = parser(
+        "lw $t1, 400($zero)\nadd $t1, $t2, $t3\nlabel:\n".to_string(),
+        AvailableDatapaths::MIPS,
+    )
+    .0
+    .monaco_line_info;
 
     assert_eq!(result[2].errors[0].error_name, LabelAssignmentError);
 }
@@ -832,9 +844,12 @@ fn create_label_map_pushes_errors_instead_of_inserting_duplicate_label_name() {
 }
 #[test]
 fn suggest_error_corrections_works_with_various_gp_registers() {
-    let result = parser("add $t1, $t2, @t3\nori not, ro, 100".to_string())
-        .0
-        .instructions;
+    let result = parser(
+        "add $t1, $t2, @t3\nori not, ro, 100".to_string(),
+        AvailableDatapaths::MIPS,
+    )
+    .0
+    .instructions;
 
     assert_eq!(
         result[0].errors[0].message,
@@ -852,9 +867,12 @@ fn suggest_error_corrections_works_with_various_gp_registers() {
 
 #[test]
 fn suggest_error_corrections_works_with_various_fp_registers() {
-    let result = parser("add.s $f1, $f2, f3\nadd.d fake, $052, 1qp".to_string())
-        .0
-        .instructions;
+    let result = parser(
+        "add.s $f1, $f2, f3\nadd.d fake, $052, 1qp".to_string(),
+        AvailableDatapaths::MIPS,
+    )
+    .0
+    .instructions;
 
     assert_eq!(
         result[0].errors[0].message,
@@ -876,10 +894,12 @@ fn suggest_error_corrections_works_with_various_fp_registers() {
 
 #[test]
 fn suggest_error_corrections_works_with_labels() {
-    let result =
-        parser("j stable\nlabel: add $t1, $t2, $t3\ntable: sub $t1, $t2, $t3\nj lapel".to_string())
-            .0
-            .instructions;
+    let result = parser(
+        "j stable\nlabel: add $t1, $t2, $t3\ntable: sub $t1, $t2, $t3\nj lapel".to_string(),
+        AvailableDatapaths::MIPS,
+    )
+    .0
+    .instructions;
 
     assert_eq!(
         result[0].errors[0].message,
@@ -893,9 +913,12 @@ fn suggest_error_corrections_works_with_labels() {
 
 #[test]
 fn suggest_error_corrections_works_with_labels_when_no_labels_specified() {
-    let result = parser("add $t1, $t2, $t3\nj stable\nlw $t1, 100($zero)\n".to_string())
-        .0
-        .instructions;
+    let result = parser(
+        "add $t1, $t2, $t3\nj stable\nlw $t1, 100($zero)\n".to_string(),
+        AvailableDatapaths::MIPS,
+    )
+    .0
+    .instructions;
     assert_eq!(
         result[1].errors[0].message,
         "There is no recognized labelled memory.\n"
@@ -904,9 +927,12 @@ fn suggest_error_corrections_works_with_labels_when_no_labels_specified() {
 
 #[test]
 fn suggest_error_corrections_works_with_instructions() {
-    let result = parser("sun $t1, $t2, $t3\nqq $t1, 100($zero)\n.c.eqd $f1, $f1, $f3".to_string())
-        .0
-        .instructions;
+    let result = parser(
+        "sun $t1, $t2, $t3\nqq $t1, 100($zero)\n.c.eqd $f1, $f1, $f3".to_string(),
+        AvailableDatapaths::MIPS,
+    )
+    .0
+    .instructions;
 
     assert_eq!(
         result[0].errors[0].message,
@@ -927,6 +953,7 @@ fn suggest_error_corrections_works_with_data_types() {
     let result = parser(
         ".data\nlabel: word 100\ntable: .bite 'c','1'\nlapel: gobbledygook \"this is a string\""
             .to_string(),
+        AvailableDatapaths::MIPS,
     )
     .0
     .data;
@@ -947,10 +974,12 @@ fn suggest_error_corrections_works_with_data_types() {
 
 #[test]
 fn suggest_error_suggestions_associates_error_with_monaco_line_info() {
-    let lines =
-        parser("ori $t1, 100, $t2\nlw $f1, 400($zero)\n.data\nword .wod \"a\"\n".to_string())
-            .0
-            .monaco_line_info;
+    let lines = parser(
+        "ori $t1, 100, $t2\nlw $f1, 400($zero)\n.data\nword .wod \"a\"\n".to_string(),
+        AvailableDatapaths::MIPS,
+    )
+    .0
+    .monaco_line_info;
 
     let actual = Error {
         error_name: ErrorType::UnrecognizedGPRegister,
@@ -995,7 +1024,9 @@ fn suggest_error_suggestions_associates_error_with_monaco_line_info() {
 
 #[test]
 fn operators_with_commas_cause_error() {
-    let result = parser("ori, $t1, $t2, 100".to_string()).0.monaco_line_info;
+    let result = parser("ori, $t1, $t2, 100".to_string(), AvailableDatapaths::MIPS)
+        .0
+        .monaco_line_info;
 
     for line in result {
         for error in line.errors {

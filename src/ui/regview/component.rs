@@ -1,6 +1,7 @@
 use crate::agent::datapath_communicator::DatapathCommunicator;
 use crate::emulation_core::mips::fp_registers::FpRegisters;
 use crate::emulation_core::mips::gp_registers::GpRegisters;
+use crate::ui::swim_editor::tab::Tab;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlInputElement, InputEvent};
 use yew::prelude::*;
@@ -13,9 +14,11 @@ pub struct Regviewprops {
     pub pc_limit: usize,
     pub communicator: &'static DatapathCommunicator,
 }
-#[derive(PartialEq, Properties)]
-pub struct Viewswitch {
-    pub switch_view: bool,
+#[derive(PartialEq, Default)]
+pub enum RegviewTabState {
+    #[default]
+    Gp,
+    Fp,
 }
 
 #[derive(Default, PartialEq, Clone, Copy, Debug)]
@@ -62,19 +65,19 @@ pub fn generate_gpr_rows(props: &Regviewprops, radix: u32) -> Html {
                             }
                             let val = match u64::from_str_radix(number, radix) {
                                 Ok(value) => {
-                                    input.set_class_name("valid");
+                                    input.set_class_name("");
                                     value
                                 },
                                 Err(_err) => {
-                                    input.set_class_name("invalid");
+                                    input.set_class_name("text-accent-red-200");
                                     return
                                 }
                             };
                             if register.is_valid_register_value(val, pc_limit) {
                                 communicator.set_register(register.to_string(), val);
-                                input.set_class_name("valid");
+                                input.set_class_name("");
                             } else {
-                                input.set_class_name("invalid");
+                                input.set_class_name("text-accent-red-200");
                             }
                         }}
                         value={format_string}/>
@@ -106,11 +109,11 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                                 UnitState::Float => {
                                     match input_string.parse::<f32>() {
                                         Ok(value) => {
-                                            input.set_class_name("valid");
+                                            input.set_class_name("");
                                             value as u64
                                         },
                                         Err(_err) => {
-                                            input.set_class_name("invalid");
+                                            input.set_class_name("text-accent-red-200");
                                             return
                                         }
                                     }
@@ -118,11 +121,11 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                                 UnitState::Double => {
                                     match input_string.parse::<f64>() {
                                         Ok(value) => {
-                                            input.set_class_name("valid");
+                                            input.set_class_name("");
                                             value as u64
                                         },
                                         Err(_err) => {
-                                            input.set_class_name("invalid");
+                                            input.set_class_name("text-accent-red-200");
                                             return
                                         }
                                     }
@@ -130,11 +133,11 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                                 UnitState::Hex => {
                                     match u64::from_str_radix(&input_string[2..], 16) {
                                         Ok(value) => {
-                                            input.set_class_name("valid");
+                                            input.set_class_name("");
                                             value
                                         },
                                         Err(_err) => {
-                                            input.set_class_name("invalid");
+                                            input.set_class_name("text-accent-red-200");
                                             return
                                         }
                                     }
@@ -142,11 +145,11 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                                 UnitState::Bin => {
                                     match u64::from_str_radix(&input_string[2..], 2) {
                                         Ok(value) => {
-                                            input.set_class_name("valid");
+                                            input.set_class_name("");
                                             value
                                         },
                                         Err(_err) => {
-                                            input.set_class_name("invalid");
+                                            input.set_class_name("text-accent-red-200");
                                             return
                                         }
                                     }
@@ -154,11 +157,11 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                                 _ => {
                                     match input_string.parse::<u64>() {
                                         Ok(value) => {
-                                            input.set_class_name("valid");
+                                            input.set_class_name("");
                                             value
                                         },
                                         Err(_err) => {
-                                            input.set_class_name("invalid");
+                                            input.set_class_name("text-accent-red-200");
                                             return
                                         }
                                     }
@@ -166,9 +169,9 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                             };
                             if register.is_valid_register_value(value) {
                                 communicator.set_fp_register(register.to_string(), value);
-                                input.set_class_name("valid");
+                                input.set_class_name("");
                             } else {
-                                input.set_class_name("invalid");
+                                input.set_class_name("text-accent-red-200");
                             }
                         }}
                         value={
@@ -190,7 +193,7 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
 #[function_component(Regview)]
 pub fn regview(props: &Regviewprops) -> Html {
     let active_view = use_state_eq(UnitState::default);
-    let switch_flag = use_state_eq(|| true);
+    let active_tab = use_state_eq(RegviewTabState::default);
 
     let change_view = {
         let active_view = active_view.clone();
@@ -210,45 +213,34 @@ pub fn regview(props: &Regviewprops) -> Html {
             active_view.set(new_mode);
         })
     };
-    let on_switch_clicked_fp = {
-        let switch_flag = switch_flag.clone();
-        use_callback(
-            move |_, switch_flag| {
-                if **switch_flag {
-                    switch_flag.set(false);
-                }
-            },
-            switch_flag,
-        )
+    let change_tab = {
+        let active_tab = active_tab.clone();
+        Callback::from(move |event: MouseEvent| {
+            let target = event
+                .target()
+                .unwrap()
+                .dyn_into::<web_sys::HtmlElement>()
+                .unwrap();
+            let tab_name = target.get_attribute("label").unwrap_or(String::from("gp"));
+
+            let new_tab = match tab_name.as_str() {
+                "gp" => RegviewTabState::Gp,
+                "fp" => RegviewTabState::Fp,
+                _ => RegviewTabState::default(),
+            };
+
+            active_tab.set(new_tab);
+        })
     };
-    let on_switch_clicked_gp = {
-        let switch_flag = switch_flag.clone();
-        use_callback(
-            move |_, switch_flag| {
-                if !(**switch_flag) {
-                    switch_flag.set(true);
-                }
-            },
-            switch_flag,
-        )
-    };
-    //log!("This is ", *switch_flag);
+
     html! {
-        <div style="flex-grow: 1; display: flex; flex-direction: column; flex-wrap: nowrap; margin-top: 36px;">
-            <div class="regview-menu bar">
-                <div class="tabs">
-                    if *switch_flag {
-                        <button class={classes!("tab", "pressed")} onclick={on_switch_clicked_gp.clone()}>{"GP"}</button>
-                    } else {
-                        <button class="tab" onclick={on_switch_clicked_gp.clone()}>{"GP"}</button>
-                    }
-                    if !(*switch_flag){
-                        <button class={classes!("tab", "pressed")} onclick={on_switch_clicked_fp.clone()}>{"FP"}</button>
-                    } else {
-                        <button class="tab" onclick={on_switch_clicked_fp.clone()}>{"FP"}</button>
-                    }
+        <div class="grow flex flex-col flex-no-wrap mt-12 min-w-0">
+            <div class="flex flex-row justify-between">
+                <div>
+                    <Tab<RegviewTabState> label="gp" text="GP" on_click={change_tab.clone()} disabled={false} active_tab={active_tab.clone()} tab_name={RegviewTabState::Gp}/>
+                    <Tab<RegviewTabState> label="fp" text="FP" on_click={change_tab.clone()} disabled={false} active_tab={active_tab.clone()} tab_name={RegviewTabState::Fp}/>
                 </div>
-                <select class="unit-state" name="units" onchange={change_view.clone()} value={
+                <select class="text-right bg-primary-600 text-primary-200 flex items-center flex-row" name="units" onchange={change_view.clone()} value={
                     match *active_view {
                         UnitState::Bin => "Binary",
                         UnitState::Dec => "Decimal",
@@ -260,22 +252,22 @@ pub fn regview(props: &Regviewprops) -> Html {
                     <option value="hex">{"Hex"}</option>
                     <option value="bin">{"Binary"}</option>
                     <option value="dec">{"Decimal"}</option>
-                    if !*switch_flag {
+                    if *active_tab == RegviewTabState::Fp {
                         <option value="float">{"Float"}</option>
                         <option value="double">{"Double"}</option>
                     }
                 </select>
             </div>
-            <div class="table-wrapper">
-                <table style="background-color: #ffffff">
+            <div class="overflow-y-auto">
+                <table>
                     <thead>
                         <tr>
-                            <th>{"Register Name"}</th>
-                            <th>{"Data"}</th>
+                            <th class="bg-primary-800">{"Register Name"}</th>
+                            <th class="bg-primary-800">{"Data"}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        if *switch_flag{
+                        if *active_tab == RegviewTabState::Gp {
                             if *active_view == UnitState::Bin {
                                 {generate_gpr_rows(props, 2)}
                             }

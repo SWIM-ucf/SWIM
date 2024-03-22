@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use crate::agent::datapath_communicator::DatapathCommunicator;
 // use monaco::api::TextModel;
 use crate::parser::parser_structs_and_enums::ProgramInfo;
 use crate::ui::footer::component::FooterTabState;
@@ -11,6 +12,8 @@ use web_sys::{HtmlElement, HtmlInputElement};
 use yew::prelude::*;
 use yew::{Html, Properties};
 
+// TODO: Create Segment Viewer component for extendability to any segment
+
 #[derive(PartialEq, Properties)]
 pub struct TextSegmentProps {
     pub program_info: ProgramInfo,
@@ -20,6 +23,7 @@ pub struct TextSegmentProps {
     pub pc: u64,
     pub editor_active_tab: UseStateHandle<EditorTabState>,
     pub console_active_tab: UseStateHandle<FooterTabState>,
+    pub communicator: &'static DatapathCommunicator,
 }
 #[derive(PartialEq, Properties)]
 pub struct DataSegmentProps {
@@ -42,6 +46,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
     let editor_active_tab = &props.editor_active_tab;
     let console_active_tab = &props.console_active_tab;
     let executed_ref = use_node_ref();
+    let communicator = props.communicator;
 
     {
         // Always scroll to the executed row on execution
@@ -59,7 +64,8 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
         let input = target.unwrap().unchecked_into::<HtmlInputElement>();
 
         if input.checked() {
-            debug!("Breakpoint set at {:08x}", address);
+            debug!("Breakpoint set at {:08x}", address as u64);
+            communicator.set_breakpoint(address as u64);
         }
     });
 
@@ -93,7 +99,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
 
     let mut address = -4;
     html! {
-        <table class={classes!("memory_segment")}>
+        <table class="h-[96%] bg-primary-900">
         // | breakpoint checkbox | address | instruction in binary | instruction in hex | updated string | source string
             <tr>
                 <th>{"Bkpt"}</th>
@@ -116,14 +122,14 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
 
                     let mut conditional_class = "";
                     if props.pc as i64 == address + 4 {
-                        conditional_class = "executing";
+                        conditional_class = "bg-primary-700 shadow-executing";
                         html!{
-                            <tr ref={executed_ref} key={index} class={classes!("row", conditional_class)}>
-                                <td class={classes!("bkpt")}>
-                                    <input type="checkbox" onclick={move |e: MouseEvent| {on_check.emit((e, address))}}/>
-                                    <div class="circle"></div>
+                            <tr ref={executed_ref} key={index} class={classes!(conditional_class)}>
+                                <td class="h-full relative group">
+                                    <input type="checkbox" class="hover:cursor-pointer peer absolute top-0 left-0 opacity-0 w-full h-full" onclick={move |e: MouseEvent| {on_check.emit((e, address))}}/>
+                                    <div class="h-3 w-3 rounded-3xl m-auto bg-transparent group-hover:bg-accent-blue-200 peer-checked:bg-accent-blue-100"></div>
                                 </td>
-                                <td class="address" title={format!("Go to address in memory {:08x}", address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, address as usize))}}>
+                                <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, address as usize))}}>
                                     {format!("0x{:08x}", address as u64)}
                                 </td>
                                 <td>
@@ -132,7 +138,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                                 <td>
                                     {format!("0x{:08x}", instruction.binary)}
                                 </td>
-                                <td class="assembled-string" title="Go to line in editor" onclick={move |e: MouseEvent| {on_assembled_click.emit((e, line_number))}}>
+                                <td class="text-accent-blue-200 hover:text-accent-blue-100 cursor-pointer" title="Go to line in editor" onclick={move |e: MouseEvent| {on_assembled_click.emit((e, line_number))}}>
                                     {recreated_string}
                                 </td>
                                 <td>
@@ -143,12 +149,12 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                     }
                     else {
                         html!{
-                            <tr key={index} class={classes!("row", conditional_class)}>
-                                <td class={classes!("bkpt")}>
-                                    <input type="checkbox" onclick={move |e: MouseEvent| {on_check.emit((e, address))}}/>
-                                    <div class="circle"></div>
+                            <tr key={index} class={classes!(conditional_class)}>
+                                <td class="h-full relative group">
+                                    <input type="checkbox" class="hover:cursor-pointer peer absolute top-0 left-0 opacity-0 w-full h-full" onclick={move |e: MouseEvent| {on_check.emit((e, address))}}/>
+                                    <div class="h-3 w-3 rounded-3xl m-auto bg-transparent group-hover:bg-accent-blue-200 peer-checked:bg-accent-blue-100"></div>
                                 </td>
-                                <td class="address" title={format!("Go to address in memory {:08x}", address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, address as usize))}}>
+                                <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, address as usize))}}>
                                     {format!("0x{:08x}", address as u64)}
                                 </td>
                                 <td>
@@ -157,7 +163,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                                 <td>
                                     {format!("0x{:08x}", instruction.binary)}
                                 </td>
-                                <td class="assembled-string" title="Go to line in editor" onclick={move |e: MouseEvent| {on_assembled_click.emit((e, line_number))}}>
+                                <td class="text-accent-blue-200 hover:text-accent-blue-100 cursor-pointer" title="Go to line in editor" onclick={move |e: MouseEvent| {on_assembled_click.emit((e, line_number))}}>
                                     {recreated_string}
                                 </td>
                                 <td>
@@ -211,7 +217,7 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
     };
 
     html! {
-        <table class={classes!("memory_segment")}>
+        <table class="h-[96%] bg-primary-900">
         // | address | data in hex | source string
             <tr>
                 <th>{"Address"}</th>
@@ -231,14 +237,14 @@ pub fn DataSegment(props: &DataSegmentProps) -> Html {
                         data_binary_index += 1;
                         html!{
 
-                            <tr key={index} class={classes!("row")}>
-                                <td class="address" title={format!("Go to address {:08x}", address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, address))}}>
+                            <tr key={index}>
+                                <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, address))}}>
                                     {format!("0x{:08x}", address as u64)}
                                 </td>
                                 <td>
                                     {format!("0x{:08x}", binary[data_binary_index])}
                                 </td>
-                                <td class="assembled-string" title="Go to line" onclick={move |e: MouseEvent| {on_assembled_click.emit((e, address))}}>
+                                <td class="text-accent-blue-200 hover:text-accent-blue-100 cursor-pointer" title="Go to line" onclick={move |e: MouseEvent| {on_assembled_click.emit((e, address))}}>
                                     {recreated_string}
                                 </td>
                                 <td>

@@ -1,5 +1,7 @@
 //! Covering the basic arithmetic instructions: add, sub, mul, div, or, and.
 
+use crate::emulation_core::architectures::AvailableDatapaths;
+
 use super::*;
 
 #[test]
@@ -8,7 +10,7 @@ fn basic_add() -> Result<(), String> {
 
     let instructions = String::from("add r11, r7, r8");
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     datapath.registers.gpr[7] = 51;
@@ -29,7 +31,7 @@ fn basic_sub() -> Result<(), String> {
 
     let instructions = String::from("sub r12, r7, r8");
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     datapath.registers.gpr[7] = 51;
@@ -50,7 +52,7 @@ fn basic_mul() -> Result<(), String> {
 
     let instructions = String::from("mul r13, r7, r8");
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     datapath.registers.gpr[7] = 51;
@@ -71,7 +73,7 @@ fn basic_div() -> Result<(), String> {
 
     let instructions = String::from("div r14, r7, r8");
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     datapath.registers.gpr[7] = 51;
@@ -92,7 +94,7 @@ fn basic_or() -> Result<(), String> {
 
     let instructions = String::from("or r15, r7, r8");
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     datapath.registers.gpr[7] = 51;
@@ -113,7 +115,7 @@ fn basic_and() -> Result<(), String> {
 
     let instructions = String::from("and r16, r7, r8");
 
-    let (_, instruction_bits) = parser(instructions);
+    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     datapath.registers.gpr[7] = 51;

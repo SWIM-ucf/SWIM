@@ -85,6 +85,7 @@ impl DatapathCommunicator {
 
     /// Sets the current emulation core to the provided architecture.
     pub fn set_core(&self, _architecture: AvailableDatapaths) {
+        // self.send_message(Command::SetCore(_architecture));
         todo!()
     }
 
@@ -143,6 +144,11 @@ impl DatapathCommunicator {
     /// Resets the current core to its default state.
     pub fn reset(&self) {
         self.send_message(Command::Reset);
+    }
+
+    pub fn set_breakpoint(&self, _address: u64) {
+        // self.send_message(Command::SetBreakpoint(address));
+        todo!()
     }
 
     pub fn get_accepting_input(&self) -> bool {

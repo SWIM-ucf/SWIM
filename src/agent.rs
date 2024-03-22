@@ -45,6 +45,10 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
     loop {
         let execution_delay = state.get_delay();
 
+        // Save the previous state of the emulator core's execution and initialization status
+        let is_executing = state.executing;
+        let is_initialiized = state.initialized;
+
         // Part 1: Delay/Command Handling
         if state.executing {
             futures::select! {
@@ -106,6 +110,17 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                 );
             }
         }
+        // Part 5: Sending Non-Syscall System Updates to UI
+        send_update!(
+            state.scope,
+            state.executing != is_executing,
+            DatapathUpdate::System(SystemUpdate::UpdateExecuting(state.executing))
+        );
+        send_update!(
+            state.scope,
+            state.initialized != is_initialiized,
+            DatapathUpdate::System(SystemUpdate::UpdateInitialized(state.initialized))
+        );
         state.updates = Default::default();
     }
 }
@@ -125,6 +140,7 @@ struct EmulatorCoreAgentState {
     pub scope: ReactorScope<Command, DatapathUpdate>,
     speed: u32,
     executing: bool,
+    initialized: bool,
     messages: Vec<String>,
     scanner: Scanner,
     blocked_on: BlockedOn,
@@ -138,6 +154,7 @@ impl EmulatorCoreAgentState {
             scope,
             speed: 0,
             executing: false,
+            initialized: false,
             messages: Vec::new(),
             scanner: Scanner::new(),
             blocked_on: BlockedOn::Nothing,
@@ -147,12 +164,13 @@ impl EmulatorCoreAgentState {
     pub async fn handle_command(&mut self, command: Command) {
         match command {
             Command::SetCore(_architecture) => {
-                todo!() // Implement once we have a RISCV datapath
+                todo!("Implement setting cores.") // Implement once we have a RISCV datapath
             }
             Command::Initialize(initial_pc, mem) => {
                 self.current_datapath.initialize(initial_pc, mem).unwrap();
                 self.reset_system().await;
                 self.updates |= UPDATE_EVERYTHING;
+                self.initialized = true;
             }
             Command::SetExecuteSpeed(speed) => {
                 self.speed = speed;
@@ -193,6 +211,9 @@ impl EmulatorCoreAgentState {
             Command::Input(line) => {
                 self.add_message(format!("> {}", line)).await;
                 self.scanner.feed(line);
+            }
+            Command::SetBreakpoint(_address) => {
+                todo!("Implement setting breakpoints.")
             }
         }
     }
@@ -338,6 +359,7 @@ impl EmulatorCoreAgentState {
     async fn reset_system(&mut self) {
         self.scanner = Scanner::new();
         self.blocked_on = BlockedOn::Nothing;
+        self.initialized = false;
         self.messages = Vec::new();
         self.scope
             .send(DatapathUpdate::System(SystemUpdate::UpdateMessages(

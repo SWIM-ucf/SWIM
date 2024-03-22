@@ -6,16 +6,6 @@
   width: auto;
 }
 
-#datapath-zoom-controls {
-  position: absolute;
-  left: 27px;
-  bottom: 66px;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 /** Zoom Levels **/
 .datapath.size-0 {
   width: 100%;

@@ -109,7 +109,7 @@ impl TryFrom<u32> for Instruction {
         let op = (value & 0x7f) as u8;
         match op {
             // R-type instructions:
-            OPCODE_OP => Ok(Instruction::RType(RType {
+            OPCODE_OP | OPCODE_OP_32 => Ok(Instruction::RType(RType {
                 funct7: (value >> 25) as u8,
                 rs2: ((value >> 20) & 0x1f) as u8,
                 rs1: ((value >> 15) & 0x1f) as u8,
@@ -119,7 +119,7 @@ impl TryFrom<u32> for Instruction {
             })),
 
             // I-type instructions:
-            OPCODE_IMM | OPCODE_JALR | OPCODE_LOAD | OPCODE_SYSTEM => Ok(Instruction::IType(IType {
+            OPCODE_IMM | OPCODE_IMM_32 | OPCODE_JALR | OPCODE_LOAD | OPCODE_SYSTEM => Ok(Instruction::IType(IType {
                 imm: (value >> 20) as u16,
                 rs1: ((value >> 15) & 0x1f) as u8,
                 funct3: ((value >> 12) & 0x07) as u8,
