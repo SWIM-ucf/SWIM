@@ -119,7 +119,7 @@ impl TryFrom<u32> for Instruction {
             })),
 
             // I-type instructions:
-            OPCODE_IMM | OPCODE_IMM_32 | OPCODE_JALR | OPCODE_LOAD | OPCODE_SYSTEM => Ok(Instruction::IType(IType {
+            OPCODE_IMM | OPCODE_IMM_32 | OPCODE_JALR | OPCODE_LOAD | OPCODE_MISC_MEM | OPCODE_SYSTEM => Ok(Instruction::IType(IType {
                 imm: (value >> 20) as u16,
                 rs1: ((value >> 15) & 0x1f) as u8,
                 funct3: ((value >> 12) & 0x07) as u8,

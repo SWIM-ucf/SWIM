@@ -7,6 +7,7 @@ pub struct ControlSignals {
     pub op1_select: OP1Select,
     pub op2_select: OP2Select,
     pub alu_op: AluOp,
+    pub sys_op: SysOp,
     pub branch_jump: BranchJump,
     pub read_write: ReadWrite,
     pub wb_sel: WBSel,
@@ -97,6 +98,14 @@ pub enum AluOp {
 
     /// `_1110` (14) - Perform unsigned integer division. (Returns the integer quotient.)
     DivisionUnsigned,
+}
+
+#[derive(Clone, Default, PartialEq)]
+pub enum SysOp {
+    #[default]
+    None,
+    ECALL,
+    EBREAK,
 }
 
 #[derive(Clone, Default, PartialEq)]
