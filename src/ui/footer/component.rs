@@ -17,7 +17,6 @@ pub struct Footerprops {
     pub datapath_state: UseReducerHandle<DatapathReducer>,
     pub parsermsg: String,
     pub show_input: UseStateHandle<bool>,
-    pub command: UseStateHandle<String>,
     pub memory_text_model: UseStateHandle<TextModel>,
     pub memory_curr_instr: UseStateHandle<u64>,
     pub active_tab: UseStateHandle<TabState>,
@@ -63,15 +62,15 @@ pub fn footer(props: &Footerprops) -> Html {
     html! {
     <>
             // Console buttons
-            if **active_tab == TabState::Console {
-                <div class="min-h-48 border-primary-200 border-groove border-2 p-4 max-h-[50%] bg-accent-blue-300 text-primary-200 overflow-y-auto overflow-wrap z-10">
-                    <Console communicator={props.communicator} parsermsg={props.parsermsg.clone()} show_input={props.show_input.clone()} command={props.command.clone()}/>
+            if **active_tab == FooterTabState::Console {
+                <div class="h-48 border-primary-200 border-groove border-2 p-4 bg-accent-blue-300 text-primary-200 overflow-y-auto overflow-wrap z-10">
+                    <Console datapath_state={props.datapath_state.clone()} communicator={props.communicator} parsermsg={props.parsermsg.clone()} show_input={props.show_input.clone()}/>
                 </div>
             } else if **active_tab == TabState::Datapath {
                 <VisualDatapath datapath_state={props.datapath_state.clone()} svg_path={svg_path} />
-            } else if **active_tab == TabState::HexEditor {
-                <div class="min-h-[200px] max-h-[50%] border-primary-200 border-groove border-2 z-10">
-                    <HexEditor memory_text_model={props.memory_text_model.clone()} memory_curr_instr={props.memory_curr_instr.clone()} datapath_state={props.datapath_state.clone()} pc_limit={props.pc_limit.clone()}/>
+            } else if **active_tab == FooterTabState::HexEditor {
+                <div class="flex h-48 border-primary-200 border-groove border-2 z-10">
+                    <HexEditor memory_text_model={props.memory_text_model.clone()} memory_curr_instr={props.memory_curr_instr.clone()} datapath_state={props.datapath_state.clone()}/>
                 </div>
             }
             <div class="flex flex-row justify-between w-full">

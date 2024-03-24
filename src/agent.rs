@@ -54,7 +54,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
             futures::select! {
                 // If we get a message, handle the command before attempting to execute.
                 msg = state.scope.next() => match msg {
-                    Some(msg) => state.handle_command(msg),
+                    Some(msg) => state.handle_command(msg).await,
                     None => return,
                 },
                 // Delay to slow execution down to the intended speed.
@@ -63,7 +63,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
         } else {
             // If we're not currently executing, wait indefinitely until the next message comes in.
             match state.scope.next().await {
-                Some(msg) => state.handle_command(msg),
+                Some(msg) => state.handle_command(msg).await,
                 None => return,
             }
         }
@@ -166,16 +166,16 @@ impl EmulatorCoreAgentState {
         }
     }
 
-    pub fn handle_command(&mut self, command: Command) {
+    pub async fn handle_command(&mut self, command: Command) {
         match command {
             Command::SetCore(_architecture) => {
                 todo!("Implement setting cores.") // Implement once we have a RISCV datapath
             }
             Command::Initialize(initial_pc, mem) => {
                 self.current_datapath.initialize(initial_pc, mem).unwrap();
+                self.reset_system().await;
+                self.updates |= UPDATE_EVERYTHING;
                 self.initialized = true;
-                self.updates.changed_memory = true;
-                self.updates.changed_registers = true;
             }
             Command::SetExecuteSpeed(speed) => {
                 self.speed = speed;
@@ -210,12 +210,11 @@ impl EmulatorCoreAgentState {
             }
             Command::Reset => {
                 self.current_datapath.reset();
-                self.initialized = false;
+                self.reset_system().await;
                 self.updates |= UPDATE_EVERYTHING;
-                self.messages = Vec::new();
-                self.blocked_on = BlockedOn::Nothing;
             }
             Command::Input(line) => {
+                self.add_message(format!("> {}", line)).await;
                 self.scanner.feed(line);
             }
             Command::SetBreakpoint(_address) => {
@@ -229,7 +228,7 @@ impl EmulatorCoreAgentState {
         if !self.executing || matches!(self.blocked_on, BlockedOn::Syscall(_)) {
             return;
         }
-        self.current_datapath.execute_instruction();
+        self.updates |= self.current_datapath.execute_instruction();
     }
 
     /// Returns the delay between CPU cycles in milliseconds for the current execution speed. Will return zero if the
@@ -283,6 +282,7 @@ impl EmulatorCoreAgentState {
                                 self.current_datapath.set_register_by_str("v0", scan_result);
                             }
                         }
+                        self.updates.changed_registers = true;
                     }
                 }
             }
@@ -300,6 +300,7 @@ impl EmulatorCoreAgentState {
                                     .set_fp_register_by_str("f0", f32::to_bits(scan_result) as u64);
                             }
                         }
+                        self.updates.changed_coprocessor_registers = true;
                     }
                 }
             }
@@ -317,6 +318,7 @@ impl EmulatorCoreAgentState {
                                     .set_fp_register_by_str("f0", f64::to_bits(scan_result));
                             }
                         }
+                        self.updates.changed_coprocessor_registers = true;
                     }
                 }
             }
@@ -351,10 +353,25 @@ impl EmulatorCoreAgentState {
                                 }
                             }
                         }
+                        self.updates.changed_registers = true;
+                        self.updates.changed_memory = true;
                     }
                 }
             }
         }
+    }
+
+    async fn reset_system(&mut self) {
+        self.scanner = Scanner::new();
+        self.blocked_on = BlockedOn::Nothing;
+        self.initialized = false;
+        self.messages = Vec::new();
+        self.scope
+            .send(DatapathUpdate::System(SystemUpdate::UpdateMessages(
+                self.messages.clone(),
+            )))
+            .await
+            .unwrap();
     }
 
     async fn add_message(&mut self, msg: String) {
