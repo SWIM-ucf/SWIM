@@ -138,7 +138,6 @@ pub enum ReadWrite {
     StoreDouble,
 }
 
-
 /// Determines, given [`RegWrite`] is set, what the source of a
 /// register's new data will be.
 ///
