@@ -165,7 +165,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                                     {recreated_string}
                                 </td>
                                 <td>
-                                    {format!("{}: {:?}", line_number, lines_content.get(line_number).unwrap_or(&String::from("")))}
+                                    {format!("{}: {:?}", line_number + 1, lines_content.get(line_number).unwrap_or(&String::from("")))}
                                 </td>
                             </tr>
                         }
