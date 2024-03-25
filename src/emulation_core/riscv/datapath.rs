@@ -54,7 +54,8 @@ use super::datapath_signals::*;
 use super::instruction::*;
 use super::{super::mips::memory::Memory, registers::GpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
-use crate::emulation_core::datapath::DatapathUpdateSignal;
+use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
+use crate::emulation_core::riscv::registers::GpRegisterType::{X10, X11};
 
 /// An implementation of a datapath for the MIPS64 ISA.
 #[derive(Clone, PartialEq)]
@@ -299,8 +300,13 @@ impl Datapath for RiscDatapath {
         self.is_halted = true;
     }
 
-    fn get_syscall_arguments(&self) -> crate::emulation_core::datapath::Syscall {
-        todo!()
+    fn get_syscall_arguments(&self) -> Syscall {
+        Syscall::from_register_data(
+            self.registers[X10],
+            self.registers[X11],
+            0.0f32,
+            0.0f64, // TODO: Add the appropriate arguments after F extension support
+        )
     }
 }
 
