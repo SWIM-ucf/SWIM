@@ -12,7 +12,7 @@ pub enum TabState {
     TextSegment,
     DataSegment,
     StackSegment,
-    StackFrameView
+    StackFrameView,
 }
 
 impl FromStr for TabState {

@@ -6,31 +6,29 @@ pub struct StackFrame {
     pub call_address: u32,
     pub return_address: u64,
     pub frame_pointer: u64,
-    pub stack_pointer: u64
+    pub stack_pointer: u64,
 }
 
 impl StackFrame {
-    pub fn new(call_instruction: u32, call_address: u64, return_address: u64, frame_pointer: u64, stack_pointer: u64) -> Self {
+    pub fn new(
+        call_instruction: u32,
+        call_address: u64,
+        return_address: u64,
+        frame_pointer: u64,
+        stack_pointer: u64,
+    ) -> Self {
         Self {
             call_instruction,
             call_address: call_address as u32,
             return_address,
             frame_pointer,
-            stack_pointer
+            stack_pointer,
         }
     }
 }
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Stack {
     pub stack: Vec<StackFrame>,
-}
-
-impl Default for Stack {
-    fn default() -> Self {
-        Self {
-            stack: Vec::new(),
-        }
-    }
 }
 
 impl Stack {
@@ -53,10 +51,7 @@ pub struct StackIter<'a> {
 }
 
 impl<'a> StackIter<'a> {
-    pub fn new(
-        stack: &'a Stack,
-        current_address: u32,
-    ) -> StackIter<'a> {
+    pub fn new(stack: &'a Stack, current_address: u32) -> StackIter<'a> {
         StackIter {
             stack,
             current_address,

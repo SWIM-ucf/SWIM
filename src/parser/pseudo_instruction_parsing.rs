@@ -1263,7 +1263,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
     let vec_of_added_instructions: Vec<Instruction> = Vec::new();
 
     //iterate through every instruction and check if the operator is a pseudo-instruction
-    for (i, mut instruction) in &mut instructions.iter_mut().enumerate() {
+    for (i, instruction) in &mut instructions.iter_mut().enumerate() {
         instruction.instruction_number = i + vec_of_added_instructions.len();
         match &*instruction.operator.token_name.to_lowercase() {
             "nop" => {

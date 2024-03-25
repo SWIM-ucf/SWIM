@@ -168,9 +168,9 @@ pub struct DatapathUpdateSignal {
     pub changed_coprocessor_state: bool,
     pub changed_coprocessor_registers: bool,
     pub changed_memory: bool,
+    pub changed_stack: bool,
     pub hit_syscall: bool,
     pub hit_breakpoint: bool,
-    pub hit_branch: bool,
 }
 
 /// Constant used to easily trigger an update for everything but to avoid triggering any other
@@ -181,9 +181,9 @@ pub const UPDATE_EVERYTHING: DatapathUpdateSignal = DatapathUpdateSignal {
     changed_coprocessor_state: true,
     changed_coprocessor_registers: true,
     changed_memory: true,
+    changed_stack: true,
     hit_syscall: false,
     hit_breakpoint: false,
-    hit_branch: false,
 };
 
 impl BitOrAssign for DatapathUpdateSignal {
@@ -193,8 +193,8 @@ impl BitOrAssign for DatapathUpdateSignal {
         self.changed_coprocessor_state |= rhs.changed_coprocessor_state;
         self.changed_coprocessor_registers |= rhs.changed_coprocessor_registers;
         self.changed_memory |= rhs.changed_memory;
+        self.changed_stack |= rhs.changed_stack;
         self.hit_syscall |= rhs.hit_syscall;
         self.hit_breakpoint |= rhs.hit_breakpoint;
-        self.hit_branch |= rhs.hit_branch;
     }
 }

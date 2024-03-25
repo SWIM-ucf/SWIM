@@ -141,7 +141,7 @@ pub fn read_instructions(
     labels: &HashMap<String, usize>,
     monaco_line_info: &mut [MonacoLineInfo],
 ) {
-    for mut instruction in &mut instruction_list.iter_mut() {
+    for instruction in &mut instruction_list.iter_mut() {
         //this match case is the heart of the parser and figures out which instruction type it is
         //then it can call the proper functions for that specific instruction
         match &*instruction.operator.token_name.to_lowercase() {
@@ -1551,7 +1551,7 @@ pub fn read_instructions_riscv(
     _labels: &HashMap<String, usize>,
     monaco_line_info: &mut [MonacoLineInfo],
 ) {
-    for mut instruction in &mut instruction_list.iter_mut() {
+    for instruction in &mut instruction_list.iter_mut() {
         match &*instruction.operator.token_name.to_lowercase() {
             "add" => {
                 // Funct7

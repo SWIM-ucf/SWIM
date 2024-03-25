@@ -147,7 +147,10 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             move |editor_link: CodeEditorLink,
                   (datapath_state, memory_text_model, memory_curr_instr)| {
                 match editor_link.with_editor(|editor| {
-                    let hexdump = &datapath_state.mips.memory.generate_formatted_hex(CAPACITY_BYTES);
+                    let hexdump = &datapath_state
+                        .mips
+                        .memory
+                        .generate_formatted_hex(CAPACITY_BYTES);
                     memory_text_model.set_value(hexdump);
 
                     let raw_editor = editor.as_ref();

@@ -110,7 +110,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                 );
                 send_update_mips!(
                     state.scope,
-                    state.updates.hit_branch,
+                    state.updates.changed_stack,
                     UpdateStack(datapath.stack.clone())
                 )
             }

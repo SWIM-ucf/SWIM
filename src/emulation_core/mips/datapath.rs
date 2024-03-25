@@ -58,7 +58,6 @@ use crate::emulation_core::mips::fp_registers::FpRegisterType;
 use crate::emulation_core::mips::gp_registers::GpRegisterType::{A0, A1};
 use crate::emulation_core::mips::stack::{Stack, StackFrame};
 use serde::{Deserialize, Serialize};
-use gloo_console::log;
 
 /// An implementation of a datapath for the MIPS64 ISA.
 #[derive(Clone, PartialEq)]
@@ -244,8 +243,6 @@ impl Datapath for MipsDatapath {
 
             result_signals |= self.execute_stage();
 
-
-
             // This instruction is finished when the datapath has returned
             // to the IF stage.
             if self.current_stage == Stage::InstructionFetch {
@@ -416,16 +413,9 @@ impl MipsDatapath {
         };
 
         // Check if we hit a branch and signal it to the caller
-        let hit_branch = match self.signals.branch {
-            Branch::YesBranch => true,
-            _ => false
-        };
+        let hit_branch = matches!(self.signals.branch, Branch::YesBranch);
 
-        let hit_jump = match self.signals.jump {
-            Jump::YesJump => true,
-            Jump::YesJumpJalr => true,
-            _ => false
-        };
+        let hit_jump = matches!(self.signals.jump, Jump::YesJump | Jump::YesJumpJalr);
 
         if hit_branch || hit_jump {
             // Add current line to stack if branch is taken=
@@ -445,7 +435,7 @@ impl MipsDatapath {
             changed_coprocessor_state: true,
             hit_syscall,
             hit_breakpoint,
-            hit_branch: hit_branch || hit_jump,
+            changed_stack: hit_branch || hit_jump,
             ..Default::default()
         }
     }

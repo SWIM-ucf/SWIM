@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use crate::agent::datapath_communicator::DatapathCommunicator;
 use crate::emulation_core::mips::memory::{Memory, MemoryIter};
-use crate::emulation_core::mips::stack::{Stack, StackFrame, StackIter};
+use crate::emulation_core::mips::stack::Stack;
 // use monaco::api::TextModel;
 use crate::parser::parser_structs_and_enums::ProgramInfo;
 use crate::ui::swim_editor::tab::TabState;
@@ -311,9 +311,9 @@ pub fn StackSegment(props: &StackSegmentProps) -> Html {
                                 </td>
                                 <td>
                                     {
-                                        words.iter().map(|word| {
-                                            format!("0x{:08x} ", word)
-                                        }).collect::<String>()
+                                        words.iter().fold(String::new(), |acc, word| {
+                                            format!("{}0x{:08x} ", acc, word)
+                                        })
                                     }
                                 </td>
                             </tr>
@@ -327,7 +327,6 @@ pub fn StackSegment(props: &StackSegmentProps) -> Html {
         </table>
     }
 }
-
 
 #[derive(PartialEq, Properties)]
 pub struct StackFrameProps {
@@ -363,22 +362,22 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
         // | address | data in hex
             <tr>
                 <th>{"Call Address"}</th>
-                <th>{"Call Hex"}</th>
                 <th>{"Call Line"}</th>
                 <th>{"Return Address"}</th>
                 <th>{"Frame Pointer"}</th>
                 <th>{"Stack Pointer"}</th>
             </tr>
             {
-                if !stack.stack.is_empty() {
+                if !stack.stack.is_empty() && program_info.instructions.len() > 0 {
                     let stack = stack.stack.clone();
-                    stack.into_iter().enumerate().map(|(address, frame)| {
+                    stack.into_iter().enumerate().map(|(_address, frame)| {
                         let call_line_number = frame.call_address / 4;
                         log::debug!("Call Line Number: {}", call_line_number);
                         let call_recreated_string = program_info.instructions[call_line_number as usize].recreate_string();
                         log::debug!("Call Recreated String: {:?}", call_recreated_string);
                         let on_call_address_click = Callback::clone(&on_address_click);
                         let on_return_address_click = Callback::clone(&on_address_click);
+                        let on_stack_pointer_click = Callback::clone(&on_address_click);
                         log::debug!("Frame: {:?}", frame);
                         html! {
                             <tr>
@@ -386,19 +385,16 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
                                     {format!("0x{:08x}", frame.call_address as u64)}
                                 </td>
                                 <td>
-                                    {format!("0x{:08x}", frame.call_instruction)}
-                                </td>
-                                <td>
                                     {format!("{}: {:?}", call_line_number + 1, call_recreated_string)}
                                 </td>
                                 <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", frame.return_address)} onclick={move |e: MouseEvent| {on_return_address_click.emit((e, frame.return_address as usize))}}>
-                                    {format!("0x{:08x}", frame.return_address as u64)}
+                                    {format!("0x{:08x}", frame.return_address)}
                                 </td>
                                 <td>
                                     {format!("{:?}", frame.frame_pointer)}
                                 </td>
-                                <td>
-                                    {format!("{:?}", frame.stack_pointer)}
+                                <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", frame.stack_pointer)} onclick={move |e: MouseEvent| {on_stack_pointer_click.emit((e, frame.stack_pointer as usize))}}>
+                                    {format!("0x{:08x}", frame.stack_pointer)}
                                 </td>
                             </tr>
                         }

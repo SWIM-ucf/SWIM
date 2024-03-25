@@ -203,11 +203,7 @@ pub struct MemoryIter<'a> {
 }
 
 impl<'a> MemoryIter<'a> {
-    pub fn new(
-        memory: &'a Memory,
-        current_address: usize,
-        end_address: usize,
-    ) -> MemoryIter<'a> {
+    pub fn new(memory: &'a Memory, current_address: usize, end_address: usize) -> MemoryIter<'a> {
         MemoryIter {
             memory,
             current_address,
@@ -221,8 +217,7 @@ impl<'a> Iterator for MemoryIter<'a> {
     type Item = (usize, Vec<u32>);
     fn next(&mut self) -> Option<Self::Item> {
         self.current_address = (self.current_address + 3) & !3;
-        if self.current_address + 16 <= self.end_address
-        {
+        if self.current_address + 16 <= self.end_address {
             let address = self.current_address;
             let words = (0..4)
                 .map(|i| self.memory.load_word(address as u64 + (i * 4)).unwrap())
