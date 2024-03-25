@@ -46,6 +46,7 @@ pub struct SwimEditorProps {
     pub current_architecture: AvailableDatapaths,
     pub speed: u32,
     pub communicator: &'static DatapathCommunicator,
+    pub breakpoints: UseStateHandle<HashSet<u64>>,
 }
 
 #[derive(Default, PartialEq)]
@@ -88,7 +89,6 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     let text_model = &*props.text_model;
     let editor_active_tab = &props.editor_active_tab;
     let console_active_tab = &props.console_active_tab;
-    let breakpoints = use_state(HashSet::default);
 
     // Setup the array that would store hover decorations applied to the
     // text model and initialize the options for it.
@@ -300,7 +300,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             if **editor_active_tab == EditorTabState::Editor {
                 <CodeEditor classes={"editor"} link={link} options={get_options()} model={text_model.clone()} on_editor_created={on_editor_created}/>
             } else if **editor_active_tab == EditorTabState::TextSegment {
-                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} breakpoints={breakpoints} pc={props.pc} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} communicator={props.communicator}/>
+                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} breakpoints={props.breakpoints.clone()} pc={props.pc} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} communicator={props.communicator}/>
             } else if **editor_active_tab == EditorTabState::DataSegment {
                 <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} pc_limit={props.pc_limit}/>
             }

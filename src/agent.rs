@@ -384,6 +384,7 @@ impl EmulatorCoreAgentState {
             )))
             .await
             .unwrap();
+        self.breakpoints = HashSet::default();
     }
 
     async fn add_message(&mut self, msg: String) {
