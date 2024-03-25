@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::rc::Rc;
 
 use crate::agent::datapath_communicator::DatapathCommunicator;
@@ -334,6 +335,7 @@ pub struct StackFrameProps {
     pub memory_curr_instr: UseStateHandle<u64>,
     pub console_active_tab: UseStateHandle<TabState>,
     pub program_info: ProgramInfo,
+    pub labels: HashMap<String, usize>,
 }
 
 #[function_component]
@@ -342,6 +344,7 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
     let memory_curr_instr = &props.memory_curr_instr;
     let stack = &props.stack;
     let program_info = &props.program_info;
+    let labels = &props.labels;
 
     // Go to the memory address in hex editor
     let on_address_click = {
@@ -361,6 +364,7 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
         <table class="h-[96%] bg-primary-900">
         // | address | data in hex
             <tr>
+                <th>{"Label"}</th>
                 <th>{"Call Address"}</th>
                 <th>{"Call Line"}</th>
                 <th>{"Return Address"}</th>
@@ -378,9 +382,22 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
                         let on_call_address_click = Callback::clone(&on_address_click);
                         let on_return_address_click = Callback::clone(&on_address_click);
                         let on_stack_pointer_click = Callback::clone(&on_address_click);
+                        log::debug!("Jump to address: {:?}", frame.jump_address);
+                        let default_label = String::from("");
+                        let label = labels.iter().find_map(|(label, address)| {
+                            if *address == frame.jump_address as usize {
+                                Some(label)
+                            }
+                            else {
+                                None
+                            }
+                        }).unwrap_or(&default_label);
                         log::debug!("Frame: {:?}", frame);
                         html! {
                             <tr>
+                                <td>
+                                    {label}
+                                </td>
                                 <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", frame.call_address)} onclick={move |e: MouseEvent| {on_call_address_click.emit((e, frame.call_address as usize))}}>
                                     {format!("0x{:08x}", frame.call_address as u64)}
                                 </td>

@@ -7,6 +7,7 @@ pub struct StackFrame {
     pub return_address: u64,
     pub frame_pointer: u64,
     pub stack_pointer: u64,
+    pub jump_address: u64,
 }
 
 impl StackFrame {
@@ -16,6 +17,7 @@ impl StackFrame {
         return_address: u64,
         frame_pointer: u64,
         stack_pointer: u64,
+        jump_address: u64,
     ) -> Self {
         Self {
             call_instruction,
@@ -23,6 +25,7 @@ impl StackFrame {
             return_address,
             frame_pointer,
             stack_pointer,
+            jump_address,
         }
     }
 }

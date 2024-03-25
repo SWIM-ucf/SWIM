@@ -7,12 +7,14 @@ use monaco::{
     api::TextModel,
     sys::{editor::IMarkerData, MarkerSeverity},
 };
+use std::collections::HashMap;
 use std::rc::Rc;
 use swim::agent::datapath_communicator::DatapathCommunicator;
 use swim::agent::datapath_reducer::DatapathReducer;
 use swim::agent::EmulationCoreAgent;
 use swim::emulation_core::mips::datapath::Stage;
 use swim::parser::parser_assembler_main::parser;
+use swim::parser::parser_structs_and_enums::LabelInstance;
 use swim::parser::parser_structs_and_enums::ProgramInfo;
 use swim::ui::footer::component::Footer;
 use swim::ui::regview::component::Regview;
@@ -73,6 +75,7 @@ fn app(props: &AppProps) -> Html {
 
     let program_info_ref = use_mut_ref(ProgramInfo::default);
     let binary_ref = use_mut_ref(Vec::<u32>::new);
+    let labels_ref = use_mut_ref(HashMap::<String, usize>::new);
 
     let memory_text_model =
         use_state_eq(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
@@ -113,14 +116,16 @@ fn app(props: &AppProps) -> Html {
         let pc_limit = pc_limit.clone();
         let program_info_ref = Rc::clone(&program_info_ref);
         let binary_ref = Rc::clone(&binary_ref);
+        let labels_ref = Rc::clone(&labels_ref);
 
         use_callback(
             move |_, (text_model, editor_curr_line, memory_curr_instr, datapath_state)| {
                 let text_model = text_model.clone();
                 // parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
-                let (program_info, assembled) = parser(text_model.get_value(), ARCH);
+                let (program_info, assembled, labels) = parser(text_model.get_value(), ARCH);
                 *program_info_ref.borrow_mut() = program_info.clone();
                 *binary_ref.borrow_mut() = assembled.clone();
+                *labels_ref.borrow_mut() = labels.clone();
                 pc_limit.set(assembled.len() * 4);
                 parser_text_output.set(program_info.console_out_post_assembly);
 
@@ -197,7 +202,7 @@ fn app(props: &AppProps) -> Html {
         use_callback(
             move |_, (editor_curr_line, memory_curr_instr, text_model, datapath_state)| {
                 // Get the current line and convert it to f64
-                let (program_info, _assembled) = parser(text_model.get_value(), ARCH);
+                let (program_info, _assembled, _labels) = parser(text_model.get_value(), ARCH);
                 let list_of_line_numbers = program_info.address_to_line_number;
                 let index = datapath_state.mips.registers.pc as usize / 4;
                 log::debug!("Line numbers: {:?}", list_of_line_numbers);
@@ -235,7 +240,7 @@ fn app(props: &AppProps) -> Html {
             move |_, (editor_curr_line, memory_curr_instr, text_model, datapath_state)| {
                 if datapath_state.mips.current_stage == Stage::InstructionDecode {
                     // highlight on InstructionDecode since syscall stops at that stage.
-                    let (program_info, _assembled) = parser(text_model.get_value(), ARCH);
+                    let (program_info, _assembled, _labels) = parser(text_model.get_value(), ARCH);
                     let list_of_line_numbers = program_info.address_to_line_number;
                     let index = datapath_state.mips.registers.pc as usize / 4;
                     editor_curr_line
@@ -326,7 +331,8 @@ fn app(props: &AppProps) -> Html {
                             }
                         }
                         // Memory updated successfully
-                        let (program_info, _assembled) = parser(text_model.get_value(), ARCH);
+                        let (program_info, _assembled, _labels) =
+                            parser(text_model.get_value(), ARCH);
                         let mut lines_beyond_counter = program_info.address_to_line_number.len();
                         let mut curr_value = text_model.get_value();
                         let mut add_new_lines = false;
@@ -399,7 +405,7 @@ fn app(props: &AppProps) -> Html {
                 }
 
                 // Update the parsed info for text and data segment views
-                let (program_info, _) = parser(text_model.get_value(), ARCH);
+                let (program_info, _, _) = parser(text_model.get_value(), ARCH);
 
                 trigger.force_update();
             },
@@ -422,7 +428,7 @@ fn app(props: &AppProps) -> Html {
         let memory_curr_instr = memory_curr_instr.clone();
 
         use_callback(
-            move |_, (editor_curr_line, program_info_ref, binary_ref)| {
+            move |_, (editor_curr_line, program_info_ref, binary_ref, labels_ref)| {
                 // Set highlighted line to 0
                 editor_curr_line.set(0.0);
                 memory_curr_instr.set(0);
@@ -432,6 +438,7 @@ fn app(props: &AppProps) -> Html {
 
                 *program_info_ref.borrow_mut() = ProgramInfo::default();
                 *binary_ref.borrow_mut() = vec![];
+                *labels_ref.borrow_mut() = HashMap::<String, usize>::new();
 
                 trigger.force_update();
             },
@@ -439,6 +446,7 @@ fn app(props: &AppProps) -> Html {
                 editor_curr_line,
                 program_info_ref.clone(),
                 binary_ref.clone(),
+                labels_ref.clone(),
             ),
         )
     };
@@ -539,6 +547,7 @@ fn app(props: &AppProps) -> Html {
                             program_info={program_info_ref.borrow().clone()}
                             pc_limit={*pc_limit}
                             binary={binary_ref.borrow().clone()}
+                            labels={labels_ref.borrow().clone()}
                             memory_curr_instr={memory_curr_instr.clone()}
                             editor_curr_line={editor_curr_line.clone()}
                             editor_active_tab={editor_active_tab.clone()}

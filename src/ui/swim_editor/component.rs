@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+use std::hash::Hash;
 use std::str::FromStr;
 use std::{cell::RefCell, rc::Rc};
 
@@ -39,6 +41,7 @@ pub struct SwimEditorProps {
     pub lines_content: Rc<RefCell<Vec<String>>>,
     pub program_info: ProgramInfo,
     pub binary: Vec<u32>,
+    pub labels: HashMap<String, usize>,
     pub pc: u64,
     pub pc_limit: usize,
     pub memory_curr_instr: UseStateHandle<u64>,
@@ -308,6 +311,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                     stack={props.stack.clone()}
                     console_active_tab={console_active_tab.clone()}
                     program_info={props.program_info.clone()}
+                    labels={props.labels.clone()}
                 />
             }
         </>

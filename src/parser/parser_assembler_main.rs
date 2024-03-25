@@ -13,7 +13,10 @@ use std::collections::HashMap;
 
 ///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
 /// program and builds the binary of the instructions while cataloging any errors that are found.
-pub fn parser(file_string: String, arch: AvailableDatapaths) -> (ProgramInfo, Vec<u32>) {
+pub fn parser(
+    file_string: String,
+    arch: AvailableDatapaths,
+) -> (ProgramInfo, Vec<u32>, HashMap<String, usize>) {
     match arch {
         AvailableDatapaths::MIPS => {
             let mut program_info = ProgramInfo {
@@ -34,6 +37,7 @@ pub fn parser(file_string: String, arch: AvailableDatapaths) -> (ProgramInfo, Ve
 
             let labels: HashMap<String, usize> =
                 create_label_map(&mut program_info.instructions, &mut program_info.data);
+            let labels_clone = labels.clone();
 
             log::debug!("Labels: {:?}", labels);
 
@@ -75,7 +79,7 @@ pub fn parser(file_string: String, arch: AvailableDatapaths) -> (ProgramInfo, Ve
             program_info.pc_starting_point = determine_pc_starting_point(labels);
             program_info.data_starting_point = data_starting_point;
 
-            (program_info.clone(), binary)
+            (program_info.clone(), binary, labels_clone)
         }
         AvailableDatapaths::RISCV => {
             let mut program_info = ProgramInfo {
@@ -97,6 +101,7 @@ pub fn parser(file_string: String, arch: AvailableDatapaths) -> (ProgramInfo, Ve
 
             let labels: HashMap<String, usize> =
                 create_label_map(&mut program_info.instructions, &mut program_info.data);
+            let labels_clone = labels.clone();
 
             read_instructions_riscv(
                 &mut program_info.instructions,
@@ -130,7 +135,7 @@ pub fn parser(file_string: String, arch: AvailableDatapaths) -> (ProgramInfo, Ve
             program_info.pc_starting_point = determine_pc_starting_point(labels);
             program_info.data_starting_point = data_starting_point;
 
-            (program_info.clone(), binary)
+            (program_info.clone(), binary, labels_clone)
         }
     }
 }

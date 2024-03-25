@@ -105,6 +105,7 @@ table {
   border-spacing: 0;
   display: block;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 tr {
   background-color: #1e1e1e;
