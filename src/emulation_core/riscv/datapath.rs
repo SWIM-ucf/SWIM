@@ -661,7 +661,7 @@ impl RiscDatapath {
             }
             OPCODE_SYSTEM => {
                 self.signals.imm_select = ImmSelect::IUnsigned;
-                self.signals.wb_sel = WBSel::UseImmediate;
+                self.signals.wb_sel = WBSel::UseAlu;
 
                 match i.funct3 {
                     0 => {
@@ -672,8 +672,18 @@ impl RiscDatapath {
                         }
                     }
                     1 => self.signals.sys_op = SysOp::CSRReadWrite,
+                    2 => self.signals.sys_op = SysOp::CSRReadSet,
+                    3 => self.signals.sys_op = SysOp::CSRReadClear,
                     5 => {
                         self.signals.sys_op = SysOp::CSRReadWrite;
+                        self.signals.op1_select = OP1Select::IMM;
+                    }
+                    6 => {
+                        self.signals.sys_op = SysOp::CSRReadSet;
+                        self.signals.op1_select = OP1Select::IMM;
+                    }
+                    7 => {
+                        self.signals.sys_op = SysOp::CSRReadClear;
                         self.signals.op1_select = OP1Select::IMM;
                     }
                     _ => {
@@ -773,7 +783,7 @@ impl RiscDatapath {
         self.state.alu_input1 = match self.signals.op1_select {
             OP1Select::PC => self.registers.pc,
             OP1Select::DATA1 => self.state.read_data_1,
-            OP1Select::IMM => self.state.imm as u64,
+            OP1Select::IMM => self.state.rs1 as u64,
         };
 
         self.state.alu_input2 = match self.signals.op2_select {
@@ -850,10 +860,24 @@ impl RiscDatapath {
             SysOp::CSRReadWrite => {
                 if self.registers["X0"] != self.registers.gpr[self.state.rd as usize] {
                     self.state.alu_result = self.registers.gpr[self.state.imm as usize];
+                } else {
+                    self.state.alu_result = self.registers.gpr[self.state.rd as usize];
                 }
                 self.registers.gpr[self.state.imm as usize] = self.state.alu_input1;
             }
-            _ => todo!(),
+            SysOp::CSRReadSet => {
+                self.state.alu_result = self.registers.gpr[self.state.imm as usize];
+                if self.registers["X0"] != self.state.alu_input1 {
+                    self.registers.gpr[self.state.imm as usize] |= self.state.alu_input1;
+                }
+            }
+            SysOp::CSRReadClear => {
+                self.state.alu_result = self.registers.gpr[self.state.imm as usize];
+                if self.registers["X0"] != self.state.alu_input1 {
+                    self.registers.gpr[self.state.imm as usize] &= !self.state.alu_input1;
+                }
+            }
+            _ => self.error("Impossible/Unsupported Instruction!"),
         }
     }
 

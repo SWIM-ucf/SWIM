@@ -108,6 +108,8 @@ pub enum SysOp {
     ECALL,
     EBREAK,
     CSRReadWrite,
+    CSRReadSet,
+    CSRReadClear,
 }
 
 #[derive(Clone, Default, PartialEq)]
