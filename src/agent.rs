@@ -3,10 +3,10 @@
 use crate::agent::messages::MipsStateUpdate::*;
 use crate::agent::messages::{Command, SystemUpdate};
 use crate::agent::system_scanner::Scanner;
-use crate::emulation_core::architectures::DatapathRef;
+use crate::emulation_core::architectures::{AvailableDatapaths, DatapathRef};
 use crate::emulation_core::datapath::{Datapath, DatapathUpdateSignal, Syscall, UPDATE_EVERYTHING};
 use crate::emulation_core::mips::datapath::MipsDatapath;
-use crate::emulation_core::mips::gp_registers::GpRegisterType;
+use crate::emulation_core::riscv::datapath::RiscDatapath;
 use futures::{FutureExt, SinkExt, StreamExt};
 use gloo_console::log;
 use messages::DatapathUpdate;
@@ -133,7 +133,7 @@ enum BlockedOn {
 }
 
 struct EmulatorCoreAgentState {
-    current_datapath: Box<dyn Datapath<RegisterData = u64, RegisterEnum = GpRegisterType>>,
+    current_datapath: Box<dyn Datapath<RegisterData = u64>>,
     /// The changes to the emulator core's memory/registers/etc. are tracked in this variable. When
     /// it's time to send updates back to the main thread, this variable determines which updates
     /// get sent.
@@ -164,13 +164,20 @@ impl EmulatorCoreAgentState {
 
     pub async fn handle_command(&mut self, command: Command) {
         match command {
-            Command::SetCore(_architecture) => {
-                todo!("Implement setting cores.") // Implement once we have a RISCV datapath
+            Command::SetCore(architecture) => {
+                match architecture {
+                    AvailableDatapaths::MIPS => {
+                        self.current_datapath = Box::<MipsDatapath>::default();
+                    }
+                    AvailableDatapaths::RISCV => {
+                        self.current_datapath = Box::<RiscDatapath>::default();
+                    }
+                }
+                self.reset_system().await;
             }
             Command::Initialize(initial_pc, mem) => {
                 self.current_datapath.initialize(initial_pc, mem).unwrap();
                 self.reset_system().await;
-                self.updates |= UPDATE_EVERYTHING;
                 self.initialized = true;
             }
             Command::SetExecuteSpeed(speed) => {
@@ -207,7 +214,6 @@ impl EmulatorCoreAgentState {
             Command::Reset => {
                 self.current_datapath.reset();
                 self.reset_system().await;
-                self.updates |= UPDATE_EVERYTHING;
             }
             Command::Input(line) => {
                 self.add_message(format!("> {}", line)).await;
@@ -372,6 +378,7 @@ impl EmulatorCoreAgentState {
             )))
             .await
             .unwrap();
+        self.updates |= UPDATE_EVERYTHING;
     }
 
     async fn add_message(&mut self, msg: String) {

@@ -226,7 +226,6 @@ impl Default for MipsDatapath {
 
 impl Datapath for MipsDatapath {
     type RegisterData = u64;
-    type RegisterEnum = super::gp_registers::GpRegisterType;
 
     fn execute_instruction(&mut self) -> DatapathUpdateSignal {
         let mut result_signals = DatapathUpdateSignal::default();
@@ -268,10 +267,6 @@ impl Datapath for MipsDatapath {
 
         self.current_stage = Stage::get_next_stage(self.current_stage);
         res
-    }
-
-    fn get_register_by_enum(&self, register: Self::RegisterEnum) -> u64 {
-        self.registers[register]
     }
 
     fn set_register_by_str(&mut self, register: &str, data: Self::RegisterData) {
@@ -323,8 +318,8 @@ impl Datapath for MipsDatapath {
 
     fn get_syscall_arguments(&self) -> Syscall {
         Syscall::from_register_data(
-            self.get_register_by_enum(A0),
-            self.get_register_by_enum(A1),
+            self.registers[A0],
+            self.registers[A1],
             f32::from_bits(self.coprocessor.registers[FpRegisterType::F0] as u32),
             f64::from_bits(self.coprocessor.registers[FpRegisterType::F0]),
         )

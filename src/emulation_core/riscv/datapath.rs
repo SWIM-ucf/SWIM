@@ -213,7 +213,6 @@ impl Default for RiscDatapath {
 
 impl Datapath for RiscDatapath {
     type RegisterData = u64;
-    type RegisterEnum = super::registers::GpRegisterType;
 
     /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
     /// flag. If the process fails, an [`Err`] is returned.
@@ -261,10 +260,6 @@ impl Datapath for RiscDatapath {
 
         self.current_stage = Stage::get_next_stage(self.current_stage);
         res
-    }
-
-    fn get_register_by_enum(&self, register: Self::RegisterEnum) -> u64 {
-        self.registers[register]
     }
 
     fn set_register_by_str(&mut self, register: &str, data: Self::RegisterData) {
