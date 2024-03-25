@@ -1,4 +1,5 @@
 use crate::emulation_core::mips::datapath::MipsDatapath;
+use crate::emulation_core::riscv::datapath::RiscDatapath;
 use core::fmt;
 use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
@@ -31,4 +32,5 @@ impl From<&str> for AvailableDatapaths {
 
 pub enum DatapathRef<'a> {
     MIPS(&'a MipsDatapath),
+    RISCV(&'a RiscDatapath),
 }
