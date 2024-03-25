@@ -56,7 +56,6 @@ use super::{super::mips::memory::Memory, registers::GpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::datapath::DatapathUpdateSignal;
 
-
 /// An implementation of a datapath for the MIPS64 ISA.
 #[derive(Clone, PartialEq)]
 pub struct RiscDatapath {
@@ -663,11 +662,13 @@ impl RiscDatapath {
             OPCODE_SYSTEM => {
                 self.signals.imm_select = ImmSelect::IUnsigned;
                 self.signals.wb_sel = WBSel::UseImmediate;
-                if i.funct3 == 0 { self.signals.sys_op = match i.imm {
+                if i.funct3 == 0 {
+                    self.signals.sys_op = match i.imm {
                         0 => SysOp::ECALL,
                         1 => SysOp::EBREAK,
                         _ => SysOp::None,
-                } }
+                    }
+                }
             }
             _ => (),
         }
@@ -746,7 +747,6 @@ impl RiscDatapath {
     fn read_registers(&mut self) {
         self.state.read_data_1 = self.registers.gpr[self.state.rs1 as usize];
         self.state.read_data_2 = self.registers.gpr[self.state.rs2 as usize];
-
     }
 
     // ======================= Execute (EX) =======================

@@ -278,7 +278,6 @@ impl EmulatorCoreAgentState {
                                 self.current_datapath.set_register_by_str("v0", scan_result);
                             }
                             DatapathRef::RISCV(_) => todo!(),
-                            
                         }
                         self.updates.changed_registers = true;
                     }
