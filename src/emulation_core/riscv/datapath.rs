@@ -1,10 +1,11 @@
-//! Implementation of a MIPS64 datapath.
+//! Implementation of a RISC-V datapath.
 //!
 //! It is assumed that while moving through stages, only one
 //! instruction will be active any any given point in time. Due to this,
 //! we consider the datapath to be a "pseudo-single-cycle datapath."
 //!
-//! For the most part, this datapath is an implementation of MIPS64 Version 6.
+//! For the most part, this datapath is an implementation of RISC-V Spec 2.2 with extensions:
+//! RV32I, RV64I, M, and F.
 //! (See below for exceptions.)
 //!
 //! # Differences Compared to MIPS64 Version 6
@@ -266,16 +267,17 @@ impl Datapath for RiscDatapath {
         self.registers[register]
     }
 
-    fn set_register_by_str(&mut self, _register: &str, _data: Self::RegisterData) {
-        todo!()
+    fn set_register_by_str(&mut self, register: &str, data: Self::RegisterData) {
+        let register = &mut self.registers[register];
+        *register = data;
     }
 
     fn get_memory(&self) -> &Memory {
         &self.memory
     }
 
-    fn set_memory(&mut self, ptr: u64, data: u32) {
-        todo!();
+    fn set_memory(&mut self, _ptr: u64, _data: u32) {
+        self.memory.store_word(_ptr, _data).unwrap_or_default();
     }
 
     fn is_halted(&self) -> bool {
@@ -287,19 +289,19 @@ impl Datapath for RiscDatapath {
     }
     
     fn as_datapath_ref(&self) -> DatapathRef {
-        todo!();
+        DatapathRef::RISCV(self)
     }
     
-    fn set_fp_register_by_str(&mut self, register: &str, data: Self::RegisterData) {
+    fn set_fp_register_by_str(&mut self, _register: &str, _data: Self::RegisterData) {
         todo!()
     }
     
     fn get_memory_mut(&mut self) -> &mut Memory {
-        todo!()
+        &mut self.memory
     }
     
     fn halt(&mut self) {
-        todo!()
+        self.is_halted = true;
     }
     
     fn get_syscall_arguments(&self) -> crate::emulation_core::datapath::Syscall {
@@ -733,7 +735,7 @@ impl RiscDatapath {
     }
 
     /// Set control signals for J-Type instructions
-    fn set_jtype_control_signals(&mut self, j: JType) {
+    fn set_jtype_control_signals(&mut self, _j: JType) {
         self.signals = ControlSignals {
             imm_select: ImmSelect::JType,
             branch_jump: BranchJump::J,
@@ -835,8 +837,8 @@ impl RiscDatapath {
     fn construct_jump_address(&mut self) {
         self.state.rd = self.state.pc_plus_4 as u32;
         self.state.jump_address = match self.instruction {
-            Instruction::IType(i) => (self.state.imm as u64 + self.state.read_data_1) & 0xfffffffffffffff0,
-            Instruction::JType(j) => self.state.imm as u64 + self.registers.pc,
+            Instruction::IType(_i) => (self.state.imm as u64 + self.state.read_data_1) & 0xfffffffffffffff0,
+            Instruction::JType(_j) => self.state.imm as u64 + self.registers.pc,
             _ => self.state.jump_address,
         }
     }
