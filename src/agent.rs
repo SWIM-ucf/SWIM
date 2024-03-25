@@ -10,6 +10,7 @@ use crate::emulation_core::mips::gp_registers::GpRegisterType;
 use futures::{FutureExt, SinkExt, StreamExt};
 use gloo_console::log;
 use messages::DatapathUpdate;
+use std::collections::HashSet;
 use std::time::Duration;
 use yew::platform::time::sleep;
 use yew_agent::prelude::*;
@@ -125,8 +126,9 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Default)]
 enum BlockedOn {
+    #[default]
     Nothing,
     Syscall(Syscall),
 }
@@ -144,6 +146,7 @@ struct EmulatorCoreAgentState {
     messages: Vec<String>,
     scanner: Scanner,
     blocked_on: BlockedOn,
+    breakpoints: HashSet<u64>,
 }
 
 impl EmulatorCoreAgentState {
@@ -158,6 +161,7 @@ impl EmulatorCoreAgentState {
             messages: Vec::new(),
             scanner: Scanner::new(),
             blocked_on: BlockedOn::Nothing,
+            breakpoints: HashSet::default(),
         }
     }
 
@@ -212,11 +216,11 @@ impl EmulatorCoreAgentState {
                 self.add_message(format!("> {}", line)).await;
                 self.scanner.feed(line);
             }
-            Command::SetBreakpoint(_address) => {
-                todo!("Implement setting breakpoints.")
+            Command::SetBreakpoint(address) => {
+                self.breakpoints.insert(address);
             }
-            Command::RemoveBreakpoint(_address) => {
-                todo!("Implement removing breakpoints.")
+            Command::RemoveBreakpoint(address) => {
+                self.breakpoints.remove(&address);
             }
         }
     }
@@ -227,6 +231,14 @@ impl EmulatorCoreAgentState {
             return;
         }
         self.updates |= self.current_datapath.execute_instruction();
+
+        // Extract the current program counter and break if there's a breakpoint set here.
+        let current_pc = match self.current_datapath.as_datapath_ref() {
+            DatapathRef::MIPS(datapath) => datapath.registers.pc,
+        };
+        if self.breakpoints.contains(&current_pc) {
+            self.executing = false;
+        }
     }
 
     /// Returns the delay between CPU cycles in milliseconds for the current execution speed. Will return zero if the
