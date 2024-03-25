@@ -66,6 +66,8 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
         if input.checked() {
             debug!("Breakpoint set at {:08x}", address as u64);
             communicator.set_breakpoint(address as u64);
+        } else {
+            communicator.remove_breakpoint(address as u64);
         }
     });
 

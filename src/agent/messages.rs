@@ -21,6 +21,7 @@ pub enum Command {
     Pause,
     Reset,
     SetBreakpoint(u64),
+    RemoveBreakpoint(u64),
     Input(String),
 }
 

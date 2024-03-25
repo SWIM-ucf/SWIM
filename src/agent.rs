@@ -215,6 +215,9 @@ impl EmulatorCoreAgentState {
             Command::SetBreakpoint(_address) => {
                 todo!("Implement setting breakpoints.")
             }
+            Command::RemoveBreakpoint(_address) => {
+                todo!("Implement removing breakpoints.")
+            }
         }
     }
 
