@@ -226,12 +226,6 @@ impl EmulatorCoreAgentState {
     }
 
     pub fn execute(&mut self) {
-        // Skip the execution phase if the emulator core is not currently executing.
-        if !self.executing || matches!(self.blocked_on, BlockedOn::Syscall(_)) {
-            return;
-        }
-        self.updates |= self.current_datapath.execute_instruction();
-
         // Extract the current program counter and break if there's a breakpoint set here.
         let current_pc = match self.current_datapath.as_datapath_ref() {
             DatapathRef::MIPS(datapath) => datapath.registers.pc,
@@ -239,6 +233,13 @@ impl EmulatorCoreAgentState {
         if self.breakpoints.contains(&current_pc) {
             self.executing = false;
         }
+
+        // Skip the execution phase if the emulator core is not currently executing.
+        if !self.executing || matches!(self.blocked_on, BlockedOn::Syscall(_)) {
+            return;
+        }
+
+        self.updates |= self.current_datapath.execute_instruction();
     }
 
     /// Returns the delay between CPU cycles in milliseconds for the current execution speed. Will return zero if the
@@ -266,6 +267,7 @@ impl EmulatorCoreAgentState {
         match syscall {
             Syscall::Exit => {
                 self.current_datapath.halt();
+                self.executing = false;
             }
             Syscall::PrintInt(val) => {
                 self.add_message(val.to_string()).await;
