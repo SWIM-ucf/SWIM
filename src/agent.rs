@@ -237,6 +237,7 @@ impl EmulatorCoreAgentState {
         // Extract the current program counter and break if there's a breakpoint set here.
         let current_pc = match self.current_datapath.as_datapath_ref() {
             DatapathRef::MIPS(datapath) => datapath.registers.pc,
+            DatapathRef::RISCV(datapath) => datapath.registers.pc,
         };
         if self.breakpoints.contains(&current_pc) {
             self.executing = false;
