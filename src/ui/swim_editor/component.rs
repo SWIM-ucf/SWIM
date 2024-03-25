@@ -296,9 +296,19 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             } else if **editor_active_tab == TabState::DataSegment {
                 <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} pc_limit={props.pc_limit}/>
             } else if **editor_active_tab == TabState::StackSegment {
-                <StackSegment memory_curr_instr={props.memory_curr_instr.clone()} console_active_tab={console_active_tab.clone()} sp={props.sp} memory={props.memory.clone()}/>
+                <StackSegment
+                    memory_curr_instr={props.memory_curr_instr.clone()}
+                    console_active_tab={console_active_tab.clone()}
+                    sp={props.sp}
+                    memory={props.memory.clone()}
+                />
             } else if **editor_active_tab == TabState::StackFrameView {
-                <StackFrameView memory_curr_instr={props.memory_curr_instr.clone()} stack={props.stack.clone()} console_active_tab={console_active_tab.clone()}/>
+                <StackFrameView
+                    memory_curr_instr={props.memory_curr_instr.clone()}
+                    stack={props.stack.clone()}
+                    console_active_tab={console_active_tab.clone()}
+                    program_info={props.program_info.clone()}
+                />
             }
         </>
     }

@@ -58,6 +58,7 @@ use crate::emulation_core::mips::fp_registers::FpRegisterType;
 use crate::emulation_core::mips::gp_registers::GpRegisterType::{A0, A1};
 use crate::emulation_core::mips::stack::{Stack, StackFrame};
 use serde::{Deserialize, Serialize};
+use gloo_console::log;
 
 /// An implementation of a datapath for the MIPS64 ISA.
 #[derive(Clone, PartialEq)]
@@ -427,10 +428,13 @@ impl MipsDatapath {
         };
 
         if hit_branch || hit_jump {
-            // Add current line to stack if branch is taken
+            // Add current line to stack if branch is taken=
             let frame = StackFrame::new(
                 self.state.instruction,
-                self.registers.pc as u32,
+                self.registers.pc,
+                self.state.pc_plus_4,
+                self.registers.gpr[31],
+                self.registers.gpr[30],
             );
             self.stack.push(frame);
         }

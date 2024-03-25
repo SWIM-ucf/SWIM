@@ -542,8 +542,8 @@ fn app(props: &AppProps) -> Html {
                         parsermsg={(*parser_text_output).clone()}
                         datapath_state={datapath_state.clone()}
                         memory_text_model={memory_text_model}
-                        memory_curr_instr={memory_curr_instr.clone()} a
-                        ctive_tab={console_active_tab.clone()}
+                        memory_curr_instr={memory_curr_instr.clone()}
+                        active_tab={console_active_tab.clone()}
                         communicator={props.communicator}
                         show_input={show_input.clone()}
                         on_memory_clicked={on_memory_clicked.clone()}

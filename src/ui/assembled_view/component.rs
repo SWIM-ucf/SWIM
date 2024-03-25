@@ -334,6 +334,7 @@ pub struct StackFrameProps {
     pub stack: Stack,
     pub memory_curr_instr: UseStateHandle<u64>,
     pub console_active_tab: UseStateHandle<TabState>,
+    pub program_info: ProgramInfo,
 }
 
 #[function_component]
@@ -341,7 +342,7 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
     let console_active_tab = &props.console_active_tab;
     let memory_curr_instr = &props.memory_curr_instr;
     let stack = &props.stack;
-    log::debug!("Stack: {:?}", stack.stack);
+    let program_info = &props.program_info;
 
     // Go to the memory address in hex editor
     let on_address_click = {
@@ -361,40 +362,47 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
         <table class="h-[96%] bg-primary-900">
         // | address | data in hex
             <tr>
-                <th>{"Address"}</th>
-                <th>{"Hex"}</th>
+                <th>{"Call Address"}</th>
+                <th>{"Call Hex"}</th>
+                <th>{"Call Line"}</th>
+                <th>{"Return Address"}</th>
+                <th>{"Frame Pointer"}</th>
+                <th>{"Stack Pointer"}</th>
             </tr>
             {
                 if !stack.stack.is_empty() {
                     let stack = stack.stack.clone();
                     stack.into_iter().enumerate().map(|(address, frame)| {
-                        let on_address_click = Callback::clone(&on_address_click);
+                        let call_line_number = frame.call_address / 4;
+                        log::debug!("Call Line Number: {}", call_line_number);
+                        let call_recreated_string = program_info.instructions[call_line_number as usize].recreate_string();
+                        log::debug!("Call Recreated String: {:?}", call_recreated_string);
+                        let on_call_address_click = Callback::clone(&on_address_click);
+                        let on_return_address_click = Callback::clone(&on_address_click);
                         log::debug!("Frame: {:?}", frame);
                         html! {
                             <tr>
-                                <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", frame.address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, frame.address as usize))}}>
-                                    {format!("0x{:08x}", frame.address as u64)}
+                                <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", frame.call_address)} onclick={move |e: MouseEvent| {on_call_address_click.emit((e, frame.call_address as usize))}}>
+                                    {format!("0x{:08x}", frame.call_address as u64)}
                                 </td>
                                 <td>
-                                    {format!("0x{:08x}", frame.instruction)}
+                                    {format!("0x{:08x}", frame.call_instruction)}
+                                </td>
+                                <td>
+                                    {format!("{}: {:?}", call_line_number + 1, call_recreated_string)}
+                                </td>
+                                <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", frame.return_address)} onclick={move |e: MouseEvent| {on_return_address_click.emit((e, frame.return_address as usize))}}>
+                                    {format!("0x{:08x}", frame.return_address as u64)}
+                                </td>
+                                <td>
+                                    {format!("{:?}", frame.frame_pointer)}
+                                </td>
+                                <td>
+                                    {format!("{:?}", frame.stack_pointer)}
                                 </td>
                             </tr>
                         }
                     }).collect::<Html>()
-                    // let stack_iter = StackIter::new(&stack, 0);
-                    // stack_iter.map(|frame| {
-                    //     let on_address_click = Callback::clone(&on_address_click);
-                    //     html! {
-                    //         <tr>
-                    //             <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", frame.address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, frame.address as usize))}}>
-                    //                 {format!("0x{:08x}", frame.address as u64)}
-                    //             </td>
-                    //             <td>
-                    //                 {format!("0x{:08x}", frame.instruction)}
-                    //             </td>
-                    //         </tr>
-                    //     }
-                    // }).collect::<Html>()
                 }
                 else {
                     html! {<></>}

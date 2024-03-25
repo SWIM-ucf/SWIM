@@ -1,14 +1,28 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct Stack {
-    pub stack: Vec<StackFrame>,
+pub struct StackFrame {
+    pub call_instruction: u32,
+    pub call_address: u32,
+    pub return_address: u64,
+    pub frame_pointer: u64,
+    pub stack_pointer: u64
 }
 
+impl StackFrame {
+    pub fn new(call_instruction: u32, call_address: u64, return_address: u64, frame_pointer: u64, stack_pointer: u64) -> Self {
+        Self {
+            call_instruction,
+            call_address: call_address as u32,
+            return_address,
+            frame_pointer,
+            stack_pointer
+        }
+    }
+}
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct StackFrame {
-    pub instruction: u32,
-    pub address: u32,
+pub struct Stack {
+    pub stack: Vec<StackFrame>,
 }
 
 impl Default for Stack {
@@ -16,18 +30,6 @@ impl Default for Stack {
         Self {
             stack: Vec::new(),
         }
-    }
-}
-
-impl ToString for Stack {
-    fn to_string(&self) -> String {
-        let mut output = String::new();
-
-        for frame in &self.stack {
-            output.push_str(&format!("{:08x}  {}\n", frame.address, frame.instruction));
-        }
-
-        output
     }
 }
 
@@ -42,15 +44,6 @@ impl Stack {
 
     pub fn peek(&self) -> Option<&StackFrame> {
         self.stack.last()
-    }
-}
-
-impl StackFrame {
-    pub fn new(instruction: u32, address: u32) -> Self {
-        Self {
-            instruction,
-            address,
-        }
     }
 }
 
