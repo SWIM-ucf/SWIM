@@ -262,8 +262,34 @@ impl EmulatorCoreAgentState {
             Syscall::PrintDouble(val) => {
                 self.add_message(val.to_string()).await;
             }
-            Syscall::PrintString(val) => {
-                self.add_message(val.to_string()).await;
+            Syscall::PrintString(addr) => {
+                let memory = self.current_datapath.get_memory_mut();
+                let mut buffer = Vec::new();
+                for i in 0.. {
+                    let word = memory.load_word(addr + (i * 4));
+                    match word {
+                        Ok(word) => {
+                            for byte in word.to_be_bytes() {
+                                if byte == 0 {
+                                    // Break on null terminator
+                                    break;
+                                } else {
+                                    buffer.push(byte);
+                                }
+                            }
+                        }
+                        Err(_) => break,
+                    }
+                }
+
+                let message = String::from_utf8(buffer);
+                match message {
+                    Ok(message) => self.add_message(message).await,
+                    Err(_) => {
+                        self.add_message("Error: Attempted to print invalid string".to_string())
+                            .await
+                    }
+                }
             }
             Syscall::ReadInt => {
                 let scan_result = self.scanner.next_int();
