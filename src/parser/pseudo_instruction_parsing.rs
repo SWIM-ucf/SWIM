@@ -1898,7 +1898,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 let info = PseudoDescription {
                     name: "jr".to_string(),
                     syntax: "jr offset".to_string(),
-                    translation_lines: vec!["jal x1, offset".to_string()],
+                    translation_lines: vec!["jalr x0, rs, 0".to_string()],
                 };
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
@@ -1923,17 +1923,22 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 // Update Line Info
                 //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
-            "ret" => {
+            "jalr" => {
+                // Account for default jal instruction
+                if instruction.operands.len() != 1 {
+                    continue;
+                }
+
                 // Set Pseudo Description
                 let info = PseudoDescription {
-                    name: "ret".to_string(),
-                    syntax: "ret".to_string(),
-                    translation_lines: vec!["jalr x1, 0(x0)".to_string()],
+                    name: "jalr".to_string(),
+                    syntax: "jalr rs".to_string(),
+                    translation_lines: vec!["jalr x1, rs, 0".to_string()],
                 };
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
                 // Check operands
-                if !check_operands(instruction, 0) {
+                if !check_operands(instruction, 1) {
                     continue;
                 }
 
@@ -1950,9 +1955,55 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                     },
                 );
                 instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+
+                // Update Line Info
+                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "ret" => {
+                // Set Pseudo Description
+                let info = PseudoDescription {
+                    name: "ret".to_string(),
+                    syntax: "ret".to_string(),
+                    translation_lines: vec!["jalr x0, x1, 0".to_string()],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Check operands
+                if !check_operands(instruction, 0) {
+                    continue;
+                }
+
+                // Replace Instruction
+                instruction.operator.token_name = "jalr".to_string();
+
+                // Replace Operands
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+                instruction.operands.insert(
                     1,
                     Token {
-                        token_name: "0(x0)".to_string(),
+                        token_name: "x1".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "0".to_string(),
                         start_end_columns: (0, 0),
                         token_type: Default::default(),
                     },

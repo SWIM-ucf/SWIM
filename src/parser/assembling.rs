@@ -312,7 +312,7 @@ pub fn read_operands_riscv(
             LabelAbsolute => {
                 instruction.operands[i].token_type = TokenType::LabelOperand;
 
-                bit_lengths.push(26);
+                bit_lengths.push(20);
                 let label_absolute_results = read_label_absolute(
                     &instruction.operands[i].token_name,
                     instruction.operands[i].start_end_columns,
@@ -327,7 +327,7 @@ pub fn read_operands_riscv(
             LabelRelative => {
                 instruction.operands[i].token_type = TokenType::LabelOperand;
 
-                bit_lengths.push(16);
+                bit_lengths.push(12);
                 let label_relative_results = read_label_relative(
                     &instruction.operands[i].token_name,
                     instruction.operands[i].start_end_columns,
