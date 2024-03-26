@@ -1,4 +1,6 @@
-use crate::parser::parser_structs_and_enums::ErrorType::IncorrectNumberOfOperands;
+use crate::parser::parser_structs_and_enums::ErrorType::{
+    IncorrectImmediateValue, IncorrectNumberOfOperands,
+};
 use crate::parser::parser_structs_and_enums::TokenType::Operator;
 use crate::parser::parser_structs_and_enums::{
     Data, Error, Instruction, MonacoLineInfo, PseudoDescription, Token,
@@ -1260,7 +1262,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
 
     //vec_of_added_instructions is needed because of rust ownership rules. It will not let us
     //insert into instruction_list while instruction_list is being iterated over.
-    let vec_of_added_instructions: Vec<Instruction> = Vec::new();
+    let mut vec_of_added_instructions: Vec<Instruction> = Vec::new();
 
     //iterate through every instruction and check if the operator is a pseudo-instruction
     for (i, mut instruction) in &mut instructions.iter_mut().enumerate() {
@@ -1310,7 +1312,79 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "li" => {
+                let info = PseudoDescription {
+                    name: "li".to_string(),
+                    syntax: "li rd, imm".to_string(),
+                    translation_lines: vec![
+                        "lui rd, imm[31:12]".to_string(),
+                        "addi rd, rd, imm[11:0]".to_string(),
+                    ],
+                };
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Change to function implementation
+                if !check_operands(instruction, 2) {
+                    continue;
+                }
+
+                // Parse the immediate value from the second operand
+                let imm_value: i32 = match instruction.operands[1].token_name.parse() {
+                    Ok(val) => val,
+                    Err(_) => {
+                        instruction.errors.push(Error {
+                            error_name: IncorrectImmediateValue,
+                            token_causing_error: instruction.operands[1].token_name.clone(),
+                            start_end_columns: instruction.operands[1].start_end_columns,
+                            message: "Invalid immediate value".to_string(),
+                        });
+                        continue;
+                    }
+                };
+
+                // Extract the upper and lower parts of the immediate value
+                let upper_imm = imm_value >> 12;
+                let lower_imm = imm_value & 0xFFF;
+
+                // lui instruction
+                instruction.operator.token_name = "lui".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operator.token_type = Default::default();
+                instruction.operands[1].token_name = upper_imm.to_string();
+                instruction.operands[1].start_end_columns = (0, 0);
+                instruction.operands[1].token_type = Default::default();
+                instruction.binary = 0;
+                instruction.errors = vec![];
+                instruction.labels = Vec::new();
+
+                // addi instruction
+                let mut addi_instruction = Instruction {
+                    operator: Token {
+                        token_name: "addi".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                    operands: vec![
+                        instruction.operands[0].clone(),
+                        instruction.operands[0].clone(),
+                        Token {
+                            token_name: lower_imm.to_string(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+                vec_of_added_instructions.push(addi_instruction.clone());
+
+                monaco_line_info[instruction.line_number]
+                    .update_pseudo_string(vec![instruction, &mut addi_instruction]);
             }
             "mv" => {
                 // Set Pseudo Description
@@ -1340,7 +1414,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "not" => {
                 // Set Pseudo Description
@@ -1370,7 +1444,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "neg" => {
                 // Set Pseudo Description
@@ -1400,7 +1474,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "negw" => {
                 // Set Pseudo Description
@@ -1430,7 +1504,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "sext.w" => {
                 // Set Pseudo Description
@@ -1460,7 +1534,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "seqz" => {
                 // Set Pseudo Description
@@ -1490,7 +1564,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "snez" => {
                 // Set Pseudo Description
@@ -1520,7 +1594,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "sltz" => {
                 // Set Pseudo Description
@@ -1550,7 +1624,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "sgtz" => {
                 // Set Pseudo Description
@@ -1580,7 +1654,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "beqz" => {
                 // Set Pseudo Description
@@ -1610,7 +1684,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "bnez" => {
                 // Set Pseudo Description
@@ -1640,7 +1714,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "blez" => {
                 // Set Pseudo Description
@@ -1670,7 +1744,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "bgez" => {
                 // Set Pseudo Description
@@ -1700,7 +1774,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "bltz" => {
                 // Set Pseudo Description
@@ -1730,7 +1804,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "bgtz" => {
                 // Set Pseudo Description
@@ -1760,7 +1834,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "bgt" => {
                 // Set Pseudo Description
@@ -1785,7 +1859,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 instruction.operands[1].token_name = tmp;
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "ble" => {
                 // Set Pseudo Description
@@ -1810,7 +1884,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 instruction.operands[1].token_name = tmp;
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "bgtu" => {
                 // Set Pseudo Description
@@ -1835,7 +1909,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 instruction.operands[1].token_name = tmp;
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "bleu" => {
                 // Set Pseudo Description
@@ -1860,7 +1934,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 instruction.operands[1].token_name = tmp;
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             // Start of Jump Pseudo-Instructions
             "j" => {
@@ -1891,7 +1965,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "jr" => {
                 // Set Pseudo Description
@@ -1921,7 +1995,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "jalr" => {
                 // Account for default jal instruction
@@ -1964,7 +2038,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "ret" => {
                 // Set Pseudo Description
@@ -2010,7 +2084,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 );
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             // Start of F extension pseudo-instructions
             "fmv.s" => {
@@ -2036,7 +2110,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                     .insert(2, instruction.operands[1].clone());
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "fabs.s" => {
                 // Set Pseudo Description
@@ -2061,7 +2135,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                     .insert(2, instruction.operands[1].clone());
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "fneg.s" => {
                 // Set Pseudo Description
@@ -2086,7 +2160,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                     .insert(2, instruction.operands[1].clone());
 
                 // Update Line Info
-                //monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             _ => {}
         }
