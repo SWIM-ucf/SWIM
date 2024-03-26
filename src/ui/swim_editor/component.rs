@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::hash::Hash;
 use std::str::FromStr;
 use std::{cell::RefCell, rc::Rc};
 
@@ -312,6 +311,8 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                     console_active_tab={console_active_tab.clone()}
                     program_info={props.program_info.clone()}
                     labels={props.labels.clone()}
+                    editor_curr_line={props.editor_curr_line.clone()}
+                    editor_active_tab={props.editor_active_tab.clone()}
                 />
             }
         </>

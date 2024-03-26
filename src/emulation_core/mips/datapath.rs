@@ -466,29 +466,42 @@ impl MipsDatapath {
         self.pick_pc_plus_4_or_relative_branch_addr_mux1();
         self.set_new_pc_mux2();
 
-        // Check if we hit a branch and signal it to the caller
-        let hit_branch = matches!(self.signals.branch, Branch::YesBranch);
+        let mut changed_stack = false;
 
-        let hit_jump = matches!(self.signals.jump, Jump::YesJump | Jump::YesJumpJalr);
-
-        if hit_branch || hit_jump {
-            // Add current line to stack if branch is taken=
+        // If this is the first instruction, push the initial frame to the stack
+        if self.stack.is_empty() {
             let frame = StackFrame::new(
                 self.state.instruction,
                 self.registers.pc,
                 self.state.pc_plus_4,
-                self.registers.gpr[31],
-                self.registers.gpr[30],
+                self.registers[GpRegisterType::Sp],
+                // self.registers[GpRegisterType::Sp],
+                self.registers.pc,
+            );
+            self.stack.push(frame);
+            changed_stack = true;
+        }
+
+        // let hit_branch = matches!(self.signals.branch, Branch::YesBranch);
+        let hit_jump = matches!(self.signals.jump, Jump::YesJump);
+        if hit_jump {
+            // Add current line to stack if we call a function
+            let frame = StackFrame::new(
+                self.state.instruction,
+                self.registers.pc,
+                self.state.pc_plus_4,
+                self.registers[GpRegisterType::Sp],
                 self.state.new_pc,
             );
             self.stack.push(frame);
+            changed_stack = true;
         }
 
         DatapathUpdateSignal {
             changed_state: true,
             changed_memory: self.signals.mem_write == MemWrite::YesWrite,
             changed_coprocessor_state: true,
-            changed_stack: hit_branch || hit_jump,
+            changed_stack,
             ..Default::default()
         }
     }
@@ -503,6 +516,16 @@ impl MipsDatapath {
         self.register_write();
         self.set_pc();
         self.coprocessor.stage_writeback();
+
+        // check if we are writing to the stack pointer
+        if self.state.write_register_destination == GpRegisterType::Sp as usize {
+            if let Some(last_frame) = self.stack.peek() {
+                if self.state.register_write_data >= last_frame.frame_pointer {
+                    // dellocating stack space
+                    self.stack.pop();
+                }
+            }
+        }
 
         DatapathUpdateSignal {
             changed_state: true,
@@ -1350,18 +1373,6 @@ impl MipsDatapath {
         // If a 32-bit word is requested, ensure data is truncated and sign-extended.
         if let RegWidth::Word = self.signals.reg_width {
             self.state.data_result = self.state.data_result as i32 as u64;
-        }
-
-        // If we're updating stack pointer, check if increasing
-        // If so, pop from stack
-        if self.state.write_register_destination == GpRegisterType::Sp as usize {
-            if self.state.register_write_data
-                > self.registers.gpr[self.state.write_register_destination]
-            {
-                self.stack.pop();
-            } else {
-                self.stack.pop();
-            }
         }
 
         // Write.

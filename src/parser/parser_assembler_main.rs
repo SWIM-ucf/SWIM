@@ -39,8 +39,6 @@ pub fn parser(
                 create_label_map(&mut program_info.instructions, &mut program_info.data);
             let labels_clone = labels.clone();
 
-            log::debug!("Labels: {:?}", labels);
-
             complete_lw_sw_pseudo_instructions(
                 &mut program_info.instructions,
                 &labels,

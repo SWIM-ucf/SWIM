@@ -18,7 +18,7 @@ loop: daddu $s1, $s1, $s0
 j loop"#,
     );
 
-    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     // Execute the ori instruction.
@@ -46,7 +46,7 @@ fn basic_jr() -> Result<(), String> {
 jr r15"#,
     );
 
-    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     // Execute 2 instructions.
@@ -71,7 +71,7 @@ syscall
 function: ori $t0, $zero, 5831"#,
     );
 
-    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
@@ -97,7 +97,7 @@ or $zero, $zero, $zero
 function: ori $t1, $zero, 9548"#,
     );
 
-    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     // Execute 3 instructions.
@@ -146,7 +146,7 @@ daddiu $s2, $s2, 20
 change10: daddiu $s2, $s2, 10"#,
     );
 
-    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
@@ -187,7 +187,7 @@ syscall
 changez: daddiu $s2, $s2, 20"#,
     );
 
-    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
@@ -219,7 +219,7 @@ daddiu $s0, $s0, 1
 bne $s0, $s2, loop"#,
     );
 
-    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     let mut iterations = 0;

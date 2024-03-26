@@ -48,6 +48,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
         // Save the previous state of the emulator core's execution and initialization status
         let is_executing = state.executing;
         let is_initialiized = state.initialized;
+        let curr_speed = state.speed;
 
         // Part 1: Delay/Command Handling
         if state.executing {
@@ -125,6 +126,11 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
             state.scope,
             state.initialized != is_initialiized,
             DatapathUpdate::System(SystemUpdate::UpdateInitialized(state.initialized))
+        );
+        send_update!(
+            state.scope,
+            state.speed != curr_speed,
+            DatapathUpdate::System(SystemUpdate::UpdateSpeed(state.speed))
         );
         state.updates = Default::default();
     }

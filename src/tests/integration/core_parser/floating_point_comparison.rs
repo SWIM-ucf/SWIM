@@ -18,7 +18,7 @@ akin! {
         let mut datapath = MipsDatapath::default();
 
         let instructions = String::from(*instruction);
-        let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+        let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
         datapath.initialize_legacy(instruction_bits)?;
 
         datapath.coprocessor.registers.fpr[15] = *value1;
@@ -47,7 +47,7 @@ akin! {
         let mut datapath = MipsDatapath::default();
 
         let instructions = String::from(*instruction);
-        let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+        let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
         datapath.initialize_legacy(instruction_bits)?;
 
         datapath.coprocessor.registers.fpr[15] = *value1;

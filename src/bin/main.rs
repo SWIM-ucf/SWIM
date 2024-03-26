@@ -205,7 +205,6 @@ fn app(props: &AppProps) -> Html {
                 let (program_info, _assembled, _labels) = parser(text_model.get_value(), ARCH);
                 let list_of_line_numbers = program_info.address_to_line_number;
                 let index = datapath_state.mips.registers.pc as usize / 4;
-                log::debug!("Line numbers: {:?}", list_of_line_numbers);
                 editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0); // add one to account for the editor's line numbers
                 memory_curr_instr.set(datapath_state.mips.registers.pc);
 

@@ -6,7 +6,6 @@ pub struct StackFrame {
     pub call_address: u32,
     pub return_address: u64,
     pub frame_pointer: u64,
-    pub stack_pointer: u64,
     pub jump_address: u64,
 }
 
@@ -16,7 +15,6 @@ impl StackFrame {
         call_address: u64,
         return_address: u64,
         frame_pointer: u64,
-        stack_pointer: u64,
         jump_address: u64,
     ) -> Self {
         Self {
@@ -24,7 +22,6 @@ impl StackFrame {
             call_address: call_address as u32,
             return_address,
             frame_pointer,
-            stack_pointer,
             jump_address,
         }
     }
@@ -45,6 +42,10 @@ impl Stack {
 
     pub fn peek(&self) -> Option<&StackFrame> {
         self.stack.last()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.stack.is_empty()
     }
 }
 

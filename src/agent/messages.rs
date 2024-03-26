@@ -43,6 +43,7 @@ pub enum SystemUpdate {
     UpdateMessages(Vec<String>),
     UpdateExecuting(bool),
     UpdateInitialized(bool),
+    UpdateSpeed(u32),
 }
 
 /// Enum containing all types of updates sent from the worker thread to the UI thread.

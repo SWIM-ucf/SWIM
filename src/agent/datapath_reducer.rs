@@ -119,6 +119,14 @@ impl Reducible for DatapathReducer {
                     executing: self.executing,
                     initialized,
                 },
+                SystemUpdate::UpdateSpeed(speed) => Self {
+                    current_architecture: self.current_architecture.clone(),
+                    mips: self.mips.clone(),
+                    messages: self.messages.clone(),
+                    speed,
+                    executing: self.executing,
+                    initialized: self.initialized,
+                },
             },
         })
     }
