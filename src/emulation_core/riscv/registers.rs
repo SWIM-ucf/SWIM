@@ -1,12 +1,13 @@
 //! Register structure and API.
 
+use serde::{Deserialize, Serialize};
 use std::ops::{Index, IndexMut};
 use std::str::FromStr;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
 
 /// Collection of general-purpose registers used by the datapath.
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct RiscGpRegisters {
     pub pc: u64,
     pub gpr: [u64; 32],

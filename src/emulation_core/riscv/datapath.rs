@@ -56,6 +56,7 @@ use super::{super::mips::memory::Memory, registers::RiscGpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
 use crate::emulation_core::riscv::registers::GpRegisterType::{X10, X11};
+use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.
 #[derive(Clone, PartialEq)]
@@ -79,7 +80,7 @@ pub struct RiscDatapath {
 }
 
 /// A collection of all the data lines and wires in the datapath.
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, Default, PartialEq, Debug, Serialize, Deserialize)]
 pub struct RiscDatapathState {
     /// *Data line.* The currently loaded instruction. Initialized after the
     /// Instruction Fetch stage.
@@ -167,7 +168,7 @@ pub struct RiscDatapathState {
 }
 
 /// The possible stages the datapath could be in during execution.
-#[derive(Clone, Copy, Default, Eq, PartialEq)]
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub enum RiscStage {
     #[default]
     InstructionFetch,
