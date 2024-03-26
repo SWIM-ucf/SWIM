@@ -363,7 +363,7 @@ mod read_riscv_instructions_tests {
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00000000001000000000000011101111
+            0b00000000000000000010000011101111
         );
     }
 

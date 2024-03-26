@@ -1,5 +1,5 @@
 main:
-    jalr x1
+    jal x1, L1
     bgeu x1, x2, L1
     ret
 

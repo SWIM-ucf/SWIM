@@ -257,9 +257,7 @@ pub fn read_operands_riscv(
                     instruction.errors.push(immediate_results.1.unwrap());
                 }
             }
-            UpperImmediate =>
-            // Can be used to represent offsets for J-type instructions
-            {
+            UpperImmediate => {
                 instruction.operands[i].token_type = TokenType::Immediate;
                 bit_lengths.push(20); // 20 bits to represent upper immediates
 

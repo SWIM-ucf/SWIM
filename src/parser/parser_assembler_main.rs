@@ -2296,9 +2296,9 @@ pub fn read_instructions_riscv(
                 instruction.binary = append_binary(instruction.binary, 0b1101111, 7);
 
                 // Reorder immediate
-                instruction.binary = upper_to_jump(instruction.binary);
+                //instruction.binary = upper_to_jump(instruction.binary);
 
-                // This isn't accurate to the risc-v spec, but we can make the user aware of this change in the instruction description
+                // This isn't accurate to the risc-v spec, but we can make the user aware of this change in the instruction description. Unsure how useful this may be to the end user.
 
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
@@ -5006,7 +5006,7 @@ fn _immediate_to_branch(mut bin: u32) -> u32 {
 }
 
 // Reorder the immediate value to comply with J-type format
-fn upper_to_jump(mut bin: u32) -> u32 {
+fn _upper_to_jump(mut bin: u32) -> u32 {
     // Extract bits immediate
     let imm = bin >> 12;
 
