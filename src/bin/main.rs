@@ -403,9 +403,6 @@ fn app(props: &AppProps) -> Html {
                     }
                 }
 
-                // Update the parsed info for text and data segment views
-                let (program_info, _, _) = parser(text_model.get_value(), ARCH);
-
                 trigger.force_update();
             },
             datapath_state,
