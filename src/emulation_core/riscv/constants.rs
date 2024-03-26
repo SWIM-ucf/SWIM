@@ -52,8 +52,6 @@ pub const OPCODE_IMM_32: u8 = 0b0011011;
 pub const OPCODE_JALR: u8 = 0b1100111;
 // LOAD
 pub const OPCODE_LOAD: u8 = 0b0000011;
-// Maybe MISC-MEM?
-pub const OPCODE_MISC_MEM: u8 = 0b0001111;
 // SYSTEM
 pub const OPCODE_SYSTEM: u8 = 0b1110011;
 
