@@ -115,6 +115,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                     UpdateStack(datapath.stack.clone())
                 )
             }
+            DatapathRef::RISCV(_) => todo!(),
         }
         // Part 5: Sending Non-Syscall System Updates to UI
         send_update!(
@@ -287,6 +288,7 @@ impl EmulatorCoreAgentState {
                             DatapathRef::MIPS(_) => {
                                 self.current_datapath.set_register_by_str("v0", scan_result);
                             }
+                            DatapathRef::RISCV(_) => todo!(),
                         }
                         self.updates.changed_registers = true;
                     }
@@ -305,6 +307,7 @@ impl EmulatorCoreAgentState {
                                 self.current_datapath
                                     .set_fp_register_by_str("f0", f32::to_bits(scan_result) as u64);
                             }
+                            DatapathRef::RISCV(_) => todo!(),
                         }
                         self.updates.changed_coprocessor_registers = true;
                     }
@@ -323,6 +326,7 @@ impl EmulatorCoreAgentState {
                                 self.current_datapath
                                     .set_fp_register_by_str("f0", f64::to_bits(scan_result));
                             }
+                            DatapathRef::RISCV(_) => todo!(),
                         }
                         self.updates.changed_coprocessor_registers = true;
                     }
@@ -358,6 +362,7 @@ impl EmulatorCoreAgentState {
                                         .set_register_by_str("v0", bytes.len() as u64);
                                 }
                             }
+                            DatapathRef::RISCV(_) => todo!(),
                         }
                         self.updates.changed_registers = true;
                         self.updates.changed_memory = true;
