@@ -283,7 +283,10 @@ impl EmulatorCoreAgentState {
                             DatapathRef::MIPS(_) => {
                                 self.current_datapath.set_register_by_str("v0", scan_result);
                             }
-                            DatapathRef::RISCV(_) => todo!(),
+                            DatapathRef::RISCV(_) => {
+                                self.current_datapath
+                                    .set_register_by_str("x11", scan_result);
+                            }
                         }
                         self.updates.changed_registers = true;
                     }
@@ -302,7 +305,12 @@ impl EmulatorCoreAgentState {
                                 self.current_datapath
                                     .set_fp_register_by_str("f0", f32::to_bits(scan_result) as u64);
                             }
-                            DatapathRef::RISCV(_) => todo!(),
+                            DatapathRef::RISCV(_) => {
+                                self.current_datapath.set_fp_register_by_str(
+                                    "f10",
+                                    f32::to_bits(scan_result) as u64,
+                                );
+                            }
                         }
                         self.updates.changed_coprocessor_registers = true;
                     }
@@ -321,7 +329,10 @@ impl EmulatorCoreAgentState {
                                 self.current_datapath
                                     .set_fp_register_by_str("f0", f64::to_bits(scan_result));
                             }
-                            DatapathRef::RISCV(_) => todo!(),
+                            DatapathRef::RISCV(_) => {
+                                self.current_datapath
+                                    .set_fp_register_by_str("f10", f64::to_bits(scan_result));
+                            }
                         }
                         self.updates.changed_coprocessor_registers = true;
                     }
@@ -357,7 +368,14 @@ impl EmulatorCoreAgentState {
                                         .set_register_by_str("v0", bytes.len() as u64);
                                 }
                             }
-                            DatapathRef::RISCV(_) => todo!(),
+                            DatapathRef::RISCV(_) => {
+                                if failed_store {
+                                    self.current_datapath.set_register_by_str("x11", 0);
+                                } else {
+                                    self.current_datapath
+                                        .set_register_by_str("x11", bytes.len() as u64);
+                                }
+                            }
                         }
                         self.updates.changed_registers = true;
                         self.updates.changed_memory = true;
