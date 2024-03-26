@@ -146,9 +146,12 @@ impl DatapathCommunicator {
         self.send_message(Command::Reset);
     }
 
-    pub fn set_breakpoint(&self, _address: u64) {
-        // self.send_message(Command::SetBreakpoint(address));
-        todo!()
+    pub fn set_breakpoint(&self, address: u64) {
+        self.send_message(Command::SetBreakpoint(address));
+    }
+
+    pub fn remove_breakpoint(&self, address: u64) {
+        self.send_message(Command::RemoveBreakpoint(address));
     }
 
     pub fn get_accepting_input(&self) -> bool {
