@@ -587,6 +587,7 @@ fn app(props: &AppProps) -> Html {
                             sp={datapath_state.mips.registers[GpRegisterType::Sp]}
                             memory={datapath_state.mips.memory.clone()}
                             stack={datapath_state.mips.stack.clone()}
+                            initialized={datapath_state.initialized}
                         />
                     </div>
 
@@ -600,6 +601,8 @@ fn app(props: &AppProps) -> Html {
                         communicator={props.communicator}
                         show_input={show_input.clone()}
                         on_memory_clicked={on_memory_clicked.clone()}
+                        memory={datapath_state.mips.memory.clone()}
+                        pc={datapath_state.mips.registers.pc}
                     />
                 </div>
 

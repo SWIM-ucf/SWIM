@@ -6,8 +6,8 @@ use strum_macros::EnumIter;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, EnumIter)]
 pub enum AvailableDatapaths {
-    RISCV,
     MIPS,
+    RISCV,
 }
 
 impl fmt::Display for AvailableDatapaths {

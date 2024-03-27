@@ -1,5 +1,6 @@
 use crate::agent::datapath_communicator::DatapathCommunicator;
 use crate::agent::datapath_reducer::DatapathReducer;
+use crate::emulation_core::mips::memory::Memory;
 use crate::ui::console::component::Console;
 use crate::ui::hex_editor::component::HexEditor;
 use crate::ui::swim_editor::tab::TabState;
@@ -21,6 +22,8 @@ pub struct Footerprops {
     pub memory_curr_instr: UseStateHandle<u64>,
     pub active_tab: UseStateHandle<TabState>,
     pub on_memory_clicked: Callback<MouseEvent>,
+    pub memory: Memory,
+    pub pc: u64
 }
 
 #[function_component(Footer)]
@@ -69,7 +72,7 @@ pub fn footer(props: &Footerprops) -> Html {
                 <VisualDatapath datapath_state={props.datapath_state.clone()} svg_path={svg_path} />
             } else if **active_tab == TabState::HexEditor {
                 <div class="flex h-48 border-primary-200 border-groove border-2 z-10">
-                    <HexEditor memory_text_model={props.memory_text_model.clone()} memory_curr_instr={props.memory_curr_instr.clone()} datapath_state={props.datapath_state.clone()}/>
+                    <HexEditor memory_text_model={props.memory_text_model.clone()} memory_curr_instr={props.memory_curr_instr.clone()} memory={props.memory.clone()} pc={props.pc} initialized={props.datapath_state.initialized}/>
                 </div>
             }
             <div class="flex flex-row justify-between w-full">
