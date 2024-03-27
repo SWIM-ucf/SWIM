@@ -671,7 +671,8 @@ impl RiscDatapath {
                             0 => SysOp::ECALL,
                             1 => SysOp::EBREAK,
                             _ => SysOp::None,
-                        }
+                        };
+                        self.signals.reg_write_en = RegWriteEn::NoWrite;
                     }
                     1 => self.signals.sys_op = SysOp::CSRReadWrite,
                     2 => self.signals.sys_op = SysOp::CSRReadSet,
@@ -879,7 +880,8 @@ impl RiscDatapath {
                     self.registers.gpr[self.state.imm as usize] &= !self.state.alu_input1;
                 }
             }
-            _ => self.error("Impossible/Unsupported Instruction!"),
+            SysOp::None => self.error("Impossible/Unsupported Instruction!"),
+            _ => self.state.alu_result = 0,
         }
     }
 
