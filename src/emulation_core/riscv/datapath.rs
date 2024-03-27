@@ -192,6 +192,18 @@ impl RiscStage {
     }
 }
 
+impl From<RiscStage> for String {
+    fn from(val: RiscStage) -> String {
+        String::from(match val {
+            RiscStage::InstructionFetch => "writeback",
+            RiscStage::InstructionDecode => "instruction_fetch",
+            RiscStage::Execute => "instruction_decode",
+            RiscStage::Memory => "execute",
+            RiscStage::WriteBack => "memory",
+        })
+    }
+}
+
 impl Default for RiscDatapath {
     fn default() -> Self {
         let mut datapath = RiscDatapath {

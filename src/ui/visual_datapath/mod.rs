@@ -36,7 +36,7 @@ use yew::prelude::*;
 use consts::*;
 use utils::*;
 
-use crate::{agent::datapath_reducer::DatapathReducer, emulation_core::mips::datapath::Stage};
+use crate::agent::datapath_reducer::DatapathReducer;
 
 #[derive(PartialEq, Properties)]
 pub struct VisualDatapathProps {
@@ -130,13 +130,7 @@ impl Component for VisualDatapath {
         // there is actual data to view. A better way to see this is "when stage X is
         // set on the datapath, highlight the lines for stage Y." The datapath stage
         // tells where it will start the next time "execute" is pressed.
-        let current_stage = String::from(match ctx.props().datapath_state.mips.current_stage {
-            Stage::InstructionFetch => "writeback",
-            Stage::InstructionDecode => "instruction_fetch",
-            Stage::Execute => "instruction_decode",
-            Stage::Memory => "execute",
-            Stage::WriteBack => "memory",
-        });
+        let current_stage = ctx.props().datapath_state.get_current_stage();
 
         debug!("Current stage: {:?}", current_stage);
         if first_render || self.should_reinitialize {

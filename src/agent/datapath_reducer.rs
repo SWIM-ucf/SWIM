@@ -159,4 +159,11 @@ impl DatapathReducer {
             RISCV => &self.riscv.memory,
         }
     }
+
+    pub fn get_current_stage(&self) -> String {
+        match self.current_architecture {
+            MIPS => self.mips.current_stage.into(),
+            RISCV => self.riscv.current_stage.into(),
+        }
+    }
 }

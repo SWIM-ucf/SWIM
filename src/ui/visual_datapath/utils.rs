@@ -1,6 +1,7 @@
 //! Helpful common functions used for the visual datapath.
 
 use gloo::utils::{document, window};
+use gloo_console::log;
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlCollection, HtmlElement, HtmlObjectElement, MouseEvent};
 use yew::UseReducerHandle;
@@ -181,6 +182,7 @@ pub fn visual_line_to_data(
     variable: &str,
     datapath_state: &UseReducerHandle<DatapathReducer>,
 ) -> LineInformation {
+    log!("Calling here");
     match datapath_state.current_architecture {
         AvailableDatapaths::MIPS => {
             match variable {
