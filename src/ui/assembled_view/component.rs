@@ -350,7 +350,7 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
     let editor_curr_line = &props.editor_curr_line;
     let editor_active_tab = &props.editor_active_tab;
 
-    // Go to the memory address in hex editor
+    // Open the memory address in hex editor
     let on_address_click = {
         let memory_curr_instr = memory_curr_instr.clone();
         let console_active_tab = console_active_tab.clone();
@@ -364,6 +364,7 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
         )
     };
 
+    // Open the line in code editor
     let on_assembled_click = {
         let editor_curr_line = editor_curr_line.clone();
         let editor_active_tab = editor_active_tab.clone();
@@ -392,15 +393,24 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
                 if !stack.is_empty() && !program_info.instructions.is_empty() {
                     let stack = stack.stack.clone();
                     stack.into_iter().enumerate().map(|(_address, frame)| {
-                        let call_line_number = frame.call_address / 4;
-                        let call_recreated_string = program_info.instructions[call_line_number as usize].recreate_string();
-                        let return_line_number = frame.return_address / 4;
-                        let return_recreated_string = program_info.instructions[return_line_number as usize].recreate_string();
+                        // Get the call and return lines
+                        let call_line_index = frame.call_address / 4;
+                        let call_recreated_string = program_info.instructions[call_line_index as usize].recreate_string();
+                        let call_line_number = program_info.instructions[call_line_index as usize].line_number;
+
+                        let return_line_index = frame.return_address / 4;
+                        let return_recreated_string = program_info.instructions[return_line_index as usize].recreate_string();
+                        let return_line_number = program_info.instructions[return_line_index as usize].line_number + 1;
+
+                        // Create the callbacks for cross reference links
                         let on_call_address_click = Callback::clone(&on_address_click);
                         let on_return_address_click = Callback::clone(&on_address_click);
                         let on_frame_pointer_click = Callback::clone(&on_address_click);
-                        let default_label = String::from("");
                         let on_return_line_click = Callback::clone(&on_assembled_click);
+                        let on_call_line_click = Callback::clone(&on_assembled_click);
+
+                        // Get the label for the frame
+                        let default_label = String::from("");
                         let label = labels.iter().find_map(|(label, address)| {
                             if *address == frame.jump_address as usize {
                                 Some(label)
@@ -409,6 +419,7 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
                                 None
                             }
                         }).unwrap_or(&default_label);
+
                         html! {
                             <tr>
                                 <td>
@@ -420,13 +431,13 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
                                 <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", frame.call_address)} onclick={move |e: MouseEvent| {on_call_address_click.emit((e, frame.call_address as usize))}}>
                                     {format!("0x{:08x}", frame.call_address as u64)}
                                 </td>
-                                <td>
+                                <td class="text-accent-blue-200 hover:text-accent-blue-100 cursor-pointer" title="Go to line" onclick={move |e: MouseEvent| {on_call_line_click.emit((e, call_line_number as usize))}}>
                                     {call_recreated_string}
                                 </td>
                                 <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", frame.return_address)} onclick={move |e: MouseEvent| {on_return_address_click.emit((e, frame.return_address as usize))}}>
                                     {format!("0x{:08x}", frame.return_address)}
                                 </td>
-                                <td class="text-accent-blue-200 hover:text-accent-blue-100 cursor-pointer" title="Go to line" onclick={move |e: MouseEvent| {on_return_line_click.emit((e, frame.return_address as usize))}}>
+                                <td class="text-accent-blue-200 hover:text-accent-blue-100 cursor-pointer" title="Go to line" onclick={move |e: MouseEvent| {on_return_line_click.emit((e, return_line_number as usize))}}>
                                     {return_recreated_string}
                                 </td>
                             </tr>

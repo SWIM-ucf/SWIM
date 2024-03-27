@@ -72,7 +72,7 @@ impl Component for VisualDatapath {
         VisualDatapath {
             active_listeners: Rc::new(RefCell::new(vec![])),
             should_reinitialize: false,
-            size: Rc::new(RefCell::new(50)),
+            size: Rc::new(RefCell::new(0)),
         }
     }
 

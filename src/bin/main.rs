@@ -199,10 +199,17 @@ fn app(props: &AppProps) -> Html {
         let trigger = use_force_update();
         let communicator = props.communicator;
 
+        let program_info_ref = Rc::clone(&program_info_ref);
+        let binary_ref = Rc::clone(&binary_ref);
+        let labels_ref = Rc::clone(&labels_ref);
+
         use_callback(
             move |_, (editor_curr_line, memory_curr_instr, text_model, datapath_state)| {
                 // Get the current line and convert it to f64
-                let (program_info, _assembled, _labels) = parser(text_model.get_value(), ARCH);
+                let (program_info, assembled, labels) = parser(text_model.get_value(), ARCH);
+                *program_info_ref.borrow_mut() = program_info.clone();
+                *binary_ref.borrow_mut() = assembled.clone();
+                *labels_ref.borrow_mut() = labels.clone();
                 let list_of_line_numbers = program_info.address_to_line_number;
                 let index = datapath_state.mips.registers.pc as usize / 4;
                 editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0); // add one to account for the editor's line numbers
@@ -235,11 +242,18 @@ fn app(props: &AppProps) -> Html {
 
         let trigger = use_force_update();
 
+        let program_info_ref = Rc::clone(&program_info_ref);
+        let binary_ref = Rc::clone(&binary_ref);
+        let labels_ref = Rc::clone(&labels_ref);
+
         use_callback(
             move |_, (editor_curr_line, memory_curr_instr, text_model, datapath_state)| {
                 if datapath_state.mips.current_stage == Stage::InstructionDecode {
                     // highlight on InstructionDecode since syscall stops at that stage.
-                    let (program_info, _assembled, _labels) = parser(text_model.get_value(), ARCH);
+                    let (program_info, assembled, labels) = parser(text_model.get_value(), ARCH);
+                    *program_info_ref.borrow_mut() = program_info.clone();
+                    *binary_ref.borrow_mut() = assembled.clone();
+                    *labels_ref.borrow_mut() = labels.clone();
                     let list_of_line_numbers = program_info.address_to_line_number;
                     let index = datapath_state.mips.registers.pc as usize / 4;
                     editor_curr_line
@@ -263,11 +277,21 @@ fn app(props: &AppProps) -> Html {
 
     let on_continue_execution = {
         let communicator = props.communicator;
+        let program_info_ref = Rc::clone(&program_info_ref);
+        let binary_ref = Rc::clone(&binary_ref);
+        let labels_ref = Rc::clone(&labels_ref);
+
+        let text_model = text_model.clone();
         use_callback(
-            move |_, _| {
+            move |_, text_model| {
+                let (program_info, assembled, labels) = parser(text_model.get_value(), ARCH);
+                *program_info_ref.borrow_mut() = program_info.clone();
+                *binary_ref.borrow_mut() = assembled.clone();
+                *labels_ref.borrow_mut() = labels.clone();
+
                 communicator.execute();
             },
-            (),
+            text_model,
         )
     };
 
