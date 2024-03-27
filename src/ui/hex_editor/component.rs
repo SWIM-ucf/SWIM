@@ -150,7 +150,8 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
         }
 
         use_callback(
-            move |editor_link: CodeEditorLink, (memory, memory_text_model, memory_curr_instr, initialized)| {
+            move |editor_link: CodeEditorLink,
+                  (memory, memory_text_model, memory_curr_instr, initialized)| {
                 let result = editor_link.with_editor(|editor| {
                     let hexdump = memory.generate_formatted_hex(CAPACITY_BYTES);
                     memory_text_model.set_value(&hexdump);

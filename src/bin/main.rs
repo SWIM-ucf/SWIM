@@ -184,7 +184,10 @@ fn app(props: &AppProps) -> Html {
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
 
                     // After adding pseudo instructions, update program info
-                    let (program_info, assembled, labels) = parser(text_model.get_value(), datapath_state.current_architecture.clone());
+                    let (program_info, assembled, labels) = parser(
+                        text_model.get_value(),
+                        datapath_state.current_architecture.clone(),
+                    );
                     *program_info_ref.borrow_mut() = program_info.clone();
                     *binary_ref.borrow_mut() = assembled.clone();
                     *labels_ref.borrow_mut() = labels.clone();
@@ -225,7 +228,10 @@ fn app(props: &AppProps) -> Html {
         use_callback(
             move |_, (editor_curr_line, memory_curr_instr, text_model, datapath_state)| {
                 // Get the current line and convert it to f64
-                let (program_info, assembled, labels) = parser(text_model.get_value(), datapath_state.current_architecture.clone());
+                let (program_info, assembled, labels) = parser(
+                    text_model.get_value(),
+                    datapath_state.current_architecture.clone(),
+                );
                 *program_info_ref.borrow_mut() = program_info.clone();
                 *binary_ref.borrow_mut() = assembled.clone();
                 *labels_ref.borrow_mut() = labels.clone();
@@ -281,7 +287,10 @@ fn app(props: &AppProps) -> Html {
                     // highlight on InstructionDecode since syscall stops at that stage.
 
                     // highlight on InstructionDecode since syscall stops at that stage.
-                    let (program_info, assembled, labels) = parser(text_model.get_value(), datapath_state.current_architecture.clone());
+                    let (program_info, assembled, labels) = parser(
+                        text_model.get_value(),
+                        datapath_state.current_architecture.clone(),
+                    );
                     *program_info_ref.borrow_mut() = program_info.clone();
                     *binary_ref.borrow_mut() = assembled.clone();
                     *labels_ref.borrow_mut() = labels.clone();
@@ -318,7 +327,10 @@ fn app(props: &AppProps) -> Html {
         let datapath_state = datapath_state.clone();
         use_callback(
             move |_, (text_model, datapath_state)| {
-                let (program_info, assembled, labels) = parser(text_model.get_value(), datapath_state.current_architecture.clone());
+                let (program_info, assembled, labels) = parser(
+                    text_model.get_value(),
+                    datapath_state.current_architecture.clone(),
+                );
                 *program_info_ref.borrow_mut() = program_info.clone();
                 *binary_ref.borrow_mut() = assembled.clone();
                 *labels_ref.borrow_mut() = labels.clone();
@@ -390,8 +402,10 @@ fn app(props: &AppProps) -> Html {
                             }
                         }
                         // Memory updated successfully
-                        let (program_info, _assembled, _labels) =
-                            parser(text_model.get_value(), datapath_state.current_architecture.clone());
+                        let (program_info, _assembled, _labels) = parser(
+                            text_model.get_value(),
+                            datapath_state.current_architecture.clone(),
+                        );
                         let mut lines_beyond_counter = program_info.address_to_line_number.len();
                         let mut curr_value = text_model.get_value();
                         let mut add_new_lines = false;
