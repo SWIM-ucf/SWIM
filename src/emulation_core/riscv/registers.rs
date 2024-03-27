@@ -1,7 +1,12 @@
 //! Register structure and API.
 
+use crate::agent::messages::DatapathUpdate::RISCV;
+use crate::emulation_core::mips::gp_registers::GpRegisters;
+use crate::emulation_core::mips::memory::CAPACITY_BYTES;
+use crate::emulation_core::register::{RegisterType, Registers};
 use serde::{Deserialize, Serialize};
 use std::ops::{Index, IndexMut};
+use std::rc::Rc;
 use std::str::FromStr;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
@@ -52,6 +57,40 @@ pub enum GpRegisterType {
     X29 = 29,
     X30 = 30,
     X31 = 31,
+}
+
+impl RegisterType for GpRegisterType {
+    fn get_register_name(&self) -> String {
+        match self {
+            GpRegisterType::Pc => self.to_string(),
+            _ => format!("{}", self),
+        }
+    }
+    fn is_valid_register_value(&self, value: u64, pc_limit: usize) -> bool {
+        match self {
+            GpRegisterType::X0 => false, // Zero register is immutable
+            GpRegisterType::Pc => {
+                // Check if PC is more than the number of instructions or not word-aligned
+                value <= pc_limit as u64 && value % 4 == 0
+            }
+            GpRegisterType::X2 => {
+                // Check if SP is more than memory capacity or not word-aligned
+                value <= CAPACITY_BYTES as u64 && value % 4 == 0
+            }
+            _ => true, // Other registers are always considered valid
+        }
+    }
+}
+
+impl Registers for RiscGpRegisters {
+    fn get_dyn_register_list(&self) -> Vec<(Rc<dyn RegisterType>, u64)> {
+        self.into_iter()
+            .map(|(register, val)| {
+                let register: Rc<dyn RegisterType> = Rc::new(register);
+                (register, val)
+            })
+            .collect()
+    }
 }
 
 impl ToString for RiscGpRegisters {

@@ -98,6 +98,11 @@ fn app(props: &AppProps) -> Html {
         );
     }
 
+    let gp_registers = match datapath_state.current_architecture {
+        AvailableDatapaths::MIPS => datapath_state.mips.registers.get_dyn_register_list(),
+        AvailableDatapaths::RISCV => datapath_state.riscv.registers.get_dyn_register_list(),
+    };
+
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
         let text_model = text_model.clone();
@@ -540,7 +545,7 @@ fn app(props: &AppProps) -> Html {
                 </div>
 
                 // Right column
-                <Regview gp={datapath_state.mips.registers.get_dyn_register_list()} fp={datapath_state.mips.coprocessor_registers.get_dyn_register_list()} pc_limit={*pc_limit} communicator={props.communicator}/>
+                <Regview gp={gp_registers} fp={datapath_state.mips.coprocessor_registers.get_dyn_register_list()} pc_limit={*pc_limit} communicator={props.communicator}/>
             </div>
         </>
     }
