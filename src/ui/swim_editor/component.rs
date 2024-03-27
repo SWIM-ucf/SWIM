@@ -55,7 +55,7 @@ pub struct SwimEditorProps {
     pub memory: Memory,
     pub stack: Stack,
     pub breakpoints: UseStateHandle<HashSet<u64>>,
-    pub initialized: bool
+    pub initialized: bool,
 }
 
 #[derive(Default, PartialEq)]
@@ -133,8 +133,10 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                         // Highlight current line using delta decorations
                         let not_highlighted = js_sys::Array::new();
                         let executed_line = js_sys::Array::new();
-                        let decoration: IModelDeltaDecoration = js_sys::Object::new().unchecked_into();
-                        let options: IModelDecorationOptions = js_sys::Object::new().unchecked_into();
+                        let decoration: IModelDeltaDecoration =
+                            js_sys::Object::new().unchecked_into();
+                        let options: IModelDecorationOptions =
+                            js_sys::Object::new().unchecked_into();
                         if **curr_line != 0.0 {
                             // Show highlight if current line is not 0
                             options.set_inline_class_name("executedLine".into());

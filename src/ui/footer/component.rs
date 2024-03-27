@@ -23,7 +23,7 @@ pub struct Footerprops {
     pub active_tab: UseStateHandle<TabState>,
     pub on_memory_clicked: Callback<MouseEvent>,
     pub memory: Memory,
-    pub pc: u64
+    pub pc: u64,
 }
 
 #[function_component(Footer)]

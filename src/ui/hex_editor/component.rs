@@ -149,8 +149,7 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             move |editor_link: CodeEditorLink,
                   (memory, memory_text_model, memory_curr_instr, initialized)| {
                 let result = editor_link.with_editor(|editor| {
-                    let hexdump = &memory
-                        .generate_formatted_hex(CAPACITY_BYTES);
+                    let hexdump = &memory.generate_formatted_hex(CAPACITY_BYTES);
                     memory_text_model.set_value(hexdump);
 
                     let raw_editor = editor.as_ref();
@@ -159,13 +158,16 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
                     if *initialized {
                         let coords = get_hex_coords(**memory_curr_instr);
                         raw_editor.on_did_change_cursor_selection(cb_func);
-                        raw_editor.reveal_line_in_center(coords.line_number, Some(ScrollType::Smooth));
+                        raw_editor
+                            .reveal_line_in_center(coords.line_number, Some(ScrollType::Smooth));
 
                         // Highlight line using delta decorations
                         let not_highlighted = js_sys::Array::new();
                         let executed_line = js_sys::Array::new();
-                        let decoration: IModelDeltaDecoration = js_sys::Object::new().unchecked_into();
-                        let options: IModelDecorationOptions = js_sys::Object::new().unchecked_into();
+                        let decoration: IModelDeltaDecoration =
+                            js_sys::Object::new().unchecked_into();
+                        let options: IModelDecorationOptions =
+                            js_sys::Object::new().unchecked_into();
                         if coords.line_number != 0.0 {
                             // Show highlight if current line is not 0
                             options.set_inline_class_name("executedLine".into());
@@ -199,7 +201,7 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
                 props.memory.clone(),
                 props.memory_text_model.clone(),
                 memory_curr_instr,
-                props.initialized
+                props.initialized,
             ),
         )
     };

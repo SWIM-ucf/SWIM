@@ -31,7 +31,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
     let mut vec_of_added_instructions: Vec<Instruction> = Vec::new();
 
     //iterate through every instruction and check if the operator is a pseudo-instruction
-    for (i, mut instruction) in &mut instructions.iter_mut().enumerate() {
+    for (i, instruction) in &mut instructions.iter_mut().enumerate() {
         instruction.instruction_number = i + vec_of_added_instructions.len();
         match &*instruction.operator.token_name.to_lowercase() {
             "li" => {
@@ -2050,7 +2050,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
 ///the second part of completing pseudo-instructions. LW and SW with labels requires the address of the label to be known,
 /// the second part of this must occur after the label hashmap is completed.
 pub fn complete_lw_sw_pseudo_instructions(
-    instructions: &mut Vec<Instruction>,
+    instructions: &mut [Instruction],
     labels: &HashMap<String, usize>,
     monaco_line_info: &mut [MonacoLineInfo],
 ) {
@@ -2082,8 +2082,8 @@ pub fn complete_lw_sw_pseudo_instructions(
             instructions[index].operands[1].start_end_columns = (0, 0);
 
             monaco_line_info[instructions[index].line_number].update_pseudo_string(vec![
-                &mut instructions.clone()[index - 1],
-                &mut instructions.clone()[index],
+                &mut instructions.to_owned()[index - 1],
+                &mut instructions.to_owned()[index],
             ]);
         }
     }
