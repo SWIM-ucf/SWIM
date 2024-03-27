@@ -1,9 +1,12 @@
 use crate::agent::datapath_communicator::DatapathCommunicator;
 use crate::agent::datapath_reducer::DatapathReducer;
+use crate::emulation_core::mips::memory::Memory;
 use crate::ui::console::component::Console;
 use crate::ui::hex_editor::component::HexEditor;
+use crate::ui::swim_editor::tab::TabState;
 use crate::ui::visual_datapath::VisualDatapath;
 use monaco::api::TextModel;
+use std::str::FromStr;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 use yew::prelude::*;
@@ -17,16 +20,10 @@ pub struct Footerprops {
     pub show_input: UseStateHandle<bool>,
     pub memory_text_model: UseStateHandle<TextModel>,
     pub memory_curr_instr: UseStateHandle<u64>,
-    pub active_tab: UseStateHandle<FooterTabState>,
+    pub active_tab: UseStateHandle<TabState>,
     pub on_memory_clicked: Callback<MouseEvent>,
-}
-
-#[derive(Default, PartialEq)]
-pub enum FooterTabState {
-    #[default]
-    Console,
-    Datapath,
-    HexEditor,
+    pub memory: Memory,
+    pub pc: u64,
 }
 
 #[function_component(Footer)]
@@ -41,13 +38,7 @@ pub fn footer(props: &Footerprops) -> Html {
                 .get_attribute("label")
                 .unwrap_or(String::from("console"));
 
-            let new_tab = match tab_name.as_str() {
-                "console" => FooterTabState::Console,
-                "datapath" => FooterTabState::Datapath,
-                "hex_editor" => FooterTabState::HexEditor,
-                _ => FooterTabState::default(),
-            };
-
+            let new_tab = TabState::from_str(&tab_name).unwrap();
             active_tab.set(new_tab);
         })
     };
@@ -73,51 +64,63 @@ pub fn footer(props: &Footerprops) -> Html {
     html! {
     <>
             // Console buttons
-            if **active_tab == FooterTabState::Console {
+            if **active_tab == TabState::Console {
                 <div class="h-48 border-primary-200 border-groove border-2 p-4 bg-accent-blue-300 text-primary-200 overflow-y-auto overflow-wrap z-10">
-                    <Console datapath_state={props.datapath_state.clone()} communicator={props.communicator} parsermsg={props.parsermsg.clone()} show_input={props.show_input.clone()}/>
+                    <Console
+                        messages={props.datapath_state.messages.clone()}
+                        communicator={props.communicator}
+                        parsermsg={props.parsermsg.clone()}
+                        show_input={props.show_input.clone()}
+                    />
                 </div>
-            } else if **active_tab == FooterTabState::Datapath {
+            } else if **active_tab == TabState::Datapath {
                 <VisualDatapath datapath_state={props.datapath_state.clone()} svg_path={svg_path} />
-            } else if **active_tab == FooterTabState::HexEditor {
+            } else if **active_tab == TabState::HexEditor {
                 <div class="flex h-48 border-primary-200 border-groove border-2 z-10">
-                    <HexEditor memory_text_model={props.memory_text_model.clone()} memory_curr_instr={props.memory_curr_instr.clone()} datapath_state={props.datapath_state.clone()}/>
+                    <HexEditor
+                        memory_text_model={props.memory_text_model.clone()}
+                        memory_curr_instr={props.memory_curr_instr.clone()}
+                        memory={props.memory.clone()}
+                        pc={props.pc}
+                        initialized={props.datapath_state.initialized}
+                        executing={props.datapath_state.executing}
+                    />
                 </div>
             }
             <div class="flex flex-row justify-between w-full">
                 <div class="flex flex-row min-w-0">
                     <FooterTab
-                        label="console"
+                        label={TabState::Console.to_string()}
                         on_click={change_tab.clone()}
                         disabled={false}
                         active_tab={active_tab.clone()}
-                        tab_name={FooterTabState::Console}
+                        tab_name={TabState::Console}
                         text="Console"
                     />
                     <FooterTab
-                        label="datapath"
+                        label={TabState::Datapath.to_string()}
                         on_click={change_tab.clone()}
                         disabled={false}
                         active_tab={active_tab.clone()}
-                        tab_name={FooterTabState::Datapath}
+                        tab_name={TabState::Datapath}
                         text="Datapath"
                     />
                     <FooterTab
-                        label="hex_editor"
+                        label={TabState::HexEditor.to_string()}
                         on_click={change_tab.clone()}
                         disabled={false}
                         active_tab={active_tab.clone()}
-                        tab_name={FooterTabState::HexEditor}
+                        tab_name={TabState::HexEditor}
                         text="Hex Editor"
                     />
                 </div>
 
-                if **active_tab == FooterTabState::Datapath {
+                if **active_tab == TabState::Datapath {
                     <div class="min-w-0">
                         <button class="hover:text-primary-100 duration-300 pointer pt-4 min-w-0 text-ellipsis text-nowrap overflow-hidden" onclick={switch_datapath_type}>{switch_datapath_button_label}</button>
                     </div>
                 }
-                else if **active_tab == FooterTabState::HexEditor {
+                else if **active_tab == TabState::HexEditor {
                     <div class="min-w-0">
                         <button class="disabled:hidden hover:text-primary-100 duration-300 pointer pt-4 min-w-0 text-ellipsis text-nowrap overflow-hidden" onclick={props.on_memory_clicked.clone()} disabled={!props.datapath_state.initialized}>{"Update Memory"}</button>
                     </div>
@@ -133,8 +136,8 @@ pub struct FooterTabProps {
     pub text: String,
     pub on_click: Callback<MouseEvent>,
     pub disabled: bool,
-    pub active_tab: UseStateHandle<FooterTabState>,
-    pub tab_name: FooterTabState,
+    pub active_tab: UseStateHandle<TabState>,
+    pub tab_name: TabState,
 }
 
 #[function_component(FooterTab)]

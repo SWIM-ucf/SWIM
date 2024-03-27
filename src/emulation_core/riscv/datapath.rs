@@ -52,10 +52,13 @@ use super::constants::*;
 use super::control_signals::*;
 use super::datapath_signals::*;
 use super::instruction::*;
+use super::registers::RiscGpRegisterType;
 use super::{super::mips::memory::Memory, registers::RiscGpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
-use crate::emulation_core::riscv::registers::GpRegisterType::{X10, X11};
+use crate::emulation_core::riscv::registers::RiscGpRegisterType::{X10, X11};
+use crate::emulation_core::stack::Stack;
+use crate::emulation_core::stack::StackFrame;
 use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.
@@ -63,6 +66,7 @@ use serde::{Deserialize, Serialize};
 pub struct RiscDatapath {
     pub registers: RiscGpRegisters,
     pub memory: Memory,
+    pub stack: Stack,
 
     pub instruction: Instruction,
     pub signals: ControlSignals,
@@ -197,6 +201,7 @@ impl Default for RiscDatapath {
         let mut datapath = RiscDatapath {
             registers: RiscGpRegisters::default(),
             memory: Memory::default(),
+            stack: Stack::default(),
             instruction: Instruction::default(),
             signals: ControlSignals::default(),
             datapath_signals: DatapathSignals::default(),
@@ -412,12 +417,43 @@ impl RiscDatapath {
         self.pick_pc_plus_4_or_relative_branch_addr_mux1();
         self.set_new_pc_mux2();
 
+        let mut changed_stack = false;
+
+        // If this is the first instruction, push the initial frame to the stack
+        if self.stack.is_empty() {
+            let frame = StackFrame::new(
+                self.state.instruction,
+                self.registers.pc,
+                self.state.pc_plus_4,
+                self.registers[RiscGpRegisterType::X2],
+                // self.registers[GpRegisterType::Sp],
+                self.registers.pc,
+            );
+            self.stack.push(frame);
+            changed_stack = true;
+        }
+
+        let hit_jump = matches!(self.signals.branch_jump, BranchJump::J);
+        if hit_jump {
+            // Add current line to stack if we call a function
+            let frame = StackFrame::new(
+                self.state.instruction,
+                self.registers.pc,
+                self.state.pc_plus_4,
+                self.registers[RiscGpRegisterType::X2],
+                self.state.new_pc,
+            );
+            self.stack.push(frame);
+            changed_stack = true;
+        }
+
         DatapathUpdateSignal {
             changed_state: true,
             changed_memory: ((self.signals.read_write == ReadWrite::StoreByte)
                 | (self.signals.read_write == ReadWrite::StoreDouble)
                 | (self.signals.read_write == ReadWrite::StoreHalf)
                 | (self.signals.read_write == ReadWrite::StoreWord)),
+            changed_stack,
             ..Default::default()
         }
     }
@@ -430,9 +466,22 @@ impl RiscDatapath {
         self.register_write();
         self.set_pc();
 
+        // check if we are writing to the stack pointer
+        let mut changed_stack = false;
+        if self.state.write_register_destination == RiscGpRegisterType::X2 as usize {
+            if let Some(last_frame) = self.stack.peek() {
+                if self.state.register_write_data >= last_frame.frame_pointer {
+                    // dellocating stack space
+                    self.stack.pop();
+                    changed_stack = true;
+                }
+            }
+        }
+
         DatapathUpdateSignal {
             changed_state: true,
             changed_registers: true, // Always true because pc always gets updated
+            changed_stack,
             ..Default::default()
         }
     }

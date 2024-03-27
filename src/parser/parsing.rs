@@ -191,7 +191,7 @@ pub fn remove_commas(line: &mut MonacoLineInfo) {
 
 ///This function takes the vector of lines created by tokenize program and turns them into instructions
 ///assigning labels, operators, operands, and line numbers and data assigning labels, data types, and values
-pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instruction>, Vec<Data>) {
+pub fn separate_data_and_text(lines: &mut [MonacoLineInfo]) -> (Vec<Instruction>, Vec<Data>) {
     let mut instruction_list: Vec<Instruction> = Vec::new();
     let mut data_list: Vec<Data> = Vec::new();
     let mut labels: Vec<LabelInstance> = Vec::new();
@@ -211,8 +211,7 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
             || lines[i].tokens[0].token_name.to_lowercase() == ".data"
         {
             lines[i].tokens[0].token_type = Directive;
-            while !labels.is_empty() {
-                let last = labels.pop().unwrap();
+            while let Some(last) = labels.pop() {
                 lines[last.token_line].errors.push(Error {
                     error_name: LabelAssignmentError,
                     token_causing_error: last.token.token_name,
@@ -220,11 +219,7 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
                     message: "".to_string(),
                 });
             }
-            if lines[i].tokens[0].token_name.to_lowercase() == ".text" {
-                is_text = true;
-            } else {
-                is_text = false;
-            }
+            is_text = lines[i].tokens[0].token_name.to_lowercase() == ".text";
             i += 1;
             continue;
         }
@@ -252,8 +247,8 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
                 ..Default::default()
             };
             //push all incomplete labels to reference this instruction
-            while !labels.is_empty() {
-                instruction.labels.push(labels.pop().unwrap());
+            while let Some(label) = labels.pop() {
+                instruction.labels.push(label);
             }
             //the next token is the operator
             lines[i].tokens[j].token_type = Operator;
@@ -369,14 +364,12 @@ pub fn create_label_map(
     }
 
     let last_instruction = instruction_list.last();
+    let offset_for_instructions: u32 = match last_instruction {
+        Some(last_instruction) => ((last_instruction.instruction_number + 1) << 2) as u32,
+        None => 0_u32,
+    };
 
-    let offset_for_instructions: u32 = if let Some(..) = last_instruction {
-        (last_instruction.unwrap().instruction_number + 1) << 2
-    } else {
-        0
-    } as u32;
-
-    for (_i, data) in data_list.iter_mut().enumerate() {
+    for data in data_list.iter_mut() {
         //if the given label name is already used, an error is generated
         if labels.contains_key(&*data.label.clone().token_name) {
             data.errors.push(Error {

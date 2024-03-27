@@ -9,7 +9,7 @@ fn basic_dahi() -> Result<(), String> {
     let mut datapath = MipsDatapath::default();
 
     let instructions = String::from("dahi r3, 123");
-    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     datapath.registers.gpr[3] = 0;
@@ -30,7 +30,7 @@ fn dahi_sign_extend() -> Result<(), String> {
     let mut datapath = MipsDatapath::default();
 
     let instructions = String::from("dahi r5, 43158");
-    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     datapath.registers.gpr[5] = 0;
@@ -51,7 +51,7 @@ fn basic_dati() -> Result<(), String> {
     let mut datapath = MipsDatapath::default();
 
     let instructions = String::from("dati r10, 4321");
-    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     datapath.registers.gpr[10] = 0;
@@ -79,7 +79,7 @@ akin! {
         let mut datapath = MipsDatapath::default();
 
         let instructions = String::from(*instruction);
-        let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+        let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
         datapath.initialize_legacy(instruction_bits)?;
 
         datapath.registers.gpr[20] = *rs_value;
@@ -105,7 +105,7 @@ akin! {
         let mut datapath = MipsDatapath::default();
 
         let instructions = String::from(*instruction);
-        let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+        let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
         datapath.initialize_legacy(instruction_bits)?;
 
         datapath.registers.gpr[20] = *rs_value;

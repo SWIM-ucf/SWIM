@@ -13,6 +13,7 @@ fn direct_access_register() {
 #[test]
 #[should_panic]
 #[allow(unconditional_panic)]
+#[allow(clippy::out_of_bounds_indexing)]
 fn direct_access_register_bad_gpr() {
     let mut registers = GpRegisters::default();
 

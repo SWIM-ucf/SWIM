@@ -7,6 +7,7 @@ use monaco::{
     api::TextModel,
     sys::{editor::IMarkerData, MarkerSeverity},
 };
+use std::collections::HashMap;
 use std::collections::HashSet;
 use std::rc::Rc;
 use swim::agent::datapath_communicator::DatapathCommunicator;
@@ -21,9 +22,8 @@ use swim::ui::swim_editor::component::SwimEditor;
 use swim::{
     emulation_core::{architectures::AvailableDatapaths, mips::instruction::get_string_version},
     ui::{
-        footer::component::FooterTabState,
         hex_editor::component::{parse_hexdump, UpdatedLine},
-        swim_editor::component::EditorTabState,
+        swim_editor::tab::TabState,
     },
 };
 use wasm_bindgen::{JsCast, JsValue};
@@ -76,6 +76,7 @@ fn app(props: &AppProps) -> Html {
 
     let program_info_ref = use_mut_ref(ProgramInfo::default);
     let binary_ref = use_mut_ref(Vec::<u32>::new);
+    let labels_ref = use_mut_ref(HashMap::<String, usize>::new);
 
     let memory_text_model =
         use_state_eq(|| TextModel::create(&memory_text_output, Some("ini"), None).unwrap());
@@ -85,8 +86,8 @@ fn app(props: &AppProps) -> Html {
     show_input.set(true);
 
     // Store the currently selected tabs in windows
-    let console_active_tab = use_state_eq(FooterTabState::default);
-    let editor_active_tab = use_state_eq(|| EditorTabState::Editor);
+    let console_active_tab = use_state_eq(|| TabState::Console);
+    let editor_active_tab = use_state_eq(|| TabState::Editor);
 
     let datapath_state = use_reducer(DatapathReducer::default);
 
@@ -95,7 +96,7 @@ fn app(props: &AppProps) -> Html {
     {
         let dispatcher = datapath_state.dispatcher();
         use_effect_with_deps(
-            move |communicator| {
+            move |communicator: &&DatapathCommunicator| {
                 spawn_local(communicator.listen_for_updates(dispatcher));
             },
             props.communicator,
@@ -117,6 +118,7 @@ fn app(props: &AppProps) -> Html {
         let pc_limit = pc_limit.clone();
         let program_info_ref = Rc::clone(&program_info_ref);
         let binary_ref = Rc::clone(&binary_ref);
+        let labels_ref = Rc::clone(&labels_ref);
 
         use_callback(
             move |_, (text_model, editor_curr_line, memory_curr_instr, datapath_state)| {
@@ -126,12 +128,13 @@ fn app(props: &AppProps) -> Html {
                     datapath_state.current_architecture.clone()
                 ));
                 // parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
-                let (program_info, assembled) = parser(
+                let (program_info, assembled, labels) = parser(
                     text_model.get_value(),
                     datapath_state.current_architecture.clone(),
                 );
                 *program_info_ref.borrow_mut() = program_info.clone();
                 *binary_ref.borrow_mut() = assembled.clone();
+                *labels_ref.borrow_mut() = labels.clone();
                 pc_limit.set(assembled.len() * 4);
                 parser_text_output.set(program_info.console_out_post_assembly);
 
@@ -174,7 +177,17 @@ fn app(props: &AppProps) -> Html {
                     communicator.initialize(program_info.pc_starting_point, assembled);
                     memory_curr_instr.set(datapath_state.get_pc());
                     breakpoints.set(HashSet::default());
+
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
+
+                    // After adding pseudo instructions, update program info
+                    let (program_info, assembled, labels) = parser(
+                        text_model.get_value(),
+                        datapath_state.current_architecture.clone(),
+                    );
+                    *program_info_ref.borrow_mut() = program_info.clone();
+                    *binary_ref.borrow_mut() = assembled.clone();
+                    *labels_ref.borrow_mut() = labels.clone();
                 }
 
                 trigger.force_update();
@@ -196,7 +209,7 @@ fn app(props: &AppProps) -> Html {
     // code, the previously executed line is highlighted.
     let on_execute_clicked = {
         let datapath_state = datapath_state.clone();
-        let program_info_ref = Rc::clone(&program_info_ref);
+        let text_model = text_model.clone();
 
         // Code editor
         let editor_curr_line = editor_curr_line.clone();
@@ -205,12 +218,22 @@ fn app(props: &AppProps) -> Html {
         let trigger = use_force_update();
         let communicator = props.communicator;
 
+        let program_info_ref = Rc::clone(&program_info_ref);
+        let binary_ref = Rc::clone(&binary_ref);
+        let labels_ref = Rc::clone(&labels_ref);
+
         use_callback(
-            move |_, (editor_curr_line, memory_curr_instr, datapath_state)| {
+            move |_, (editor_curr_line, memory_curr_instr, text_model, datapath_state)| {
                 // Get the current line and convert it to f64
-                let programinfo = Rc::clone(&program_info_ref);
-                let programinfo = programinfo.borrow().clone();
-                let list_of_line_numbers = programinfo.address_to_line_number;
+                let (program_info, assembled, labels) = parser(
+                    text_model.get_value(),
+                    datapath_state.current_architecture.clone(),
+                );
+                *program_info_ref.borrow_mut() = program_info.clone();
+                *binary_ref.borrow_mut() = assembled.clone();
+                *labels_ref.borrow_mut() = labels.clone();
+
+                let list_of_line_numbers = program_info.address_to_line_number;
                 let index = datapath_state.get_pc() as usize / 4;
                 editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0); // add one to account for the editor's line numbers
                 memory_curr_instr.set(datapath_state.get_pc());
@@ -220,13 +243,18 @@ fn app(props: &AppProps) -> Html {
 
                 trigger.force_update();
             },
-            (editor_curr_line, memory_curr_instr, datapath_state),
+            (
+                editor_curr_line,
+                memory_curr_instr,
+                text_model,
+                datapath_state,
+            ),
         )
     };
 
     let on_execute_stage_clicked = {
         let datapath_state = datapath_state.clone();
-        let program_info_ref = Rc::clone(&program_info_ref);
+        let text_model = text_model.clone();
         let communicator = props.communicator;
 
         // Code editor
@@ -237,8 +265,12 @@ fn app(props: &AppProps) -> Html {
 
         let trigger = use_force_update();
 
+        let program_info_ref = Rc::clone(&program_info_ref);
+        let binary_ref = Rc::clone(&binary_ref);
+        let labels_ref = Rc::clone(&labels_ref);
+
         use_callback(
-            move |_, (editor_curr_line, memory_curr_instr, datapath_state)| {
+            move |_, (editor_curr_line, memory_curr_instr, text_model, datapath_state)| {
                 let is_instruction_decode = match datapath_state.current_architecture {
                     AvailableDatapaths::MIPS => {
                         datapath_state.mips.current_stage == Stage::InstructionDecode
@@ -250,9 +282,17 @@ fn app(props: &AppProps) -> Html {
 
                 if is_instruction_decode {
                     // highlight on InstructionDecode since syscall stops at that stage.
-                    let programinfo = Rc::clone(&program_info_ref);
-                    let programinfo = programinfo.borrow().clone();
-                    let list_of_line_numbers = programinfo.address_to_line_number;
+
+                    // highlight on InstructionDecode since syscall stops at that stage.
+                    let (program_info, assembled, labels) = parser(
+                        text_model.get_value(),
+                        datapath_state.current_architecture.clone(),
+                    );
+                    *program_info_ref.borrow_mut() = program_info.clone();
+                    *binary_ref.borrow_mut() = assembled.clone();
+                    *labels_ref.borrow_mut() = labels.clone();
+
+                    let list_of_line_numbers = program_info.address_to_line_number;
                     let index = datapath_state.get_pc() as usize / 4;
                     editor_curr_line
                         .set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0);
@@ -264,17 +304,37 @@ fn app(props: &AppProps) -> Html {
 
                 trigger.force_update();
             },
-            (editor_curr_line, memory_curr_instr, datapath_state),
+            (
+                editor_curr_line,
+                memory_curr_instr,
+                text_model,
+                datapath_state,
+            ),
         )
     };
 
     let on_continue_execution = {
         let communicator = props.communicator;
+        let program_info_ref = Rc::clone(&program_info_ref);
+        let binary_ref = Rc::clone(&binary_ref);
+        let labels_ref = Rc::clone(&labels_ref);
+
+        let text_model = text_model.clone();
+
+        let datapath_state = datapath_state.clone();
         use_callback(
-            move |_, _| {
+            move |_, (text_model, datapath_state)| {
+                let (program_info, assembled, labels) = parser(
+                    text_model.get_value(),
+                    datapath_state.current_architecture.clone(),
+                );
+                *program_info_ref.borrow_mut() = program_info.clone();
+                *binary_ref.borrow_mut() = assembled.clone();
+                *labels_ref.borrow_mut() = labels.clone();
+
                 communicator.execute();
             },
-            (),
+            (text_model, datapath_state),
         )
     };
 
@@ -289,8 +349,6 @@ fn app(props: &AppProps) -> Html {
     };
 
     let on_memory_clicked = {
-        let program_info_ref = Rc::clone(&program_info_ref);
-
         // Code editor
         let text_model = text_model.clone();
 
@@ -301,11 +359,11 @@ fn app(props: &AppProps) -> Html {
         let communicator = props.communicator;
         let datapath_state = datapath_state.clone();
 
+        let program_info_ref = Rc::clone(&program_info_ref);
+
         use_callback(
             move |_, datapath_state| {
                 let text_model = text_model.clone();
-
-                let program_info_ref = Rc::clone(&program_info_ref);
 
                 // Update memory
                 let memory_text_model = memory_text_model.clone();
@@ -341,7 +399,10 @@ fn app(props: &AppProps) -> Html {
                             }
                         }
                         // Memory updated successfully
-                        let program_info = program_info_ref.borrow().clone();
+                        let (program_info, _assembled, _labels) = parser(
+                            text_model.get_value(),
+                            datapath_state.current_architecture.clone(),
+                        );
                         let mut lines_beyond_counter = program_info.address_to_line_number.len();
                         let mut curr_value = text_model.get_value();
                         let mut add_new_lines = false;
@@ -414,7 +475,7 @@ fn app(props: &AppProps) -> Html {
                 }
 
                 // Update the parsed info for text and data segment views
-                let (program_info, _) = parser(
+                let (program_info, _, _) = parser(
                     text_model.get_value(),
                     datapath_state.current_architecture.clone(),
                 );
@@ -442,18 +503,27 @@ fn app(props: &AppProps) -> Html {
         let memory_curr_instr = memory_curr_instr.clone();
 
         use_callback(
-            move |_, editor_curr_line| {
+            move |_, (editor_curr_line, program_info_ref, binary_ref, labels_ref)| {
                 // Set highlighted line to 0
                 editor_curr_line.set(0.0);
                 memory_curr_instr.set(0);
 
                 parser_text_output.set("".to_string());
 
+                *program_info_ref.borrow_mut() = ProgramInfo::default();
+                *binary_ref.borrow_mut() = vec![];
+                *labels_ref.borrow_mut() = HashMap::<String, usize>::new();
+
                 communicator.reset();
                 breakpoints.set(HashSet::default());
                 trigger.force_update();
             },
-            editor_curr_line,
+            (
+                editor_curr_line,
+                program_info_ref.clone(),
+                binary_ref.clone(),
+                labels_ref.clone(),
+            ),
         )
     };
 
@@ -489,7 +559,6 @@ fn app(props: &AppProps) -> Html {
         )
     };
 
-    log::debug!("{:?}", datapath_state.executing);
     html! {
         <>
             // button tied to the input file element, which is hidden to be more clean
@@ -505,10 +574,10 @@ fn app(props: &AppProps) -> Html {
                                     <path d="M18 4.30769L14 0H0V28H32V4.30769H18ZM16 11.8462L23 19.3846H18V28H14V19.3846H9L16 11.8462Z" fill="#BBBBBB"/>
                                 </svg>
                             </button>
-                            <button class="group disabled:opacity-30 duration-300 " title="Assemble" onclick={on_assemble_clicked}>
+                            <button class="group disabled:opacity-30 duration-300 " title="Assemble" onclick={on_assemble_clicked} disabled={datapath_state.initialized}>
                                 <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path class="group-hover:stroke-primary-100 group-hover:fill-primary-100" fill-rule="evenodd" clip-rule="evenodd" d="M34.1794 19.1007C34.1794 23.0891 32.595 26.9142 29.7748 29.7345C26.9545 32.5547 23.1294 34.1392 19.141 34.1392C15.1525 34.1392 11.3274 32.5547 8.50714 29.7345C5.68688 26.9142 4.10247 23.0891 4.10247 19.1007C4.10247 15.1122 5.68688 11.2871 8.50714 8.46686C11.3274 5.6466 15.1525 4.06219 19.141 4.06219C23.1294 4.06219 26.9545 5.6466 29.7748 8.46686C32.595 11.2871 34.1794 15.1122 34.1794 19.1007ZM34.1183 17.5507L36.2416 19.1007L34.1183 20.4552L35.9114 22.4366L33.5523 23.3059L34.941 25.6444L32.4369 25.9915L33.3606 28.6029L30.6009 28.8385L31.2344 31.1941L28.5455 30.894L28.6432 33.3203L26.1295 32.508L25.6847 34.9007L23.4439 33.6234L22.4768 35.8711L20.5932 34.0981L19.141 36.2013L17.6887 34.0981L15.8051 35.8711L14.838 33.532L12.5972 34.9007L12.1524 32.4167L9.63871 33.3203L9.5403 30.8617L7.04749 31.1941L7.48485 28.8063L4.92128 28.6029L5.87082 26.3903L3.34095 25.6444L4.75548 23.7047L2.3705 22.4366L4.18939 20.4552L2.04028 19.1007L4.18939 17.5507L2.3705 15.7648L4.75548 14.7L3.34095 12.5569L5.87082 12.0144L4.92128 9.59843H7.48485L7.04749 7.00721L9.64964 7.44457L9.63871 4.881L12.0656 5.83053L12.5972 3.30066L14.7512 4.7152L15.8051 2.33022L17.6019 4.14911L19.141 2L20.4564 3.97315L22.4768 2.33022L23.4161 4.30201L25.6847 3.30066L26.2272 5.83053L28.6432 4.881V7.44457L31.2344 7.00721L30.6986 9.50002L33.3606 9.59843L32.3127 11.916L34.941 12.5569L33.5523 14.7L35.9114 15.7648L34.1183 17.5507Z" stroke="#BBBBBB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path class="group-hover:stroke-primary-100 group-hover:fill-primary-100" d="M27.4664 24.3107L22.6243 19.1458C22.3246 18.8261 21.8341 18.8261 21.5343 19.1458L21.171 19.5333L18.2164 16.3818L23.0667 11.2081H17.9283L15.6471 13.6413L15.4214 13.4005H14.3314V14.5632L14.5571 14.804L11.2483 18.3334L13.8175 21.0739L17.1263 17.5445L20.0809 20.6961L19.7176 21.0836C19.4178 21.4034 19.4178 21.9266 19.7176 22.2463L24.5597 27.4112C24.8594 27.731 25.3499 27.731 25.6497 27.4112L27.4664 25.4734C27.7662 25.1537 27.7662 24.6305 27.4664 24.3107Z" fill="#BBBBBB"/>
+                                    <path class="group-hover:group-enabled:stroke-primary-100 group-hover:group-enabled:fill-primary-100" fill-rule="evenodd" clip-rule="evenodd" d="M34.1794 19.1007C34.1794 23.0891 32.595 26.9142 29.7748 29.7345C26.9545 32.5547 23.1294 34.1392 19.141 34.1392C15.1525 34.1392 11.3274 32.5547 8.50714 29.7345C5.68688 26.9142 4.10247 23.0891 4.10247 19.1007C4.10247 15.1122 5.68688 11.2871 8.50714 8.46686C11.3274 5.6466 15.1525 4.06219 19.141 4.06219C23.1294 4.06219 26.9545 5.6466 29.7748 8.46686C32.595 11.2871 34.1794 15.1122 34.1794 19.1007ZM34.1183 17.5507L36.2416 19.1007L34.1183 20.4552L35.9114 22.4366L33.5523 23.3059L34.941 25.6444L32.4369 25.9915L33.3606 28.6029L30.6009 28.8385L31.2344 31.1941L28.5455 30.894L28.6432 33.3203L26.1295 32.508L25.6847 34.9007L23.4439 33.6234L22.4768 35.8711L20.5932 34.0981L19.141 36.2013L17.6887 34.0981L15.8051 35.8711L14.838 33.532L12.5972 34.9007L12.1524 32.4167L9.63871 33.3203L9.5403 30.8617L7.04749 31.1941L7.48485 28.8063L4.92128 28.6029L5.87082 26.3903L3.34095 25.6444L4.75548 23.7047L2.3705 22.4366L4.18939 20.4552L2.04028 19.1007L4.18939 17.5507L2.3705 15.7648L4.75548 14.7L3.34095 12.5569L5.87082 12.0144L4.92128 9.59843H7.48485L7.04749 7.00721L9.64964 7.44457L9.63871 4.881L12.0656 5.83053L12.5972 3.30066L14.7512 4.7152L15.8051 2.33022L17.6019 4.14911L19.141 2L20.4564 3.97315L22.4768 2.33022L23.4161 4.30201L25.6847 3.30066L26.2272 5.83053L28.6432 4.881V7.44457L31.2344 7.00721L30.6986 9.50002L33.3606 9.59843L32.3127 11.916L34.941 12.5569L33.5523 14.7L35.9114 15.7648L34.1183 17.5507Z" stroke="#BBBBBB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path class="group-hover:group-enabled:stroke-primary-100 group-hover:group-enabled:fill-primary-100" d="M27.4664 24.3107L22.6243 19.1458C22.3246 18.8261 21.8341 18.8261 21.5343 19.1458L21.171 19.5333L18.2164 16.3818L23.0667 11.2081H17.9283L15.6471 13.6413L15.4214 13.4005H14.3314V14.5632L14.5571 14.804L11.2483 18.3334L13.8175 21.0739L17.1263 17.5445L20.0809 20.6961L19.7176 21.0836C19.4178 21.4034 19.4178 21.9266 19.7176 22.2463L24.5597 27.4112C24.8594 27.731 25.3499 27.731 25.6497 27.4112L27.4664 25.4734C27.7662 25.1537 27.7662 24.6305 27.4664 24.3107Z" fill="#BBBBBB"/>
                                 </svg>
                             </button>
                             <button class="group hover:stroke-primary-100 disabled:opacity-30 duration-300 " title="Execute" onclick={on_continue_execution} disabled={datapath_state.executing || !datapath_state.initialized}>
@@ -547,7 +616,7 @@ fn app(props: &AppProps) -> Html {
                     </div>
 
                     // Editor
-                    <div class="flex flex-col grow min-h-16 mt-2">
+                    <div class="flex flex-col grow min-h-16 mt-2 h-full overflow-auto">
                         <SwimEditor
                             breakpoints={breakpoints.clone()}
                             text_model={text_model}
@@ -555,6 +624,7 @@ fn app(props: &AppProps) -> Html {
                             program_info={program_info_ref.borrow().clone()}
                             pc_limit={*pc_limit}
                             binary={binary_ref.borrow().clone()}
+                            labels={labels_ref.borrow().clone()}
                             memory_curr_instr={memory_curr_instr.clone()}
                             editor_curr_line={editor_curr_line.clone()}
                             editor_active_tab={editor_active_tab.clone()}
@@ -563,11 +633,27 @@ fn app(props: &AppProps) -> Html {
                             communicator={props.communicator}
                             current_architecture={datapath_state.current_architecture.clone()}
                             speed={datapath_state.speed}
+                            sp={datapath_state.get_sp()}
+                            memory={datapath_state.get_memory().clone()}
+                            stack={datapath_state.get_stack().clone()}
+                            initialized={datapath_state.initialized}
+                            executing={datapath_state.executing}
                         />
                     </div>
 
                     // Console
-                    <Footer parsermsg={(*parser_text_output).clone()} datapath_state={datapath_state.clone()} memory_text_model={memory_text_model} memory_curr_instr={memory_curr_instr.clone()} active_tab={console_active_tab.clone()} communicator={props.communicator} show_input={show_input.clone()} on_memory_clicked={on_memory_clicked.clone()}/>
+                    <Footer
+                        parsermsg={(*parser_text_output).clone()}
+                        datapath_state={datapath_state.clone()}
+                        memory_text_model={memory_text_model}
+                        memory_curr_instr={memory_curr_instr.clone()}
+                        active_tab={console_active_tab.clone()}
+                        communicator={props.communicator}
+                        show_input={show_input.clone()}
+                        on_memory_clicked={on_memory_clicked.clone()}
+                        memory={datapath_state.get_memory().clone()}
+                        pc={datapath_state.get_pc()}
+                    />
                 </div>
 
                 // Right column

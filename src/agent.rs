@@ -55,6 +55,7 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
         // Save the previous state of the emulator core's execution and initialization status
         let is_executing = state.executing;
         let is_initialized = state.initialized;
+        let curr_speed = state.speed;
 
         // Part 1: Delay/Command Handling
         if state.executing {
@@ -119,6 +120,11 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                     state.updates.changed_memory,
                     MipsStateUpdate::UpdateMemory(datapath.memory.clone())
                 );
+                send_update_mips!(
+                    state.scope,
+                    state.updates.changed_stack,
+                    MipsStateUpdate::UpdateStack(datapath.stack.clone())
+                );
             }
             DatapathRef::RISCV(datapath) => {
                 // Stage always updates
@@ -144,6 +150,11 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                     state.updates.changed_memory,
                     RiscStateUpdate::UpdateMemory(datapath.memory.clone())
                 );
+                send_update_riscv!(
+                    state.scope,
+                    state.updates.changed_stack,
+                    RiscStateUpdate::UpdateStack(datapath.stack.clone())
+                );
             }
         }
         // Part 5: Sending Non-Syscall System Updates to UI
@@ -156,6 +167,11 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
             state.scope,
             state.initialized != is_initialized,
             DatapathUpdate::System(SystemUpdate::UpdateInitialized(state.initialized))
+        );
+        send_update!(
+            state.scope,
+            state.speed != curr_speed,
+            DatapathUpdate::System(SystemUpdate::UpdateSpeed(state.speed))
         );
         state.updates = Default::default();
     }

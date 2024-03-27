@@ -16,7 +16,7 @@ pub mod api {
 
         // Add instruction into emulation core memory.
         let instruction = String::from("ori $s0, $zero, 5");
-        let (_, instruction_bits) = parser(instruction, AvailableDatapaths::MIPS);
+        let (_, instruction_bits, _labels) = parser(instruction, AvailableDatapaths::MIPS);
         datapath.initialize_legacy(instruction_bits)?;
 
         datapath.execute_instruction();
