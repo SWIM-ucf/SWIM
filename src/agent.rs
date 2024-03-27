@@ -9,6 +9,7 @@ use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::emulation_core::mips::gp_registers::GpRegisterType;
 use futures::{FutureExt, SinkExt, StreamExt};
 use gloo_console::log;
+use instant::Instant;
 use messages::DatapathUpdate;
 use std::collections::HashSet;
 use std::time::Duration;
@@ -36,6 +37,8 @@ macro_rules! send_update_mips {
         send_update!($scope, $cond, DatapathUpdate::MIPS($data))
     };
 }
+
+const UPDATE_INTERVAL: Duration = Duration::from_millis(250);
 
 /// The main logic for the emulation core agent. All code within this function runs on a worker thread as opposed to
 /// the UI thread.
@@ -77,41 +80,46 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
         state.execute_syscall_stage().await;
 
         // Part 4: Processing State/Sending Updates to UI
-        match state.current_datapath.as_datapath_ref() {
-            DatapathRef::MIPS(datapath) => {
-                log!(format!("Updates: {:?}", state.updates));
-                // Stage always updates
-                send_update_mips!(state.scope, true, UpdateStage(datapath.current_stage));
+        if state.should_send_datapath_update() {
+            match state.current_datapath.as_datapath_ref() {
+                DatapathRef::MIPS(datapath) => {
+                    log!(format!("Updates: {:?}", state.updates));
+                    // Stage always updates
+                    send_update_mips!(state.scope, true, UpdateStage(datapath.current_stage));
 
-                // Send all other updates based on the state.updates variable.
-                send_update_mips!(
-                    state.scope,
-                    state.updates.changed_state,
-                    UpdateState(datapath.state.clone())
-                );
-                send_update_mips!(
-                    state.scope,
-                    state.updates.changed_registers,
-                    UpdateRegisters(datapath.registers)
-                );
-                send_update_mips!(
-                    state.scope,
-                    state.updates.changed_coprocessor_state,
-                    UpdateCoprocessorState(datapath.coprocessor.state.clone())
-                );
-                send_update_mips!(
-                    state.scope,
-                    state.updates.changed_coprocessor_registers,
-                    UpdateCoprocessorRegisters(datapath.coprocessor.registers)
-                );
-                send_update_mips!(
-                    state.scope,
-                    state.updates.changed_memory,
-                    UpdateMemory(datapath.memory.clone())
-                );
+                    // Send all other updates based on the state.updates variable.
+                    send_update_mips!(
+                        state.scope,
+                        state.updates.changed_state,
+                        UpdateState(datapath.state.clone())
+                    );
+                    send_update_mips!(
+                        state.scope,
+                        state.updates.changed_registers,
+                        UpdateRegisters(datapath.registers)
+                    );
+                    send_update_mips!(
+                        state.scope,
+                        state.updates.changed_coprocessor_state,
+                        UpdateCoprocessorState(datapath.coprocessor.state.clone())
+                    );
+                    send_update_mips!(
+                        state.scope,
+                        state.updates.changed_coprocessor_registers,
+                        UpdateCoprocessorRegisters(datapath.coprocessor.registers)
+                    );
+                    send_update_mips!(
+                        state.scope,
+                        state.updates.changed_memory,
+                        UpdateMemory(datapath.memory.clone())
+                    );
+                }
+                DatapathRef::RISCV(_) => todo!(),
             }
-            DatapathRef::RISCV(_) => todo!(),
+            state.updates = Default::default();
+            state.last_update = Some(Instant::now());
         }
+
         // Part 5: Sending Non-Syscall System Updates to UI
         send_update!(
             state.scope,
@@ -123,7 +131,6 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
             state.initialized != is_initialiized,
             DatapathUpdate::System(SystemUpdate::UpdateInitialized(state.initialized))
         );
-        state.updates = Default::default();
     }
 }
 
@@ -142,6 +149,7 @@ struct EmulatorCoreAgentState {
     pub updates: DatapathUpdateSignal,
     pub scope: ReactorScope<Command, DatapathUpdate>,
     speed: u32,
+    last_update: Option<Instant>,
     executing: bool,
     initialized: bool,
     messages: Vec<String>,
@@ -157,6 +165,7 @@ impl EmulatorCoreAgentState {
             updates: DatapathUpdateSignal::default(),
             scope,
             speed: 0,
+            last_update: None,
             executing: false,
             initialized: false,
             messages: Vec::new(),
@@ -407,6 +416,18 @@ impl EmulatorCoreAgentState {
                     }
                 }
             }
+        }
+    }
+
+    /// Determines of datapath updates should be sent. Datapath updates should be sent at most once
+    /// per second when executing as fast as possible. If the last cycle was executed using the
+    /// debug buttons or we're going at at a specific speed, always send an update.
+    pub fn should_send_datapath_update(&self) -> bool {
+        if self.executing && self.speed == 0 {
+            self.last_update.is_none()
+                || Instant::now().duration_since(self.last_update.unwrap()) > UPDATE_INTERVAL
+        } else {
+            true
         }
     }
 

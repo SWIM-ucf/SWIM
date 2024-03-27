@@ -38,3 +38,4 @@ cfg-if = "0.1"
 log = "0.4"
 console_log = { version = "1", features = ["color"] }
 humantime = "2.1.0"
+instant = {  version = "0.1.12" , features = ["wasm-bindgen"] }
