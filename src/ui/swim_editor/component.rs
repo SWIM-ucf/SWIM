@@ -56,6 +56,7 @@ pub struct SwimEditorProps {
     pub stack: Stack,
     pub breakpoints: UseStateHandle<HashSet<u64>>,
     pub initialized: bool,
+    pub executing: bool,
 }
 
 #[derive(Default, PartialEq)]
@@ -106,12 +107,15 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
 
     let on_editor_created = {
         let curr_line = props.editor_curr_line.clone();
-        let program_info = props.program_info.clone();
         let lines_content = Rc::clone(&props.lines_content);
 
-        let list_of_line_numbers = program_info.address_to_line_number;
-        let index = props.pc as usize / 4;
-        curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0); // add one to account for the editor's line numbers
+        if props.executing {
+            let program_info = props.program_info.clone();
+            let list_of_line_numbers = program_info.address_to_line_number;
+            let index = props.pc as usize / 4;
+            curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0);
+            // add one to account for the editor's line numbers
+        }
 
         use_callback(
             move |editor_link: CodeEditorLink, (curr_line, initialized)| {

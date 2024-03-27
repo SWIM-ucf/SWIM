@@ -174,6 +174,12 @@ fn app(props: &AppProps) -> Html {
                     memory_curr_instr.set(datapath_state.mips.registers.pc);
 
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
+
+                    // After adding pseudo instructions, update program info
+                    let (program_info, assembled, labels) = parser(text_model.get_value(), ARCH);
+                    *program_info_ref.borrow_mut() = program_info.clone();
+                    *binary_ref.borrow_mut() = assembled.clone();
+                    *labels_ref.borrow_mut() = labels.clone();
                 }
 
                 trigger.force_update();
@@ -588,6 +594,7 @@ fn app(props: &AppProps) -> Html {
                             memory={datapath_state.mips.memory.clone()}
                             stack={datapath_state.mips.stack.clone()}
                             initialized={datapath_state.initialized}
+                            executing={datapath_state.executing}
                         />
                     </div>
 

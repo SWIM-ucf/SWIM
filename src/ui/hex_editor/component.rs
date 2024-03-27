@@ -36,6 +36,7 @@ pub struct HexEditorProps {
     // The instruction to highlight
     pub memory_curr_instr: UseStateHandle<u64>,
     pub initialized: bool,
+    pub executing: bool,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -143,7 +144,10 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
 
     let on_editor_created = {
         let memory_curr_instr = props.memory_curr_instr.clone();
-        memory_curr_instr.set(props.pc); // should this only be done in execute clicked for usability
+
+        if props.executing {
+            memory_curr_instr.set(props.pc);
+        }
 
         use_callback(
             move |editor_link: CodeEditorLink,
