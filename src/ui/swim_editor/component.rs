@@ -293,7 +293,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                     <button class={classes!("copy-button", conditional_class)} title="Copy to Clipboard" onclick={on_clipboard_clicked}>{"Copy to Clipboard "}<i class={classes!("fa-regular", "fa-copy")}></i></button>
                     <input type="number" id="execution-speed" title="Execution Speed. Setting this to 0 will make it run as fast as possible." name="execution-speed" placeholder="0" min="0" value={format!("{}", props.speed)} class="bg-primary-700 flex items-center flex-row text-right w-24" onchange={change_execution_speed} />
                     <span title="Execution Speed.">{"Hz"}</span>
-                    <select class="bg-primary-600 flex flex-row items-center" name="architecture" onchange={change_architecture.clone()} defaultValue={props.current_architecture.to_string()}>
+                    <select class="bg-primary-600 flex flex-row items-center" name="architecture" onchange={change_architecture.clone()}>
                         {arch_options}
                     </select>
                 </div>
