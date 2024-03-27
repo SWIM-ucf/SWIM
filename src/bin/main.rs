@@ -15,7 +15,6 @@ use swim::agent::datapath_reducer::DatapathReducer;
 use swim::agent::EmulationCoreAgent;
 use swim::emulation_core::mips::datapath::Stage;
 use swim::parser::parser_assembler_main::parser;
-use swim::parser::parser_structs_and_enums::LabelInstance;
 use swim::parser::parser_structs_and_enums::ProgramInfo;
 use swim::ui::footer::component::Footer;
 use swim::ui::regview::component::Regview;

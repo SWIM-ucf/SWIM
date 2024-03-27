@@ -143,6 +143,10 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
     }
 
     let on_editor_created = {
+        let memory_curr_instr = props.memory_curr_instr.clone();
+        let datapath_state = props.datapath_state.clone();
+        memory_curr_instr.set(datapath_state.mips.registers.pc);
+
         use_callback(
             move |editor_link: CodeEditorLink,
                   (datapath_state, memory_text_model, memory_curr_instr)| {
@@ -156,7 +160,7 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
                     let raw_editor = editor.as_ref();
                     let cb_func = &cb.as_ref().unchecked_ref();
 
-                    let coords = get_hex_coords(*memory_curr_instr);
+                    let coords = get_hex_coords(**memory_curr_instr);
                     raw_editor.on_did_change_cursor_selection(cb_func);
                     raw_editor.reveal_line_in_center(coords.line_number, Some(ScrollType::Smooth));
 
