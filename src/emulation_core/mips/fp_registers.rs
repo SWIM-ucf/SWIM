@@ -1,7 +1,9 @@
 //! Register structure and API.
 
+use crate::emulation_core::register::{RegisterType, Registers};
 use serde::{Deserialize, Serialize};
 use std::ops::{Index, IndexMut};
+use std::rc::Rc;
 use std::str::FromStr;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
@@ -52,12 +54,23 @@ pub enum FpRegisterType {
     F31 = 31,
 }
 
-impl FpRegisterType {
-    pub fn get_fpr_name(&self) -> String {
+impl RegisterType for FpRegisterType {
+    fn get_register_name(&self) -> String {
         format!("f{}", *self as u32)
     }
-    pub fn is_valid_register_value(&self, _value: u64) -> bool {
+    fn is_valid_register_value(&self, _value: u64, _pc_limit: usize) -> bool {
         true
+    }
+}
+
+impl Registers for FpRegisters {
+    fn get_dyn_register_list(&self) -> Vec<(Rc<dyn RegisterType>, u64)> {
+        self.into_iter()
+            .map(|(register, val)| {
+                let register: Rc<dyn RegisterType> = Rc::new(register);
+                (register, val)
+            })
+            .collect()
     }
 }
 

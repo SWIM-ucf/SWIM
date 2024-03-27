@@ -31,6 +31,7 @@ use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew::{html, Html, Properties};
 
+use swim::emulation_core::register::Registers;
 use yew_agent::Spawnable;
 
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
@@ -539,7 +540,7 @@ fn app(props: &AppProps) -> Html {
                 </div>
 
                 // Right column
-                <Regview gp={datapath_state.mips.registers} fp={datapath_state.mips.coprocessor_registers} pc_limit={*pc_limit} communicator={props.communicator}/>
+                <Regview gp={datapath_state.mips.registers.get_dyn_register_list()} fp={datapath_state.mips.coprocessor_registers.get_dyn_register_list()} pc_limit={*pc_limit} communicator={props.communicator}/>
             </div>
         </>
     }
