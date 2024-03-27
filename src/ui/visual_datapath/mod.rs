@@ -84,7 +84,7 @@ impl Component for VisualDatapath {
         let zoom_out_size = Rc::clone(&self.size);
         html! {
             <div id="datapath-wrapper" class="max-h-[50%] relative">
-                <div class="overflow-auto w-full h-full basis-1/2 bg-primary-100 z-10 relative">
+                <div id="datapath-scrollbox" class="overflow-auto w-full h-full basis-1/2 bg-primary-100 z-10 relative">
                     <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID} class={classes!("datapath", format!("size-{}", self.size.borrow()))}></object>
                 </div>
                 <div id="popup">

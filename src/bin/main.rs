@@ -491,7 +491,7 @@ fn app(props: &AppProps) -> Html {
 
     log::debug!("{:?}", datapath_state.executing);
     html! {
-        <>
+        <div class="overflow-hidden">
             // button tied to the input file element, which is hidden to be more clean
             <input type="file" class="hidden" id="file_input" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
             <div class="flex flex-row flex-no-wrap h-screen p-2 gap-2">
@@ -573,7 +573,7 @@ fn app(props: &AppProps) -> Html {
                 // Right column
                 <Regview gp={datapath_state.get_dyn_gp_registers()} fp={datapath_state.mips.coprocessor_registers.get_dyn_register_list()} pc_limit={*pc_limit} communicator={props.communicator}/>
             </div>
-        </>
+        </div>
     }
 }
 

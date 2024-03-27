@@ -68,7 +68,7 @@ pub fn get_datapath_iframe_mouse_position(event: MouseEvent) -> (i32, i32) {
     let datapath_position = get_datapath_position();
 
     let datapath_wrapper = gloo::utils::document()
-        .get_element_by_id("datapath-wrapper")
+        .get_element_by_id("datapath-scrollbox")
         .unwrap()
         .unchecked_into::<HtmlElement>();
     let scroll_position = (
