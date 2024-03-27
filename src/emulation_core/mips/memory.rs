@@ -159,33 +159,11 @@ impl Memory {
         Ok(result)
     }
 
-    // // Returns instructions that were updated with their string versions and line numbers
-    // pub fn store_hexdump(&mut self, instructions: Vec<u32>) -> Result<Vec<UpdatedLine>, String> {
-    //     let mut changed_lines: Vec<UpdatedLine> = vec![];
-    //     for (i, data) in instructions.iter().enumerate() {
-    //         let address = i as u64;
-    //         let line = match get_string_version(*data) {
-    //             Ok(string) => string,
-    //             Err(string) => string,
-    //         };
-    //         let curr_word = match self.load_word(address * 4) {
-    //             Ok(data) => data,
-    //             Err(e) => {
-    //                 debug!("{:?}", e);
-    //                 0
-    //             }
-    //         };
-    //         if curr_word != *data {
-    //             changed_lines.push(UpdatedLine::new(line, i));
-    //             self.store_word(address * 4, *data)?
-    //         }
-    //     }
-
-    //     Ok(changed_lines)
-    // }
-
-    pub fn generate_formatted_hex(&self) -> String {
-        let iterator = MemoryIter::new(self);
+    pub fn generate_formatted_hex(&self, end_address: usize) -> String {
+        if end_address == 0 {
+            return "".to_string();
+        }
+        let iterator = MemoryIter::new(self, 0, end_address);
 
         let mut string: String = "".to_string();
 
@@ -221,13 +199,15 @@ impl Memory {
 pub struct MemoryIter<'a> {
     memory: &'a Memory,
     current_address: usize,
+    end_address: usize,
 }
 
 impl<'a> MemoryIter<'a> {
-    pub fn new(memory: &'a Memory) -> MemoryIter<'a> {
+    pub fn new(memory: &'a Memory, current_address: usize, end_address: usize) -> MemoryIter<'a> {
         MemoryIter {
             memory,
-            current_address: 0,
+            current_address,
+            end_address,
         }
     }
 }
@@ -237,7 +217,7 @@ impl<'a> Iterator for MemoryIter<'a> {
     type Item = (usize, Vec<u32>);
     fn next(&mut self) -> Option<Self::Item> {
         self.current_address = (self.current_address + 3) & !3;
-        if self.current_address + 16 <= self.memory.memory.len() {
+        if self.current_address + 16 <= self.end_address {
             let address = self.current_address;
             let words = (0..4)
                 .map(|i| self.memory.load_word(address as u64 + (i * 4)).unwrap())

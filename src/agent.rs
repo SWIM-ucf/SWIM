@@ -1,12 +1,12 @@
 //! The agent responsible for running the emulator core on the worker thread and communication functionalities.
 
-use crate::agent::messages::MipsStateUpdate::*;
-use crate::agent::messages::{Command, SystemUpdate};
+use crate::agent::messages::MipsStateUpdate;
+use crate::agent::messages::{Command, RiscStateUpdate, SystemUpdate};
 use crate::agent::system_scanner::Scanner;
-use crate::emulation_core::architectures::DatapathRef;
+use crate::emulation_core::architectures::{AvailableDatapaths, DatapathRef};
 use crate::emulation_core::datapath::{Datapath, DatapathUpdateSignal, Syscall, UPDATE_EVERYTHING};
 use crate::emulation_core::mips::datapath::MipsDatapath;
-use crate::emulation_core::mips::gp_registers::GpRegisterType;
+use crate::emulation_core::riscv::datapath::RiscDatapath;
 use futures::{FutureExt, SinkExt, StreamExt};
 use gloo_console::log;
 use instant::Instant;
@@ -38,6 +38,12 @@ macro_rules! send_update_mips {
     };
 }
 
+macro_rules! send_update_riscv {
+    ($scope:expr, $cond:expr, $data:expr) => {
+        send_update!($scope, $cond, DatapathUpdate::RISCV($data))
+    };
+}
+
 const UPDATE_INTERVAL: Duration = Duration::from_millis(250);
 
 /// The main logic for the emulation core agent. All code within this function runs on a worker thread as opposed to
@@ -51,7 +57,8 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
 
         // Save the previous state of the emulator core's execution and initialization status
         let is_executing = state.executing;
-        let is_initialiized = state.initialized;
+        let is_initialized = state.initialized;
+        let curr_speed = state.speed;
 
         // Part 1: Delay/Command Handling
         if state.executing {
@@ -85,36 +92,74 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                 DatapathRef::MIPS(datapath) => {
                     log!(format!("Updates: {:?}", state.updates));
                     // Stage always updates
-                    send_update_mips!(state.scope, true, UpdateStage(datapath.current_stage));
+                    send_update_mips!(
+                        state.scope,
+                        true,
+                        MipsStateUpdate::UpdateStage(datapath.current_stage)
+                    );
 
                     // Send all other updates based on the state.updates variable.
                     send_update_mips!(
                         state.scope,
                         state.updates.changed_state,
-                        UpdateState(datapath.state.clone())
+                        MipsStateUpdate::UpdateState(datapath.state.clone())
                     );
                     send_update_mips!(
                         state.scope,
                         state.updates.changed_registers,
-                        UpdateRegisters(datapath.registers)
+                        MipsStateUpdate::UpdateRegisters(datapath.registers)
                     );
                     send_update_mips!(
                         state.scope,
                         state.updates.changed_coprocessor_state,
-                        UpdateCoprocessorState(datapath.coprocessor.state.clone())
+                        MipsStateUpdate::UpdateCoprocessorState(datapath.coprocessor.state.clone())
                     );
                     send_update_mips!(
                         state.scope,
                         state.updates.changed_coprocessor_registers,
-                        UpdateCoprocessorRegisters(datapath.coprocessor.registers)
+                        MipsStateUpdate::UpdateCoprocessorRegisters(datapath.coprocessor.registers)
                     );
                     send_update_mips!(
                         state.scope,
                         state.updates.changed_memory,
-                        UpdateMemory(datapath.memory.clone())
+                        MipsStateUpdate::UpdateMemory(datapath.memory.clone())
+                    );
+                    send_update_mips!(
+                        state.scope,
+                        state.updates.changed_stack,
+                        MipsStateUpdate::UpdateStack(datapath.stack.clone())
                     );
                 }
-                DatapathRef::RISCV(_) => todo!(),
+                DatapathRef::RISCV(datapath) => {
+                    // Stage always updates
+                    send_update_riscv!(
+                        state.scope,
+                        true,
+                        RiscStateUpdate::UpdateStage(datapath.current_stage)
+                    );
+
+                    // Send all other updates based on the state.updates variable.
+                    send_update_riscv!(
+                        state.scope,
+                        state.updates.changed_state,
+                        RiscStateUpdate::UpdateState(datapath.state.clone())
+                    );
+                    send_update_riscv!(
+                        state.scope,
+                        state.updates.changed_registers,
+                        RiscStateUpdate::UpdateRegisters(datapath.registers)
+                    );
+                    send_update_riscv!(
+                        state.scope,
+                        state.updates.changed_memory,
+                        RiscStateUpdate::UpdateMemory(datapath.memory.clone())
+                    );
+                    send_update_riscv!(
+                        state.scope,
+                        state.updates.changed_stack,
+                        RiscStateUpdate::UpdateStack(datapath.stack.clone())
+                    );
+                }
             }
             state.updates = Default::default();
             state.last_update = Some(Instant::now());
@@ -128,8 +173,13 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
         );
         send_update!(
             state.scope,
-            state.initialized != is_initialiized,
+            state.initialized != is_initialized,
             DatapathUpdate::System(SystemUpdate::UpdateInitialized(state.initialized))
+        );
+        send_update!(
+            state.scope,
+            state.speed != curr_speed,
+            DatapathUpdate::System(SystemUpdate::UpdateSpeed(state.speed))
         );
     }
 }
@@ -142,7 +192,7 @@ enum BlockedOn {
 }
 
 struct EmulatorCoreAgentState {
-    current_datapath: Box<dyn Datapath<RegisterData = u64, RegisterEnum = GpRegisterType>>,
+    current_datapath: Box<dyn Datapath<RegisterData = u64>>,
     /// The changes to the emulator core's memory/registers/etc. are tracked in this variable. When
     /// it's time to send updates back to the main thread, this variable determines which updates
     /// get sent.
@@ -177,13 +227,20 @@ impl EmulatorCoreAgentState {
 
     pub async fn handle_command(&mut self, command: Command) {
         match command {
-            Command::SetCore(_architecture) => {
-                todo!("Implement setting cores.") // Implement once we have a RISCV datapath
+            Command::SetCore(architecture) => {
+                match architecture {
+                    AvailableDatapaths::MIPS => {
+                        self.current_datapath = Box::<MipsDatapath>::default();
+                    }
+                    AvailableDatapaths::RISCV => {
+                        self.current_datapath = Box::<RiscDatapath>::default();
+                    }
+                }
+                self.reset_system().await;
             }
             Command::Initialize(initial_pc, mem) => {
                 self.current_datapath.initialize(initial_pc, mem).unwrap();
                 self.reset_system().await;
-                self.updates |= UPDATE_EVERYTHING;
                 self.initialized = true;
             }
             Command::SetExecuteSpeed(speed) => {
@@ -220,7 +277,6 @@ impl EmulatorCoreAgentState {
             Command::Reset => {
                 self.current_datapath.reset();
                 self.reset_system().await;
-                self.updates |= UPDATE_EVERYTHING;
             }
             Command::Input(line) => {
                 self.add_message(format!("> {}", line)).await;
@@ -330,7 +386,10 @@ impl EmulatorCoreAgentState {
                             DatapathRef::MIPS(_) => {
                                 self.current_datapath.set_register_by_str("v0", scan_result);
                             }
-                            DatapathRef::RISCV(_) => todo!(),
+                            DatapathRef::RISCV(_) => {
+                                self.current_datapath
+                                    .set_register_by_str("x11", scan_result);
+                            }
                         }
                         self.updates.changed_registers = true;
                     }
@@ -349,7 +408,12 @@ impl EmulatorCoreAgentState {
                                 self.current_datapath
                                     .set_fp_register_by_str("f0", f32::to_bits(scan_result) as u64);
                             }
-                            DatapathRef::RISCV(_) => todo!(),
+                            DatapathRef::RISCV(_) => {
+                                self.current_datapath.set_fp_register_by_str(
+                                    "f10",
+                                    f32::to_bits(scan_result) as u64,
+                                );
+                            }
                         }
                         self.updates.changed_coprocessor_registers = true;
                     }
@@ -368,7 +432,10 @@ impl EmulatorCoreAgentState {
                                 self.current_datapath
                                     .set_fp_register_by_str("f0", f64::to_bits(scan_result));
                             }
-                            DatapathRef::RISCV(_) => todo!(),
+                            DatapathRef::RISCV(_) => {
+                                self.current_datapath
+                                    .set_fp_register_by_str("f10", f64::to_bits(scan_result));
+                            }
                         }
                         self.updates.changed_coprocessor_registers = true;
                     }
@@ -409,7 +476,14 @@ impl EmulatorCoreAgentState {
                                         .set_register_by_str("v0", bytes.len() as u64);
                                 }
                             }
-                            DatapathRef::RISCV(_) => todo!(),
+                            DatapathRef::RISCV(_) => {
+                                if failed_store {
+                                    self.current_datapath.set_register_by_str("x11", 0);
+                                } else {
+                                    self.current_datapath
+                                        .set_register_by_str("x11", bytes.len() as u64);
+                                }
+                            }
                         }
                         self.updates.changed_registers = true;
                         self.updates.changed_memory = true;
@@ -442,6 +516,7 @@ impl EmulatorCoreAgentState {
             )))
             .await
             .unwrap();
+        self.updates |= UPDATE_EVERYTHING;
         self.breakpoints = HashSet::default();
     }
 

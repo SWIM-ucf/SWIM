@@ -50,12 +50,14 @@ use super::super::datapath::Datapath;
 use super::constants::*;
 use super::control_signals::{floating_point::*, *};
 use super::datapath_signals::*;
+use super::gp_registers::GpRegisterType;
 use super::instruction::*;
 use super::{coprocessor::MipsFpCoprocessor, gp_registers::GpRegisters, memory::Memory};
 use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
 use crate::emulation_core::mips::fp_registers::FpRegisterType;
 use crate::emulation_core::mips::gp_registers::GpRegisterType::{A0, A1};
+use crate::emulation_core::stack::{Stack, StackFrame};
 use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.
@@ -72,6 +74,9 @@ pub struct MipsDatapath {
 
     /// The currently-active stage in the datapath.
     pub current_stage: Stage,
+
+    /// The stack of instructions that have been executed
+    pub stack: Stack,
 
     /// Boolean value that states whether the datapath has halted.
     ///
@@ -213,6 +218,7 @@ impl Default for MipsDatapath {
             datapath_signals: DatapathSignals::default(),
             state: DatapathState::default(),
             current_stage: Stage::default(),
+            stack: Stack::default(),
             is_halted: true,
         };
 
@@ -226,7 +232,6 @@ impl Default for MipsDatapath {
 
 impl Datapath for MipsDatapath {
     type RegisterData = u64;
-    type RegisterEnum = super::gp_registers::GpRegisterType;
 
     fn execute_instruction(&mut self) -> DatapathUpdateSignal {
         let mut result_signals = DatapathUpdateSignal::default();
@@ -268,10 +273,6 @@ impl Datapath for MipsDatapath {
 
         self.current_stage = Stage::get_next_stage(self.current_stage);
         res
-    }
-
-    fn get_register_by_enum(&self, register: Self::RegisterEnum) -> u64 {
-        self.registers[register]
     }
 
     fn set_register_by_str(&mut self, register: &str, data: Self::RegisterData) {
@@ -323,8 +324,8 @@ impl Datapath for MipsDatapath {
 
     fn get_syscall_arguments(&self) -> Syscall {
         Syscall::from_register_data(
-            self.get_register_by_enum(A0),
-            self.get_register_by_enum(A1),
+            self.registers[A0],
+            self.registers[A1],
             f32::from_bits(self.coprocessor.registers[FpRegisterType::F0] as u32),
             f64::from_bits(self.coprocessor.registers[FpRegisterType::F0]),
         )
@@ -460,10 +461,41 @@ impl MipsDatapath {
         self.pick_pc_plus_4_or_relative_branch_addr_mux1();
         self.set_new_pc_mux2();
 
+        let mut changed_stack = false;
+
+        // If this is the first instruction, push the initial frame to the stack
+        if self.stack.is_empty() {
+            let frame = StackFrame::new(
+                self.state.instruction,
+                self.registers.pc,
+                self.state.pc_plus_4,
+                self.registers[GpRegisterType::Sp],
+                // self.registers[GpRegisterType::Sp],
+                self.registers.pc,
+            );
+            self.stack.push(frame);
+            changed_stack = true;
+        }
+
+        let hit_jump = matches!(self.signals.jump, Jump::YesJump);
+        if hit_jump {
+            // Add current line to stack if we call a function
+            let frame = StackFrame::new(
+                self.state.instruction,
+                self.registers.pc,
+                self.state.pc_plus_4,
+                self.registers[GpRegisterType::Sp],
+                self.state.new_pc,
+            );
+            self.stack.push(frame);
+            changed_stack = true;
+        }
+
         DatapathUpdateSignal {
             changed_state: true,
             changed_memory: self.signals.mem_write == MemWrite::YesWrite,
             changed_coprocessor_state: true,
+            changed_stack,
             ..Default::default()
         }
     }
@@ -479,12 +511,25 @@ impl MipsDatapath {
         self.set_pc();
         self.coprocessor.stage_writeback();
 
+        // check if we are writing to the stack pointer
+        let mut changed_stack = false;
+        if self.state.write_register_destination == GpRegisterType::Sp as usize {
+            if let Some(last_frame) = self.stack.peek() {
+                if self.state.register_write_data >= last_frame.frame_pointer {
+                    // dellocating stack space
+                    self.stack.pop();
+                    changed_stack = true;
+                }
+            }
+        }
+
         DatapathUpdateSignal {
             changed_state: true,
             changed_coprocessor_state: true,
             changed_registers: true, // Always true because pc always gets updated
             changed_coprocessor_registers: self.coprocessor.signals.fpu_reg_write
                 == FpuRegWrite::YesWrite,
+            changed_stack,
             ..Default::default()
         }
     }

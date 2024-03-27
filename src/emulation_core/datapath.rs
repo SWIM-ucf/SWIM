@@ -24,12 +24,6 @@ pub trait Datapath {
     /// registers, respectively.)
     type RegisterData;
 
-    /// The enum used to describe all available registers used in the
-    /// datapath. This must be defined separately, and at minimum simply
-    /// contain a list of registers. Further implementation details are
-    /// at the discretion of the developer.
-    type RegisterEnum;
-
     /// Execute a single instruction based on the current state of the
     /// datapath. Should the datapath support stages, if the datapath is
     /// midway through a stage, the current instruction will be finished
@@ -42,11 +36,6 @@ pub trait Datapath {
     /// same behavior as [`Self::execute_instruction()`]. Should the
     /// datapath be in a "halted" state, behavior is undefined.
     fn execute_stage(&mut self) -> DatapathUpdateSignal;
-
-    /// Retrieve the data in the register indicated by the provided enum.
-    /// It can be assumed valid data will be retrieved since any valid
-    /// registers should be listed within [`Self::RegisterEnum`].
-    fn get_register_by_enum(&self, register: Self::RegisterEnum) -> Self::RegisterData;
 
     /// Sets the data in the GP register indicated by the provided string. If it doesn't exist,
     /// this function returns Err.
@@ -168,6 +157,7 @@ pub struct DatapathUpdateSignal {
     pub changed_coprocessor_state: bool,
     pub changed_coprocessor_registers: bool,
     pub changed_memory: bool,
+    pub changed_stack: bool,
     pub hit_syscall: bool,
     pub hit_breakpoint: bool,
 }
@@ -180,6 +170,7 @@ pub const UPDATE_EVERYTHING: DatapathUpdateSignal = DatapathUpdateSignal {
     changed_coprocessor_state: true,
     changed_coprocessor_registers: true,
     changed_memory: true,
+    changed_stack: true,
     hit_syscall: false,
     hit_breakpoint: false,
 };
@@ -191,6 +182,7 @@ impl BitOrAssign for DatapathUpdateSignal {
         self.changed_coprocessor_state |= rhs.changed_coprocessor_state;
         self.changed_coprocessor_registers |= rhs.changed_coprocessor_registers;
         self.changed_memory |= rhs.changed_memory;
+        self.changed_stack |= rhs.changed_stack;
         self.hit_syscall |= rhs.hit_syscall;
         self.hit_breakpoint |= rhs.hit_breakpoint;
     }

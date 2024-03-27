@@ -31,7 +31,7 @@ add $s1, $s0, $s0"#,
     );
 
     // Parse instructions and load into emulation core memory.
-    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     // Execute 2 instructions.
@@ -70,7 +70,7 @@ dati r1, 43982"#,
     // dati r1, 43982    | ABCD 8765 CCCC EEEE | 43982 == 0xABCE. FFFF + ABCE = ABCD.
 
     // Parse instructions and load into emulation core memory.
-    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     // Execute 4 instructions.
@@ -97,7 +97,7 @@ dadd r7, r5, r6
 dmuli r8, r7, 2"#,
     );
 
-    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
