@@ -1,5 +1,4 @@
 use crate::agent::datapath_communicator::DatapathCommunicator;
-use crate::agent::datapath_reducer::DatapathReducer;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlInputElement, InputEvent, KeyboardEvent};
 use yew::prelude::*;

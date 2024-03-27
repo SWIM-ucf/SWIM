@@ -482,7 +482,6 @@ impl MipsDatapath {
             changed_stack = true;
         }
 
-        // let hit_branch = matches!(self.signals.branch, Branch::YesBranch);
         let hit_jump = matches!(self.signals.jump, Jump::YesJump);
         if hit_jump {
             // Add current line to stack if we call a function
