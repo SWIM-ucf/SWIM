@@ -70,6 +70,16 @@ pub const OPCODE_AUIPC: u8 = 0b0010111;
 /// Used for J-type instructions.
 pub const OPCODE_JAL: u8 = 0b1101111;
 
+/// Used for R4-type instructions.
+// FMADD.S
+pub const OPCODE_MADD: u8 = 0b1000011;
+// FMSUB.S
+pub const OPCODE_MSUB: u8 = 0b1000111;
+// FNMSUB.S
+pub const OPCODE_NMSUB: u8 = 0b1001011;
+// FNMADD.S
+pub const OPCODE_NMADD: u8 = 0b1001111;
+
 // "ENC" is short for encoding. There is no formal name for this field
 // in the MIPS64 specification, other than the "shamt"/"sa" field that it
 // replaces, so this was chosen as the mnemonic for this project.

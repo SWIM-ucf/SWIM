@@ -506,9 +506,7 @@ impl RiscDatapath {
                 self.state.imm = j.imm;
                 self.state.rd = j.rd as u32;
             }
-            Instruction::R4Type(r) => {
-                self.state.rd = r.rd as u32;
-            }
+            _ => (),
         }
     }
 
