@@ -7,7 +7,7 @@ use yew::prelude::*;
 #[derive(PartialEq, Properties)]
 pub struct Consoleprops {
     pub communicator: &'static DatapathCommunicator,
-    pub datapath_state: UseReducerHandle<DatapathReducer>,
+    pub messages: Vec<String>,
     pub parsermsg: String,
     pub show_input: UseStateHandle<bool>,
 }
@@ -56,7 +56,7 @@ pub fn console(props: &Consoleprops) -> Html {
                 {*error_msg}
             </div>
             <div>
-                {props.datapath_state.messages.iter().map(|msg| html! { <div>{msg}</div> }).collect::<Html>()}
+                {props.messages.iter().map(|msg| html! { <div>{msg}</div> }).collect::<Html>()}
             </div>
             if *show_input {
                 <div class="console-input">

@@ -67,7 +67,7 @@ pub fn footer(props: &Footerprops) -> Html {
             if **active_tab == TabState::Console {
                 <div class="h-48 border-primary-200 border-groove border-2 p-4 bg-accent-blue-300 text-primary-200 overflow-y-auto overflow-wrap z-10">
                     <Console
-                        datapath_state={props.datapath_state.clone()}
+                        messages={props.datapath_state.messages.clone()}
                         communicator={props.communicator}
                         parsermsg={props.parsermsg.clone()}
                         show_input={props.show_input.clone()}
