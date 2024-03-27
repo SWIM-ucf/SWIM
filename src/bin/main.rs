@@ -32,6 +32,7 @@ use yew::prelude::*;
 use yew::{html, Html, Properties};
 
 use swim::emulation_core::register::Registers;
+use swim::emulation_core::riscv::datapath::RiscStage;
 use yew_agent::Spawnable;
 
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
@@ -97,11 +98,6 @@ fn app(props: &AppProps) -> Html {
             props.communicator,
         );
     }
-
-    let gp_registers = match datapath_state.current_architecture {
-        AvailableDatapaths::MIPS => datapath_state.mips.registers.get_dyn_register_list(),
-        AvailableDatapaths::RISCV => datapath_state.riscv.registers.get_dyn_register_list(),
-    };
 
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
@@ -172,7 +168,7 @@ fn app(props: &AppProps) -> Html {
                 if marker_jsarray.length() == 0 {
                     // Send the binary over to the emulation core thread
                     communicator.initialize(program_info.pc_starting_point, assembled);
-                    memory_curr_instr.set(datapath_state.mips.registers.pc);
+                    memory_curr_instr.set(datapath_state.get_pc());
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
                 }
 
@@ -210,9 +206,9 @@ fn app(props: &AppProps) -> Html {
                 let programinfo = Rc::clone(&program_info_ref);
                 let programinfo = programinfo.borrow().clone();
                 let list_of_line_numbers = programinfo.address_to_line_number;
-                let index = datapath_state.mips.registers.pc as usize / 4;
+                let index = datapath_state.get_pc() as usize / 4;
                 editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0); // add one to account for the editor's line numbers
-                memory_curr_instr.set(datapath_state.mips.registers.pc);
+                memory_curr_instr.set(datapath_state.get_pc());
 
                 // Execute instruction
                 communicator.execute_instruction();
@@ -238,15 +234,24 @@ fn app(props: &AppProps) -> Html {
 
         use_callback(
             move |_, (editor_curr_line, memory_curr_instr, datapath_state)| {
-                if datapath_state.mips.current_stage == Stage::InstructionDecode {
+                let is_instruction_decode = match datapath_state.current_architecture {
+                    AvailableDatapaths::MIPS => {
+                        datapath_state.mips.current_stage == Stage::InstructionDecode
+                    }
+                    AvailableDatapaths::RISCV => {
+                        datapath_state.riscv.current_stage == RiscStage::InstructionDecode
+                    }
+                };
+
+                if is_instruction_decode {
                     // highlight on InstructionDecode since syscall stops at that stage.
                     let programinfo = Rc::clone(&program_info_ref);
                     let programinfo = programinfo.borrow().clone();
                     let list_of_line_numbers = programinfo.address_to_line_number;
-                    let index = datapath_state.mips.registers.pc as usize / 4;
+                    let index = datapath_state.get_pc() as usize / 4;
                     editor_curr_line
                         .set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0);
-                    memory_curr_instr.set(datapath_state.mips.registers.pc);
+                    memory_curr_instr.set(datapath_state.get_pc());
                     communicator.execute_stage();
                 } else {
                     communicator.execute_stage();
@@ -316,7 +321,7 @@ fn app(props: &AppProps) -> Html {
                                 AvailableDatapaths::RISCV => String::from(""),
                             };
 
-                            let curr_word = match datapath_state.mips.memory.load_word(address * 4)
+                            let curr_word = match datapath_state.get_memory().load_word(address * 4)
                             {
                                 Ok(data) => data,
                                 Err(e) => {
@@ -537,7 +542,7 @@ fn app(props: &AppProps) -> Html {
 
                     // Editor
                     <div class="flex flex-col grow min-h-16 mt-2">
-                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} pc_limit={*pc_limit} binary={binary_ref.borrow().clone()} memory_curr_instr={memory_curr_instr.clone()} editor_curr_line={editor_curr_line.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} pc={datapath_state.mips.registers.pc} communicator={props.communicator} current_architecture={datapath_state.current_architecture.clone()} speed={datapath_state.speed}/>
+                        <SwimEditor text_model={text_model} lines_content={lines_content} program_info={program_info_ref.borrow().clone()} pc_limit={*pc_limit} binary={binary_ref.borrow().clone()} memory_curr_instr={memory_curr_instr.clone()} editor_curr_line={editor_curr_line.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} pc={datapath_state.get_pc()} communicator={props.communicator} current_architecture={datapath_state.current_architecture.clone()} speed={datapath_state.speed}/>
                     </div>
 
                     // Console
@@ -545,7 +550,7 @@ fn app(props: &AppProps) -> Html {
                 </div>
 
                 // Right column
-                <Regview gp={gp_registers} fp={datapath_state.mips.coprocessor_registers.get_dyn_register_list()} pc_limit={*pc_limit} communicator={props.communicator}/>
+                <Regview gp={datapath_state.get_dyn_gp_registers()} fp={datapath_state.mips.coprocessor_registers.get_dyn_register_list()} pc_limit={*pc_limit} communicator={props.communicator}/>
             </div>
         </>
     }

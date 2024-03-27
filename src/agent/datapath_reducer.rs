@@ -6,6 +6,7 @@ use crate::emulation_core::mips::datapath::{DatapathState, Stage};
 use crate::emulation_core::mips::fp_registers::FpRegisters;
 use crate::emulation_core::mips::gp_registers::GpRegisters;
 use crate::emulation_core::mips::memory::Memory;
+use crate::emulation_core::register::{RegisterType, Registers};
 use crate::emulation_core::riscv::datapath::{RiscDatapathState, RiscStage};
 use crate::emulation_core::riscv::registers::RiscGpRegisters;
 use gloo_console::log;
@@ -134,5 +135,28 @@ impl Reducible for DatapathReducer {
                 ..(*self).clone()
             },
         })
+    }
+}
+
+impl DatapathReducer {
+    pub fn get_pc(&self) -> u64 {
+        match self.current_architecture {
+            MIPS => self.mips.registers.pc,
+            RISCV => self.riscv.registers.pc,
+        }
+    }
+
+    pub fn get_dyn_gp_registers(&self) -> Vec<(Rc<dyn RegisterType>, u64)> {
+        match self.current_architecture {
+            MIPS => self.mips.registers.get_dyn_register_list(),
+            RISCV => self.riscv.registers.get_dyn_register_list(),
+        }
+    }
+
+    pub fn get_memory(&self) -> &Memory {
+        match self.current_architecture {
+            MIPS => &self.mips.memory,
+            RISCV => &self.riscv.memory,
+        }
     }
 }
