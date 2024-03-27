@@ -1,7 +1,9 @@
 //! Register structure and API.
 
+use crate::emulation_core::register::{RegisterType, Registers};
 use serde::{Deserialize, Serialize};
 use std::ops::{Index, IndexMut};
+use std::rc::Rc;
 use std::str::FromStr;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
@@ -56,14 +58,14 @@ pub enum GpRegisterType {
     Ra = 31,
 }
 
-impl GpRegisterType {
-    pub fn get_gpr_name(&self) -> String {
+impl RegisterType for GpRegisterType {
+    fn get_register_name(&self) -> String {
         match self {
             GpRegisterType::Pc => self.to_string(),
             _ => format!("{} (r{})", self, *self as u32),
         }
     }
-    pub fn is_valid_register_value(&self, value: u64, pc_limit: usize) -> bool {
+    fn is_valid_register_value(&self, value: u64, pc_limit: usize) -> bool {
         match self {
             GpRegisterType::Zero => false, // Zero register is immutable
             GpRegisterType::Pc => {
@@ -76,6 +78,17 @@ impl GpRegisterType {
             }
             _ => true, // Other registers are always considered valid
         }
+    }
+}
+
+impl Registers for GpRegisters {
+    fn get_dyn_register_list(&self) -> Vec<(Rc<dyn RegisterType>, u64)> {
+        self.into_iter()
+            .map(|(register, val)| {
+                let register: Rc<dyn RegisterType> = Rc::new(register);
+                (register, val)
+            })
+            .collect()
     }
 }
 

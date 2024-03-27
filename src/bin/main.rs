@@ -35,13 +35,14 @@ use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew::{html, Html, Properties};
 
+use swim::emulation_core::register::Registers;
+use swim::emulation_core::riscv::datapath::RiscStage;
 use yew_agent::Spawnable;
 
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
 const CONTENT: &str = include_str!("../../static/assembly_examples/fibonacci.asm");
-const ARCH: AvailableDatapaths = AvailableDatapaths::MIPS;
 
 #[derive(Properties, Clone, PartialEq)]
 struct AppProps {
@@ -125,8 +126,15 @@ fn app(props: &AppProps) -> Html {
         use_callback(
             move |_, (text_model, editor_curr_line, memory_curr_instr, datapath_state)| {
                 let text_model = text_model.clone();
+                log!(format!(
+                    "Current arch: {:?}",
+                    datapath_state.current_architecture.clone()
+                ));
                 // parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
-                let (program_info, assembled, labels) = parser(text_model.get_value(), ARCH);
+                let (program_info, assembled, labels) = parser(
+                    text_model.get_value(),
+                    datapath_state.current_architecture.clone(),
+                );
                 *program_info_ref.borrow_mut() = program_info.clone();
                 *binary_ref.borrow_mut() = assembled.clone();
                 *labels_ref.borrow_mut() = labels.clone();
@@ -170,13 +178,13 @@ fn app(props: &AppProps) -> Html {
                 if marker_jsarray.length() == 0 {
                     // Send the binary over to the emulation core thread
                     communicator.initialize(program_info.pc_starting_point, assembled);
+                    memory_curr_instr.set(datapath_state.get_pc());
                     breakpoints.set(HashSet::default());
-                    memory_curr_instr.set(datapath_state.mips.registers.pc);
 
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
 
                     // After adding pseudo instructions, update program info
-                    let (program_info, assembled, labels) = parser(text_model.get_value(), ARCH);
+                    let (program_info, assembled, labels) = parser(text_model.get_value(), datapath_state.current_architecture.clone());
                     *program_info_ref.borrow_mut() = program_info.clone();
                     *binary_ref.borrow_mut() = assembled.clone();
                     *labels_ref.borrow_mut() = labels.clone();
@@ -217,14 +225,15 @@ fn app(props: &AppProps) -> Html {
         use_callback(
             move |_, (editor_curr_line, memory_curr_instr, text_model, datapath_state)| {
                 // Get the current line and convert it to f64
-                let (program_info, assembled, labels) = parser(text_model.get_value(), ARCH);
+                let (program_info, assembled, labels) = parser(text_model.get_value(), datapath_state.current_architecture.clone());
                 *program_info_ref.borrow_mut() = program_info.clone();
                 *binary_ref.borrow_mut() = assembled.clone();
                 *labels_ref.borrow_mut() = labels.clone();
+
                 let list_of_line_numbers = program_info.address_to_line_number;
-                let index = datapath_state.mips.registers.pc as usize / 4;
+                let index = datapath_state.get_pc() as usize / 4;
                 editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0); // add one to account for the editor's line numbers
-                memory_curr_instr.set(datapath_state.mips.registers.pc);
+                memory_curr_instr.set(datapath_state.get_pc());
 
                 // Execute instruction
                 communicator.execute_instruction();
@@ -259,17 +268,29 @@ fn app(props: &AppProps) -> Html {
 
         use_callback(
             move |_, (editor_curr_line, memory_curr_instr, text_model, datapath_state)| {
-                if datapath_state.mips.current_stage == Stage::InstructionDecode {
+                let is_instruction_decode = match datapath_state.current_architecture {
+                    AvailableDatapaths::MIPS => {
+                        datapath_state.mips.current_stage == Stage::InstructionDecode
+                    }
+                    AvailableDatapaths::RISCV => {
+                        datapath_state.riscv.current_stage == RiscStage::InstructionDecode
+                    }
+                };
+
+                if is_instruction_decode {
                     // highlight on InstructionDecode since syscall stops at that stage.
-                    let (program_info, assembled, labels) = parser(text_model.get_value(), ARCH);
+
+                    // highlight on InstructionDecode since syscall stops at that stage.
+                    let (program_info, assembled, labels) = parser(text_model.get_value(), datapath_state.current_architecture.clone());
                     *program_info_ref.borrow_mut() = program_info.clone();
                     *binary_ref.borrow_mut() = assembled.clone();
                     *labels_ref.borrow_mut() = labels.clone();
+
                     let list_of_line_numbers = program_info.address_to_line_number;
-                    let index = datapath_state.mips.registers.pc as usize / 4;
+                    let index = datapath_state.get_pc() as usize / 4;
                     editor_curr_line
                         .set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0);
-                    memory_curr_instr.set(datapath_state.mips.registers.pc);
+                    memory_curr_instr.set(datapath_state.get_pc());
                     communicator.execute_stage();
                 } else {
                     communicator.execute_stage();
@@ -293,16 +314,18 @@ fn app(props: &AppProps) -> Html {
         let labels_ref = Rc::clone(&labels_ref);
 
         let text_model = text_model.clone();
+
+        let datapath_state = datapath_state.clone();
         use_callback(
-            move |_, text_model| {
-                let (program_info, assembled, labels) = parser(text_model.get_value(), ARCH);
+            move |_, (text_model, datapath_state)| {
+                let (program_info, assembled, labels) = parser(text_model.get_value(), datapath_state.current_architecture.clone());
                 *program_info_ref.borrow_mut() = program_info.clone();
                 *binary_ref.borrow_mut() = assembled.clone();
                 *labels_ref.borrow_mut() = labels.clone();
 
                 communicator.execute();
             },
-            text_model,
+            (text_model, datapath_state),
         )
     };
 
@@ -327,6 +350,8 @@ fn app(props: &AppProps) -> Html {
         let communicator = props.communicator;
         let datapath_state = datapath_state.clone();
 
+        let program_info_ref = Rc::clone(&program_info_ref);
+
         use_callback(
             move |_, datapath_state| {
                 let text_model = text_model.clone();
@@ -350,7 +375,7 @@ fn app(props: &AppProps) -> Html {
                                 AvailableDatapaths::RISCV => String::from(""),
                             };
 
-                            let curr_word = match datapath_state.mips.memory.load_word(address * 4)
+                            let curr_word = match datapath_state.get_memory().load_word(address * 4)
                             {
                                 Ok(data) => data,
                                 Err(e) => {
@@ -366,7 +391,7 @@ fn app(props: &AppProps) -> Html {
                         }
                         // Memory updated successfully
                         let (program_info, _assembled, _labels) =
-                            parser(text_model.get_value(), ARCH);
+                            parser(text_model.get_value(), datapath_state.current_architecture.clone());
                         let mut lines_beyond_counter = program_info.address_to_line_number.len();
                         let mut curr_value = text_model.get_value();
                         let mut add_new_lines = false;
@@ -437,6 +462,13 @@ fn app(props: &AppProps) -> Html {
                         debug!("Error updating memory: {}", err)
                     }
                 }
+
+                // Update the parsed info for text and data segment views
+                let (program_info, _, _) = parser(
+                    text_model.get_value(),
+                    datapath_state.current_architecture.clone(),
+                );
+                *program_info_ref.borrow_mut() = program_info;
 
                 trigger.force_update();
             },
@@ -586,7 +618,7 @@ fn app(props: &AppProps) -> Html {
                             editor_curr_line={editor_curr_line.clone()}
                             editor_active_tab={editor_active_tab.clone()}
                             console_active_tab={console_active_tab.clone()}
-                            pc={datapath_state.mips.registers.pc}
+                            pc={datapath_state.get_pc()}
                             communicator={props.communicator}
                             current_architecture={datapath_state.current_architecture.clone()}
                             speed={datapath_state.speed}
@@ -614,7 +646,7 @@ fn app(props: &AppProps) -> Html {
                 </div>
 
                 // Right column
-                <Regview gp={datapath_state.mips.registers} fp={datapath_state.mips.coprocessor_registers} pc_limit={*pc_limit} communicator={props.communicator}/>
+                <Regview gp={datapath_state.get_dyn_gp_registers()} fp={datapath_state.mips.coprocessor_registers.get_dyn_register_list()} pc_limit={*pc_limit} communicator={props.communicator}/>
             </div>
         </>
     }

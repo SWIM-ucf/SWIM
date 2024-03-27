@@ -24,12 +24,6 @@ pub trait Datapath {
     /// registers, respectively.)
     type RegisterData;
 
-    /// The enum used to describe all available registers used in the
-    /// datapath. This must be defined separately, and at minimum simply
-    /// contain a list of registers. Further implementation details are
-    /// at the discretion of the developer.
-    type RegisterEnum;
-
     /// Execute a single instruction based on the current state of the
     /// datapath. Should the datapath support stages, if the datapath is
     /// midway through a stage, the current instruction will be finished
@@ -42,11 +36,6 @@ pub trait Datapath {
     /// same behavior as [`Self::execute_instruction()`]. Should the
     /// datapath be in a "halted" state, behavior is undefined.
     fn execute_stage(&mut self) -> DatapathUpdateSignal;
-
-    /// Retrieve the data in the register indicated by the provided enum.
-    /// It can be assumed valid data will be retrieved since any valid
-    /// registers should be listed within [`Self::RegisterEnum`].
-    fn get_register_by_enum(&self, register: Self::RegisterEnum) -> Self::RegisterData;
 
     /// Sets the data in the GP register indicated by the provided string. If it doesn't exist,
     /// this function returns Err.

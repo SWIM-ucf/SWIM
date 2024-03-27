@@ -232,7 +232,6 @@ impl Default for MipsDatapath {
 
 impl Datapath for MipsDatapath {
     type RegisterData = u64;
-    type RegisterEnum = super::gp_registers::GpRegisterType;
 
     fn execute_instruction(&mut self) -> DatapathUpdateSignal {
         let mut result_signals = DatapathUpdateSignal::default();
@@ -274,10 +273,6 @@ impl Datapath for MipsDatapath {
 
         self.current_stage = Stage::get_next_stage(self.current_stage);
         res
-    }
-
-    fn get_register_by_enum(&self, register: Self::RegisterEnum) -> u64 {
-        self.registers[register]
     }
 
     fn set_register_by_str(&mut self, register: &str, data: Self::RegisterData) {
@@ -329,8 +324,8 @@ impl Datapath for MipsDatapath {
 
     fn get_syscall_arguments(&self) -> Syscall {
         Syscall::from_register_data(
-            self.get_register_by_enum(A0),
-            self.get_register_by_enum(A1),
+            self.registers[A0],
+            self.registers[A1],
             f32::from_bits(self.coprocessor.registers[FpRegisterType::F0] as u32),
             f64::from_bits(self.coprocessor.registers[FpRegisterType::F0]),
         )
@@ -517,11 +512,13 @@ impl MipsDatapath {
         self.coprocessor.stage_writeback();
 
         // check if we are writing to the stack pointer
+        let mut changed_stack = false;
         if self.state.write_register_destination == GpRegisterType::Sp as usize {
             if let Some(last_frame) = self.stack.peek() {
                 if self.state.register_write_data >= last_frame.frame_pointer {
                     // dellocating stack space
                     self.stack.pop();
+                    changed_stack = true;
                 }
             }
         }
@@ -532,6 +529,7 @@ impl MipsDatapath {
             changed_registers: true, // Always true because pc always gets updated
             changed_coprocessor_registers: self.coprocessor.signals.fpu_reg_write
                 == FpuRegWrite::YesWrite,
+            changed_stack,
             ..Default::default()
         }
     }
