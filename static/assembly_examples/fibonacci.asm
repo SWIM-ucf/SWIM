@@ -66,8 +66,8 @@ main:                           # PC starts here
         lw      $ra,36($sp)
         lw      $fp,32($sp)
         addiu   $sp,$sp,40
+        li      $a0, 0           # Load 0 into $a0 to run the exit syscall
         syscall                  # replaced jr $ra with syscall to prevent infinite execution
-        nop
 
 # Here's the demo code in C:
 #
