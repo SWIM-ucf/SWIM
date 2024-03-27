@@ -52,11 +52,11 @@ use super::constants::*;
 use super::control_signals::*;
 use super::datapath_signals::*;
 use super::instruction::*;
-use super::registers::GpRegisterType;
+use super::registers::RiscGpRegisterType;
 use super::{super::mips::memory::Memory, registers::RiscGpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
-use crate::emulation_core::riscv::registers::GpRegisterType::{X10, X11};
+use crate::emulation_core::riscv::registers::RiscGpRegisterType::{X10, X11};
 use crate::emulation_core::stack::Stack;
 use crate::emulation_core::stack::StackFrame;
 use serde::{Deserialize, Serialize};
@@ -425,7 +425,7 @@ impl RiscDatapath {
                 self.state.instruction,
                 self.registers.pc,
                 self.state.pc_plus_4,
-                self.registers[GpRegisterType::X2],
+                self.registers[RiscGpRegisterType::X2],
                 // self.registers[GpRegisterType::Sp],
                 self.registers.pc,
             );
@@ -440,7 +440,7 @@ impl RiscDatapath {
                 self.state.instruction,
                 self.registers.pc,
                 self.state.pc_plus_4,
-                self.registers[GpRegisterType::X2],
+                self.registers[RiscGpRegisterType::X2],
                 self.state.new_pc,
             );
             self.stack.push(frame);
@@ -468,7 +468,7 @@ impl RiscDatapath {
 
         // check if we are writing to the stack pointer
         let mut changed_stack = false;
-        if self.state.write_register_destination == GpRegisterType::X2 as usize {
+        if self.state.write_register_destination == RiscGpRegisterType::X2 as usize {
             if let Some(last_frame) = self.stack.peek() {
                 if self.state.register_write_data >= last_frame.frame_pointer {
                     // dellocating stack space

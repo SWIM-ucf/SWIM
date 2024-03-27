@@ -20,10 +20,7 @@ use swim::ui::footer::component::Footer;
 use swim::ui::regview::component::Regview;
 use swim::ui::swim_editor::component::SwimEditor;
 use swim::{
-    emulation_core::{
-        architectures::AvailableDatapaths, mips::gp_registers::GpRegisterType,
-        mips::instruction::get_string_version,
-    },
+    emulation_core::{architectures::AvailableDatapaths, mips::instruction::get_string_version},
     ui::{
         hex_editor::component::{parse_hexdump, UpdatedLine},
         swim_editor::tab::TabState,
@@ -636,9 +633,9 @@ fn app(props: &AppProps) -> Html {
                             communicator={props.communicator}
                             current_architecture={datapath_state.current_architecture.clone()}
                             speed={datapath_state.speed}
-                            sp={datapath_state.mips.registers[GpRegisterType::Sp]}
-                            memory={datapath_state.mips.memory.clone()}
-                            stack={datapath_state.mips.stack.clone()}
+                            sp={datapath_state.get_sp()}
+                            memory={datapath_state.get_memory().clone()}
+                            stack={datapath_state.get_stack().clone()}
                             initialized={datapath_state.initialized}
                             executing={datapath_state.executing}
                         />
@@ -654,8 +651,8 @@ fn app(props: &AppProps) -> Html {
                         communicator={props.communicator}
                         show_input={show_input.clone()}
                         on_memory_clicked={on_memory_clicked.clone()}
-                        memory={datapath_state.mips.memory.clone()}
-                        pc={datapath_state.mips.registers.pc}
+                        memory={datapath_state.get_memory().clone()}
+                        pc={datapath_state.get_pc()}
                     />
                 </div>
 
