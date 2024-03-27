@@ -7,11 +7,8 @@ use monaco::{
     api::TextModel,
     sys::{editor::IMarkerData, MarkerSeverity},
 };
-<<<<<<< HEAD
 use std::collections::HashMap;
-=======
 use std::collections::HashSet;
->>>>>>> ca0500262e9198ba50f36d5de428d2da1bbf7059
 use std::rc::Rc;
 use swim::agent::datapath_communicator::DatapathCommunicator;
 use swim::agent::datapath_reducer::DatapathReducer;
@@ -465,15 +462,12 @@ fn app(props: &AppProps) -> Html {
 
                 parser_text_output.set("".to_string());
 
-<<<<<<< HEAD
                 *program_info_ref.borrow_mut() = ProgramInfo::default();
                 *binary_ref.borrow_mut() = vec![];
                 *labels_ref.borrow_mut() = HashMap::<String, usize>::new();
 
-=======
                 communicator.reset();
                 breakpoints.set(HashSet::default());
->>>>>>> ca0500262e9198ba50f36d5de428d2da1bbf7059
                 trigger.force_update();
             },
             (
