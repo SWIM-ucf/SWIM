@@ -73,8 +73,8 @@ impl DatapathCommunicator {
         writer
             .send(command)
             // The logic for sending a message is synchronous but the API for writing to a SplitSink is asynchronous,
-            // so we attempt to resolve the future immediately so we can expose a synchronous API for sending commands.
-            // If the future doesn't return immediately, there's serious logic changes that need to happen so we just
+            // so we attempt to resolve the future immediately, so we can expose a synchronous API for sending commands.
+            // If the future doesn't return immediately, there's serious logic changes that need to happen, so we just
             // log an error message and panic.
             .now_or_never()
             .expect("Send function did not immediately return, async logic needed.")
@@ -84,9 +84,8 @@ impl DatapathCommunicator {
     // Wrapper functions for commands
 
     /// Sets the current emulation core to the provided architecture.
-    pub fn set_core(&self, _architecture: AvailableDatapaths) {
-        // self.send_message(Command::SetCore(_architecture));
-        todo!()
+    pub fn set_core(&self, architecture: AvailableDatapaths) {
+        self.send_message(Command::SetCore(architecture));
     }
 
     /// Resets and loads the parsed/assembled instructions provided into the current emulator core.
@@ -111,7 +110,7 @@ impl DatapathCommunicator {
     }
 
     /// Copies the contents of `data` to the emulator core's memory at `ptr`. Copies until either the end of `data` or
-    /// the end of the emulaot core's memory.
+    /// the end of the emulator core's memory.
     pub fn set_memory(&self, ptr: u64, data: u32) {
         self.send_message(Command::SetMemory(ptr, data));
     }

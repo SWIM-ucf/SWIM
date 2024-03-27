@@ -115,8 +115,15 @@ fn app(props: &AppProps) -> Html {
         use_callback(
             move |_, (text_model, editor_curr_line, memory_curr_instr, datapath_state)| {
                 let text_model = text_model.clone();
+                log!(format!(
+                    "Current arch: {:?}",
+                    datapath_state.current_architecture.clone()
+                ));
                 // parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
-                let (program_info, assembled) = parser(text_model.get_value(), ARCH);
+                let (program_info, assembled) = parser(
+                    text_model.get_value(),
+                    datapath_state.current_architecture.clone(),
+                );
                 *program_info_ref.borrow_mut() = program_info.clone();
                 *binary_ref.borrow_mut() = assembled.clone();
                 pc_limit.set(assembled.len() * 4);
@@ -391,7 +398,10 @@ fn app(props: &AppProps) -> Html {
                 }
 
                 // Update the parsed info for text and data segment views
-                let (program_info, _) = parser(text_model.get_value(), ARCH);
+                let (program_info, _) = parser(
+                    text_model.get_value(),
+                    datapath_state.current_architecture.clone(),
+                );
                 *program_info_ref.borrow_mut() = program_info;
 
                 trigger.force_update();

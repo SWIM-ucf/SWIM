@@ -1,3 +1,4 @@
+use gloo_console::log;
 use std::{cell::RefCell, rc::Rc};
 
 use monaco::{
@@ -83,12 +84,16 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 
 #[function_component]
 pub fn SwimEditor(props: &SwimEditorProps) -> Html {
+    log!(format!(
+        "render arch: {:?}",
+        props.current_architecture.to_string()
+    ));
     let link = CodeEditorLink::new();
     let text_model = &*props.text_model;
     let editor_active_tab = &props.editor_active_tab;
     let console_active_tab = &props.console_active_tab;
 
-    // Setup the array that would store hover decorations applied to the
+    // Set up the array that would store hover decorations applied to the
     // text model and initialize the options for it.
     let hover_jsarray = js_sys::Array::new();
     let hover_decor_array = use_mut_ref(js_sys::Array::new);
@@ -214,12 +219,8 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             {
                 let decoration: IModelDeltaDecoration = js_sys::Object::new().unchecked_into();
 
-                let hover_range = monaco::sys::Range::new(
-                    (line_number + 1) as f64,
-                    0.0,
-                    (line_number + 1) as f64,
-                    0.0,
-                );
+                let hover_range =
+                    Range::new((line_number + 1) as f64, 0.0, (line_number + 1) as f64, 0.0);
                 let hover_range_js = hover_range
                     .dyn_into::<JsValue>()
                     .expect("Range is not found.");
@@ -271,8 +272,9 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
 
     let arch_options = AvailableDatapaths::iter()
         .map(|arch| {
+            let current_arch = props.current_architecture.to_string();
             html! {
-                <option value={arch.to_string()} class="bg-primary-700">{arch.to_string()}</option>
+                <option selected={arch.to_string() == current_arch} class="bg-primary-700">{arch.to_string()}</option>
             }
         })
         .collect::<Html>();
@@ -290,7 +292,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                     <button class={classes!("copy-button", conditional_class)} title="Copy to Clipboard" onclick={on_clipboard_clicked}>{"Copy to Clipboard "}<i class={classes!("fa-regular", "fa-copy")}></i></button>
                     <input type="number" id="execution-speed" title="Execution Speed. Setting this to 0 will make it run as fast as possible." name="execution-speed" placeholder="0" min="0" value={format!("{}", props.speed)} class="bg-primary-700 flex items-center flex-row text-right w-24" onchange={change_execution_speed} />
                     <span title="Execution Speed.">{"Hz"}</span>
-                    <select class="bg-primary-600 flex flex-row items-center" name="architecture" onchange={change_architecture.clone()} value={props.current_architecture.to_string()}>
+                    <select class="bg-primary-600 flex flex-row items-center" name="architecture" onchange={change_architecture.clone()} defaultValue={props.current_architecture.to_string()}>
                         {arch_options}
                     </select>
                 </div>
