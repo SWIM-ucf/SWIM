@@ -1,6 +1,4 @@
 use crate::agent::datapath_communicator::DatapathCommunicator;
-use crate::emulation_core::mips::fp_registers::FpRegisters;
-use crate::emulation_core::mips::gp_registers::GpRegisters;
 use crate::emulation_core::register::RegisterType;
 use crate::ui::swim_editor::tab::Tab;
 use std::rc::Rc;

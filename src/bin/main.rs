@@ -39,7 +39,6 @@ use yew_agent::Spawnable;
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
 const CONTENT: &str = include_str!("../../static/assembly_examples/fibonacci.asm");
-const ARCH: AvailableDatapaths = AvailableDatapaths::MIPS;
 
 #[derive(Properties, Clone, PartialEq)]
 struct AppProps {

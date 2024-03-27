@@ -1,7 +1,5 @@
 //! Register structure and API.
 
-use crate::agent::messages::DatapathUpdate::RISCV;
-use crate::emulation_core::mips::gp_registers::GpRegisters;
 use crate::emulation_core::mips::memory::CAPACITY_BYTES;
 use crate::emulation_core::register::{RegisterType, Registers};
 use serde::{Deserialize, Serialize};
