@@ -1,6 +1,4 @@
 use gloo_console::log;
-use std::collections::HashSet;
-use std::{cell::RefCell, rc::Rc};
 use monaco::{
     api::TextModel,
     sys::{
@@ -13,6 +11,8 @@ use monaco::{
     },
     yew::{CodeEditor, CodeEditorLink},
 };
+use std::collections::HashSet;
+use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
