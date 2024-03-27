@@ -304,8 +304,10 @@ impl EmulatorCoreAgentState {
             DatapathRef::MIPS(datapath) => datapath.registers.pc,
             DatapathRef::RISCV(datapath) => datapath.registers.pc,
         };
-        if self.breakpoints.contains(&current_pc) {
+        if self.breakpoints.contains(&current_pc) && self.updates.hit_breakpoint {
             self.executing = false;
+            // Unset the hit_breakpoint flag after processing
+            self.updates.hit_breakpoint = false;
         }
     }
 
@@ -491,6 +493,9 @@ impl EmulatorCoreAgentState {
                 }
             }
         }
+
+        // Now that the syscall is processed, unset the update signal
+        self.updates.hit_syscall = false;
     }
 
     /// Determines of datapath updates should be sent. Datapath updates should be sent at most once
@@ -521,6 +526,7 @@ impl EmulatorCoreAgentState {
     }
 
     async fn add_message(&mut self, msg: String) {
+        log!("Pushed message");
         self.messages.push(msg);
         self.scope
             .send(DatapathUpdate::System(SystemUpdate::UpdateMessages(
