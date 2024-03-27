@@ -1,19 +1,23 @@
 //! Register structure and API.
 
+use crate::emulation_core::mips::memory::CAPACITY_BYTES;
+use crate::emulation_core::register::{RegisterType, Registers};
+use serde::{Deserialize, Serialize};
 use std::ops::{Index, IndexMut};
+use std::rc::Rc;
 use std::str::FromStr;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
 
 /// Collection of general-purpose registers used by the datapath.
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct GpRegisters {
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct RiscGpRegisters {
     pub pc: u64,
     pub gpr: [u64; 32],
 }
 
 /// Specifies all of the valid registers accessible in an instance
-/// of [`GpRegisters`].
+/// of [`RiscGpRegisters`].
 #[derive(Clone, Copy, Debug, Display, EnumIter, EnumString, Eq, PartialEq)]
 #[strum(ascii_case_insensitive)]
 #[strum(serialize_all = "lowercase")]
@@ -53,7 +57,41 @@ pub enum GpRegisterType {
     X31 = 31,
 }
 
-impl ToString for GpRegisters {
+impl RegisterType for GpRegisterType {
+    fn get_register_name(&self) -> String {
+        match self {
+            GpRegisterType::Pc => self.to_string(),
+            _ => format!("{}", self),
+        }
+    }
+    fn is_valid_register_value(&self, value: u64, pc_limit: usize) -> bool {
+        match self {
+            GpRegisterType::X0 => false, // Zero register is immutable
+            GpRegisterType::Pc => {
+                // Check if PC is more than the number of instructions or not word-aligned
+                value <= pc_limit as u64 && value % 4 == 0
+            }
+            GpRegisterType::X2 => {
+                // Check if SP is more than memory capacity or not word-aligned
+                value <= CAPACITY_BYTES as u64 && value % 4 == 0
+            }
+            _ => true, // Other registers are always considered valid
+        }
+    }
+}
+
+impl Registers for RiscGpRegisters {
+    fn get_dyn_register_list(&self) -> Vec<(Rc<dyn RegisterType>, u64)> {
+        self.into_iter()
+            .map(|(register, val)| {
+                let register: Rc<dyn RegisterType> = Rc::new(register);
+                (register, val)
+            })
+            .collect()
+    }
+}
+
+impl ToString for RiscGpRegisters {
     fn to_string(&self) -> String {
         let mut output = String::new();
 
@@ -72,7 +110,7 @@ impl ToString for GpRegisters {
     }
 }
 
-impl Index<&str> for GpRegisters {
+impl Index<&str> for RiscGpRegisters {
     type Output = u64;
 
     // Convert string to the corresponding RegistersEnum value and use this to index.
@@ -85,7 +123,7 @@ impl Index<&str> for GpRegisters {
     }
 }
 
-impl IndexMut<&str> for GpRegisters {
+impl IndexMut<&str> for RiscGpRegisters {
     // Convert string to the corresponding RegistersEnum value and use this to index.
     // If this is an invalid string, no enum will be returned, causing a panic as desired.
     fn index_mut(&mut self, index: &str) -> &mut Self::Output {
@@ -96,7 +134,7 @@ impl IndexMut<&str> for GpRegisters {
     }
 }
 
-impl Index<GpRegisterType> for GpRegisters {
+impl Index<GpRegisterType> for RiscGpRegisters {
     type Output = u64;
 
     fn index(&self, index: GpRegisterType) -> &Self::Output {
@@ -138,7 +176,7 @@ impl Index<GpRegisterType> for GpRegisters {
     }
 }
 
-impl IndexMut<GpRegisterType> for GpRegisters {
+impl IndexMut<GpRegisterType> for RiscGpRegisters {
     fn index_mut(&mut self, index: GpRegisterType) -> &mut Self::Output {
         match index {
             GpRegisterType::Pc => &mut self.pc,
@@ -186,7 +224,7 @@ impl IndexMut<GpRegisterType> for GpRegisters {
 /// normally just "add 1" to get to the next register, we use an internal iterator
 /// that can track the progression of one [`GpRegisterType`] to the next.
 pub struct GpRegistersIter {
-    registers: GpRegisters,
+    registers: RiscGpRegisters,
     register_iter: GpRegisterTypeIter,
 }
 
@@ -206,11 +244,11 @@ impl Iterator for GpRegistersIter {
 /// [`IntoIterator`] is a standard library trait that can convert any type into
 /// an [`Iterator`]. In this case, this is an instance of [`GpRegistersIter`] with all the
 /// data in the registers and a new [`GpRegisterTypeIter`].
-impl IntoIterator for GpRegisters {
+impl IntoIterator for RiscGpRegisters {
     type Item = (GpRegisterType, u64);
     type IntoIter = GpRegistersIter;
 
-    /// Consumes the [`GpRegisters`] struct to create a new [`GpRegistersIter`] that can
+    /// Consumes the [`RiscGpRegisters`] struct to create a new [`GpRegistersIter`] that can
     /// be iterated over.
     fn into_iter(self) -> Self::IntoIter {
         GpRegistersIter {

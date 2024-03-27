@@ -3,6 +3,8 @@ use crate::emulation_core::mips::datapath::DatapathState;
 use crate::emulation_core::mips::fp_registers::FpRegisters;
 use crate::emulation_core::mips::gp_registers::GpRegisters;
 use crate::emulation_core::mips::memory::Memory;
+use crate::emulation_core::riscv::datapath::{RiscDatapathState, RiscStage};
+use crate::emulation_core::riscv::registers::RiscGpRegisters;
 use crate::emulation_core::{architectures::AvailableDatapaths, mips::datapath::Stage};
 use serde::{Deserialize, Serialize};
 
@@ -36,6 +38,14 @@ pub enum MipsStateUpdate {
     UpdateStage(Stage),
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum RiscStateUpdate {
+    UpdateState(RiscDatapathState),
+    UpdateRegisters(RiscGpRegisters),
+    UpdateMemory(Memory),
+    UpdateStage(RiscStage),
+}
+
 /// Information about the effects of system calls sent from the worker thread to the UI thread.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum SystemUpdate {
@@ -49,5 +59,6 @@ pub enum SystemUpdate {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum DatapathUpdate {
     MIPS(MipsStateUpdate),
+    RISCV(RiscStateUpdate),
     System(SystemUpdate),
 }

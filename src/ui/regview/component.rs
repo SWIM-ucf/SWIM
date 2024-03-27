@@ -1,7 +1,7 @@
 use crate::agent::datapath_communicator::DatapathCommunicator;
-use crate::emulation_core::mips::fp_registers::FpRegisters;
-use crate::emulation_core::mips::gp_registers::GpRegisters;
+use crate::emulation_core::register::RegisterType;
 use crate::ui::swim_editor::tab::Tab;
+use std::rc::Rc;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlInputElement, InputEvent};
 use yew::prelude::*;
@@ -9,8 +9,8 @@ use yew::{html, Html};
 
 #[derive(PartialEq, Properties)]
 pub struct Regviewprops {
-    pub gp: GpRegisters,
-    pub fp: FpRegisters,
+    pub gp: Vec<(Rc<dyn RegisterType>, u64)>,
+    pub fp: Vec<(Rc<dyn RegisterType>, u64)>,
     pub pc_limit: usize,
     pub communicator: &'static DatapathCommunicator,
 }
@@ -40,9 +40,9 @@ pub struct InputData {
 pub fn generate_gpr_rows(props: &Regviewprops, radix: u32) -> Html {
     let communicator = props.communicator;
     let pc_limit = props.pc_limit;
+    let registers = props.gp.clone();
 
-    props
-        .gp
+    registers
         .into_iter()
         .map(|(register, data)| {
             let format_string = match radix {
@@ -52,7 +52,7 @@ pub fn generate_gpr_rows(props: &Regviewprops, radix: u32) -> Html {
             };
             html! {
                 <tr>
-                    <td>{register.get_gpr_name()}</td>
+                    <td>{register.get_register_name()}</td>
                     <td>
                         <input type="text" id={register.to_string()}
                         oninput={move |e: InputEvent| {
@@ -91,9 +91,10 @@ pub fn generate_gpr_rows(props: &Regviewprops, radix: u32) -> Html {
 // ============= Coprocessor Registers =============
 pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
     let communicator = props.communicator;
+    let pc_limit = props.pc_limit;
+    let registers = props.fp.clone();
 
-    props
-        .fp
+    registers
         .into_iter()
         .map(|(register, data)| {
             html! {
@@ -167,7 +168,7 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                                     }
                                 }
                             };
-                            if register.is_valid_register_value(value) {
+                            if register.is_valid_register_value(value, pc_limit) {
                                 communicator.set_fp_register(register.to_string(), value);
                                 input.set_class_name("");
                             } else {

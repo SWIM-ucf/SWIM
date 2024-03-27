@@ -52,23 +52,25 @@ use super::constants::*;
 use super::control_signals::*;
 use super::datapath_signals::*;
 use super::instruction::*;
-use super::{super::mips::memory::Memory, registers::GpRegisters};
+use super::{super::mips::memory::Memory, registers::RiscGpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
-use crate::emulation_core::datapath::DatapathUpdateSignal;
+use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
+use crate::emulation_core::riscv::registers::GpRegisterType::{X10, X11};
+use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.
 #[derive(Clone, PartialEq)]
 pub struct RiscDatapath {
-    pub registers: GpRegisters,
+    pub registers: RiscGpRegisters,
     pub memory: Memory,
 
     pub instruction: Instruction,
     pub signals: ControlSignals,
     pub datapath_signals: DatapathSignals,
-    pub state: DatapathState,
+    pub state: RiscDatapathState,
 
     /// The currently-active stage in the datapath.
-    pub current_stage: Stage,
+    pub current_stage: RiscStage,
 
     /// Boolean value that states whether the datapath has halted.
     ///
@@ -78,8 +80,8 @@ pub struct RiscDatapath {
 }
 
 /// A collection of all the data lines and wires in the datapath.
-#[derive(Clone, Default, PartialEq)]
-pub struct DatapathState {
+#[derive(Clone, Default, PartialEq, Debug, Serialize, Deserialize)]
+pub struct RiscDatapathState {
     /// *Data line.* The currently loaded instruction. Initialized after the
     /// Instruction Fetch stage.
     pub instruction: u32,
@@ -166,8 +168,8 @@ pub struct DatapathState {
 }
 
 /// The possible stages the datapath could be in during execution.
-#[derive(Clone, Copy, Default, Eq, PartialEq)]
-pub enum Stage {
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Serialize, Deserialize)]
+pub enum RiscStage {
     #[default]
     InstructionFetch,
     InstructionDecode,
@@ -176,16 +178,16 @@ pub enum Stage {
     WriteBack,
 }
 
-impl Stage {
+impl RiscStage {
     /// Given a stage, return the next consecutive stage. If the last
     /// stage is given, return the first stage.
-    fn get_next_stage(current_stage: Stage) -> Stage {
+    fn get_next_stage(current_stage: RiscStage) -> RiscStage {
         match current_stage {
-            Stage::InstructionFetch => Stage::InstructionDecode,
-            Stage::InstructionDecode => Stage::Execute,
-            Stage::Execute => Stage::Memory,
-            Stage::Memory => Stage::WriteBack,
-            Stage::WriteBack => Stage::InstructionFetch,
+            RiscStage::InstructionFetch => RiscStage::InstructionDecode,
+            RiscStage::InstructionDecode => RiscStage::Execute,
+            RiscStage::Execute => RiscStage::Memory,
+            RiscStage::Memory => RiscStage::WriteBack,
+            RiscStage::WriteBack => RiscStage::InstructionFetch,
         }
     }
 }
@@ -193,13 +195,13 @@ impl Stage {
 impl Default for RiscDatapath {
     fn default() -> Self {
         let mut datapath = RiscDatapath {
-            registers: GpRegisters::default(),
+            registers: RiscGpRegisters::default(),
             memory: Memory::default(),
             instruction: Instruction::default(),
             signals: ControlSignals::default(),
             datapath_signals: DatapathSignals::default(),
-            state: DatapathState::default(),
-            current_stage: Stage::default(),
+            state: RiscDatapathState::default(),
+            current_stage: RiscStage::default(),
             is_halted: true,
         };
 
@@ -213,7 +215,6 @@ impl Default for RiscDatapath {
 
 impl Datapath for RiscDatapath {
     type RegisterData = u64;
-    type RegisterEnum = super::registers::GpRegisterType;
 
     /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
     /// flag. If the process fails, an [`Err`] is returned.
@@ -238,7 +239,7 @@ impl Datapath for RiscDatapath {
 
             // This instruction is finished when the datapath has returned
             // to the IF stage.
-            if self.current_stage == Stage::InstructionFetch {
+            if self.current_stage == RiscStage::InstructionFetch {
                 break;
             }
         }
@@ -252,19 +253,15 @@ impl Datapath for RiscDatapath {
         }
 
         let res = match self.current_stage {
-            Stage::InstructionFetch => self.stage_instruction_fetch(),
-            Stage::InstructionDecode => self.stage_instruction_decode(),
-            Stage::Execute => self.stage_execute(),
-            Stage::Memory => self.stage_memory(),
-            Stage::WriteBack => self.stage_writeback(),
+            RiscStage::InstructionFetch => self.stage_instruction_fetch(),
+            RiscStage::InstructionDecode => self.stage_instruction_decode(),
+            RiscStage::Execute => self.stage_execute(),
+            RiscStage::Memory => self.stage_memory(),
+            RiscStage::WriteBack => self.stage_writeback(),
         };
 
-        self.current_stage = Stage::get_next_stage(self.current_stage);
+        self.current_stage = RiscStage::get_next_stage(self.current_stage);
         res
-    }
-
-    fn get_register_by_enum(&self, register: Self::RegisterEnum) -> u64 {
-        self.registers[register]
     }
 
     fn set_register_by_str(&mut self, register: &str, data: Self::RegisterData) {
@@ -304,8 +301,13 @@ impl Datapath for RiscDatapath {
         self.is_halted = true;
     }
 
-    fn get_syscall_arguments(&self) -> crate::emulation_core::datapath::Syscall {
-        todo!()
+    fn get_syscall_arguments(&self) -> Syscall {
+        Syscall::from_register_data(
+            self.registers[X10],
+            self.registers[X11],
+            0.0f32,
+            0.0f64, // TODO: Add the appropriate arguments after F extension support
+        )
     }
 }
 
@@ -925,7 +927,7 @@ impl RiscDatapath {
 
     // ======================= Memory (MEM) =======================
     /// Read from memory based on the address provided by the ALU in
-    /// [`DatapathState::alu_result`]. Returns the result to [`DatapathState::memory_data`].
+    /// [`RiscDatapathState::alu_result`]. Returns the result to [`RiscDatapathState::memory_data`].
     /// Should the address be invalid or otherwise memory cannot be
     /// read at the given address, bitwise 0 will be used in lieu of
     /// any data.
@@ -948,7 +950,7 @@ impl RiscDatapath {
     }
 
     /// Write to memory based on the address provided by the ALU in
-    /// [`DatapathState::alu_result`]. The source of the data being written to
+    /// [`RiscDatapathState::alu_result`]. The source of the data being written to
     /// memory is determined by [`MemWriteSrc`].
     fn memory_write(&mut self) {
         let address = self.state.alu_result;
