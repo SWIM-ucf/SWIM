@@ -5,3 +5,4 @@ pub mod datapath;
 pub mod line_info;
 pub mod mips;
 pub mod riscv;
+pub mod stack;

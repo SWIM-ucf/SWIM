@@ -57,7 +57,7 @@ use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
 use crate::emulation_core::mips::fp_registers::FpRegisterType;
 use crate::emulation_core::mips::gp_registers::GpRegisterType::{A0, A1};
-use crate::emulation_core::mips::stack::{Stack, StackFrame};
+use crate::emulation_core::stack::{Stack, StackFrame};
 use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.

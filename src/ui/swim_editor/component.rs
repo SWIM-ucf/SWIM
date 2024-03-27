@@ -23,7 +23,7 @@ use yew_hooks::prelude::*;
 
 use crate::agent::datapath_reducer::DatapathReducer;
 use crate::emulation_core::mips::memory::Memory;
-use crate::emulation_core::mips::stack::Stack;
+use crate::emulation_core::stack::Stack;
 use crate::ui::assembled_view::component::{StackFrameView, StackSegment};
 use crate::{
     agent::datapath_communicator::DatapathCommunicator,

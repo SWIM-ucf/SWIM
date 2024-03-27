@@ -6,7 +6,7 @@ use std::rc::Rc;
 
 use crate::agent::datapath_communicator::DatapathCommunicator;
 use crate::emulation_core::mips::memory::{Memory, MemoryIter};
-use crate::emulation_core::mips::stack::Stack;
+use crate::emulation_core::stack::Stack;
 // use monaco::api::TextModel;
 use crate::parser::parser_structs_and_enums::ProgramInfo;
 use crate::ui::swim_editor::tab::TabState;
