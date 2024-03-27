@@ -1,5 +1,7 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::collections::HashSet;
+use std::ops::Deref;
 use std::rc::Rc;
 
 use crate::agent::datapath_communicator::DatapathCommunicator;
@@ -26,7 +28,9 @@ pub struct TextSegmentProps {
     pub editor_active_tab: UseStateHandle<TabState>,
     pub console_active_tab: UseStateHandle<TabState>,
     pub communicator: &'static DatapathCommunicator,
+    pub breakpoints: UseStateHandle<HashSet<u64>>,
 }
+
 #[derive(PartialEq, Properties)]
 pub struct DataSegmentProps {
     pub program_info: ProgramInfo,
@@ -49,27 +53,46 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
     let console_active_tab = &props.console_active_tab;
     let executed_ref = use_node_ref();
     let communicator = props.communicator;
+    let current_pc = use_state(|| props.pc);
 
-    {
-        // Always scroll to the executed row on execution
+    // Scroll to the executed row on execution (when props.pc changes)
+    if *current_pc != props.pc {
         let executed_row = executed_ref.cast::<HtmlElement>();
         if let Some(executed_row) = executed_row {
             let mut options = web_sys::ScrollIntoViewOptions::new();
             options.block(web_sys::ScrollLogicalPosition::Center);
             executed_row.scroll_into_view_with_scroll_into_view_options(&options);
         }
+        current_pc.set(props.pc);
     }
 
-    let on_check = Callback::from(move |args: (MouseEvent, i64)| {
-        let (e, address) = args;
-        let target = e.target();
-        let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+    let on_check = {
+        let breakpoints = props.breakpoints.clone();
 
-        if input.checked() {
-            debug!("Breakpoint set at {:08x}", address as u64);
-            communicator.set_breakpoint(address as u64);
-        }
-    });
+        Callback::from(move |args: (MouseEvent, i64)| {
+            let (e, address) = args;
+            let target = e.target();
+            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+
+            if input.checked() {
+                debug!("Breakpoint set at {:08x}", address as u64);
+                communicator.set_breakpoint(address as u64);
+                breakpoints.set({
+                    let mut new_breakpoints = breakpoints.deref().clone();
+                    new_breakpoints.insert(address as u64);
+                    new_breakpoints
+                });
+            } else {
+                debug!("Breakpoint removed at {:08x}", address as u64);
+                communicator.remove_breakpoint(address as u64);
+                breakpoints.set({
+                    let mut new_breakpoints = breakpoints.deref().clone();
+                    new_breakpoints.remove(&(address as u64));
+                    new_breakpoints
+                });
+            }
+        })
+    };
 
     // Go to the memory address in hex editor
     let on_address_click = {
@@ -144,7 +167,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                                     {recreated_string}
                                 </td>
                                 <td>
-                                    {format!("{}: {:?}", line_number, lines_content.get(line_number).unwrap_or(&String::from("")))}
+                                    {format!("{}: {:?}", line_number + 1, lines_content.get(line_number).unwrap_or(&String::from("")))}
                                 </td>
                             </tr>
                         }
@@ -153,7 +176,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                         html!{
                             <tr key={index} class={classes!(conditional_class)}>
                                 <td class="h-full relative group">
-                                    <input type="checkbox" class="hover:cursor-pointer peer absolute top-0 left-0 opacity-0 w-full h-full" onclick={move |e: MouseEvent| {on_check.emit((e, address))}}/>
+                                    <input type="checkbox" checked={props.breakpoints.contains(&(address as u64))} class="hover:cursor-pointer peer absolute top-0 left-0 opacity-0 w-full h-full" onclick={move |e: MouseEvent| {on_check.emit((e, address))}}/>
                                     <div class="h-3 w-3 rounded-3xl m-auto bg-transparent group-hover:bg-accent-blue-200 peer-checked:bg-accent-blue-100"></div>
                                 </td>
                                 <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", address)} onclick={move |e: MouseEvent| {on_address_click.emit((e, address as usize))}}>

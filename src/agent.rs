@@ -10,6 +10,7 @@ use crate::emulation_core::mips::gp_registers::GpRegisterType;
 use futures::{FutureExt, SinkExt, StreamExt};
 use gloo_console::log;
 use messages::DatapathUpdate;
+use std::collections::HashSet;
 use std::time::Duration;
 use yew::platform::time::sleep;
 use yew_agent::prelude::*;
@@ -137,8 +138,9 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Default)]
 enum BlockedOn {
+    #[default]
     Nothing,
     Syscall(Syscall),
 }
@@ -156,6 +158,7 @@ struct EmulatorCoreAgentState {
     messages: Vec<String>,
     scanner: Scanner,
     blocked_on: BlockedOn,
+    breakpoints: HashSet<u64>,
 }
 
 impl EmulatorCoreAgentState {
@@ -170,6 +173,7 @@ impl EmulatorCoreAgentState {
             messages: Vec::new(),
             scanner: Scanner::new(),
             blocked_on: BlockedOn::Nothing,
+            breakpoints: HashSet::default(),
         }
     }
 
@@ -224,8 +228,11 @@ impl EmulatorCoreAgentState {
                 self.add_message(format!("> {}", line)).await;
                 self.scanner.feed(line);
             }
-            Command::SetBreakpoint(_address) => {
-                todo!("Implement setting breakpoints.")
+            Command::SetBreakpoint(address) => {
+                self.breakpoints.insert(address);
+            }
+            Command::RemoveBreakpoint(address) => {
+                self.breakpoints.remove(&address);
             }
         }
     }
@@ -235,7 +242,17 @@ impl EmulatorCoreAgentState {
         if !self.executing || matches!(self.blocked_on, BlockedOn::Syscall(_)) {
             return;
         }
+
         self.updates |= self.current_datapath.execute_instruction();
+
+        // Extract the current program counter and break if there's a breakpoint set here.
+        let current_pc = match self.current_datapath.as_datapath_ref() {
+            DatapathRef::MIPS(datapath) => datapath.registers.pc,
+            DatapathRef::RISCV(datapath) => datapath.registers.pc,
+        };
+        if self.breakpoints.contains(&current_pc) {
+            self.executing = false;
+        }
     }
 
     /// Returns the delay between CPU cycles in milliseconds for the current execution speed. Will return zero if the
@@ -263,6 +280,7 @@ impl EmulatorCoreAgentState {
         match syscall {
             Syscall::Exit => {
                 self.current_datapath.halt();
+                self.executing = false;
             }
             Syscall::PrintInt(val) => {
                 self.add_message(val.to_string()).await;
@@ -273,8 +291,34 @@ impl EmulatorCoreAgentState {
             Syscall::PrintDouble(val) => {
                 self.add_message(val.to_string()).await;
             }
-            Syscall::PrintString(val) => {
-                self.add_message(val.to_string()).await;
+            Syscall::PrintString(addr) => {
+                let memory = self.current_datapath.get_memory_mut();
+                let mut buffer = Vec::new();
+                for i in 0.. {
+                    let word = memory.load_word(addr + (i * 4));
+                    match word {
+                        Ok(word) => {
+                            for byte in word.to_be_bytes() {
+                                if byte == 0 {
+                                    // Break on null terminator
+                                    break;
+                                } else {
+                                    buffer.push(byte);
+                                }
+                            }
+                        }
+                        Err(_) => break,
+                    }
+                }
+
+                let message = String::from_utf8(buffer);
+                match message {
+                    Ok(message) => self.add_message(message).await,
+                    Err(_) => {
+                        self.add_message("Error: Attempted to print invalid string".to_string())
+                            .await
+                    }
+                }
             }
             Syscall::ReadInt => {
                 let scan_result = self.scanner.next_int();
@@ -341,13 +385,18 @@ impl EmulatorCoreAgentState {
                     Some(scan_result) => {
                         self.blocked_on = BlockedOn::Nothing;
 
-                        let bytes = scan_result.as_bytes();
+                        let bytes = scan_result.as_bytes().to_vec();
                         let memory = self.current_datapath.get_memory_mut();
                         let mut failed_store = false;
-                        for (i, byte) in bytes.iter().enumerate() {
+                        for (i, chunk) in bytes.chunks(4).enumerate() {
                             // Attempt to store the byte in memory, but if the store process fails,
                             // end the syscall and return to normal operation.
-                            let result = memory.store_byte(addr + i as u64, *byte);
+                            let mut word = [0u8; 4];
+                            for (i, byte) in chunk.iter().enumerate() {
+                                word[i] = *byte;
+                            }
+                            let result =
+                                memory.store_word(addr + (4 * i as u64), u32::from_be_bytes(word));
                             if result.is_err() {
                                 failed_store = true;
                                 break;
@@ -383,6 +432,7 @@ impl EmulatorCoreAgentState {
             )))
             .await
             .unwrap();
+        self.breakpoints = HashSet::default();
     }
 
     async fn add_message(&mut self, msg: String) {

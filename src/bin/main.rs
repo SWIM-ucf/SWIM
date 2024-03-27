@@ -7,7 +7,11 @@ use monaco::{
     api::TextModel,
     sys::{editor::IMarkerData, MarkerSeverity},
 };
+<<<<<<< HEAD
 use std::collections::HashMap;
+=======
+use std::collections::HashSet;
+>>>>>>> ca0500262e9198ba50f36d5de428d2da1bbf7059
 use std::rc::Rc;
 use swim::agent::datapath_communicator::DatapathCommunicator;
 use swim::agent::datapath_reducer::DatapathReducer;
@@ -70,6 +74,9 @@ fn app(props: &AppProps) -> Html {
     let memory_text_output = use_state_eq(String::new);
     let pc_limit = use_state(|| 0);
 
+    // Breakpoints for the text segment viewer
+    let breakpoints = use_state(HashSet::default);
+
     // Input strings from the code editor
     let lines_content = use_mut_ref(Vec::<String>::new);
 
@@ -110,6 +117,7 @@ fn app(props: &AppProps) -> Html {
         let parser_text_output = parser_text_output.clone();
         let trigger = use_force_update();
         let editor_curr_line = editor_curr_line.clone();
+        let breakpoints = breakpoints.clone();
         let communicator = props.communicator;
 
         // Clone the value before moving it into the closure
@@ -166,6 +174,7 @@ fn app(props: &AppProps) -> Html {
                 if marker_jsarray.length() == 0 {
                     // Send the binary over to the emulation core thread
                     communicator.initialize(program_info.pc_starting_point, assembled);
+                    breakpoints.set(HashSet::default());
                     memory_curr_instr.set(datapath_state.mips.registers.pc);
 
                     text_model.set_value(&program_info.updated_monaco_string); // Expands pseudo-instructions to their hardware counterpart.
@@ -443,6 +452,7 @@ fn app(props: &AppProps) -> Html {
         // Code editor
         let parser_text_output = parser_text_output;
         let editor_curr_line = editor_curr_line.clone();
+        let breakpoints = breakpoints.clone();
 
         // Hex editor
         let memory_curr_instr = memory_curr_instr.clone();
@@ -454,12 +464,16 @@ fn app(props: &AppProps) -> Html {
                 memory_curr_instr.set(0);
 
                 parser_text_output.set("".to_string());
-                communicator.reset();
 
+<<<<<<< HEAD
                 *program_info_ref.borrow_mut() = ProgramInfo::default();
                 *binary_ref.borrow_mut() = vec![];
                 *labels_ref.borrow_mut() = HashMap::<String, usize>::new();
 
+=======
+                communicator.reset();
+                breakpoints.set(HashSet::default());
+>>>>>>> ca0500262e9198ba50f36d5de428d2da1bbf7059
                 trigger.force_update();
             },
             (
@@ -562,6 +576,7 @@ fn app(props: &AppProps) -> Html {
                     // Editor
                     <div class="flex flex-col grow min-h-16 mt-2 h-full overflow-auto">
                         <SwimEditor
+                            breakpoints={breakpoints.clone()}
                             text_model={text_model}
                             lines_content={lines_content}
                             program_info={program_info_ref.borrow().clone()}

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::str::FromStr;
+use std::collections::HashSet;
 use std::{cell::RefCell, rc::Rc};
 
 use monaco::{
@@ -53,6 +54,15 @@ pub struct SwimEditorProps {
     pub sp: u64,
     pub memory: Memory,
     pub stack: Stack,
+    pub breakpoints: UseStateHandle<HashSet<u64>>,
+}
+
+#[derive(Default, PartialEq)]
+pub enum EditorTabState {
+    #[default]
+    Editor,
+    TextSegment,
+    DataSegment,
 }
 
 fn get_options() -> IStandaloneEditorConstructionOptions {
@@ -294,7 +304,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             if **editor_active_tab == TabState::Editor {
                 <CodeEditor classes={"editor"} link={link} options={get_options()} model={text_model.clone()} on_editor_created={on_editor_created}/>
             } else if **editor_active_tab == TabState::TextSegment {
-                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} pc={props.pc} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} communicator={props.communicator}/>
+                <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} breakpoints={props.breakpoints.clone()} pc={props.pc} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} communicator={props.communicator}/>
             } else if **editor_active_tab == TabState::DataSegment {
                 <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} pc_limit={props.pc_limit}/>
             } else if **editor_active_tab == TabState::StackSegment {

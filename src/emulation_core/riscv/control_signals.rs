@@ -33,6 +33,7 @@ pub enum OP1Select {
     #[default]
     DATA1,
     PC,
+    IMM,
 }
 
 #[derive(Clone, Default, PartialEq)]
@@ -106,6 +107,9 @@ pub enum SysOp {
     None,
     ECALL,
     EBREAK,
+    CSRReadWrite,
+    CSRReadSet,
+    CSRReadClear,
 }
 
 #[derive(Clone, Default, PartialEq)]
