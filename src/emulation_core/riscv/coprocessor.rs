@@ -226,6 +226,10 @@ impl RiscFpCoprocessor {
                         self.signals.data_write = DataWrite::YesWrite;
                         self.signals.fpu_reg_write = FpuRegWrite::NoWrite;
                     }
+                    26 => {
+                        self.signals.data_write = DataWrite::YesWrite;
+                        self.signals.data_src = DataSrc::MainProcessorUnit;
+                    }
                     _ => self.error("Unsupported Instruction!"),
                 }
 
@@ -413,92 +417,108 @@ impl RiscFpCoprocessor {
     /// Set the data line between the multiplexer after the `Data` register and the
     /// multiplexer in the main processor controlled by the [`DataWrite`] control signal.
     fn set_data_writeback(&mut self) {
-        let data_unrounded = f64::from_bits(self.data);
-
-        let data_rounded = match self.signals.round_mode {
-            RoundingMode::RNE => {
-                if (data_unrounded.ceil() - data_unrounded).abs()
-                    == (data_unrounded - data_unrounded.floor()).abs()
-                {
-                    if data_unrounded.ceil() % 2.0 == 0.0 {
-                        data_unrounded.ceil()
-                    } else {
-                        data_unrounded.floor()
+        self.state.data_writeback = match self.signals.data_src {
+            DataSrc::MainProcessorUnit => match self.state.rs2 {
+                0 => f64::to_bits(self.data as i32 as f64),
+                1 => f64::to_bits(self.data as u32 as f64),
+                2 => f64::to_bits(self.data as i64 as f64),
+                3 => f64::to_bits(self.data as f64),
+                _ => {
+                    self.error(&format!(
+                        "Unsupported Register Width `{:?}`",
+                        self.state.rs2
+                    ));
+                    0
+                }
+            }
+            DataSrc::FloatingPointUnit => {
+                let data_unrounded = f64::from_bits(self.data);
+                let data_rounded = match self.signals.round_mode {
+                    RoundingMode::RNE => {
+                        if (data_unrounded.ceil() - data_unrounded).abs()
+                            == (data_unrounded - data_unrounded.floor()).abs()
+                        {
+                            if data_unrounded.ceil() % 2.0 == 0.0 {
+                                data_unrounded.ceil()
+                            } else {
+                                data_unrounded.floor()
+                            }
+                        } else {
+                            data_unrounded.round()
+                        }
                     }
-                } else {
-                    data_unrounded.round()
+                    RoundingMode::RTZ => data_unrounded.trunc(),
+                    RoundingMode::RDN => data_unrounded.floor(),
+                    RoundingMode::RUP => data_unrounded.ceil(),
+                    RoundingMode::RMM => data_unrounded.round(),
+                    _ => {
+                        self.error(&format!(
+                            "Unsupported Rounding Mode `{:?}`",
+                            self.signals.round_mode
+                        ));
+                        0.0
+                    }
+                };
+        
+                match self.state.rs2 {
+                    0 => {
+                        if (data_rounded <= (-(2_i32.pow(31))).into()) | (data_rounded == f64::NEG_INFINITY)
+                        {
+                            -(2_i32.pow(31)) as u64
+                        } else if (data_rounded >= (2_i32.pow(31) - 1).into())
+                            | (data_rounded == f64::INFINITY)
+                            | (data_rounded.is_nan())
+                        {
+                            (2_i32.pow(31) - 1) as u64
+                        } else {
+                            data_rounded as i32 as u64
+                        }
+                    }
+                    1 => {
+                        if (data_rounded <= 0.0) | (data_rounded == f64::NEG_INFINITY) {
+                            0
+                        } else if (data_rounded >= (2_u32.pow(32) - 1).into())
+                            | (data_rounded == f64::INFINITY)
+                            | (data_rounded.is_nan())
+                        {
+                            (2_u32.pow(32) - 1) as u64
+                        } else {
+                            data_rounded as u32 as u64
+                        }
+                    }
+                    2 => {
+                        if (data_rounded <= (-(2_i64.pow(63))) as f64) | (data_rounded == f64::NEG_INFINITY)
+                        {
+                            -(2_i64.pow(63)) as u64
+                        } else if (data_rounded >= (2_i64.pow(63) - 1) as f64)
+                            | (data_rounded == f64::INFINITY)
+                            | (data_rounded.is_nan())
+                        {
+                            (2_i64.pow(63) - 1) as u64
+                        } else {
+                            data_rounded as i64 as u64
+                        }
+                    }
+                    3 => {
+                        if (data_rounded <= 0.0) | (data_rounded == f64::NEG_INFINITY) {
+                            0
+                        } else if (data_rounded >= (2_u64.pow(64) - 1) as f64)
+                            | (data_rounded == f64::INFINITY)
+                            | (data_rounded.is_nan())
+                        {
+                            2_u64.pow(64) - 1
+                        } else {
+                            data_rounded as u64
+                        }
+                    }
+                    _ => {
+                        self.error(&format!(
+                            "Unsupported Register Width `{:?}`",
+                            self.state.rs2
+                        ));
+                        0
+                    }
                 }
-            }
-            RoundingMode::RTZ => data_unrounded.trunc(),
-            RoundingMode::RDN => data_unrounded.floor(),
-            RoundingMode::RUP => data_unrounded.ceil(),
-            RoundingMode::RMM => data_unrounded.round(),
-            _ => {
-                self.error(&format!(
-                    "Unsupported Rounding Mode `{:?}`",
-                    self.signals.round_mode
-                ));
-                0.0
-            }
-        };
-
-        self.state.data_writeback = match self.state.rs2 {
-            0 => {
-                if (data_rounded <= (-(2_i32.pow(31))).into()) | (data_rounded == f64::NEG_INFINITY)
-                {
-                    -(2_i32.pow(31)) as u64
-                } else if (data_rounded >= (2_i32.pow(31) - 1).into())
-                    | (data_rounded == f64::INFINITY)
-                    | (data_rounded.is_nan())
-                {
-                    (2_i32.pow(31) - 1) as u64
-                } else {
-                    data_rounded as i32 as u64
-                }
-            }
-            1 => {
-                if (data_rounded <= 0.0) | (data_rounded == f64::NEG_INFINITY) {
-                    0
-                } else if (data_rounded >= (2_u32.pow(32) - 1).into())
-                    | (data_rounded == f64::INFINITY)
-                    | (data_rounded.is_nan())
-                {
-                    (2_u32.pow(32) - 1) as u64
-                } else {
-                    data_rounded as u32 as u64
-                }
-            }
-            2 => {
-                if (data_rounded <= (-(2_i64.pow(63))) as f64) | (data_rounded == f64::NEG_INFINITY)
-                {
-                    -(2_i64.pow(63)) as u64
-                } else if (data_rounded >= (2_i64.pow(63) - 1) as f64)
-                    | (data_rounded == f64::INFINITY)
-                    | (data_rounded.is_nan())
-                {
-                    (2_i64.pow(63) - 1) as u64
-                } else {
-                    data_rounded as i64 as u64
-                }
-            }
-            3 => {
-                if (data_rounded <= 0.0) | (data_rounded == f64::NEG_INFINITY) {
-                    0
-                } else if (data_rounded >= (2_u64.pow(64) - 1) as f64)
-                    | (data_rounded == f64::INFINITY)
-                    | (data_rounded.is_nan())
-                {
-                    2_u64.pow(64) - 1
-                } else {
-                    data_rounded as u64
-                }
-            }
-            _ => {
-                self.error(&format!(
-                    "Unsupported Register Width `{:?}`",
-                    self.state.rs2
-                ));
-                0
             }
         }
     }
@@ -546,7 +566,7 @@ impl RiscFpCoprocessor {
 
         self.state.register_write_mux_to_mux = match self.signals.data_write {
             DataWrite::NoWrite => self.state.alu_result,
-            DataWrite::YesWrite => self.data,
+            DataWrite::YesWrite => self.state.data_writeback,
         };
         self.state.register_write_data = match self.signals.fpu_mem_to_reg {
             FpuMemToReg::UseDataWrite => self.state.register_write_mux_to_mux,
