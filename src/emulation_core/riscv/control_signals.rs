@@ -297,8 +297,8 @@ pub mod floating_point {
         Division = 3,
 
         /// `_0100` (4):
-        /// - ALU: Perform an "AND" operation.
-        And = 4,
+        /// - ALU: Perform a Square Root.
+        Sqrt = 4,
 
         /// `_0101` (5):
         /// - ALU: Perform an "OR" operation.

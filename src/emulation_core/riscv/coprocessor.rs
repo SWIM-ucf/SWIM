@@ -213,9 +213,10 @@ impl RiscFpCoprocessor {
 
                 match r.funct7 >> 2 {
                     0 => self.signals.fpu_alu_op = FpuAluOp::Addition,
-                    4 => self.signals.fpu_alu_op = FpuAluOp::Subtraction,
-                    8 => self.signals.fpu_alu_op = FpuAluOp::MultiplicationOrEqual,
-                    12 => self.signals.fpu_alu_op = FpuAluOp::Division,
+                    1 => self.signals.fpu_alu_op = FpuAluOp::Subtraction,
+                    2 => self.signals.fpu_alu_op = FpuAluOp::MultiplicationOrEqual,
+                    3 => self.signals.fpu_alu_op = FpuAluOp::Division,
+                    11 => self.signals.fpu_alu_op = FpuAluOp::Sqrt,
                     _ => self.error("Unsupported Instruction!"),
                 }
 
@@ -281,6 +282,7 @@ impl RiscFpCoprocessor {
                     f64::to_bits(input1_f64 / input2_f64)
                 }
             }
+            FpuAluOp::Sqrt => f64::to_bits(input1_f64.sqrt()),
             // No operation.
             FpuAluOp::Slt | FpuAluOp::Snge | FpuAluOp::Sle | FpuAluOp::Sngt => 0,
             _ => {
