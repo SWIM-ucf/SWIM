@@ -430,7 +430,7 @@ impl RiscFpCoprocessor {
                     ));
                     0
                 }
-            }
+            },
             DataSrc::FloatingPointUnit => {
                 let data_unrounded = f64::from_bits(self.data);
                 let data_rounded = match self.signals.round_mode {
@@ -459,10 +459,11 @@ impl RiscFpCoprocessor {
                         0.0
                     }
                 };
-        
+
                 match self.state.rs2 {
                     0 => {
-                        if (data_rounded <= (-(2_i32.pow(31))).into()) | (data_rounded == f64::NEG_INFINITY)
+                        if (data_rounded <= (-(2_i32.pow(31))).into())
+                            | (data_rounded == f64::NEG_INFINITY)
                         {
                             -(2_i32.pow(31)) as u64
                         } else if (data_rounded >= (2_i32.pow(31) - 1).into())
@@ -487,7 +488,8 @@ impl RiscFpCoprocessor {
                         }
                     }
                     2 => {
-                        if (data_rounded <= (-(2_i64.pow(63))) as f64) | (data_rounded == f64::NEG_INFINITY)
+                        if (data_rounded <= (-(2_i64.pow(63))) as f64)
+                            | (data_rounded == f64::NEG_INFINITY)
                         {
                             -(2_i64.pow(63)) as u64
                         } else if (data_rounded >= (2_i64.pow(63) - 1) as f64)
