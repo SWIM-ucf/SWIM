@@ -231,6 +231,7 @@ impl RiscFpCoprocessor {
                     20 => {
                         self.signals.fpu_reg_write = FpuRegWrite::NoWrite;
                         self.signals.data_write = DataWrite::YesWrite;
+                        self.signals.data_src = DataSrc::FloatingPointUnitComp;
                         match r.funct3 {
                             0 => self.signals.fpu_alu_op = FpuAluOp::Sle,
                             1 => self.signals.fpu_alu_op = FpuAluOp::Slt,
@@ -245,6 +246,12 @@ impl RiscFpCoprocessor {
                     26 => {
                         self.signals.data_write = DataWrite::YesWrite;
                         self.signals.data_src = DataSrc::MainProcessorUnit;
+                    }
+                    28 => {
+                        self.signals.data_write = DataWrite::YesWrite;
+                        self.signals.data_src = DataSrc::FloatingPointUnitMask;
+                        self.signals.fpu_reg_write = FpuRegWrite::NoWrite;
+                        self.signals.fpu_alu_op = FpuAluOp::Class;
                     }
                     _ => self.error("Unsupported Instruction!"),
                 }
@@ -298,6 +305,7 @@ impl RiscFpCoprocessor {
         let input2 = self.state.read_data_2;
         let input1_f64 = f64::from_bits(input1);
         let input2_f64 = f64::from_bits(input2);
+        let mut input_mask = 0b0000000000;
 
         let result_f64: f64 = match self.signals.fpu_alu_op {
             FpuAluOp::Addition => input1_f64 + input2_f64,
@@ -330,6 +338,43 @@ impl RiscFpCoprocessor {
             FpuAluOp::SGNJX => {
                 f64::from_bits((input1 & 0x01111111) | (((input2 >> 63) ^ (input1 >> 63)) << 63))
             }
+            FpuAluOp::Class => {
+                if input1_f64.is_sign_negative() {
+                    if input1_f64.is_infinite() {
+                        input_mask = 0b1;
+                    }
+                    else if input1_f64.is_normal() {
+                        input_mask = 0b10;
+                    }
+                    else if input1_f64.is_subnormal() {
+                        input_mask = 0b100;
+                    }
+                    else {
+                        input_mask = 0b1000;
+                    }
+                }
+                else if input1_f64.is_sign_positive() {
+                    if input1_f64.is_infinite() {
+                        input_mask = 0b10000000;
+                    }
+                    else if input1_f64.is_normal() {
+                        input_mask = 0b1000000;
+                    }
+                    else if input1_f64.is_subnormal() {
+                        input_mask = 0b100000;
+                    }
+                    else {
+                        input_mask = 0b10000;
+                    }
+                }
+                else if input1_f64.is_nan() {
+                    input_mask = 0b100000000;
+                }
+                else {
+                    input_mask = 0b1000000000;
+                }
+                0.0
+            }
             // No operation.
             FpuAluOp::Slt | FpuAluOp::Snge | FpuAluOp::Sle | FpuAluOp::Sngt => 0.0,
             _ => {
@@ -351,6 +396,11 @@ impl RiscFpCoprocessor {
             | (self.signals.fpu_alu_op == FpuAluOp::SGNJX)
         {
             self.state.alu_result = f64::to_bits(result_f64);
+            return;
+        }
+
+        if self.signals.fpu_alu_op == FpuAluOp::Class {
+            self.state.alu_result = input_mask as u64;
             return;
         }
 
@@ -413,7 +463,9 @@ impl RiscFpCoprocessor {
         }
 
         self.data = match self.signals.data_src {
-            DataSrc::FloatingPointUnit => self.state.read_data_1,
+            DataSrc::FloatingPointUnitRS1 => self.state.read_data_1,
+            DataSrc::FloatingPointUnitComp => self.state.comparator_result,
+            DataSrc::FloatingPointUnitMask => self.state.alu_result,
             DataSrc::MainProcessorUnit => self.state.data_from_main_processor,
         };
     }
@@ -446,11 +498,6 @@ impl RiscFpCoprocessor {
     /// Set the data line between the multiplexer after the `Data` register and the
     /// multiplexer in the main processor controlled by the [`DataWrite`] control signal.
     fn set_data_writeback(&mut self) {
-        if self.state.funct7 >> 2 == 20 {
-            self.state.data_writeback = self.state.comparator_result;
-            return;
-        }
-
         self.state.data_writeback = match self.signals.data_src {
             DataSrc::MainProcessorUnit => match self.state.rs2 {
                 0 => f64::to_bits(self.data as i32 as f64),
@@ -465,7 +512,7 @@ impl RiscFpCoprocessor {
                     0
                 }
             },
-            DataSrc::FloatingPointUnit => {
+            DataSrc::FloatingPointUnitRS1 => {
                 let data_unrounded = f64::from_bits(self.data);
                 let data_rounded = match self.signals.round_mode {
                     RoundingMode::RNE => {
@@ -556,6 +603,7 @@ impl RiscFpCoprocessor {
                     }
                 }
             }
+            _ => self.data,
         }
     }
 

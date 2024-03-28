@@ -234,7 +234,13 @@ pub mod floating_point {
         /// Use data from the floating-point unit. Specifically, the data from register `rs1`
         /// from a given instruction.
         #[default]
-        FloatingPointUnit = 1,
+        FloatingPointUnitRS1 = 1,
+
+        /// Use data from the floating-point unit. Specifically, the data from the comparator.
+        FloatingPointUnitComp = 2,
+
+        /// Use data from the floating-point unit. Specifically, the Classify Mask.
+        FloatingPointUnitMask = 3,
     }
 
     /// Determines whether to write to the `Data` register in the floating-point unit.
@@ -319,6 +325,10 @@ pub mod floating_point {
         /// `_1001` (9):
         /// - ALU: Xor Sign-Injection.
         SGNJX = 9,
+
+        /// `_1010` (10):
+        /// - ALU: Classification Mask.
+        Class = 10,
 
         /// `_1100` (12):
         /// - Comparator: Set if less than.
