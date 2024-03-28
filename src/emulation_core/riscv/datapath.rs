@@ -68,7 +68,7 @@ pub struct RiscDatapath {
     pub memory: Memory,
     pub stack: Stack,
 
-    pub instruction: Instruction,
+    pub instruction: RiscInstruction,
     pub signals: ControlSignals,
     pub datapath_signals: DatapathSignals,
     pub state: RiscDatapathState,
@@ -202,7 +202,7 @@ impl Default for RiscDatapath {
             registers: RiscGpRegisters::default(),
             memory: Memory::default(),
             stack: Stack::default(),
-            instruction: Instruction::default(),
+            instruction: RiscInstruction::default(),
             signals: ControlSignals::default(),
             datapath_signals: DatapathSignals::default(),
             state: RiscDatapathState::default(),
@@ -507,7 +507,7 @@ impl RiscDatapath {
     // ================== Instruction Decode (ID) ==================
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
-        match Instruction::try_from(self.state.instruction) {
+        match RiscInstruction::try_from(self.state.instruction) {
             Ok(instruction) => self.instruction = instruction,
             Err(message) => {
                 self.error(&message);
@@ -518,7 +518,7 @@ impl RiscDatapath {
         // Set the data lines based on the contents of the instruction.
         // Some lines will hold uninitialized values as a result.
         match self.instruction {
-            Instruction::RType(r) => {
+            RiscInstruction::RType(r) => {
                 self.state.rs1 = r.rs1 as u32;
                 self.state.rs2 = r.rs2 as u32;
                 self.state.rd = r.rd as u32;
@@ -526,36 +526,36 @@ impl RiscDatapath {
                 self.state.funct3 = r.funct3 as u32;
                 self.state.funct7 = r.funct7 as u32;
             }
-            Instruction::IType(i) => {
+            RiscInstruction::IType(i) => {
                 self.state.rs1 = i.rs1 as u32;
                 self.state.funct3 = i.funct3 as u32;
                 self.state.rd = i.rd as u32;
                 self.state.imm = i.imm as u32;
                 self.state.shamt = (i.imm & 0x003f) as u32;
             }
-            Instruction::SType(s) => {
+            RiscInstruction::SType(s) => {
                 self.state.rs2 = s.rs2 as u32;
                 self.state.rs1 = s.rs1 as u32;
                 self.state.funct3 = s.funct3 as u32;
                 self.state.imm1 = s.imm1 as u32;
                 self.state.imm2 = s.imm2 as u32;
             }
-            Instruction::BType(b) => {
+            RiscInstruction::BType(b) => {
                 self.state.rs2 = b.rs2 as u32;
                 self.state.rs1 = b.rs1 as u32;
                 self.state.funct3 = b.funct3 as u32;
                 self.state.imm1 = b.imm1 as u32;
                 self.state.imm2 = b.imm2 as u32;
             }
-            Instruction::UType(u) => {
+            RiscInstruction::UType(u) => {
                 self.state.imm = u.imm;
                 self.state.rd = u.rd as u32;
             }
-            Instruction::JType(j) => {
+            RiscInstruction::JType(j) => {
                 self.state.imm = j.imm;
                 self.state.rd = j.rd as u32;
             }
-            Instruction::R4Type(r) => {
+            RiscInstruction::R4Type(r) => {
                 self.state.rd = r.rd as u32;
             }
         }
@@ -593,22 +593,22 @@ impl RiscDatapath {
     /// instruction's opcode.
     fn set_control_signals(&mut self) {
         match self.instruction {
-            Instruction::RType(r) => {
+            RiscInstruction::RType(r) => {
                 self.set_rtype_control_signals(r);
             }
-            Instruction::IType(i) => {
+            RiscInstruction::IType(i) => {
                 self.set_itype_control_signals(i);
             }
-            Instruction::SType(s) => {
+            RiscInstruction::SType(s) => {
                 self.set_stype_control_signals(s);
             }
-            Instruction::BType(b) => {
+            RiscInstruction::BType(b) => {
                 self.set_btype_control_signals(b);
             }
-            Instruction::UType(u) => {
+            RiscInstruction::UType(u) => {
                 self.set_utype_control_signals(u);
             }
-            Instruction::JType(j) => {
+            RiscInstruction::JType(j) => {
                 self.set_jtype_control_signals(j);
             }
             _ => self.error("Unsupported Instruction!"),
@@ -937,10 +937,10 @@ impl RiscDatapath {
     fn construct_jump_address(&mut self) {
         self.state.rd = self.state.pc_plus_4 as u32;
         self.state.jump_address = match self.instruction {
-            Instruction::IType(_i) => {
+            RiscInstruction::IType(_i) => {
                 (self.state.imm as u64 + self.state.read_data_1) & 0xfffffffffffffff0
             }
-            Instruction::JType(_j) => self.state.imm as u64 + self.registers.pc,
+            RiscInstruction::JType(_j) => self.state.imm as u64 + self.registers.pc,
             _ => self.state.jump_address,
         }
     }
