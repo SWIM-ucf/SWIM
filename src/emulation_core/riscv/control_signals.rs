@@ -333,7 +333,7 @@ pub mod floating_point {
         Sle = 14,
 
         /// `_1111` (15):
-        /// - Comparator: Set if not greater than.
+        /// - Comparator: Set if equal.
         Sngt = 15,
     }
 

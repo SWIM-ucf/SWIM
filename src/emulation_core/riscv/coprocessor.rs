@@ -228,6 +228,16 @@ impl RiscFpCoprocessor {
                         _ => self.error("Unsupported Instruction!"),
                     },
                     11 => self.signals.fpu_alu_op = FpuAluOp::Sqrt,
+                    20 => {
+                        self.signals.fpu_reg_write = FpuRegWrite::NoWrite;
+                        self.signals.data_write = DataWrite::YesWrite;
+                        match r.funct3 {
+                            0 => self.signals.fpu_alu_op = FpuAluOp::Sle,
+                            1 => self.signals.fpu_alu_op = FpuAluOp::Slt,
+                            2 => self.signals.fpu_alu_op = FpuAluOp::MultiplicationOrEqual,
+                            _ => self.error("Unsupported Instruction!"),
+                        }
+                    }
                     24 => {
                         self.signals.data_write = DataWrite::YesWrite;
                         self.signals.fpu_reg_write = FpuRegWrite::NoWrite;
@@ -321,7 +331,7 @@ impl RiscFpCoprocessor {
                 f64::from_bits((input1 & 0x01111111) | (((input2 >> 63) ^ (input1 >> 63)) << 63))
             }
             // No operation.
-            // FpuAluOp::Slt | FpuAluOp::Snge | FpuAluOp::Sle | FpuAluOp::Sngt => 0,
+            FpuAluOp::Slt | FpuAluOp::Snge | FpuAluOp::Sle | FpuAluOp::Sngt => 0.0,
             _ => {
                 self.error(&format!(
                     "Unsupported operation in FPU `{:?}`",
@@ -436,6 +446,11 @@ impl RiscFpCoprocessor {
     /// Set the data line between the multiplexer after the `Data` register and the
     /// multiplexer in the main processor controlled by the [`DataWrite`] control signal.
     fn set_data_writeback(&mut self) {
+        if self.state.funct7 >> 2 == 20 {
+            self.state.data_writeback = self.state.comparator_result;
+            return;
+        }
+
         self.state.data_writeback = match self.signals.data_src {
             DataSrc::MainProcessorUnit => match self.state.rs2 {
                 0 => f64::to_bits(self.data as i32 as f64),
