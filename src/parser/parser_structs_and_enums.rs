@@ -235,6 +235,7 @@ pub enum ErrorType {
     NonASCIIString, //One or multiple characters within the given string cannot be represented in ASCII
     NonASCIIChar,   //The given char cannot be represented in ASCII
     JALRRDRegisterZero, //The destination address for JALR cannot be the zero register
+    IncorrectImmediateValue, //Ensure immediate value for li is valid
 }
 
 impl fmt::Display for ErrorType {
