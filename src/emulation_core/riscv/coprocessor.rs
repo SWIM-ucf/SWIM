@@ -216,6 +216,11 @@ impl RiscFpCoprocessor {
                     1 => self.signals.fpu_alu_op = FpuAluOp::Subtraction,
                     2 => self.signals.fpu_alu_op = FpuAluOp::MultiplicationOrEqual,
                     3 => self.signals.fpu_alu_op = FpuAluOp::Division,
+                    5 => match r.funct3 {
+                        0 => self.signals.fpu_alu_op = FpuAluOp::Min,
+                        1 => self.signals.fpu_alu_op = FpuAluOp::Max,
+                        _ => self.error("Unsupported Instruction!"),
+                    },
                     11 => self.signals.fpu_alu_op = FpuAluOp::Sqrt,
                     _ => self.error("Unsupported Instruction!"),
                 }
@@ -283,8 +288,22 @@ impl RiscFpCoprocessor {
                 }
             }
             FpuAluOp::Sqrt => f64::to_bits(input1_f64.sqrt()),
+            FpuAluOp::Min => {
+                if input1_f64 < input2_f64 {
+                    f64::to_bits(input1_f64)
+                } else {
+                    f64::to_bits(input2_f64)
+                }
+            }
+            FpuAluOp::Max => {
+                if input1_f64 > input2_f64 {
+                    f64::to_bits(input1_f64)
+                } else {
+                    f64::to_bits(input2_f64)
+                }
+            }
             // No operation.
-            FpuAluOp::Slt | FpuAluOp::Snge | FpuAluOp::Sle | FpuAluOp::Sngt => 0,
+            // FpuAluOp::Slt | FpuAluOp::Snge | FpuAluOp::Sle | FpuAluOp::Sngt => 0,
             _ => {
                 self.error(&format!(
                     "Unsupported operation in FPU `{:?}`",

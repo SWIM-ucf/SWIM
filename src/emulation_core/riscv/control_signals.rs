@@ -301,8 +301,12 @@ pub mod floating_point {
         Sqrt = 4,
 
         /// `_0101` (5):
-        /// - ALU: Perform an "OR" operation.
-        Or = 5,
+        /// - ALU: Take the Minimum value.
+        Min = 5,
+
+        /// `_0110` (6):
+        /// - ALU: Take the Maximum value.
+        Max = 6,
 
         /// `_1100` (12):
         /// - Comparator: Set if less than.
