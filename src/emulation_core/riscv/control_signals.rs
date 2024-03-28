@@ -308,6 +308,18 @@ pub mod floating_point {
         /// - ALU: Take the Maximum value.
         Max = 6,
 
+        /// `_0111` (7):
+        /// - ALU: Sign-Injection.
+        SGNJ = 7,
+
+        /// `_1000` (8):
+        /// - ALU: Negative Sign-Injection.
+        SGNJN = 8,
+
+        /// `_1001` (9):
+        /// - ALU: Xor Sign-Injection.
+        SGNJX = 9,
+
         /// `_1100` (12):
         /// - Comparator: Set if less than.
         Slt = 12,

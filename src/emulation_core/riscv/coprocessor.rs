@@ -216,6 +216,12 @@ impl RiscFpCoprocessor {
                     1 => self.signals.fpu_alu_op = FpuAluOp::Subtraction,
                     2 => self.signals.fpu_alu_op = FpuAluOp::MultiplicationOrEqual,
                     3 => self.signals.fpu_alu_op = FpuAluOp::Division,
+                    4 => match r.funct3 {
+                        0 => self.signals.fpu_alu_op = FpuAluOp::SGNJ,
+                        1 => self.signals.fpu_alu_op = FpuAluOp::SGNJN,
+                        2 => self.signals.fpu_alu_op = FpuAluOp::SGNJX,
+                        _ => self.error("Unsupported Instruction!"),
+                    },
                     5 => match r.funct3 {
                         0 => self.signals.fpu_alu_op = FpuAluOp::Min,
                         1 => self.signals.fpu_alu_op = FpuAluOp::Max,
@@ -309,6 +315,11 @@ impl RiscFpCoprocessor {
                     input2_f64
                 }
             }
+            FpuAluOp::SGNJ => f64::from_bits((input1 & 0x01111111) | (input2 >> 63 << 63)),
+            FpuAluOp::SGNJN => f64::from_bits((input1 & 0x01111111) | (!(input2 >> 63) << 63)),
+            FpuAluOp::SGNJX => {
+                f64::from_bits((input1 & 0x01111111) | (((input2 >> 63) ^ (input1 >> 63)) << 63))
+            }
             // No operation.
             // FpuAluOp::Slt | FpuAluOp::Snge | FpuAluOp::Sle | FpuAluOp::Sngt => 0,
             _ => {
@@ -322,6 +333,14 @@ impl RiscFpCoprocessor {
 
         if result_f64.is_nan() {
             self.state.alu_result = RISC_NAN as u64;
+            return;
+        }
+
+        if (self.signals.fpu_alu_op == FpuAluOp::SGNJ)
+            | (self.signals.fpu_alu_op == FpuAluOp::SGNJN)
+            | (self.signals.fpu_alu_op == FpuAluOp::SGNJX)
+        {
+            self.state.alu_result = f64::to_bits(result_f64);
             return;
         }
 
