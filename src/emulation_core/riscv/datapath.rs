@@ -636,19 +636,45 @@ impl RiscDatapath {
             0 => match r.funct7 {
                 0b0000000 => self.signals.alu_op = AluOp::Addition,
                 0b0100000 => self.signals.alu_op = AluOp::Subtraction,
+                0b0000001 => self.signals.alu_op = AluOp::MultiplicationSigned,
                 _ => (),
             },
-            1 => self.signals.alu_op = AluOp::ShiftLeftLogical(self.state.rs2),
-            2 => self.signals.alu_op = AluOp::SetOnLessThanSigned,
-            3 => self.signals.alu_op = AluOp::SetOnLessThanUnsigned,
-            4 => self.signals.alu_op = AluOp::Xor,
+            1 => match r.funct7 {
+                0b0000000 => self.signals.alu_op = AluOp::ShiftLeftLogical(self.state.rs2),
+                0b0000001 => self.signals.alu_op = AluOp::MultiplicationSignedUpper,
+                _ => (),
+            },
+            2 => match r.funct7 {
+                0b0000000 => self.signals.alu_op = AluOp::SetOnLessThanSigned,
+                0b0000001 => self.signals.alu_op = AluOp::MultiplicationSignedUnsignedUpper,
+                _ => (),
+            },
+            3 => match r.funct7 {
+                0b0000000 => self.signals.alu_op = AluOp::SetOnLessThanUnsigned,
+                0b0000001 => self.signals.alu_op = AluOp::MultiplicationUnsignedSignedUpper,
+                _ => (),
+            },
+            4 => match r.funct7 {
+                0b0000000 => self.signals.alu_op = AluOp::Xor,
+                0b0000001 => self.signals.alu_op = AluOp::DivisionSigned,
+                _ => (),
+            },
             5 => match r.funct7 {
                 0b0000000 => self.signals.alu_op = AluOp::ShiftRightLogical(self.state.rs2),
                 0b0100000 => self.signals.alu_op = AluOp::ShiftRightArithmetic(self.state.rs2),
+                0b0000001 => self.signals.alu_op = AluOp::DivisionUnsigned,
                 _ => (),
             },
-            6 => self.signals.alu_op = AluOp::Or,
-            7 => self.signals.alu_op = AluOp::And,
+            6 => match r.funct7 {
+                0b0000000 => self.signals.alu_op = AluOp::Or,
+                0b0000001 => self.signals.alu_op = AluOp::RemainderSigned,
+                _ => (),
+            },
+            7 => match r.funct7 {
+                0b0000000 => self.signals.alu_op = AluOp::And,
+                0b0000001 => self.signals.alu_op = AluOp::RemainderUnsigned,
+                _ => (),
+            },
             _ => (),
         }
     }
@@ -875,6 +901,17 @@ impl RiscDatapath {
             AluOp::MultiplicationUnsigned => {
                 ((self.state.alu_input1 as u128) * (self.state.alu_input2 as u128)) as u64
             }
+            AluOp::MultiplicationSignedUpper => {
+                (((self.state.alu_input1 as i128) * (self.state.alu_input2 as i128)) >> 64) as u64
+            }
+            AluOp::MultiplicationSignedUnsignedUpper => {
+                (((self.state.alu_input1 as i128) * (self.state.alu_input2 as u128 as i128)) >> 64)
+                    as u64
+            }
+            AluOp::MultiplicationUnsignedSignedUpper => {
+                (((self.state.alu_input1 as u128 as i128) * (self.state.alu_input2 as i128)) >> 64)
+                    as u64
+            }
             AluOp::DivisionSigned => {
                 if self.state.alu_input2 == 0 {
                     0
@@ -887,6 +924,20 @@ impl RiscDatapath {
                     0
                 } else {
                     self.state.alu_input1 / self.state.alu_input2
+                }
+            }
+            AluOp::RemainderSigned => {
+                if self.state.alu_input2 == 0 {
+                    0
+                } else {
+                    ((self.state.alu_input1 as i64) % (self.state.alu_input2 as i64)) as u64
+                }
+            }
+            AluOp::RemainderUnsigned => {
+                if self.state.alu_input2 == 0 {
+                    0
+                } else {
+                    self.state.alu_input1 % self.state.alu_input2
                 }
             }
             _ => 0,
