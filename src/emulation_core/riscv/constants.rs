@@ -84,7 +84,7 @@ pub const OPCODE_NMSUB: u8 = 0b1001011;
 pub const OPCODE_NMADD: u8 = 0b1001111;
 
 /// Not a Number
-pub const NAN: u32 = 0x7fc00000;
+pub const RISC_NAN: u32 = 0x7fc00000;
 
 // "ENC" is short for encoding. There is no formal name for this field
 // in the MIPS64 specification, other than the "shamt"/"sa" field that it

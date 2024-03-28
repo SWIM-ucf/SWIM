@@ -1,9 +1,9 @@
 //! Implementation of a RISC-V floating-point coprocessor.
 
 // use super::constants::*;
-use super::control_signals::floating_point::*;
 use super::instruction::Instruction;
 use super::registers::FpRegisters;
+use super::{constants::RISC_NAN, control_signals::floating_point::*};
 use serde::{Deserialize, Serialize};
 
 /// An implementation of a floating-point coprocessor for the RISC-V ISA.
@@ -222,6 +222,10 @@ impl RiscFpCoprocessor {
                         _ => self.error("Unsupported Instruction!"),
                     },
                     11 => self.signals.fpu_alu_op = FpuAluOp::Sqrt,
+                    24 => {
+                        self.signals.data_write = DataWrite::YesWrite;
+                        self.signals.fpu_reg_write = FpuRegWrite::NoWrite;
+                    }
                     _ => self.error("Unsupported Instruction!"),
                 }
 
@@ -275,35 +279,65 @@ impl RiscFpCoprocessor {
         let input1_f64 = f64::from_bits(input1);
         let input2_f64 = f64::from_bits(input2);
 
-        // REMINDER: IMPLEMENT ROUNDING MODE!!!
-        self.state.alu_result = match self.signals.fpu_alu_op {
-            FpuAluOp::Addition => f64::to_bits(input1_f64 + input2_f64),
-            FpuAluOp::Subtraction => f64::to_bits(input1_f64 - input2_f64),
-            FpuAluOp::MultiplicationOrEqual => f64::to_bits(input1_f64 * input2_f64),
+        let result_f64: f64 = match self.signals.fpu_alu_op {
+            FpuAluOp::Addition => input1_f64 + input2_f64,
+            FpuAluOp::Subtraction => input1_f64 - input2_f64,
+            FpuAluOp::MultiplicationOrEqual => input1_f64 * input2_f64,
             FpuAluOp::Division => {
                 if input2_f64 == 0.0 {
-                    f64::to_bits(0.0)
+                    0.0
                 } else {
-                    f64::to_bits(input1_f64 / input2_f64)
+                    input1_f64 / input2_f64
                 }
             }
-            FpuAluOp::Sqrt => f64::to_bits(input1_f64.sqrt()),
+            FpuAluOp::Sqrt => input1_f64.sqrt(),
             FpuAluOp::Min => {
                 if input1_f64 < input2_f64 {
-                    f64::to_bits(input1_f64)
+                    input1_f64
                 } else {
-                    f64::to_bits(input2_f64)
+                    input2_f64
                 }
             }
             FpuAluOp::Max => {
                 if input1_f64 > input2_f64 {
-                    f64::to_bits(input1_f64)
+                    input1_f64
                 } else {
-                    f64::to_bits(input2_f64)
+                    input2_f64
                 }
             }
             // No operation.
             // FpuAluOp::Slt | FpuAluOp::Snge | FpuAluOp::Sle | FpuAluOp::Sngt => 0,
+            _ => {
+                self.error(&format!(
+                    "Unsupported operation in FPU `{:?}`",
+                    self.signals.fpu_alu_op
+                ));
+                0.0
+            }
+        };
+
+        if result_f64.is_nan() {
+            self.state.alu_result = RISC_NAN as u64;
+            return;
+        }
+
+        self.state.alu_result = match self.signals.round_mode {
+            RoundingMode::RNE => f64::to_bits(
+                if (result_f64.ceil() - result_f64).abs() == (result_f64 - result_f64.floor()).abs()
+                {
+                    if result_f64.ceil() % 2.0 == 0.0 {
+                        result_f64.ceil()
+                    } else {
+                        result_f64.floor()
+                    }
+                } else {
+                    result_f64.round()
+                },
+            ),
+            RoundingMode::RTZ => f64::to_bits(result_f64.trunc()),
+            RoundingMode::RDN => f64::to_bits(result_f64.floor()),
+            RoundingMode::RUP => f64::to_bits(result_f64.ceil()),
+            RoundingMode::RMM => f64::to_bits(result_f64.round()),
             _ => {
                 self.error(&format!(
                     "Unsupported operation in FPU `{:?}`",
@@ -379,8 +413,94 @@ impl RiscFpCoprocessor {
     /// Set the data line between the multiplexer after the `Data` register and the
     /// multiplexer in the main processor controlled by the [`DataWrite`] control signal.
     fn set_data_writeback(&mut self) {
-        self.state.sign_extend_data = self.data as i32 as i64 as u64;
-        self.state.data_writeback = self.data;
+        let data_unrounded = f64::from_bits(self.data);
+
+        let data_rounded = match self.signals.round_mode {
+            RoundingMode::RNE => {
+                if (data_unrounded.ceil() - data_unrounded).abs()
+                    == (data_unrounded - data_unrounded.floor()).abs()
+                {
+                    if data_unrounded.ceil() % 2.0 == 0.0 {
+                        data_unrounded.ceil()
+                    } else {
+                        data_unrounded.floor()
+                    }
+                } else {
+                    data_unrounded.round()
+                }
+            }
+            RoundingMode::RTZ => data_unrounded.trunc(),
+            RoundingMode::RDN => data_unrounded.floor(),
+            RoundingMode::RUP => data_unrounded.ceil(),
+            RoundingMode::RMM => data_unrounded.round(),
+            _ => {
+                self.error(&format!(
+                    "Unsupported Rounding Mode `{:?}`",
+                    self.signals.round_mode
+                ));
+                0.0
+            }
+        };
+
+        self.state.data_writeback = match self.state.rs2 {
+            0 => {
+                if (data_rounded <= (-(2_i32.pow(31))).into()) | (data_rounded == f64::NEG_INFINITY)
+                {
+                    -(2_i32.pow(31)) as u64
+                } else if (data_rounded >= (2_i32.pow(31) - 1).into())
+                    | (data_rounded == f64::INFINITY)
+                    | (data_rounded.is_nan())
+                {
+                    (2_i32.pow(31) - 1) as u64
+                } else {
+                    data_rounded as i32 as u64
+                }
+            }
+            1 => {
+                if (data_rounded <= 0.0) | (data_rounded == f64::NEG_INFINITY) {
+                    0
+                } else if (data_rounded >= (2_u32.pow(32) - 1).into())
+                    | (data_rounded == f64::INFINITY)
+                    | (data_rounded.is_nan())
+                {
+                    (2_u32.pow(32) - 1) as u64
+                } else {
+                    data_rounded as u32 as u64
+                }
+            }
+            2 => {
+                if (data_rounded <= (-(2_i64.pow(63))) as f64) | (data_rounded == f64::NEG_INFINITY)
+                {
+                    -(2_i64.pow(63)) as u64
+                } else if (data_rounded >= (2_i64.pow(63) - 1) as f64)
+                    | (data_rounded == f64::INFINITY)
+                    | (data_rounded.is_nan())
+                {
+                    (2_i64.pow(63) - 1) as u64
+                } else {
+                    data_rounded as i64 as u64
+                }
+            }
+            3 => {
+                if (data_rounded <= 0.0) | (data_rounded == f64::NEG_INFINITY) {
+                    0
+                } else if (data_rounded >= (2_u64.pow(64) - 1) as f64)
+                    | (data_rounded == f64::INFINITY)
+                    | (data_rounded.is_nan())
+                {
+                    2_u64.pow(64) - 1
+                } else {
+                    data_rounded as u64
+                }
+            }
+            _ => {
+                self.error(&format!(
+                    "Unsupported Register Width `{:?}`",
+                    self.state.rs2
+                ));
+                0
+            }
+        }
     }
 
     /// Simulate the logic between `self.state.condition_code_bit` and the FPU branch

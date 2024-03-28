@@ -619,7 +619,10 @@ impl RiscDatapath {
         }
 
         if r.op == OPCODE_OP_FP {
-            self.signals.reg_write_en = RegWriteEn::NoWrite;
+            match r.funct7 >> 2 {
+                24 => self.signals.reg_write_en = RegWriteEn::YesWrite,
+                _ => self.signals.reg_write_en = RegWriteEn::NoWrite,
+            }
         }
 
         match r.funct3 {

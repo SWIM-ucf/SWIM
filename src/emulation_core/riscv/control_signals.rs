@@ -227,11 +227,11 @@ pub mod floating_point {
     #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub enum DataSrc {
         /// Use data from the main processing unit. Specifically, the data from register
-        /// `rt` from a given instruction. This value can additionally be used in the cases
+        /// `rs1` from a given instruction. This value can additionally be used in the cases
         /// where this register is not written to.
         MainProcessorUnit = 0,
 
-        /// Use data from the floating-point unit. Specifically, the data from register `fs`
+        /// Use data from the floating-point unit. Specifically, the data from register `rs1`
         /// from a given instruction.
         #[default]
         FloatingPointUnit = 1,
@@ -258,10 +258,10 @@ pub mod floating_point {
         /// - Write to the data register.
         /// - Source data to write to the main processing unit register file from the
         ///   floating-point unit. Specifically, this is the data stored in the `Data` register
-        ///   in the FPU, likely from register `fs` from a given instruction. This data source
+        ///   in the FPU, likely from register `rs1` from a given instruction. This data source
         ///   overrides the decision given by the [`MemToReg`](super::MemToReg) control signal.
         /// - Source data to write to the floating-point register file from the `Data` register
-        ///   in the FPU, likely from register `rt` from a given instruction.
+        ///   in the FPU, likely from register `rs1` from a given instruction.
         YesWrite = 1,
     }
 
