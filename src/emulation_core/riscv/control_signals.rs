@@ -99,6 +99,16 @@ pub enum AluOp {
 
     /// `_1110` (14) - Perform unsigned integer division. (Returns the integer quotient.)
     DivisionUnsigned,
+
+    MultiplicationSignedUpper,
+
+    MultiplicationSignedUnsignedUpper,
+
+    MultiplicationUnsignedSignedUpper,
+
+    RemainderSigned,
+
+    RemainderUnsigned,
 }
 
 #[derive(Clone, Default, PartialEq)]

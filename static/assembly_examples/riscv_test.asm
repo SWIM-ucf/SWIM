@@ -1,4 +1,4 @@
 main:
-    jal x1, 2044
-    fmv.s f1, f2
-    ret
+        addi x1, x0, 50
+        addi x2, x0, 2
+        mul x3, x1, x2
