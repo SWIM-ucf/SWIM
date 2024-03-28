@@ -49,11 +49,11 @@
 
 use super::super::datapath::Datapath;
 use super::constants::*;
-use super::control_signals::*;
 use super::control_signals::floating_point::*;
+use super::control_signals::*;
+use super::coprocessor::RiscFpCoprocessor;
 use super::datapath_signals::*;
 use super::instruction::*;
-use super::coprocessor::RiscFpCoprocessor;
 use super::{super::mips::memory::Memory, registers::RiscGpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
@@ -616,6 +616,10 @@ impl RiscDatapath {
 
         if r.op == OPCODE_OP_32 {
             self.datapath_signals.reg_width = RegisterWidth::HalfWidth;
+        }
+
+        if r.op == OPCODE_OP_FP {
+            self.signals.reg_write_en = RegWriteEn::NoWrite;
         }
 
         match r.funct3 {

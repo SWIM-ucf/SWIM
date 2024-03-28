@@ -203,11 +203,13 @@ pub enum RegWriteEn {
 }
 
 pub mod floating_point {
+
     use super::super::constants::*;
     use serde::{Deserialize, Serialize};
 
     #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub struct FpuControlSignals {
+        pub round_mode: RoundingMode,
         pub data_src: DataSrc,
         pub data_write: DataWrite,
         pub fpu_alu_op: FpuAluOp,
@@ -331,6 +333,16 @@ pub mod floating_point {
                 _ => Err(format!("Unsupported function code `{function}`")),
             }
         }
+    }
+    #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+    pub enum RoundingMode {
+        RNE = 0,
+        RTZ = 1,
+        RDN = 2,
+        RUP = 3,
+        RMM = 4,
+        #[default]
+        DRM = 7,
     }
 
     /// Determines if the floating-point unit should consider branching, based on the

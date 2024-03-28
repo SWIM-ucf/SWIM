@@ -1,9 +1,9 @@
 //! Implementation of a RISC-V floating-point coprocessor.
 
-use super::constants::*;
+// use super::constants::*;
 use super::control_signals::floating_point::*;
-use super::registers::FpRegisters;
 use super::instruction::Instruction;
+use super::registers::FpRegisters;
 use serde::{Deserialize, Serialize};
 
 /// An implementation of a floating-point coprocessor for the RISC-V ISA.
@@ -202,9 +202,34 @@ impl RiscFpCoprocessor {
     fn set_control_signals(&mut self) {
         match self.instruction {
             Instruction::RType(r) => {
-                self.set_rtype_control_signals(r);
+                self.signals = FpuControlSignals {
+                    data_write: DataWrite::NoWrite,
+                    fpu_branch: FpuBranch::NoBranch,
+                    fpu_mem_to_reg: FpuMemToReg::UseDataWrite,
+                    fpu_reg_dst: FpuRegDst::Reg3,
+                    fpu_reg_write: FpuRegWrite::YesWrite,
+                    ..Default::default()
+                };
+
+                match r.funct7 >> 2 {
+                    0 => self.signals.fpu_alu_op = FpuAluOp::Addition,
+                    4 => self.signals.fpu_alu_op = FpuAluOp::Subtraction,
+                    8 => self.signals.fpu_alu_op = FpuAluOp::MultiplicationOrEqual,
+                    12 => self.signals.fpu_alu_op = FpuAluOp::Division,
+                    _ => self.error("Unsupported Instruction!"),
+                }
+
+                match r.funct3 {
+                    0 => self.signals.round_mode = RoundingMode::RNE,
+                    1 => self.signals.round_mode = RoundingMode::RTZ,
+                    2 => self.signals.round_mode = RoundingMode::RDN,
+                    3 => self.signals.round_mode = RoundingMode::RUP,
+                    4 => self.signals.round_mode = RoundingMode::RMM,
+                    7 => self.signals.round_mode = RoundingMode::DRM,
+                    _ => self.error("Unsupported Rounding Mode!"),
+                }
             }
-            Instruction::IType(i) => {
+            Instruction::IType(_i) => {
                 self.signals = FpuControlSignals {
                     data_write: DataWrite::NoWrite,
                     fpu_branch: FpuBranch::NoBranch,
@@ -214,22 +239,13 @@ impl RiscFpCoprocessor {
                     ..Default::default()
                 }
             }
-            Instruction::SType(s) => {
+            Instruction::SType(_s) => {
                 self.signals = FpuControlSignals {
                     data_write: DataWrite::NoWrite,
                     fpu_branch: FpuBranch::NoBranch,
                     fpu_reg_write: FpuRegWrite::NoWrite,
                     ..Default::default()
                 }
-            }
-            Instruction::BType(b) => {
-                self.set_btype_control_signals(b);
-            }
-            Instruction::UType(u) => {
-                self.set_utype_control_signals(u);
-            }
-            Instruction::JType(j) => {
-                self.set_jtype_control_signals(j);
             }
             _ => self.error("Unsupported Instruction!"),
         }
@@ -250,50 +266,21 @@ impl RiscFpCoprocessor {
     fn alu(&mut self) {
         let input1 = self.state.read_data_1;
         let input2 = self.state.read_data_2;
+        let input1_f64 = f64::from_bits(input1);
+        let input2_f64 = f64::from_bits(input2);
 
-        let mut input1_f32 = 0f32;
-        let mut input2_f32 = 0f32;
-        let mut input1_f64 = 0f64;
-        let mut input2_f64 = 0f64;
-
-        // Truncate the inputs if 32-bit operations are expected.
-        if let FpuRegWidth::Word = self.signals.fpu_reg_width {
-            input1_f32 = f32::from_bits(input1 as u32);
-            input2_f32 = f32::from_bits(input2 as u32);
-        } else {
-            input1_f64 = f64::from_bits(input1);
-            input2_f64 = f64::from_bits(input2);
-        }
-
+        // REMINDER: IMPLEMENT ROUNDING MODE!!!
         self.state.alu_result = match self.signals.fpu_alu_op {
-            FpuAluOp::Addition => match self.signals.fpu_reg_width {
-                FpuRegWidth::Word => f32::to_bits(input1_f32 + input2_f32) as u64,
-                FpuRegWidth::DoubleWord => f64::to_bits(input1_f64 + input2_f64),
-            },
-            FpuAluOp::Subtraction => match self.signals.fpu_reg_width {
-                FpuRegWidth::Word => f32::to_bits(input1_f32 - input2_f32) as u64,
-                FpuRegWidth::DoubleWord => f64::to_bits(input1_f64 - input2_f64),
-            },
-            FpuAluOp::MultiplicationOrEqual => match self.signals.fpu_reg_width {
-                FpuRegWidth::Word => f32::to_bits(input1_f32 * input2_f32) as u64,
-                FpuRegWidth::DoubleWord => f64::to_bits(input1_f64 * input2_f64),
-            },
-            FpuAluOp::Division => match self.signals.fpu_reg_width {
-                FpuRegWidth::Word => {
-                    if input2_f32 == 0f32 {
-                        f32::to_bits(0f32) as u64
-                    } else {
-                        f32::to_bits(input1_f32 / input2_f32) as u64
-                    }
+            FpuAluOp::Addition => f64::to_bits(input1_f64 + input2_f64),
+            FpuAluOp::Subtraction => f64::to_bits(input1_f64 - input2_f64),
+            FpuAluOp::MultiplicationOrEqual => f64::to_bits(input1_f64 * input2_f64),
+            FpuAluOp::Division => {
+                if input2_f64 == 0.0 {
+                    f64::to_bits(0.0)
+                } else {
+                    f64::to_bits(input1_f64 / input2_f64)
                 }
-                FpuRegWidth::DoubleWord => {
-                    if input2_f64 == 0.0 {
-                        f64::to_bits(0.0)
-                    } else {
-                        f64::to_bits(input1_f64 / input2_f64)
-                    }
-                }
-            },
+            }
             // No operation.
             FpuAluOp::Slt | FpuAluOp::Snge | FpuAluOp::Sle | FpuAluOp::Sngt => 0,
             _ => {
@@ -310,33 +297,15 @@ impl RiscFpCoprocessor {
     fn comparator(&mut self) {
         let input1 = self.state.read_data_1;
         let input2 = self.state.read_data_2;
-
-        let input1_f32 = f32::from_bits(input1 as u32);
-        let input2_f32 = f32::from_bits(input2 as u32);
         let input1_f64 = f64::from_bits(input1);
         let input2_f64 = f64::from_bits(input2);
 
         self.state.comparator_result = match self.signals.fpu_alu_op {
-            FpuAluOp::MultiplicationOrEqual => match self.signals.fpu_reg_width {
-                FpuRegWidth::Word => (input1_f32 == input2_f32) as u64,
-                FpuRegWidth::DoubleWord => (input1_f64 == input2_f64) as u64,
-            },
-            FpuAluOp::Slt => match self.signals.fpu_reg_width {
-                FpuRegWidth::Word => (input1_f32 < input2_f32) as u64,
-                FpuRegWidth::DoubleWord => (input1_f64 < input2_f64) as u64,
-            },
-            FpuAluOp::Sle => match self.signals.fpu_reg_width {
-                FpuRegWidth::Word => (input1_f32 <= input2_f32) as u64,
-                FpuRegWidth::DoubleWord => (input1_f64 <= input2_f64) as u64,
-            },
-            FpuAluOp::Sngt => match self.signals.fpu_reg_width {
-                FpuRegWidth::Word => !input1_f32.gt(&input2_f32) as u64,
-                FpuRegWidth::DoubleWord => !input1_f64.gt(&input2_f64) as u64,
-            },
-            FpuAluOp::Snge => match self.signals.fpu_reg_width {
-                FpuRegWidth::Word => !input1_f32.ge(&input2_f32) as u64,
-                FpuRegWidth::DoubleWord => !input1_f64.ge(&input2_f64) as u64,
-            },
+            FpuAluOp::MultiplicationOrEqual => (input1_f64 == input2_f64) as u64,
+            FpuAluOp::Slt => (input1_f64 < input2_f64) as u64,
+            FpuAluOp::Sle => (input1_f64 <= input2_f64) as u64,
+            FpuAluOp::Sngt => !input1_f64.gt(&input2_f64) as u64,
+            FpuAluOp::Snge => !input1_f64.ge(&input2_f64) as u64,
             FpuAluOp::Addition | FpuAluOp::Subtraction | FpuAluOp::Division => 0, // No operation
             _ => {
                 self.error(&format!(
@@ -363,9 +332,9 @@ impl RiscFpCoprocessor {
 
     /// Set the condition code (CC) register based on the result from the comparator.
     fn write_condition_code(&mut self) {
-        if let CcWrite::YesWrite = self.signals.cc_write {
-            self.condition_code = self.state.comparator_result;
-        }
+        // if let CcWrite::YesWrite = self.signals.cc_write {
+        self.condition_code = self.state.comparator_result;
+        // }
     }
 
     /// Set the data line that goes from `Read Data 1` to the multiplexer in the main processor
@@ -377,12 +346,7 @@ impl RiscFpCoprocessor {
     // ======================= Memory (MEM) =======================
     /// Set the data line that goes out of the condition code register file.
     fn set_condition_code_line(&mut self) {
-        // The MIPS architecture supports more than one condition code, but SWIM
-        // manually uses only one. This stubs the possible use of more than one
-        // for future development.
-        let selected_register_data = match self.signals.cc {
-            Cc::Cc0 => self.condition_code,
-        };
+        let selected_register_data = self.condition_code;
 
         // This only considers one bit of the selected condition code register.
         self.state.condition_code_bit = match selected_register_data % 2 {
@@ -395,10 +359,7 @@ impl RiscFpCoprocessor {
     /// multiplexer in the main processor controlled by the [`DataWrite`] control signal.
     fn set_data_writeback(&mut self) {
         self.state.sign_extend_data = self.data as i32 as i64 as u64;
-        self.state.data_writeback = match self.signals.fpu_reg_width {
-            FpuRegWidth::Word => self.state.sign_extend_data,
-            FpuRegWidth::DoubleWord => self.data,
-        }
+        self.state.data_writeback = self.data;
     }
 
     /// Simulate the logic between `self.state.condition_code_bit` and the FPU branch
