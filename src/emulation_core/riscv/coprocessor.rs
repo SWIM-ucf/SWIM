@@ -200,23 +200,44 @@ impl RiscFpCoprocessor {
     /// Set the control signals of the processor based on the instruction opcode and function
     /// control signals.
     fn set_control_signals(&mut self) {
-        
+        match self.instruction {
+            Instruction::RType(r) => {
+                self.set_rtype_control_signals(r);
+            }
+            Instruction::IType(i) => {
+                self.signals = FpuControlSignals {
+                    data_write: DataWrite::NoWrite,
+                    fpu_branch: FpuBranch::NoBranch,
+                    fpu_mem_to_reg: FpuMemToReg::UseMemory,
+                    fpu_reg_dst: FpuRegDst::Reg3,
+                    fpu_reg_write: FpuRegWrite::YesWrite,
+                    ..Default::default()
+                }
+            }
+            Instruction::SType(s) => {
+                self.set_stype_control_signals(s);
+            }
+            Instruction::BType(b) => {
+                self.set_btype_control_signals(b);
+            }
+            Instruction::UType(u) => {
+                self.set_utype_control_signals(u);
+            }
+            Instruction::JType(j) => {
+                self.set_jtype_control_signals(j);
+            }
+            _ => self.error("Unsupported Instruction!"),
+        }
     }
 
     /// Read the registers as specified from the instruction and pass
     /// the data into the datapath.
     fn read_registers(&mut self) {
-        let reg1 = self.state.fs as usize;
-        let reg2 = self.state.ft as usize;
+        let reg1 = self.state.rs1 as usize;
+        let reg2 = self.state.rs2 as usize;
 
         self.state.read_data_1 = self.registers.fpr[reg1];
         self.state.read_data_2 = self.registers.fpr[reg2];
-
-        // Truncate the variable data if a 32-bit word is requested.
-        if let FpuRegWidth::Word = self.signals.fpu_reg_width {
-            self.state.read_data_1 = self.registers.fpr[reg1] as u32 as u64;
-            self.state.read_data_2 = self.registers.fpr[reg2] as u32 as u64;
-        }
     }
 
     // ======================= Execute (EX) =======================
@@ -411,9 +432,9 @@ impl RiscFpCoprocessor {
         }
 
         self.state.destination = match self.signals.fpu_reg_dst {
-            FpuRegDst::Reg1 => self.state.ft as usize,
-            FpuRegDst::Reg2 => self.state.fs as usize,
-            FpuRegDst::Reg3 => self.state.fd as usize,
+            FpuRegDst::Reg1 => self.state.rs1 as usize,
+            FpuRegDst::Reg2 => self.state.rs2 as usize,
+            FpuRegDst::Reg3 => self.state.rd as usize,
         };
 
         self.state.register_write_mux_to_mux = match self.signals.data_write {

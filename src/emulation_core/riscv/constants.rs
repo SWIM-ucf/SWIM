@@ -52,11 +52,13 @@ pub const OPCODE_IMM_32: u8 = 0b0011011;
 pub const OPCODE_JALR: u8 = 0b1100111;
 // LOAD
 pub const OPCODE_LOAD: u8 = 0b0000011;
+pub const OPCODE_LOAD_FP: u8 = 0b0000111;
 // SYSTEM
 pub const OPCODE_SYSTEM: u8 = 0b1110011;
 
 /// Used for S-type instructions.
 pub const OPCODE_STORE: u8 = 0b0100011;
+pub const OPCODE_STORE_FP: u8 = 0b0100111;
 
 /// Used for B-type instructions.
 pub const OPCODE_BRANCH: u8 = 0b1100011;
@@ -79,6 +81,9 @@ pub const OPCODE_MSUB: u8 = 0b1000111;
 pub const OPCODE_NMSUB: u8 = 0b1001011;
 // FNMADD.S
 pub const OPCODE_NMADD: u8 = 0b1001111;
+
+/// Not a Number
+pub const NAN: u8 = 0x7fc00000;
 
 // "ENC" is short for encoding. There is no formal name for this field
 // in the MIPS64 specification, other than the "shamt"/"sa" field that it

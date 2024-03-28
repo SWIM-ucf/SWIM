@@ -3,7 +3,7 @@
 
 pub mod constants;
 pub mod control_signals;
-// pub mod coprocessor;
+pub mod coprocessor;
 pub mod datapath;
 pub mod datapath_signals;
 pub mod instruction;

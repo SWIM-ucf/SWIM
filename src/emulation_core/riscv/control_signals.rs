@@ -208,39 +208,14 @@ pub mod floating_point {
 
     #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub struct FpuControlSignals {
-        pub cc: Cc,
-        pub cc_write: CcWrite,
         pub data_src: DataSrc,
         pub data_write: DataWrite,
         pub fpu_alu_op: FpuAluOp,
         pub fpu_branch: FpuBranch,
         pub fpu_mem_to_reg: FpuMemToReg,
         pub fpu_reg_dst: FpuRegDst,
-        pub fpu_reg_width: FpuRegWidth,
         pub fpu_reg_write: FpuRegWrite,
         pub fpu_take_branch: FpuTakeBranch,
-    }
-
-    /// Determines, given that [`CcWrite`] is set, which condition code register
-    /// should be written to or read from for a given operation.
-    ///
-    /// For the sake of this project, it will usually be assumed that this will
-    /// be 0, however the functionality is available to be extended.
-    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
-    pub enum Cc {
-        /// Use condition code register 0. Default in most operations. Can be
-        /// additionally used in the case where the condition code register is
-        /// irrelevant to the current instruction.
-        #[default]
-        Cc0 = 0,
-    }
-
-    /// Determines if the condition code register file should be written to.
-    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
-    pub enum CcWrite {
-        #[default]
-        NoWrite = 0,
-        YesWrite = 1,
     }
 
     /// Determines the source of the `Data` register in the floating-point unit.
@@ -265,7 +240,7 @@ pub mod floating_point {
     /// This acts as a toggle for the source of data to the main processing unit register
     /// file. Additionally, it acts as a toggle for a source to the floating-point unit
     /// register file (this could be overridden by the [`FpuMemToReg`] control signal).
-    /// For the latter two functions, it is imperative to unset the [`RegWrite`](super::RegWrite) and
+    /// For the latter two functions, it is imperative to unset the [`RegWriteEn`](super::RegWriteEn) and
     /// [`FpuRegWrite`] control signals in cases where registers should not be modified
     /// with unintended data.
     #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
@@ -391,41 +366,15 @@ pub mod floating_point {
     /// to, which largely depends on the instruction format.
     #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     pub enum FpuRegDst {
-        /// Use register `ft`.
+        /// Use register `rs1`.
         Reg1 = 0,
 
-        /// Use register `fs`.
+        /// Use register `rs2`.
         Reg2 = 1,
 
-        /// Use register `fd`.
+        /// Use register `rd`.
         #[default]
         Reg3 = 2,
-    }
-
-    /// Determines the amount of data to be sent or received from registers and the ALU.
-    ///
-    /// While all buses carrying information are 64-bits wide, some bits of the bus may be
-    /// ignored in the case of this control signal.
-    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
-    pub enum FpuRegWidth {
-        /// Use words (32 bits). Equivalent to a single-precision floating-point value.
-        Word = 0,
-
-        /// Use doublewords (64 bits). Equivalent to a double-precision floating-point value.
-        #[default]
-        DoubleWord = 1,
-    }
-
-    impl FpuRegWidth {
-        /// Get the corresponding [`FpuRegWidth`] control signal based on
-        /// the `fmt` field in an instruction.
-        pub fn from_fmt(fmt: u8) -> Result<Self, String> {
-            match fmt {
-                FMT_SINGLE => Ok(Self::Word),
-                FMT_DOUBLE => Ok(Self::DoubleWord),
-                _ => Err(format!("`{fmt}` is an invalid fmt value")),
-            }
-        }
     }
 
     /// Determines if the floating-point register file should be written to.

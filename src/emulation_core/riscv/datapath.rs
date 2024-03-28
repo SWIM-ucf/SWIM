@@ -50,8 +50,10 @@
 use super::super::datapath::Datapath;
 use super::constants::*;
 use super::control_signals::*;
+use super::control_signals::floating_point::*;
 use super::datapath_signals::*;
 use super::instruction::*;
+use super::coprocessor::RiscFpCoprocessor;
 use super::{super::mips::memory::Memory, registers::RiscGpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
@@ -63,6 +65,7 @@ use serde::{Deserialize, Serialize};
 pub struct RiscDatapath {
     pub registers: RiscGpRegisters,
     pub memory: Memory,
+    pub coprocessor: RiscFpCoprocessor,
 
     pub instruction: Instruction,
     pub signals: ControlSignals,
@@ -87,8 +90,10 @@ pub struct RiscDatapathState {
     pub instruction: u32,
     pub rs1: u32,
     pub rs2: u32,
+    pub rs3: u32,
     pub rd: u32,
     pub shamt: u32,
+    pub funct2: u32,
     pub funct3: u32,
     pub funct7: u32,
     pub imm: u32,
@@ -197,6 +202,7 @@ impl Default for RiscDatapath {
         let mut datapath = RiscDatapath {
             registers: RiscGpRegisters::default(),
             memory: Memory::default(),
+            coprocessor: RiscFpCoprocessor::default(),
             instruction: Instruction::default(),
             signals: ControlSignals::default(),
             datapath_signals: DatapathSignals::default(),
@@ -260,6 +266,11 @@ impl Datapath for RiscDatapath {
             RiscStage::WriteBack => self.stage_writeback(),
         };
 
+        // If the FPU has halted, reflect this in the main unit.
+        if self.coprocessor.is_halted {
+            self.is_halted = true;
+        }
+
         self.current_stage = RiscStage::get_next_stage(self.current_stage);
         res
     }
@@ -289,8 +300,9 @@ impl Datapath for RiscDatapath {
         DatapathRef::RISCV(self)
     }
 
-    fn set_fp_register_by_str(&mut self, _register: &str, _data: Self::RegisterData) {
-        todo!()
+    fn set_fp_register_by_str(&mut self, register: &str, data: Self::RegisterData) {
+        let register = &mut self.coprocessor.registers[register];
+        *register = data;
     }
 
     fn get_memory_mut(&mut self) -> &mut Memory {
@@ -339,10 +351,12 @@ impl RiscDatapath {
 
         // Upper part of datapath, PC calculation
         self.pc_plus_4();
+        self.coprocessor.set_instruction(self.state.instruction);
 
         // Both state and coprocessor state always update
         DatapathUpdateSignal {
             changed_state: true,
+            changed_coprocessor_state: true,
             ..Default::default()
         }
     }
@@ -359,6 +373,10 @@ impl RiscDatapath {
         self.set_immediate();
         self.read_registers();
 
+        self.coprocessor.stage_instruction_decode();
+        self.coprocessor
+            .set_data_from_main_processor(self.state.read_data_1);
+
         // Check if we hit a syscall or breakpoint and signal it to the caller.
         let (hit_syscall, hit_breakpoint) = (
             self.signals.sys_op == SysOp::ECALL,
@@ -368,6 +386,7 @@ impl RiscDatapath {
         // Instruction decode always involves a state update
         DatapathUpdateSignal {
             changed_state: true,
+            changed_coprocessor_state: true,
             hit_syscall,
             hit_breakpoint,
             ..Default::default()
@@ -381,9 +400,11 @@ impl RiscDatapath {
         self.alu();
         self.calc_relative_pc_branch();
         self.calc_cpu_branch_signal();
+        self.coprocessor.stage_execute();
 
         DatapathUpdateSignal {
             changed_state: true,
+            changed_coprocessor_state: true,
             ..Default::default()
         }
     }
@@ -407,6 +428,8 @@ impl RiscDatapath {
             ReadWrite::StoreDouble => self.memory_write(),
         }
 
+        self.coprocessor.stage_memory();
+
         // PC calculation stuff from upper part of datapath
         self.calc_general_branch_signal();
         self.pick_pc_plus_4_or_relative_branch_addr_mux1();
@@ -418,6 +441,7 @@ impl RiscDatapath {
                 | (self.signals.read_write == ReadWrite::StoreDouble)
                 | (self.signals.read_write == ReadWrite::StoreHalf)
                 | (self.signals.read_write == ReadWrite::StoreWord)),
+            changed_coprocessor_state: true,
             ..Default::default()
         }
     }
@@ -428,11 +452,17 @@ impl RiscDatapath {
     /// if desired. Additionally, set the PC for the next instruction.
     fn stage_writeback(&mut self) -> DatapathUpdateSignal {
         self.register_write();
+        self.coprocessor
+            .set_fp_register_data_from_main_processor(self.state.data_result);
         self.set_pc();
+        self.coprocessor.stage_writeback();
 
         DatapathUpdateSignal {
             changed_state: true,
+            changed_coprocessor_state: true,
             changed_registers: true, // Always true because pc always gets updated
+            changed_coprocessor_registers: self.coprocessor.signals.fpu_reg_write
+                == FpuRegWrite::YesWrite,
             ..Default::default()
         }
     }
@@ -506,7 +536,14 @@ impl RiscDatapath {
                 self.state.imm = j.imm;
                 self.state.rd = j.rd as u32;
             }
-            _ => (),
+            Instruction::R4Type(r4) => {
+                self.state.rs3 = r4.rs3 as u32;
+                self.state.funct2 = r4.funct2 as u32;
+                self.state.rs2 = r4.rs2 as u32;
+                self.state.rs1 = r4.rs1 as u32;
+                self.state.funct3 = r4.funct3 as u32;
+                self.state.rd = r4.rd as u32;
+            }
         }
     }
 
@@ -648,6 +685,20 @@ impl RiscDatapath {
             }
             OPCODE_LOAD => {
                 self.signals.wb_sel = WBSel::UseMemory;
+                match i.funct3 {
+                    0 => self.signals.read_write = ReadWrite::LoadByte,
+                    1 => self.signals.read_write = ReadWrite::LoadHalf,
+                    2 => self.signals.read_write = ReadWrite::LoadWord,
+                    3 => self.signals.read_write = ReadWrite::LoadDouble,
+                    4 => self.signals.read_write = ReadWrite::LoadByteUnsigned,
+                    5 => self.signals.read_write = ReadWrite::LoadHalfUnsigned,
+                    6 => self.signals.read_write = ReadWrite::LoadWordUnsigned,
+                    _ => (),
+                }
+            }
+            OPCODE_LOAD_FP => {
+                self.signals.wb_sel = WBSel::UseMemory;
+                self.signals.reg_write_en = RegWriteEn::NoWrite;
                 match i.funct3 {
                     0 => self.signals.read_write = ReadWrite::LoadByte,
                     1 => self.signals.read_write = ReadWrite::LoadHalf,
@@ -955,7 +1006,10 @@ impl RiscDatapath {
     fn memory_write(&mut self) {
         let address = self.state.alu_result;
 
-        self.state.write_data = self.state.read_data_2;
+        self.state.write_data = match self.signals.mem_write_src {
+            MemWriteSrc::PrimaryUnit => self.state.read_data_2,
+            MemWriteSrc::FloatingPointUnit => self.coprocessor.get_fp_register_to_memory(),
+        };
 
         // Choose the correct store function based on the RegWidth
         // control signal.
@@ -991,6 +1045,10 @@ impl RiscDatapath {
         if let CpuBranch::YesBranch = self.datapath_signals.cpu_branch {
             self.datapath_signals.general_branch = GeneralBranch::YesBranch;
         }
+
+        if let FpuTakeBranch::YesBranch = self.coprocessor.signals.fpu_take_branch {
+            self.datapath_signals.general_branch = GeneralBranch::YesBranch;
+        }
     }
 
     fn pick_pc_plus_4_or_relative_branch_addr_mux1(&mut self) {
@@ -1022,7 +1080,10 @@ impl RiscDatapath {
         };
 
         // Decide to retrieve data either from the main processor or the coprocessor.
-        self.state.register_write_data = self.state.data_result;
+        self.state.register_write_data = match self.coprocessor.signals.data_write {
+            DataWrite::NoWrite => self.state.data_result,
+            DataWrite::YesWrite => self.coprocessor.get_data_writeback(),
+        };
 
         // Abort if the RegWrite signal is not set.
         if self.signals.reg_write_en == RegWriteEn::NoWrite {
