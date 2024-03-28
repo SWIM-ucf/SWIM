@@ -17,7 +17,6 @@ use yew::prelude::*;
 use yew::{Html, Properties};
 
 // TODO: Create Segment Viewer component for extendability to any segment
-
 #[derive(PartialEq, Properties)]
 pub struct TextSegmentProps {
     pub program_info: ProgramInfo,
