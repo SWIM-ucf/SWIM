@@ -132,7 +132,7 @@ impl TryFrom<u32> for Instruction {
             }
 
             // S-type instruction:
-            OPCODE_STORE => Ok(Instruction::SType(SType {
+            OPCODE_STORE | OPCODE_STORE_FP => Ok(Instruction::SType(SType {
                 imm1: (value >> 25) as u8,
                 rs2: ((value >> 20) & 0x1f) as u8,
                 rs1: ((value >> 15) & 0x1f) as u8,

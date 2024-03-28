@@ -215,7 +215,12 @@ impl RiscFpCoprocessor {
                 }
             }
             Instruction::SType(s) => {
-                self.set_stype_control_signals(s);
+                self.signals = FpuControlSignals {
+                    data_write: DataWrite::NoWrite,
+                    fpu_branch: FpuBranch::NoBranch,
+                    fpu_reg_write: FpuRegWrite::NoWrite,
+                    ..Default::default()
+                }
             }
             Instruction::BType(b) => {
                 self.set_btype_control_signals(b);
@@ -363,10 +368,10 @@ impl RiscFpCoprocessor {
         }
     }
 
-    /// Set the data line that goes from `Read Data 2` to the multiplexer in the main processor
+    /// Set the data line that goes from `Read Data 1` to the multiplexer in the main processor
     /// controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
     fn write_fp_register_to_memory(&mut self) {
-        self.state.fp_register_to_memory = self.state.read_data_2;
+        self.state.fp_register_to_memory = self.state.read_data_1;
     }
 
     // ======================= Memory (MEM) =======================

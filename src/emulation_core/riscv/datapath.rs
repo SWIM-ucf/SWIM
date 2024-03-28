@@ -756,6 +756,10 @@ impl RiscDatapath {
             ..Default::default()
         };
 
+        if s.op == OPCODE_STORE_FP {
+            self.signals.mem_write_src = MemWriteSrc::FloatingPointUnit;
+        }
+
         match s.funct3 {
             0 => self.signals.read_write = ReadWrite::StoreByte,
             1 => self.signals.read_write = ReadWrite::StoreHalf,
