@@ -2,8 +2,7 @@
 
 use std::ops::Neg;
 
-use super::constants::{OPCODE_MADD, OPCODE_MSUB, OPCODE_NMADD, OPCODE_NMSUB};
-// use super::constants::*;
+use super::constants::*;
 use super::instruction::Instruction;
 use super::registers::FpRegisters;
 use super::{constants::RISC_NAN, control_signals::floating_point::*};
@@ -206,10 +205,15 @@ impl RiscFpCoprocessor {
                 self.signals = FpuControlSignals {
                     data_write: DataWrite::NoWrite,
                     fpu_mem_to_reg: FpuMemToReg::UseDataWrite,
-                    fpu_reg_dst: FpuRegDst::Reg3,
                     fpu_reg_write: FpuRegWrite::YesWrite,
+                    fpu_reg_dst: FpuRegDst::Reg3,
                     ..Default::default()
                 };
+
+                if r.op != OPCODE_OP_FP {
+                    self.signals.fpu_reg_write = FpuRegWrite::NoWrite;
+                    return;
+                }
 
                 match r.funct7 >> 2 {
                     0 => self.signals.fpu_alu_op = FpuAluOp::Addition,
@@ -272,13 +276,17 @@ impl RiscFpCoprocessor {
                     _ => self.error("Unsupported Rounding Mode!"),
                 }
             }
-            Instruction::IType(_i) => {
+            Instruction::IType(i) => {
                 self.signals = FpuControlSignals {
                     data_write: DataWrite::NoWrite,
                     fpu_mem_to_reg: FpuMemToReg::UseMemory,
                     fpu_reg_dst: FpuRegDst::Reg3,
                     fpu_reg_write: FpuRegWrite::YesWrite,
                     ..Default::default()
+                };
+
+                if i.op != OPCODE_LOAD_FP {
+                    self.signals.fpu_reg_write = FpuRegWrite::NoWrite;
                 }
             }
             Instruction::SType(_s) => {
@@ -286,7 +294,7 @@ impl RiscFpCoprocessor {
                     data_write: DataWrite::NoWrite,
                     fpu_reg_write: FpuRegWrite::NoWrite,
                     ..Default::default()
-                }
+                };
             }
             Instruction::R4Type(r4) => {
                 self.signals = FpuControlSignals {
@@ -437,13 +445,7 @@ impl RiscFpCoprocessor {
             RoundingMode::RDN => f32::to_bits(result_f32.floor()) as u64,
             RoundingMode::RUP => f32::to_bits(result_f32.ceil()) as u64,
             RoundingMode::RMM => f32::to_bits(result_f32.round()) as u64,
-            _ => {
-                self.error(&format!(
-                    "Unsupported operation in FPU `{:?}`",
-                    self.signals.fpu_alu_op
-                ));
-                0
-            }
+            _ => f32::to_bits(result_f32) as u64,
         };
     }
 
@@ -458,14 +460,7 @@ impl RiscFpCoprocessor {
             FpuAluOp::MultiplicationOrEqual => (input1_f32 == input2_f32) as u64,
             FpuAluOp::Slt => (input1_f32 < input2_f32) as u64,
             FpuAluOp::Sle => (input1_f32 <= input2_f32) as u64,
-            FpuAluOp::Addition | FpuAluOp::Subtraction | FpuAluOp::Division => 0, // No operation
-            _ => {
-                self.error(&format!(
-                    "Unsupported operation in comparator `{:?}`",
-                    self.signals.fpu_alu_op
-                ));
-                0
-            }
+            _ => 0,
         }
     }
 
@@ -488,13 +483,17 @@ impl RiscFpCoprocessor {
     /// Set the data line that goes from `Read Data 1` to the multiplexer in the main processor
     /// controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
     fn write_fp_register_to_memory(&mut self) {
-        self.state.fp_register_to_memory = self.state.read_data_1;
+        self.state.fp_register_to_memory = f32::from_bits(self.state.read_data_2 as u32) as u64;
     }
 
     // ======================= Memory (MEM) =======================
     /// Set the data line between the multiplexer after the `Data` register and the
     /// multiplexer in the main processor controlled by the [`DataWrite`] control signal.
     fn set_data_writeback(&mut self) {
+        if let DataWrite::NoWrite = self.signals.data_write {
+            return;
+        }
+
         self.state.data_writeback = match self.signals.data_src {
             DataSrc::MainProcessorUnit => match self.state.rs2 {
                 0 => f32::to_bits(self.data as i32 as f32) as u64,
@@ -528,27 +527,20 @@ impl RiscFpCoprocessor {
                     RoundingMode::RTZ => data_unrounded.trunc(),
                     RoundingMode::RDN => data_unrounded.floor(),
                     RoundingMode::RUP => data_unrounded.ceil(),
-                    RoundingMode::RMM => data_unrounded.round(),
-                    _ => {
-                        self.error(&format!(
-                            "Unsupported Rounding Mode `{:?}`",
-                            self.signals.round_mode
-                        ));
-                        0.0
-                    }
+                    _ => data_unrounded.round(),
                 };
 
                 match self.state.rs2 {
                     0 => {
-                        if (data_rounded <= (-(2_i32.pow(31))) as f32)
+                        if (data_rounded <= (-(2_i64.pow(31))) as f32)
                             | (data_rounded == f32::NEG_INFINITY)
                         {
-                            -(2_i32.pow(31)) as u64
-                        } else if (data_rounded >= (2_i32.pow(31) - 1) as f32)
+                            -(2_i64.pow(31)) as u64
+                        } else if (data_rounded >= (2_i64.pow(31) - 1) as f32)
                             | (data_rounded == f32::INFINITY)
                             | (data_rounded.is_nan())
                         {
-                            (2_i32.pow(31) - 1) as u64
+                            (2_i64.pow(31) - 1) as u64
                         } else {
                             data_rounded as i32 as u64
                         }
@@ -556,11 +548,11 @@ impl RiscFpCoprocessor {
                     1 => {
                         if (data_rounded <= 0.0) | (data_rounded == f32::NEG_INFINITY) {
                             0
-                        } else if (data_rounded >= (2_u32.pow(32) - 1) as f32)
+                        } else if (data_rounded >= (2_u64.pow(32) - 1) as f32)
                             | (data_rounded == f32::INFINITY)
                             | (data_rounded.is_nan())
                         {
-                            (2_u32.pow(32) - 1) as u64
+                            2_u64.pow(32) - 1
                         } else {
                             data_rounded as u32 as u64
                         }
@@ -582,11 +574,11 @@ impl RiscFpCoprocessor {
                     3 => {
                         if (data_rounded <= 0.0) | (data_rounded == f32::NEG_INFINITY) {
                             0
-                        } else if (data_rounded >= (2_u64.pow(64) - 1) as f32)
+                        } else if (data_rounded >= (0x1111111111111111_i64) as f32)
                             | (data_rounded == f32::INFINITY)
                             | (data_rounded.is_nan())
                         {
-                            2_u64.pow(64) - 1
+                            0x1111111111111111
                         } else {
                             data_rounded as u64
                         }
