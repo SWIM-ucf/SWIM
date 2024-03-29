@@ -328,75 +328,75 @@ impl RiscFpCoprocessor {
     // ======================= Execute (EX) =======================
     /// Perform an ALU operation.
     fn alu(&mut self) {
-        let input1 = self.state.read_data_1;
-        let input2 = self.state.read_data_2;
-        let input3 = self.state.read_data_3;
-        let input1_f64 = f64::from_bits(input1);
-        let input2_f64 = f64::from_bits(input2);
-        let input3_f64 = f64::from_bits(input3);
+        let input1 = self.state.read_data_1 as u32;
+        let input2 = self.state.read_data_2 as u32;
+        let input3 = self.state.read_data_3 as u32;
+        let input1_f32 = f32::from_bits(input1);
+        let input2_f32 = f32::from_bits(input2);
+        let input3_f32 = f32::from_bits(input3);
         let mut input_mask = 0b0000000000;
 
-        let result_f64: f64 = match self.signals.fpu_alu_op {
-            FpuAluOp::Addition => input1_f64 + input2_f64,
-            FpuAluOp::Subtraction => input1_f64 - input2_f64,
-            FpuAluOp::MultiplicationOrEqual => input1_f64 * input2_f64,
+        let result_f32: f32 = match self.signals.fpu_alu_op {
+            FpuAluOp::Addition => input1_f32 + input2_f32,
+            FpuAluOp::Subtraction => input1_f32 - input2_f32,
+            FpuAluOp::MultiplicationOrEqual => input1_f32 * input2_f32,
             FpuAluOp::Division => {
-                if input2_f64 == 0.0 {
+                if input2_f32 == 0.0 {
                     0.0
                 } else {
-                    input1_f64 / input2_f64
+                    input1_f32 / input2_f32
                 }
             }
-            FpuAluOp::Sqrt => input1_f64.sqrt(),
+            FpuAluOp::Sqrt => input1_f32.sqrt(),
             FpuAluOp::Min => {
-                if input1_f64 < input2_f64 {
-                    input1_f64
+                if input1_f32 < input2_f32 {
+                    input1_f32
                 } else {
-                    input2_f64
+                    input2_f32
                 }
             }
             FpuAluOp::Max => {
-                if input1_f64 > input2_f64 {
-                    input1_f64
+                if input1_f32 > input2_f32 {
+                    input1_f32
                 } else {
-                    input2_f64
+                    input2_f32
                 }
             }
-            FpuAluOp::SGNJ => f64::from_bits((input1 & 0x01111111) | (input2 >> 63 << 63)),
-            FpuAluOp::SGNJN => f64::from_bits((input1 & 0x01111111) | (!(input2 >> 63) << 63)),
+            FpuAluOp::SGNJ => f32::from_bits((input1 & 0x01111111) | (input2 >> 31 << 31)),
+            FpuAluOp::SGNJN => f32::from_bits((input1 & 0x01111111) | (!(input2 >> 31) << 31)),
             FpuAluOp::SGNJX => {
-                f64::from_bits((input1 & 0x01111111) | (((input2 >> 63) ^ (input1 >> 63)) << 63))
+                f32::from_bits((input1 & 0x01111111) | (((input2 >> 31) ^ (input1 >> 31)) << 31))
             }
             FpuAluOp::Class => {
-                if input1_f64.is_sign_negative() {
-                    if input1_f64.is_infinite() {
+                if input1_f32.is_sign_negative() {
+                    if input1_f32.is_infinite() {
                         input_mask = 0b1;
                     }
-                    else if input1_f64.is_normal() {
+                    else if input1_f32.is_normal() {
                         input_mask = 0b10;
                     }
-                    else if input1_f64.is_subnormal() {
+                    else if input1_f32.is_subnormal() {
                         input_mask = 0b100;
                     }
                     else {
                         input_mask = 0b1000;
                     }
                 }
-                else if input1_f64.is_sign_positive() {
-                    if input1_f64.is_infinite() {
+                else if input1_f32.is_sign_positive() {
+                    if input1_f32.is_infinite() {
                         input_mask = 0b10000000;
                     }
-                    else if input1_f64.is_normal() {
+                    else if input1_f32.is_normal() {
                         input_mask = 0b1000000;
                     }
-                    else if input1_f64.is_subnormal() {
+                    else if input1_f32.is_subnormal() {
                         input_mask = 0b100000;
                     }
                     else {
                         input_mask = 0b10000;
                     }
                 }
-                else if input1_f64.is_nan() {
+                else if input1_f32.is_nan() {
                     input_mask = 0b100000000;
                 }
                 else {
@@ -404,15 +404,15 @@ impl RiscFpCoprocessor {
                 }
                 0.0
             }
-            FpuAluOp::MAdd => input1_f64 * input2_f64 + input3_f64,
-            FpuAluOp::MSub => input1_f64 * input2_f64 - input3_f64,
-            FpuAluOp::NMSub => input1_f64.neg() * input2_f64 + input3_f64,
-            FpuAluOp::NMAdd => input1_f64.neg() * input2_f64 - input3_f64,
+            FpuAluOp::MAdd => input1_f32 * input2_f32 + input3_f32,
+            FpuAluOp::MSub => input1_f32 * input2_f32 - input3_f32,
+            FpuAluOp::NMSub => input1_f32.neg() * input2_f32 + input3_f32,
+            FpuAluOp::NMAdd => input1_f32.neg() * input2_f32 - input3_f32,
             // No operation.
             FpuAluOp::Slt | FpuAluOp::Sle => 0.0,
         };
 
-        if result_f64.is_nan() {
+        if result_f32.is_nan() {
             self.state.alu_result = RISC_NAN as u64;
             return;
         }
@@ -421,7 +421,7 @@ impl RiscFpCoprocessor {
             | (self.signals.fpu_alu_op == FpuAluOp::SGNJN)
             | (self.signals.fpu_alu_op == FpuAluOp::SGNJX)
         {
-            self.state.alu_result = f64::to_bits(result_f64);
+            self.state.alu_result = f32::to_bits(result_f32) as u64;
             return;
         }
 
@@ -431,22 +431,22 @@ impl RiscFpCoprocessor {
         }
 
         self.state.alu_result = match self.signals.round_mode {
-            RoundingMode::RNE => f64::to_bits(
-                if (result_f64.ceil() - result_f64).abs() == (result_f64 - result_f64.floor()).abs()
+            RoundingMode::RNE => f32::to_bits(
+                if (result_f32.ceil() - result_f32).abs() == (result_f32 - result_f32.floor()).abs()
                 {
-                    if result_f64.ceil() % 2.0 == 0.0 {
-                        result_f64.ceil()
+                    if result_f32.ceil() % 2.0 == 0.0 {
+                        result_f32.ceil()
                     } else {
-                        result_f64.floor()
+                        result_f32.floor()
                     }
                 } else {
-                    result_f64.round()
+                    result_f32.round()
                 },
-            ),
-            RoundingMode::RTZ => f64::to_bits(result_f64.trunc()),
-            RoundingMode::RDN => f64::to_bits(result_f64.floor()),
-            RoundingMode::RUP => f64::to_bits(result_f64.ceil()),
-            RoundingMode::RMM => f64::to_bits(result_f64.round()),
+            ) as u64,
+            RoundingMode::RTZ => f32::to_bits(result_f32.trunc()) as u64,
+            RoundingMode::RDN => f32::to_bits(result_f32.floor()) as u64,
+            RoundingMode::RUP => f32::to_bits(result_f32.ceil()) as u64,
+            RoundingMode::RMM => f32::to_bits(result_f32.round()) as u64,
             _ => {
                 self.error(&format!(
                     "Unsupported operation in FPU `{:?}`",
@@ -461,13 +461,13 @@ impl RiscFpCoprocessor {
     fn comparator(&mut self) {
         let input1 = self.state.read_data_1;
         let input2 = self.state.read_data_2;
-        let input1_f64 = f64::from_bits(input1);
-        let input2_f64 = f64::from_bits(input2);
+        let input1_f32 = f32::from_bits(input1 as u32);
+        let input2_f32 = f32::from_bits(input2 as u32);
 
         self.state.comparator_result = match self.signals.fpu_alu_op {
-            FpuAluOp::MultiplicationOrEqual => (input1_f64 == input2_f64) as u64,
-            FpuAluOp::Slt => (input1_f64 < input2_f64) as u64,
-            FpuAluOp::Sle => (input1_f64 <= input2_f64) as u64,
+            FpuAluOp::MultiplicationOrEqual => (input1_f32 == input2_f32) as u64,
+            FpuAluOp::Slt => (input1_f32 < input2_f32) as u64,
+            FpuAluOp::Sle => (input1_f32 <= input2_f32) as u64,
             FpuAluOp::Addition | FpuAluOp::Subtraction | FpuAluOp::Division => 0, // No operation
             _ => {
                 self.error(&format!(
@@ -524,10 +524,10 @@ impl RiscFpCoprocessor {
     fn set_data_writeback(&mut self) {
         self.state.data_writeback = match self.signals.data_src {
             DataSrc::MainProcessorUnit => match self.state.rs2 {
-                0 => f64::to_bits(self.data as i32 as f64),
-                1 => f64::to_bits(self.data as u32 as f64),
-                2 => f64::to_bits(self.data as i64 as f64),
-                3 => f64::to_bits(self.data as f64),
+                0 => f32::to_bits(self.data as i32 as f32) as u64,
+                1 => f32::to_bits(self.data as u32 as f32) as u64,
+                2 => f32::to_bits(self.data as i64 as f32) as u64,
+                3 => f32::to_bits(self.data as f32) as u64,
                 _ => {
                     self.error(&format!(
                         "Unsupported Register Width `{:?}`",
@@ -537,7 +537,7 @@ impl RiscFpCoprocessor {
                 }
             },
             DataSrc::FloatingPointUnitRS1 => {
-                let data_unrounded = f64::from_bits(self.data);
+                let data_unrounded = f32::from_bits(self.data as u32);
                 let data_rounded = match self.signals.round_mode {
                     RoundingMode::RNE => {
                         if (data_unrounded.ceil() - data_unrounded).abs()
@@ -567,12 +567,12 @@ impl RiscFpCoprocessor {
 
                 match self.state.rs2 {
                     0 => {
-                        if (data_rounded <= (-(2_i32.pow(31))).into())
-                            | (data_rounded == f64::NEG_INFINITY)
+                        if (data_rounded <= ((-(2_i32.pow(31)))) as f32)
+                            | (data_rounded == f32::NEG_INFINITY)
                         {
                             -(2_i32.pow(31)) as u64
-                        } else if (data_rounded >= (2_i32.pow(31) - 1).into())
-                            | (data_rounded == f64::INFINITY)
+                        } else if (data_rounded >= ((2_i32.pow(31) - 1)) as f32)
+                            | (data_rounded == f32::INFINITY)
                             | (data_rounded.is_nan())
                         {
                             (2_i32.pow(31) - 1) as u64
@@ -581,10 +581,10 @@ impl RiscFpCoprocessor {
                         }
                     }
                     1 => {
-                        if (data_rounded <= 0.0) | (data_rounded == f64::NEG_INFINITY) {
+                        if (data_rounded <= 0.0) | (data_rounded == f32::NEG_INFINITY) {
                             0
-                        } else if (data_rounded >= (2_u32.pow(32) - 1).into())
-                            | (data_rounded == f64::INFINITY)
+                        } else if (data_rounded >= ((2_u32.pow(32) - 1)) as f32)
+                            | (data_rounded == f32::INFINITY)
                             | (data_rounded.is_nan())
                         {
                             (2_u32.pow(32) - 1) as u64
@@ -593,12 +593,12 @@ impl RiscFpCoprocessor {
                         }
                     }
                     2 => {
-                        if (data_rounded <= (-(2_i64.pow(63))) as f64)
-                            | (data_rounded == f64::NEG_INFINITY)
+                        if (data_rounded <= (-(2_i64.pow(63))) as f32)
+                            | (data_rounded == f32::NEG_INFINITY)
                         {
                             -(2_i64.pow(63)) as u64
-                        } else if (data_rounded >= (2_i64.pow(63) - 1) as f64)
-                            | (data_rounded == f64::INFINITY)
+                        } else if (data_rounded >= (2_i64.pow(63) - 1) as f32)
+                            | (data_rounded == f32::INFINITY)
                             | (data_rounded.is_nan())
                         {
                             (2_i64.pow(63) - 1) as u64
@@ -607,10 +607,10 @@ impl RiscFpCoprocessor {
                         }
                     }
                     3 => {
-                        if (data_rounded <= 0.0) | (data_rounded == f64::NEG_INFINITY) {
+                        if (data_rounded <= 0.0) | (data_rounded == f32::NEG_INFINITY) {
                             0
-                        } else if (data_rounded >= (2_u64.pow(64) - 1) as f64)
-                            | (data_rounded == f64::INFINITY)
+                        } else if (data_rounded >= (2_u64.pow(64) - 1) as f32)
+                            | (data_rounded == f32::INFINITY)
                             | (data_rounded.is_nan())
                         {
                             2_u64.pow(64) - 1
