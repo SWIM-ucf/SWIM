@@ -263,6 +263,11 @@ impl RiscFpCoprocessor {
                             _ => self.error("Unsupported Instruction!"),
                         }
                     }
+                    30 => {
+                        self.signals.data_write = DataWrite::YesWrite;
+                        self.signals.fpu_reg_write = FpuRegWrite::YesWrite;
+                        self.signals.data_src = DataSrc::MainProcessorBits;
+                    }
                     _ => self.error("Unsupported Instruction!"),
                 }
 
