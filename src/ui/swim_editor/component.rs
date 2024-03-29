@@ -118,7 +118,10 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             let program_info = props.program_info.clone();
             let list_of_line_numbers = program_info.address_to_line_number;
             let index = props.pc as usize / 4;
-            curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0);
+            curr_line.set(match list_of_line_numbers.get(index) {
+                Some(val) => (val + 1) as f64,
+                None => 0f64,
+            });
             // add one to account for the editor's line numbers
         }
 
