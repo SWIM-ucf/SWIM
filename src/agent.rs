@@ -309,7 +309,7 @@ impl EmulatorCoreAgentState {
             DatapathRef::MIPS(datapath) => datapath.registers.pc,
             DatapathRef::RISCV(datapath) => datapath.registers.pc,
         };
-        if self.breakpoints.contains(&current_pc) && self.updates.hit_breakpoint {
+        if self.breakpoints.contains(&current_pc) || self.updates.hit_breakpoint {
             self.executing = false;
             // Unset the hit_breakpoint flag after processing
             self.updates.hit_breakpoint = false;
