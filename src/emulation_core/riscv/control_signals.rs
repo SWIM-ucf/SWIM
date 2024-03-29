@@ -213,11 +213,9 @@ pub mod floating_point {
         pub data_src: DataSrc,
         pub data_write: DataWrite,
         pub fpu_alu_op: FpuAluOp,
-        pub fpu_branch: FpuBranch,
         pub fpu_mem_to_reg: FpuMemToReg,
         pub fpu_reg_dst: FpuRegDst,
         pub fpu_reg_write: FpuRegWrite,
-        pub fpu_take_branch: FpuTakeBranch,
     }
 
     /// Determines the source of the `Data` register in the floating-point unit.
@@ -383,21 +381,6 @@ pub mod floating_point {
         DRM = 7,
     }
 
-    /// Determines if the floating-point unit should consider branching, based on the
-    /// contents of the condition code register.
-    ///
-    /// This directly overrides any branch decisions decided by the main processing unit.
-    /// The [`Branch`](super::Branch) control signal should not be set in addition to this signal.
-    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
-    pub enum FpuBranch {
-        /// Do not consider branching.
-        #[default]
-        NoBranch = 0,
-
-        /// Consider branching.
-        YesBranch = 1,
-    }
-
     /// Determines, given that [`FpuRegWrite`] is set, what the source of a floating-point
     /// register's new data will be.
     ///
@@ -436,16 +419,5 @@ pub mod floating_point {
 
         /// Write to the floating-point register file.
         YesWrite = 1,
-    }
-
-    /// After checking the [`FpuBranch`] and condition code, this signal determines whether
-    /// to follow through with a branch.
-    ///
-    /// This signal is what is sent to the main processor.
-    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
-    pub enum FpuTakeBranch {
-        #[default]
-        NoBranch = 0,
-        YesBranch = 1,
     }
 }

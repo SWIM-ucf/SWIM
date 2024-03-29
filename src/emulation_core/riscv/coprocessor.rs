@@ -79,15 +79,12 @@ impl RiscFpCoprocessor {
     pub fn stage_execute(&mut self) {
         self.alu();
         self.comparator();
-        self.write_condition_code();
         self.write_fp_register_to_memory();
-        self.set_condition_code_line();
     }
 
     pub fn stage_memory(&mut self) {
         self.write_data();
         self.set_data_writeback();
-        self.set_fpu_branch();
     }
 
     pub fn stage_writeback(&mut self) {
@@ -208,7 +205,6 @@ impl RiscFpCoprocessor {
             Instruction::RType(r) => {
                 self.signals = FpuControlSignals {
                     data_write: DataWrite::NoWrite,
-                    fpu_branch: FpuBranch::NoBranch,
                     fpu_mem_to_reg: FpuMemToReg::UseDataWrite,
                     fpu_reg_dst: FpuRegDst::Reg3,
                     fpu_reg_write: FpuRegWrite::YesWrite,
@@ -279,7 +275,6 @@ impl RiscFpCoprocessor {
             Instruction::IType(_i) => {
                 self.signals = FpuControlSignals {
                     data_write: DataWrite::NoWrite,
-                    fpu_branch: FpuBranch::NoBranch,
                     fpu_mem_to_reg: FpuMemToReg::UseMemory,
                     fpu_reg_dst: FpuRegDst::Reg3,
                     fpu_reg_write: FpuRegWrite::YesWrite,
@@ -289,7 +284,6 @@ impl RiscFpCoprocessor {
             Instruction::SType(_s) => {
                 self.signals = FpuControlSignals {
                     data_write: DataWrite::NoWrite,
-                    fpu_branch: FpuBranch::NoBranch,
                     fpu_reg_write: FpuRegWrite::NoWrite,
                     ..Default::default()
                 }
@@ -297,7 +291,6 @@ impl RiscFpCoprocessor {
             Instruction::R4Type(r4) => {
                 self.signals = FpuControlSignals {
                     data_write: DataWrite::NoWrite,
-                    fpu_branch: FpuBranch::NoBranch,
                     fpu_mem_to_reg: FpuMemToReg::UseDataWrite,
                     fpu_reg_dst: FpuRegDst::Reg3,
                     fpu_reg_write: FpuRegWrite::YesWrite,
@@ -492,13 +485,6 @@ impl RiscFpCoprocessor {
         };
     }
 
-    /// Set the condition code (CC) register based on the result from the comparator.
-    fn write_condition_code(&mut self) {
-        // if let CcWrite::YesWrite = self.signals.cc_write {
-        self.condition_code = self.state.comparator_result;
-        // }
-    }
-
     /// Set the data line that goes from `Read Data 1` to the multiplexer in the main processor
     /// controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
     fn write_fp_register_to_memory(&mut self) {
@@ -506,17 +492,6 @@ impl RiscFpCoprocessor {
     }
 
     // ======================= Memory (MEM) =======================
-    /// Set the data line that goes out of the condition code register file.
-    fn set_condition_code_line(&mut self) {
-        let selected_register_data = self.condition_code;
-
-        // This only considers one bit of the selected condition code register.
-        self.state.condition_code_bit = match selected_register_data % 2 {
-            0 => 0,
-            _ => 1,
-        };
-    }
-
     /// Set the data line between the multiplexer after the `Data` register and the
     /// multiplexer in the main processor controlled by the [`DataWrite`] control signal.
     fn set_data_writeback(&mut self) {
@@ -628,34 +603,6 @@ impl RiscFpCoprocessor {
             DataSrc::MainProcessorBits => self.data as u32 as u64,
             _ => self.data,
         }
-    }
-
-    /// Simulate the logic between `self.state.condition_code_bit` and the FPU branch
-    /// AND gate.
-    fn set_fpu_branch(&mut self) {
-        // Invert the condition code. (In this case, instead of using a bitwise NOT, this
-        // will invert only the last digit and leave the rest as 0.)
-        self.state.condition_code_bit_inverted = match self.state.condition_code_bit % 2 {
-            0 => 1,
-            _ => 0,
-        };
-
-        // Run the multiplexer.
-        self.state.condition_code_mux = match self.state.branch_flag {
-            // 0 - Use inverted condition code.
-            false => self.state.condition_code_bit_inverted,
-            // 1 - Use condition code value as-is.
-            true => self.state.condition_code_bit,
-        };
-
-        // Set the result of the AND gate.
-        self.signals.fpu_take_branch = if self.signals.fpu_branch == FpuBranch::YesBranch
-            && self.state.condition_code_mux == 1
-        {
-            FpuTakeBranch::YesBranch
-        } else {
-            FpuTakeBranch::NoBranch
-        };
     }
 
     // ====================== Writeback (WB) ======================

@@ -1073,10 +1073,6 @@ impl RiscDatapath {
         if let CpuBranch::YesBranch = self.datapath_signals.cpu_branch {
             self.datapath_signals.general_branch = GeneralBranch::YesBranch;
         }
-
-        if let FpuTakeBranch::YesBranch = self.coprocessor.signals.fpu_take_branch {
-            self.datapath_signals.general_branch = GeneralBranch::YesBranch;
-        }
     }
 
     fn pick_pc_plus_4_or_relative_branch_addr_mux1(&mut self) {
