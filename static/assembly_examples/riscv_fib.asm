@@ -1,50 +1,28 @@
-fib:
- addi sp,sp,-32
- sw ra,28(sp)
- sw s0,24(sp)
- sw s1,20(sp)
- addi s0,sp,32
- sw a0,-20(s0)
- lw a4,-20(s0)
- li a5,1
- blt a5,a4,L2
- lw a5,-20(s0)
- j L3
+fib(int):
+        # t0 and t1 are the last two values of the fib sequence
+        ori t0, zero, 0 # a_n-2
+        ori t1, zero, 1 # a_n-1
+        ori t2, zero, 1 # a_n
+        ori t3, zero, 1 # index
 
-L2:
- lw a5,-20(s0)
- addi a5,a5,-1
- mv a0,a5
- jalr ra # 26 <.L2+0x8>
- mv s1,a0
- lw a5,-20(s0)
- addi a5,a5,-2
- mv a0,a5
- jalr ra # 38 <.L2+0x1a>
- mv a5,a0
- add a5,a5,s1
+COND:
+        bne a0, t3, LOOP # If we've reached our index, return
+        or a1, zero, t2
+        #Pseudo-Instruction: ret
+        jalr x0, x1, 0 #Pseudo-Instruction Translation
 
-L3:
- mv a0,a5
- lw ra,28(sp)
- lw s0,24(sp)
- lw s1,20(sp)
- addi sp,sp,32
- ret
-
+LOOP:
+        # Legendary fibonacci calculation
+        add t2, t0, t1
+        or t0, zero, t1
+        or t1, zero, t2
+        addi t3, t3, 1
+        jal x0, COND
+        
 main:
- addi sp,sp,-32
- sw ra,28(sp)
- sw s0,24(sp)
- addi s0,sp,32
- li a5,5
- sw a5,-20(s0)
- lw a0,-20(s0)
- jalr ra # 62 <main+0x12>
- sw a0,-24(s0)
- lw a5,-24(s0)
- mv a0,a5
- lw ra,28(sp)
- lw s0,24(sp)
- addi sp,sp,32
- ret
+        ori a0, zero, 15
+        jal ra, fib(int)
+        ori a0, zero, 1
+        ecall
+        ori a0, zero, 0
+        ecall
