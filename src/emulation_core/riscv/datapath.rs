@@ -165,6 +165,8 @@ pub struct RiscDatapathState {
 
     /// *Data line.* The data that will be written to memory.
     pub write_data: u64,
+
+    pub imm_input: u64,
 }
 
 /// The possible stages the datapath could be in during execution.
@@ -522,6 +524,9 @@ impl RiscDatapath {
                 self.state.rd = r.rd as u32;
             }
         }
+
+        // Extract the first 20 bits from the instruction for the imm decoding input
+        self.state.imm_input = ((self.state.instruction as u64) & (0xfffff << 12)) >> 12;
     }
 
     fn set_immediate(&mut self) {
