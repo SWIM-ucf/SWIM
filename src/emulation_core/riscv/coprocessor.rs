@@ -1,5 +1,8 @@
 //! Implementation of a RISC-V floating-point coprocessor.
 
+use std::ops::Neg;
+
+use super::constants::{OPCODE_MADD, OPCODE_MSUB, OPCODE_NMADD, OPCODE_NMSUB};
 // use super::constants::*;
 use super::instruction::Instruction;
 use super::registers::FpRegisters;
@@ -51,6 +54,7 @@ pub struct RiscFpuState {
     pub fp_register_data_from_main_processor: u64,
     pub read_data_1: u64,
     pub read_data_2: u64,
+    pub read_data_3: u64,
     pub register_write_data: u64,
     pub register_write_mux_to_mux: u64,
     pub sign_extend_data: u64,
@@ -284,6 +288,27 @@ impl RiscFpCoprocessor {
                     ..Default::default()
                 }
             }
+            Instruction::R4Type(r4) => {
+                self.signals = FpuControlSignals {
+                    data_write: DataWrite::NoWrite,
+                    fpu_branch: FpuBranch::NoBranch,
+                    fpu_mem_to_reg: FpuMemToReg::UseDataWrite,
+                    fpu_reg_dst: FpuRegDst::Reg3,
+                    fpu_reg_write: FpuRegWrite::YesWrite,
+                    ..Default::default()
+                };
+
+                self.signals.fpu_alu_op = match r4.op {
+                    OPCODE_MADD => FpuAluOp::MAdd,
+                    OPCODE_MSUB => FpuAluOp::MSub,
+                    OPCODE_NMSUB => FpuAluOp::NMSub,
+                    OPCODE_NMADD => FpuAluOp::NMAdd,
+                    _ => {
+                        self.error("Unsupported Instruction!");
+                        FpuAluOp::Addition
+                    }
+                };
+            }
             _ => self.error("Unsupported Instruction!"),
         }
     }
@@ -293,9 +318,11 @@ impl RiscFpCoprocessor {
     fn read_registers(&mut self) {
         let reg1 = self.state.rs1 as usize;
         let reg2 = self.state.rs2 as usize;
+        let reg3 = self.state.rs3 as usize;
 
         self.state.read_data_1 = self.registers.fpr[reg1];
         self.state.read_data_2 = self.registers.fpr[reg2];
+        self.state.read_data_3 = self.registers.fpr[reg3];
     }
 
     // ======================= Execute (EX) =======================
@@ -303,8 +330,10 @@ impl RiscFpCoprocessor {
     fn alu(&mut self) {
         let input1 = self.state.read_data_1;
         let input2 = self.state.read_data_2;
+        let input3 = self.state.read_data_3;
         let input1_f64 = f64::from_bits(input1);
         let input2_f64 = f64::from_bits(input2);
+        let input3_f64 = f64::from_bits(input3);
         let mut input_mask = 0b0000000000;
 
         let result_f64: f64 = match self.signals.fpu_alu_op {
@@ -375,15 +404,12 @@ impl RiscFpCoprocessor {
                 }
                 0.0
             }
+            FpuAluOp::MAdd => input1_f64 * input2_f64 + input3_f64,
+            FpuAluOp::MSub => input1_f64 * input2_f64 - input3_f64,
+            FpuAluOp::NMSub => input1_f64.neg() * input2_f64 + input3_f64,
+            FpuAluOp::NMAdd => input1_f64.neg() * input2_f64 - input3_f64,
             // No operation.
-            FpuAluOp::Slt | FpuAluOp::Snge | FpuAluOp::Sle | FpuAluOp::Sngt => 0.0,
-            _ => {
-                self.error(&format!(
-                    "Unsupported operation in FPU `{:?}`",
-                    self.signals.fpu_alu_op
-                ));
-                0.0
-            }
+            FpuAluOp::Slt | FpuAluOp::Sle => 0.0,
         };
 
         if result_f64.is_nan() {
@@ -442,8 +468,6 @@ impl RiscFpCoprocessor {
             FpuAluOp::MultiplicationOrEqual => (input1_f64 == input2_f64) as u64,
             FpuAluOp::Slt => (input1_f64 < input2_f64) as u64,
             FpuAluOp::Sle => (input1_f64 <= input2_f64) as u64,
-            FpuAluOp::Sngt => !input1_f64.gt(&input2_f64) as u64,
-            FpuAluOp::Snge => !input1_f64.ge(&input2_f64) as u64,
             FpuAluOp::Addition | FpuAluOp::Subtraction | FpuAluOp::Division => 0, // No operation
             _ => {
                 self.error(&format!(

@@ -285,66 +285,74 @@ pub mod floating_point {
     #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
     pub enum FpuAluOp {
         #[default]
-        /// `_0000` (0):
+        /// `_00000` (0):
         /// - ALU: Perform an addition.
         Addition = 0,
 
-        /// `_0001` (1):
+        /// `_00001` (1):
         /// - ALU: Perform a subtraction.
         Subtraction = 1,
 
-        /// `_0010` (2):
+        /// `_00010` (2):
         /// - ALU: Perform a multiplication.
         /// - Comparator: Set if equal.
         MultiplicationOrEqual = 2,
 
-        /// `_0011` (3):
+        /// `_00011` (3):
         /// - ALU: Perform a division.
         Division = 3,
 
-        /// `_0100` (4):
+        /// `_00100` (4):
         /// - ALU: Perform a Square Root.
         Sqrt = 4,
 
-        /// `_0101` (5):
+        /// `_00101` (5):
         /// - ALU: Take the Minimum value.
         Min = 5,
 
-        /// `_0110` (6):
+        /// `_00110` (6):
         /// - ALU: Take the Maximum value.
         Max = 6,
 
-        /// `_0111` (7):
+        /// `_00111` (7):
         /// - ALU: Sign-Injection.
         SGNJ = 7,
 
-        /// `_1000` (8):
+        /// `_01000` (8):
         /// - ALU: Negative Sign-Injection.
         SGNJN = 8,
 
-        /// `_1001` (9):
+        /// `_01001` (9):
         /// - ALU: Xor Sign-Injection.
         SGNJX = 9,
 
-        /// `_1010` (10):
+        /// `_01010` (10):
         /// - ALU: Classification Mask.
         Class = 10,
 
-        /// `_1100` (12):
+        /// `_01011` (11):
+        /// - ALU: Fused Multiplication-Addition.
+        MAdd = 11,
+
+        /// `_01100` (12):
+        /// - ALU: Fused Multiplication-Subtraction.
+        MSub = 12,
+
+        /// `_01101` (13):
+        /// - ALU: Fused Negated Multiplication-Subtraction.
+        NMSub = 13,
+
+        /// `_01110` (14):
+        /// - ALU: Fused Negated Multiplication-Addition.
+        NMAdd = 14,
+
+        /// `_10000` (16):
         /// - Comparator: Set if less than.
-        Slt = 12,
+        Slt = 16,
 
-        /// `_1101` (13):
-        /// - Comparator: Set if not greater than or equal.
-        Snge = 13,
-
-        /// `_1110` (14):
+        /// `_10001` (17):
         /// - Comparator: Set if less than or equal.
-        Sle = 14,
-
-        /// `_1111` (15):
-        /// - Comparator: Set if equal.
-        Sngt = 15,
+        Sle = 17,
     }
 
     impl FpuAluOp {
@@ -353,9 +361,7 @@ pub mod floating_point {
             match function {
                 FUNCTION_C_EQ => Ok(Self::MultiplicationOrEqual),
                 FUNCTION_C_LT => Ok(Self::Slt),
-                FUNCTION_C_NGE => Ok(Self::Snge),
                 FUNCTION_C_LE => Ok(Self::Sle),
-                FUNCTION_C_NGT => Ok(Self::Sngt),
                 _ => Err(format!("Unsupported function code `{function}`")),
             }
         }

@@ -597,7 +597,9 @@ impl RiscDatapath {
             Instruction::JType(j) => {
                 self.set_jtype_control_signals(j);
             }
-            _ => self.error("Unsupported Instruction!"),
+            Instruction::R4Type(r4) => {
+                self.set_r4type_control_signals(r4);
+            }
         }
     }
 
@@ -824,6 +826,19 @@ impl RiscDatapath {
             branch_jump: BranchJump::J,
             wb_sel: WBSel::UsePcPlusFour,
             reg_write_en: RegWriteEn::YesWrite,
+            ..Default::default()
+        };
+    }
+
+    /// Set the control signals for the datapath, specifically in the
+    /// case where the instruction is an R$-type.
+    fn set_r4type_control_signals(&mut self, _r4: R4Type) {
+        self.signals = ControlSignals {
+            op2_select: OP2Select::DATA2,
+            branch_jump: BranchJump::NoBranch,
+            read_write: ReadWrite::NoLoadStore,
+            wb_sel: WBSel::UseAlu,
+            reg_write_en: RegWriteEn::NoWrite,
             ..Default::default()
         };
     }
