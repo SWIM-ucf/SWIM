@@ -623,7 +623,7 @@ impl RiscDatapath {
                 if uimm & mask != 0 {
                     !(!uimm & 0xFFF)
                 } else {
-                    self.state.imm
+                    uimm
                 }
             }
             ImmSelect::BType => self.state.imm,
