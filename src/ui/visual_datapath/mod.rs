@@ -29,7 +29,6 @@ use gloo_console::log;
 use std::{cell::RefCell, rc::Rc};
 
 use gloo_events::EventListener;
-use log::debug;
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{Element, Event, HtmlCollection, HtmlElement, HtmlInputElement};
 use yew::prelude::*;
@@ -74,7 +73,7 @@ impl Component for VisualDatapath {
         VisualDatapath {
             active_listeners: Rc::new(RefCell::new(vec![])),
             should_reinitialize: false,
-            size: Rc::new(RefCell::new(50)),
+            size: Rc::new(RefCell::new(0)),
         }
     }
 
@@ -109,7 +108,6 @@ impl Component for VisualDatapath {
                     <input type="range" min="0" max="200" step="10" value={zoom_value_size.borrow().to_string()} onchange={ctx.link().callback(move |e: Event| {
                         let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
                         let value = target.value().parse::<i32>().unwrap();
-                        log::debug!("Value: {:?}", value);
                         let mut size = zoom_range_size.borrow_mut();
                         *size = value;
                     })}/>
@@ -133,7 +131,6 @@ impl Component for VisualDatapath {
         // tells where it will start the next time "execute" is pressed.
         let current_stage = ctx.props().datapath_state.get_current_stage();
 
-        debug!("Current stage: {:?}", current_stage);
         if first_render || self.should_reinitialize {
             self.initialize(current_stage, ctx.props().datapath_state.clone());
             self.should_reinitialize = false;

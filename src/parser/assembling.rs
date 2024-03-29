@@ -40,10 +40,9 @@ pub fn read_operands(
         return instruction;
     }
 
-    let labels = if let Some(..) = labels_option {
-        labels_option.unwrap()
-    } else {
-        HashMap::new()
+    let labels = match labels_option {
+        Some(labels_option) => labels_option,
+        None => HashMap::new(),
     };
 
     //operands aren't represented in the binary in the order they're read so the vec<u32> allows us to concatenate them in the proper order after they're all read.
@@ -206,10 +205,9 @@ pub fn read_operands_riscv(
         return instruction;
     }
 
-    let labels = if let Some(..) = labels_option {
-        labels_option.unwrap()
-    } else {
-        HashMap::new()
+    let labels = match labels_option {
+        Some(labels_option) => labels_option,
+        None => HashMap::new(),
     };
 
     //operands aren't represented in the binary in the order they're read so the vec<u32> allows us to concatenate them in the proper order after they're all read.
@@ -573,55 +571,61 @@ pub fn read_register(
     if register_type == GeneralPurpose {
         //this section is for matching general purpose registers
         let general_result = match_gp_register(register);
-        if let Some(..) = general_result {
-            (general_result.unwrap(), None)
-        } else if match_fp_register(register).is_some() {
-            // Creates Error if supplied a fp register for gp
-            (
-                0,
-                Some(Error {
-                    error_name: IncorrectRegisterTypeFP,
-                    token_causing_error: register.to_string(),
-                    start_end_columns,
-                    message: "".to_string(),
-                }),
-            )
-        } else {
-            (
-                0,
-                Some(Error {
-                    error_name: UnrecognizedGPRegister,
-                    token_causing_error: register.to_string(),
-                    start_end_columns,
-                    message: "".to_string(),
-                }),
-            )
+        match general_result {
+            Some(general_result) => (general_result, None),
+            None => {
+                if match_fp_register(register).is_some() {
+                    // Creates Error if supplied a fp register for gp
+                    (
+                        0,
+                        Some(Error {
+                            error_name: IncorrectRegisterTypeFP,
+                            token_causing_error: register.to_string(),
+                            start_end_columns,
+                            message: "".to_string(),
+                        }),
+                    )
+                } else {
+                    (
+                        0,
+                        Some(Error {
+                            error_name: UnrecognizedGPRegister,
+                            token_causing_error: register.to_string(),
+                            start_end_columns,
+                            message: "".to_string(),
+                        }),
+                    )
+                }
+            }
         }
     } else {
         //this section is for matching floating point registers
         let floating_result = match_fp_register(register);
-        if let Some(..) = floating_result {
-            (floating_result.unwrap(), None)
-        } else if match_gp_register(register).is_some() {
-            (
-                0,
-                Some(Error {
-                    error_name: IncorrectRegisterTypeGP,
-                    token_causing_error: register.to_string(),
-                    start_end_columns,
-                    message: "".to_string(),
-                }),
-            )
-        } else {
-            (
-                0,
-                Some(Error {
-                    error_name: UnrecognizedFPRegister,
-                    token_causing_error: register.to_string(),
-                    start_end_columns,
-                    message: "".to_string(),
-                }),
-            )
+        match floating_result {
+            Some(floating_result) => (floating_result, None),
+            None => {
+                if match_gp_register(register).is_some() {
+                    (
+                        0,
+                        Some(Error {
+                            error_name: IncorrectRegisterTypeGP,
+                            token_causing_error: register.to_string(),
+                            start_end_columns,
+                            message: "".to_string(),
+                        }),
+                    )
+                } else {
+                    (
+                        0,
+                        Some(Error {
+                            error_name: UnrecognizedFPRegister,
+                            token_causing_error: register.to_string(),
+                            start_end_columns,
+                            message: "".to_string(),
+                        }),
+                    )
+                }
+            }
         }
     }
 }
@@ -636,55 +640,61 @@ pub fn read_register_riscv(
     if register_type == GeneralPurpose {
         //this section is for matching general purpose registers
         let general_result = match_gp_register_riscv(register);
-        if let Some(..) = general_result {
-            (general_result.unwrap(), None)
-        } else if match_fp_register_riscv(register).is_some() {
-            // Creates Error if supplied a fp register for gp
-            (
-                0,
-                Some(Error {
-                    error_name: IncorrectRegisterTypeFP,
-                    token_causing_error: register.to_string(),
-                    start_end_columns,
-                    message: "".to_string(),
-                }),
-            )
-        } else {
-            (
-                0,
-                Some(Error {
-                    error_name: UnrecognizedGPRegister,
-                    token_causing_error: register.to_string(),
-                    start_end_columns,
-                    message: "".to_string(),
-                }),
-            )
+        match general_result {
+            Some(general_result) => (general_result, None),
+            None => {
+                if match_fp_register_riscv(register).is_some() {
+                    // Creates Error if supplied a fp register for gp
+                    (
+                        0,
+                        Some(Error {
+                            error_name: IncorrectRegisterTypeFP,
+                            token_causing_error: register.to_string(),
+                            start_end_columns,
+                            message: "".to_string(),
+                        }),
+                    )
+                } else {
+                    (
+                        0,
+                        Some(Error {
+                            error_name: UnrecognizedGPRegister,
+                            token_causing_error: register.to_string(),
+                            start_end_columns,
+                            message: "".to_string(),
+                        }),
+                    )
+                }
+            }
         }
     } else {
         //this section is for matching floating point registers
         let floating_result = match_fp_register_riscv(register);
-        if let Some(..) = floating_result {
-            (floating_result.unwrap(), None)
-        } else if match_gp_register(register).is_some() {
-            (
-                0,
-                Some(Error {
-                    error_name: IncorrectRegisterTypeGP,
-                    token_causing_error: register.to_string(),
-                    start_end_columns,
-                    message: "".to_string(),
-                }),
-            )
-        } else {
-            (
-                0,
-                Some(Error {
-                    error_name: UnrecognizedFPRegister,
-                    token_causing_error: register.to_string(),
-                    start_end_columns,
-                    message: "".to_string(),
-                }),
-            )
+        match floating_result {
+            Some(floating_result) => (floating_result, None),
+            None => {
+                if match_gp_register_riscv(register).is_some() {
+                    (
+                        0,
+                        Some(Error {
+                            error_name: IncorrectRegisterTypeGP,
+                            token_causing_error: register.to_string(),
+                            start_end_columns,
+                            message: "".to_string(),
+                        }),
+                    )
+                } else {
+                    (
+                        0,
+                        Some(Error {
+                            error_name: UnrecognizedFPRegister,
+                            token_causing_error: register.to_string(),
+                            start_end_columns,
+                            message: "".to_string(),
+                        }),
+                    )
+                }
+            }
         }
     }
 }
@@ -753,8 +763,8 @@ pub fn read_immediate(
     //if that results in an error, try to read it as hex
     if parse_results.is_err() {
         let removed_prefix = given_text.strip_prefix("0x");
-        if let Some(..) = removed_prefix {
-            parse_results = i64::from_str_radix(removed_prefix.unwrap(), 16);
+        if let Some(removed_prefix) = removed_prefix {
+            parse_results = i64::from_str_radix(removed_prefix, 16);
         }
     }
 
@@ -891,23 +901,24 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                 for value in datum.data_entries.iter_mut() {
                     value.token_type = Float;
                     let parse_results = value.token_name.parse::<f64>();
-                    if let Ok(..) = parse_results {
-                        let float_bits = parse_results.unwrap().to_bits();
-                        vec_of_data.push((float_bits >> 56) as u8);
-                        vec_of_data.push((float_bits >> 48) as u8);
-                        vec_of_data.push((float_bits >> 40) as u8);
-                        vec_of_data.push((float_bits >> 32) as u8);
-                        vec_of_data.push((float_bits >> 24) as u8);
-                        vec_of_data.push((float_bits >> 16) as u8);
-                        vec_of_data.push((float_bits >> 8) as u8);
-                        vec_of_data.push(float_bits as u8);
-                    } else {
-                        datum.errors.push(Error {
+                    match parse_results {
+                        Ok(..) => {
+                            let float_bits = parse_results.unwrap().to_bits();
+                            vec_of_data.push((float_bits >> 56) as u8);
+                            vec_of_data.push((float_bits >> 48) as u8);
+                            vec_of_data.push((float_bits >> 40) as u8);
+                            vec_of_data.push((float_bits >> 32) as u8);
+                            vec_of_data.push((float_bits >> 24) as u8);
+                            vec_of_data.push((float_bits >> 16) as u8);
+                            vec_of_data.push((float_bits >> 8) as u8);
+                            vec_of_data.push(float_bits as u8);
+                        }
+                        Err(_) => datum.errors.push(Error {
                             error_name: NonFloatImmediate,
                             token_causing_error: value.token_name.to_string(),
                             start_end_columns: value.start_end_columns,
                             message: "".to_string(),
-                        })
+                        }),
                     }
                 }
             }
@@ -916,19 +927,20 @@ pub fn assemble_data_binary(data_list: &mut [Data]) -> Vec<u8> {
                 for value in datum.data_entries.iter_mut() {
                     value.token_type = Float;
                     let parse_results = value.token_name.parse::<f32>();
-                    if let Ok(..) = parse_results {
-                        let float_bits = parse_results.unwrap().to_bits();
-                        vec_of_data.push((float_bits >> 24) as u8);
-                        vec_of_data.push((float_bits >> 16) as u8);
-                        vec_of_data.push((float_bits >> 8) as u8);
-                        vec_of_data.push(float_bits as u8);
-                    } else {
-                        datum.errors.push(Error {
+                    match parse_results {
+                        Ok(..) => {
+                            let float_bits = parse_results.unwrap().to_bits();
+                            vec_of_data.push((float_bits >> 24) as u8);
+                            vec_of_data.push((float_bits >> 16) as u8);
+                            vec_of_data.push((float_bits >> 8) as u8);
+                            vec_of_data.push(float_bits as u8);
+                        }
+                        Err(_) => datum.errors.push(Error {
                             error_name: NonFloatImmediate,
                             token_causing_error: value.token_name.to_string(),
                             start_end_columns: value.start_end_columns,
                             message: "".to_string(),
-                        })
+                        }),
                     }
                 }
             }

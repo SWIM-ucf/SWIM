@@ -19,7 +19,7 @@ use monaco::{
     yew::{CodeEditor, CodeEditorLink},
 };
 
-use crate::agent::datapath_reducer::DatapathReducer;
+use crate::emulation_core::mips::memory::{Memory, CAPACITY_BYTES};
 
 #[derive(PartialEq, Properties)]
 pub struct HexCoord {
@@ -31,9 +31,12 @@ pub struct HexCoord {
 #[derive(PartialEq, Properties)]
 pub struct HexEditorProps {
     pub memory_text_model: UseStateHandle<TextModel>,
-    pub datapath_state: UseReducerHandle<DatapathReducer>,
+    pub memory: Memory,
+    pub pc: u64,
     // The instruction to highlight
     pub memory_curr_instr: UseStateHandle<u64>,
+    pub initialized: bool,
+    pub executing: bool,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -50,8 +53,6 @@ impl UpdatedLine {
 #[function_component(HexEditor)]
 pub fn hex_editor(props: &HexEditorProps) -> Html {
     let editor_link = CodeEditorLink::new();
-    // Program counter - will probably change
-    let memory_curr_instr = *props.memory_curr_instr;
     let memory_text_model = &props.memory_text_model;
 
     // Store highlight decoration IDs
@@ -142,56 +143,69 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
     }
 
     let on_editor_created = {
+        let memory_curr_instr = props.memory_curr_instr.clone();
+
+        if props.executing {
+            memory_curr_instr.set(props.pc);
+        }
+
         use_callback(
             move |editor_link: CodeEditorLink,
-                  (datapath_state, memory_text_model, memory_curr_instr)| {
-                match editor_link.with_editor(|editor| {
-                    let hexdump = &datapath_state.get_memory().generate_formatted_hex();
-                    memory_text_model.set_value(hexdump);
+                  (memory, memory_text_model, memory_curr_instr, initialized)| {
+                let result = editor_link.with_editor(|editor| {
+                    let hexdump = memory.generate_formatted_hex(CAPACITY_BYTES);
+                    memory_text_model.set_value(&hexdump);
 
                     let raw_editor = editor.as_ref();
                     let cb_func = &cb.as_ref().unchecked_ref();
 
-                    let coords = get_hex_coords(*memory_curr_instr);
-                    raw_editor.on_did_change_cursor_selection(cb_func);
-                    raw_editor.reveal_line_in_center(coords.line_number, Some(ScrollType::Smooth));
+                    if *initialized {
+                        let coords = get_hex_coords(**memory_curr_instr);
+                        raw_editor.on_did_change_cursor_selection(cb_func);
+                        raw_editor
+                            .reveal_line_in_center(coords.line_number, Some(ScrollType::Smooth));
 
-                    // Highlight line using delta decorations
-                    let not_highlighted = js_sys::Array::new();
-                    let executed_line = js_sys::Array::new();
-                    let decoration: IModelDeltaDecoration = js_sys::Object::new().unchecked_into();
-                    let options: IModelDecorationOptions = js_sys::Object::new().unchecked_into();
-                    if coords.line_number != 0.0 {
-                        // Show highlight if current line is not 0
-                        options.set_inline_class_name("executedLine".into());
-                        options.set_is_whole_line(false.into());
+                        // Highlight line using delta decorations
+                        let not_highlighted = js_sys::Array::new();
+                        let executed_line = js_sys::Array::new();
+                        let decoration: IModelDeltaDecoration =
+                            js_sys::Object::new().unchecked_into();
+                        let options: IModelDecorationOptions =
+                            js_sys::Object::new().unchecked_into();
+                        if coords.line_number != 0.0 {
+                            // Show highlight if current line is not 0
+                            options.set_inline_class_name("executedLine".into());
+                            options.set_is_whole_line(false.into());
+                        }
+                        decoration.set_options(&options);
+                        let curr_range = Range::new(
+                            coords.line_number,
+                            coords.start_column,
+                            coords.line_number,
+                            coords.end_column,
+                        );
+                        let range_js = curr_range
+                            .dyn_into::<JsValue>()
+                            .expect("Range is not found.");
+                        decoration.set_range(&monaco::sys::IRange::from(range_js));
+                        let decoration_js = decoration
+                            .dyn_into::<JsValue>()
+                            .expect("Highlight is not found.");
+                        executed_line.push(&decoration_js);
+
+                        raw_editor.delta_decorations(&not_highlighted, &executed_line);
                     }
-                    decoration.set_options(&options);
-                    let curr_range = Range::new(
-                        coords.line_number,
-                        coords.start_column,
-                        coords.line_number,
-                        coords.end_column,
-                    );
-                    let range_js = curr_range
-                        .dyn_into::<JsValue>()
-                        .expect("Range is not found.");
-                    decoration.set_range(&monaco::sys::IRange::from(range_js));
-                    let decoration_js = decoration
-                        .dyn_into::<JsValue>()
-                        .expect("Highlight is not found.");
-                    executed_line.push(&decoration_js);
-
-                    raw_editor.delta_decorations(&not_highlighted, &executed_line);
-                }) {
+                });
+                match result {
                     Some(()) => debug!("Hex Editor linked!"),
                     None => debug!("No editor :<"),
                 };
             },
             (
-                props.datapath_state.clone(),
+                props.memory.clone(),
                 props.memory_text_model.clone(),
                 memory_curr_instr,
+                props.initialized,
             ),
         )
     };

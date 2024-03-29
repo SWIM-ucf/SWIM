@@ -32,7 +32,7 @@ c.lt.s $f0, $f2
 bc1t loop"#,
     );
 
-    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
@@ -78,7 +78,7 @@ c.lt.s $f2, $f0
 bc1f loop"#,
     );
 
-    let (_, instruction_bits) = parser(instructions, AvailableDatapaths::MIPS);
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
     datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
