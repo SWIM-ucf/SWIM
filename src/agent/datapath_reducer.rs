@@ -4,11 +4,12 @@ use crate::emulation_core::architectures::AvailableDatapaths::{MIPS, RISCV};
 use crate::emulation_core::mips::coprocessor::FpuState;
 use crate::emulation_core::mips::datapath::{DatapathState, Stage};
 use crate::emulation_core::mips::fp_registers::FpRegisters;
-use crate::emulation_core::mips::gp_registers::GpRegisters;
+use crate::emulation_core::mips::gp_registers::{GpRegisterType, GpRegisters};
 use crate::emulation_core::mips::memory::Memory;
 use crate::emulation_core::register::{RegisterType, Registers};
 use crate::emulation_core::riscv::datapath::{RiscDatapathState, RiscStage};
-use crate::emulation_core::riscv::registers::RiscGpRegisters;
+use crate::emulation_core::riscv::registers::{RiscGpRegisterType, RiscGpRegisters};
+use crate::emulation_core::stack::Stack;
 use gloo_console::log;
 use std::rc::Rc;
 use yew::Reducible;
@@ -32,6 +33,7 @@ pub struct MipsCoreState {
     pub coprocessor_registers: FpRegisters,
     pub memory: Memory,
     pub current_stage: Stage,
+    pub stack: Stack,
 }
 
 #[derive(Default, PartialEq, Clone)]
@@ -40,6 +42,7 @@ pub struct RiscCoreState {
     pub registers: RiscGpRegisters,
     pub memory: Memory,
     pub current_stage: RiscStage,
+    pub stack: Stack,
 }
 
 impl Default for DatapathReducer {
@@ -95,6 +98,10 @@ impl Reducible for DatapathReducer {
                         current_stage: stage,
                         ..self.mips.clone()
                     },
+                    MipsStateUpdate::UpdateStack(stack) => MipsCoreState {
+                        stack,
+                        ..self.mips.clone()
+                    },
                 },
                 ..(*self).clone()
             },
@@ -110,6 +117,15 @@ impl Reducible for DatapathReducer {
                 SystemUpdate::UpdateInitialized(initialized) => Self {
                     initialized,
                     ..(*self).clone()
+                },
+                SystemUpdate::UpdateSpeed(speed) => Self {
+                    current_architecture: self.current_architecture.clone(),
+                    mips: self.mips.clone(),
+                    messages: self.messages.clone(),
+                    speed,
+                    executing: self.executing,
+                    initialized: self.initialized,
+                    riscv: self.riscv.clone(),
                 },
             },
             DatapathUpdate::RISCV(update) => Self {
@@ -131,6 +147,10 @@ impl Reducible for DatapathReducer {
                         current_stage,
                         ..self.riscv.clone()
                     },
+                    RiscStateUpdate::UpdateStack(stack) => RiscCoreState {
+                        stack,
+                        ..self.riscv.clone()
+                    },
                 },
                 ..(*self).clone()
             },
@@ -146,6 +166,13 @@ impl DatapathReducer {
         }
     }
 
+    pub fn get_sp(&self) -> u64 {
+        match self.current_architecture {
+            MIPS => self.mips.registers[GpRegisterType::Sp],
+            RISCV => self.riscv.registers[RiscGpRegisterType::X1],
+        }
+    }
+
     pub fn get_dyn_gp_registers(&self) -> Vec<(Rc<dyn RegisterType>, u64)> {
         match self.current_architecture {
             MIPS => self.mips.registers.get_dyn_register_list(),
@@ -157,6 +184,13 @@ impl DatapathReducer {
         match self.current_architecture {
             MIPS => &self.mips.memory,
             RISCV => &self.riscv.memory,
+        }
+    }
+
+    pub fn get_stack(&self) -> &Stack {
+        match self.current_architecture {
+            MIPS => &self.mips.stack,
+            RISCV => &self.riscv.stack,
         }
     }
 }

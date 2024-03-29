@@ -1,3 +1,8 @@
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::str::FromStr;
+use std::{cell::RefCell, rc::Rc};
+
 use gloo_console::log;
 use monaco::{
     api::TextModel,
@@ -11,22 +16,22 @@ use monaco::{
     },
     yew::{CodeEditor, CodeEditorLink},
 };
-use std::collections::HashSet;
-use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew::{html, Callback, Properties};
 use yew_hooks::prelude::*;
 
+use crate::emulation_core::mips::memory::Memory;
+use crate::emulation_core::stack::Stack;
+use crate::ui::assembled_view::component::{StackFrameView, StackSegment};
 use crate::{
     agent::datapath_communicator::DatapathCommunicator,
     emulation_core::architectures::AvailableDatapaths,
     parser::parser_structs_and_enums::ProgramInfo,
     ui::{
         assembled_view::component::{DataSegment, TextSegment},
-        footer::component::FooterTabState,
-        swim_editor::tab::Tab,
+        swim_editor::tab::{Tab, TabState},
     },
 };
 use strum::IntoEnumIterator;
@@ -37,16 +42,22 @@ pub struct SwimEditorProps {
     pub lines_content: Rc<RefCell<Vec<String>>>,
     pub program_info: ProgramInfo,
     pub binary: Vec<u32>,
+    pub labels: HashMap<String, usize>,
     pub pc: u64,
     pub pc_limit: usize,
     pub memory_curr_instr: UseStateHandle<u64>,
     pub editor_curr_line: UseStateHandle<f64>,
-    pub editor_active_tab: UseStateHandle<EditorTabState>,
-    pub console_active_tab: UseStateHandle<FooterTabState>,
+    pub editor_active_tab: UseStateHandle<TabState>,
+    pub console_active_tab: UseStateHandle<TabState>,
     pub current_architecture: AvailableDatapaths,
     pub speed: u32,
     pub communicator: &'static DatapathCommunicator,
+    pub sp: u64,
+    pub memory: Memory,
+    pub stack: Stack,
     pub breakpoints: UseStateHandle<HashSet<u64>>,
+    pub initialized: bool,
+    pub executing: bool,
 }
 
 #[derive(Default, PartialEq)]
@@ -103,9 +114,17 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         let curr_line = props.editor_curr_line.clone();
         let lines_content = Rc::clone(&props.lines_content);
 
+        if props.executing {
+            let program_info = props.program_info.clone();
+            let list_of_line_numbers = program_info.address_to_line_number;
+            let index = props.pc as usize / 4;
+            curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0);
+            // add one to account for the editor's line numbers
+        }
+
         use_callback(
-            move |editor_link: CodeEditorLink, curr_line| {
-                match editor_link.with_editor(|editor| {
+            move |editor_link: CodeEditorLink, (curr_line, initialized)| {
+                let result = editor_link.with_editor(|editor| {
                     let raw_editor = editor.as_ref();
                     let model = raw_editor.get_model().unwrap();
                     // store each line from the original code editor's contents for assembled view
@@ -116,35 +135,41 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                         lines.push(model.get_line_content(i as f64));
                     }
                     *lines_content = lines;
-                    // Scroll to current line
-                    raw_editor.reveal_line_in_center(**curr_line, Some(ScrollType::Smooth));
-                    // Highlight current line using delta decorations
-                    let not_highlighted = js_sys::Array::new();
-                    let executed_line = js_sys::Array::new();
-                    let decoration: IModelDeltaDecoration = js_sys::Object::new().unchecked_into();
-                    let options: IModelDecorationOptions = js_sys::Object::new().unchecked_into();
-                    if **curr_line != 0.0 {
-                        // Show highlight if current line is not 0
-                        options.set_inline_class_name("executedLine".into());
-                        options.set_is_whole_line(true.into());
+
+                    if *initialized {
+                        // Scroll to current line
+                        raw_editor.reveal_line_in_center(**curr_line, Some(ScrollType::Smooth));
+                        // Highlight current line using delta decorations
+                        let not_highlighted = js_sys::Array::new();
+                        let executed_line = js_sys::Array::new();
+                        let decoration: IModelDeltaDecoration =
+                            js_sys::Object::new().unchecked_into();
+                        let options: IModelDecorationOptions =
+                            js_sys::Object::new().unchecked_into();
+                        if **curr_line != 0.0 {
+                            // Show highlight if current line is not 0
+                            options.set_inline_class_name("executedLine".into());
+                            options.set_is_whole_line(true.into());
+                        }
+                        decoration.set_options(&options);
+                        let curr_range = Range::new(**curr_line, 0.0, **curr_line, 0.0);
+                        let range_js = curr_range
+                            .dyn_into::<JsValue>()
+                            .expect("Range is not found.");
+                        decoration.set_range(&monaco::sys::IRange::from(range_js));
+                        let decoration_js = decoration
+                            .dyn_into::<JsValue>()
+                            .expect("Highlight is not found.");
+                        executed_line.push(&decoration_js);
+                        raw_editor.delta_decorations(&not_highlighted, &executed_line);
                     }
-                    decoration.set_options(&options);
-                    let curr_range = Range::new(**curr_line, 0.0, **curr_line, 0.0);
-                    let range_js = curr_range
-                        .dyn_into::<JsValue>()
-                        .expect("Range is not found.");
-                    decoration.set_range(&monaco::sys::IRange::from(range_js));
-                    let decoration_js = decoration
-                        .dyn_into::<JsValue>()
-                        .expect("Highlight is not found.");
-                    executed_line.push(&decoration_js);
-                    raw_editor.delta_decorations(&not_highlighted, &executed_line);
-                }) {
+                });
+                match result {
                     Some(()) => log::debug!("Swim Editor linked!"),
                     None => log::debug!("No swim editor :<"),
                 };
             },
-            curr_line,
+            (curr_line, props.initialized),
         )
     };
 
@@ -160,13 +185,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                 .get_attribute("label")
                 .unwrap_or(String::from("editor"));
 
-            let new_tab: EditorTabState = match tab_name.as_str() {
-                "editor" => EditorTabState::Editor,
-                "text" => EditorTabState::TextSegment,
-                "data" => EditorTabState::DataSegment,
-                _ => EditorTabState::default(),
-            };
-
+            let new_tab: TabState = TabState::from_str(&tab_name).unwrap();
             editor_active_tab.set(new_tab);
         })
     };
@@ -265,7 +284,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         });
     };
 
-    let conditional_class = if **editor_active_tab == EditorTabState::Editor {
+    let conditional_class = if **editor_active_tab == TabState::Editor {
         ""
     } else {
         "hidden"
@@ -285,9 +304,11 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             // Editor buttons
             <div class="flex flex-row justify-between items-center border-b-2 border-b-solid border-b-primary-200">
                 <div class="flex flex-row flex-nowrap min-w-0 items-end h-full">
-                    <Tab<EditorTabState> label={"editor".to_string()} text={"Editor".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::Editor}/>
-                    <Tab<EditorTabState> label={"text".to_string()} text={"Text Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::TextSegment}/>
-                    <Tab<EditorTabState> label={"data".to_string()} text={"Data Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={EditorTabState::DataSegment}/>
+                    <Tab<TabState> label={TabState::Editor.to_string()} text={"Editor".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={TabState::Editor}/>
+                    <Tab<TabState> label={TabState::TextSegment.to_string()} text={"Text Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={TabState::TextSegment}/>
+                    <Tab<TabState> label={TabState::DataSegment.to_string()} text={"Data Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={TabState::DataSegment}/>
+                    <Tab<TabState> label={TabState::StackSegment.to_string()} text={"Stack Segment".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={TabState::StackSegment}/>
+                    <Tab<TabState> label={TabState::StackFrameView.to_string()} text={"Stack Frame".to_string()} on_click={change_tab.clone()} disabled={false} active_tab={editor_active_tab.clone()} tab_name={TabState::StackFrameView}/>
                 </div>
                 <div class="flex flex-row flex-wrap justify-end items-center gap-2 cursor-default">
                     <button class={classes!("copy-button", conditional_class)} title="Copy to Clipboard" onclick={on_clipboard_clicked}>{"Copy to Clipboard "}<i class={classes!("fa-regular", "fa-copy")}></i></button>
@@ -298,12 +319,29 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                     </select>
                 </div>
             </div>
-            if **editor_active_tab == EditorTabState::Editor {
+            if **editor_active_tab == TabState::Editor {
                 <CodeEditor classes={"editor"} link={link} options={get_options()} model={text_model.clone()} on_editor_created={on_editor_created}/>
-            } else if **editor_active_tab == EditorTabState::TextSegment {
+            } else if **editor_active_tab == TabState::TextSegment {
                 <TextSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} breakpoints={props.breakpoints.clone()} pc={props.pc} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} communicator={props.communicator}/>
-            } else if **editor_active_tab == EditorTabState::DataSegment {
+            } else if **editor_active_tab == TabState::DataSegment {
                 <DataSegment lines_content={props.lines_content.clone()} program_info={props.program_info.clone()} binary={props.binary.clone()} editor_active_tab={editor_active_tab.clone()} console_active_tab={console_active_tab.clone()} memory_curr_instr={props.memory_curr_instr.clone()} editor_curr_line={props.editor_curr_line.clone()} pc_limit={props.pc_limit}/>
+            } else if **editor_active_tab == TabState::StackSegment {
+                <StackSegment
+                    memory_curr_instr={props.memory_curr_instr.clone()}
+                    console_active_tab={console_active_tab.clone()}
+                    sp={props.sp}
+                    memory={props.memory.clone()}
+                />
+            } else if **editor_active_tab == TabState::StackFrameView {
+                <StackFrameView
+                    memory_curr_instr={props.memory_curr_instr.clone()}
+                    stack={props.stack.clone()}
+                    console_active_tab={console_active_tab.clone()}
+                    program_info={props.program_info.clone()}
+                    labels={props.labels.clone()}
+                    editor_curr_line={props.editor_curr_line.clone()}
+                    editor_active_tab={props.editor_active_tab.clone()}
+                />
             }
         </>
     }
