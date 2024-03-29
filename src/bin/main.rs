@@ -401,7 +401,7 @@ fn app(props: &AppProps) -> Html {
                                     }
                                 }
                             };
-                            log::debug!("String version: {}", string_version);
+                            // log::debug!("String version: {}", string_version);
 
                             let curr_word = match datapath_state.get_memory().load_word(address * 4)
                             {

@@ -876,7 +876,7 @@ impl RiscInstruction {
                 let rs1 = find_register_name(b_type.rs1).unwrap();
                 let rs2 = find_register_name(b_type.rs2).unwrap();
                 if b_type.op == OPCODE_BRANCH {
-                    log::debug!("b_type.imm as usize: {:0b}", b_type.imm as usize);
+                    // log::debug!("b_type.imm as usize: {:0b}", b_type.imm as usize);
                     // Extract imm[12]
                     let imm_12 = ((value >> 31) & 0b1) as i32;
 
@@ -894,7 +894,7 @@ impl RiscInstruction {
                     let mut str_label = format!("{}", imm_combined);
 
                     for label in labels {
-                        log::debug!("label: {} {:?}", label.0, label.1);
+                        // log::debug!("label: {} {:?}", label.0, label.1);
                         if label.1 == imm_combined as usize {
                             str_label = label.0;
                         }
