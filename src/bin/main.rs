@@ -32,7 +32,6 @@ use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew::{html, Html, Properties};
 
-use swim::emulation_core::register::Registers;
 use swim::emulation_core::riscv::datapath::RiscStage;
 use yew_agent::Spawnable;
 
@@ -662,7 +661,7 @@ fn app(props: &AppProps) -> Html {
                 </div>
 
                 // Right column
-                <Regview gp={datapath_state.get_dyn_gp_registers()} fp={datapath_state.mips.coprocessor_registers.get_dyn_register_list()} pc_limit={*pc_limit} communicator={props.communicator}/>
+                <Regview gp={datapath_state.get_dyn_gp_registers()} fp={datapath_state.get_dyn_fp_registers()} pc_limit={*pc_limit} communicator={props.communicator}/>
             </div>
         </div>
     }
