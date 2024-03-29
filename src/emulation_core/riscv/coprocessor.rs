@@ -4,7 +4,7 @@ use std::ops::Neg;
 
 use super::constants::*;
 use super::instruction::Instruction;
-use super::registers::FpRegisters;
+use super::registers::RiscFpRegisters;
 use super::{constants::RISC_NAN, control_signals::floating_point::*};
 use serde::{Deserialize, Serialize};
 
@@ -18,7 +18,7 @@ pub struct RiscFpCoprocessor {
     pub signals: FpuControlSignals,
     pub state: RiscFpuState,
     pub is_halted: bool,
-    pub registers: FpRegisters,
+    pub registers: RiscFpRegisters,
     pub condition_code: u64,
     pub data: u64,
 }

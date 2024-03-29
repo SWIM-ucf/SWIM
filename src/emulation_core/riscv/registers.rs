@@ -260,12 +260,12 @@ impl IntoIterator for RiscGpRegisters {
 
 /// Collection of general-purpose registers used by the datapath.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
-pub struct FpRegisters {
+pub struct RiscFpRegisters {
     pub fpr: [u64; 32],
 }
 
 /// Specifies all of the valid registers accessible in an instance
-/// of [`FpRegisters`].
+/// of [`RiscFpRegisters`].
 #[derive(Clone, Copy, Debug, Display, EnumIter, EnumString, Eq, PartialEq)]
 #[strum(ascii_case_insensitive)]
 #[strum(serialize_all = "lowercase")]
@@ -302,7 +302,6 @@ pub enum FpRegisterType {
     F29 = 29,
     F30 = 30,
     F31 = 31,
-    FCSR = 32,
 }
 
 impl RegisterType for FpRegisterType {
@@ -314,7 +313,7 @@ impl RegisterType for FpRegisterType {
     }
 }
 
-impl Registers for FpRegisters {
+impl Registers for RiscFpRegisters {
     fn get_dyn_register_list(&self) -> Vec<(Rc<dyn RegisterType>, u64)> {
         self.into_iter()
             .map(|(register, val)| {
@@ -325,7 +324,7 @@ impl Registers for FpRegisters {
     }
 }
 
-impl ToString for FpRegisters {
+impl ToString for RiscFpRegisters {
     fn to_string(&self) -> String {
         let mut output = String::new();
 
@@ -342,7 +341,7 @@ impl ToString for FpRegisters {
     }
 }
 
-impl Index<&str> for FpRegisters {
+impl Index<&str> for RiscFpRegisters {
     type Output = u64;
 
     // Convert string to the corresponding RegistersEnum value and use this to index.
@@ -355,7 +354,7 @@ impl Index<&str> for FpRegisters {
     }
 }
 
-impl IndexMut<&str> for FpRegisters {
+impl IndexMut<&str> for RiscFpRegisters {
     // Convert string to the corresponding RegistersEnum value and use this to index.
     // If this is an invalid string, no enum will be returned, causing a panic as desired.
     fn index_mut(&mut self, index: &str) -> &mut Self::Output {
@@ -366,7 +365,7 @@ impl IndexMut<&str> for FpRegisters {
     }
 }
 
-impl Index<FpRegisterType> for FpRegisters {
+impl Index<FpRegisterType> for RiscFpRegisters {
     type Output = u64;
 
     fn index(&self, index: FpRegisterType) -> &Self::Output {
@@ -374,7 +373,7 @@ impl Index<FpRegisterType> for FpRegisters {
     }
 }
 
-impl IndexMut<FpRegisterType> for FpRegisters {
+impl IndexMut<FpRegisterType> for RiscFpRegisters {
     fn index_mut(&mut self, index: FpRegisterType) -> &mut Self::Output {
         &mut self.fpr[index as usize]
     }
@@ -388,7 +387,7 @@ impl IndexMut<FpRegisterType> for FpRegisters {
 /// normally just "add 1" to get to the next register, we use an internal iterator
 /// that can track the progression of one [`FpRegisterType`] to the next.
 pub struct FpRegistersIter {
-    registers: FpRegisters,
+    registers: RiscFpRegisters,
     register_iter: FpRegisterTypeIter,
 }
 
@@ -408,11 +407,11 @@ impl Iterator for FpRegistersIter {
 /// [`IntoIterator`] is a standard library trait that can convert any type into
 /// an [`Iterator`]. In this case, this is an instance of [`FpRegistersIter`] with all the
 /// data in the registers and a new [`FpRegisterTypeIter`].
-impl IntoIterator for FpRegisters {
+impl IntoIterator for RiscFpRegisters {
     type Item = (FpRegisterType, u64);
     type IntoIter = FpRegistersIter;
 
-    /// Consumes the [`FpRegisters`] struct to create a new [`FpRegistersIter`] that can
+    /// Consumes the [`RiscFpRegisters`] struct to create a new [`FpRegistersIter`] that can
     /// be iterated over.
     fn into_iter(self) -> Self::IntoIter {
         FpRegistersIter {
