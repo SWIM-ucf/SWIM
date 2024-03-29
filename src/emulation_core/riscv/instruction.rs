@@ -876,26 +876,11 @@ impl RiscInstruction {
                 let rs1 = find_register_name(b_type.rs1).unwrap();
                 let rs2 = find_register_name(b_type.rs2).unwrap();
                 if b_type.op == OPCODE_BRANCH {
-                    // log::debug!("b_type.imm as usize: {:0b}", b_type.imm as usize);
-                    // Extract imm[12]
-                    let imm_12 = ((value >> 31) & 0b1) as i32;
-
-                    // Extract imm[11]
-                    let imm_11 = ((value >> 7) & 0b1) as i32;
-
-                    // Extract imm[10:5]
-                    let imm_10_to_5 = ((value >> 25) & 0b111111) as i32;
-
-                    // Extract imm[4:1]
-                    let imm_4_to_1 = ((value >> 8) & 0b1111) as i32;
-
-                    let imm_combined =
-                        (imm_12 << 11) | (imm_11 << 10) | (imm_10_to_5 << 5) | imm_4_to_1;
-                    let mut str_label = format!("{}", imm_combined);
+                    let mut str_label = format!("{}", b_type.imm);
 
                     for label in labels {
                         // log::debug!("label: {} {:?}", label.0, label.1);
-                        if label.1 == imm_combined as usize {
+                        if label.1 == (b_type.imm as usize) * 4 {
                             str_label = label.0;
                         }
                     }
