@@ -1,5 +1,7 @@
 //! Abstract representation of an instruction.
 
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 use crate::parser::parser_structs_and_enums::RISCV_GP_REGISTERS;
@@ -183,7 +185,10 @@ impl TryFrom<u32> for RiscInstruction {
 }
 
 impl RiscInstruction {
-    pub fn get_string_version(value: u32) -> Result<String, String> {
+    pub fn get_string_version(
+        value: u32,
+        labels: HashMap<String, usize>,
+    ) -> Result<String, String> {
         let mut string_version = String::new();
 
         let struct_representation = RiscInstruction::try_from(value)?;
@@ -620,12 +625,19 @@ impl RiscInstruction {
             RiscInstruction::IType(i_type) => {
                 let rs1 = find_register_name(i_type.rs1).unwrap();
                 let rd = find_register_name(i_type.rd).unwrap();
-                let offset = i_type.imm as i32;
+                let imm = i_type.imm as i32;
+
+                // Check if immediate is negative
+                let mut str_imm = format!("{}", imm);
+                if imm & 0x800 != 0 {
+                    str_imm = format!("-{}", (!(imm) + 1) & 0b00000000000000000000111111111111);
+                }
+
                 match i_type.op {
                     OPCODE_IMM => match i_type.funct3 {
                         0 => {
                             string_version
-                                .push_str(&format!("{} {}, {}, {}", "addi", rd, rs1, i_type.imm));
+                                .push_str(&format!("{} {}, {}, {}", "addi", rd, rs1, str_imm));
                         }
                         1 => {
                             string_version.push_str(&format!(
@@ -686,17 +698,15 @@ impl RiscInstruction {
                         }
                         7 => {
                             string_version
-                                .push_str(&format!("{} {}, {}, {}", "andi", rd, rs1, i_type.imm));
+                                .push_str(&format!("{} {}, {}, {}", "andi", rd, rs1, str_imm));
                         }
                         _ => (),
                     },
                     OPCODE_IMM_32 => {
                         match i_type.funct3 {
                             0 => {
-                                string_version.push_str(&format!(
-                                    "{} {}, {}, {}",
-                                    "addiw", rd, rs1, i_type.imm
-                                ));
+                                string_version
+                                    .push_str(&format!("{} {}, {}, {}", "addiw", rd, rs1, str_imm));
                             }
                             1 => {
                                 // shift lower 5 bits of imm
@@ -742,34 +752,34 @@ impl RiscInstruction {
                     }
                     OPCODE_LOAD => match i_type.funct3 {
                         0 => {
-                            string_version.push_str(&format!("{} {}, {}({})", "lb", rd, offset, rs1));
+                            string_version.push_str(&format!("{} {}, {}({})", "lb", rd, imm, rs1));
                         }
                         1 => {
-                            string_version.push_str(&format!("{} {}, {}({})", "lh", rd, offset, rs1));
+                            string_version.push_str(&format!("{} {}, {}({})", "lh", rd, imm, rs1));
                         }
                         2 => {
-                            string_version.push_str(&format!("{} {}, {}({})", "lw", rd, offset, rs1));
+                            string_version.push_str(&format!("{} {}, {}({})", "lw", rd, imm, rs1));
                         }
                         3 => {
-                            string_version.push_str(&format!("{} {}, {}({})", "ld", rd, offset, rs1));
+                            string_version.push_str(&format!("{} {}, {}({})", "ld", rd, imm, rs1));
                         }
                         4 => {
-                            string_version.push_str(&format!("{} {}, {}({})", "lbu", rd, offset, rs1));
+                            string_version.push_str(&format!("{} {}, {}({})", "lbu", rd, imm, rs1));
                         }
                         5 => {
-                            string_version.push_str(&format!("{} {}, {}({})", "lhu", rd, offset, rs1));
+                            string_version.push_str(&format!("{} {}, {}({})", "lhu", rd, imm, rs1));
                         }
                         6 => {
-                            string_version.push_str(&format!("{} {}, {}({})", "lwu", rd, offset, rs1));
+                            string_version.push_str(&format!("{} {}, {}({})", "lwu", rd, imm, rs1));
                         }
                         _ => (),
                     },
                     OPCODE_LOAD_FP => match i_type.funct3 {
                         2 => {
-                            string_version.push_str(&format!("{} {}, {}({})", "flw", rd, offset, rs1));
+                            string_version.push_str(&format!("{} {}, {}({})", "flw", rd, imm, rs1));
                         }
                         3 => {
-                            string_version.push_str(&format!("{} {}, {}({})", "fld", rd, offset, rs1));
+                            string_version.push_str(&format!("{} {}, {}({})", "fld", rd, imm, rs1));
                         }
                         _ => (),
                     },
@@ -831,27 +841,31 @@ impl RiscInstruction {
                 match s_type.op {
                     OPCODE_STORE => match s_type.funct3 {
                         0 => {
-                            string_version.push_str(&format!("{} {},  {}({})", "sb", rs2, offset, rs1));
+                            string_version
+                                .push_str(&format!("{} {}, {}({})", "sb", rs2, offset, rs1));
                         }
                         1 => {
-                            string_version.push_str(&format!("{} {},  {}({})", "sh", rs2, offset, rs1));
+                            string_version
+                                .push_str(&format!("{} {}, {}({})", "sh", rs2, offset, rs1));
                         }
                         2 => {
-                            string_version.push_str(&format!("{} {},  {} ({})", "sw", rs2, offset, rs1));
+                            string_version
+                                .push_str(&format!("{} {}, {}({})", "sw", rs2, offset, rs1));
                         }
                         3 => {
-                            string_version.push_str(&format!("{} {},  {}({})", "sd", rs2, offset, rs1));
+                            string_version
+                                .push_str(&format!("{} {}, {}({})", "sd", rs2, offset, rs1));
                         }
                         _ => (),
                     },
                     OPCODE_STORE_FP => match s_type.funct3 {
                         2 => {
                             string_version
-                                .push_str(&format!("{} {},  {} ({})", "fsw", rs2, offset, rs1));
+                                .push_str(&format!("{} {}, {}({})", "fsw", rs2, offset, rs1));
                         }
                         3 => {
                             string_version
-                                .push_str(&format!("{} {},  {} ({})", "fsd", rs2, offset, rs1));
+                                .push_str(&format!("{} {}, {}({})", "fsd", rs2, offset, rs1));
                         }
                         _ => (),
                     },
@@ -862,30 +876,53 @@ impl RiscInstruction {
                 let rs1 = find_register_name(b_type.rs1).unwrap();
                 let rs2 = find_register_name(b_type.rs2).unwrap();
                 if b_type.op == OPCODE_BRANCH {
+                    log::debug!("b_type.imm as usize: {:0b}", b_type.imm as usize);
+                    // Extract imm[12]
+                    let imm_12 = ((value >> 31) & 0b1) as i32;
+
+                    // Extract imm[11]
+                    let imm_11 = ((value >> 7) & 0b1) as i32;
+
+                    // Extract imm[10:5]
+                    let imm_10_to_5 = ((value >> 25) & 0b111111) as i32;
+
+                    // Extract imm[4:1]
+                    let imm_4_to_1 = ((value >> 8) & 0b1111) as i32;
+
+                    let imm_combined =
+                        (imm_12 << 11) | (imm_11 << 10) | (imm_10_to_5 << 5) | imm_4_to_1;
+                    let mut str_label = format!("{}", imm_combined);
+
+                    for label in labels {
+                        log::debug!("label: {} {:?}", label.0, label.1);
+                        if label.1 == imm_combined as usize {
+                            str_label = label.0;
+                        }
+                    }
                     match b_type.funct3 {
                         0 => {
                             string_version
-                                .push_str(&format!("{} {}, {}, {}", "beq", rs1, rs2, b_type.imm));
+                                .push_str(&format!("{} {}, {}, {}", "beq", rs1, rs2, str_label));
                         }
                         1 => {
                             string_version
-                                .push_str(&format!("{} {}, {}, {}", "bne", rs1, rs2, b_type.imm));
+                                .push_str(&format!("{} {}, {}, {}", "bne", rs1, rs2, str_label));
                         }
                         4 => {
                             string_version
-                                .push_str(&format!("{} {}, {}, {}", "blt", rs1, rs2, b_type.imm));
+                                .push_str(&format!("{} {}, {}, {}", "blt", rs1, rs2, str_label));
                         }
                         5 => {
                             string_version
-                                .push_str(&format!("{} {}, {}, {}", "bge", rs1, rs2, b_type.imm));
+                                .push_str(&format!("{} {}, {}, {}", "bge", rs1, rs2, str_label));
                         }
                         6 => {
                             string_version
-                                .push_str(&format!("{} {}, {}, {}", "bltu", rs1, rs2, b_type.imm));
+                                .push_str(&format!("{} {}, {}, {}", "bltu", rs1, rs2, str_label));
                         }
                         7 => {
                             string_version
-                                .push_str(&format!("{} {}, {}, {}", "bgeu", rs1, rs2, b_type.imm));
+                                .push_str(&format!("{} {}, {}, {}", "bgeu", rs1, rs2, str_label));
                         }
                         _ => (),
                     }
