@@ -178,7 +178,7 @@ impl DatapathReducer {
     pub fn get_sp(&self) -> u64 {
         match self.current_architecture {
             MIPS => self.mips.registers[GpRegisterType::Sp],
-            RISCV => self.riscv.registers[RiscGpRegisterType::X1],
+            RISCV => self.riscv.registers[RiscGpRegisterType::X2],
         }
     }
 
@@ -200,6 +200,13 @@ impl DatapathReducer {
         match self.current_architecture {
             MIPS => &self.mips.memory,
             RISCV => &self.riscv.memory,
+        }
+    }
+
+    pub fn get_current_stage(&self) -> String {
+        match self.current_architecture {
+            MIPS => self.mips.current_stage.into(),
+            RISCV => self.riscv.current_stage.into(),
         }
     }
 

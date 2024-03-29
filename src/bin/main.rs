@@ -234,7 +234,10 @@ fn app(props: &AppProps) -> Html {
 
                 let list_of_line_numbers = program_info.address_to_line_number;
                 let index = datapath_state.get_pc() as usize / 4;
-                editor_curr_line.set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0); // add one to account for the editor's line numbers
+                editor_curr_line.set(match list_of_line_numbers.get(index) {
+                    Some(val) => (val + 1) as f64,
+                    None => 0f64,
+                });
                 memory_curr_instr.set(datapath_state.get_pc());
 
                 // Execute instruction
@@ -293,8 +296,10 @@ fn app(props: &AppProps) -> Html {
 
                     let list_of_line_numbers = program_info.address_to_line_number;
                     let index = datapath_state.get_pc() as usize / 4;
-                    editor_curr_line
-                        .set(*list_of_line_numbers.get(index).unwrap_or(&0) as f64 + 1.0);
+                    editor_curr_line.set(match list_of_line_numbers.get(index) {
+                        Some(val) => (val + 1) as f64,
+                        None => 0f64,
+                    });
                     memory_curr_instr.set(datapath_state.get_pc());
                     communicator.execute_stage();
                 } else {
@@ -559,7 +564,7 @@ fn app(props: &AppProps) -> Html {
     };
 
     html! {
-        <>
+        <div class="overflow-hidden">
             // button tied to the input file element, which is hidden to be more clean
             <input type="file" class="hidden" id="file_input" accept=".txt,.asm,.mips" onchange={file_picked_callback} />
             <div class="flex flex-row flex-no-wrap h-screen p-2 gap-2">
@@ -658,7 +663,7 @@ fn app(props: &AppProps) -> Html {
                 // Right column
                 <Regview gp={datapath_state.get_dyn_gp_registers()} fp={datapath_state.get_dyn_fp_registers()} pc_limit={*pc_limit} communicator={props.communicator}/>
             </div>
-        </>
+        </div>
     }
 }
 
