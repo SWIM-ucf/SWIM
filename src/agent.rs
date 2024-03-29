@@ -159,6 +159,11 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                         state.updates.changed_stack,
                         RiscStateUpdate::UpdateStack(datapath.stack.clone())
                     );
+                    send_update_riscv!(
+                        state.scope,
+                        state.updates.changed_coprocessor_registers,
+                        RiscStateUpdate::UpdateCoprocessorRegisters(datapath.coprocessor.registers)
+                    );
                 }
             }
             state.updates = Default::default();
@@ -304,7 +309,7 @@ impl EmulatorCoreAgentState {
             DatapathRef::MIPS(datapath) => datapath.registers.pc,
             DatapathRef::RISCV(datapath) => datapath.registers.pc,
         };
-        if self.breakpoints.contains(&current_pc) && self.updates.hit_breakpoint {
+        if self.breakpoints.contains(&current_pc) || self.updates.hit_breakpoint {
             self.executing = false;
             // Unset the hit_breakpoint flag after processing
             self.updates.hit_breakpoint = false;

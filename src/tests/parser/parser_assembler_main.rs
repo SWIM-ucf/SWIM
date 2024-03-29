@@ -357,19 +357,19 @@ mod read_riscv_instructions_tests {
 
     #[test]
     fn read_instructions_jal() {
-        let file_string = "jal x1, 2044".to_string();
+        let file_string = "main:\njal x1, L1\nret\nL1:\nadd x1, x2, x3".to_string();
 
         let instruction_list = instruction_parser_riscv(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
-            0b01111111110000000000000011101111
+            0b00000000000000000010000011101111
         );
     }
 
     #[test]
     fn read_instructions_jalr() {
-        let file_string = "jalr x2, 128(x3)".to_string();
+        let file_string = "jalr x2, x3, 128".to_string();
 
         let instruction_list = instruction_parser_riscv(file_string);
 
@@ -381,73 +381,73 @@ mod read_riscv_instructions_tests {
 
     #[test]
     fn read_instructions_beq() {
-        let file_string = "beq x4, x5, 256".to_string();
+        let file_string = "main:\nbeq x1, x2, L1\nret\nL1:\nadd x1, x2, x3".to_string();
 
         let instruction_list = instruction_parser_riscv(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00010000010100100000000001100011
+            0b00000000001000010000000011100011
         );
     }
 
     #[test]
     fn read_instructions_bne() {
-        let file_string = "bne x6, x7, 512".to_string();
+        let file_string = "main:\nbne x1, x2, L1\nret\nL1:\nadd x1, x2, x3".to_string();
 
         let instruction_list = instruction_parser_riscv(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00100000011100110001000001100011
+            0b00000000001000010001000011100011
         );
     }
 
     #[test]
     fn read_instructions_blt() {
-        let file_string = "blt x8, x9, 1024".to_string();
+        let file_string = "main:\nblt x1, x2, L1\nret\nL1:\nadd x1, x2, x3".to_string();
 
         let instruction_list = instruction_parser_riscv(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
-            0b01000000100101000100000011100011
+            0b00000000001000010100000011100011
         );
     }
 
     #[test]
     fn read_instructions_bge() {
-        let file_string = "bge x10, x11, 256".to_string();
+        let file_string = "main:\nbge x1, x2, L1\nret\nL1:\nadd x1, x2, x3".to_string();
 
         let instruction_list = instruction_parser_riscv(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00010000101101010101000001100011
+            0b00000000001000010101000011100011
         );
     }
 
     #[test]
     fn read_instructions_bltu() {
-        let file_string = "bltu x12, x13, 64".to_string();
+        let file_string = "main:\nbltu x1, x2, L1\nret\nL1:\nadd x1, x2, x3".to_string();
 
         let instruction_list = instruction_parser_riscv(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00000100110101100110000001100011
+            0b00000000001000010110000011100011
         );
     }
 
     #[test]
     fn read_instructions_bgeu() {
-        let file_string = "bgeu x14, x15, 32".to_string();
+        let file_string = "main:\nbgeu x1, x2, L1\nret\nL1:\nadd x1, x2, x3".to_string();
 
         let instruction_list = instruction_parser_riscv(file_string);
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00000010111101110111000001100011
+            0b00000000001000010111000011100011
         );
     }
 

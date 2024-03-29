@@ -177,8 +177,8 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                         }}
                         value={
                             match unit_type {
-                                UnitState::Float => format!("{:e}", data).to_string(),
-                                UnitState::Double => format!("{:e}", data).to_string(),
+                                UnitState::Float => format!("{}", f32::from_bits(data as u32)).to_string(),
+                                UnitState::Double => format!("{}", f64::from_bits(data)).to_string(),
                                 UnitState::Hex => format!("{:#04x?}", data).to_string(),
                                 UnitState::Bin => format!("{:#b}", data).to_string(),
                                 _ => format!("{:?}", data).to_string(),

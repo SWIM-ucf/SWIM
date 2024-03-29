@@ -35,7 +35,7 @@ use yew::prelude::*;
 use consts::*;
 use utils::*;
 
-use crate::{agent::datapath_reducer::DatapathReducer, emulation_core::mips::datapath::Stage};
+use crate::agent::datapath_reducer::DatapathReducer;
 
 #[derive(PartialEq, Properties)]
 pub struct VisualDatapathProps {
@@ -83,7 +83,7 @@ impl Component for VisualDatapath {
         let zoom_out_size = Rc::clone(&self.size);
         html! {
             <div id="datapath-wrapper" class="max-h-[50%] relative">
-                <div class="overflow-auto w-full h-full basis-1/2 bg-primary-100 z-10 relative">
+                <div id="datapath-scrollbox" class="overflow-auto w-full h-full basis-1/2 bg-primary-100 z-10 relative">
                     <object data={ctx.props().svg_path.clone()} type="image/svg+xml" id={DATAPATH_ID} class={classes!("datapath", format!("size-{}", self.size.borrow()))}></object>
                 </div>
                 <div id="popup">
@@ -128,13 +128,7 @@ impl Component for VisualDatapath {
         // there is actual data to view. A better way to see this is "when stage X is
         // set on the datapath, highlight the lines for stage Y." The datapath stage
         // tells where it will start the next time "execute" is pressed.
-        let current_stage = String::from(match ctx.props().datapath_state.mips.current_stage {
-            Stage::InstructionFetch => "writeback",
-            Stage::InstructionDecode => "instruction_fetch",
-            Stage::Execute => "instruction_decode",
-            Stage::Memory => "execute",
-            Stage::WriteBack => "memory",
-        });
+        let current_stage = ctx.props().datapath_state.get_current_stage();
 
         if first_render || self.should_reinitialize {
             self.initialize(current_stage, ctx.props().datapath_state.clone());
@@ -369,7 +363,6 @@ impl VisualDatapath {
             } else {
                 Self::set_inactive(&path)?;
             }
-            path.style().set_property("stroke-width", "10").unwrap();
 
             if path.tag_name() == "path" {
                 // Set the initial state of this path:

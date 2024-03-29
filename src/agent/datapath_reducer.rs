@@ -8,7 +8,9 @@ use crate::emulation_core::mips::gp_registers::{GpRegisterType, GpRegisters};
 use crate::emulation_core::mips::memory::Memory;
 use crate::emulation_core::register::{RegisterType, Registers};
 use crate::emulation_core::riscv::datapath::{RiscDatapathState, RiscStage};
-use crate::emulation_core::riscv::registers::{RiscGpRegisterType, RiscGpRegisters};
+use crate::emulation_core::riscv::registers::{
+    RiscFpRegisters, RiscGpRegisterType, RiscGpRegisters,
+};
 use crate::emulation_core::stack::Stack;
 use gloo_console::log;
 use std::rc::Rc;
@@ -40,6 +42,7 @@ pub struct MipsCoreState {
 pub struct RiscCoreState {
     pub state: RiscDatapathState,
     pub registers: RiscGpRegisters,
+    pub coprocessor_registers: RiscFpRegisters,
     pub memory: Memory,
     pub current_stage: RiscStage,
     pub stack: Stack,
@@ -151,6 +154,12 @@ impl Reducible for DatapathReducer {
                         stack,
                         ..self.riscv.clone()
                     },
+                    RiscStateUpdate::UpdateCoprocessorRegisters(coprocessor_registers) => {
+                        RiscCoreState {
+                            coprocessor_registers,
+                            ..self.riscv.clone()
+                        }
+                    }
                 },
                 ..(*self).clone()
             },
@@ -169,7 +178,7 @@ impl DatapathReducer {
     pub fn get_sp(&self) -> u64 {
         match self.current_architecture {
             MIPS => self.mips.registers[GpRegisterType::Sp],
-            RISCV => self.riscv.registers[RiscGpRegisterType::X1],
+            RISCV => self.riscv.registers[RiscGpRegisterType::X2],
         }
     }
 
@@ -180,10 +189,24 @@ impl DatapathReducer {
         }
     }
 
+    pub fn get_dyn_fp_registers(&self) -> Vec<(Rc<dyn RegisterType>, u64)> {
+        match self.current_architecture {
+            MIPS => self.mips.coprocessor_registers.get_dyn_register_list(),
+            RISCV => self.riscv.coprocessor_registers.get_dyn_register_list(),
+        }
+    }
+
     pub fn get_memory(&self) -> &Memory {
         match self.current_architecture {
             MIPS => &self.mips.memory,
             RISCV => &self.riscv.memory,
+        }
+    }
+
+    pub fn get_current_stage(&self) -> String {
+        match self.current_architecture {
+            MIPS => self.mips.current_stage.into(),
+            RISCV => self.riscv.current_stage.into(),
         }
     }
 
