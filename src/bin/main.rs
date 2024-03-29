@@ -41,7 +41,7 @@ use yew_agent::Spawnable;
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
-const CONTENT: &str = include_str!("../../static/assembly_examples/riscv_fib.asm");
+const CONTENT: &str = include_str!("../../static/assembly_examples/riscv_all_instructions.asm");
 
 #[derive(Properties, Clone, PartialEq)]
 struct AppProps {
@@ -397,6 +397,7 @@ fn app(props: &AppProps) -> Html {
                                     }
                                 }
                             };
+                            log::debug!("String version: {}", string_version);
 
                             let curr_word = match datapath_state.get_memory().load_word(address * 4)
                             {
