@@ -473,7 +473,9 @@ impl RiscDatapath {
             changed_stack = true;
         }
 
-        let hit_jump = matches!(self.signals.branch_jump, BranchJump::J);
+        let hit_jump = matches!(self.signals.branch_jump, BranchJump::J)
+            // Evil hack to stop JALR from appearing in the stack frame viewer
+            && ((self.state.instruction & 0b1111111) as u8 != OPCODE_JALR);
         if hit_jump {
             // Add current line to stack if we call a function
             let frame = StackFrame::new(
