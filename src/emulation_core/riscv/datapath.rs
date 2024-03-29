@@ -61,6 +61,8 @@ use crate::emulation_core::stack::Stack;
 use crate::emulation_core::stack::StackFrame;
 use serde::{Deserialize, Serialize};
 
+use gloo_console::log;
+
 /// An implementation of a datapath for the MIPS64 ISA.
 #[derive(Clone, PartialEq)]
 pub struct RiscDatapath {
@@ -95,9 +97,9 @@ pub struct RiscDatapathState {
     pub shamt: u32,
     pub funct3: u32,
     pub funct7: u32,
-    pub imm: u32,
-    pub imm1: u32,
-    pub imm2: u32,
+    pub imm: i32,
+    pub imm1: i32,
+    pub imm2: i32,
 
     /// *Data line.* The first input of the ALU.
     pub alu_input1: u64,
@@ -212,7 +214,7 @@ impl Default for RiscDatapath {
 
         // Set the stack pointer ($sp) to initially start at the end
         // of memory.
-        datapath.registers.gpr[29] = super::super::mips::memory::CAPACITY_BYTES as u64;
+        datapath.registers.gpr[2] = super::super::mips::memory::CAPACITY_BYTES as u64;
 
         datapath
     }
@@ -530,21 +532,21 @@ impl RiscDatapath {
                 self.state.rs1 = i.rs1 as u32;
                 self.state.funct3 = i.funct3 as u32;
                 self.state.rd = i.rd as u32;
-                self.state.imm = i.imm as u32;
+                self.state.imm = i.imm as i32;
                 self.state.shamt = (i.imm & 0x003f) as u32;
             }
             Instruction::SType(s) => {
                 self.state.rs2 = s.rs2 as u32;
                 self.state.rs1 = s.rs1 as u32;
                 self.state.funct3 = s.funct3 as u32;
-                self.state.imm1 = s.imm1 as u32;
-                self.state.imm2 = s.imm2 as u32;
+                self.state.imm1 = s.imm1 as i32;
+                self.state.imm2 = s.imm2 as i32;
             }
             Instruction::BType(b) => {
                 self.state.rs1 = b.rs1 as u32;
                 self.state.rs2 = b.rs2 as u32;
                 self.state.funct3 = b.funct3 as u32;
-                self.state.imm = b.imm as u32;
+                self.state.imm = b.imm as i32;
             }
             Instruction::UType(u) => {
                 self.state.imm = u.imm;
@@ -562,12 +564,21 @@ impl RiscDatapath {
 
     fn set_immediate(&mut self) {
         let mut signed_imm = 0x0000;
-        if self.state.instruction >> 31 == 1 {
-            signed_imm = 0xffffffff;
-        }
+        // if self.state.instruction >> 31 == 1 {
+        //     signed_imm = 0xffffffff;
+        // }
+
+        log!("self.state.imm: ", format!("{:012b}", self.state.imm));
 
         signed_imm = match self.signals.imm_select {
-            ImmSelect::ISigned => (signed_imm << 12) | self.state.imm,
+            ImmSelect::ISigned => {
+                let mask = 0b100000000000;
+                if self.state.imm & mask != 0 {
+                    !(!self.state.imm & 0xFFF)
+                } else {
+                    self.state.imm
+                }
+            }
             ImmSelect::IShamt => (signed_imm << 12) | self.state.imm,
             ImmSelect::IUnsigned => self.state.imm,
             ImmSelect::SType => ((signed_imm << 7) | self.state.imm1) << 5 | self.state.imm2,
@@ -575,6 +586,9 @@ impl RiscDatapath {
             ImmSelect::UType => ((signed_imm << 20) | self.state.imm) << 12,
             ImmSelect::JType => self.state.imm,
         };
+
+        log!("signed_imm: ", format!("{:?}", signed_imm));
+        log!("self.state.imm: ", format!("{:?}", self.state.imm));
 
         self.state.imm = signed_imm;
     }
@@ -854,6 +868,8 @@ impl RiscDatapath {
             OP1Select::IMM => self.state.rs1 as u64,
         };
 
+        log!("self.state.imm (alu): ", format!("{:?}", self.state.imm));
+
         self.state.alu_input2 = match self.signals.op2_select {
             OP2Select::DATA2 => self.state.read_data_2,
             OP2Select::IMM => self.state.imm as i64 as u64,
@@ -868,6 +884,15 @@ impl RiscDatapath {
             self.state.alu_input1 = self.state.alu_input1 as u32 as i64 as u64;
             self.state.alu_input2 = self.state.alu_input2 as u32 as i64 as u64;
         }
+
+        log!(
+            "self.state.alu_input1: ",
+            format!("{:?}", self.state.alu_input1)
+        );
+        log!(
+            "self.state.alu_input2: ",
+            format!("{:?}", self.state.alu_input2)
+        );
 
         // Set the result.
         self.state.alu_result = match self.signals.alu_op {
@@ -984,7 +1009,14 @@ impl RiscDatapath {
     }
 
     fn calc_relative_pc_branch(&mut self) {
-        self.state.relative_pc_branch = self.state.imm as u64 * 4;
+        log!("calc_relative_pc_branch");
+        log!(
+            "self.state.imm as u64",
+            format!("{:?}", self.state.imm as u64)
+        );
+        if self.state.imm > 0 {
+            self.state.relative_pc_branch = self.state.imm as u64 * 4;
+        }
     }
 
     /// Determine the value of the [`CpuBranch`] signal.

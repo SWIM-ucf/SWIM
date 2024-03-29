@@ -60,14 +60,14 @@ pub struct BType {
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct UType {
-    pub imm: u32,
+    pub imm: i32,
     pub rd: u8,
     pub op: u8,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct JType {
-    pub imm: u32,
+    pub imm: i32,
     pub rd: u8,
     pub op: u8,
 }
@@ -149,14 +149,14 @@ impl TryFrom<u32> for Instruction {
 
             // U-type instruction:
             OPCODE_LUI | OPCODE_AUIPC => Ok(Instruction::UType(UType {
-                imm: value >> 12,
+                imm: (value >> 12) as i32,
                 rd: ((value >> 7) & 0x1f) as u8,
                 op: (value & 0x7f) as u8,
             })),
 
             // J-type instruction:
             OPCODE_JAL => Ok(Instruction::JType(JType {
-                imm: value >> 12,
+                imm: (value >> 12) as i32,
                 rd: ((value >> 7) & 0x1f) as u8,
                 op: (value & 0x7f) as u8,
             })),
