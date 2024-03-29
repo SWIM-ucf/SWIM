@@ -178,7 +178,7 @@ impl DatapathReducer {
     pub fn get_sp(&self) -> u64 {
         match self.current_architecture {
             MIPS => self.mips.registers[GpRegisterType::Sp],
-            RISCV => self.riscv.registers[RiscGpRegisterType::X1],
+            RISCV => self.riscv.registers[RiscGpRegisterType::X2],
         }
     }
 
