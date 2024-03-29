@@ -582,7 +582,15 @@ impl RiscDatapath {
             }
             ImmSelect::IShamt => (signed_imm << 12) | self.state.imm,
             ImmSelect::IUnsigned => self.state.imm,
-            ImmSelect::SType => ((signed_imm << 7) | self.state.imm1) << 5 | self.state.imm2,
+            ImmSelect::SType => {
+                let uimm = ((signed_imm << 7) | self.state.imm1) << 5 | self.state.imm2;
+                let mask = 0b100000000000;
+                if uimm & mask != 0 {
+                    !(!uimm & 0xFFF)
+                } else {
+                    self.state.imm
+                }
+            }
             ImmSelect::BType => self.state.imm,
             ImmSelect::UType => ((signed_imm << 20) | self.state.imm) << 12,
             ImmSelect::JType => self.state.imm,

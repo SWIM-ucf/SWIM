@@ -15,13 +15,11 @@ L2:
  lw a5,-20(s0)
  addi a5,a5,-1
  mv a0,a5
- auipc ra,0
  jalr ra # 26 <.L2+0x8>
  mv s1,a0
  lw a5,-20(s0)
  addi a5,a5,-2
  mv a0,a5
- auipc ra,0
  jalr ra # 38 <.L2+0x1a>
  mv a5,a0
  add a5,a5,s1
@@ -42,7 +40,6 @@ main:
  li a5,5
  sw a5,-20(s0)
  lw a0,-20(s0)
- auipc ra,0
  jalr ra # 62 <main+0x12>
  sw a0,-24(s0)
  lw a5,-24(s0)
