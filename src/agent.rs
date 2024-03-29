@@ -159,6 +159,11 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
                         state.updates.changed_stack,
                         RiscStateUpdate::UpdateStack(datapath.stack.clone())
                     );
+                    send_update_riscv!(
+                        state.scope,
+                        state.updates.changed_coprocessor_registers,
+                        RiscStateUpdate::UpdateCoprocessorRegisters(datapath.coprocessor.registers)
+                    );
                 }
             }
             state.updates = Default::default();

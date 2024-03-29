@@ -1,5 +1,7 @@
 //! Abstract representation of an instruction.
 
+use serde::{Deserialize, Serialize};
+
 use super::constants::*;
 
 /// Register (R-Type) Instruction
@@ -20,7 +22,7 @@ use super::constants::*;
 /// - funct3:
 /// - rd: CPU register - can be used as a destination for the result of executed instructions.
 /// - opcode: Determines the type of instruction executed. This is typically 0110011 in R-type instructions.
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct RType {
     pub funct7: u8,
     pub rs2: u8,
@@ -30,7 +32,7 @@ pub struct RType {
     pub op: u8,
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct IType {
     pub imm: u16,
     pub rs1: u8,
@@ -39,7 +41,7 @@ pub struct IType {
     pub op: u8,
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct SType {
     pub imm1: u8,
     pub rs2: u8,
@@ -49,7 +51,7 @@ pub struct SType {
     pub op: u8,
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct BType {
     pub imm1: u8,
     pub rs2: u8,
@@ -59,21 +61,21 @@ pub struct BType {
     pub op: u8,
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct UType {
     pub imm: u32,
     pub rd: u8,
     pub op: u8,
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct JType {
     pub imm: u32,
     pub rd: u8,
     pub op: u8,
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct R4Type {
     pub rs3: u8,
     pub funct2: u8,
@@ -84,7 +86,7 @@ pub struct R4Type {
     pub op: u8,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Instruction {
     RType(RType),
     IType(IType),
@@ -109,7 +111,7 @@ impl TryFrom<u32> for Instruction {
         let op = (value & 0x7f) as u8;
         match op {
             // R-type instructions:
-            OPCODE_OP | OPCODE_OP_32 => Ok(Instruction::RType(RType {
+            OPCODE_OP | OPCODE_OP_32 | OPCODE_OP_FP => Ok(Instruction::RType(RType {
                 funct7: (value >> 25) as u8,
                 rs2: ((value >> 20) & 0x1f) as u8,
                 rs1: ((value >> 15) & 0x1f) as u8,
@@ -119,18 +121,17 @@ impl TryFrom<u32> for Instruction {
             })),
 
             // I-type instructions:
-            OPCODE_IMM | OPCODE_IMM_32 | OPCODE_JALR | OPCODE_LOAD | OPCODE_SYSTEM => {
-                Ok(Instruction::IType(IType {
-                    imm: (value >> 20) as u16,
-                    rs1: ((value >> 15) & 0x1f) as u8,
-                    funct3: ((value >> 12) & 0x07) as u8,
-                    rd: ((value >> 7) & 0x1f) as u8,
-                    op: (value & 0x7f) as u8,
-                }))
-            }
+            OPCODE_IMM | OPCODE_IMM_32 | OPCODE_JALR | OPCODE_LOAD | OPCODE_SYSTEM
+            | OPCODE_LOAD_FP => Ok(Instruction::IType(IType {
+                imm: (value >> 20) as u16,
+                rs1: ((value >> 15) & 0x1f) as u8,
+                funct3: ((value >> 12) & 0x07) as u8,
+                rd: ((value >> 7) & 0x1f) as u8,
+                op: (value & 0x7f) as u8,
+            })),
 
             // S-type instruction:
-            OPCODE_STORE => Ok(Instruction::SType(SType {
+            OPCODE_STORE | OPCODE_STORE_FP => Ok(Instruction::SType(SType {
                 imm1: (value >> 25) as u8,
                 rs2: ((value >> 20) & 0x1f) as u8,
                 rs1: ((value >> 15) & 0x1f) as u8,
@@ -162,6 +163,19 @@ impl TryFrom<u32> for Instruction {
                 rd: ((value >> 7) & 0x1f) as u8,
                 op: (value & 0x7f) as u8,
             })),
+
+            // R4-type instruction:
+            OPCODE_MADD | OPCODE_MSUB | OPCODE_NMSUB | OPCODE_NMADD => {
+                Ok(Instruction::R4Type(R4Type {
+                    rs3: (value >> 27) as u8,
+                    funct2: ((value >> 25) & 0x3) as u8,
+                    rs2: ((value >> 20) & 0x1f) as u8,
+                    rs1: ((value >> 15) & 0x1f) as u8,
+                    funct3: ((value >> 12) & 0x07) as u8,
+                    rd: ((value >> 7) & 0x1f) as u8,
+                    op: (value & 0x7f) as u8,
+                }))
+            }
 
             _ => Err(format!("opcode `{op}` not supported")),
         }

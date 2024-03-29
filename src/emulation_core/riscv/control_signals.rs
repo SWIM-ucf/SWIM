@@ -211,3 +211,223 @@ pub enum RegWriteEn {
     NoWrite = 0,
     YesWrite = 1,
 }
+
+pub mod floating_point {
+
+    use super::super::constants::*;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
+    pub struct FpuControlSignals {
+        pub round_mode: RoundingMode,
+        pub data_src: DataSrc,
+        pub data_write: DataWrite,
+        pub fpu_alu_op: FpuAluOp,
+        pub fpu_mem_to_reg: FpuMemToReg,
+        pub fpu_reg_dst: FpuRegDst,
+        pub fpu_reg_write: FpuRegWrite,
+    }
+
+    /// Determines the source of the `Data` register in the floating-point unit.
+    ///
+    /// This is a special intermediary register that facilitates passing data between
+    /// the main processing unit and the floating-point unit.
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
+    pub enum DataSrc {
+        /// Use data from the main processing unit. Specifically, the data from register
+        /// `rs1` from a given instruction. This value can additionally be used in the cases
+        /// where this register is not written to.
+        MainProcessorUnit = 0,
+
+        /// Use data from the floating-point unit. Specifically, the data from register `rs1`
+        /// from a given instruction.
+        #[default]
+        FloatingPointUnitRS1 = 1,
+
+        /// Use data from the floating-point unit. Specifically, the data from the comparator.
+        FloatingPointUnitComp = 2,
+
+        /// Use data from the floating-point unit. Specifically, the Classify Mask.
+        FloatingPointUnitMask = 3,
+
+        /// Use the un-altered bits from the floating-point unit.
+        FloatingPointBits = 4,
+
+        /// Use the un-altered bits from the main unit.
+        MainProcessorBits = 5,
+    }
+
+    /// Determines whether to write to the `Data` register in the floating-point unit.
+    ///
+    /// This acts as a toggle for the source of data to the main processing unit register
+    /// file. Additionally, it acts as a toggle for a source to the floating-point unit
+    /// register file (this could be overridden by the [`FpuMemToReg`] control signal).
+    /// For the latter two functions, it is imperative to unset the [`RegWriteEn`](super::RegWriteEn) and
+    /// [`FpuRegWrite`] control signals in cases where registers should not be modified
+    /// with unintended data.
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
+    pub enum DataWrite {
+        /// - Do not write to the data register.
+        /// - Source data to write to the main processing unit register file from the main
+        ///   processing unit. This implies either the ALU result or the data read from memory
+        /// - Source data to write to the floating-point register file from the floating-point
+        ///   ALU.
+        #[default]
+        NoWrite = 0,
+
+        /// - Write to the data register.
+        /// - Source data to write to the main processing unit register file from the
+        ///   floating-point unit. Specifically, this is the data stored in the `Data` register
+        ///   in the FPU, likely from register `rs1` from a given instruction. This data source
+        ///   overrides the decision given by the [`MemToReg`](super::MemToReg) control signal.
+        /// - Source data to write to the floating-point register file from the `Data` register
+        ///   in the FPU, likely from register `rs1` from a given instruction.
+        YesWrite = 1,
+    }
+
+    /// This doubly determines the operations sent to the floating-point ALU and the
+    /// floating-point comparator.
+    ///
+    /// Only one of these units are effectively utilized in any given instruction.
+    ///
+    /// The fifth bit of the control signal represents either a single-precision
+    /// floating-point operation (0), or a double-precision floating-point operation (1).
+    /// This fifth bit is determined by [`FpuRegWidth`].
+    ///
+    /// *Implementation note:* The bits set for the comparator are intended to match
+    /// the bits used in the `cond` field of a `c.cond.fmt` instruction.
+    #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+    pub enum FpuAluOp {
+        #[default]
+        /// `_00000` (0):
+        /// - ALU: Perform an addition.
+        Addition = 0,
+
+        /// `_00001` (1):
+        /// - ALU: Perform a subtraction.
+        Subtraction = 1,
+
+        /// `_00010` (2):
+        /// - ALU: Perform a multiplication.
+        /// - Comparator: Set if equal.
+        MultiplicationOrEqual = 2,
+
+        /// `_00011` (3):
+        /// - ALU: Perform a division.
+        Division = 3,
+
+        /// `_00100` (4):
+        /// - ALU: Perform a Square Root.
+        Sqrt = 4,
+
+        /// `_00101` (5):
+        /// - ALU: Take the Minimum value.
+        Min = 5,
+
+        /// `_00110` (6):
+        /// - ALU: Take the Maximum value.
+        Max = 6,
+
+        /// `_00111` (7):
+        /// - ALU: Sign-Injection.
+        SGNJ = 7,
+
+        /// `_01000` (8):
+        /// - ALU: Negative Sign-Injection.
+        SGNJN = 8,
+
+        /// `_01001` (9):
+        /// - ALU: Xor Sign-Injection.
+        SGNJX = 9,
+
+        /// `_01010` (10):
+        /// - ALU: Classification Mask.
+        Class = 10,
+
+        /// `_01011` (11):
+        /// - ALU: Fused Multiplication-Addition.
+        MAdd = 11,
+
+        /// `_01100` (12):
+        /// - ALU: Fused Multiplication-Subtraction.
+        MSub = 12,
+
+        /// `_01101` (13):
+        /// - ALU: Fused Negated Multiplication-Subtraction.
+        NMSub = 13,
+
+        /// `_01110` (14):
+        /// - ALU: Fused Negated Multiplication-Addition.
+        NMAdd = 14,
+
+        /// `_10000` (16):
+        /// - Comparator: Set if less than.
+        Slt = 16,
+
+        /// `_10001` (17):
+        /// - Comparator: Set if less than or equal.
+        Sle = 17,
+    }
+
+    impl FpuAluOp {
+        /// Get the corresponding control signal given a function code.
+        pub fn from_function(function: u8) -> Result<Self, String> {
+            match function {
+                FUNCTION_C_EQ => Ok(Self::MultiplicationOrEqual),
+                FUNCTION_C_LT => Ok(Self::Slt),
+                FUNCTION_C_LE => Ok(Self::Sle),
+                _ => Err(format!("Unsupported function code `{function}`")),
+            }
+        }
+    }
+    #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+    pub enum RoundingMode {
+        RNE = 0,
+        RTZ = 1,
+        RDN = 2,
+        RUP = 3,
+        RMM = 4,
+        #[default]
+        DRM = 7,
+    }
+
+    /// Determines, given that [`FpuRegWrite`] is set, what the source of a floating-point
+    /// register's new data will be.
+    ///
+    /// This decision, if set, overrides the decision from the [`DataWrite`] control signal.
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
+    pub enum FpuMemToReg {
+        /// Do not use data from memory. Use the result of the [`DataWrite`] control signal.
+        #[default]
+        UseDataWrite = 0,
+
+        /// Use data from memory.
+        UseMemory = 1,
+    }
+
+    /// Determines, given that [`FpuRegWrite`] is set, which destination register to write
+    /// to, which largely depends on the instruction format.
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
+    pub enum FpuRegDst {
+        /// Use register `rs1`.
+        Reg1 = 0,
+
+        /// Use register `rs2`.
+        Reg2 = 1,
+
+        /// Use register `rd`.
+        #[default]
+        Reg3 = 2,
+    }
+
+    /// Determines if the floating-point register file should be written to.
+    #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
+    pub enum FpuRegWrite {
+        /// Do not write to the floating-point register file.
+        #[default]
+        NoWrite = 0,
+
+        /// Write to the floating-point register file.
+        YesWrite = 1,
+    }
+}
