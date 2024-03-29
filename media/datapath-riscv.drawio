@@ -1,6 +1,6 @@
-<mxfile host="Electron" modified="2024-03-29T02:51:11.624Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.1.2 Chrome/106.0.5249.199 Electron/21.4.3 Safari/537.36" etag="yherGLgyHY42ZOc-xMCX" compressed="false" version="21.1.2" type="device">
+<mxfile host="Electron" modified="2024-03-29T03:56:32.284Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.1.2 Chrome/106.0.5249.199 Electron/21.4.3 Safari/537.36" etag="rmfZJRMoEfBek-6dzESh" compressed="false" version="21.1.2" type="device">
   <diagram id="582QG3pIvltcbfHTLR_8" name="Page-1">
-    <mxGraphModel dx="1219" dy="733" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="950" math="0" shadow="0">
+    <mxGraphModel dx="592" dy="356" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="950" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -120,7 +120,7 @@
         <mxCell id="_5b_4j9nvjmzGaxmlqEA-1" value="PC" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="145" y="560" width="60" height="70" as="geometry" />
         </mxCell>
-        <object label="Instruction Memory" stage="instruction_fetch" variable="instruction" id="_5b_4j9nvjmzGaxmlqEA-3">
+        <object label="Instruction Memory" id="_5b_4j9nvjmzGaxmlqEA-3">
           <mxCell style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
             <mxGeometry x="235" y="540" width="120" height="110" as="geometry" />
           </mxCell>
@@ -576,20 +576,8 @@
             <mxPoint x="-13" y="-12" as="offset" />
           </mxGeometry>
         </mxCell>
-        <object label="" stage="instruction_decode" variable="rs2" id="_5b_4j9nvjmzGaxmlqEA-27">
-          <mxCell style="edgeStyle=elbowEdgeStyle;elbow=horizontal;endArrow=classic;html=1;rounded=0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.38;entryDx=0;entryDy=0;entryPerimeter=0;startArrow=none;strokeWidth=3;" parent="1" target="-Lmf1zb877u7wcXiO0Bk-16" edge="1">
-            <mxGeometry width="50" height="50" relative="1" as="geometry">
-              <mxPoint x="415" y="572" as="sourcePoint" />
-              <mxPoint x="520.1700000000003" y="575.24" as="targetPoint" />
-              <Array as="points">
-                <mxPoint x="455" y="570" />
-                <mxPoint x="435" y="577" />
-              </Array>
-            </mxGeometry>
-          </mxCell>
-        </object>
         <object label="" stage="instruction_decode" variable="rt" id="_5b_4j9nvjmzGaxmlqEA-31">
-          <mxCell style="edgeStyle=elbowEdgeStyle;elbow=horizontal;endArrow=none;html=1;rounded=0;exitX=0.675;exitY=0.525;exitDx=0;exitDy=0;exitPerimeter=0;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=3;" parent="1" source="_5b_4j9nvjmzGaxmlqEA-28" edge="1">
+          <mxCell style="edgeStyle=elbowEdgeStyle;elbow=horizontal;endArrow=classicThin;html=1;rounded=0;exitX=0.675;exitY=0.525;exitDx=0;exitDy=0;exitPerimeter=0;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=3;entryX=0;entryY=0.38;endFill=0;" parent="1" source="_5b_4j9nvjmzGaxmlqEA-28" edge="1" target="-Lmf1zb877u7wcXiO0Bk-16">
             <mxGeometry width="50" height="50" relative="1" as="geometry">
               <mxPoint x="385" y="575" as="sourcePoint" />
               <mxPoint x="415" y="572" as="targetPoint" />
@@ -599,7 +587,7 @@
         </object>
         <mxCell id="_5b_4j9nvjmzGaxmlqEA-144" value="Instruction [24-20] (rs2)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=8;" parent="_5b_4j9nvjmzGaxmlqEA-31" vertex="1" connectable="0">
           <mxGeometry x="0.3846" y="-1" relative="1" as="geometry">
-            <mxPoint x="43" y="-11" as="offset" />
+            <mxPoint x="-38" y="-11" as="offset" />
           </mxGeometry>
         </mxCell>
         <object label="" stage="instruction_decode" variable="imm" id="-I45d_4FKIcXNRPlzvKB-52">
