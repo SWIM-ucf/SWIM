@@ -176,6 +176,9 @@ pub struct RiscDatapathState {
 
     /// *Data line.* The data that will be written to memory.
     pub write_data: u64,
+
+    pub imm_input: u64,
+    pub i_type_jump: u64,
 }
 
 /// The possible stages the datapath could be in during execution.
@@ -200,6 +203,18 @@ impl RiscStage {
             RiscStage::Memory => RiscStage::WriteBack,
             RiscStage::WriteBack => RiscStage::InstructionFetch,
         }
+    }
+}
+
+impl From<RiscStage> for String {
+    fn from(val: RiscStage) -> String {
+        String::from(match val {
+            RiscStage::InstructionFetch => "writeback",
+            RiscStage::InstructionDecode => "instruction_fetch",
+            RiscStage::Execute => "instruction_decode",
+            RiscStage::Memory => "execute",
+            RiscStage::WriteBack => "memory",
+        })
     }
 }
 
@@ -379,7 +394,7 @@ impl RiscDatapath {
         self.set_control_signals();
         self.set_immediate();
         self.read_registers();
-
+        self.construct_jump_address();
         self.coprocessor.stage_instruction_decode();
         self.coprocessor
             .set_data_from_main_processor(self.state.read_data_1);
@@ -458,7 +473,9 @@ impl RiscDatapath {
             changed_stack = true;
         }
 
-        let hit_jump = matches!(self.signals.branch_jump, BranchJump::J);
+        let hit_jump = matches!(self.signals.branch_jump, BranchJump::J)
+            // Evil hack to stop JALR from appearing in the stack frame viewer
+            && ((self.state.instruction & 0b1111111) as u8 != OPCODE_JALR);
         if hit_jump {
             // Add current line to stack if we call a function
             let frame = StackFrame::new(
@@ -596,6 +613,9 @@ impl RiscDatapath {
                 self.state.rd = r4.rd as u32;
             }
         }
+
+        // Extract the first 20 bits from the instruction for the imm decoding input
+        self.state.imm_input = ((self.state.instruction as u64) & (0xfffff << 12)) >> 12;
     }
 
     fn set_immediate(&mut self) {
@@ -1048,10 +1068,6 @@ impl RiscDatapath {
             self.state.alu_result = self.state.alu_result as u32 as i64 as u64;
         }
 
-        if self.signals.branch_jump == BranchJump::J {
-            self.construct_jump_address();
-        }
-
         // Set the zero bit/signal.
         self.datapath_signals.alu_z = match self.state.alu_result {
             0 => AluZ::YesZero,
@@ -1087,9 +1103,11 @@ impl RiscDatapath {
     }
 
     fn construct_jump_address(&mut self) {
+        self.state.i_type_jump =
+            ((self.state.imm as u64).wrapping_add(self.state.read_data_1)) & 0xfffffffffffffff0;
         self.state.jump_address = match self.instruction {
-            Instruction::IType(_i) => self.state.imm as u64 + self.state.read_data_1,
-            Instruction::JType(_j) => self.state.imm as u64 * 4,
+            Instruction::IType(_i) => (self.state.imm as u64).wrapping_add(self.state.read_data_1),
+            Instruction::JType(_j) => (self.state.imm as u64).wrapping_shl(2),
             _ => self.state.jump_address,
         }
     }
