@@ -25,6 +25,7 @@
 pub mod consts;
 pub mod utils;
 
+use gloo_console::log;
 use std::{cell::RefCell, rc::Rc};
 
 use gloo_events::EventListener;
@@ -286,6 +287,8 @@ impl VisualDatapath {
                 if let Ok(listeners) =
                     Self::enable_interactivity(element, datapath_state, is_in_current_stage)
                 {
+                    log!("Found an element in the current stage!");
+                    log!(element.get_attribute("id"));
                     for l in listeners {
                         active_listeners.push(l);
                     }
@@ -366,7 +369,6 @@ impl VisualDatapath {
             } else {
                 Self::set_inactive(&path)?;
             }
-            path.style().set_property("stroke-width", "10").unwrap();
 
             if path.tag_name() == "path" {
                 // Set the initial state of this path:

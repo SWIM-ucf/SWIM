@@ -1,5 +1,7 @@
 use crate::agent::datapath_communicator::DatapathCommunicator;
 use crate::agent::datapath_reducer::DatapathReducer;
+use crate::emulation_core::architectures::AvailableDatapaths;
+use crate::emulation_core::architectures::AvailableDatapaths::{MIPS, RISCV};
 use crate::ui::console::component::Console;
 use crate::ui::hex_editor::component::HexEditor;
 use crate::ui::visual_datapath::VisualDatapath;
@@ -59,10 +61,12 @@ pub fn footer(props: &Footerprops) -> Html {
             switch_datapath.toggle();
         })
     };
-
-    let svg_path = match *switch_datapath {
-        true => "static/datapath_full.svg",
-        false => "static/datapath_simple.svg",
+    let svg_path = match props.datapath_state.current_architecture {
+        MIPS => match *switch_datapath {
+            true => "static/datapath_full.svg",
+            false => "static/datapath_riscv.svg",
+        },
+        RISCV => "static/datapath_riscv.svg",
     };
 
     let switch_datapath_button_label = match *switch_datapath {
@@ -112,7 +116,7 @@ pub fn footer(props: &Footerprops) -> Html {
                     />
                 </div>
 
-                if **active_tab == FooterTabState::Datapath {
+                if **active_tab == FooterTabState::Datapath && props.datapath_state.current_architecture == MIPS {
                     <div class="min-w-0">
                         <button class="hover:text-primary-100 duration-300 pointer pt-4 min-w-0 text-ellipsis text-nowrap overflow-hidden" onclick={switch_datapath_type}>{switch_datapath_button_label}</button>
                     </div>
