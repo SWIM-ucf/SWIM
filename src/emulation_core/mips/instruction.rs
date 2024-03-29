@@ -414,7 +414,8 @@ impl MipsInstruction {
                         Ok(string_version)
                     }
                     FUNCT_SLTU => {
-                        string_version = format!("{} {}, {}, {}", "sltu", str_rd, str_rs, str_shamt);
+                        string_version =
+                            format!("{} {}, {}, {}", "sltu", str_rd, str_rs, str_shamt);
                         Ok(string_version)
                     }
                     FUNCT_SOP32 => {
@@ -446,7 +447,8 @@ impl MipsInstruction {
                     FUNCT_SOP30 | FUNCT_SOP34 => match shamt {
                         // ENC_MUL == ENC_DMUL
                         ENC_MUL => {
-                            string_version = format!("{} {}, {}, {}", "mul", str_rd, str_rs, str_rt);
+                            string_version =
+                                format!("{} {}, {}, {}", "mul", str_rd, str_rs, str_rt);
                             Ok(string_version)
                         }
                         _ => {
@@ -457,7 +459,8 @@ impl MipsInstruction {
                     FUNCT_SOP31 | FUNCT_SOP35 => match shamt {
                         // ENC_MULU == ENC_DMULU
                         ENC_MULU => {
-                            string_version = format!("{} {}, {}, {}", "mulu", str_rd, str_rs, str_rt);
+                            string_version =
+                                format!("{} {}, {}, {}", "mulu", str_rd, str_rs, str_rt);
                             Ok(string_version)
                         }
                         _ => {
