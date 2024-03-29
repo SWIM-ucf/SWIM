@@ -1,4 +1,7 @@
 main:
-        addi x1, x0, 50
-        addi x2, x0, 2
-        mul x3, x1, x2
+    jal x1, L1
+    bgeu x1, x2, L1
+    ret
+
+L1:
+    add x1, x2, x3

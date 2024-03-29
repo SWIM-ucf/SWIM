@@ -88,7 +88,6 @@ pub fn parser(
             (program_info.instructions, program_info.data) =
                 separate_data_and_text(&mut program_info.monaco_line_info);
 
-            // Implement a RISC-V version
             expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 &mut program_info.instructions,
                 &program_info.data,
@@ -1551,7 +1550,7 @@ pub fn read_instructions(
 
 pub fn read_instructions_riscv(
     instruction_list: &mut [Instruction],
-    _labels: &HashMap<String, usize>,
+    labels: &HashMap<String, usize>,
     monaco_line_info: &mut [MonacoLineInfo],
 ) {
     for instruction in &mut instruction_list.iter_mut() {
@@ -2291,9 +2290,9 @@ pub fn read_instructions_riscv(
                 // Read as U-type instruction and reorder immediate value after
                 read_operands_riscv(
                     instruction,
-                    vec![RegisterGP, UpperImmediate],
+                    vec![RegisterGP, LabelAbsolute],
                     vec![1, 2],
-                    None,
+                    Some(labels.clone()),
                     None,
                     None,
                 );
@@ -2302,9 +2301,10 @@ pub fn read_instructions_riscv(
                 instruction.binary = append_binary(instruction.binary, 0b1101111, 7);
 
                 // Reorder immediate
-                instruction.binary = upper_to_jump(instruction.binary);
+                //instruction.binary = upper_to_jump(instruction.binary);
 
-                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
+                // This isn't accurate to the risc-v spec, but we can make the user aware of this change in the instruction description. Unsure how useful this may be to the end user.
+
                 if monaco_line_info[instruction.line_number]
                     .mouse_hover_string
                     .is_empty()
@@ -2319,8 +2319,8 @@ pub fn read_instructions_riscv(
             "jalr" => {
                 read_operands_riscv(
                     instruction,
-                    vec![RegisterGP, MemoryAddress],
-                    vec![1, 3, 2],
+                    vec![RegisterGP, RegisterGP, Immediate],
+                    vec![1, 2, 3],
                     None,
                     Some(0b000),
                     None,
@@ -2344,9 +2344,9 @@ pub fn read_instructions_riscv(
             "beq" => {
                 read_operands_riscv(
                     instruction,
-                    vec![RegisterGP, RegisterGP, Immediate],
+                    vec![RegisterGP, RegisterGP, LabelRelative],
                     vec![1, 2, 3],
-                    None,
+                    Some(labels.clone()),
                     Some(0b000),
                     None,
                 );
@@ -2354,7 +2354,10 @@ pub fn read_instructions_riscv(
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1100011, 7);
 
-                instruction.binary = immediate_to_branch(instruction.binary);
+                // May be easier to treat branch instructions as i-type instructions due to how labels get resolved
+                // This isn't accurate to the risc-v spec, but we can make the user aware of this change in the instruction description
+
+                //instruction.binary = immediate_to_branch(instruction.binary);
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2362,7 +2365,7 @@ pub fn read_instructions_riscv(
                     .is_empty()
                 {
                     let info = InstructionDescription {
-                        syntax: "beq rs1, rs2, offset".to_string(),
+                        syntax: "beq rs1, rs2, label".to_string(),
                         description: "Take the branch if registers rs1 and rs2 are equal."
                             .to_string(),
                     };
@@ -2372,9 +2375,9 @@ pub fn read_instructions_riscv(
             "bne" => {
                 read_operands_riscv(
                     instruction,
-                    vec![RegisterGP, RegisterGP, Immediate],
+                    vec![RegisterGP, RegisterGP, LabelRelative],
                     vec![1, 2, 3],
-                    None,
+                    Some(labels.clone()),
                     Some(0b001),
                     None,
                 );
@@ -2382,7 +2385,7 @@ pub fn read_instructions_riscv(
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1100011, 7);
 
-                instruction.binary = immediate_to_branch(instruction.binary);
+                //instruction.binary = immediate_to_branch(instruction.binary);
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2390,7 +2393,7 @@ pub fn read_instructions_riscv(
                     .is_empty()
                 {
                     let info = InstructionDescription {
-                        syntax: "bne rs1, rs2, offset".to_string(),
+                        syntax: "bne rs1, rs2, label".to_string(),
                         description: "Take the branch if registers rs1 and rs2 are not equal."
                             .to_string(),
                     };
@@ -2400,9 +2403,9 @@ pub fn read_instructions_riscv(
             "blt" => {
                 read_operands_riscv(
                     instruction,
-                    vec![RegisterGP, RegisterGP, Immediate],
+                    vec![RegisterGP, RegisterGP, LabelRelative],
                     vec![1, 2, 3],
-                    None,
+                    Some(labels.clone()),
                     Some(0b100),
                     None,
                 );
@@ -2410,7 +2413,7 @@ pub fn read_instructions_riscv(
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1100011, 7);
 
-                instruction.binary = immediate_to_branch(instruction.binary);
+                //instruction.binary = immediate_to_branch(instruction.binary);
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2418,7 +2421,7 @@ pub fn read_instructions_riscv(
                     .is_empty()
                 {
                     let info = InstructionDescription{
-                        syntax: "blt rs1, rs2, offset".to_string(),
+                        syntax: "blt rs1, rs2, label".to_string(),
                         description: "Take the branch if registers rs1 is less than rs2, using signed comparison.".to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
@@ -2427,9 +2430,9 @@ pub fn read_instructions_riscv(
             "bge" => {
                 read_operands_riscv(
                     instruction,
-                    vec![RegisterGP, RegisterGP, Immediate],
+                    vec![RegisterGP, RegisterGP, LabelRelative],
                     vec![1, 2, 3],
-                    None,
+                    Some(labels.clone()),
                     Some(0b101),
                     None,
                 );
@@ -2437,7 +2440,7 @@ pub fn read_instructions_riscv(
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1100011, 7);
 
-                instruction.binary = immediate_to_branch(instruction.binary);
+                //instruction.binary = immediate_to_branch(instruction.binary);
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2454,9 +2457,9 @@ pub fn read_instructions_riscv(
             "bltu" => {
                 read_operands_riscv(
                     instruction,
-                    vec![RegisterGP, RegisterGP, Immediate],
+                    vec![RegisterGP, RegisterGP, LabelRelative],
                     vec![1, 2, 3],
-                    None,
+                    Some(labels.clone()),
                     Some(0b110),
                     None,
                 );
@@ -2464,7 +2467,7 @@ pub fn read_instructions_riscv(
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1100011, 7);
 
-                instruction.binary = immediate_to_branch(instruction.binary);
+                //instruction.binary = immediate_to_branch(instruction.binary);
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2472,7 +2475,7 @@ pub fn read_instructions_riscv(
                     .is_empty()
                 {
                     let info = InstructionDescription{
-                        syntax: "bltu rs1, rs2, offset".to_string(),
+                        syntax: "bltu rs1, rs2, label".to_string(),
                         description: "Take the branch if registers rs1 is less than rs2, using unsigned comparison.".to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
@@ -2481,9 +2484,9 @@ pub fn read_instructions_riscv(
             "bgeu" => {
                 read_operands_riscv(
                     instruction,
-                    vec![RegisterGP, RegisterGP, Immediate],
+                    vec![RegisterGP, RegisterGP, LabelRelative],
                     vec![1, 2, 3],
-                    None,
+                    Some(labels.clone()),
                     Some(0b111),
                     None,
                 );
@@ -2491,7 +2494,7 @@ pub fn read_instructions_riscv(
                 // Opcode
                 instruction.binary = append_binary(instruction.binary, 0b1100011, 7);
 
-                instruction.binary = immediate_to_branch(instruction.binary);
+                //instruction.binary = immediate_to_branch(instruction.binary);
 
                 //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
                 if monaco_line_info[instruction.line_number]
@@ -2499,7 +2502,7 @@ pub fn read_instructions_riscv(
                     .is_empty()
                 {
                     let info = InstructionDescription{
-                        syntax: "bgeu rs1, rs2, offset".to_string(),
+                        syntax: "bgeu rs1, rs2, label".to_string(),
                         description: "Take the branch if registers rs1 is greater than or equal to rs2, using unsigned comparison.".to_string(),
                     };
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
@@ -4968,7 +4971,7 @@ fn immediate_to_stored(mut bin: u32) -> u32 {
 
 // Converts an I-type instruction to B-type instruction
 // Easier to encode in this manner
-fn immediate_to_branch(mut bin: u32) -> u32 {
+fn _immediate_to_branch(mut bin: u32) -> u32 {
     // Extract bits imm[4:1] from the immediate, last bit is ignored
     let lower_imm = (bin >> 21) & 0b1111;
 
@@ -5008,7 +5011,7 @@ fn immediate_to_branch(mut bin: u32) -> u32 {
 }
 
 // Reorder the immediate value to comply with J-type format
-fn upper_to_jump(mut bin: u32) -> u32 {
+fn _upper_to_jump(mut bin: u32) -> u32 {
     // Extract bits immediate
     let imm = bin >> 12;
 
