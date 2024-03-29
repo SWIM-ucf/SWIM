@@ -51,11 +51,10 @@ pub struct SType {
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct BType {
-    pub imm1: u8,
+    pub imm: u16,
     pub rs2: u8,
     pub rs1: u8,
     pub funct3: u8,
-    pub imm2: u8,
     pub op: u8,
 }
 
@@ -141,11 +140,10 @@ impl TryFrom<u32> for Instruction {
 
             // B-type instruction:
             OPCODE_BRANCH => Ok(Instruction::BType(BType {
-                imm1: (value >> 25) as u8,
-                rs2: ((value >> 20) & 0x1f) as u8,
-                rs1: ((value >> 15) & 0x1f) as u8,
+                imm: (value >> 20) as u16,
+                rs1: ((value >> 7) & 0x1f) as u8,
                 funct3: ((value >> 12) & 0x07) as u8,
-                imm2: ((value >> 7) & 0x1f) as u8,
+                rs2: ((value >> 15) & 0x1f) as u8,
                 op: (value & 0x7f) as u8,
             })),
 

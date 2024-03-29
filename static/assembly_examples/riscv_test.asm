@@ -1,7 +1,7 @@
 main:
-    jal x1, L1
-    bgeu x1, x2, L1
-    ret
+        addi x1, x0, 1
+        addi x2, x0, 1
+        beq x3, x1, L1
 
 L1:
-    add x1, x2, x3
+    addi x1, x0, 100

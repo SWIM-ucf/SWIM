@@ -2344,7 +2344,7 @@ pub fn read_instructions_riscv(
             "beq" => {
                 read_operands_riscv(
                     instruction,
-                    vec![RegisterGP, RegisterGP, LabelRelative],
+                    vec![RegisterGP, RegisterGP, LabelAbsolute],
                     vec![1, 2, 3],
                     Some(labels.clone()),
                     Some(0b000),
@@ -2375,7 +2375,7 @@ pub fn read_instructions_riscv(
             "bne" => {
                 read_operands_riscv(
                     instruction,
-                    vec![RegisterGP, RegisterGP, LabelRelative],
+                    vec![RegisterGP, RegisterGP, LabelAbsolute],
                     vec![1, 2, 3],
                     Some(labels.clone()),
                     Some(0b001),
@@ -2403,7 +2403,7 @@ pub fn read_instructions_riscv(
             "blt" => {
                 read_operands_riscv(
                     instruction,
-                    vec![RegisterGP, RegisterGP, LabelRelative],
+                    vec![RegisterGP, RegisterGP, LabelAbsolute],
                     vec![1, 2, 3],
                     Some(labels.clone()),
                     Some(0b100),
@@ -2430,7 +2430,7 @@ pub fn read_instructions_riscv(
             "bge" => {
                 read_operands_riscv(
                     instruction,
-                    vec![RegisterGP, RegisterGP, LabelRelative],
+                    vec![RegisterGP, RegisterGP, LabelAbsolute],
                     vec![1, 2, 3],
                     Some(labels.clone()),
                     Some(0b101),
@@ -2457,7 +2457,7 @@ pub fn read_instructions_riscv(
             "bltu" => {
                 read_operands_riscv(
                     instruction,
-                    vec![RegisterGP, RegisterGP, LabelRelative],
+                    vec![RegisterGP, RegisterGP, LabelAbsolute],
                     vec![1, 2, 3],
                     Some(labels.clone()),
                     Some(0b110),
@@ -2484,7 +2484,7 @@ pub fn read_instructions_riscv(
             "bgeu" => {
                 read_operands_riscv(
                     instruction,
-                    vec![RegisterGP, RegisterGP, LabelRelative],
+                    vec![RegisterGP, RegisterGP, LabelAbsolute],
                     vec![1, 2, 3],
                     Some(labels.clone()),
                     Some(0b111),
