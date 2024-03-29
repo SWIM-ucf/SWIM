@@ -519,6 +519,7 @@ impl RiscDatapath {
 
         // Set the data lines based on the contents of the instruction.
         // Some lines will hold uninitialized values as a result.
+        log!("Current Instruction: ", format!("{:?}", self.instruction));
         match self.instruction {
             Instruction::RType(r) => {
                 self.state.rs1 = r.rs1 as u32;
