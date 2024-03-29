@@ -387,7 +387,7 @@ mod read_riscv_instructions_tests {
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00000000000100010000000011100011
+            0b00000000001000010000000011100011
         );
     }
 
@@ -399,7 +399,7 @@ mod read_riscv_instructions_tests {
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00000000000100010001000011100011
+            0b00000000001000010001000011100011
         );
     }
 
@@ -411,7 +411,7 @@ mod read_riscv_instructions_tests {
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00000000000100010100000011100011
+            0b00000000001000010100000011100011
         );
     }
 
@@ -423,7 +423,7 @@ mod read_riscv_instructions_tests {
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00000000000100010101000011100011
+            0b00000000001000010101000011100011
         );
     }
 
@@ -435,7 +435,7 @@ mod read_riscv_instructions_tests {
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00000000000100010110000011100011
+            0b00000000001000010110000011100011
         );
     }
 
@@ -447,7 +447,7 @@ mod read_riscv_instructions_tests {
 
         assert_eq!(
             instruction_list[0].binary,
-            0b00000000000100010111000011100011
+            0b00000000001000010111000011100011
         );
     }
 
