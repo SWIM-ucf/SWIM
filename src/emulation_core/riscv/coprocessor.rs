@@ -480,7 +480,7 @@ impl RiscFpCoprocessor {
         };
     }
 
-    /// Set the data line that goes from `Read Data 1` to the multiplexer in the main processor
+    /// Set the data line that goes from `Read Data 2` to the multiplexer in the main processor
     /// controlled by [`MemWriteSrc`](super::control_signals::MemWriteSrc).
     fn write_fp_register_to_memory(&mut self) {
         self.state.fp_register_to_memory = self.state.read_data_2;

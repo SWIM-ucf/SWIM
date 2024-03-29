@@ -121,15 +121,14 @@ impl TryFrom<u32> for Instruction {
             })),
 
             // I-type instructions:
-            OPCODE_IMM | OPCODE_IMM_32 | OPCODE_JALR | OPCODE_LOAD | OPCODE_SYSTEM => {
-                Ok(Instruction::IType(IType {
-                    imm: (value >> 20) as u16,
-                    rs1: ((value >> 15) & 0x1f) as u8,
-                    funct3: ((value >> 12) & 0x07) as u8,
-                    rd: ((value >> 7) & 0x1f) as u8,
-                    op: (value & 0x7f) as u8,
-                }))
-            }
+            OPCODE_IMM | OPCODE_IMM_32 | OPCODE_JALR | OPCODE_LOAD | OPCODE_SYSTEM
+            | OPCODE_LOAD_FP => Ok(Instruction::IType(IType {
+                imm: (value >> 20) as u16,
+                rs1: ((value >> 15) & 0x1f) as u8,
+                funct3: ((value >> 12) & 0x07) as u8,
+                rd: ((value >> 7) & 0x1f) as u8,
+                op: (value & 0x7f) as u8,
+            })),
 
             // S-type instruction:
             OPCODE_STORE | OPCODE_STORE_FP => Ok(Instruction::SType(SType {
