@@ -64,7 +64,7 @@ pub fn footer(props: &Footerprops) -> Html {
     let svg_path = match props.datapath_state.current_architecture {
         MIPS => match *switch_datapath {
             true => "static/datapath_full.svg",
-            false => "static/datapath_riscv.svg",
+            false => "static/datapath_simple.svg",
         },
         RISCV => "static/datapath_riscv.svg",
     };
