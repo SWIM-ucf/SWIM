@@ -25,7 +25,6 @@
 pub mod consts;
 pub mod utils;
 
-use gloo_console::log;
 use std::{cell::RefCell, rc::Rc};
 
 use gloo_events::EventListener;

@@ -59,7 +59,6 @@ use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
 use crate::emulation_core::riscv::registers::RiscGpRegisterType::{X10, X11};
 use crate::emulation_core::stack::Stack;
 use crate::emulation_core::stack::StackFrame;
-use gloo_console::log;
 use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.

@@ -541,7 +541,7 @@ pub fn visual_line_to_data(
                 "imm_input" => LineInformation {
                     title: String::from("Instruction [31-12] (immediate)"),
                     description: String::from("The part of the instruction used to extract the imm field from an instruction. In RISC-V, depending on the instruction type, the imm field can be split up within an instruction (S, B, and J type) or even out of order (B and J type)."),
-                    value: 0u64, // FIXME: Use the real line
+                    value: datapath_state.riscv.state.imm_input,
                     bits: 20,
                 },
                 "instruction" => LineInformation {
