@@ -544,17 +544,23 @@ pub fn visual_line_to_data(
                     value: datapath_state.riscv.state.imm_input,
                     bits: 20,
                 },
+                "imm_shifted_left_by_2" => LineInformation {
+                    title: String::from("Immediate (shifted left by 2)"),
+                    description: String::from("The immediate field shifed left by two bits. This value is later used as a jump address."),
+                    value: (datapath_state.riscv.state.imm << 2) as u64,
+                    bits: 22,
+                },
+                "i_type_address" => LineInformation {
+                    title: String::from("I Type Jump Address"),
+                    description: String::from("The jump address used for I type jump instructions. This is calculated by adding the immediate value and the contents of rs1."),
+                    value: datapath_state.riscv.state.i_type_jump,
+                    bits: 22,
+                },
                 "instruction" => LineInformation {
                     title: String::from("Instruction"),
                     description: String::from("The currently-loaded instruction. This is broken down into different fields, where each field serves a different purpose in identifying what the instruction does."),
                     value: datapath_state.riscv.state.instruction as u64,
                     bits: 32,
-                },
-                "i_type_address" => LineInformation {
-                    title: String::from("I type jump address"),
-                    description: String::from("The jump address used for I type instructions. Calculated from the data in rs1 and imm."),
-                    value: 0u64, // FIXME: Use the real line
-                    bits: 16,
                 },
                 "jump_address" => LineInformation {
                     title: String::from("Jump Address"),

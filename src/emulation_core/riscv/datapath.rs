@@ -178,6 +178,7 @@ pub struct RiscDatapathState {
     pub write_data: u64,
 
     pub imm_input: u64,
+    pub i_type_jump: u64,
 }
 
 /// The possible stages the datapath could be in during execution.
@@ -393,7 +394,7 @@ impl RiscDatapath {
         self.set_control_signals();
         self.set_immediate();
         self.read_registers();
-
+        self.construct_jump_address();
         self.coprocessor.stage_instruction_decode();
         self.coprocessor
             .set_data_from_main_processor(self.state.read_data_1);
@@ -1065,10 +1066,6 @@ impl RiscDatapath {
             self.state.alu_result = self.state.alu_result as u32 as i64 as u64;
         }
 
-        if self.signals.branch_jump == BranchJump::J {
-            self.construct_jump_address();
-        }
-
         // Set the zero bit/signal.
         self.datapath_signals.alu_z = match self.state.alu_result {
             0 => AluZ::YesZero,
@@ -1104,6 +1101,8 @@ impl RiscDatapath {
     }
 
     fn construct_jump_address(&mut self) {
+        self.state.i_type_jump =
+            (self.state.imm as u64 + self.state.read_data_1) & 0xfffffffffffffff0;
         self.state.jump_address = match self.instruction {
             Instruction::IType(_i) => self.state.imm as u64 + self.state.read_data_1,
             Instruction::JType(_j) => self.state.imm as u64 * 4,
