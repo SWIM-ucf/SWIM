@@ -1102,10 +1102,10 @@ impl RiscDatapath {
 
     fn construct_jump_address(&mut self) {
         self.state.i_type_jump =
-            (self.state.imm as u64 + self.state.read_data_1) & 0xfffffffffffffff0;
+            ((self.state.imm as u64).wrapping_add(self.state.read_data_1)) & 0xfffffffffffffff0;
         self.state.jump_address = match self.instruction {
-            Instruction::IType(_i) => self.state.imm as u64 + self.state.read_data_1,
-            Instruction::JType(_j) => self.state.imm as u64 * 4,
+            Instruction::IType(_i) => (self.state.imm as u64).wrapping_add(self.state.read_data_1),
+            Instruction::JType(_j) => (self.state.imm as u64).wrapping_shl(2),
             _ => self.state.jump_address,
         }
     }
