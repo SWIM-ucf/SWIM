@@ -1,6 +1,6 @@
-<mxfile host="Electron" modified="2024-03-29T03:56:32.284Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.1.2 Chrome/106.0.5249.199 Electron/21.4.3 Safari/537.36" etag="rmfZJRMoEfBek-6dzESh" compressed="false" version="21.1.2" type="device">
+<mxfile host="Electron" modified="2024-03-29T19:27:10.326Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.1.2 Chrome/106.0.5249.199 Electron/21.4.3 Safari/537.36" etag="awwb7JlexwmZ_CsvwWLE" compressed="false" version="21.1.2" type="device">
   <diagram id="582QG3pIvltcbfHTLR_8" name="Page-1">
-    <mxGraphModel dx="592" dy="356" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="950" math="0" shadow="0">
+    <mxGraphModel dx="1036" dy="623" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="950" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -576,8 +576,8 @@
             <mxPoint x="-13" y="-12" as="offset" />
           </mxGeometry>
         </mxCell>
-        <object label="" stage="instruction_decode" variable="rt" id="_5b_4j9nvjmzGaxmlqEA-31">
-          <mxCell style="edgeStyle=elbowEdgeStyle;elbow=horizontal;endArrow=classicThin;html=1;rounded=0;exitX=0.675;exitY=0.525;exitDx=0;exitDy=0;exitPerimeter=0;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=3;entryX=0;entryY=0.38;endFill=0;" parent="1" source="_5b_4j9nvjmzGaxmlqEA-28" edge="1" target="-Lmf1zb877u7wcXiO0Bk-16">
+        <object label="" stage="instruction_decode" variable="rs2" id="_5b_4j9nvjmzGaxmlqEA-31">
+          <mxCell style="edgeStyle=elbowEdgeStyle;elbow=horizontal;endArrow=classicThin;html=1;rounded=0;exitX=0.675;exitY=0.525;exitDx=0;exitDy=0;exitPerimeter=0;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=3;entryX=0;entryY=0.38;endFill=0;" parent="1" source="_5b_4j9nvjmzGaxmlqEA-28" target="-Lmf1zb877u7wcXiO0Bk-16" edge="1">
             <mxGeometry width="50" height="50" relative="1" as="geometry">
               <mxPoint x="385" y="575" as="sourcePoint" />
               <mxPoint x="415" y="572" as="targetPoint" />
