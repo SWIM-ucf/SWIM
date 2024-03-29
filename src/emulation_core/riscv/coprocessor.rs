@@ -347,6 +347,8 @@ impl RiscFpCoprocessor {
         let input2_f32 = f32::from_bits(input2);
         let input3_f32 = f32::from_bits(input3);
         let mut input_mask = 0b0000000000;
+        let input1_wo_sign = input1 & 0x7fffffff;
+        let mut sign_bit = 0;
 
         let result_f32: f32 = match self.signals.fpu_alu_op {
             FpuAluOp::Addition => input1_f32 + input2_f32,
@@ -374,10 +376,17 @@ impl RiscFpCoprocessor {
                     input2_f32
                 }
             }
-            FpuAluOp::SGNJ => f32::from_bits((input1 & 0x01111111) | (input2 >> 31 << 31)),
-            FpuAluOp::SGNJN => f32::from_bits((input1 & 0x01111111) | (!(input2 >> 31) << 31)),
+            FpuAluOp::SGNJ => {
+                sign_bit = input2 & 0x80000000;
+                0.0
+            }
+            FpuAluOp::SGNJN => {
+                sign_bit = !(input2 | 0x7fffffff);
+                0.0
+            }
             FpuAluOp::SGNJX => {
-                f32::from_bits((input1 & 0x01111111) | (((input2 >> 31) ^ (input1 >> 31)) << 31))
+                sign_bit = (input1 ^ input2) & 0x80000000;
+                0.0
             }
             FpuAluOp::Class => {
                 if input1_f32.is_sign_negative() {
@@ -424,7 +433,7 @@ impl RiscFpCoprocessor {
             | (self.signals.fpu_alu_op == FpuAluOp::SGNJN)
             | (self.signals.fpu_alu_op == FpuAluOp::SGNJX)
         {
-            self.state.alu_result = f32::to_bits(result_f32) as u64;
+            self.state.alu_result = (input1_wo_sign | sign_bit) as i32 as u64;
             return;
         }
 
@@ -445,13 +454,13 @@ impl RiscFpCoprocessor {
                 } else {
                     result_f32.round()
                 },
-            ) as u64,
-            RoundingMode::RTZ => f32::to_bits(result_f32.trunc()) as u64,
-            RoundingMode::RDN => f32::to_bits(result_f32.floor()) as u64,
-            RoundingMode::RUP => f32::to_bits(result_f32.ceil()) as u64,
-            RoundingMode::RMM => f32::to_bits(result_f32.round()) as u64,
-            _ => f32::to_bits(result_f32) as u64,
-        };
+            ),
+            RoundingMode::RTZ => f32::to_bits(result_f32.trunc()),
+            RoundingMode::RDN => f32::to_bits(result_f32.floor()),
+            RoundingMode::RUP => f32::to_bits(result_f32.ceil()),
+            RoundingMode::RMM => f32::to_bits(result_f32.round()),
+            _ => f32::to_bits(result_f32),
+        } as i32 as u64;
     }
 
     /// Perform a comparison.
@@ -480,7 +489,7 @@ impl RiscFpCoprocessor {
             DataSrc::FloatingPointUnitRS1 => self.state.read_data_1,
             DataSrc::FloatingPointUnitComp => self.state.comparator_result,
             DataSrc::FloatingPointUnitMask => self.state.alu_result,
-            DataSrc::FloatingPointBits => self.state.read_data_1 as u32 as i64 as u64,
+            DataSrc::FloatingPointBits => self.state.read_data_1 as i32 as u64,
             _ => self.state.data_from_main_processor,
         };
     }
