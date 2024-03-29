@@ -1,6 +1,5 @@
 use crate::agent::datapath_communicator::DatapathCommunicator;
 use crate::agent::datapath_reducer::DatapathReducer;
-use crate::emulation_core::architectures::AvailableDatapaths;
 use crate::emulation_core::architectures::AvailableDatapaths::{MIPS, RISCV};
 use crate::ui::console::component::Console;
 use crate::ui::hex_editor::component::HexEditor;

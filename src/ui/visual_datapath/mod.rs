@@ -287,8 +287,6 @@ impl VisualDatapath {
                 if let Ok(listeners) =
                     Self::enable_interactivity(element, datapath_state, is_in_current_stage)
                 {
-                    log!("Found an element in the current stage!");
-                    log!(element.get_attribute("id"));
                     for l in listeners {
                         active_listeners.push(l);
                     }
