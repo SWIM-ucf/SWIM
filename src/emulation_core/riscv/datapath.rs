@@ -624,7 +624,7 @@ impl RiscDatapath {
             match r.funct7 >> 2 {
                 20 => self.signals.reg_write_en = RegWriteEn::YesWrite,
                 24 => self.signals.reg_write_en = RegWriteEn::YesWrite,
-                28 => self.signals.reg_write_en = RegWriteEn:: YesWrite,
+                28 => self.signals.reg_write_en = RegWriteEn::YesWrite,
                 _ => self.signals.reg_write_en = RegWriteEn::NoWrite,
             }
         }

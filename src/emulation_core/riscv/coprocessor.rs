@@ -253,9 +253,15 @@ impl RiscFpCoprocessor {
                     }
                     28 => {
                         self.signals.data_write = DataWrite::YesWrite;
-                        self.signals.data_src = DataSrc::FloatingPointUnitMask;
                         self.signals.fpu_reg_write = FpuRegWrite::NoWrite;
-                        self.signals.fpu_alu_op = FpuAluOp::Class;
+                        match r.funct3 {
+                            0 => self.signals.data_src = DataSrc::FloatingPointBits,
+                            1 => {
+                                self.signals.fpu_alu_op = FpuAluOp::Class;
+                                self.signals.data_src = DataSrc::FloatingPointUnitMask;
+                            }
+                            _ => self.error("Unsupported Instruction!"),
+                        }
                     }
                     _ => self.error("Unsupported Instruction!"),
                 }
@@ -371,35 +377,26 @@ impl RiscFpCoprocessor {
                 if input1_f32.is_sign_negative() {
                     if input1_f32.is_infinite() {
                         input_mask = 0b1;
-                    }
-                    else if input1_f32.is_normal() {
+                    } else if input1_f32.is_normal() {
                         input_mask = 0b10;
-                    }
-                    else if input1_f32.is_subnormal() {
+                    } else if input1_f32.is_subnormal() {
                         input_mask = 0b100;
-                    }
-                    else {
+                    } else {
                         input_mask = 0b1000;
                     }
-                }
-                else if input1_f32.is_sign_positive() {
+                } else if input1_f32.is_sign_positive() {
                     if input1_f32.is_infinite() {
                         input_mask = 0b10000000;
-                    }
-                    else if input1_f32.is_normal() {
+                    } else if input1_f32.is_normal() {
                         input_mask = 0b1000000;
-                    }
-                    else if input1_f32.is_subnormal() {
+                    } else if input1_f32.is_subnormal() {
                         input_mask = 0b100000;
-                    }
-                    else {
+                    } else {
                         input_mask = 0b10000;
                     }
-                }
-                else if input1_f32.is_nan() {
+                } else if input1_f32.is_nan() {
                     input_mask = 0b100000000;
-                }
-                else {
+                } else {
                     input_mask = 0b1000000000;
                 }
                 0.0
@@ -459,10 +456,10 @@ impl RiscFpCoprocessor {
 
     /// Perform a comparison.
     fn comparator(&mut self) {
-        let input1 = self.state.read_data_1;
-        let input2 = self.state.read_data_2;
-        let input1_f32 = f32::from_bits(input1 as u32);
-        let input2_f32 = f32::from_bits(input2 as u32);
+        let input1 = self.state.read_data_1 as u32;
+        let input2 = self.state.read_data_2 as u32;
+        let input1_f32 = f32::from_bits(input1);
+        let input2_f32 = f32::from_bits(input2);
 
         self.state.comparator_result = match self.signals.fpu_alu_op {
             FpuAluOp::MultiplicationOrEqual => (input1_f32 == input2_f32) as u64,
@@ -490,7 +487,8 @@ impl RiscFpCoprocessor {
             DataSrc::FloatingPointUnitRS1 => self.state.read_data_1,
             DataSrc::FloatingPointUnitComp => self.state.comparator_result,
             DataSrc::FloatingPointUnitMask => self.state.alu_result,
-            DataSrc::MainProcessorUnit => self.state.data_from_main_processor,
+            DataSrc::FloatingPointBits => self.state.read_data_1 as u32 as i64 as u64,
+            _ => self.state.data_from_main_processor,
         };
     }
 
@@ -567,11 +565,11 @@ impl RiscFpCoprocessor {
 
                 match self.state.rs2 {
                     0 => {
-                        if (data_rounded <= ((-(2_i32.pow(31)))) as f32)
+                        if (data_rounded <= (-(2_i32.pow(31))) as f32)
                             | (data_rounded == f32::NEG_INFINITY)
                         {
                             -(2_i32.pow(31)) as u64
-                        } else if (data_rounded >= ((2_i32.pow(31) - 1)) as f32)
+                        } else if (data_rounded >= (2_i32.pow(31) - 1) as f32)
                             | (data_rounded == f32::INFINITY)
                             | (data_rounded.is_nan())
                         {
@@ -583,7 +581,7 @@ impl RiscFpCoprocessor {
                     1 => {
                         if (data_rounded <= 0.0) | (data_rounded == f32::NEG_INFINITY) {
                             0
-                        } else if (data_rounded >= ((2_u32.pow(32) - 1)) as f32)
+                        } else if (data_rounded >= (2_u32.pow(32) - 1) as f32)
                             | (data_rounded == f32::INFINITY)
                             | (data_rounded.is_nan())
                         {
@@ -627,6 +625,7 @@ impl RiscFpCoprocessor {
                     }
                 }
             }
+            DataSrc::MainProcessorBits => self.data as u32 as u64,
             _ => self.data,
         }
     }

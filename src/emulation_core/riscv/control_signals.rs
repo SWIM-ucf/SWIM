@@ -241,6 +241,12 @@ pub mod floating_point {
 
         /// Use data from the floating-point unit. Specifically, the Classify Mask.
         FloatingPointUnitMask = 3,
+
+        /// Use the un-altered bits from the floating-point unit.
+        FloatingPointBits = 4,
+
+        /// Use the un-altered bits from the main unit.
+        MainProcessorBits = 5,
     }
 
     /// Determines whether to write to the `Data` register in the floating-point unit.
