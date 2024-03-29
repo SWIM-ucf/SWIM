@@ -321,7 +321,7 @@ impl RiscFpCoprocessor {
                     }
                 };
             }
-            _ => self.error("Unsupported Instruction!"),
+            _ => (),
         }
     }
 
