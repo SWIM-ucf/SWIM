@@ -6,7 +6,7 @@ fn get_string_version_from_binary() {
 
     assert!(match MipsInstruction::get_string_version(instruction) {
         Ok(string) => {
-            string.contains("ori $t6 $zero 500")
+            string.contains("ori $t6, $zero, 500")
         }
         _ => false,
     });
@@ -17,7 +17,7 @@ fn get_string_version_from_hex() {
 
     assert!(match MipsInstruction::get_string_version(instruction) {
         Ok(string) => {
-            string.contains("ori $t6 $zero 500")
+            string.contains("ori $t6, $zero, 500")
         }
         _ => false,
     });
