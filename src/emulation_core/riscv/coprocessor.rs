@@ -510,9 +510,9 @@ impl RiscFpCoprocessor {
 
         self.state.data_writeback = match self.signals.data_src {
             DataSrc::MainProcessorUnit => match self.state.rs2 {
-                0 => f32::to_bits(self.data as i32 as f32) as u64,
-                1 => f32::to_bits(self.data as u32 as f32) as u64,
-                2 => f32::to_bits(self.data as i64 as f32) as u64,
+                0 => f32::to_bits(self.data as i32 as f32) as i32 as u64,
+                1 => f32::to_bits(self.data as u32 as f32) as i32 as u64,
+                2 => f32::to_bits(self.data as i64 as f32) as i32 as u64,
                 3 => f32::to_bits(self.data as f32) as u64,
                 _ => {
                     self.error(&format!(
@@ -568,7 +568,7 @@ impl RiscFpCoprocessor {
                         {
                             2_u64.pow(32) - 1
                         } else {
-                            data_rounded as u32 as u64
+                            data_rounded as i32 as u64
                         }
                     }
                     2 => {
@@ -582,19 +582,19 @@ impl RiscFpCoprocessor {
                         {
                             (2_i64.pow(63) - 1) as u64
                         } else {
-                            data_rounded as i64 as u64
+                            data_rounded as i32 as u64
                         }
                     }
                     3 => {
                         if (data_rounded <= 0.0) | (data_rounded == f32::NEG_INFINITY) {
                             0
-                        } else if (data_rounded >= (0x1111111111111111_i64) as f32)
+                        } else if (data_rounded >= (0xffffffffffffffff_u64) as f32)
                             | (data_rounded == f32::INFINITY)
                             | (data_rounded.is_nan())
                         {
-                            0x1111111111111111
+                            0xffffffffffffffff
                         } else {
-                            data_rounded as u64
+                            data_rounded as i32 as u64
                         }
                     }
                     _ => {
@@ -606,7 +606,7 @@ impl RiscFpCoprocessor {
                     }
                 }
             }
-            DataSrc::MainProcessorBits => self.data as u32 as u64,
+            DataSrc::MainProcessorBits => self.data as i32 as u64,
             _ => self.data,
         }
     }
