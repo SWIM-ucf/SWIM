@@ -4,7 +4,7 @@ use core::fmt;
 use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, EnumIter)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, EnumIter, Copy)]
 pub enum AvailableDatapaths {
     MIPS,
     RISCV,
