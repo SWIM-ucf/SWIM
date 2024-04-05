@@ -15,7 +15,6 @@ pub struct Consoleprops {
 pub fn console(props: &Consoleprops) -> Html {
     let show_input = props.show_input.clone();
     let input_value = use_state_eq(String::new);
-    let error_msg = use_state_eq(|| "");
 
     let on_keyup = {
         let input_value = input_value.clone();
@@ -50,12 +49,26 @@ pub fn console(props: &Consoleprops) -> Html {
 
     html! {
         <div>
-            {props.parsermsg.clone()}
+            {
+                (*props.parsermsg)
+                    .split('\n')
+                    .map(|line| {
+                        html! { <div>{line}</div> }
+                    })
+                    .collect::<Html>()
+            }
             <div>
-                {*error_msg}
-            </div>
-            <div>
-                {props.messages.iter().map(|msg| html! { <div>{msg}</div> }).collect::<Html>()}
+                {
+                    props
+                        .messages
+                        .iter()
+                        .flat_map(|msg| {
+                            msg.split('\n').map(|line| {
+                                html! { <div>{line}</div> }
+                            })
+                        })
+                        .collect::<Html>()
+                }
             </div>
             if *show_input {
                 <div class="console-input">
