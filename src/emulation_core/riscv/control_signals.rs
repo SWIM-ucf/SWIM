@@ -214,7 +214,6 @@ pub enum RegWriteEn {
 
 pub mod floating_point {
 
-    use super::super::constants::*;
     use serde::{Deserialize, Serialize};
 
     #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
@@ -369,17 +368,6 @@ pub mod floating_point {
         Sle = 17,
     }
 
-    impl FpuAluOp {
-        /// Get the corresponding control signal given a function code.
-        pub fn from_function(function: u8) -> Result<Self, String> {
-            match function {
-                FUNCTION_C_EQ => Ok(Self::MultiplicationOrEqual),
-                FUNCTION_C_LT => Ok(Self::Slt),
-                FUNCTION_C_LE => Ok(Self::Sle),
-                _ => Err(format!("Unsupported function code `{function}`")),
-            }
-        }
-    }
     #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
     pub enum RoundingMode {
         RNE = 0,
