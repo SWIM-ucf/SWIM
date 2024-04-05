@@ -24,30 +24,27 @@ pub enum AluZ {
 
 /// CPU branch signal. This is the final determined branch signal from the CPU.
 ///
-/// This signal uses as input the [`Branch`](super::control_signals::Branch),
-/// [`BranchType`](super::control_signals::BranchType), and [`AluZ`] signals to
-/// determine its value. This signal is set in the EX stage.
+/// This signal uses as input the [`BranchJump`](super::control_signals::BranchJump)
+/// and [`AluZ`] signals to determine its value. This signal is set in the EX stage.
 #[derive(Clone, Default, PartialEq)]
 pub enum CpuBranch {
     /// Do not branch.
-    ///
-    /// Based on the following formula: `(Branch != YesBranch) || (AluZ != YesZero)`
+    /// Based on the following formula: `(BranchJump == NoBranch) || (AluZ != YesZero)`
     #[default]
     NoBranch = 0,
 
     /// Branch.
-    ///
-    /// Based on the following formula: `(Branch == YesBranch) && (AluZ == YesZero)`
+    /// Based on the following formula: `(Branch != NoBranch) && (AluZ == YesZero)`
     YesBranch = 1,
 }
 
 /// General branch signal. This is the final determined branch signal from
 /// the CPU and FPU combined.
 ///
-/// This signal uses as input the [`CpuBranch`] and [`FpuBranch`](super::control_signals::floating_point::FpuBranch) signals.
+/// This signal uses as input the [`CpuBranch`] signal.
 /// This signal is set in the MEM stage.
 ///
-/// The following formula is considered: [`GeneralBranch`] = [`CpuBranch`] | [`FpuBranch`](super::control_signals::floating_point::FpuBranch)
+/// The following formula is considered: [`GeneralBranch`] = [`CpuBranch`]
 #[derive(Clone, Default, PartialEq)]
 pub enum GeneralBranch {
     #[default]
@@ -55,6 +52,7 @@ pub enum GeneralBranch {
     YesBranch = 1,
 }
 
+/// If in RV64, set instructions to only operate in RV32 mode.
 #[derive(Clone, Default, PartialEq)]
 pub enum RegisterWidth {
     #[default]
