@@ -6,44 +6,11 @@
 //!
 //! For the most part, this datapath is an implementation of RISC-V Spec 2.2 with extensions:
 //! RV32I, RV64I, M, and F.
-//! (See below for exceptions.)
-//!
-//! # Differences Compared to MIPS64 Version 6
-//!
-//! It should be noted that this datapath chooses to diverge from the MIPS64
-//! version 6 specification for the sake of simplicity in a few places:
-//!
-//! - There is no exception handling, including that for integer overflow. (See
-//!   [`MipsDatapath::alu()`] and the following bullet.)
-//! - The `add`, `addi`, `dadd`, `daddi`, `sub`, and `dsub` instructions do not
-//!   follow the proper MIPS specification in terms of integer overflow/wraparound.
-//!   That is, if there is integer wraparound, the general-purpose register should
-//!   not be written to. In our implementation, the general-purpose register is
-//!   written to regardless.
-//! - 32-bit instructions are treated exclusively with 32 bits, and the upper 32
-//!   bits stored in a register are completely ignored in any of these cases. For
-//!   example, before an `add` instruction, it should be checked whether it is a
-//!   sign-extended 32-bit value stored in a 64-bit register. Instead, the upper
-//!   32 bits are ignored when being used for 32-bit instructions.
-//! - Instead of implementing the `cmp.condn.fmt` instructions, this datapath implements
-//!   the `c.cond.fmt` instructions from MIPS64 version 5.
-//! - Unlike MIPS specification, SWIM only uses 1 condition code register (`cc`), rather
-//!   than offering 8 condition code registers. The datapath will assume that the `cc`
-//!   field in a floating-point comparison or floating-point branch instruction is 0.
-//! - This datapath implements the `addi` instruction as it exists in MIPS64 version 5.
-//!   This instruction was deprecated in MIPS64 version 6 to allow for the `beqzalc`,
-//!   `bnezalc`, `beqc`, and `bovc` instructions.
-//! - This datapath implements `daddi` as it exists in MIPS64 version 5. This instruction
-//!   was deprecated in MIPS64 version 6.
-//! - Unlike the MIPS64 version 6 specification for the `jal` and `jalr` instructions,
-//!   `PC + 4` is stored in `GPR[31]`, *not* `PC + 8`, as there is no implementation of
-//!   branch delay slots.
-//!
 //! # Notes on `is_halted`
 //!
 //! - The datapath starts with the `is_halted` flag set.
-//! - [`MipsDatapath::initialize()`] should be used to un-set `is_halted`.
-//! - The `syscall` instruction simply performs a no-operation instruction, except for
+//! - [`RiscDatapath::initialize()`] should be used to un-set `is_halted`.
+//! - The `EBREAK` instruction simply performs a no-operation instruction, except for
 //!   setting the boolean flag `is_halted`.
 //! - Invalid instructions will cause the datapath to set the `is_halted` flag.
 
@@ -54,6 +21,7 @@ use super::control_signals::*;
 use super::coprocessor::RiscFpCoprocessor;
 use super::datapath_signals::*;
 use super::instruction::*;
+use super::registers::FpRegisterType;
 use super::registers::RiscGpRegisterType;
 use super::{super::mips::memory::Memory, registers::RiscGpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
@@ -339,8 +307,8 @@ impl Datapath for RiscDatapath {
         Syscall::from_register_data(
             self.registers[X10],
             self.registers[X11],
-            0.0f32,
-            0.0f64, // TODO: Add the appropriate arguments after F extension support
+            f32::from_bits(self.coprocessor.registers[FpRegisterType::F0] as u32),
+            f64::from_bits(self.coprocessor.registers[FpRegisterType::F0]),
         )
     }
 }
@@ -387,7 +355,7 @@ impl RiscDatapath {
     ///
     /// Parse the instruction, set control signals, and read registers.
     ///
-    /// If the instruction is determined to be a `syscall`, immediately
+    /// If the instruction is determined to be an `EBREAK`, immediately
     /// finish the instruction and set the `is_halted` flag.
     fn stage_instruction_decode(&mut self) -> DatapathUpdateSignal {
         self.instruction_decode();
@@ -620,9 +588,6 @@ impl RiscDatapath {
 
     fn set_immediate(&mut self) {
         let mut signed_imm = 0x0000;
-        // if self.state.instruction >> 31 == 1 {
-        //     signed_imm = 0xffffffff;
-        // }
 
         log!("self.state.imm: ", format!("{:012b}", self.state.imm));
 
@@ -939,7 +904,7 @@ impl RiscDatapath {
     }
 
     /// Set the control signals for the datapath, specifically in the
-    /// case where the instruction is an R$-type.
+    /// case where the instruction is an R4-type.
     fn set_r4type_control_signals(&mut self, _r4: R4Type) {
         self.signals = ControlSignals {
             op2_select: OP2Select::DATA2,
@@ -960,9 +925,6 @@ impl RiscDatapath {
 
     // ======================= Execute (EX) =======================
     /// Perform an ALU operation.
-    ///
-    /// **Implementation Note:** Unlike the MIPS64 specification, this ALU
-    /// does not handle exceptions due to integer overflow.
     fn alu(&mut self) {
         // Specify the inputs for the operation. The first will always
         // be the first register, but the second may be either the
@@ -973,8 +935,6 @@ impl RiscDatapath {
             OP1Select::DATA1 => self.state.read_data_1,
             OP1Select::IMM => self.state.rs1 as u64,
         };
-
-        log!("self.state.imm (alu): ", format!("{:?}", self.state.imm));
 
         self.state.alu_input2 = match self.signals.op2_select {
             OP2Select::DATA2 => self.state.read_data_2,
@@ -990,15 +950,6 @@ impl RiscDatapath {
             self.state.alu_input1 = self.state.alu_input1 as u32 as i64 as u64;
             self.state.alu_input2 = self.state.alu_input2 as u32 as i64 as u64;
         }
-
-        log!(
-            "self.state.alu_input1: ",
-            format!("{:?}", self.state.alu_input1)
-        );
-        log!(
-            "self.state.alu_input2: ",
-            format!("{:?}", self.state.alu_input2)
-        );
 
         // Set the result.
         self.state.alu_result = match self.signals.alu_op {
@@ -1113,11 +1064,6 @@ impl RiscDatapath {
     }
 
     fn calc_relative_pc_branch(&mut self) {
-        log!("calc_relative_pc_branch");
-        log!(
-            "self.state.imm as u64",
-            format!("{:?}", self.state.imm as u64)
-        );
         if self.state.imm > 0 {
             self.state.relative_pc_branch = self.state.imm as u64 * 4;
         }
