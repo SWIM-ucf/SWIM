@@ -122,7 +122,7 @@ impl Reducible for DatapathReducer {
                     ..(*self).clone()
                 },
                 SystemUpdate::UpdateSpeed(speed) => Self {
-                    current_architecture: self.current_architecture.clone(),
+                    current_architecture: self.current_architecture,
                     mips: self.mips.clone(),
                     messages: self.messages.clone(),
                     speed,

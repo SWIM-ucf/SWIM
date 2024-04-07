@@ -3,7 +3,6 @@ use std::collections::HashSet;
 use std::str::FromStr;
 use std::{cell::RefCell, rc::Rc};
 
-use gloo_console::log;
 use monaco::{
     api::TextModel,
     sys::{
@@ -24,6 +23,7 @@ use yew_hooks::prelude::*;
 
 use crate::emulation_core::mips::memory::Memory;
 use crate::emulation_core::stack::Stack;
+use crate::parser::parser_assembler_main::parser;
 use crate::ui::assembled_view::component::{StackFrameView, StackSegment};
 use crate::{
     agent::datapath_communicator::DatapathCommunicator,
@@ -96,10 +96,6 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 
 #[function_component]
 pub fn SwimEditor(props: &SwimEditorProps) -> Html {
-    log!(format!(
-        "render arch: {:?}",
-        props.current_architecture.to_string()
-    ));
     let link = CodeEditorLink::new();
     let text_model = &*props.text_model;
     let editor_active_tab = &props.editor_active_tab;
@@ -127,7 +123,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
 
         use_callback(
             move |editor_link: CodeEditorLink, (curr_line, initialized)| {
-                let result = editor_link.with_editor(|editor| {
+                editor_link.with_editor(|editor| {
                     let raw_editor = editor.as_ref();
                     let model = raw_editor.get_model().unwrap();
                     // store each line from the original code editor's contents for assembled view
@@ -167,10 +163,6 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                         raw_editor.delta_decorations(&not_highlighted, &executed_line);
                     }
                 });
-                match result {
-                    Some(()) => log::debug!("Swim Editor linked!"),
-                    None => log::debug!("No swim editor :<"),
-                };
             },
             (curr_line, props.initialized),
         )
@@ -201,7 +193,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             let architecture = input.value();
             let new_architecture: AvailableDatapaths =
                 AvailableDatapaths::from(architecture.as_str());
-            communicator.set_core(new_architecture.clone());
+            communicator.set_core(new_architecture);
             log::debug!("New architecture: {:?}", new_architecture);
         })
     };
@@ -230,12 +222,13 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
     // We'll have the Mouse Hover event running at all times.
     {
         let text_model = text_model.clone();
-        let program_info = props.program_info.clone();
+        let current_arch = props.current_architecture;
         use_event_with_window("mouseover", move |_: MouseEvent| {
             let hover_jsarray = hover_jsarray.clone();
             let hover_decor_array = hover_decor_array.clone();
             let text_model = text_model.clone();
             let curr_model = text_model.as_ref();
+            let (program_info, _, _) = parser(text_model.get_value(), current_arch);
 
             // Parse output from parser and create an instance of IModelDeltaDecoration for each line.
             for (line_number, line_information) in program_info.monaco_line_info.iter().enumerate()

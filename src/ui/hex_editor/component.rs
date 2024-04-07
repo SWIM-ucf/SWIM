@@ -1,4 +1,3 @@
-use log::debug;
 use std::ops::Deref;
 use std::rc::Rc;
 use wasm_bindgen::JsCast;
@@ -152,7 +151,7 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
         use_callback(
             move |editor_link: CodeEditorLink,
                   (memory, memory_text_model, memory_curr_instr, initialized)| {
-                let result = editor_link.with_editor(|editor| {
+                editor_link.with_editor(|editor| {
                     let hexdump = memory.generate_formatted_hex(CAPACITY_BYTES);
                     memory_text_model.set_value(&hexdump);
 
@@ -196,10 +195,6 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
                         raw_editor.delta_decorations(&not_highlighted, &executed_line);
                     }
                 });
-                match result {
-                    Some(()) => debug!("Hex Editor linked!"),
-                    None => debug!("No editor :<"),
-                };
             },
             (
                 props.memory.clone(),
