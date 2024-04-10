@@ -313,14 +313,6 @@ impl Datapath for RiscDatapath {
 
 impl RiscDatapath {
     // ===================== General Functions =====================
-    /// Legacy initialize function, for tests.
-    pub fn initialize_legacy(&mut self, instructions: Vec<u32>) -> Result<(), String> {
-        self.reset();
-        self.load_instructions(instructions)?;
-        self.is_halted = false;
-
-        Ok(())
-    }
     /// Load a vector of 32-bit instructions into memory. If the process fails,
     /// from a lack of space or otherwise, an [`Err`] is returned.
     fn load_instructions(&mut self, instructions: Vec<u32>) -> Result<(), String> {
