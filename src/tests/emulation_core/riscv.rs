@@ -94,18 +94,17 @@ pub mod add {
         Ok(())
     }
 }
-/*
+
 pub mod sub {
     use super::*;
 
     #[test]
     fn sub_positive_result() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
+        let mut datapath = RiscDatapath::default();
 
         // $s2 = $s3 - $s2
-        //                                  R-type  s3    s2    s2  (shamt) SUB
-        let instructions: Vec<u32> = vec![0b000000_10011_10010_10010_00000_100010];
-        datapath.initialize_legacy(instructions)?;
+        let instructions: Vec<u32> = vec![0b0100000_10010_10011_000_10010_0110011];
+        datapath.initialize(0, instructions)?;
 
         datapath.registers.gpr[19] = 7; // $s3
         datapath.registers.gpr[18] = 3; // $s2
@@ -116,8 +115,27 @@ pub mod sub {
         assert_eq!(datapath.registers.gpr[18], 4);
         Ok(())
     }
+
+    #[test]
+    fn sub_negative_result() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        // $s2 = $s3 - $s2
+        let instructions: Vec<u32> = vec![0b0100000_10010_10011_000_10010_0110011];
+        datapath.initialize(0, instructions)?;
+
+        datapath.registers.gpr[19] = 3; // $s3
+        datapath.registers.gpr[18] = 7; // $s2
+
+        datapath.execute_instruction();
+
+        // Register $s2 should contain 4, as 3 - 7 = -4.
+        assert_eq!(datapath.registers.gpr[18] as i64, -4);
+        Ok(())
+    }
 }
 
+/*
 pub mod mul {
     use super::*;
 
