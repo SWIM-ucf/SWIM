@@ -20,7 +20,10 @@ use swim::ui::footer::component::Footer;
 use swim::ui::regview::component::Regview;
 use swim::ui::swim_editor::component::SwimEditor;
 use swim::{
-    emulation_core::{architectures::AvailableDatapaths, mips::instruction::get_string_version},
+    emulation_core::{
+        architectures::AvailableDatapaths, mips::instruction::MipsInstruction,
+        riscv::instruction::RiscInstruction,
+    },
     ui::{
         hex_editor::component::{parse_hexdump, UpdatedLine},
         swim_editor::tab::TabState,
@@ -354,6 +357,7 @@ fn app(props: &AppProps) -> Html {
         let datapath_state = datapath_state.clone();
 
         let program_info_ref = Rc::clone(&program_info_ref);
+        let labels_ref = Rc::clone(&labels_ref);
 
         use_callback(
             move |_, datapath_state| {
@@ -371,12 +375,23 @@ fn app(props: &AppProps) -> Html {
                             let address = i as u64;
                             // change string version based on architecture
                             let string_version = match datapath_state.current_architecture {
-                                AvailableDatapaths::MIPS => match get_string_version(*data) {
-                                    Ok(string) => string,
-                                    Err(string) => string,
-                                },
-                                AvailableDatapaths::RISCV => String::from(""),
+                                AvailableDatapaths::MIPS => {
+                                    match MipsInstruction::get_string_version(*data) {
+                                        Ok(string) => string,
+                                        Err(string) => string,
+                                    }
+                                }
+                                AvailableDatapaths::RISCV => {
+                                    match RiscInstruction::get_string_version(
+                                        *data,
+                                        labels_ref.borrow().clone(),
+                                    ) {
+                                        Ok(string) => string,
+                                        Err(string) => string,
+                                    }
+                                }
                             };
+                            // log::debug!("String version: {}", string_version);
 
                             let curr_word = match datapath_state.get_memory().load_word(address * 4)
                             {
