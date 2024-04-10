@@ -31,8 +31,6 @@ use crate::emulation_core::stack::Stack;
 use crate::emulation_core::stack::StackFrame;
 use serde::{Deserialize, Serialize};
 
-use gloo_console::log;
-
 /// An implementation of a datapath for the MIPS64 ISA.
 #[derive(Clone, PartialEq)]
 pub struct RiscDatapath {
@@ -315,7 +313,14 @@ impl Datapath for RiscDatapath {
 
 impl RiscDatapath {
     // ===================== General Functions =====================
+    /// Legacy initialize function, for tests.
+    pub fn initialize_legacy(&mut self, instructions: Vec<u32>) -> Result<(), String> {
+        self.reset();
+        self.load_instructions(instructions)?;
+        self.is_halted = false;
 
+        Ok(())
+    }
     /// Load a vector of 32-bit instructions into memory. If the process fails,
     /// from a lack of space or otherwise, an [`Err`] is returned.
     fn load_instructions(&mut self, instructions: Vec<u32>) -> Result<(), String> {
@@ -534,7 +539,6 @@ impl RiscDatapath {
 
         // Set the data lines based on the contents of the instruction.
         // Some lines will hold uninitialized values as a result.
-        log!("Current Instruction: ", format!("{:?}", self.instruction));
         match self.instruction {
             Instruction::RType(r) => {
                 self.state.rs1 = r.rs1 as u32;
@@ -589,8 +593,6 @@ impl RiscDatapath {
     fn set_immediate(&mut self) {
         let mut signed_imm = 0x0000;
 
-        log!("self.state.imm: ", format!("{:012b}", self.state.imm));
-
         signed_imm = match self.signals.imm_select {
             ImmSelect::ISigned => {
                 let mask = 0b100000000000;
@@ -615,9 +617,6 @@ impl RiscDatapath {
             ImmSelect::UType => ((signed_imm << 20) | self.state.imm) << 12,
             ImmSelect::JType => self.state.imm,
         };
-
-        log!("signed_imm: ", format!("{:?}", signed_imm));
-        log!("self.state.imm: ", format!("{:?}", self.state.imm));
 
         self.state.imm = signed_imm;
     }
