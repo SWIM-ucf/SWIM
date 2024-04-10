@@ -17,7 +17,7 @@ gloo-console = "0.2.3"
 gloo-events = "0.1.2"
 gloo-utils = "0.1.6"
 js-sys = "0.3.61"
-monaco = { git = "https://github.com/SWIM-ucf/rust-monaco", rev = "c9586e4af77131a15daf53e91e1ad5161a5265e8", features = ["yew-components"]  }
+monaco = { git = "https://github.com/SWIM-ucf/rust-monaco", rev = "630610e915e3c9742001f0fbe6f90e115a9e31e0", features = ["yew-components"]  }
 wasm-bindgen = "0.2.83"
 wasm-bindgen-futures = "0.4.33"
 web-sys = {version = "0.3.60", features = ["CssStyleDeclaration", "Event", "HtmlCollection", "HtmlElement", "HtmlInputElement", "HtmlObjectElement", "SvgElement", "CanvasRenderingContext2d", "Document", "HtmlCanvasElement", "EventTarget", "InputEvent", "ScrollLogicalPosition", "ScrollIntoViewOptions"]}

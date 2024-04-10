@@ -102,6 +102,15 @@ fn app(props: &AppProps) -> Html {
         );
     }
 
+    // Sync the language in the text model with the current architecture set in state.
+    use_effect_with_deps(
+        |(current_architecture, text_model)| match current_architecture {
+            AvailableDatapaths::MIPS => text_model.set_language("mips"),
+            AvailableDatapaths::RISCV => text_model.set_language("riscv"),
+        },
+        (datapath_state.current_architecture, text_model.clone()),
+    );
+
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
         let text_model = text_model.clone();
