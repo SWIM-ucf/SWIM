@@ -41,7 +41,8 @@ use yew_agent::Spawnable;
 // To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
 // and comment the code, language, and text_model lines. IMPORTANT:
 // rename fib_model to text_model to have it work.
-const CONTENT: &str = include_str!("../../static/assembly_examples/fibonacci.asm");
+const CONTENT_MIPS: &str = include_str!("../../static/assembly_examples/fibonacci.asm");
+const CONTENT_RISCV: &str = include_str!("../../static/assembly_examples/riscv_fib_recursive.asm");
 
 #[derive(Properties, Clone, PartialEq)]
 struct AppProps {
@@ -59,7 +60,7 @@ fn app(props: &AppProps) -> Html {
     // use_state_eq hook is created so that the component can be updated
     // when the text model changes.
     //let text_model = use_mut_ref(|| TextModel::create(&code, Some(&language), None).unwrap());
-    let text_model = use_state_eq(|| TextModel::create(CONTENT, Some("mips"), None).unwrap());
+    let text_model = use_state_eq(|| TextModel::create(CONTENT_MIPS, Some("mips"), None).unwrap());
 
     // Store the currently executed line in code editor and hex editor
     let editor_curr_line = use_state_eq(|| 0.0);
@@ -104,6 +105,21 @@ fn app(props: &AppProps) -> Html {
             props.communicator,
         );
     }
+
+    // Sync the language/example in the text model with the current architecture set in state.
+    use_effect_with_deps(
+        |(current_architecture, text_model)| match current_architecture {
+            AvailableDatapaths::MIPS => {
+                text_model.set_language("mips");
+                text_model.set_value(CONTENT_MIPS);
+            }
+            AvailableDatapaths::RISCV => {
+                text_model.set_language("riscv");
+                text_model.set_value(CONTENT_RISCV);
+            }
+        },
+        (datapath_state.current_architecture, text_model.clone()),
+    );
 
     // This is where code is assembled and loaded into the emulation core's memory.
     let on_assemble_clicked = {
