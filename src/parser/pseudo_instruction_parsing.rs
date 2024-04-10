@@ -1151,6 +1151,708 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                 monaco_line_info[instruction.line_number]
                     .update_pseudo_string(vec![&mut extra_instruction, instruction]);
             }
+            "exit" => {
+                let info = PseudoDescription {
+                    name: "exit".to_string(),
+                    syntax: "exit".to_string(),
+                    translation_lines: vec!["ori $a0, $zero, 0".to_string(), "syscall".to_string()],
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "syscall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                if !check_operands(instruction, 0) {
+                    continue;
+                }
+
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Adjust exit for io syscall
+                instruction.operator.token_name = "ori".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "$a0".to_string(),
+                        token_type: Operator,
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "$zero".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "0".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.labels = Vec::new();
+
+                vec_of_added_instructions.push(syscall_instruction.clone());
+
+                monaco_line_info[instruction.line_number]
+                    .update_pseudo_string(vec![instruction, &mut syscall_instruction]);
+            }
+            "print_int" => {
+                // Set info for no operands
+                let mut info = PseudoDescription {
+                    name: "print_int".to_string(),
+                    syntax: "print_int (optional: integer)".to_string(),
+                    translation_lines: vec!["ori $a0, $zero, 1".to_string(), "syscall".to_string()],
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "syscall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                match instruction.operands.len() {
+                    0 => {
+                        monaco_line_info[instruction.line_number].mouse_hover_string =
+                            info.to_string();
+
+                        // Adjust print_int for io syscall
+                        instruction.operator.token_name = "ori".to_string();
+                        instruction.operator.start_end_columns = (0, 0);
+                        instruction.operands.insert(
+                            0,
+                            Token {
+                                token_name: "$a0".to_string(),
+                                token_type: Operator,
+                                start_end_columns: (0, 0),
+                            },
+                        );
+                        instruction.operands.insert(
+                            1,
+                            Token {
+                                token_name: "$zero".to_string(),
+                                token_type: Default::default(),
+                                start_end_columns: (0, 0),
+                            },
+                        );
+                        instruction.operands.insert(
+                            2,
+                            Token {
+                                token_name: "1".to_string(),
+                                token_type: Default::default(),
+                                start_end_columns: (0, 0),
+                            },
+                        );
+                        instruction.labels = Vec::new();
+
+                        vec_of_added_instructions.push(syscall_instruction.clone());
+
+                        monaco_line_info[instruction.line_number]
+                            .update_pseudo_string(vec![instruction, &mut syscall_instruction]);
+                    }
+                    1 => {
+                        info.translation_lines
+                            .insert(1, "ori $a1, $zero, immediate".to_string());
+
+                        // Set up print_int argument
+                        let mut extra_instruction = Instruction {
+                            operator: Token {
+                                token_name: "ori".to_string(),
+                                start_end_columns: (0, 0),
+                                token_type: Operator,
+                            },
+                            operands: vec![
+                                Token {
+                                    token_name: "$a0".to_string(),
+                                    start_end_columns: (0, 0),
+                                    token_type: Default::default(),
+                                },
+                                Token {
+                                    token_name: "$zero".to_string(),
+                                    start_end_columns: (0, 0),
+                                    token_type: Default::default(),
+                                },
+                                Token {
+                                    token_name: "1".to_string(),
+                                    start_end_columns: (0, 0),
+                                    token_type: Default::default(),
+                                },
+                            ],
+                            binary: 0,
+                            instruction_number: instruction.instruction_number + 1,
+                            line_number: instruction.line_number,
+                            errors: vec![],
+                            labels: Vec::new(),
+                        };
+
+                        // Adjust current print_int instruction set argument register
+                        instruction.operator.token_name = "ori".to_string();
+                        instruction.operator.start_end_columns = (0, 0);
+                        instruction.operands.insert(
+                            0,
+                            Token {
+                                token_name: "$a1".to_string(),
+                                token_type: Operator,
+                                start_end_columns: (0, 0),
+                            },
+                        );
+                        instruction.operands.insert(
+                            1,
+                            Token {
+                                token_name: "$zero".to_string(),
+                                token_type: Default::default(),
+                                start_end_columns: (0, 0),
+                            },
+                        );
+                        instruction.labels = Vec::new();
+
+                        syscall_instruction.instruction_number += 1;
+
+                        vec_of_added_instructions.push(extra_instruction.clone());
+                        vec_of_added_instructions.push(syscall_instruction.clone());
+                        monaco_line_info[instruction.line_number].update_pseudo_string(vec![
+                            instruction,
+                            &mut extra_instruction,
+                            &mut syscall_instruction,
+                        ]);
+                        monaco_line_info[instruction.line_number].mouse_hover_string =
+                            info.to_string();
+                        continue;
+                    }
+                    _ => {
+                        instruction.errors.push(Error {
+                            error_name: IncorrectNumberOfOperands,
+                            token_causing_error: "".to_string(),
+                            start_end_columns: instruction.operator.start_end_columns,
+                            message: "".to_string(),
+                        });
+                        continue;
+                    }
+                }
+            }
+            "print_float" => {
+                let info = PseudoDescription {
+                    name: "print_float".to_string(),
+                    syntax: "print_float".to_string(),
+                    translation_lines: vec!["ori $a0, $zero, 2".to_string(), "syscall".to_string()],
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "syscall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                if !check_operands(instruction, 0) {
+                    continue;
+                }
+
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Adjust exit for io syscall
+                instruction.operator.token_name = "ori".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "$a0".to_string(),
+                        token_type: Operator,
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "$zero".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "2".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.labels = Vec::new();
+
+                vec_of_added_instructions.push(syscall_instruction.clone());
+
+                monaco_line_info[instruction.line_number]
+                    .update_pseudo_string(vec![instruction, &mut syscall_instruction]);
+            }
+            "print_double" => {
+                let info = PseudoDescription {
+                    name: "print_double".to_string(),
+                    syntax: "print_double".to_string(),
+                    translation_lines: vec!["ori $a0, $zero, 3".to_string(), "syscall".to_string()],
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "syscall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                if !check_operands(instruction, 0) {
+                    continue;
+                }
+
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Adjust exit for io syscall
+                instruction.operator.token_name = "ori".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "$a0".to_string(),
+                        token_type: Operator,
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "$zero".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "3".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.labels = Vec::new();
+
+                vec_of_added_instructions.push(syscall_instruction.clone());
+
+                monaco_line_info[instruction.line_number]
+                    .update_pseudo_string(vec![instruction, &mut syscall_instruction]);
+            }
+            "print_string" => {
+                let info = PseudoDescription {
+                    name: "print_string".to_string(),
+                    syntax: "print_string address".to_string(),
+                    translation_lines: vec![
+                        "ori $a0, $zero, 4".to_string(),
+                        "ori $a1, $zero, address".to_string(),
+                        "syscall".to_string(),
+                    ],
+                };
+
+                if !check_operands(instruction, 1) {
+                    continue;
+                }
+
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Instruction for setting memory address
+                let mut extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "$a1".to_string(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "$zero".to_string(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[0].token_name.clone(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "syscall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 2,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                // Adjust print_string for io syscall
+                instruction.operator.token_name = "ori".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands[0].token_name = "$a0".to_string();
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "$zero".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "4".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.labels = Vec::new();
+
+                vec_of_added_instructions.push(extra_instruction.clone());
+                vec_of_added_instructions.push(syscall_instruction.clone());
+
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![
+                    instruction,
+                    &mut extra_instruction,
+                    &mut syscall_instruction,
+                ]);
+            }
+            "read_int" => {
+                let info = PseudoDescription {
+                    name: "read_int".to_string(),
+                    syntax: "read_int".to_string(),
+                    translation_lines: vec!["ori $a0, $zero, 5".to_string(), "syscall".to_string()],
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "syscall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                if !check_operands(instruction, 0) {
+                    continue;
+                }
+
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Adjust exit for io syscall
+                instruction.operator.token_name = "ori".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "$a0".to_string(),
+                        token_type: Operator,
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "$zero".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "5".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.labels = Vec::new();
+
+                vec_of_added_instructions.push(syscall_instruction.clone());
+
+                monaco_line_info[instruction.line_number]
+                    .update_pseudo_string(vec![instruction, &mut syscall_instruction]);
+            }
+            "read_float" => {
+                let info = PseudoDescription {
+                    name: "read_float".to_string(),
+                    syntax: "read_float".to_string(),
+                    translation_lines: vec!["ori $a0, $zero, 6".to_string(), "syscall".to_string()],
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "syscall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                if !check_operands(instruction, 0) {
+                    continue;
+                }
+
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Adjust exit for io syscall
+                instruction.operator.token_name = "ori".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "$a0".to_string(),
+                        token_type: Operator,
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "$zero".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "6".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.labels = Vec::new();
+
+                vec_of_added_instructions.push(syscall_instruction.clone());
+
+                monaco_line_info[instruction.line_number]
+                    .update_pseudo_string(vec![instruction, &mut syscall_instruction]);
+            }
+            "read_double" => {
+                let info = PseudoDescription {
+                    name: "read_double".to_string(),
+                    syntax: "read_double".to_string(),
+                    translation_lines: vec!["ori $a0, $zero, 7".to_string(), "syscall".to_string()],
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "syscall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                if !check_operands(instruction, 0) {
+                    continue;
+                }
+
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Adjust exit for io syscall
+                instruction.operator.token_name = "ori".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "$a0".to_string(),
+                        token_type: Operator,
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "$zero".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "7".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.labels = Vec::new();
+
+                vec_of_added_instructions.push(syscall_instruction.clone());
+
+                monaco_line_info[instruction.line_number]
+                    .update_pseudo_string(vec![instruction, &mut syscall_instruction]);
+            }
+            "read_string" => {
+                let info = PseudoDescription {
+                    name: "read_string".to_string(),
+                    syntax: "read_string address".to_string(),
+                    translation_lines: vec![
+                        "ori $a0, $zero, 8".to_string(),
+                        "ori $a1, $zero, address".to_string(),
+                        "syscall".to_string(),
+                    ],
+                };
+
+                if !check_operands(instruction, 1) {
+                    continue;
+                }
+
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Instruction for setting memory address
+                let mut extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "$a1".to_string(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "$zero".to_string(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[0].token_name.clone(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "syscall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 2,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                // Adjust print_string for io syscall
+                instruction.operator.token_name = "ori".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands[0].token_name = "$a0".to_string();
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "$zero".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "8".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.labels = Vec::new();
+
+                vec_of_added_instructions.push(extra_instruction.clone());
+                vec_of_added_instructions.push(syscall_instruction.clone());
+
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![
+                    instruction,
+                    &mut extra_instruction,
+                    &mut syscall_instruction,
+                ]);
+            }
             _ => {}
         }
     }
@@ -2333,6 +3035,585 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
 
                 // Update Line Info
                 monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
+            }
+            "exit" => {
+                // Set info for no operands
+                let info = PseudoDescription {
+                    name: "exit".to_string(),
+                    syntax: "exit".to_string(),
+                    translation_lines: vec!["ori a0, zero, 0".to_string(), "ecall".to_string()],
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ecall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                if !check_operands(instruction, 0) {
+                    continue;
+                }
+
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Adjust print_int for io syscall
+                instruction.operator.token_name = "ori".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "a0".to_string(),
+                        token_type: Operator,
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "zero".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "0".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.labels = Vec::new();
+
+                vec_of_added_instructions.push(syscall_instruction.clone());
+
+                monaco_line_info[instruction.line_number]
+                    .update_pseudo_string(vec![instruction, &mut syscall_instruction]);
+            }
+            "print_int" => {
+                // Set info for no operands
+                let mut info = PseudoDescription {
+                    name: "print_int".to_string(),
+                    syntax: "print_int (optional: integer)".to_string(),
+                    translation_lines: vec!["ori a0, zero, 1".to_string(), "ecall".to_string()],
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ecall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                match instruction.operands.len() {
+                    0 => {
+                        monaco_line_info[instruction.line_number].mouse_hover_string =
+                            info.to_string();
+
+                        // Adjust print_int for io syscall
+                        instruction.operator.token_name = "ori".to_string();
+                        instruction.operator.start_end_columns = (0, 0);
+                        instruction.operands.insert(
+                            0,
+                            Token {
+                                token_name: "a0".to_string(),
+                                token_type: Operator,
+                                start_end_columns: (0, 0),
+                            },
+                        );
+                        instruction.operands.insert(
+                            1,
+                            Token {
+                                token_name: "zero".to_string(),
+                                token_type: Default::default(),
+                                start_end_columns: (0, 0),
+                            },
+                        );
+                        instruction.operands.insert(
+                            2,
+                            Token {
+                                token_name: "1".to_string(),
+                                token_type: Default::default(),
+                                start_end_columns: (0, 0),
+                            },
+                        );
+                        instruction.labels = Vec::new();
+
+                        vec_of_added_instructions.push(syscall_instruction.clone());
+
+                        monaco_line_info[instruction.line_number]
+                            .update_pseudo_string(vec![instruction, &mut syscall_instruction]);
+                    }
+                    1 => {
+                        info.translation_lines
+                            .insert(1, "ori a1, zero, immediate".to_string());
+
+                        // Set up print_int argument
+                        let mut extra_instruction = Instruction {
+                            operator: Token {
+                                token_name: "ori".to_string(),
+                                start_end_columns: (0, 0),
+                                token_type: Operator,
+                            },
+                            operands: vec![
+                                Token {
+                                    token_name: "a0".to_string(),
+                                    start_end_columns: (0, 0),
+                                    token_type: Default::default(),
+                                },
+                                Token {
+                                    token_name: "zero".to_string(),
+                                    start_end_columns: (0, 0),
+                                    token_type: Default::default(),
+                                },
+                                Token {
+                                    token_name: "1".to_string(),
+                                    start_end_columns: (0, 0),
+                                    token_type: Default::default(),
+                                },
+                            ],
+                            binary: 0,
+                            instruction_number: instruction.instruction_number + 1,
+                            line_number: instruction.line_number,
+                            errors: vec![],
+                            labels: Vec::new(),
+                        };
+
+                        // Adjust current print_int instruction set argument register
+                        instruction.operator.token_name = "ori".to_string();
+                        instruction.operator.start_end_columns = (0, 0);
+                        instruction.operands.insert(
+                            0,
+                            Token {
+                                token_name: "a1".to_string(),
+                                token_type: Operator,
+                                start_end_columns: (0, 0),
+                            },
+                        );
+                        instruction.operands.insert(
+                            1,
+                            Token {
+                                token_name: "zero".to_string(),
+                                token_type: Default::default(),
+                                start_end_columns: (0, 0),
+                            },
+                        );
+                        instruction.labels = Vec::new();
+
+                        syscall_instruction.instruction_number += 1;
+
+                        vec_of_added_instructions.push(extra_instruction.clone());
+                        vec_of_added_instructions.push(syscall_instruction.clone());
+                        monaco_line_info[instruction.line_number].update_pseudo_string(vec![
+                            instruction,
+                            &mut extra_instruction,
+                            &mut syscall_instruction,
+                        ]);
+                        monaco_line_info[instruction.line_number].mouse_hover_string =
+                            info.to_string();
+                        continue;
+                    }
+                    _ => {
+                        instruction.errors.push(Error {
+                            error_name: IncorrectNumberOfOperands,
+                            token_causing_error: "".to_string(),
+                            start_end_columns: instruction.operator.start_end_columns,
+                            message: "".to_string(),
+                        });
+                        continue;
+                    }
+                }
+            }
+            "print_float" => {
+                let info = PseudoDescription {
+                    name: "print_int".to_string(),
+                    syntax: "print_int".to_string(),
+                    translation_lines: vec!["ori a0, zero, 2".to_string(), "ecall".to_string()],
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ecall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                if !check_operands(instruction, 0) {
+                    continue;
+                }
+
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Adjust exit for io syscall
+                instruction.operator.token_name = "ori".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "a0".to_string(),
+                        token_type: Operator,
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "zero".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "2".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.labels = Vec::new();
+
+                vec_of_added_instructions.push(syscall_instruction.clone());
+
+                monaco_line_info[instruction.line_number]
+                    .update_pseudo_string(vec![instruction, &mut syscall_instruction]);
+            }
+            "print_string" => {
+                let info = PseudoDescription {
+                    name: "print_string".to_string(),
+                    syntax: "print_string address".to_string(),
+                    translation_lines: vec![
+                        "ori a0, zero, 4".to_string(),
+                        "ori a1, zero, address".to_string(),
+                        "ecall".to_string(),
+                    ],
+                };
+
+                if !check_operands(instruction, 1) {
+                    continue;
+                }
+
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Instruction for setting memory address
+                let mut extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "a1".to_string(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "zero".to_string(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[0].token_name.clone(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ecall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 2,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                // Adjust print_string for io syscall
+                instruction.operator.token_name = "ori".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands[0].token_name = "a0".to_string();
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "zero".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "4".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.labels = Vec::new();
+
+                vec_of_added_instructions.push(extra_instruction.clone());
+                vec_of_added_instructions.push(syscall_instruction.clone());
+
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![
+                    instruction,
+                    &mut extra_instruction,
+                    &mut syscall_instruction,
+                ]);
+            }
+            "read_int" => {
+                let info = PseudoDescription {
+                    name: "read_int".to_string(),
+                    syntax: "read_int".to_string(),
+                    translation_lines: vec!["ori a0, zero, 5".to_string(), "ecall".to_string()],
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ecall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                if !check_operands(instruction, 0) {
+                    continue;
+                }
+
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Adjust exit for io syscall
+                instruction.operator.token_name = "ori".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "a0".to_string(),
+                        token_type: Operator,
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "zero".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "5".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.labels = Vec::new();
+
+                vec_of_added_instructions.push(syscall_instruction.clone());
+
+                monaco_line_info[instruction.line_number]
+                    .update_pseudo_string(vec![instruction, &mut syscall_instruction]);
+            }
+            "read_float" => {
+                let info = PseudoDescription {
+                    name: "read_float".to_string(),
+                    syntax: "read_float".to_string(),
+                    translation_lines: vec!["ori a0, zero, 6".to_string(), "ecall".to_string()],
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ecall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                if !check_operands(instruction, 0) {
+                    continue;
+                }
+
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Adjust exit for io syscall
+                instruction.operator.token_name = "ori".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands.insert(
+                    0,
+                    Token {
+                        token_name: "a0".to_string(),
+                        token_type: Operator,
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "zero".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "6".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.labels = Vec::new();
+
+                vec_of_added_instructions.push(syscall_instruction.clone());
+
+                monaco_line_info[instruction.line_number]
+                    .update_pseudo_string(vec![instruction, &mut syscall_instruction]);
+            }
+            "read_string" => {
+                let info = PseudoDescription {
+                    name: "read_string".to_string(),
+                    syntax: "read_string address".to_string(),
+                    translation_lines: vec![
+                        "ori a0, zero, 4".to_string(),
+                        "ori a1, zero, address".to_string(),
+                        "ecall".to_string(),
+                    ],
+                };
+
+                if !check_operands(instruction, 1) {
+                    continue;
+                }
+
+                monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
+
+                // Instruction for setting memory address
+                let mut extra_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ori".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![
+                        Token {
+                            token_name: "a1".to_string(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: "zero".to_string(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                        Token {
+                            token_name: instruction.operands[0].token_name.clone(),
+                            start_end_columns: (0, 0),
+                            token_type: Default::default(),
+                        },
+                    ],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 1,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                // Set up syscall instruction
+                let mut syscall_instruction = Instruction {
+                    operator: Token {
+                        token_name: "ecall".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Operator,
+                    },
+                    operands: vec![],
+                    binary: 0,
+                    instruction_number: instruction.instruction_number + 2,
+                    line_number: instruction.line_number,
+                    errors: vec![],
+                    labels: Vec::new(),
+                };
+
+                // Adjust print_string for io syscall
+                instruction.operator.token_name = "ori".to_string();
+                instruction.operator.start_end_columns = (0, 0);
+                instruction.operands[0].token_name = "a0".to_string();
+                instruction.operands.insert(
+                    1,
+                    Token {
+                        token_name: "zero".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "8".to_string(),
+                        token_type: Default::default(),
+                        start_end_columns: (0, 0),
+                    },
+                );
+                instruction.labels = Vec::new();
+
+                vec_of_added_instructions.push(extra_instruction.clone());
+                vec_of_added_instructions.push(syscall_instruction.clone());
+
+                monaco_line_info[instruction.line_number].update_pseudo_string(vec![
+                    instruction,
+                    &mut extra_instruction,
+                    &mut syscall_instruction,
+                ]);
             }
             _ => {}
         }
