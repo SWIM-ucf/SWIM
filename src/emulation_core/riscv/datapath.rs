@@ -58,6 +58,7 @@ use super::registers::RiscGpRegisterType;
 use super::{super::mips::memory::Memory, registers::RiscGpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
+use crate::emulation_core::riscv::registers::FpRegisterType;
 use crate::emulation_core::riscv::registers::RiscGpRegisterType::{X10, X11};
 use crate::emulation_core::stack::Stack;
 use crate::emulation_core::stack::StackFrame;
@@ -339,8 +340,8 @@ impl Datapath for RiscDatapath {
         Syscall::from_register_data(
             self.registers[X10],
             self.registers[X11],
-            0.0f32,
-            0.0f64, // TODO: Add the appropriate arguments after F extension support
+            f32::from_bits(self.coprocessor.registers[FpRegisterType::F10] as u32),
+            f64::from_bits(self.coprocessor.registers[FpRegisterType::F10]),
         )
     }
 }
