@@ -67,7 +67,7 @@ pub struct MipsDatapath {
     pub memory: Memory,
     pub coprocessor: MipsFpCoprocessor,
 
-    pub instruction: Instruction,
+    pub instruction: MipsInstruction,
     pub signals: ControlSignals,
     pub datapath_signals: DatapathSignals,
     pub state: DatapathState,
@@ -213,7 +213,7 @@ impl Default for MipsDatapath {
             registers: GpRegisters::default(),
             memory: Memory::default(),
             coprocessor: MipsFpCoprocessor::default(),
-            instruction: Instruction::default(),
+            instruction: MipsInstruction::default(),
             signals: ControlSignals::default(),
             datapath_signals: DatapathSignals::default(),
             state: DatapathState::default(),
@@ -401,7 +401,7 @@ impl MipsDatapath {
 
         // Check if we hit a syscall or breakpoint and signal it to the caller.
         let (hit_syscall, hit_breakpoint) = match self.instruction {
-            Instruction::SyscallType(instruction) => (
+            MipsInstruction::SyscallType(instruction) => (
                 instruction.funct == FUNCT_SYSCALL,
                 instruction.funct == FUNCT_BREAK,
             ),
@@ -555,7 +555,7 @@ impl MipsDatapath {
     // ================== Instruction Decode (ID) ==================
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
-        match Instruction::try_from(self.state.instruction) {
+        match MipsInstruction::try_from(self.state.instruction) {
             Ok(instruction) => self.instruction = instruction,
             Err(message) => {
                 self.error(&message);
@@ -566,7 +566,7 @@ impl MipsDatapath {
         // Set the data lines based on the contents of the instruction.
         // Some lines will hold uninitialized values as a result.
         match self.instruction {
-            Instruction::RType(r) => {
+            MipsInstruction::RType(r) => {
                 self.state.rs = r.rs as u32;
                 self.state.rt = r.rt as u32;
                 self.state.rd = r.rd as u32;
@@ -574,19 +574,19 @@ impl MipsDatapath {
                 self.state.shamt = r.shamt as u32;
                 self.state.funct = r.funct as u32;
             }
-            Instruction::IType(i) => {
+            MipsInstruction::IType(i) => {
                 self.state.rs = i.rs as u32;
                 self.state.rt = i.rt as u32;
                 self.state.rd = 0; // Placeholder
                 self.state.imm = i.immediate as u32;
             }
-            Instruction::FpuRegImmType(i) => {
+            MipsInstruction::FpuRegImmType(i) => {
                 self.state.rs = 0; // Not applicable wire
                 self.state.rt = i.rt as u32;
                 self.state.rd = 0; // Not applicable
                 self.state.imm = 0; // Not applicable
             }
-            Instruction::SyscallType(s) => {
+            MipsInstruction::SyscallType(s) => {
                 self.state.funct = s.funct as u32;
                 // Not applicable:
                 self.state.rs = 0;
@@ -597,15 +597,15 @@ impl MipsDatapath {
             }
             // R-type and comparison FPU instructions exclusively use the
             // FPU, so these data lines do not need to be used.
-            Instruction::FpuRType(_) | Instruction::FpuCompareType(_) => (),
-            Instruction::FpuIType(i) => {
+            MipsInstruction::FpuRType(_) | MipsInstruction::FpuCompareType(_) => (),
+            MipsInstruction::FpuIType(i) => {
                 self.state.rs = i.base as u32;
                 self.state.imm = i.offset as u32;
             }
-            Instruction::JType(i) => {
+            MipsInstruction::JType(i) => {
                 self.state.lower_26 = i.addr;
             }
-            Instruction::FpuBranchType(b) => {
+            MipsInstruction::FpuBranchType(b) => {
                 self.state.imm = b.offset as u32;
                 self.state.funct = 0; // Not applicable
                 self.state.rs = 0; // Not applicable
@@ -626,23 +626,23 @@ impl MipsDatapath {
     /// instruction's opcode.
     fn set_control_signals(&mut self) {
         match self.instruction {
-            Instruction::RType(r) => {
+            MipsInstruction::RType(r) => {
                 self.set_rtype_control_signals(r);
             }
-            Instruction::IType(i) => {
+            MipsInstruction::IType(i) => {
                 self.set_itype_control_signals(i);
             }
-            Instruction::JType(j) => {
+            MipsInstruction::JType(j) => {
                 self.set_jtype_control_signals(j);
             }
-            Instruction::FpuRegImmType(i) => {
+            MipsInstruction::FpuRegImmType(i) => {
                 self.set_fpu_reg_imm_control_signals(i);
             }
             // Main processor does nothing.
-            Instruction::FpuRType(_)
-            | Instruction::FpuCompareType(_)
-            | Instruction::SyscallType(_)
-            | Instruction::FpuBranchType(_) => {
+            MipsInstruction::FpuRType(_)
+            | MipsInstruction::FpuCompareType(_)
+            | MipsInstruction::SyscallType(_)
+            | MipsInstruction::FpuBranchType(_) => {
                 self.signals = ControlSignals {
                     branch: Branch::NoBranch,
                     jump: Jump::NoJump,
@@ -652,7 +652,7 @@ impl MipsDatapath {
                     ..Default::default()
                 };
             }
-            Instruction::FpuIType(i) => {
+            MipsInstruction::FpuIType(i) => {
                 self.set_fpu_itype_control_signals(i);
             }
         }

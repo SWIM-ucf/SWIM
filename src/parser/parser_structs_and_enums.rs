@@ -130,8 +130,11 @@ impl Instruction {
         for operand in &self.operands {
             recreated_string.push_str(&format!(" {},", operand.token_name.clone()));
         }
+
         //pop the extra comma
-        recreated_string.pop();
+        if recreated_string.ends_with(',') {
+            recreated_string.pop();
+        }
 
         recreated_string
     }

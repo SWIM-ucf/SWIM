@@ -3,7 +3,7 @@
 use std::ops::Neg;
 
 use super::constants::*;
-use super::instruction::Instruction;
+use super::instruction::RiscInstruction;
 use super::registers::RiscFpRegisters;
 use super::{constants::RISC_NAN, control_signals::floating_point::*};
 use serde::{Deserialize, Serialize};
@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 /// is controlled remotely using its available API calls.
 #[derive(Clone, PartialEq, Default, Debug, Serialize, Deserialize)]
 pub struct RiscFpCoprocessor {
-    instruction: Instruction,
+    instruction: RiscInstruction,
     pub signals: FpuControlSignals,
     pub state: RiscFpuState,
     pub is_halted: bool,
@@ -102,7 +102,7 @@ impl RiscFpCoprocessor {
     /// does not fetch instructions.
     pub fn set_instruction(&mut self, instruction_bits: u32) {
         self.state.instruction = instruction_bits;
-        if let Ok(instruction) = Instruction::try_from(self.state.instruction) {
+        if let Ok(instruction) = RiscInstruction::try_from(self.state.instruction) {
             self.instruction = instruction;
         }
     }
@@ -163,7 +163,7 @@ impl RiscFpCoprocessor {
         // Set the data lines based on the contents of the instruction.
         // Some lines will hold uninitialized values as a result.
         match self.instruction {
-            Instruction::RType(r) => {
+            RiscInstruction::RType(r) => {
                 self.state.rs1 = r.rs1 as u32;
                 self.state.rs2 = r.rs2 as u32;
                 self.state.rd = r.rd as u32;
@@ -171,21 +171,21 @@ impl RiscFpCoprocessor {
                 self.state.funct3 = r.funct3 as u32;
                 self.state.funct7 = r.funct7 as u32;
             }
-            Instruction::IType(i) => {
+            RiscInstruction::IType(i) => {
                 self.state.rs1 = i.rs1 as u32;
                 self.state.funct3 = i.funct3 as u32;
                 self.state.rd = i.rd as u32;
                 self.state.imm = i.imm as u32;
                 self.state.shamt = (i.imm & 0x003f) as u32;
             }
-            Instruction::SType(s) => {
+            RiscInstruction::SType(s) => {
                 self.state.rs2 = s.rs2 as u32;
                 self.state.rs1 = s.rs1 as u32;
                 self.state.funct3 = s.funct3 as u32;
                 self.state.imm1 = s.imm1 as u32;
                 self.state.imm2 = s.imm2 as u32;
             }
-            Instruction::R4Type(r4) => {
+            RiscInstruction::R4Type(r4) => {
                 self.state.rs3 = r4.rs3 as u32;
                 self.state.funct2 = r4.funct2 as u32;
                 self.state.rs2 = r4.rs2 as u32;
@@ -201,7 +201,7 @@ impl RiscFpCoprocessor {
     /// control signals.
     fn set_control_signals(&mut self) {
         match self.instruction {
-            Instruction::RType(r) => {
+            RiscInstruction::RType(r) => {
                 self.signals = FpuControlSignals {
                     data_write: DataWrite::NoWrite,
                     fpu_mem_to_reg: FpuMemToReg::UseDataWrite,
@@ -281,7 +281,7 @@ impl RiscFpCoprocessor {
                     _ => self.error("Unsupported Rounding Mode!"),
                 }
             }
-            Instruction::IType(i) => {
+            RiscInstruction::IType(i) => {
                 self.signals = FpuControlSignals {
                     data_write: DataWrite::NoWrite,
                     fpu_mem_to_reg: FpuMemToReg::UseMemory,
@@ -294,14 +294,14 @@ impl RiscFpCoprocessor {
                     self.signals.fpu_reg_write = FpuRegWrite::NoWrite;
                 }
             }
-            Instruction::SType(_s) => {
+            RiscInstruction::SType(_s) => {
                 self.signals = FpuControlSignals {
                     data_write: DataWrite::NoWrite,
                     fpu_reg_write: FpuRegWrite::NoWrite,
                     ..Default::default()
                 };
             }
-            Instruction::R4Type(r4) => {
+            RiscInstruction::R4Type(r4) => {
                 self.signals = FpuControlSignals {
                     data_write: DataWrite::NoWrite,
                     fpu_mem_to_reg: FpuMemToReg::UseDataWrite,
