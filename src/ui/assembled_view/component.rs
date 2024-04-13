@@ -145,7 +145,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                     let line_number = instruction.line_number;
 
                     let mut conditional_class = "";
-                    if props.pc as i64 == address + 4 {
+                    if **editor_curr_line != 0.0 && props.pc as i64 == address + 4 {
                         conditional_class = "bg-primary-700 shadow-executing";
                         html!{
                             <tr ref={executed_ref} key={index} class={classes!(conditional_class)}>
