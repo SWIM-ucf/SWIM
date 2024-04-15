@@ -111,7 +111,7 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                                     match input_string.parse::<f32>() {
                                         Ok(value) => {
                                             input.set_class_name("");
-                                            value as u64
+                                            value.to_bits() as u64
                                         },
                                         Err(_err) => {
                                             input.set_class_name("text-accent-red-200");
@@ -123,7 +123,7 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                                     match input_string.parse::<f64>() {
                                         Ok(value) => {
                                             input.set_class_name("");
-                                            value as u64
+                                            value.to_bits() as u64
                                         },
                                         Err(_err) => {
                                             input.set_class_name("text-accent-red-200");
@@ -177,8 +177,8 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                         }}
                         value={
                             match unit_type {
-                                UnitState::Float => format!("{}", f32::from_bits(data as u32)).to_string(),
-                                UnitState::Double => format!("{}", f64::from_bits(data)).to_string(),
+                                UnitState::Float => format!("{:e}", f32::from_bits(data as u32)).to_string(),
+                                UnitState::Double => format!("{:e}", f64::from_bits(data)).to_string(),
                                 UnitState::Hex => format!("{:#04x?}", data).to_string(),
                                 UnitState::Bin => format!("{:#b}", data).to_string(),
                                 _ => format!("{:?}", data).to_string(),
