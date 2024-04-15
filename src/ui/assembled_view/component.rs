@@ -414,7 +414,7 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
             {
                 if !stack.is_empty() && !program_info.instructions.is_empty() {
                     let stack = stack.stack.clone();
-                    stack.into_iter().enumerate().map(|(_address, frame)| {
+                    stack.into_iter().rev().enumerate().map(|(_address, frame)| {
                         // Get the call and return lines
                         let call_line_index = frame.call_address / 4;
                         let call_recreated_string = program_info.instructions[call_line_index as usize].recreate_string();
