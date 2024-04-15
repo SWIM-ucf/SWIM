@@ -93,13 +93,18 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             // doesn't support multi-line highlighting yet
             if start_column <= address_length as f64
                 || end_column <= address_length as f64 + 2.0
-                || start_column > 46.0
-                || end_column > 46.0
                 || end_column <= start_column
                 || start_line_number != end_line_number
             {
                 return;
             }
+
+            let mut final_start_column= 0;
+            let mut final_end_column =0;
+
+            // ** COLUMN NUMBERS FOR ASCII AND HEX SECTIONS WITHOUT SPACES ** //
+            let start_ascii_column_norm = 40;
+            let start_hex_column_norm = 10;
 
             // count whitespaces in line up to selection
             let mut whitespace_count = 0;
@@ -120,79 +125,104 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
                     whitespace_count_selection += 1;
                 }
             }
-            // separate selection into valid bytes
-            // for example, if the selection is "7bd" in the word "27bdffd8", only "bd" is a valid byte to convert
-            let mut actual_start_col = start_column as usize - whitespace_count - address_length;
-            let mut actual_end_col = end_column as usize
-                - whitespace_count
-                - whitespace_count_selection
-                - address_length;
-            // if the first bit is part of an incomplete byte, remove it
-            if actual_start_col % 2 == 0 {
-                actual_start_col += 1;
+
+            // get the actual column numbers for ASCII section with spaces
+            let start_ascii_column = start_ascii_column_norm + whitespace_count;
+            let end_ascii_column = start_ascii_column_norm + whitespace_count + whitespace_count_selection;
+
+            if start_column as usize >= start_ascii_column && end_column as usize > end_ascii_column && end_column > start_column {
+                // we're selecting ASCII
+                // so we need to highlight the hex equivalent
+                // create the hex selection range
+                let ascii_selection_length = (end_column - start_column) as usize;
+                let start_word_index = start_column as usize - start_ascii_column;
+                let start_word_spaces = start_word_index / 4;
+                let end_word_index = end_column as usize - start_ascii_column;
+                let end_word_spaces = end_word_index / 4;
+                final_start_column = start_hex_column_norm + start_word_spaces + start_word_index * 2;
+                final_end_column = final_start_column + ascii_selection_length * 2 + end_word_spaces - start_word_spaces;
+
+                // edge case where the selection ends on a space
+                if end_word_index % 4 == 0 {
+                    final_end_column -= 1;
+                }
+            } else {
+                let mut actual_start_col;
+                let mut actual_end_col;
+                // separate selection into valid bytes
+                // for example, if the selection is "7bd" in the word "27bdffd8", only "bd" is a valid byte to convert
+                actual_start_col = start_column as usize - whitespace_count - address_length;
+                actual_end_col = end_column as usize
+                    - whitespace_count
+                    - whitespace_count_selection
+                    - address_length;
+                // if the first bit is part of an incomplete byte, remove it
+                if actual_start_col % 2 == 0 {
+                    actual_start_col += 1;
+                }
+                // if the last bit is part of an incomplete byte, remove it
+                if actual_end_col % 2 == 0 {
+                    actual_end_col -= 1;
+                }
+                // make sure the resulting selection is valid
+                if actual_end_col > actual_start_col {
+                    // uncomment to see the selection converted to ASCII
+                    // // convert the selection to ASCII two bits at a time
+                    // let no_whitespace_line = line_strings.join("");
+                    // let new_selection = &no_whitespace_line[actual_start_col - 1..actual_end_col - 1];
+                    // let mut converted_hex = String::new();
+                    // for (i, _c) in new_selection.chars().enumerate().step_by(2) {
+                    //     if (i + 1) >= new_selection.len() {
+                    //         break;
+                    //     }
+                    //     let ascii_digits = &new_selection[i..i + 2];
+                    //     let ascii_digits = u8::from_str_radix(ascii_digits, 16).unwrap();
+                    //     let ascii_str = ascii_digits as char;
+                    //     converted_hex.push(ascii_str);
+                    // }
+
+                    // Create the ASCII highlight range
+                    final_start_column = 46 + (actual_start_col / 2);
+                    final_end_column = 46 + (actual_end_col / 2);
+                }
             }
-            // if the last bit is part of an incomplete byte, remove it
-            if actual_end_col % 2 == 0 {
-                actual_end_col -= 1;
-            }
-            // make sure the resulting selection is valid
-            if actual_end_col > actual_start_col {
-                // uncomment to see the selection converted to ASCII
-                // // convert the selection to ASCII two bits at a time
-                // let no_whitespace_line = line_strings.join("");
-                // let new_selection = &no_whitespace_line[actual_start_col - 1..actual_end_col - 1];
-                // let mut converted_hex = String::new();
-                // for (i, _c) in new_selection.chars().enumerate().step_by(2) {
-                //     if (i + 1) >= new_selection.len() {
-                //         break;
-                //     }
-                //     let ascii_digits = &new_selection[i..i + 2];
-                //     let ascii_digits = u8::from_str_radix(ascii_digits, 16).unwrap();
-                //     let ascii_str = ascii_digits as char;
-                //     converted_hex.push(ascii_str);
-                // }
 
-                // Create the ASCII highlight range
-                let ascii_start_column = 46 + (actual_start_col / 2);
-                let ascii_end_column = 46 + (actual_end_col / 2);
+            let range = Range::new(
+                start_line_number,
+                final_start_column as f64,
+                start_line_number,
+                final_end_column as f64,
+            );
 
-                let range = Range::new(
-                    start_line_number,
-                    ascii_start_column as f64,
-                    start_line_number,
-                    ascii_end_column as f64,
-                );
+            // Style the highlighting
+            let highlight_decoration: IModelDeltaDecoration =
+                js_sys::Object::new().unchecked_into();
+            let highlight_options: IModelDecorationOptions =
+                js_sys::Object::new().unchecked_into();
+            highlight_options.set_inline_class_name("highlightHex".into());
+            highlight_options.set_is_whole_line(false.into());
+            highlight_decoration.set_options(&highlight_options);
+            let range_js = range.dyn_into::<JsValue>().expect("Range is not found.");
+            highlight_decoration.set_range(&monaco::sys::IRange::from(range_js));
+            let decoration_js = highlight_decoration
+                .dyn_into::<JsValue>()
+                .expect("Highlight is not found.");
 
-                // Style the highlighting
-                let highlight_decoration: IModelDeltaDecoration =
-                    js_sys::Object::new().unchecked_into();
-                let highlight_options: IModelDecorationOptions =
-                    js_sys::Object::new().unchecked_into();
-                highlight_options.set_inline_class_name("highlightHex".into());
-                highlight_options.set_is_whole_line(false.into());
-                highlight_decoration.set_options(&highlight_options);
-                let range_js = range.dyn_into::<JsValue>().expect("Range is not found.");
-                highlight_decoration.set_range(&monaco::sys::IRange::from(range_js));
-                let decoration_js = highlight_decoration
-                    .dyn_into::<JsValue>()
-                    .expect("Highlight is not found.");
+            // Create JS Array with the new decoration
+            let executed_line = js_sys::Array::new();
+            executed_line.push(&decoration_js);
 
-                // Create JS Array with the new decoration
-                let executed_line = js_sys::Array::new();
-                executed_line.push(&decoration_js);
+            // Get the monaco text model
+            let memory_text_model = text_model_ref.clone();
+            let memory_text_model_ref = memory_text_model.as_ref();
 
-                // Get the monaco text model
-                let memory_text_model = text_model_ref.clone();
-                let memory_text_model_ref = memory_text_model.as_ref();
-
-                let existing_decorations = memory_text_model_ref.get_all_decorations(None, None);
-                // Set new decorations and save their IDs
-                *decorations = memory_text_model_ref.delta_decorations(
-                    &existing_decorations,
-                    &executed_line,
-                    None,
-                );
-            }
+            let existing_decorations = memory_text_model_ref.get_all_decorations(None, None);
+            // Set new decorations and save their IDs
+            *decorations = memory_text_model_ref.delta_decorations(
+                &existing_decorations,
+                &executed_line,
+                None,
+            );
         },
     ) as Box<dyn FnMut(_)>);
 
@@ -316,7 +346,9 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 pub fn parse_hexdump(input: &str) -> Result<Vec<u32>, String> {
     let mut words = Vec::new();
     for line in input.lines() {
-        let parts: Vec<&str> = line.split('\t').collect();
+        // remove all whitespace from the line
+        let parts: Vec<&str> = line.split_whitespace().collect::<Vec<&str>>();
+        //  don't include address or ASCII in hex parsing
         for &part in &parts[2..6] {
             let data = u32::from_str_radix(part, 16).map_err(|e| e.to_string())?;
             words.push(data);
