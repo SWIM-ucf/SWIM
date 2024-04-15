@@ -65,47 +65,134 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             let decorations = Rc::clone(&decorations);
             let mut decorations = decorations.borrow_mut();
 
+            // Get the monaco text model
+            let memory_text_model = text_model_ref.clone();
+            let memory_text_model_ref = memory_text_model.as_ref();
+
+            // Clear previous highlights
+            // Create JS Array with an empty decoration
+            let not_highlighted = js_sys::Array::new();
+            memory_text_model_ref.delta_decorations(&decorations, &not_highlighted, None);
+
             // Create the ASCII highlight range
             let selection = event.selection();
             let start_line_number = selection.selection_start_line_number();
+            let end_line_number = selection.end_line_number();
             let start_column = selection.start_column();
             let end_column = selection.end_column();
-            let (start_column, end_column) =
-                calculate_ascii_columns(start_column as usize, end_column as usize);
-            let range = Range::new(
-                start_line_number,
-                start_column,
-                start_line_number,
-                end_column,
-            );
 
-            // Style the highlighting
-            let highlight_decoration: IModelDeltaDecoration =
-                js_sys::Object::new().unchecked_into();
-            let highlight_options: IModelDecorationOptions = js_sys::Object::new().unchecked_into();
-            highlight_options.set_inline_class_name("highlightHex".into());
-            highlight_options.set_is_whole_line(false.into());
-            highlight_decoration.set_options(&highlight_options);
-            let range_js = range.dyn_into::<JsValue>().expect("Range is not found.");
-            highlight_decoration.set_range(&monaco::sys::IRange::from(range_js));
-            let decoration_js = highlight_decoration
-                .dyn_into::<JsValue>()
-                .expect("Highlight is not found.");
+            // Get current line's contents
+            let line_number = event.selection().selection_start_line_number();
+            let line_content = memory_text_model_ref.get_line_content(line_number);
+            let mut line_strings = line_content.split_whitespace().collect::<Vec<&str>>();
+            // remove first element if it is an address
+            let address = line_strings.remove(0);
+            // save the address length to calculate the actual selection later
+            let address_length = address.len();
 
-            // Create JS Arrays
-            let not_highlighted = js_sys::Array::new();
-            let executed_line = js_sys::Array::new();
-            executed_line.push(&decoration_js);
+            // doesn't support multi-line highlighting yet
+            if start_column <= address_length as f64
+                || end_column <= address_length as f64 + 2.0
+                || start_column > 46.0
+                || end_column > 46.0
+                || end_column <= start_column
+                || start_line_number != end_line_number
+            {
+                return;
+            }
 
-            // Get the monaco text model
-            let memory_text_model = text_model_ref.clone();
-            let memory_text_model = memory_text_model.as_ref();
-            // Clear previous highlights
-            let existing_decorations = memory_text_model.get_all_decorations(None, None);
-            memory_text_model.delta_decorations(&decorations, &not_highlighted, None);
-            // Set new decorations and save their IDs
-            *decorations =
-                memory_text_model.delta_decorations(&existing_decorations, &executed_line, None);
+            // count whitespaces in line up to selection
+            let mut whitespace_count = 0;
+            for (i, c) in line_content.chars().enumerate() {
+                if i >= start_column as usize {
+                    break;
+                }
+                if c == ' ' || c == '\t' {
+                    whitespace_count += 1;
+                }
+            }
+
+            // count whitespaces in selection
+            let selection_slice = &line_content[start_column as usize - 1..end_column as usize - 1];
+            let mut whitespace_count_selection = 0;
+            for c in selection_slice.chars() {
+                if c == ' ' || c == '\t' {
+                    whitespace_count_selection += 1;
+                }
+            }
+            // separate selection into valid bytes
+            // for example, if the selection is "7bd" in the word "27bdffd8", only "bd" is a valid byte to convert
+            let mut actual_start_col = start_column as usize - whitespace_count - address_length;
+            let mut actual_end_col = end_column as usize
+                - whitespace_count
+                - whitespace_count_selection
+                - address_length;
+            // if the first bit is part of an incomplete byte, remove it
+            if actual_start_col % 2 == 0 {
+                actual_start_col += 1;
+            }
+            // if the last bit is part of an incomplete byte, remove it
+            if actual_end_col % 2 == 0 {
+                actual_end_col -= 1;
+            }
+            // make sure the resulting selection is valid
+            if actual_end_col > actual_start_col {
+                // uncomment to see the selection converted to ASCII
+                // // convert the selection to ASCII two bits at a time
+                // let no_whitespace_line = line_strings.join("");
+                // let new_selection = &no_whitespace_line[actual_start_col - 1..actual_end_col - 1];
+                // let mut converted_hex = String::new();
+                // for (i, _c) in new_selection.chars().enumerate().step_by(2) {
+                //     if (i + 1) >= new_selection.len() {
+                //         break;
+                //     }
+                //     let ascii_digits = &new_selection[i..i + 2];
+                //     let ascii_digits = u8::from_str_radix(ascii_digits, 16).unwrap();
+                //     let ascii_str = ascii_digits as char;
+                //     converted_hex.push(ascii_str);
+                // }
+
+                // Create the ASCII highlight range
+                let ascii_start_column = 46 + (actual_start_col / 2);
+                let ascii_end_column = 46 + (actual_end_col / 2);
+
+                let range = Range::new(
+                    start_line_number,
+                    ascii_start_column as f64,
+                    start_line_number,
+                    ascii_end_column as f64,
+                );
+
+                // Style the highlighting
+                let highlight_decoration: IModelDeltaDecoration =
+                    js_sys::Object::new().unchecked_into();
+                let highlight_options: IModelDecorationOptions =
+                    js_sys::Object::new().unchecked_into();
+                highlight_options.set_inline_class_name("highlightHex".into());
+                highlight_options.set_is_whole_line(false.into());
+                highlight_decoration.set_options(&highlight_options);
+                let range_js = range.dyn_into::<JsValue>().expect("Range is not found.");
+                highlight_decoration.set_range(&monaco::sys::IRange::from(range_js));
+                let decoration_js = highlight_decoration
+                    .dyn_into::<JsValue>()
+                    .expect("Highlight is not found.");
+
+                // Create JS Array with the new decoration
+                let executed_line = js_sys::Array::new();
+                executed_line.push(&decoration_js);
+
+                // Get the monaco text model
+                let memory_text_model = text_model_ref.clone();
+                let memory_text_model_ref = memory_text_model.as_ref();
+
+                let existing_decorations = memory_text_model_ref.get_all_decorations(None, None);
+                // Set new decorations and save their IDs
+                *decorations = memory_text_model_ref.delta_decorations(
+                    &existing_decorations,
+                    &executed_line,
+                    None,
+                );
+            }
         },
     ) as Box<dyn FnMut(_)>);
 
@@ -121,23 +208,6 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             line_number: line_number as f64,
             start_column: start_column as f64,
             end_column: end_column as f64,
-        }
-    }
-
-    // Calculates which columns in the ASCII portion belong to the given hex portion
-    fn calculate_ascii_columns(hex_start_column: usize, hex_end_column: usize) -> (f64, f64) {
-        if hex_start_column > 8
-            && hex_start_column < 46
-            && hex_end_column > 8
-            && hex_end_column < 46
-            && hex_end_column > hex_start_column
-        {
-            let ascii_length = (hex_end_column - hex_start_column) / 2;
-            let start_column = 46 + ((hex_start_column - 8) / 2) - 1;
-            let end_column = start_column + ascii_length;
-            (start_column as f64, end_column as f64)
-        } else {
-            (0.0, 0.0)
         }
     }
 

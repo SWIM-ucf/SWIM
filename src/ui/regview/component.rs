@@ -123,7 +123,7 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                                     match input_string.parse::<f64>() {
                                         Ok(value) => {
                                             input.set_class_name("");
-                                            value.to_bits() as u64
+                                            value.to_bits()
                                         },
                                         Err(_err) => {
                                             input.set_class_name("text-accent-red-200");
