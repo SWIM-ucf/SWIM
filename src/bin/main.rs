@@ -700,6 +700,11 @@ fn app(props: &AppProps) -> Html {
                 // Right column
                 <Regview gp={datapath_state.get_dyn_gp_registers()} fp={datapath_state.get_dyn_fp_registers()} pc_limit={*pc_limit} communicator={props.communicator}/>
             </div>
+            <div class="absolute w-8 top-2 right-2 hover:w-9 duration-300">
+                <a href="https://github.com/SWIM-ucf/SWIM" target="_blank">
+                    <img src="/static/github-mark-white.svg" alt="GitHub"/>
+                </a>
+            </div>
         </div>
     }
 }
