@@ -99,8 +99,8 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
                 return;
             }
 
-            let mut final_start_column= 0;
-            let mut final_end_column =0;
+            let mut final_start_column = 0;
+            let mut final_end_column = 0;
 
             // ** COLUMN NUMBERS FOR ASCII AND HEX SECTIONS WITHOUT SPACES ** //
             let start_ascii_column_norm = 40;
@@ -128,9 +128,13 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
 
             // get the actual column numbers for ASCII section with spaces
             let start_ascii_column = start_ascii_column_norm + whitespace_count;
-            let end_ascii_column = start_ascii_column_norm + whitespace_count + whitespace_count_selection;
+            let end_ascii_column =
+                start_ascii_column_norm + whitespace_count + whitespace_count_selection;
 
-            if start_column as usize >= start_ascii_column && end_column as usize > end_ascii_column && end_column > start_column {
+            if start_column as usize >= start_ascii_column
+                && end_column as usize > end_ascii_column
+                && end_column > start_column
+            {
                 // we're selecting ASCII
                 // so we need to highlight the hex equivalent
                 // create the hex selection range
@@ -139,8 +143,11 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
                 let start_word_spaces = start_word_index / 4;
                 let end_word_index = end_column as usize - start_ascii_column;
                 let end_word_spaces = end_word_index / 4;
-                final_start_column = start_hex_column_norm + start_word_spaces + start_word_index * 2;
-                final_end_column = final_start_column + ascii_selection_length * 2 + end_word_spaces - start_word_spaces;
+                final_start_column =
+                    start_hex_column_norm + start_word_spaces + start_word_index * 2;
+                final_end_column =
+                    final_start_column + ascii_selection_length * 2 + end_word_spaces
+                        - start_word_spaces;
 
                 // edge case where the selection ends on a space
                 if end_word_index % 4 == 0 {
@@ -197,8 +204,7 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             // Style the highlighting
             let highlight_decoration: IModelDeltaDecoration =
                 js_sys::Object::new().unchecked_into();
-            let highlight_options: IModelDecorationOptions =
-                js_sys::Object::new().unchecked_into();
+            let highlight_options: IModelDecorationOptions = js_sys::Object::new().unchecked_into();
             highlight_options.set_inline_class_name("highlightHex".into());
             highlight_options.set_is_whole_line(false.into());
             highlight_decoration.set_options(&highlight_options);
@@ -343,16 +349,43 @@ fn get_options() -> IStandaloneEditorConstructionOptions {
 
 // ** Helper functions **
 // Parse hexdump into a vector of u32 (ready to be stored in memory)
-pub fn parse_hexdump(input: &str) -> Result<Vec<u32>, String> {
-    let mut words = Vec::new();
+pub fn parse_hexdump(input: &str) -> Result<(Vec<u32>, Vec<u32>), String> {
+    let mut hex_words = Vec::new();
+    let mut ascii_words = Vec::new();
     for line in input.lines() {
         // remove all whitespace from the line
         let parts: Vec<&str> = line.split_whitespace().collect::<Vec<&str>>();
         //  don't include address or ASCII in hex parsing
-        for &part in &parts[2..6] {
+        for &part in &parts[1..5] {
             let data = u32::from_str_radix(part, 16).map_err(|e| e.to_string())?;
-            words.push(data);
+            hex_words.push(data);
         }
+        // parse ASCII
+        // return ASCII translated to instructions in second vec
+        // we'll compare the ASCII section to memory as well in main.rs
+        let ascii = parts[5..].join("");
+        let mut j = 0;
+        let mut hex = 0;
+        let hex_conglomerate = parts[1..5].join("");
+        for (i, ascii_char) in ascii.chars().enumerate() {
+            if i % 4 == 0 && i != 0 {
+                ascii_words.push(hex);
+                hex = 0;
+                j = 0;
+            }
+            // shift the ASCII character into the hex word, starting from the left
+            if ascii_char == '.' {
+                // steal the bit from the hex portion
+                let hex_val =
+                    u32::from_str_radix(&hex_conglomerate[(i * 2)..(i * 2 + 2)], 16).unwrap();
+                hex |= hex_val << (24 - j * 8);
+            } else {
+                hex |= (ascii_char as u32) << (24 - j * 8);
+            }
+            j += 1;
+        }
+        // push the last word since we leave the loop at i = 16
+        ascii_words.push(hex);
     }
-    Ok(words)
+    Ok((hex_words, ascii_words))
 }

@@ -385,30 +385,10 @@ fn app(props: &AppProps) -> Html {
                 let current_memory_text_model_value = memory_text_model.get_value();
 
                 match parse_hexdump(&current_memory_text_model_value) {
-                    Ok(instructions) => {
+                    Ok((hex_instructions, ascii_instructions)) => {
                         let mut changed_lines: Vec<UpdatedLine> = vec![];
-                        for (i, data) in instructions.iter().enumerate() {
+                        for (i, data) in hex_instructions.iter().enumerate() {
                             let address = i as u64;
-                            // change string version based on architecture
-                            let string_version = match datapath_state.current_architecture {
-                                AvailableDatapaths::MIPS => {
-                                    match MipsInstruction::get_string_version(*data) {
-                                        Ok(string) => string,
-                                        Err(string) => string,
-                                    }
-                                }
-                                AvailableDatapaths::RISCV => {
-                                    match RiscInstruction::get_string_version(
-                                        *data,
-                                        labels_ref.borrow().clone(),
-                                    ) {
-                                        Ok(string) => string,
-                                        Err(string) => string,
-                                    }
-                                }
-                            };
-                            // log::debug!("String version: {}", string_version);
-
                             let curr_word = match datapath_state.get_memory().load_word(address * 4)
                             {
                                 Ok(data) => data,
@@ -417,10 +397,46 @@ fn app(props: &AppProps) -> Html {
                                     0
                                 }
                             };
-                            if curr_word != *data {
-                                changed_lines.push(UpdatedLine::new(string_version, i));
 
-                                communicator.set_memory(address * 4, *data);
+                            let mut new_word = 0;
+                            let mut differs = false;
+                            // hex portion gets priority when checking for changes
+                            if curr_word != *data {
+                                // hex portion was changed
+                                differs = true;
+                                new_word = *data;
+                            } else if i < ascii_instructions.len()
+                                && curr_word != ascii_instructions[i]
+                                && ascii_instructions[i] != 0
+                            {
+                                // ascii portion was changed
+                                differs = true;
+                                new_word = ascii_instructions[i];
+                            }
+
+                            if differs {
+                                // change string version based on architecture
+                                let string_version = match datapath_state.current_architecture {
+                                    AvailableDatapaths::MIPS => {
+                                        match MipsInstruction::get_string_version(new_word) {
+                                            Ok(string) => string,
+                                            Err(string) => string,
+                                        }
+                                    }
+                                    AvailableDatapaths::RISCV => {
+                                        match RiscInstruction::get_string_version(
+                                            new_word,
+                                            labels_ref.borrow().clone(),
+                                        ) {
+                                            Ok(string) => string,
+                                            Err(string) => string,
+                                        }
+                                    }
+                                };
+                                // log::debug!("String version: {}", string_version);
+
+                                changed_lines.push(UpdatedLine::new(string_version, i));
+                                communicator.set_memory(address * 4, new_word);
                             }
                         }
                         // Memory updated successfully
