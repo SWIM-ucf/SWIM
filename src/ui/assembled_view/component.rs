@@ -453,7 +453,7 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
                                 <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", frame.call_address)} onclick={move |e: MouseEvent| {on_call_address_click.emit((e, frame.call_address as usize))}}>
                                     {format!("0x{:08x}", frame.call_address as u64)}
                                 </td>
-                                <td class="text-accent-blue-200 hover:text-accent-blue-100 cursor-pointer" title="Go to line" onclick={move |e: MouseEvent| {on_call_line_click.emit((e, call_line_number))}}>
+                                <td class="text-accent-blue-200 hover:text-accent-blue-100 cursor-pointer" title="Go to line" onclick={move |e: MouseEvent| {on_call_line_click.emit((e, call_line_number + 1))}}>
                                     {call_recreated_string}
                                 </td>
                                 <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", frame.return_address)} onclick={move |e: MouseEvent| {on_return_address_click.emit((e, frame.return_address as usize))}}>
