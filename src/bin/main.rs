@@ -418,7 +418,11 @@ fn app(props: &AppProps) -> Html {
                                 // change string version based on architecture
                                 let string_version = match datapath_state.current_architecture {
                                     AvailableDatapaths::MIPS => {
-                                        match MipsInstruction::get_string_version(new_word) {
+                                        match MipsInstruction::get_string_version(
+                                            new_word,
+                                            labels_ref.borrow().clone(),
+                                            i,
+                                        ) {
                                             Ok(string) => string,
                                             Err(string) => string,
                                         }

@@ -1,5 +1,7 @@
 //! Abstract representation of an instruction.
 
+use std::collections::HashMap;
+
 use crate::parser::parser_structs_and_enums::GP_REGISTERS;
 use serde::{Deserialize, Serialize};
 
@@ -313,393 +315,438 @@ impl TryFrom<u32> for MipsInstruction {
 }
 
 impl MipsInstruction {
-    pub fn get_string_version(value: u32) -> Result<String, String> {
+    pub fn get_string_version(
+        value: u32,
+        labels: HashMap<String, usize>,
+        instruction_number: usize,
+    ) -> Result<String, String> {
+        let struct_representation = MipsInstruction::try_from(value)?;
         let mut string_version = String::new();
-        let op = (value >> 26) as u8;
-        let rs = ((value >> 21) & 0x1F) as u8;
-        let rt = ((value >> 16) & 0x1F) as u8;
-        let rd = ((value >> 11) & 0x1F) as u8;
-        let mut immediate = (value & 0xFFFF) as u16;
-        let mut imm_with_sign: i32 = 0;
 
-        let mut imm_is_negative = false;
+        match struct_representation {
+            MipsInstruction::RType(r_type) => {
+                // R-type instructions:
+                // add, sub, mul, div
+                // addu
+                // dadd, dsub, dmul, ddiv
+                // daddu, dsubu, dmulu, ddivu
+                // or, and, sll
+                // slt, sltu
+                // jalr, jr
 
-        if op == 0 && rs == 0 && rt == 0 && rd == 0 && immediate == 0 {
-            return Err(String::from("empty instruction"));
-        }
+                let str_rs = find_register_name(r_type.rs).unwrap_or("##");
+                let str_rt = find_register_name(r_type.rt).unwrap_or("##");
+                let str_rd = find_register_name(r_type.rd).unwrap_or("##");
+                let shamt_binary_str = format!("{:b}", r_type.shamt);
+                let str_shamt = shamt_binary_str.as_str();
 
-        if value & 0xF000 > 0 {
-            imm_is_negative = true;
-            immediate = !(immediate) + 1;
-            imm_with_sign = -(immediate as i32);
-        }
-
-        let str_rt = find_register_name(rt).unwrap_or("##");
-        let str_rs = find_register_name(rs).unwrap_or("##");
-        let str_rd = find_register_name(rd).unwrap_or("##");
-        let mut string_imm = immediate.to_string();
-        let mut str_immediate = string_imm.as_str();
-
-        if imm_is_negative {
-            string_imm = imm_with_sign.to_string();
-            str_immediate = string_imm.as_str();
-        }
-
-        let str_ft = str_rt;
-        let str_base = str_rs;
-        let str_offset = str_immediate;
-
-        let funct = (value & 0x3F) as u8;
-        let shamt = (value & 0x3F) as u8;
-        let shamt_binary_str = format!("{:b}", shamt);
-        let str_shamt = shamt_binary_str.as_str();
-
-        match op {
-            // R-type instructions:
-            // add, sub, mul, div
-            // addu
-            // dadd, dsub, dmul, ddiv
-            // daddu, dsubu, dmulu, ddivu
-            // or, and, sll
-            // slt, sltu
-            // jalr, jr
-            //
-            // Includes syscall.
-            OPCODE_SPECIAL => {
-                match funct {
-                    FUNCT_SYSCALL => Ok(String::from("syscall")),
-                    FUNCT_BREAK => Ok(String::from("break")),
-                    FUNCT_ADD => {
-                        string_version = format!("{} {}, {}, {}", "add", str_rd, str_rs, str_rt);
-                        Ok(string_version)
-                    }
-                    FUNCT_ADDU => {
-                        string_version = format!("{} {}, {}, {}", "addu", str_rd, str_rs, str_rt);
-                        Ok(string_version)
-                    }
-                    FUNCT_DADD => {
-                        string_version = format!("{} {}, {}, {}", "dadd", str_rd, str_rs, str_rt);
-                        Ok(string_version)
-                    }
-                    FUNCT_DADDU => {
-                        string_version = format!("{} {}, {}, {}", "daddu", str_rd, str_rs, str_rt);
-                        Ok(string_version)
-                    }
-                    FUNCT_SUB => {
-                        string_version = format!("{} {}, {}, {}", "sub", str_rd, str_rs, str_rt);
-                        Ok(string_version)
-                    }
-                    FUNCT_DSUB => {
-                        string_version = format!("{} {}, {}, {}", "dsub", str_rd, str_rs, str_rt);
-                        Ok(string_version)
-                    }
-                    FUNCT_DSUBU => {
-                        string_version = format!("{} {}, {}, {}", "dsubu", str_rd, str_rs, str_rt);
-                        Ok(string_version)
-                    }
-                    FUNCT_AND => {
-                        string_version = format!("{} {}, {}, {}", "and", str_rd, str_rs, str_rt);
-                        Ok(string_version)
-                    }
-                    FUNCT_OR => {
-                        string_version = format!("{} {}, {}, {}", "or", str_rd, str_rs, str_rt);
-                        Ok(string_version)
-                    }
-                    FUNCT_SLL => {
-                        string_version = format!("{} {}, {}, {}", "sll", str_rd, str_rs, str_shamt);
-                        Ok(string_version)
-                    }
-                    FUNCT_SLT => {
-                        string_version = format!("{} {}, {}, {}", "slt", str_rd, str_rs, str_rt);
-                        Ok(string_version)
-                    }
-                    FUNCT_SLTU => {
-                        string_version =
-                            format!("{} {}, {}, {}", "sltu", str_rd, str_rs, str_shamt);
-                        Ok(string_version)
-                    }
-                    FUNCT_SOP32 => {
-                        string_version = format!("{} {}, {}, {}", "or", str_rd, str_rs, str_rt);
-                        Ok(string_version)
-                    }
-                    FUNCT_SOP36 => match shamt {
-                        // ENC_DIV == ENC_DDIV
-                        ENC_DIV => {
-                            string_version = format!("{} {}, {}", "div", str_rs, str_rt);
-                            Ok(string_version)
+                match r_type.op {
+                    OPCODE_SPECIAL => match r_type.funct {
+                        FUNCT_SYSCALL => {
+                            string_version.push_str("syscall");
+                        }
+                        FUNCT_BREAK => {
+                            string_version.push_str("break");
+                        }
+                        FUNCT_ADD => {
+                            string_version
+                                .push_str(&format!("add {}, {}, {}", str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_ADDU => {
+                            string_version
+                                .push_str(&format!("addu {}, {}, {}", str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_DADD => {
+                            string_version
+                                .push_str(&format!("dadd {}, {}, {}", str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_DADDU => {
+                            string_version
+                                .push_str(&format!("daddu {}, {}, {}", str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_SUB => {
+                            string_version
+                                .push_str(&format!("sub {}, {}, {}", str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_DSUB => {
+                            string_version
+                                .push_str(&format!("dsub {}, {}, {}", str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_DSUBU => {
+                            string_version
+                                .push_str(&format!("dsubu {}, {}, {}", str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_AND => {
+                            string_version
+                                .push_str(&format!("and {}, {}, {}", str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_OR => {
+                            string_version
+                                .push_str(&format!("or {}, {}, {}", str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_SLL => {
+                            string_version
+                                .push_str(&format!("sll {}, {}, {}", str_rd, str_rs, str_shamt));
+                        }
+                        FUNCT_SLT => {
+                            string_version
+                                .push_str(&format!("slt {}, {}, {}", str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_SLTU => {
+                            string_version
+                                .push_str(&format!("sltu {}, {}, {}", str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_SOP32 => {
+                            string_version
+                                .push_str(&format!("div {}, {}, {}", str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_SOP36 => match r_type.shamt {
+                            ENC_DIV => {
+                                string_version
+                                    .push_str(&format!("div {}, {}, {}", str_rd, str_rs, str_rt));
+                            }
+                            _ => {
+                                string_version.push_str("###");
+                            }
+                        },
+                        FUNCT_SOP33 | FUNCT_SOP37 => match r_type.shamt {
+                            ENC_DIVU => {
+                                string_version
+                                    .push_str(&format!("divu {}, {}, {}", str_rd, str_rs, str_rt));
+                            }
+                            _ => {
+                                string_version.push_str("###");
+                            }
+                        },
+                        FUNCT_SOP30 | FUNCT_SOP34 => match r_type.shamt {
+                            ENC_MUL => {
+                                string_version
+                                    .push_str(&format!("mul {}, {}, {}", str_rd, str_rs, str_rt));
+                            }
+                            _ => {
+                                string_version.push_str("###");
+                            }
+                        },
+                        FUNCT_SOP31 | FUNCT_SOP35 => match r_type.shamt {
+                            ENC_MULU => {
+                                string_version
+                                    .push_str(&format!("mulu {}, {}, {}", str_rd, str_rs, str_rt));
+                            }
+                            _ => {
+                                string_version.push_str("###");
+                            }
+                        },
+                        FUNCT_JR => {
+                            string_version.push_str(&format!("jr {}", str_rs));
                         }
                         _ => {
-                            string_version = String::from("###");
-                            Ok(string_version)
-                        }
-                    },
-                    FUNCT_SOP33 | FUNCT_SOP37 => match shamt {
-                        // ENC_DIVU == ENC_DDIVU
-                        ENC_DIVU => {
-                            string_version = format!("{} {}, {}", "divu", str_rs, str_rt);
-                            Ok(string_version)
-                        }
-                        _ => {
-                            string_version = String::from("###");
-                            Ok(string_version)
-                        }
-                    },
-                    FUNCT_SOP30 | FUNCT_SOP34 => match shamt {
-                        // ENC_MUL == ENC_DMUL
-                        ENC_MUL => {
-                            string_version =
-                                format!("{} {}, {}, {}", "mul", str_rd, str_rs, str_rt);
-                            Ok(string_version)
-                        }
-                        _ => {
-                            string_version = String::from("###");
-                            Ok(string_version)
-                        }
-                    },
-                    FUNCT_SOP31 | FUNCT_SOP35 => match shamt {
-                        // ENC_MULU == ENC_DMULU
-                        ENC_MULU => {
-                            string_version =
-                                format!("{} {}, {}, {}", "mulu", str_rd, str_rs, str_rt);
-                            Ok(string_version)
-                        }
-                        _ => {
-                            string_version = String::from("###");
-                            Ok(string_version)
+                            string_version.push_str("###");
                         }
                     },
                     _ => {
-                        string_version = String::from("###");
-                        Ok(string_version)
+                        string_version.push_str("###");
                     }
                 }
             }
+            MipsInstruction::IType(i_type) => {
+                // I-Type instructions:
+                // addi, addiu, daddi, daddiu
+                // lw, sw
+                // lui
+                // ori, andi
+                // regimm
+                // beq, bne
 
-            // COP1 (coprocessor 1)
-            OPCODE_COP1 => {
-                // First break down the instruction by its `fmt`/`rs`/`bcc1` field.
-                // Also called `sub` (operation subcode) field.
-                let op = ((value >> 26) & 0x3F) as u8;
-                let sub = ((value >> 21) & 0x1F) as u8;
-                let ft = ((value >> 16) & 0x1F) as u8; // also rt
-                let fs = ((value >> 11) & 0x1F) as u8; // also rs
-                let fd = ((value >> 6) & 0x1F) as u8;
-                let function = (value & 0x3F) as u8;
-                let str_fs = find_register_name(fs).unwrap_or("##");
-                let str_ft = find_register_name(ft).unwrap_or("##");
-                let str_fd = find_register_name(fd).unwrap_or("##");
+                let str_rs = find_register_name(i_type.rs).unwrap_or("##");
+                let str_rt = find_register_name(i_type.rt).unwrap_or("##");
 
-                match sub {
-                    // If it is the "s" or "d" fmts, use the `function` field.
-                    FMT_SINGLE => {
-                        match function {
-                            // add.fmt, sub.fmt, mul.fmt, div.fmt
-                            FUNCTION_ADD => {
-                                let string_version =
-                                    format!("add.s {}, {}, {}", str_fd, str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            FUNCTION_SUB => {
-                                let string_version =
-                                    format!("sub.s {}, {}, {}", str_fd, str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            FUNCTION_MUL => {
-                                let string_version =
-                                    format!("mul.s {}, {}, {}", str_fd, str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            FUNCTION_DIV => {
-                                let string_version =
-                                    format!("add.s {}, {}, {}", str_fd, str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            // Comparison instructions:
-                            // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
-                            FUNCTION_C_EQ => {
-                                let string_version = format!("c.eq.s {}, {}", str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            FUNCTION_C_LT => {
-                                let string_version = format!("c.lt.s {}, {}", str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            FUNCTION_C_NGE => {
-                                let string_version = format!("c.nge.s {}, {}", str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            FUNCTION_C_LE => {
-                                let string_version = format!("c.le.s {}, {}", str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            FUNCTION_C_NGT => {
-                                let string_version = format!("c.ngt.s {}, {}", str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            _ => Err(format!(
-                                "function `{function}` not supported for opcode {op}"
-                            )),
-                        }
+                // Check if immediate is negative
+                let mut str_immediate = format!("{}", i_type.immediate);
+                if i_type.immediate & 0x800 != 0 {
+                    str_immediate = format!(
+                        "-{}",
+                        (!(i_type.immediate) + 1) & 0b00000000000000000000111111111111
+                    );
+                }
+
+                match i_type.op {
+                    OPCODE_ADDI => {
+                        string_version
+                            .push_str(&format!("addi {}, {}, {}", str_rt, str_rs, str_immediate));
                     }
-                    FMT_DOUBLE => {
-                        match function {
-                            // add.fmt, sub.fmt, mul.fmt, div.fmt
-                            FUNCTION_ADD => {
-                                let string_version =
-                                    format!("add.d {}, {}, {}", str_fd, str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            FUNCTION_SUB => {
-                                let string_version =
-                                    format!("sub.d {}, {}, {}", str_fd, str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            FUNCTION_MUL => {
-                                let string_version =
-                                    format!("mul.d {}, {}, {}", str_fd, str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            FUNCTION_DIV => {
-                                let string_version =
-                                    format!("add.d {}, {}, {}", str_fd, str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            // Comparison instructions:
-                            // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
-                            FUNCTION_C_EQ => {
-                                let string_version = format!("c.eq.d {}, {}", str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            FUNCTION_C_LT => {
-                                let string_version = format!("c.lt.d {}, {}", str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            FUNCTION_C_NGE => {
-                                let string_version = format!("c.nge.d {}, {}", str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            FUNCTION_C_LE => {
-                                let string_version = format!("c.le.d {}, {}", str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            FUNCTION_C_NGT => {
-                                let string_version = format!("c.ngt.d {}, {}", str_fs, str_ft);
-                                Ok(string_version)
-                            }
-                            _ => Err(format!(
-                                "function `{function}` not supported for opcode {op}"
-                            )),
-                        }
+                    OPCODE_ADDIU => {
+                        string_version
+                            .push_str(&format!("addiu {}, {}, {}", str_rt, str_rs, str_immediate));
                     }
+                    OPCODE_DADDI => {
+                        string_version
+                            .push_str(&format!("daddi {}, {}, {}", str_rt, str_rs, str_immediate));
+                    }
+                    OPCODE_DADDIU => {
+                        string_version
+                            .push_str(&format!("daddiu {}, {}, {}", str_rt, str_rs, str_immediate));
+                    }
+                    OPCODE_LW => {
+                        string_version
+                            .push_str(&format!("lw {}, {}({})", str_rt, str_immediate, str_rs));
+                    }
+                    OPCODE_SW => {
+                        string_version
+                            .push_str(&format!("sw {}, {}({})", str_rt, str_immediate, str_rs));
+                    }
+                    OPCODE_LUI => {
+                        let str_immediate = i_type.immediate as u32;
+                        string_version.push_str(&format!("lui {}, 0x{:x}", str_rt, str_immediate));
+                    }
+                    OPCODE_ORI => {
+                        string_version
+                            .push_str(&format!("ori {}, {}, {}", str_rt, str_rs, str_immediate));
+                    }
+                    OPCODE_ANDI => {
+                        string_version
+                            .push_str(&format!("andi {}, {}, {}", str_rt, str_rs, str_immediate));
+                    }
+                    OPCODE_REGIMM => {
+                        string_version.push_str(&format!("dahi {}, {}", str_rs, str_immediate));
+                    }
+                    OPCODE_BEQ => {
+                        let mut str_label = String::new();
+                        for label in labels {
+                            if label.1 == (i_type.immediate as usize) + instruction_number * 4 {
+                                str_label = label.0;
+                            }
+                        }
+                        string_version
+                            .push_str(&format!("beq {}, {}, {}", str_rs, str_rt, str_label));
+                    }
+                    OPCODE_BNE => {
+                        let mut str_label = String::new();
+                        for label in labels {
+                            if label.1 == (i_type.immediate as usize) + instruction_number * 4 {
+                                str_label = label.0;
+                            }
+                        }
+                        string_version
+                            .push_str(&format!("bne {}, {}, {}", str_rs, str_rt, str_label));
+                    }
+                    _ => {
+                        string_version.push_str("###");
+                    }
+                }
+            }
+            MipsInstruction::JType(j_type) => {
+                // J-Type instructions:
+                // j, jal
+                let addr = j_type.addr;
 
-                    // Move word to coprocessor 1 (mtc1)
-                    // Move doubleword to coprocessor 1 (dmtc1)
-                    // Move word from coprocessor 1 (mfc1)
-                    // Move doubleword from coprocessor 1 (dmfc1)
+                let mut str_addr = addr.to_string();
+
+                for label in labels {
+                    log::debug!("label: {} {:?}", label.0, label.1);
+                    if label.1 == (addr as usize) * 4 {
+                        str_addr = label.0;
+                    }
+                }
+
+                match j_type.op {
+                    OPCODE_J => {
+                        string_version.push_str(&format!("j {}", str_addr));
+                    }
+                    OPCODE_JAL => {
+                        string_version.push_str(&format!("jal {}", str_addr));
+                    }
+                    _ => {
+                        string_version.push_str("###");
+                    }
+                }
+            }
+            MipsInstruction::SyscallType(syscall_type) => {
+                // Syscall ("System Call") Instruction
+                match syscall_type.funct {
+                    FUNCT_SYSCALL => {
+                        string_version.push_str("syscall");
+                    }
+                    // FUNCT_BREAK => {
+                    //     string_version.push_str("break");
+                    // }
+                    _ => {
+                        string_version.push_str("###");
+                    }
+                }
+            }
+            MipsInstruction::FpuRType(fpu_r_type) => {
+                // FPU R-Type instructions:
+                // add.fmt, sub.fmt, mul.fmt, div.fmt
+                // add.d, sub.d, mul.d, div.d
+                // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
+
+                let str_fs = find_register_name(fpu_r_type.fs).unwrap_or("##");
+                let str_ft = find_register_name(fpu_r_type.ft).unwrap_or("##");
+                let str_fd = find_register_name(fpu_r_type.fd).unwrap_or("##");
+
+                match fpu_r_type.fmt {
+                    FMT_SINGLE => match fpu_r_type.function {
+                        FUNCTION_ADD => {
+                            string_version
+                                .push_str(&format!("add.s {}, {}, {}", str_fd, str_fs, str_ft));
+                        }
+                        FUNCTION_SUB => {
+                            string_version
+                                .push_str(&format!("sub.s {}, {}, {}", str_fd, str_fs, str_ft));
+                        }
+                        FUNCTION_MUL => {
+                            string_version
+                                .push_str(&format!("mul.s {}, {}, {}", str_fd, str_fs, str_ft));
+                        }
+                        FUNCTION_DIV => {
+                            string_version
+                                .push_str(&format!("div.s {}, {}, {}", str_fd, str_fs, str_ft));
+                        }
+                        _ => {
+                            string_version.push_str("###");
+                        }
+                    },
+                    FMT_DOUBLE => match fpu_r_type.function {
+                        FUNCTION_ADD => {
+                            string_version
+                                .push_str(&format!("add.d {}, {}, {}", str_fd, str_fs, str_ft));
+                        }
+                        FUNCTION_SUB => {
+                            string_version
+                                .push_str(&format!("sub.d {}, {}, {}", str_fd, str_fs, str_ft));
+                        }
+                        FUNCTION_MUL => {
+                            string_version
+                                .push_str(&format!("mul.d {}, {}, {}", str_fd, str_fs, str_ft));
+                        }
+                        FUNCTION_DIV => {
+                            string_version
+                                .push_str(&format!("div.d {}, {}, {}", str_fd, str_fs, str_ft));
+                        }
+                        FUNCTION_C_EQ => {
+                            string_version.push_str(&format!("c.eq.d {}, {}", str_fs, str_ft));
+                        }
+                        FUNCTION_C_LT => {
+                            string_version.push_str(&format!("c.lt.d {}, {}", str_fs, str_ft));
+                        }
+                        FUNCTION_C_NGE => {
+                            string_version.push_str(&format!("c.nge.d {}, {}", str_fs, str_ft));
+                        }
+                        FUNCTION_C_LE => {
+                            string_version.push_str(&format!("c.le.d {}, {}", str_fs, str_ft));
+                        }
+                        FUNCTION_C_NGT => {
+                            string_version.push_str(&format!("c.ngt.d {}, {}", str_fs, str_ft));
+                        }
+                        _ => {
+                            string_version.push_str("###");
+                        }
+                    },
+                    _ => {
+                        string_version.push_str("###");
+                    }
+                }
+            }
+            MipsInstruction::FpuIType(fpu_i_type) => {
+                // FPU I-Type instructions:
+                // swc1, lwc1
+                let str_base = find_register_name(fpu_i_type.base).unwrap_or("##");
+                let str_ft = find_register_name(fpu_i_type.ft).unwrap_or("##");
+                let str_offset = fpu_i_type.offset.to_string();
+                let str_offset = str_offset.as_str();
+
+                match fpu_i_type.op {
+                    OPCODE_SWC1 => {
+                        string_version
+                            .push_str(&format!("swc1 {}, {}({})", str_ft, str_offset, str_base));
+                    }
+                    OPCODE_LWC1 => {
+                        string_version
+                            .push_str(&format!("lwc1 {}, {}({})", str_ft, str_offset, str_base));
+                    }
+                    _ => {
+                        string_version.push_str("###");
+                    }
+                }
+            }
+            MipsInstruction::FpuRegImmType(fpu_reg_imm_type) => {
+                // FPU Register-Immediate instructions:
+                // mtc1, dmtc1, mfc1, dmfc1
+
+                let str_rt = find_register_name(fpu_reg_imm_type.rt).unwrap_or("##");
+                let str_fs = find_register_name(fpu_reg_imm_type.fs).unwrap_or("##");
+
+                match fpu_reg_imm_type.sub {
                     SUB_MT => {
-                        let string_version = format!("mtc1 {}, {}", str_ft, str_fs);
-                        Ok(string_version)
+                        string_version.push_str(&format!("mtc1 {}, {}", str_rt, str_fs));
                     }
                     SUB_DMT => {
-                        let string_version = format!("dmtc1 {}, {}", str_ft, str_fs);
-                        Ok(string_version)
+                        string_version.push_str(&format!("dmtc1 {}, {}", str_rt, str_fs));
                     }
                     SUB_MF => {
-                        let string_version = format!("mfc1 {}, {}", str_ft, str_fs);
-                        Ok(string_version)
+                        string_version.push_str(&format!("mfc1 {}, {}", str_rt, str_fs));
                     }
                     SUB_DMF => {
-                        let string_version = format!("dfmc1 {}, {}", str_ft, str_fs);
-                        Ok(string_version)
+                        string_version.push_str(&format!("dmfc1 {}, {}", str_rt, str_fs));
                     }
-
-                    // Branch on coprocessor 1 true (bc1t)
-                    // Branch on coprocessor 1 false (bc1f)
-                    SUB_BC => {
-                        string_version.push_str("bc1t");
-                        Ok(string_version)
+                    _ => {
+                        string_version.push_str("###");
                     }
-
-                    _ => Err(format!("sub code `{sub}` not supported for opcode {op}")),
                 }
             }
+            MipsInstruction::FpuBranchType(fpu_branch_type) => {
+                // FPU Branching instructions:
+                // bc1t, bc1f
 
-            // I-Type instructions:
-            OPCODE_ADDI => {
-                let string_version = format!("addi {}, {}, {}", str_rt, str_rs, str_immediate);
-                Ok(string_version)
-            }
-            OPCODE_ADDIU => {
-                let string_version = format!("addiu {}, {}, {}", str_rt, str_rs, str_immediate);
-                Ok(string_version)
-            }
-            OPCODE_DADDI => {
-                let string_version = format!("daddi {}, {}, {}", str_rt, str_rs, str_immediate);
-                Ok(string_version)
-            }
-            OPCODE_DADDIU => {
-                let string_version = format!("daddi {}, {}, {}", str_rt, str_rs, str_immediate);
-                Ok(string_version)
-            }
-            OPCODE_LW => {
-                let string_version = format!("lw {}, {}({})", str_rt, str_immediate, str_rs);
-                Ok(string_version)
-            }
-            OPCODE_SW => {
-                let string_version = format!("sw {}, {}({})", str_rt, str_immediate, str_rs);
-                Ok(string_version)
-            }
-            OPCODE_LUI => {
-                let string_version = format!("lui {}, {}", str_rt, str_immediate);
-                Ok(string_version)
-            }
-            OPCODE_ORI => {
-                let string_version = format!("ori {}, {}, {}", str_rt, str_rs, str_immediate);
-                Ok(string_version)
-            }
-            OPCODE_ANDI => {
-                let string_version = format!("andi {}, {}, {}", str_rt, str_rs, str_immediate);
-                Ok(string_version)
-            }
-            OPCODE_REGIMM => {
-                let string_version = format!("dahi {}, {}", str_rs, str_immediate);
-                Ok(string_version)
-            }
-            OPCODE_BEQ => {
-                let string_version = format!("beq {}, {}, {}", str_rs, str_rt, str_immediate);
-                Ok(string_version)
-            }
-            OPCODE_BNE => {
-                let string_version = format!("beq {}, {}, {}", str_rs, str_rt, str_immediate);
-                Ok(string_version)
-            }
-            // Store/load word to Coprocessor 1
-            OPCODE_SWC1 => {
-                let string_version = format!("swc1 {}, {}, {}", str_ft, str_offset, str_base);
-                Ok(string_version)
-            }
-            OPCODE_LWC1 => {
-                let string_version = format!("lwc1 {}, {}, {}", str_ft, str_offset, str_base);
-                Ok(string_version)
-            }
-            OPCODE_J => {
-                let addr = value & 0x03ffffff;
-                let str_addr = format!("{:b}", addr);
-                let str_addr = str_addr.as_str();
-                let string_version = format!("j {}", str_addr);
-                Ok(string_version)
-            }
-            OPCODE_JAL => {
-                let addr = value & 0x03ffffff;
-                let str_addr = format!("{:b}", addr);
-                let str_addr = str_addr.as_str();
+                match fpu_branch_type.bcc1 {
+                    SUB_BC => {
+                        let str_offset = fpu_branch_type.offset.to_string();
+                        let str_offset = str_offset.as_str();
 
-                let string_version = format!("jal {}", str_addr);
-                Ok(string_version)
+                        match fpu_branch_type.tf {
+                            1 => {
+                                string_version.push_str(&format!("bc1t {}", str_offset));
+                            }
+                            _ => {
+                                string_version.push_str(&format!("bc1f {}", str_offset));
+                            }
+                        }
+                    }
+                    _ => {
+                        string_version.push_str("###");
+                    }
+                }
             }
+            MipsInstruction::FpuCompareType(fpu_compare_type) => {
+                // FPU Comparison instructions:
+                // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
 
-            _ => Err(format!("opcode `{op}` not supported")),
+                let str_fs = find_register_name(fpu_compare_type.fs).unwrap_or("##");
+                let str_ft = find_register_name(fpu_compare_type.ft).unwrap_or("##");
+
+                match fpu_compare_type.function {
+                    FUNCTION_C_EQ => {
+                        string_version.push_str(&format!("c.eq.s {}, {}", str_fs, str_ft));
+                    }
+                    FUNCTION_C_LT => {
+                        string_version.push_str(&format!("c.lt.s {}, {}", str_fs, str_ft));
+                    }
+                    FUNCTION_C_NGE => {
+                        string_version.push_str(&format!("c.nge.s {}, {}", str_fs, str_ft));
+                    }
+                    FUNCTION_C_LE => {
+                        string_version.push_str(&format!("c.le.s {}, {}", str_fs, str_ft));
+                    }
+                    FUNCTION_C_NGT => {
+                        string_version.push_str(&format!("c.ngt.s {}, {}", str_fs, str_ft));
+                    }
+                    _ => {
+                        string_version.push_str("###");
+                    }
+                }
+            }
         }
+        Ok(string_version)
     }
 }
 
