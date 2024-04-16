@@ -1480,8 +1480,8 @@ pub fn read_instructions(
 
                 //this instruction is not used in pseudo-instructions so we can push it to mouse_hover_string without checking if mouse_hover_string is empty
                 let info = InstructionDescription{
-                    syntax: "sll rt, rs, sa".to_string(),
-                    description: "Shifts the lower 32-bit word in `rs` to the left by sa number of bits and placing the sign-extended result into `rt`.".to_string(),
+                    syntax: "sll rd, rt, sa".to_string(),
+                    description: "Shifts the lower 32-bit word in `rt` to the left by sa number of bits and placing the sign-extended result into `rd`.".to_string(),
                 };
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
             }

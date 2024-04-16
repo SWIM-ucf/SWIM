@@ -77,11 +77,11 @@ fn get_string_version_from_r_type() {
         }
     );
 
-    let instruction: u32 = 0b00000000000000100001000011000000;
+    let instruction: u32 = 0b00000000000010000100101010000000;
     assert!(
         match MipsInstruction::get_string_version(instruction, labels.clone(), 0) {
             Ok(string) => {
-                string.contains("sll $v0, $v0, 3")
+                string.contains("sll $t1, $t0, 10")
             }
             _ => false,
         }

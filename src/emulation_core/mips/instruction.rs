@@ -337,7 +337,7 @@ impl MipsInstruction {
                 let str_rs = find_register_name(r_type.rs).unwrap_or("##");
                 let str_rt = find_register_name(r_type.rt).unwrap_or("##");
                 let str_rd = find_register_name(r_type.rd).unwrap_or("##");
-                let shamt_binary_str = format!("{:b}", r_type.shamt);
+                let shamt_binary_str = format!("{:?}", r_type.shamt);
                 let str_shamt = shamt_binary_str.as_str();
 
                 match r_type.op {
@@ -386,7 +386,7 @@ impl MipsInstruction {
                         }
                         FUNCT_SLL => {
                             string_version
-                                .push_str(&format!("sll {}, {}, {}", str_rd, str_rs, str_shamt));
+                                .push_str(&format!("sll {}, {}, {}", str_rd, str_rt, str_shamt));
                         }
                         FUNCT_SLT => {
                             string_version
