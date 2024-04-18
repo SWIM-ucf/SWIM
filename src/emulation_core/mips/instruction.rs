@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use crate::parser::parser_structs_and_enums::GP_REGISTERS;
+use crate::parser::parser_structs_and_enums::{FP_REGISTERS, GP_REGISTERS};
 use serde::{Deserialize, Serialize};
 
 use super::constants::*;
@@ -396,29 +396,7 @@ impl MipsInstruction {
                             string_version
                                 .push_str(&format!("sltu {}, {}, {}", str_rd, str_rs, str_rt));
                         }
-                        FUNCT_SOP32 => {
-                            string_version
-                                .push_str(&format!("div {}, {}, {}", str_rd, str_rs, str_rt));
-                        }
-                        FUNCT_SOP36 => match r_type.shamt {
-                            ENC_DIV => {
-                                string_version
-                                    .push_str(&format!("div {}, {}, {}", str_rd, str_rs, str_rt));
-                            }
-                            _ => {
-                                string_version.push_str("###");
-                            }
-                        },
-                        FUNCT_SOP33 | FUNCT_SOP37 => match r_type.shamt {
-                            ENC_DIVU => {
-                                string_version
-                                    .push_str(&format!("divu {}, {}, {}", str_rd, str_rs, str_rt));
-                            }
-                            _ => {
-                                string_version.push_str("###");
-                            }
-                        },
-                        FUNCT_SOP30 | FUNCT_SOP34 => match r_type.shamt {
+                        FUNCT_SOP30 => match r_type.shamt {
                             ENC_MUL => {
                                 string_version
                                     .push_str(&format!("mul {}, {}, {}", str_rd, str_rs, str_rt));
@@ -427,10 +405,59 @@ impl MipsInstruction {
                                 string_version.push_str("###");
                             }
                         },
-                        FUNCT_SOP31 | FUNCT_SOP35 => match r_type.shamt {
+                        FUNCT_SOP31 => match r_type.shamt {
                             ENC_MULU => {
                                 string_version
                                     .push_str(&format!("mulu {}, {}, {}", str_rd, str_rs, str_rt));
+                            }
+                            _ => {
+                                string_version.push_str("###");
+                            }
+                        },
+                        FUNCT_SOP32 => {
+                            string_version
+                                .push_str(&format!("div {}, {}, {}", str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_SOP33 => match r_type.shamt {
+                            ENC_DIVU => {
+                                string_version
+                                    .push_str(&format!("divu {}, {}, {}", str_rd, str_rs, str_rt));
+                            }
+                            _ => {
+                                string_version.push_str("###");
+                            }
+                        },
+                        FUNCT_SOP34 => match r_type.shamt {
+                            ENC_DMUL => {
+                                string_version
+                                    .push_str(&format!("dmul {}, {}, {}", str_rd, str_rs, str_rt));
+                            }
+                            _ => {
+                                string_version.push_str("###");
+                            }
+                        },
+                        FUNCT_SOP35 => match r_type.shamt {
+                            ENC_DMULU => {
+                                string_version
+                                    .push_str(&format!("dmulu {}, {}, {}", str_rd, str_rs, str_rt));
+                            }
+                            _ => {
+                                string_version.push_str("###");
+                            }
+                        },
+                        FUNCT_SOP36 => match r_type.shamt {
+                            ENC_DIV => {
+                                string_version
+                                    .push_str(&format!("ddiv {}, {}, {}", str_rd, str_rs, str_rt));
+                            }
+                            _ => {
+                                string_version.push_str("###");
+                            }
+                        },
+                        FUNCT_SOP37 => match r_type.shamt {
+                            ENC_DIVU => {
+                                string_version
+                                    .push_str(&format!("ddivu {}, {}, {}", str_rd, str_rs, str_rt));
                             }
                             _ => {
                                 string_version.push_str("###");
@@ -507,7 +534,20 @@ impl MipsInstruction {
                             .push_str(&format!("andi {}, {}, {}", str_rt, str_rs, str_immediate));
                     }
                     OPCODE_REGIMM => {
-                        string_version.push_str(&format!("dahi {}, {}", str_rs, str_immediate));
+                        // rt field is used as the register immediate subcode
+                        match i_type.rt {
+                            RMSUB_DAHI => {
+                                string_version
+                                    .push_str(&format!("dahi {}, {}", str_rs, str_immediate));
+                            }
+                            RMSUB_DATI => {
+                                string_version
+                                    .push_str(&format!("dati {}, {}", str_rs, str_immediate));
+                            }
+                            _ => {
+                                string_version.push_str("###");
+                            }
+                        }
                     }
                     OPCODE_BEQ => {
                         let mut str_label = String::new();
@@ -577,12 +617,10 @@ impl MipsInstruction {
             MipsInstruction::FpuRType(fpu_r_type) => {
                 // FPU R-Type instructions:
                 // add.fmt, sub.fmt, mul.fmt, div.fmt
-                // add.d, sub.d, mul.d, div.d
-                // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
 
-                let str_fs = find_register_name(fpu_r_type.fs).unwrap_or("##");
-                let str_ft = find_register_name(fpu_r_type.ft).unwrap_or("##");
-                let str_fd = find_register_name(fpu_r_type.fd).unwrap_or("##");
+                let str_fs = find_register_name_fp(fpu_r_type.fs).unwrap_or("##");
+                let str_ft = find_register_name_fp(fpu_r_type.ft).unwrap_or("##");
+                let str_fd = find_register_name_fp(fpu_r_type.fd).unwrap_or("##");
 
                 match fpu_r_type.fmt {
                     FMT_SINGLE => match fpu_r_type.function {
@@ -623,21 +661,6 @@ impl MipsInstruction {
                             string_version
                                 .push_str(&format!("div.d {}, {}, {}", str_fd, str_fs, str_ft));
                         }
-                        FUNCTION_C_EQ => {
-                            string_version.push_str(&format!("c.eq.d {}, {}", str_fs, str_ft));
-                        }
-                        FUNCTION_C_LT => {
-                            string_version.push_str(&format!("c.lt.d {}, {}", str_fs, str_ft));
-                        }
-                        FUNCTION_C_NGE => {
-                            string_version.push_str(&format!("c.nge.d {}, {}", str_fs, str_ft));
-                        }
-                        FUNCTION_C_LE => {
-                            string_version.push_str(&format!("c.le.d {}, {}", str_fs, str_ft));
-                        }
-                        FUNCTION_C_NGT => {
-                            string_version.push_str(&format!("c.ngt.d {}, {}", str_fs, str_ft));
-                        }
                         _ => {
                             string_version.push_str("###");
                         }
@@ -650,8 +673,8 @@ impl MipsInstruction {
             MipsInstruction::FpuIType(fpu_i_type) => {
                 // FPU I-Type instructions:
                 // swc1, lwc1
-                let str_base = find_register_name(fpu_i_type.base).unwrap_or("##");
-                let str_ft = find_register_name(fpu_i_type.ft).unwrap_or("##");
+                let str_base = find_register_name(fpu_i_type.base).unwrap_or("##"); // base is a GPRegister
+                let str_ft = find_register_name_fp(fpu_i_type.ft).unwrap_or("##");
                 let str_offset = fpu_i_type.offset.to_string();
                 let str_offset = str_offset.as_str();
 
@@ -674,7 +697,7 @@ impl MipsInstruction {
                 // mtc1, dmtc1, mfc1, dmfc1
 
                 let str_rt = find_register_name(fpu_reg_imm_type.rt).unwrap_or("##");
-                let str_fs = find_register_name(fpu_reg_imm_type.fs).unwrap_or("##");
+                let str_fs = find_register_name_fp(fpu_reg_imm_type.fs).unwrap_or("##");
 
                 match fpu_reg_imm_type.sub {
                     SUB_MT => {
@@ -697,6 +720,7 @@ impl MipsInstruction {
             MipsInstruction::FpuBranchType(fpu_branch_type) => {
                 // FPU Branching instructions:
                 // bc1t, bc1f
+                // TODO add support for labels
 
                 match fpu_branch_type.bcc1 {
                     SUB_BC => {
@@ -721,24 +745,53 @@ impl MipsInstruction {
                 // FPU Comparison instructions:
                 // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
 
-                let str_fs = find_register_name(fpu_compare_type.fs).unwrap_or("##");
-                let str_ft = find_register_name(fpu_compare_type.ft).unwrap_or("##");
+                let str_fs = find_register_name_fp(fpu_compare_type.fs).unwrap_or("##");
+                let str_ft = find_register_name_fp(fpu_compare_type.ft).unwrap_or("##");
 
-                match fpu_compare_type.function {
-                    FUNCTION_C_EQ => {
-                        string_version.push_str(&format!("c.eq.s {}, {}", str_fs, str_ft));
+                match fpu_compare_type.fmt {
+                    FMT_SINGLE => {
+                        match fpu_compare_type.function {
+                            FUNCTION_C_EQ => {
+                                string_version.push_str(&format!("c.eq.s {}, {}", str_fs, str_ft));
+                            }
+                            FUNCTION_C_LT => {
+                                string_version.push_str(&format!("c.lt.s {}, {}", str_fs, str_ft));
+                            }
+                            FUNCTION_C_NGE => {
+                                string_version.push_str(&format!("c.nge.s {}, {}", str_fs, str_ft));
+                            }
+                            FUNCTION_C_LE => {
+                                string_version.push_str(&format!("c.le.s {}, {}", str_fs, str_ft));
+                            }
+                            FUNCTION_C_NGT => {
+                                string_version.push_str(&format!("c.ngt.s {}, {}", str_fs, str_ft));
+                            }
+                            _ => {
+                                string_version.push_str("###");
+                            }
+                        }
                     }
-                    FUNCTION_C_LT => {
-                        string_version.push_str(&format!("c.lt.s {}, {}", str_fs, str_ft));
-                    }
-                    FUNCTION_C_NGE => {
-                        string_version.push_str(&format!("c.nge.s {}, {}", str_fs, str_ft));
-                    }
-                    FUNCTION_C_LE => {
-                        string_version.push_str(&format!("c.le.s {}, {}", str_fs, str_ft));
-                    }
-                    FUNCTION_C_NGT => {
-                        string_version.push_str(&format!("c.ngt.s {}, {}", str_fs, str_ft));
+                    FMT_DOUBLE => {
+                        match fpu_compare_type.function {
+                            FUNCTION_C_EQ => {
+                                string_version.push_str(&format!("c.eq.d {}, {}", str_fs, str_ft));
+                            }
+                            FUNCTION_C_LT => {
+                                string_version.push_str(&format!("c.lt.d {}, {}", str_fs, str_ft));
+                            }
+                            FUNCTION_C_NGE => {
+                                string_version.push_str(&format!("c.nge.d {}, {}", str_fs, str_ft));
+                            }
+                            FUNCTION_C_LE => {
+                                string_version.push_str(&format!("c.le.d {}, {}", str_fs, str_ft));
+                            }
+                            FUNCTION_C_NGT => {
+                                string_version.push_str(&format!("c.ngt.d {}, {}", str_fs, str_ft));
+                            }
+                            _ => {
+                                string_version.push_str("###");
+                            }
+                        }
                     }
                     _ => {
                         string_version.push_str("###");
@@ -755,6 +808,17 @@ pub fn find_register_name(binary: u8) -> Option<&'static str> {
         if register.binary == binary {
             // If a match is found, return the first name in the names array
             return Some(register.names[0]);
+        }
+    }
+    // If no match is found, return None
+    None
+}
+
+pub fn find_register_name_fp(binary: u8) -> Option<&'static str> {
+    for register in FP_REGISTERS {
+        if register.binary == binary {
+            // If a match is found, return the first name in the names array
+            return Some(register.name);
         }
     }
     // If no match is found, return None
