@@ -91,7 +91,7 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             let address_length = address.len();
 
             // doesn't support multi-line highlighting yet
-            if start_column <= address_length as f64
+            if start_column <= address_length as f64 + 2.0
                 || end_column <= address_length as f64 + 2.0
                 || end_column <= start_column
                 || start_line_number != end_line_number
@@ -168,7 +168,7 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
                     actual_start_col += 1;
                 }
                 // if the last bit is part of an incomplete byte, remove it
-                if actual_end_col % 2 == 0 {
+                if actual_end_col % 2 == 0 && actual_end_col > 0 {
                     actual_end_col -= 1;
                 }
                 // make sure the resulting selection is valid
