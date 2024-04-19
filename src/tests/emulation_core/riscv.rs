@@ -513,6 +513,54 @@ pub mod sltu {
     }
 }
 
+pub mod addi_addiu {
+    use super::*;
+    #[test]
+    fn addi_simple_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        // $s0 = $t0 + 0x4
+        let instructions: Vec<u32> = vec![0b000000000100_00101_000_01000_0010011];
+        datapath.initialize(0, instructions)?;
+        datapath.registers[RiscGpRegisterType::X5] = 1;
+        datapath.registers[RiscGpRegisterType::X8] = 123;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[RiscGpRegisterType::X8], 5);
+        Ok(())
+    }
+
+    #[test]
+    fn addi_overflow_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        // $s0 = $t0 + 0x4
+        let instructions: Vec<u32> = vec![0b000000000100_00101_000_01000_0010011];
+        datapath.initialize(0, instructions)?;
+        datapath.registers[RiscGpRegisterType::X5] = 0xffffffffffffffff;
+        datapath.registers[RiscGpRegisterType::X8] = 123;
+        datapath.execute_instruction();
+
+        // If there is an overflow on addi, $s0 should not change.
+        assert_eq!(datapath.registers[RiscGpRegisterType::X8], 3);
+        Ok(())
+    }
+
+    #[test]
+    fn addi_sign_extend_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        // $s0 = $t0 + 0x1
+        let instructions: Vec<u32> = vec![0b000000000001_00101_000_01000_0010011];
+        datapath.initialize(0, instructions)?;
+        datapath.registers[RiscGpRegisterType::X5] = 0xfffffffffffffff1;
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[RiscGpRegisterType::X8], 0xfffffffffffffff2);
+        Ok(())
+    }
+}
+
 /*
 pub mod mul {
     use super::*;
@@ -618,123 +666,7 @@ pub mod div {
     }
 }
 
-pub mod addi_addiu {
-    use super::*;
-    #[test]
-    fn addi_simple_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
 
-        // $s0 = $t0 + 0x4
-        //                                  addi    $t0   $s0          4
-        let instructions: Vec<u32> = vec![0b001000_01000_10000_0000000000000100];
-        datapath.initialize_legacy(instructions)?;
-        datapath.registers[GpRegisterType::T0] = 1;
-        datapath.registers[GpRegisterType::S0] = 123;
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers[GpRegisterType::S0], 5);
-        Ok(())
-    }
-
-    #[test]
-    // NOTE: This test falls under our initial project design that there are no
-    // handled exceptions. Therefore, we would expect to see an updated value in
-    // register S0, rather than having the register unmodified per the MIPS64v6
-    // specification.
-    fn addi_overflow_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // $s0 = $t0 + 0x4
-        //                                  addi    $t0   $s0          4
-        let instructions: Vec<u32> = vec![0b001000_01000_10000_0000000000000100];
-        datapath.initialize_legacy(instructions)?;
-        datapath.registers[GpRegisterType::T0] = 0xffffffff;
-        datapath.registers[GpRegisterType::S0] = 123;
-        datapath.execute_instruction();
-
-        // If there is an overflow on addi, $s0 should not change.
-        assert_eq!(datapath.registers[GpRegisterType::S0], 3);
-        Ok(())
-    }
-
-    #[test]
-    fn addi_sign_extend_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // $s0 = $t0 + 0x1
-        //                                  addi    $t0   $s0          1
-        let instructions: Vec<u32> = vec![0b001000_01000_10000_0000000000000001];
-        datapath.initialize_legacy(instructions)?;
-        datapath.registers[GpRegisterType::T0] = 0xfffffff1;
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers[GpRegisterType::S0], 0xfffffffffffffff2);
-        Ok(())
-    }
-
-    #[test]
-    fn addi_sign_extend_test2() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // $s0 = $t0 + 0x1
-        //                                  addi    $t0   $s0          1
-        let instructions: Vec<u32> = vec![0b001000_01000_10000_0000000000000001];
-        datapath.initialize_legacy(instructions)?;
-        datapath.registers[GpRegisterType::T0] = 0xfffffffe;
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers[GpRegisterType::S0], 0xffffffffffffffff);
-        Ok(())
-    }
-
-    #[test]
-    fn addiu_simple_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // $s0 = $t0 + 0x4
-        //                                  addiu    $t0   $s0          4
-        let instructions: Vec<u32> = vec![0b001001_01000_10000_0000000000000100];
-        datapath.initialize_legacy(instructions)?;
-        datapath.registers[GpRegisterType::T0] = 1;
-        datapath.registers[GpRegisterType::S0] = 123;
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers[GpRegisterType::S0], 5);
-        Ok(())
-    }
-
-    #[test]
-    fn addiu_overflow_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // $s0 = $t0 + 0x4
-        //                                  addiu    $t0   $s0          4
-        let instructions: Vec<u32> = vec![0b001001_01000_10000_0000000000000100];
-        datapath.initialize_legacy(instructions)?;
-        datapath.registers[GpRegisterType::T0] = 0xffffffff;
-        datapath.registers[GpRegisterType::S0] = 123;
-        datapath.execute_instruction();
-
-        // For the addiu instruction, $s0 would change on overflow, it would become 3.
-        assert_eq!(datapath.registers[GpRegisterType::S0], 3);
-        Ok(())
-    }
-
-    #[test]
-    fn addiu_sign_extend_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // $s0 = $t0 + 0x1
-        //                                  addi    $t0   $s0          1
-        let instructions: Vec<u32> = vec![0b001000_01000_10000_0000000000000001];
-        datapath.initialize_legacy(instructions)?;
-        datapath.registers[GpRegisterType::T0] = 0xfffffff1;
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers[GpRegisterType::S0], 0xfffffffffffffff2);
-        Ok(())
-    }
-}
 
 pub mod load_word {
     use super::*;
