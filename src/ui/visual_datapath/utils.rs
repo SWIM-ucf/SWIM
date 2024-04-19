@@ -51,6 +51,18 @@ pub fn get_window_size() -> (i32, i32) {
     )
 }
 
+pub fn get_datapath_iframe_size() -> (i32, i32) {
+    let datapath_wrapper = document()
+        .get_element_by_id("datapath-scrollbox")
+        .unwrap()
+        .unchecked_into::<HtmlElement>();
+
+    (
+        datapath_wrapper.client_width() as i32,
+        datapath_wrapper.client_height() as i32,
+    )
+}
+
 /// Returns the relative coordinates of the `<object>` element to the page.
 pub fn get_datapath_position() -> (i32, i32) {
     let datapath_root = get_datapath_root();
