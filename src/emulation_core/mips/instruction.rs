@@ -329,7 +329,6 @@ impl MipsInstruction {
         log::debug!("struct_representation: {:?}", struct_representation);
         // log all the fields of the struct_representation
 
-
         match struct_representation {
             MipsInstruction::RType(r_type) => {
                 // R-type instructions:
@@ -396,8 +395,10 @@ impl MipsInstruction {
                             if r_type.rd == 0 && r_type.rt == 0 && r_type.shamt == 0 {
                                 string_version.push_str("nop");
                             } else {
-                                string_version
-                                    .push_str(&format!("sll {}, {}, {}", str_rd, str_rt, str_shamt));
+                                string_version.push_str(&format!(
+                                    "sll {}, {}, {}",
+                                    str_rd, str_rt, str_shamt
+                                ));
                             }
                         }
                         FUNCT_SLT => {
