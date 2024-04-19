@@ -1,6 +1,6 @@
 # SWIM (Simple Web Interface for eMulation)
 
-This was originally developed by Kevin Cahalan, Jerrett Longworth, Huy Nguyen, Evan Raiford, and Jimmie Smith at UCF as a senior design project.
+This was originally developed by Kevin Cahalan, Jerrett Longworth, Huy Nguyen, Evan Raiford, and Jimmie Smith at UCF as a senior design project. Version 2 was developed by Ryan Harding, Cay Henning, Cameron McDougal, and Brooks McKinley as their senior design project.
 
 ![Screenshot of Swim V1](media/swimv2-screenshot.png)
 
@@ -263,7 +263,7 @@ The RISC-V core supports the RV32I, RV64I, RV32M, RV64M, RV32F, and RV64F extens
     - fcvt.lu.s
     - fcvt.s.l
     - fcvt.s.lu
-- Psuedo-instructions:
+- Pseudo-instructions:
     - li
     - call
     - tail
