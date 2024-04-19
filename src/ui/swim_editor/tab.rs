@@ -58,6 +58,7 @@ pub fn tab<T: PartialEq + 'static>(props: &TabProps<T>) -> Html {
             label={props.label.clone()}
             onclick={props.on_click.clone()}
             disabled={props.disabled}
+            title={props.label.clone()}
         >
             {props.text.clone()}
         </button>

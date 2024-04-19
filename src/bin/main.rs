@@ -696,8 +696,14 @@ fn app(props: &AppProps) -> Html {
                 <Regview gp={datapath_state.get_dyn_gp_registers()} fp={datapath_state.get_dyn_fp_registers()} pc_limit={*pc_limit} communicator={props.communicator}/>
             </div>
             <div class="absolute w-8 top-2 right-2 hover:w-9 duration-300">
-                <a href="https://github.com/SWIM-ucf/SWIM" target="_blank">
+                <a href="https://github.com/SWIM-ucf/SWIM/issues" target="_blank" class="group">
                     <img src="/static/github-mark-white.svg" alt="GitHub"/>
+                    // tooltip for hovering over github link
+                    <div class="hidden group-hover:block absolute top-[0.4rem] right-12 w-[5.8rem] bg-primary-100 text-primary-900 p-1 rounded-md text-xs">
+                        <p>{"Report an issue"}</p>
+                        // create arrow
+                        <div class="absolute w-2 h-2 bg-primary-100 top-2 right-[-4px] transform rotate-45"></div>
+                    </div>
                 </a>
             </div>
         </div>
