@@ -403,6 +403,116 @@ pub mod sr {
     }
 }
 
+pub mod slt {
+    use super::*;
+
+    #[test]
+    fn easy_rs_less_than_rt_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        // $s2 = $s0 < $s1
+        let instructions: Vec<u32> = vec![0b0000000_01001_01000_010_10010_0110011];
+        datapath.initialize(0, instructions)?;
+
+        datapath.registers[RiscGpRegisterType::X8] = 1;
+        datapath.registers[RiscGpRegisterType::X9] = 123;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[RiscGpRegisterType::X18], 1);
+        Ok(())
+    }
+
+    #[test]
+    fn easy_rs_greater_than_rt_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        // $s2 = $s0 < $s1
+        let instructions: Vec<u32> = vec![0b0000000_01001_01000_010_10010_0110011];
+        datapath.initialize(0, instructions)?;
+
+        datapath.registers[RiscGpRegisterType::X8] = 124;
+        datapath.registers[RiscGpRegisterType::X9] = 123;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[RiscGpRegisterType::X18], 0);
+        Ok(())
+    }
+
+    #[test]
+    fn easy_signed_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        // $s2 = $s0 < $s1
+        let instructions: Vec<u32> = vec![0b0000000_01001_01000_010_10010_0110011];
+        datapath.initialize(0, instructions)?;
+
+        datapath.registers[RiscGpRegisterType::X8] = -124_i64 as u64;
+        datapath.registers[RiscGpRegisterType::X9] = 123;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[RiscGpRegisterType::X18], 1);
+        Ok(())
+    }
+}
+
+pub mod sltu {
+    use super::*;
+
+    #[test]
+    fn easy_rs_less_than_rt_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        // $s2 = $s0 < $s1
+        let instructions: Vec<u32> = vec![0b0000000_01001_01000_011_10010_0110011];
+        datapath.initialize(0, instructions)?;
+
+        datapath.registers[RiscGpRegisterType::X8] = 1;
+        datapath.registers[RiscGpRegisterType::X9] = 123;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[RiscGpRegisterType::X18], 1);
+        Ok(())
+    }
+
+    #[test]
+    fn easy_rs_greater_than_rt_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        // $s2 = $s0 < $s1
+        let instructions: Vec<u32> = vec![0b0000000_01001_01000_011_10010_0110011];
+        datapath.initialize(0, instructions)?;
+
+        datapath.registers[RiscGpRegisterType::X8] = 124;
+        datapath.registers[RiscGpRegisterType::X9] = 123;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[RiscGpRegisterType::X18], 0);
+        Ok(())
+    }
+
+    #[test]
+    fn easy_signed_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        // $s2 = $s0 < $s1
+        let instructions: Vec<u32> = vec![0b0000000_01001_01000_011_10010_0110011];
+        datapath.initialize(0, instructions)?;
+
+        datapath.registers[RiscGpRegisterType::X8] = -124_i64 as u64;
+        datapath.registers[RiscGpRegisterType::X9] = 123;
+
+        datapath.execute_instruction();
+
+        assert_eq!(datapath.registers[RiscGpRegisterType::X18], 0);
+        Ok(())
+    }
+}
+
 /*
 pub mod mul {
     use super::*;
@@ -504,122 +614,6 @@ pub mod div {
         datapath.execute_instruction();
 
         assert_eq!(datapath.registers.gpr[20] as i64, -4); // $s5
-        Ok(())
-    }
-}
-
-pub mod slt {
-    use super::*;
-
-    #[test]
-    fn easy_rs_less_than_rt_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // $s2 = $s0 < $s1
-        //                                  R-type  s0    s1    s2  (shamt)  SLT
-        let instructions: Vec<u32> = vec![0b000000_10000_10001_10010_00000_101010];
-        datapath.initialize_legacy(instructions)?;
-
-        datapath.registers[GpRegisterType::S0] = 1;
-        datapath.registers[GpRegisterType::S1] = 123;
-
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers[GpRegisterType::S2], 1);
-        Ok(())
-    }
-
-    #[test]
-    fn easy_rs_greater_than_rt_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // $s2 = $s0 < $s1
-        //                                  R-type  s0    s1    s2  (shamt)  SLT
-        let instructions: Vec<u32> = vec![0b000000_10000_10001_10010_00000_101010];
-        datapath.initialize_legacy(instructions)?;
-
-        datapath.registers[GpRegisterType::S0] = 124;
-        datapath.registers[GpRegisterType::S1] = 123;
-
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers[GpRegisterType::S2], 0);
-        Ok(())
-    }
-
-    #[test]
-    fn easy_signed_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // $s2 = $s0 < $s1
-        //                                  R-type  s0    s1    s2  (shamt)  SLT
-        let instructions: Vec<u32> = vec![0b000000_10000_10001_10010_00000_101010];
-        datapath.initialize_legacy(instructions)?;
-
-        datapath.registers[GpRegisterType::S0] = -124_i64 as u64;
-        datapath.registers[GpRegisterType::S1] = 123;
-
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers[GpRegisterType::S2], 1);
-        Ok(())
-    }
-}
-
-pub mod sltu {
-    use super::*;
-
-    #[test]
-    fn easy_rs_less_than_rt_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // $s2 = $s0 < $s1
-        //                                  R-type  s0    s1    s2  (shamt)  SLTU
-        let instructions: Vec<u32> = vec![0b000000_10000_10001_10010_00000_101011];
-        datapath.initialize_legacy(instructions)?;
-
-        datapath.registers[GpRegisterType::S0] = 1;
-        datapath.registers[GpRegisterType::S1] = 123;
-
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers[GpRegisterType::S2], 1);
-        Ok(())
-    }
-
-    #[test]
-    fn easy_rs_greater_than_rt_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // $s2 = $s0 < $s1
-        //                                  R-type  s0    s1    s2  (shamt)  SLTU
-        let instructions: Vec<u32> = vec![0b000000_10000_10001_10010_00000_101011];
-        datapath.initialize_legacy(instructions)?;
-
-        datapath.registers[GpRegisterType::S0] = 124;
-        datapath.registers[GpRegisterType::S1] = 123;
-
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers[GpRegisterType::S2], 0);
-        Ok(())
-    }
-
-    #[test]
-    fn easy_signed_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // $s2 = $s0 < $s1
-        //                                  R-type  s0    s1    s2  (shamt)  SLTU
-        let instructions: Vec<u32> = vec![0b000000_10000_10001_10010_00000_101011];
-        datapath.initialize_legacy(instructions)?;
-
-        datapath.registers[GpRegisterType::S0] = -124_i64 as u64;
-        datapath.registers[GpRegisterType::S1] = 123;
-
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers[GpRegisterType::S2], 0);
         Ok(())
     }
 }
