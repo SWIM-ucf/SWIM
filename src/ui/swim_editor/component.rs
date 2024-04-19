@@ -194,7 +194,6 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
             let new_architecture: AvailableDatapaths =
                 AvailableDatapaths::from(architecture.as_str());
             communicator.set_core(new_architecture);
-            log::debug!("New architecture: {:?}", new_architecture);
         })
     };
 

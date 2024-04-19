@@ -1,4 +1,4 @@
-pub mod instruction;
+pub mod mips_instruction;
 pub mod memory;
 pub mod mips;
 pub mod registers;

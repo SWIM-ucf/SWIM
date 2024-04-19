@@ -320,8 +320,15 @@ impl MipsInstruction {
         labels: HashMap<String, usize>,
         instruction_number: usize,
     ) -> Result<String, String> {
-        let struct_representation = MipsInstruction::try_from(value)?;
+        let struct_representation = match MipsInstruction::try_from(value) {
+            Ok(struct_representation) => struct_representation,
+            Err(_) => return Ok("nop".to_string()),
+        };
         let mut string_version = String::new();
+
+        log::debug!("struct_representation: {:?}", struct_representation);
+        // log all the fields of the struct_representation
+
 
         match struct_representation {
             MipsInstruction::RType(r_type) => {
@@ -385,8 +392,13 @@ impl MipsInstruction {
                                 .push_str(&format!("or {}, {}, {}", str_rd, str_rs, str_rt));
                         }
                         FUNCT_SLL => {
-                            string_version
-                                .push_str(&format!("sll {}, {}, {}", str_rd, str_rt, str_shamt));
+                            // if all the fields are 0, then it is a nop
+                            if r_type.rd == 0 && r_type.rt == 0 && r_type.shamt == 0 {
+                                string_version.push_str("nop");
+                            } else {
+                                string_version
+                                    .push_str(&format!("sll {}, {}, {}", str_rd, str_rt, str_shamt));
+                            }
                         }
                         FUNCT_SLT => {
                             string_version
@@ -582,7 +594,6 @@ impl MipsInstruction {
                 let mut str_addr = addr.to_string();
 
                 for label in labels {
-                    log::debug!("label: {} {:?}", label.0, label.1);
                     if label.1 == (addr as usize) * 4 {
                         str_addr = label.0;
                     }
@@ -749,50 +760,46 @@ impl MipsInstruction {
                 let str_ft = find_register_name_fp(fpu_compare_type.ft).unwrap_or("##");
 
                 match fpu_compare_type.fmt {
-                    FMT_SINGLE => {
-                        match fpu_compare_type.function {
-                            FUNCTION_C_EQ => {
-                                string_version.push_str(&format!("c.eq.s {}, {}", str_fs, str_ft));
-                            }
-                            FUNCTION_C_LT => {
-                                string_version.push_str(&format!("c.lt.s {}, {}", str_fs, str_ft));
-                            }
-                            FUNCTION_C_NGE => {
-                                string_version.push_str(&format!("c.nge.s {}, {}", str_fs, str_ft));
-                            }
-                            FUNCTION_C_LE => {
-                                string_version.push_str(&format!("c.le.s {}, {}", str_fs, str_ft));
-                            }
-                            FUNCTION_C_NGT => {
-                                string_version.push_str(&format!("c.ngt.s {}, {}", str_fs, str_ft));
-                            }
-                            _ => {
-                                string_version.push_str("###");
-                            }
+                    FMT_SINGLE => match fpu_compare_type.function {
+                        FUNCTION_C_EQ => {
+                            string_version.push_str(&format!("c.eq.s {}, {}", str_fs, str_ft));
                         }
-                    }
-                    FMT_DOUBLE => {
-                        match fpu_compare_type.function {
-                            FUNCTION_C_EQ => {
-                                string_version.push_str(&format!("c.eq.d {}, {}", str_fs, str_ft));
-                            }
-                            FUNCTION_C_LT => {
-                                string_version.push_str(&format!("c.lt.d {}, {}", str_fs, str_ft));
-                            }
-                            FUNCTION_C_NGE => {
-                                string_version.push_str(&format!("c.nge.d {}, {}", str_fs, str_ft));
-                            }
-                            FUNCTION_C_LE => {
-                                string_version.push_str(&format!("c.le.d {}, {}", str_fs, str_ft));
-                            }
-                            FUNCTION_C_NGT => {
-                                string_version.push_str(&format!("c.ngt.d {}, {}", str_fs, str_ft));
-                            }
-                            _ => {
-                                string_version.push_str("###");
-                            }
+                        FUNCTION_C_LT => {
+                            string_version.push_str(&format!("c.lt.s {}, {}", str_fs, str_ft));
                         }
-                    }
+                        FUNCTION_C_NGE => {
+                            string_version.push_str(&format!("c.nge.s {}, {}", str_fs, str_ft));
+                        }
+                        FUNCTION_C_LE => {
+                            string_version.push_str(&format!("c.le.s {}, {}", str_fs, str_ft));
+                        }
+                        FUNCTION_C_NGT => {
+                            string_version.push_str(&format!("c.ngt.s {}, {}", str_fs, str_ft));
+                        }
+                        _ => {
+                            string_version.push_str("###");
+                        }
+                    },
+                    FMT_DOUBLE => match fpu_compare_type.function {
+                        FUNCTION_C_EQ => {
+                            string_version.push_str(&format!("c.eq.d {}, {}", str_fs, str_ft));
+                        }
+                        FUNCTION_C_LT => {
+                            string_version.push_str(&format!("c.lt.d {}, {}", str_fs, str_ft));
+                        }
+                        FUNCTION_C_NGE => {
+                            string_version.push_str(&format!("c.nge.d {}, {}", str_fs, str_ft));
+                        }
+                        FUNCTION_C_LE => {
+                            string_version.push_str(&format!("c.le.d {}, {}", str_fs, str_ft));
+                        }
+                        FUNCTION_C_NGT => {
+                            string_version.push_str(&format!("c.ngt.d {}, {}", str_fs, str_ft));
+                        }
+                        _ => {
+                            string_version.push_str("###");
+                        }
+                    },
                     _ => {
                         string_version.push_str("###");
                     }

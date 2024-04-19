@@ -141,10 +141,6 @@ fn app(props: &AppProps) -> Html {
         use_callback(
             move |_, (text_model, editor_curr_line, memory_curr_instr, datapath_state)| {
                 let text_model = text_model.clone();
-                log!(format!(
-                    "Current arch: {:?}",
-                    datapath_state.current_architecture
-                ));
                 // parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
                 let (program_info, assembled, labels) =
                     parser(text_model.get_value(), datapath_state.current_architecture);
@@ -437,7 +433,6 @@ fn app(props: &AppProps) -> Html {
                                         }
                                     }
                                 };
-                                // log::debug!("String version: {}", string_version);
 
                                 changed_lines.push(UpdatedLine::new(string_version, i));
                                 communicator.set_memory(address * 4, new_word);

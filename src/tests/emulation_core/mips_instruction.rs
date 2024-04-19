@@ -675,5 +675,19 @@ fn get_string_version_from_fpu_compare_type() {
             _ => false,
         }
     );
+}
 
+// ** Test empty instruction ** //
+#[test]
+fn get_string_version_from_empty_instruction() {
+    let labels: HashMap<String, usize> = HashMap::<String, usize>::new();
+    let instruction: u32 = 0b00000000000000000000000000000000;
+    assert!(
+        match MipsInstruction::get_string_version(instruction, labels.clone(), 0) {
+            Ok(string) => {
+                string.contains("nop")
+            }
+            _ => false,
+        }
+    );
 }
