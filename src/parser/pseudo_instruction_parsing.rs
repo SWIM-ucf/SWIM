@@ -2844,7 +2844,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 // Set Pseudo Description
                 let info = PseudoDescription {
                     name: "jr".to_string(),
-                    syntax: "jr offset".to_string(),
+                    syntax: "jr rs".to_string(),
                     translation_lines: vec!["jalr x0, rs, 0".to_string()],
                 };
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
@@ -2855,13 +2855,21 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 }
 
                 // Replace Instruction
-                instruction.operator.token_name = "jal".to_string();
+                instruction.operator.token_name = "jalr".to_string();
 
                 // Replace Operands
                 instruction.operands.insert(
                     0,
                     Token {
-                        token_name: "x1".to_string(),
+                        token_name: "x0".to_string(),
+                        start_end_columns: (0, 0),
+                        token_type: Default::default(),
+                    },
+                );
+                instruction.operands.insert(
+                    2,
+                    Token {
+                        token_name: "0".to_string(),
                         start_end_columns: (0, 0),
                         token_type: Default::default(),
                     },
