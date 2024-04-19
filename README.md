@@ -311,9 +311,9 @@ The following directives are supported in the .data segment:
 
 SWIM supports IO through the console. Upon executing the `syscall` instruction in MIPS or the `ecall` instruction in RISC-V, SWIM will attempt to perform a syscall based on the values of the argument registers.
 
-In both MIPS and RISC-V, the call number is extracted from the `a0` register, and the integer/memory address argument are extracted from the `a1` register. For floating point arguments, the value is extracted from the `f0` register.
+In both MIPS and RISC-V, the call number is extracted from the `a0` register, and the integer/memory address argument are extracted from the `a1` register. For floating point arguments, the value is extracted from the `f0` register for MIPS and `f10` for RISC-V.
 
-However, in MIPS, the return value for a syscall is placed in the `v0` register while in RISC-V it's placed in the `a1` register. For floating point return values, the result is returned to `f0` for both architectures.
+For return values, in MIPS, the return value for a syscall is placed in the `v0` register while in RISC-V it's placed in the `a1` register. For floating point return values, the result is returned to `f0` for MIPS and `f10` for RISC-V.
 
 The following table shows a list of the supported syscalls and their arguments.
 
