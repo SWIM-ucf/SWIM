@@ -3,6 +3,9 @@ use wasm_bindgen::JsCast;
 use web_sys::{HtmlInputElement, InputEvent, KeyboardEvent};
 use yew::prelude::*;
 
+// ** Console Component ** //
+// The console component is a container for the console messages and input
+
 #[derive(PartialEq, Properties)]
 pub struct Consoleprops {
     pub communicator: &'static DatapathCommunicator,
@@ -71,9 +74,9 @@ pub fn console(props: &Consoleprops) -> Html {
                 }
             </div>
             if *show_input {
-                <div class="console-input">
-                    <div class="prompt">{">\u{00a0}"}</div> // Prompt followed by a non-breaking space
-                    <input type="text" onkeyup={on_keyup} oninput={on_input} value={(*input_value).clone()}/>
+                <div class="flex flex-row items-center text-gray-400 relative w-full">
+                    <div class="text-white">{">\u{00a0}"}</div> // Prompt followed by a non-breaking space
+                    <input class="bg-console-bg text-white outline-none" type="text" onkeyup={on_keyup} oninput={on_input} value={(*input_value).clone()}/>
                 </div>
             }
         </div>

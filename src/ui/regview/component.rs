@@ -7,6 +7,10 @@ use web_sys::{HtmlInputElement, InputEvent};
 use yew::prelude::*;
 use yew::{html, Html};
 
+// ** Register View Component ** //
+// Container for the general purpose and floating point registers
+// Is architecture-independent, as long as the registers implement the RegisterType trait
+
 #[derive(PartialEq, Properties)]
 pub struct Regviewprops {
     pub gp: Vec<(Rc<dyn RegisterType>, u64)>,
@@ -30,6 +34,7 @@ pub enum UnitState {
     Float,
     Double,
 }
+// Stores the value and event data of the input
 pub struct InputData {
     pub value: String,
     pub event: InputEvent,
@@ -60,9 +65,11 @@ pub fn generate_gpr_rows(props: &Regviewprops, radix: u32) -> Html {
                             let input = target.unwrap().unchecked_into::<HtmlInputElement>();
                             let input_string = input.value();
                             let mut number = input_string.as_str();
+                            // remove prefix from hex and binary inputs
                             if radix == 2 || radix == 16 {
                                 number = &input_string[2..];
                             }
+                            // use rust built-in parsing to convert string to u64
                             let val = match u64::from_str_radix(number, radix) {
                                 Ok(value) => {
                                     input.set_class_name("");
@@ -73,6 +80,7 @@ pub fn generate_gpr_rows(props: &Regviewprops, radix: u32) -> Html {
                                     return
                                 }
                             };
+                            // if rust is like "yeah that's a perfectly valid u64 number right there", double check with the architecture
                             if register.is_valid_register_value(val, pc_limit) {
                                 communicator.set_register(register.to_string(), val);
                                 input.set_class_name("");
@@ -106,12 +114,13 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                             let target = e.target();
                             let input = target.unwrap().unchecked_into::<HtmlInputElement>();
                             let input_string = input.value();
+                            // parse the input depending on the unit type
                             let value = match unit_type {
                                 UnitState::Float => {
                                     match input_string.parse::<f32>() {
                                         Ok(value) => {
                                             input.set_class_name("");
-                                            value.to_bits() as u64
+                                            value.to_bits() as u64 // need to convert to bits to store in u64
                                         },
                                         Err(_err) => {
                                             input.set_class_name("text-accent-red-200");
@@ -123,7 +132,7 @@ pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
                                     match input_string.parse::<f64>() {
                                         Ok(value) => {
                                             input.set_class_name("");
-                                            value.to_bits()
+                                            value.to_bits() // need to convert to bits to store in u64
                                         },
                                         Err(_err) => {
                                             input.set_class_name("text-accent-red-200");
@@ -196,6 +205,7 @@ pub fn regview(props: &Regviewprops) -> Html {
     let active_view = use_state_eq(UnitState::default);
     let active_tab = use_state_eq(RegviewTabState::default);
 
+    // Change the unit type
     let change_view = {
         let active_view = active_view.clone();
         Callback::from(move |event: Event| {
@@ -214,6 +224,7 @@ pub fn regview(props: &Regviewprops) -> Html {
             active_view.set(new_mode);
         })
     };
+    // Change the active tab to GP or FP
     let change_tab = {
         let active_tab = active_tab.clone();
         Callback::from(move |event: MouseEvent| {

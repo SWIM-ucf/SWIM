@@ -16,7 +16,10 @@ use web_sys::{HtmlElement, HtmlInputElement};
 use yew::prelude::*;
 use yew::{Html, Properties};
 
-// TODO: Create Segment Viewer component for extendability to any segment
+// ** Segment Viewer Components ** //
+// Displays the text, data, stack segments, and stack frame view
+// IDEA: Create Segment Viewer component for extendability to any segment
+
 #[derive(PartialEq, Properties)]
 pub struct TextSegmentProps {
     pub program_info: ProgramInfo,
@@ -65,6 +68,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
         current_pc.set(props.pc);
     }
 
+    // Set or remove breakpoint on checkbox click
     let on_check = {
         let breakpoints = props.breakpoints.clone();
 
@@ -146,6 +150,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
 
                     let mut conditional_class = "";
                     if **editor_curr_line != 0.0 && props.pc as i64 == address + 4 {
+                        // we add 4 to the address because we're highlighting the last executed instruction, and the pc is the address of the next instruction
                         conditional_class = "bg-primary-700 shadow-executing";
                         html!{
                             <tr ref={executed_ref} key={index} class={classes!(conditional_class)}>
@@ -167,6 +172,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                                 </td>
                                 <td>
                                     {format!("{}: {:?}", line_number + 1, lines_content.get(line_number).unwrap_or(&String::from("")))}
+                                    // Adding 1 to line number because it is 0-indexed
                                 </td>
                             </tr>
                         }
@@ -192,6 +198,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                                 </td>
                                 <td>
                                     {format!("{}: {:?}", line_number + 1, lines_content.get(line_number).unwrap_or(&String::from("")))}
+                                    // Adding 1 to line number because it is 0-indexed
                                 </td>
                             </tr>
                         }

@@ -36,6 +36,14 @@ use crate::{
 };
 use strum::IntoEnumIterator;
 
+// ** SwimEditor Component ** //
+// Houses the main editor and the tabs that allow the user to switch
+// between the editor and the assembled view.
+// It also contains the buttons that allow the user to copy the code to the clipboard and
+// change the execution speed and architecture.
+// Finally, it has the mouse hover event that allows the user to see the parsed information
+// from the parser when hovering over the lines of code.
+
 #[derive(PartialEq, Properties)]
 pub struct SwimEditorProps {
     pub text_model: UseStateHandle<TextModel>,
@@ -112,13 +120,13 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
 
         if props.executing {
             let program_info = props.program_info.clone();
+            // address_to_line_number converts program counters to line numbers
             let list_of_line_numbers = program_info.address_to_line_number;
             let index = props.pc as usize / 4;
             curr_line.set(match list_of_line_numbers.get(index) {
-                Some(val) => (val + 1) as f64,
+                Some(val) => (val + 1) as f64, // add one to account for the editor's line numbers
                 None => 0f64,
             });
-            // add one to account for the editor's line numbers
         }
 
         use_callback(
@@ -135,6 +143,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
                     }
                     *lines_content = lines;
 
+                    // Only scroll to current line / highlight if the program has been initialized / begun execution
                     if *initialized {
                         // Scroll to current line
                         raw_editor.reveal_line_in_center(**curr_line, Some(ScrollType::Smooth));
@@ -168,6 +177,9 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         )
     };
 
+    // ** Callbacks for changing the active tab, architecture, and execution speed ** //
+
+    // Changes the active tab to the one that was clicked
     let change_tab = {
         let editor_active_tab = editor_active_tab.clone();
         Callback::from(move |event: MouseEvent| {
@@ -185,6 +197,7 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         })
     };
 
+    // Changes the architecture to the one that was selected
     let change_architecture = {
         let communicator = props.communicator;
         Callback::from(move |event: Event| {
@@ -197,11 +210,13 @@ pub fn SwimEditor(props: &SwimEditorProps) -> Html {
         })
     };
 
+    // Changes the execution speed to the one that was inputted
     let change_execution_speed = {
         let communicator = props.communicator;
         Callback::from(move |event: Event| {
             let target = event.target();
             let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+            // Parse the input value to a u32, or set it to 0 if it's not a valid number
             let speed = input.value().parse::<u32>().unwrap_or(0);
             communicator.set_execute_speed(speed);
         })

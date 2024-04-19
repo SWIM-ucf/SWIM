@@ -13,6 +13,10 @@ use web_sys::HtmlElement;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
+// ** Footer Component ** //
+// The footer component is a container for the console, datapath, and hex editor components
+// It holds the tabs for each of these components and allows the user to switch between them
+
 #[derive(PartialEq, Properties)]
 pub struct Footerprops {
     pub communicator: &'static DatapathCommunicator,

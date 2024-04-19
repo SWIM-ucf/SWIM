@@ -20,6 +20,10 @@ use monaco::{
 
 use crate::emulation_core::mips::memory::{Memory, CAPACITY_BYTES};
 
+// ** Hex Editor Component ** //
+// Container for the hex editor. Enter if you dare.
+
+// Struct to store the coordinates of a specific instructon in the hex editor
 #[derive(PartialEq, Properties)]
 pub struct HexCoord {
     pub line_number: f64,
@@ -38,6 +42,7 @@ pub struct HexEditorProps {
     pub executing: bool,
 }
 
+// Struct for storing the updated string version of an instruction and its line number in the code editor
 #[derive(Clone, Debug, PartialEq)]
 pub struct UpdatedLine {
     pub text: String,
@@ -250,6 +255,7 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
     let on_editor_created = {
         let memory_curr_instr = props.memory_curr_instr.clone();
 
+        // If the program is executing, set the current instruction to highlight to the program counter
         if props.executing {
             memory_curr_instr.set(props.pc);
         }
@@ -258,9 +264,13 @@ pub fn hex_editor(props: &HexEditorProps) -> Html {
             move |editor_link: CodeEditorLink,
                   (memory, memory_text_model, memory_curr_instr, initialized)| {
                 editor_link.with_editor(|editor| {
+                    // Generate the hexdump from memory
                     let hexdump = memory.generate_formatted_hex(CAPACITY_BYTES);
+                    // Replace the monaco text model contents with the hexdump
                     memory_text_model.set_value(&hexdump);
 
+                    // Get access to the raw IStandaloneCodeEditor which has the API calls we need
+                    // https://microsoft.github.io/monaco-editor/typedoc/interfaces/editor.IStandaloneCodeEditor.html
                     let raw_editor = editor.as_ref();
                     let cb_func = &cb.as_ref().unchecked_ref();
 
@@ -380,6 +390,7 @@ pub fn parse_hexdump(input: &str) -> Result<(Vec<u32>, Vec<u32>), String> {
                     u32::from_str_radix(&hex_conglomerate[(i * 2)..(i * 2 + 2)], 16).unwrap();
                 hex |= hex_val << (24 - j * 8);
             } else {
+                // valid ASCII number, shift it in
                 hex |= (ascii_char as u32) << (24 - j * 8);
             }
             j += 1;
