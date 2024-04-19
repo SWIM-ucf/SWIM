@@ -536,7 +536,7 @@ impl RiscDatapath {
                 self.state.rs1 = r.rs1 as u32;
                 self.state.rs2 = r.rs2 as u32;
                 self.state.rd = r.rd as u32;
-                self.state.shamt = r.rs2 as u32;
+                self.state.shamt = (self.registers.gpr[r.rs2 as usize] & 0b11111) as u32;
                 self.state.funct3 = r.funct3 as u32;
                 self.state.funct7 = r.funct7 as u32;
             }
@@ -675,7 +675,7 @@ impl RiscDatapath {
                 _ => (),
             },
             1 => match r.funct7 {
-                0b0000000 => self.signals.alu_op = AluOp::ShiftLeftLogical(self.state.rs2),
+                0b0000000 => self.signals.alu_op = AluOp::ShiftLeftLogical(self.state.shamt),
                 0b0000001 => self.signals.alu_op = AluOp::MultiplicationSignedUpper,
                 _ => (),
             },
@@ -695,8 +695,8 @@ impl RiscDatapath {
                 _ => (),
             },
             5 => match r.funct7 {
-                0b0000000 => self.signals.alu_op = AluOp::ShiftRightLogical(self.state.rs2),
-                0b0100000 => self.signals.alu_op = AluOp::ShiftRightArithmetic(self.state.rs2),
+                0b0000000 => self.signals.alu_op = AluOp::ShiftRightLogical(self.state.shamt),
+                0b0100000 => self.signals.alu_op = AluOp::ShiftRightArithmetic(self.state.shamt),
                 0b0000001 => self.signals.alu_op = AluOp::DivisionUnsigned,
                 _ => (),
             },
@@ -957,7 +957,7 @@ impl RiscDatapath {
             AluOp::Xor => self.state.alu_input1 ^ self.state.alu_input2,
             AluOp::ShiftLeftLogical(shamt) => self.state.alu_input1 << shamt,
             AluOp::ShiftRightLogical(shamt) => self.state.alu_input1 >> shamt,
-            AluOp::ShiftRightArithmetic(shamt) => (self.state.alu_input1 as i64 >> shamt) as u64,
+            AluOp::ShiftRightArithmetic(shamt) => ((self.state.alu_input1 as i64) >> shamt) as u64,
             AluOp::MultiplicationSigned => {
                 ((self.state.alu_input1 as i128) * (self.state.alu_input2 as i128)) as u64
             }

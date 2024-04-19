@@ -331,6 +331,78 @@ pub mod ori {
     }
 }
 
+// Shift Left
+pub mod sll {
+    use super::*;
+    #[test]
+    fn easy_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        let instructions: Vec<u32> = vec![0b0000000_10010_10001_001_10011_0110011];
+        datapath.initialize(0, instructions)?;
+
+        datapath.registers.gpr[0b10001] = 0b101;
+        datapath.registers.gpr[0b10010] = 0b1;
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.gpr[0b10011], 0b1010);
+        Ok(())
+    }
+
+    #[test]
+    fn harder_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        // Shift left by two logical
+        let instructions: Vec<u32> = vec![0b0000000_10010_10001_001_10011_0110011];
+        datapath.initialize(0, instructions)?;
+
+        datapath.registers.gpr[0b10001] = 60;
+        datapath.registers.gpr[0b10010] = 3;
+
+        datapath.execute_instruction();
+        println!("hmm {:#02x}", datapath.registers.gpr[0b10010]);
+        assert_eq!(datapath.registers.gpr[0b10011], 480);
+        Ok(())
+    }
+}
+
+// Shift Right
+pub mod sr {
+    use super::*;
+    #[test]
+    fn srl_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        let instructions: Vec<u32> = vec![0b0000000_10010_10001_101_10011_0110011];
+        datapath.initialize(0, instructions)?;
+
+        datapath.registers.gpr[0b10001] = 360;
+        datapath.registers.gpr[0b10010] = 1;
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.gpr[0b10011], 180);
+        Ok(())
+    }
+
+    #[test]
+    fn sra_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        // Shift left by two logical
+        let instructions: Vec<u32> = vec![0b0100000_10010_10001_101_10011_0110011];
+        datapath.initialize(0, instructions)?;
+
+        datapath.registers.gpr[0b10001] = 0xf00f_0ff0_f0f0_0f0f;
+        datapath.registers.gpr[0b10010] = 4;
+
+        datapath.execute_instruction();
+        println!("hmm {:#02x}", datapath.registers.gpr[0b10011]);
+        assert_eq!(datapath.registers.gpr[0b10011], 0xff00_f0ff_0f0f_00f0);
+        Ok(())
+    }
+}
+
 /*
 pub mod mul {
     use super::*;
@@ -432,62 +504,6 @@ pub mod div {
         datapath.execute_instruction();
 
         assert_eq!(datapath.registers.gpr[20] as i64, -4); // $s5
-        Ok(())
-    }
-}
-
-// Shift Word Left Logical
-pub mod sll {
-    use super::*;
-    #[test]
-    fn easy_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // something
-        //                                R-type        s1    s2  (shamt) SLL
-        let instructions: Vec<u32> = vec![0b000000_00000_10001_10010_00000_000000];
-        datapath.initialize_legacy(instructions)?;
-
-        datapath.registers.gpr[0b10001] = 123;
-        datapath.registers.gpr[0b10010] = 321;
-
-        datapath.execute_instruction();
-        assert_eq!(datapath.registers.gpr[0b10010], 123);
-        Ok(())
-    }
-
-    #[test]
-    fn mid_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // Shift left by two logical
-        //                                R-type        s1    s2  (shamt) SLL
-        let instructions: Vec<u32> = vec![0b000000_00000_10001_10010_00010_000000];
-        datapath.initialize_legacy(instructions)?;
-
-        datapath.registers.gpr[0b10001] = 0b1010;
-        datapath.registers.gpr[0b10010] = 0;
-
-        datapath.execute_instruction();
-        assert_eq!(datapath.registers.gpr[0b10010], 0b101000);
-        Ok(())
-    }
-
-    #[test]
-    fn hard_test_sign_extension() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // Shift left by two logical
-        //                                R-type        s1    s2  (shamt) SLL
-        let instructions: Vec<u32> = vec![0b000000_00000_10001_10010_00010_000000];
-        datapath.initialize_legacy(instructions)?;
-
-        datapath.registers.gpr[0b10001] = 0x7fffffff;
-        datapath.registers.gpr[0b10010] = 0x10101011;
-
-        datapath.execute_instruction();
-        println!("hmm {:#02x}", datapath.registers.gpr[0b10010]);
-        assert_eq!(datapath.registers.gpr[0b10010], 0xffff_ffff__ffff_fffc);
         Ok(())
     }
 }
@@ -722,48 +738,6 @@ pub mod addi_addiu {
         datapath.execute_instruction();
 
         assert_eq!(datapath.registers[GpRegisterType::S0], 0xfffffffffffffff2);
-        Ok(())
-    }
-}
-
-pub mod ori {
-    use super::*;
-    #[test]
-    fn or_immediate_with_zero() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // $s0 = $zero | 12345
-        //                                  ori    $zero  $s0   12345
-        let instructions: Vec<u32> = vec![0b001101_00000_10000_0011000000111001];
-        datapath.initialize_legacy(instructions)?;
-
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers.gpr[16], 12345); // $s0
-        Ok(())
-    }
-
-    #[test]
-    fn or_immediate_with_value() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // $s0 = $t0 | 12345
-        //                                  ori     $t0   $s0   12345
-        let instructions: Vec<u32> = vec![0b001101_01000_10000_0011000000111001];
-        datapath.initialize_legacy(instructions)?;
-
-        // In binary: 00111010 11011110 01101000 10110001
-        datapath.registers.gpr[8] = 987654321; // $t0
-
-        datapath.execute_instruction();
-
-        // The result should be as follows:
-        //         $t0:  00111010 11011110 01101000 10110001
-        // OR   12,345:                    00110000 00111001
-        // =================================================
-        // 987,658,425:  00111010 11011110 01111000 10111001
-
-        assert_eq!(datapath.registers.gpr[16], 987658425); // $s0
         Ok(())
     }
 }
