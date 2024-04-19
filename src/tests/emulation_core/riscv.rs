@@ -788,39 +788,38 @@ pub mod div {
         Ok(())
     }
 }
-/*
+
 pub mod load_upper_imm {
     use super::*;
 
     #[test]
     fn basic_load_upper_imm_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
+        let mut datapath = RiscDatapath::default();
 
-        //                                  lui    $t0   $s0      offset = 42
-        let instructions: Vec<u32> = vec![0b001111_01000_10000_0010101010101010];
-        datapath.initialize_legacy(instructions)?;
+        let instructions: Vec<u32> = vec![0b00101010101010100000_01000_0110111];
+        datapath.initialize(0, instructions)?;
         datapath.execute_instruction();
 
-        let t = datapath.registers[GpRegisterType::S0];
+        let t = datapath.registers[RiscGpRegisterType::X8];
         assert_eq!(t, 0x2aaa_0000);
         Ok(())
     }
 
     #[test]
     fn sign_extend_load_upper_imm_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
+        let mut datapath = RiscDatapath::default();
 
-        //                                  lui    $t0   $s0      offset = 42
-        let instructions: Vec<u32> = vec![0b001111_01000_10000_1010101010101010];
-        datapath.initialize_legacy(instructions)?;
+        let instructions: Vec<u32> = vec![0b10101010101010100000_01000_0110111];
+        datapath.initialize(0, instructions)?;
         datapath.execute_instruction();
 
-        let t = datapath.registers[GpRegisterType::S0];
+        let t = datapath.registers[RiscGpRegisterType::X8];
         assert_eq!(t, 0xffff_ffff_aaaa_0000);
         Ok(())
     }
 }
 
+/*
 pub mod jump_tests {
     use super::*;
     #[test]
