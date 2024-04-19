@@ -561,6 +561,158 @@ pub mod addi_addiu {
     }
 }
 
+pub mod load_word {
+    use super::*;
+    #[test]
+    fn lw_zero_offset_test() -> Result<(), String> {
+        // for this test the lw instruction will load itself from
+        // memory
+        let mut datapath = RiscDatapath::default();
+
+        let instructions: Vec<u32> = vec![0b000000000000_01000_010_10000_0000011];
+        datapath.initialize(0, instructions.clone())?;
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.gpr[16], instructions[0] as u64);
+        Ok(())
+    }
+
+    #[test]
+    fn lw_offset_at_4_test() -> Result<(), String> {
+        // For this test the lw instruction will load 0x4 from memory
+        // by using the offset address plus zero
+        let mut datapath = RiscDatapath::default();
+
+        let instructions: Vec<u32> = vec![0b000000000100_01000_010_10000_0000011];
+        datapath.initialize(0, instructions)?;
+
+        // place data at address
+        datapath.memory.store_word(0b100, 0x10000)?;
+
+        datapath.registers.gpr[8] = 0;
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.gpr[16], 0x10000);
+        Ok(())
+    }
+
+    #[test]
+    fn lw_gpr_8_at_4_offset_at_0_test() -> Result<(), String> {
+        // for this test the lw instruction will load 0x4 from memory
+        // by using (offset = 0) + (gpr[8] = 4)
+        let mut datapath = RiscDatapath::default();
+
+        let instructions: Vec<u32> = vec![0b000000000000_01000_010_10000_0000011];
+        datapath.initialize(0, instructions)?;
+
+        // place data at address
+        datapath.memory.store_word(0b100, 0x10000)?;
+
+        datapath.registers.gpr[8] = 4;
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.gpr[16], 0x10000);
+        Ok(())
+    }
+
+    #[test]
+    fn lw_gpr_8_at_4_offset_at_4_test() -> Result<(), String> {
+        // for this test the lw instruction will load 0x8 from memory
+        // by adding the offset to gpr[8]
+        let mut datapath = RiscDatapath::default();
+
+        let instructions: Vec<u32> = vec![0b000000000100_01000_010_10000_0000011];
+        datapath.initialize(0, instructions)?;
+
+        // place data at address
+        datapath.memory.store_word(0b1000, 0x10000)?;
+
+        datapath.registers.gpr[8] = 4;
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.gpr[16], 0x10000);
+        Ok(())
+    }
+
+    #[test]
+    fn lw_gpr_8_at_12_offset_at_neg_4_test() -> Result<(), String> {
+        // for this test the lw instruction will load 0x8 from memory
+        // by adding the offset to gpr[8]
+        let mut datapath = RiscDatapath::default();
+
+        let instructions: Vec<u32> = vec![0b111111111100_01000_010_10000_0000011];
+        datapath.initialize(0, instructions)?;
+
+        // place data at address
+        datapath.memory.store_word(0b1000, 0x10000)?;
+
+        datapath.registers.gpr[8] = 12;
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.gpr[16], 0x10000);
+        Ok(())
+    }
+}
+
+pub mod store_word {
+    use super::*;
+    #[test]
+    fn sw_zero_offset_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        let instructions: Vec<u32> = vec![0b0000000_10000_01000_010_00000_0100011];
+        datapath.initialize(0, instructions)?;
+        datapath.execute_instruction();
+
+        let t = datapath.memory.load_word(0)?;
+        assert_eq!(t, 0);
+        Ok(())
+    }
+
+    #[test]
+    fn sw_offset_at_4_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        let instructions: Vec<u32> = vec![0b0000000_10000_01000_010_00100_0100011];
+        datapath.initialize(0, instructions)?;
+
+        datapath.registers.gpr[8] = 0;
+        datapath.registers.gpr[16] = 0xff;
+        datapath.execute_instruction();
+
+        let t = datapath.memory.load_word(4)?;
+        assert_eq!(t, 0xff);
+        Ok(())
+    }
+
+    #[test]
+    fn sw_gpr_8_at_4_offset_at_4_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        let instructions: Vec<u32> = vec![0b0000000_10000_01000_010_00100_0100011];
+        datapath.initialize(0, instructions)?;
+
+        datapath.registers.gpr[8] = 4;
+        datapath.registers.gpr[16] = 0xff;
+        datapath.execute_instruction();
+
+        let t = datapath.memory.load_word(8)?;
+        assert_eq!(t, 0xff);
+        Ok(())
+    }
+
+    #[test]
+    fn sw_gpr_8_at_4_offset_at_neg_4_test() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        let instructions: Vec<u32> = vec![0b1111111_10000_01000_010_11100_0100011];
+        datapath.initialize(0, instructions)?;
+
+        datapath.registers.gpr[8] = 12;
+        datapath.registers.gpr[16] = 0xff;
+        datapath.execute_instruction();
+
+        let t = datapath.memory.load_word(8)?;
+        assert_eq!(t, 0xff);
+        Ok(())
+    }
+}
+
 /*
 pub mod mul {
     use super::*;
@@ -666,101 +818,6 @@ pub mod div {
     }
 }
 
-
-
-pub mod load_word {
-    use super::*;
-    #[test]
-    fn lw_zero_offset_test() -> Result<(), String> {
-        // for this test the lw instruction will load itself from
-        // memory
-        let mut datapath = MipsDatapath::default();
-
-        //                                  lw     $t0   $s0      offset = 0
-        let instructions: Vec<u32> = vec![0b100011_01000_10000_0000000000000000];
-        datapath.initialize_legacy(instructions.clone())?;
-        datapath.execute_instruction();
-        assert_eq!(datapath.registers.gpr[16], instructions[0] as u64);
-        Ok(())
-    }
-
-    #[test]
-    fn lw_offset_at_4_test() -> Result<(), String> {
-        // For this test the lw instruction will load 0x4 from memory
-        // by using the offset address plus zero
-        let mut datapath = MipsDatapath::default();
-
-        //                                  lw     $t0   $s0      offset = 4
-        let instructions: Vec<u32> = vec![0b100011_01000_10000_0000000000000100];
-        datapath.initialize_legacy(instructions)?;
-
-        // place data at address
-        datapath.memory.store_word(0b100, 0x10000)?;
-
-        datapath.registers.gpr[8] = 0;
-        datapath.execute_instruction();
-        assert_eq!(datapath.registers.gpr[16], 0x10000);
-        Ok(())
-    }
-
-    #[test]
-    fn lw_gpr_8_at_4_offset_at_0_test() -> Result<(), String> {
-        // for this test the lw instruction will load 0x4 from memory
-        // by using (offset = 0) + (gpr[8] = 4)
-        let mut datapath = MipsDatapath::default();
-
-        //                                  lw     $t0   $s0      offset = 0
-        let instructions: Vec<u32> = vec![0b100011_01000_10000_0000000000000000];
-        datapath.initialize_legacy(instructions)?;
-
-        // place data at address
-        datapath.memory.store_word(0b100, 0x10000)?;
-
-        datapath.registers.gpr[8] = 4;
-        datapath.execute_instruction();
-        assert_eq!(datapath.registers.gpr[16], 0x10000);
-        Ok(())
-    }
-
-    #[test]
-    fn lw_gpr_8_at_4_offset_at_4_test() -> Result<(), String> {
-        // for this test the lw instruction will load 0x8 from memory
-        // by adding the offset to gpr[8]
-        let mut datapath = MipsDatapath::default();
-
-        //                                  lw     $t0   $s0      offset = 0
-        let instructions: Vec<u32> = vec![0b100011_01000_10000_0000000000000100];
-        datapath.initialize_legacy(instructions)?;
-
-        // place data at address
-        datapath.memory.store_word(0b1000, 0x10000)?;
-
-        datapath.registers.gpr[8] = 4;
-        datapath.execute_instruction();
-        assert_eq!(datapath.registers.gpr[16], 0x10000);
-        Ok(())
-    }
-
-    #[test]
-    fn lw_gpr_8_at_12_offset_at_neg_4_test() -> Result<(), String> {
-        // for this test the lw instruction will load 0x8 from memory
-        // by adding the offset to gpr[8]
-        let mut datapath = MipsDatapath::default();
-
-        //                                  lw     $t0   $s0      offset = 0
-        let instructions: Vec<u32> = vec![0b100011_01000_10000_1111111111111100];
-        datapath.initialize_legacy(instructions)?;
-
-        // place data at address
-        datapath.memory.store_word(0b1000, 0x10000)?;
-
-        datapath.registers.gpr[8] = 12;
-        datapath.execute_instruction();
-        assert_eq!(datapath.registers.gpr[16], 0x10000);
-        Ok(())
-    }
-}
-
 pub mod load_upper_imm {
     use super::*;
 
@@ -789,73 +846,6 @@ pub mod load_upper_imm {
 
         let t = datapath.registers[GpRegisterType::S0];
         assert_eq!(t, 0xffff_ffff_aaaa_0000);
-        Ok(())
-    }
-}
-pub mod store_word {
-    use super::*;
-    #[test]
-    fn sw_zero_offset_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        //                                  sw     $t0   $s0      offset = 0
-        let instructions: Vec<u32> = vec![0b101011_01000_10000_0000000000000000];
-        datapath.initialize_legacy(instructions)?;
-        datapath.execute_instruction();
-
-        let t = datapath.memory.load_word(0)?;
-        assert_eq!(t, 0);
-        Ok(())
-    }
-
-    #[test]
-    fn sw_offset_at_4_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        //                                  sw     $t0   $s0      offset = 4
-        let instructions: Vec<u32> = vec![0b101011_01000_10000_0000000000000100];
-        datapath.initialize_legacy(instructions)?;
-
-        datapath.registers.gpr[8] = 0;
-        datapath.registers.gpr[16] = 0xff;
-        datapath.execute_instruction();
-
-        let t = datapath.memory.load_word(4)?;
-        assert_eq!(t, 0xff);
-        Ok(())
-    }
-
-    #[test]
-    fn lw_gpr_8_at_4_offset_at_4_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        //                                  sw     $t0   $s0      offset = 4
-        let instructions: Vec<u32> = vec![0b101011_01000_10000_0000000000000100];
-        datapath.initialize_legacy(instructions)?;
-
-        datapath.registers.gpr[8] = 4;
-        datapath.registers.gpr[16] = 0xff;
-        datapath.execute_instruction();
-
-        let t = datapath.memory.load_word(8)?;
-        assert_eq!(t, 0xff);
-        Ok(())
-    }
-
-    #[test]
-    fn lw_gpr_8_at_4_offset_at_neg_4_test() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        //                                  sw     $t0   $s0      offset = -4
-        let instructions: Vec<u32> = vec![0b101011_01000_10000_1111111111111100];
-        datapath.initialize_legacy(instructions)?;
-
-        datapath.registers.gpr[8] = 12;
-        datapath.registers.gpr[16] = 0xff;
-        datapath.execute_instruction();
-
-        let t = datapath.memory.load_word(8)?;
-        assert_eq!(t, 0xff);
         Ok(())
     }
 }
