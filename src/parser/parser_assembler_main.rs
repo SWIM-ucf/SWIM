@@ -11,7 +11,7 @@ use crate::parser::pseudo_instruction_parsing::{
 };
 use std::collections::HashMap;
 
-///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS
+///Parser is the starting function of the parser / assembler process. It takes a string representation of a MIPS/RISC-V
 /// program and builds the binary of the instructions while cataloging any errors that are found.
 pub fn parser(
     file_string: String,
@@ -137,7 +137,7 @@ pub fn parser(
     }
 }
 
-///Takes the vector of instructions and assembles the binary for them.
+///Takes the vector of MIPS instructions and assembles the binary for them.
 pub fn read_instructions(
     instruction_list: &mut [Instruction],
     labels: &HashMap<String, usize>,
@@ -1548,6 +1548,7 @@ pub fn read_instructions(
     }
 }
 
+///Takes the vector of RISC-V instructions and assembles the binary for them.
 pub fn read_instructions_riscv(
     instruction_list: &mut [Instruction],
     labels: &HashMap<String, usize>,
@@ -1555,6 +1556,7 @@ pub fn read_instructions_riscv(
 ) {
     for instruction in &mut instruction_list.iter_mut() {
         match &*instruction.operator.token_name.to_lowercase() {
+            // Start of RV32I
             "add" => {
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000000, 7);
@@ -2670,9 +2672,8 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "addiw" =>
-            // Start of RV64I Instructions
-            {
+            // Start of RV64I I nstructions
+            "addiw" => {
                 read_operands_riscv(
                     instruction,
                     vec![RegisterGP, RegisterGP, Immediate],
@@ -3001,9 +3002,8 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "mul" =>
             // Start of RV32M
-            {
+            "mul" => {
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
 
@@ -3228,9 +3228,8 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "mulw" =>
             // Start of RV64M
-            {
+            "mulw" => {
                 // Funct7
                 instruction.binary = append_binary(instruction.binary, 0b0000001, 7);
 
@@ -4946,7 +4945,7 @@ pub fn read_instructions_riscv(
     }
 }
 
-// Reorder store instruction to the correct format
+/// Reorder store (S-type) instructions from I-type to the correct S-type format
 fn immediate_to_stored(mut bin: u32) -> u32 {
     // Extract bits 24-20 from the first segment
     let lower_imm = (bin >> 20) & 0b11111;
@@ -4970,7 +4969,9 @@ fn immediate_to_stored(mut bin: u32) -> u32 {
 }
 
 // Converts an I-type instruction to B-type instruction
-// Easier to encode in this manner
+// This is currently not used as B-type instructions concatenate the least significant bit
+// We need this bit because we are referencing the instruction index, not a memory address
+// and therefore, not always an even number
 fn _immediate_to_branch(mut bin: u32) -> u32 {
     // Extract bits imm[4:1] from the immediate, last bit is ignored
     let lower_imm = (bin >> 21) & 0b1111;
@@ -5010,7 +5011,10 @@ fn _immediate_to_branch(mut bin: u32) -> u32 {
     bin
 }
 
-// Reorder the immediate value to comply with J-type format
+/// Reorder the immediate value to comply with J-type format
+/// This is currently not used as J-type instructions concatenate the least significant bit
+/// We need this bit because we are referencing the instruction index, not a memory address
+/// and therefore, not always an even number
 fn _upper_to_jump(mut bin: u32) -> u32 {
     // Extract bits immediate
     let imm = bin >> 12;

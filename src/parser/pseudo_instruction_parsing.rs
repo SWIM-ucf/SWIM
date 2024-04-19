@@ -1310,7 +1310,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                             labels: Vec::new(),
                         };
 
-                        // Adjust current print_int instruction set argument register
+                        // Adjust current print_int instruction to set argument register
                         instruction.operator.token_name = "ori".to_string();
                         instruction.operator.start_end_columns = (0, 0);
                         instruction.operands.insert(
@@ -1383,7 +1383,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
-                // Adjust exit for io syscall
+                // Adjust print_float for io syscall
                 instruction.operator.token_name = "ori".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands.insert(
@@ -1445,7 +1445,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
-                // Adjust exit for io syscall
+                // Adjust print_double for io syscall
                 instruction.operator.token_name = "ori".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands.insert(
@@ -1601,7 +1601,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
-                // Adjust exit for io syscall
+                // Adjust read_int for io syscall
                 instruction.operator.token_name = "ori".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands.insert(
@@ -1663,7 +1663,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
-                // Adjust exit for io syscall
+                // Adjust read_float for io syscall
                 instruction.operator.token_name = "ori".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands.insert(
@@ -1725,7 +1725,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
-                // Adjust exit for io syscall
+                // Adjust read_double for io syscall
                 instruction.operator.token_name = "ori".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands.insert(
@@ -1822,7 +1822,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
                     labels: Vec::new(),
                 };
 
-                // Adjust print_string for io syscall
+                // Adjust read_string for io syscall
                 instruction.operator.token_name = "ori".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[0].token_name = "$a0".to_string();
@@ -1942,10 +1942,9 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers(
 }
 
 ///Iterates through the instruction list and translates pseudo-instructions into real instructions.
-/// LW and SW with labelled memory are not completely translated in this step because they require
-/// the address of the labelled memory to be known which is not found until after all other pseudo-instructions
-/// have been translated. Updated pseudo-instructions are added to updated_monaco_string to appear in the editor after assembly.
-/// Also ensures a syscall is at the end of the program
+/// I/O operations have been given their own pseudo-instructions so the user does not have to reference
+/// the syscall/ecall values or references registers used for integer/memory address values.
+/// Updated pseudo-instructions are added to updated_monaco_string to appear in the editor after assembly.
 pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
     instructions: &mut Vec<Instruction>,
     data: &Vec<Data>,
@@ -3037,7 +3036,6 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                 monaco_line_info[instruction.line_number].update_pseudo_string(vec![instruction]);
             }
             "exit" => {
-                // Set info for no operands
                 let info = PseudoDescription {
                     name: "exit".to_string(),
                     syntax: "exit".to_string(),
@@ -3269,7 +3267,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
 
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
-                // Adjust exit for io syscall
+                // Adjust print_float for io syscall
                 instruction.operator.token_name = "ori".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands.insert(
@@ -3425,7 +3423,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
 
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
-                // Adjust exit for io syscall
+                // Adjust read_int for io syscall
                 instruction.operator.token_name = "ori".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands.insert(
@@ -3487,7 +3485,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
 
                 monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
 
-                // Adjust exit for io syscall
+                // Adjust read_float for io syscall
                 instruction.operator.token_name = "ori".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands.insert(
@@ -3584,7 +3582,7 @@ pub fn expand_pseudo_instructions_and_assign_instruction_numbers_riscv(
                     labels: Vec::new(),
                 };
 
-                // Adjust print_string for io syscall
+                // Adjust read_string for io syscall
                 instruction.operator.token_name = "ori".to_string();
                 instruction.operator.start_end_columns = (0, 0);
                 instruction.operands[0].token_name = "a0".to_string();

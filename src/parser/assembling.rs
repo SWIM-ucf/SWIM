@@ -186,6 +186,9 @@ pub fn read_operands(
     instruction
 }
 
+///This function takes an instruction whose operands it is supposed to read, the order of expected operand types and then
+///the order these operands should be concatenated onto the binary representation of the string
+///the function returns the instruction it was given with any errors and the binary of the operands added on.
 pub fn read_operands_riscv(
     instruction: &mut Instruction,
     expected_operands: Vec<OperandType>,
