@@ -3,7 +3,7 @@ use crate::parser::parser_structs_and_enums::ErrorType::*;
 use crate::parser::parser_structs_and_enums::TokenType::{Directive, Label, Operator, Unknown};
 use crate::parser::parser_structs_and_enums::{
     Data, Error, Instruction, LabelInstance, MonacoLineInfo, Token, FP_REGISTERS, GP_REGISTERS,
-    SUPPORTED_INSTRUCTIONS_MIPS,
+    RISCV_FP_REGISTERS, RISCV_GP_REGISTERS, SUPPORTED_INSTRUCTIONS_MIPS,
 };
 use levenshtein::levenshtein;
 use std::collections::HashMap;
@@ -421,12 +421,26 @@ pub fn suggest_error_corrections(
                         let given_string = &error.token_causing_error;
                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
 
-                        for register in GP_REGISTERS {
-                            if levenshtein(given_string, register.names[0]) < closest.0 {
-                                closest.0 = levenshtein(given_string, register.names[0]);
-                                closest.1 = register.names[0].to_string();
+                        match arch {
+                            AvailableDatapaths::MIPS => {
+                                for register in GP_REGISTERS {
+                                    if levenshtein(given_string, register.names[0]) < closest.0 {
+                                        closest.0 = levenshtein(given_string, register.names[0]);
+                                        closest.1 = register.names[0].to_string();
+                                    }
+                                }
+                            }
+
+                            AvailableDatapaths::RISCV => {
+                                for register in RISCV_GP_REGISTERS {
+                                    if levenshtein(given_string, register.names[0]) < closest.0 {
+                                        closest.0 = levenshtein(given_string, register.names[0]);
+                                        closest.1 = register.names[0].to_string();
+                                    }
+                                }
                             }
                         }
+
                         let mut message = "GP register is not recognized.".to_string();
                         //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                         if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
@@ -443,12 +457,25 @@ pub fn suggest_error_corrections(
                         let given_string = &error.token_causing_error;
                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
 
-                        for register in FP_REGISTERS {
-                            if levenshtein(given_string, register.name) < closest.0 {
-                                closest.0 = levenshtein(given_string, register.name);
-                                closest.1 = register.name.to_string();
+                        match arch {
+                            AvailableDatapaths::MIPS => {
+                                for register in FP_REGISTERS {
+                                    if levenshtein(given_string, register.name) < closest.0 {
+                                        closest.0 = levenshtein(given_string, register.name);
+                                        closest.1 = register.name.to_string();
+                                    }
+                                }
+                            }
+                            AvailableDatapaths::RISCV => {
+                                for register in RISCV_FP_REGISTERS {
+                                    if levenshtein(given_string, register.names[0]) < closest.0 {
+                                        closest.0 = levenshtein(given_string, register.names[0]);
+                                        closest.1 = register.names[0].to_string();
+                                    }
+                                }
                             }
                         }
+
                         let mut message = "FP register is not recognized.".to_string();
                         //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                         if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
