@@ -713,21 +713,19 @@ pub mod store_word {
     }
 }
 
-/*
 pub mod mul {
     use super::*;
 
     #[test]
     fn mul_positive_result() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
+        let mut datapath = RiscDatapath::default();
 
-        // $s5 = $t7 * $t6
-        //                                  R-type  t7    t6    s5    MUL   SOP30
-        let instructions: Vec<u32> = vec![0b000000_01111_01110_10101_00010_011000];
-        datapath.initialize_legacy(instructions)?;
+        // $s5 = $t5 * $t6
+        let instructions: Vec<u32> = vec![0b0000001_11111_11110_000_10101_0110011];
+        datapath.initialize(0, instructions)?;
 
-        datapath.registers.gpr[15] = 8; // $t7
-        datapath.registers.gpr[14] = 95; // $t6
+        datapath.registers.gpr[30] = 8; // $t5
+        datapath.registers.gpr[31] = 95; // $t6
 
         datapath.execute_instruction();
 
@@ -736,44 +734,19 @@ pub mod mul {
     }
 
     #[test]
-    fn mul_32_bit_negative_result() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
+    fn mul_negative_result() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
 
-        // $s5 = $t7 * $t6
-        //                                  R-type  t7    t6    s5    MUL   SOP30
-        let instructions: Vec<u32> = vec![0b000000_01111_01110_10101_00010_011000];
-        datapath.initialize_legacy(instructions)?;
+        // $s5 = $t5 * $t6
+        let instructions: Vec<u32> = vec![0b0000001_11111_11110_000_10101_0110011];
+        datapath.initialize(0, instructions)?;
 
-        datapath.registers.gpr[15] = 5; // $t7
-        datapath.registers.gpr[14] = -5_i64 as u64; // $t6
+        datapath.registers.gpr[30] = 5; // $t5
+        datapath.registers.gpr[31] = -5_i64 as u64; // $t6
 
         datapath.execute_instruction();
 
         assert_eq!(datapath.registers.gpr[21] as i64, -25); // $s5
-        Ok(())
-    }
-
-    #[test]
-    fn mul_result_truncate() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // $s4 = $t6 * $t5
-        //                                  R-type  t6    t5    s4    MUL   SOP30
-        let instructions: Vec<u32> = vec![0b000000_01110_01101_10100_00010_011000];
-        datapath.initialize_legacy(instructions)?;
-
-        datapath.registers.gpr[14] = 731_564_544; // $t6
-        datapath.registers.gpr[13] = 8; // $t5
-
-        datapath.execute_instruction();
-
-        // The result, 5,852,516,352, is too large for a 32-bit integer.
-        // (1 01011100 11010110 01010000 00000000)
-        // The result should instead truncate to the lower 32 bits.
-        assert_eq!(
-            datapath.registers.gpr[20],
-            0b01011100_11010110_01010000_00000000
-        ); // $s5
         Ok(())
     }
 }
@@ -783,15 +756,14 @@ pub mod div {
 
     #[test]
     fn div_positive_result() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
+        let mut datapath = RiscDatapath::default();
 
         // $s4 = $t6 / $t5
-        //                                  R-type  t6    t5    s4    DIV   SOP32
-        let instructions: Vec<u32> = vec![0b000000_01110_01101_10100_00010_011010];
-        datapath.initialize_legacy(instructions)?;
+        let instructions: Vec<u32> = vec![0b0000001_11110_11111_100_10100_0110011];
+        datapath.initialize(0, instructions)?;
 
-        datapath.registers.gpr[14] = 20; // $t6
-        datapath.registers.gpr[13] = 2; // $t5
+        datapath.registers.gpr[31] = 20; // $t6
+        datapath.registers.gpr[30] = 2; // $t5
 
         datapath.execute_instruction();
 
@@ -801,15 +773,14 @@ pub mod div {
 
     #[test]
     fn div_negative_result() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
+        let mut datapath = RiscDatapath::default();
 
         // $s4 = $t6 / $t5
-        //                                  R-type  t6    t5    s4    DIV   SOP32
-        let instructions: Vec<u32> = vec![0b000000_01110_01101_10100_00010_011010];
-        datapath.initialize_legacy(instructions)?;
+        let instructions: Vec<u32> = vec![0b0000001_11110_11111_100_10100_0110011];
+        datapath.initialize(0, instructions)?;
 
-        datapath.registers.gpr[14] = 20; // $t6
-        datapath.registers.gpr[13] = -5_i64 as u64; // $t5
+        datapath.registers.gpr[31] = 20; // $t6
+        datapath.registers.gpr[30] = -5_i64 as u64; // $t5
 
         datapath.execute_instruction();
 
@@ -817,7 +788,7 @@ pub mod div {
         Ok(())
     }
 }
-
+/*
 pub mod load_upper_imm {
     use super::*;
 
