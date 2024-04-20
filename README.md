@@ -147,8 +147,6 @@ The RISC-V core supports the RV32I, RV64I, RV32M, RV64M, RV32F, and RV64F extens
     - sra
     - or
     - and
-    - fence
-    - fence.i
     - csrrw
     - csrrs
     - csrrc
@@ -161,7 +159,6 @@ The RISC-V core supports the RV32I, RV64I, RV32M, RV64M, RV32F, and RV64F extens
     - sret
     - mret
     - wfi
-    - sfence.vma
     - lb
     - lh
     - lw
