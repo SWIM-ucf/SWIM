@@ -16,6 +16,7 @@ pub struct ControlSignals {
     pub reg_write_en: RegWriteEn,
 }
 
+/// Selection of different Immediate forms.
 #[derive(Clone, Default, PartialEq)]
 pub enum ImmSelect {
     UType,
@@ -28,6 +29,7 @@ pub enum ImmSelect {
     IUnsigned,
 }
 
+/// Selection of different sources for the first operand.
 #[derive(Clone, Default, PartialEq)]
 pub enum OP1Select {
     #[default]
@@ -36,6 +38,7 @@ pub enum OP1Select {
     IMM,
 }
 
+/// Selection of different sources for the second operand.
 #[derive(Clone, Default, PartialEq)]
 pub enum OP2Select {
     DATA2,
@@ -44,14 +47,6 @@ pub enum OP2Select {
 }
 
 /// The output of the ALU control unit that directly controls the ALU.
-///
-/// This is not to be confused with the [`AluOp`] signal. ALUControl is
-/// a function of both [`AluOp`] and the `funct` field of an R-type
-/// instruction. While this is a separate control signal, the
-/// [`RegWidth`] control signal additionally acts as the leading bit of
-/// ALUControl. The leading bit of the signal determines the size of
-/// the input and output data within the datapath. See [`RegWidth`] for
-/// more details.
 #[derive(Clone, Default, PartialEq)]
 pub enum AluOp {
     /// `_0000` (0) - Perform an addition. (Also used in cases where the ALU result does not matter.)
@@ -111,6 +106,7 @@ pub enum AluOp {
     RemainderUnsigned,
 }
 
+/// Selection of System Operations.
 #[derive(Clone, Default, PartialEq)]
 pub enum SysOp {
     #[default]
@@ -122,6 +118,7 @@ pub enum SysOp {
     CSRReadClear,
 }
 
+/// Selection of Branch Operations.
 #[derive(Clone, Default, PartialEq)]
 pub enum BranchJump {
     Beq,
@@ -135,6 +132,7 @@ pub enum BranchJump {
     Bgeu,
 }
 
+/// Selection of Read and Write Operations.
 #[derive(Clone, Default, PartialEq)]
 pub enum ReadWrite {
     #[default]
@@ -152,7 +150,7 @@ pub enum ReadWrite {
     StoreDouble,
 }
 
-/// Determines, given [`RegWrite`] is set, what the source of a
+/// Determines, given [`RegWriteEn`] is set, what the source of a
 /// register's new data will be.
 ///
 /// The decision can be completely overridden by the floating point
@@ -169,23 +167,19 @@ pub enum WBSel {
     UsePcPlusFour = 3,
 }
 
-/// Determines, given that [`MemWrite`] is set, the source of the data
+/// Determines, given that a write value in [`ReadWrite`] is set, the source of the data
 /// will be written to memory.
-///
-/// Compared to the general-purpose datapath introduced by Hennessy and
-/// Patterson, this is a new control signal created to incorporate the
-/// floating-point unit.
 #[derive(Clone, Default, PartialEq)]
 pub enum MemWriteSrc {
-    /// Source the write data from the main processing unit. Specifically, this means the data read from the register `rt` from a given instruction.
+    /// Source the write data from the main processing unit. Specifically, this means the data read from the register `rs1` from a given instruction.
     #[default]
     PrimaryUnit = 0,
 
-    /// Source the write data from the floating-point unit. Specifically, this means the data read from the register `ft` from a given instruction.
+    /// Source the write data from the floating-point unit.
     FloatingPointUnit = 1,
 }
 
-/// Determines, given that [`RegWrite`] is set, which destination
+/// Determines, given that [`RegWriteEn`] is set, which destination
 /// register to write to, which largely depends on the instruction format.
 #[derive(Clone, Default, PartialEq)]
 pub enum RegDst {
@@ -212,9 +206,8 @@ pub enum RegWriteEn {
     YesWrite = 1,
 }
 
+/// Floating Point Control Signals Module.
 pub mod floating_point {
-
-    use super::super::constants::*;
     use serde::{Deserialize, Serialize};
 
     #[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
@@ -279,7 +272,7 @@ pub mod floating_point {
         /// - Source data to write to the main processing unit register file from the
         ///   floating-point unit. Specifically, this is the data stored in the `Data` register
         ///   in the FPU, likely from register `rs1` from a given instruction. This data source
-        ///   overrides the decision given by the [`MemToReg`](super::MemToReg) control signal.
+        ///   overrides the decision given by the [`WBSel`](super::WBSel) control signal.
         /// - Source data to write to the floating-point register file from the `Data` register
         ///   in the FPU, likely from register `rs1` from a given instruction.
         YesWrite = 1,
@@ -289,13 +282,6 @@ pub mod floating_point {
     /// floating-point comparator.
     ///
     /// Only one of these units are effectively utilized in any given instruction.
-    ///
-    /// The fifth bit of the control signal represents either a single-precision
-    /// floating-point operation (0), or a double-precision floating-point operation (1).
-    /// This fifth bit is determined by [`FpuRegWidth`].
-    ///
-    /// *Implementation note:* The bits set for the comparator are intended to match
-    /// the bits used in the `cond` field of a `c.cond.fmt` instruction.
     #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
     pub enum FpuAluOp {
         #[default]
@@ -369,17 +355,7 @@ pub mod floating_point {
         Sle = 17,
     }
 
-    impl FpuAluOp {
-        /// Get the corresponding control signal given a function code.
-        pub fn from_function(function: u8) -> Result<Self, String> {
-            match function {
-                FUNCTION_C_EQ => Ok(Self::MultiplicationOrEqual),
-                FUNCTION_C_LT => Ok(Self::Slt),
-                FUNCTION_C_LE => Ok(Self::Sle),
-                _ => Err(format!("Unsupported function code `{function}`")),
-            }
-        }
-    }
+    /// Selection of Rounding Modes
     #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
     pub enum RoundingMode {
         RNE = 0,

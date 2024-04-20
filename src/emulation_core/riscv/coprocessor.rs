@@ -19,7 +19,6 @@ pub struct RiscFpCoprocessor {
     pub state: RiscFpuState,
     pub is_halted: bool,
     pub registers: RiscFpRegisters,
-    pub condition_code: u64,
     pub data: u64,
 }
 
@@ -38,14 +37,6 @@ pub struct RiscFpuState {
     pub imm1: u32,
     pub imm2: u32,
     pub branch_flag: bool,
-
-    /// The line that comes out of the condition code register file. Should contain
-    /// 1 for true or 0 for false.
-    pub condition_code_bit: u8,
-    /// The inversion of `condition_code_bit`.
-    pub condition_code_bit_inverted: u8,
-    /// The result of the multiplexer with `condition_code_bit` and `condition_code_bit_inverted`.
-    pub condition_code_mux: u8,
 
     pub data_from_main_processor: u64,
     pub data_writeback: u64,
@@ -120,7 +111,7 @@ impl RiscFpCoprocessor {
         self.state.data_writeback
     }
 
-    /// Sets the data line between the multiplexer controlled by [`MemToReg`](super::control_signals::MemToReg)
+    /// Sets the data line between the multiplexer controlled by [`WBSel`](super::control_signals::WBSel)
     /// in the main processor and the multiplexer controlled by [`FpuMemToReg`] in the
     /// floating-point coprocessor.
     pub fn set_fp_register_data_from_main_processor(&mut self, data: u64) {
