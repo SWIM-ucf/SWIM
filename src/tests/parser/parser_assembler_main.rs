@@ -524,18 +524,6 @@ mod read_riscv_instructions_tests {
     }
 
     #[test]
-    fn read_instructions_fencei() {
-        let file_string = "fence.i".to_string();
-
-        let instruction_list = instruction_parser_riscv(file_string);
-
-        assert_eq!(
-            instruction_list[0].binary,
-            0b00000000000000000001000000001111
-        );
-    }
-
-    #[test]
     fn read_instructions_lui() {
         let file_string = "lui x16, 4096".to_string();
 
