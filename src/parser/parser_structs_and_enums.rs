@@ -269,7 +269,7 @@ pub const SUPPORTED_INSTRUCTIONS_MIPS: [&str; 64] = [
     "sll", "slt", "sltu", "sub", "sub.d", "sub.s", "sw", "swc1",
 ];
 
-pub const SUPPORTED_INSTRUCTIONS_RISCV: [&str; 131] = [
+pub const SUPPORTED_INSTRUCTIONS_RISCV: [&str; 128] = [
     // RV32I
     "lui",
     "auipc",
@@ -291,8 +291,6 @@ pub const SUPPORTED_INSTRUCTIONS_RISCV: [&str; 131] = [
     "sra",
     "or",
     "and",
-    "fence",
-    "fence.i",
     "csrrw",
     "csrrs",
     "csrrc",
@@ -305,7 +303,6 @@ pub const SUPPORTED_INSTRUCTIONS_RISCV: [&str; 131] = [
     "sret",
     "mret",
     "wfi",
-    "sfence.vma",
     "lb",
     "lh",
     "lw",

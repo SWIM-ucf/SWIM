@@ -2606,22 +2606,6 @@ pub fn read_instructions_riscv(
                     monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
                 }
             }
-            "fence.i" => {
-                // fence.i instruction encoding does not change
-                instruction.binary = 0b00000000000000000001000000001111;
-
-                //Pseudo-instructions already have text in mouse_hover_string so we check if there's text there already before adding in the blurb
-                if monaco_line_info[instruction.line_number]
-                    .mouse_hover_string
-                    .is_empty()
-                {
-                    let info = InstructionDescription{
-                        syntax: "fence.i".to_string(),
-                        description: "Provides explicit synchronization between writes to instruction memory and instruction fetches on the same hart.".to_string(),
-                    };
-                    monaco_line_info[instruction.line_number].mouse_hover_string = info.to_string();
-                }
-            }
             "lui" => {
                 read_operands_riscv(
                     instruction,
