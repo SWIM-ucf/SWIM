@@ -819,6 +819,84 @@ pub mod load_upper_imm {
     }
 }
 
+pub mod beq_tests {
+    use super::*;
+    #[test]
+    fn beq_test_basic_registers_are_equal() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        let instructions: Vec<u32> = vec![0b000000000100_10000_000_01000_1100011];
+        datapath.initialize(0, instructions)?;
+
+        let initial_pc = datapath.registers.pc;
+        datapath.execute_instruction();
+        let expt_result = (0b0000_0000_0000_0100 << 2) + initial_pc;
+        assert_eq!(datapath.registers.pc, expt_result);
+        Ok(())
+    }
+
+    #[test]
+    fn beq_test_basic_register_are_not_equal() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        let instructions: Vec<u32> = vec![
+            0b000000000100_10000_000_01000_1100011,
+            0b000000000100_10000_000_01000_1100011,
+        ];
+        datapath.initialize(0, instructions)?;
+
+        datapath.registers.gpr[0b01000] = 1234;
+        datapath.registers.gpr[0b10000] = 4321;
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.pc, 4);
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.pc, 8);
+        Ok(())
+    }
+
+    #[test]
+    fn beq_test_basic_branch_backwards() -> Result<(), String> {
+        let mut datapath = RiscDatapath::default();
+
+        let instructions: Vec<u32> = vec![
+            0b000000000100_10000_000_01000_1100011, // 0x00, Branch to 0x10
+            0,                                     // 0x04
+            0,                                     // 0x08
+            0,                                     // 0x0c
+            0b000000000000_10000_000_01000_1100011, // 0x10, Branch to 0x00
+        ];
+        datapath.initialize(0, instructions)?;
+        datapath.registers.gpr[0b01000] = 1234;
+        datapath.registers.gpr[0b10000] = 1234;
+
+        // 0x10, aka 16
+        let expt_result = 0x10;
+
+        datapath.execute_instruction(); // branch to address 16 from address 0
+        assert_eq!(datapath.registers.pc, expt_result);
+        assert_eq!(datapath.registers.gpr[0b01000], 1234);
+        assert_eq!(datapath.registers.gpr[0b10000], 1234);
+
+        // 0x00
+        let expt_result = 0x00;
+
+        datapath.execute_instruction();
+        assert_eq!(datapath.registers.pc, expt_result);
+
+        // Some loop stuff:
+        datapath.execute_instruction(); // Branch to 0x10
+        datapath.execute_instruction(); // Branch to 0x00
+        datapath.execute_instruction(); // Branch to 0x10
+        datapath.execute_instruction(); // Branch to 0x00
+        datapath.execute_instruction(); // Branch to 0x10
+        datapath.execute_instruction(); // Branch to 0x00
+        assert_eq!(datapath.registers.pc, expt_result);
+        Ok(())
+    }
+}
+
 /*
 pub mod jump_tests {
     use super::*;
@@ -945,94 +1023,6 @@ pub mod jr_and_jalr_tests {
 
         assert_eq!(datapath.registers.pc, 24);
         assert_eq!(datapath.registers.gpr[31], initial_pc + 4);
-        Ok(())
-    }
-}
-
-pub mod beq_tests {
-    use super::*;
-    #[test]
-    fn beq_test_basic_registers_are_equal() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        //                                  beq
-        let instructions: Vec<u32> = vec![0b000100_01000_10000_0000000000000001];
-        datapath.initialize_legacy(instructions)?;
-
-        let initial_pc = datapath.registers.pc;
-        datapath.execute_instruction();
-        let expt_result = (0b0000_0000_0000_0001 << 2) + initial_pc + 4;
-        assert_eq!(datapath.registers.pc, expt_result);
-        Ok(())
-    }
-
-    #[test]
-    fn beq_test_basic_register_are_not_equal() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        //                                  beq
-        let instructions: Vec<u32> = vec![
-            0b000100_01000_10000_0000000000000001,
-            0b000100_01000_10000_0000000000000001,
-        ];
-        datapath.initialize_legacy(instructions)?;
-
-        datapath.registers.gpr[0b01000] = 1234;
-        datapath.registers.gpr[0b10000] = 4321;
-
-        datapath.execute_instruction();
-        assert_eq!(datapath.registers.pc, 4);
-
-        datapath.execute_instruction();
-        assert_eq!(datapath.registers.pc, 8);
-        Ok(())
-    }
-
-    #[test]
-    fn beq_test_basic_branch_backwards() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        let instructions: Vec<u32> = vec![
-            0b000100_01000_10000_0000000000000011, // 0x00, Branch to 0x10
-            0,                                     // 0x04
-            0,                                     // 0x08
-            0,                                     // 0x0c
-            0b000100_01000_10000_1111111111111011, // 0x10, Branch to 0x00
-        ];
-        datapath.initialize_legacy(instructions)?;
-        datapath.registers.gpr[0b01000] = 1234;
-        datapath.registers.gpr[0b10000] = 1234;
-
-        let initial_pc = datapath.registers.pc;
-        let offset = 0b0000_0000_0000_0011;
-        // 0x10, aka 16
-        let expt_result = ((offset as i16 as i64 as u64) << 2)
-            .wrapping_add(initial_pc)
-            .wrapping_add(4);
-
-        datapath.execute_instruction(); // branch to address 16 from address 0
-        assert_eq!(datapath.registers.pc, expt_result);
-        assert_eq!(datapath.registers.gpr[0b01000], 1234);
-        assert_eq!(datapath.registers.gpr[0b10000], 1234);
-
-        let initial_pc = datapath.registers.pc;
-        let offset = 0b1111_1111_1111_1011;
-        // 0x00
-        let expt_result = ((offset as i16 as i64 as u64) << 2)
-            .wrapping_add(initial_pc)
-            .wrapping_add(4);
-
-        datapath.execute_instruction();
-        assert_eq!(datapath.registers.pc, expt_result);
-
-        // Some loop stuff:
-        datapath.execute_instruction(); // Branch to 0x10
-        datapath.execute_instruction(); // Branch to 0x00
-        datapath.execute_instruction(); // Branch to 0x10
-        datapath.execute_instruction(); // Branch to 0x00
-        datapath.execute_instruction(); // Branch to 0x10
-        datapath.execute_instruction(); // Branch to 0x00
-        assert_eq!(datapath.registers.pc, expt_result);
         Ok(())
     }
 }

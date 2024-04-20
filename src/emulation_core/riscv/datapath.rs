@@ -1055,7 +1055,7 @@ impl RiscDatapath {
     }
 
     fn calc_relative_pc_branch(&mut self) {
-        if self.state.imm > 0 {
+        if self.state.imm >= 0 {
             self.state.relative_pc_branch = self.state.imm as u64 * 4;
         }
     }
