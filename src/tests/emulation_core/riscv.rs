@@ -556,7 +556,10 @@ pub mod addi_addiu {
         datapath.registers[RiscGpRegisterType::X5] = 0xfffffffffffffff1;
         datapath.execute_instruction();
 
-        assert_eq!(datapath.registers[RiscGpRegisterType::X8], 0xfffffffffffffff2);
+        assert_eq!(
+            datapath.registers[RiscGpRegisterType::X8],
+            0xfffffffffffffff2
+        );
         Ok(())
     }
 }
@@ -862,9 +865,9 @@ pub mod beq_tests {
 
         let instructions: Vec<u32> = vec![
             0b000000000100_10000_000_01000_1100011, // 0x00, Branch to 0x10
-            0,                                     // 0x04
-            0,                                     // 0x08
-            0,                                     // 0x0c
+            0,                                      // 0x04
+            0,                                      // 0x08
+            0,                                      // 0x0c
             0b000000000000_10000_000_01000_1100011, // 0x10, Branch to 0x00
         ];
         datapath.initialize(0, instructions)?;
@@ -927,13 +930,13 @@ pub mod bne_tests {
         let mut datapath = RiscDatapath::default();
         let instructions: Vec<u32> = vec![
             0b000000000010_10000_001_01000_1100011, // 0x00, Branch to 0x8
-            0,                                     // 0x04
+            0,                                      // 0x04
             0b000000001000_10000_001_01000_1100011, // 0x08, Branch to 0x20
-            0,                                     // 0x0c
-            0,                                     // 0x10
-            0,                                     // 0x14
-            0,                                     // 0x18
-            0,                                     // 0x1c
+            0,                                      // 0x0c
+            0,                                      // 0x10
+            0,                                      // 0x14
+            0,                                      // 0x18
+            0,                                      // 0x1c
             0b000000000010_10000_001_01000_1100011, // 0x20, branch to 0x08
         ];
         datapath.initialize(0, instructions)?;
@@ -965,135 +968,3 @@ pub mod bne_tests {
         Ok(())
     }
 }
-
-/*
-pub mod jump_tests {
-    use super::*;
-    #[test]
-    fn jump_test_basic() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        //                                  J
-        let instructions: Vec<u32> = vec![0b000010_00_00000000_00000000_00000010];
-        datapath.initialize_legacy(instructions)?;
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers.pc, 8);
-        Ok(())
-    }
-
-    #[test]
-    fn jump_test_mid() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        //                                  J
-        let instructions: Vec<u32> = vec![0x0800_0fff];
-        datapath.initialize_legacy(instructions)?;
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers.pc, 0x3ffc);
-        Ok(())
-    }
-
-    #[test]
-    fn jump_test_hard() -> Result<(), String> {
-        // Jump to address 0xfff_fffc
-        let mut datapath = MipsDatapath::default();
-
-        //                                  J             low_26
-        let instructions: Vec<u32> = vec![0x0800_0000 | 0x03ff_ffff];
-        datapath.initialize_legacy(instructions)?;
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers.pc, 0x0fff_fffc);
-        Ok(())
-    }
-}
-
-pub mod jump_and_link_tests {
-    use super::*;
-    #[test]
-    fn test_basic() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-        let old_pc = datapath.registers.pc;
-
-        //                                  J
-        let instructions: Vec<u32> = vec![0b000011_00_00000000_00000000_00000010];
-        datapath.initialize_legacy(instructions)?;
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers.pc, 8);
-        assert_eq!(datapath.registers.gpr[31], old_pc + 4);
-        Ok(())
-    }
-
-    #[test]
-    fn test_mid() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-        let old_pc = datapath.registers.pc;
-
-        //                                  J
-        let instructions: Vec<u32> = vec![0x0c00_0fff];
-        datapath.initialize_legacy(instructions)?;
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers.pc, 0x3ffc);
-        assert_eq!(datapath.registers.gpr[31], old_pc + 4);
-        Ok(())
-    }
-
-    #[test]
-    fn test_hard() -> Result<(), String> {
-        // Jump to address 0xfff_fffc
-        let mut datapath = MipsDatapath::default();
-        let old_pc = datapath.registers.pc;
-
-        //                                  J             low_26
-        let instructions: Vec<u32> = vec![0x0c00_0000 | 0x03ff_ffff];
-        datapath.initialize_legacy(instructions)?;
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers.pc, 0x0fff_fffc);
-        assert_eq!(datapath.registers.gpr[31], old_pc + 4);
-        Ok(())
-    }
-}
-
-pub mod jr_and_jalr_tests {
-    use super::*;
-    #[test]
-    fn test_basic_jr() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // JR $r8
-        //                                  Special $r8  $zero $zero        JALR
-        let instructions: Vec<u32> = vec![0b000000_01000_00000_00000_00000_001001];
-        datapath.initialize_legacy(instructions)?;
-        datapath.registers.gpr[0b01000] = 24;
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers.pc, 24);
-        assert_eq!(datapath.registers.gpr[8], 24);
-        Ok(())
-    }
-
-    #[test]
-    fn test_basic_jalr() -> Result<(), String> {
-        let mut datapath = MipsDatapath::default();
-
-        // JALR $r8
-        //                                     Special  $r8  $zero $ra          JALR
-        let instructions: Vec<u32> = vec![0, 0, 0b000000_01000_00000_11111_00000_001001];
-        datapath.initialize_legacy(instructions)?;
-        datapath.registers.pc = 8;
-        let initial_pc = datapath.registers.pc;
-        datapath.registers.gpr[0b01000] = 24;
-        datapath.execute_instruction();
-
-        assert_eq!(datapath.registers.pc, 24);
-        assert_eq!(datapath.registers.gpr[31], initial_pc + 4);
-        Ok(())
-    }
-}
-
-*/
