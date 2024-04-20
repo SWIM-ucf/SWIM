@@ -3,7 +3,7 @@
     callback: Callback,
     millis: <a class="primitive" href="https://doc.rust-lang.org/1.77.2/std/primitive.u32.html">u32</a>,
     deps: Dependents
-) -&gt; impl 'hook + <a class="trait" href="../../yew/functional/hooks/trait.Hook.html" title="trait yew::functional::hooks::Hook">Hook</a>&lt;Output = <a class="primitive" href="https://doc.rust-lang.org/1.77.2/std/primitive.unit.html">()</a>&gt;<div class="where">where
+) -&gt; impl 'hook + Hook&lt;Output = <a class="primitive" href="https://doc.rust-lang.org/1.77.2/std/primitive.unit.html">()</a>&gt;<div class="where">where
     Callback: <a class="trait" href="https://doc.rust-lang.org/1.77.2/core/ops/function/trait.FnMut.html" title="trait core::ops::function::FnMut">FnMut</a>() + 'static + 'hook,
     Dependents: <a class="trait" href="https://doc.rust-lang.org/1.77.2/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> + 'static + 'hook,</div></code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This hook is similar to <a href="fn.use_throttle_effect.html" title="fn yew_hooks::prelude::use_throttle_effect"><code>use_throttle_effect</code></a> but it accepts dependencies.</p>
 <p>Whenever the dependencies are changed, the throttle effect is run again.
