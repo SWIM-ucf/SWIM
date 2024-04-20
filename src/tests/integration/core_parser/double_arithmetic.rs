@@ -1,5 +1,7 @@
 //! Tests for the double arithmetic instructions: dadd, dsub, dmul, ddiv, daddu, dsubu, dmulu, ddivu.
 
+use crate::emulation_core::architectures::AvailableDatapaths;
+
 use super::*;
 
 akin! {
@@ -16,8 +18,8 @@ akin! {
         let mut datapath = MipsDatapath::default();
 
         let instructions = String::from(*instruction);
-        let (_, instruction_bits) = parser(instructions);
-        datapath.initialize(instruction_bits)?;
+        let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+        datapath.initialize_legacy(instruction_bits)?;
 
         datapath.registers.gpr[16] = *value1;
         datapath.registers.gpr[17] = *value2;
@@ -45,8 +47,8 @@ akin! {
         let mut datapath = MipsDatapath::default();
 
         let instructions = String::from(*instruction);
-        let (_, instruction_bits) = parser(instructions);
-        datapath.initialize(instruction_bits)?;
+        let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+        datapath.initialize_legacy(instruction_bits)?;
 
         datapath.registers.gpr[25] = *value1;
         datapath.registers.gpr[26] = *value2;

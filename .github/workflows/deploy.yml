@@ -34,6 +34,9 @@ jobs:
       uses: jetli/trunk-action@v0.1.0
       with:
         version: ${{ env.PROJECT_TRUNK_VERSION }}
+      
+    - name: Install Tailwind CSS
+      run: npm install -g tailwindcss
 
     - name: Build
       run: trunk build --release --public-url /${{ github.event.repository.name }}

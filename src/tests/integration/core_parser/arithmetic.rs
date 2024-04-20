@@ -1,5 +1,7 @@
 //! Tests for additional arithmetic instructions: addu, sll, move, nop.
 
+use crate::emulation_core::architectures::AvailableDatapaths;
+
 use super::*;
 
 #[test]
@@ -8,8 +10,8 @@ fn basic_addu() -> Result<(), String> {
 
     let instructions = String::from("addu r20, r19, r18");
 
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     datapath.registers.gpr[18] = 6849841;
     datapath.registers.gpr[19] = 99816512;
@@ -32,8 +34,8 @@ fn basic_sll() -> Result<(), String> {
 sll $s1, $s1, 3"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -53,8 +55,8 @@ fn basic_move() -> Result<(), String> {
 move $s5, $s4"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -71,15 +73,19 @@ fn basic_nop() -> Result<(), String> {
 
     let instructions = String::from(r#"nop"#);
 
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     let mut expected_registers = datapath.registers;
-    expected_registers.pc = 4;
+    expected_registers.pc = 8;
     let expected_memory = datapath.memory.clone();
 
-    while !datapath.is_halted() {
-        datapath.execute_instruction();
+    // Execute until hitting a syscall
+    loop {
+        let result = datapath.execute_instruction();
+        if result.hit_syscall {
+            break;
+        }
     }
 
     // Register and memory contents should be unchanged, except for the PC.

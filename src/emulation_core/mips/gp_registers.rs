@@ -1,12 +1,17 @@
 //! Register structure and API.
 
+use crate::emulation_core::register::{RegisterType, Registers};
+use serde::{Deserialize, Serialize};
 use std::ops::{Index, IndexMut};
+use std::rc::Rc;
 use std::str::FromStr;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
 
+use super::memory::CAPACITY_BYTES;
+
 /// Collection of general-purpose registers used by the datapath.
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct GpRegisters {
     pub pc: u64,
     pub gpr: [u64; 32],
@@ -51,6 +56,40 @@ pub enum GpRegisterType {
     Sp = 29,
     Fp = 30,
     Ra = 31,
+}
+
+impl RegisterType for GpRegisterType {
+    fn get_register_name(&self) -> String {
+        match self {
+            GpRegisterType::Pc => self.to_string(),
+            _ => format!("{} (r{})", self, *self as u32),
+        }
+    }
+    fn is_valid_register_value(&self, value: u64, pc_limit: usize) -> bool {
+        match self {
+            GpRegisterType::Zero => false, // Zero register is immutable
+            GpRegisterType::Pc => {
+                // Check if PC is more than the number of instructions or not word-aligned
+                value <= pc_limit as u64 && value % 4 == 0
+            }
+            GpRegisterType::Sp => {
+                // Check if SP is more than memory capacity or not word-aligned
+                value <= CAPACITY_BYTES as u64 && value % 4 == 0
+            }
+            _ => true, // Other registers are always considered valid
+        }
+    }
+}
+
+impl Registers for GpRegisters {
+    fn get_dyn_register_list(&self) -> Vec<(Rc<dyn RegisterType>, u64)> {
+        self.into_iter()
+            .map(|(register, val)| {
+                let register: Rc<dyn RegisterType> = Rc::new(register);
+                (register, val)
+            })
+            .collect()
+    }
 }
 
 impl ToString for GpRegisters {

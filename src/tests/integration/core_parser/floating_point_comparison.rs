@@ -1,5 +1,7 @@
 //! Tests for the floating-point comparison instructions: c.eq.s, c.eq.d, c.lt.s, c.lt.d, c.le.s, c.le.d, c.ngt.s, c.ngt.d, c.nge.s, c.nge.d
 
+use crate::emulation_core::architectures::AvailableDatapaths;
+
 use super::*;
 
 akin! {
@@ -16,11 +18,11 @@ akin! {
         let mut datapath = MipsDatapath::default();
 
         let instructions = String::from(*instruction);
-        let (_, instruction_bits) = parser(instructions);
-        datapath.initialize(instruction_bits)?;
+        let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+        datapath.initialize_legacy(instruction_bits)?;
 
-        datapath.coprocessor.fpr[15] = *value1;
-        datapath.coprocessor.fpr[16] = *value2;
+        datapath.coprocessor.registers.fpr[15] = *value1;
+        datapath.coprocessor.registers.fpr[16] = *value2;
 
         while !datapath.is_halted() {
             datapath.execute_instruction();
@@ -45,11 +47,11 @@ akin! {
         let mut datapath = MipsDatapath::default();
 
         let instructions = String::from(*instruction);
-        let (_, instruction_bits) = parser(instructions);
-        datapath.initialize(instruction_bits)?;
+        let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+        datapath.initialize_legacy(instruction_bits)?;
 
-        datapath.coprocessor.fpr[15] = *value1;
-        datapath.coprocessor.fpr[16] = *value2;
+        datapath.coprocessor.registers.fpr[15] = *value1;
+        datapath.coprocessor.registers.fpr[16] = *value2;
 
         while !datapath.is_halted() {
             datapath.execute_instruction();

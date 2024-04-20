@@ -1,5 +1,7 @@
 //! Tests for the floating-point arithmetic instructions: add.s, add.d, sub.s, sub.d, mul.s, mul.d, div.s, div.d
 
+use crate::emulation_core::architectures::AvailableDatapaths;
+
 use super::*;
 
 akin! {
@@ -18,17 +20,17 @@ akin! {
         let mut datapath = MipsDatapath::default();
 
         let instructions = String::from(*instruction);
-        let (_, instruction_bits) = parser(instructions);
-        datapath.initialize(instruction_bits)?;
+        let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+        datapath.initialize_legacy(instruction_bits)?;
 
-        datapath.coprocessor.fpr[15] = *value1;
-        datapath.coprocessor.fpr[16] = *value2;
+        datapath.coprocessor.registers.fpr[15] = *value1;
+        datapath.coprocessor.registers.fpr[16] = *value2;
 
         while !datapath.is_halted() {
             datapath.execute_instruction();
         }
 
-        assert_eq!(datapath.coprocessor.fpr[*result_register], *expected_result);
+        assert_eq!(datapath.coprocessor.registers.fpr[*result_register], *expected_result);
         Ok(())
     }
 }
@@ -49,17 +51,17 @@ akin! {
         let mut datapath = MipsDatapath::default();
 
         let instructions = String::from(*instruction);
-        let (_, instruction_bits) = parser(instructions);
-        datapath.initialize(instruction_bits)?;
+        let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+        datapath.initialize_legacy(instruction_bits)?;
 
-        datapath.coprocessor.fpr[15] = *value1;
-        datapath.coprocessor.fpr[16] = *value2;
+        datapath.coprocessor.registers.fpr[15] = *value1;
+        datapath.coprocessor.registers.fpr[16] = *value2;
 
         while !datapath.is_halted() {
             datapath.execute_instruction();
         }
 
-        assert_eq!(datapath.coprocessor.fpr[*result_register], *expected_result);
+        assert_eq!(datapath.coprocessor.registers.fpr[*result_register], *expected_result);
         Ok(())
     }
 }

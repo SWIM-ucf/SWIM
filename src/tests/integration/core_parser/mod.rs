@@ -1,5 +1,6 @@
 use akin::akin;
 
+use crate::emulation_core::architectures::AvailableDatapaths;
 use crate::emulation_core::datapath::Datapath;
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::parser::parser_assembler_main::parser;
@@ -30,8 +31,8 @@ add $s1, $s0, $s0"#,
     );
 
     // Parse instructions and load into emulation core memory.
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     // Execute 2 instructions.
     for _ in 0..2 {
@@ -69,8 +70,8 @@ dati r1, 43982"#,
     // dati r1, 43982    | ABCD 8765 CCCC EEEE | 43982 == 0xABCE. FFFF + ABCE = ABCD.
 
     // Parse instructions and load into emulation core memory.
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     // Execute 4 instructions.
     for _ in 0..4 {
@@ -96,8 +97,8 @@ dadd r7, r5, r6
 dmuli r8, r7, 2"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();

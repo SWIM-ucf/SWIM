@@ -50,8 +50,15 @@ use super::super::datapath::Datapath;
 use super::constants::*;
 use super::control_signals::{floating_point::*, *};
 use super::datapath_signals::*;
+use super::gp_registers::GpRegisterType;
 use super::instruction::*;
-use super::{coprocessor::MipsFpCoprocessor, memory::Memory, registers::GpRegisters};
+use super::{coprocessor::MipsFpCoprocessor, gp_registers::GpRegisters, memory::Memory};
+use crate::emulation_core::architectures::DatapathRef;
+use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
+use crate::emulation_core::mips::fp_registers::FpRegisterType;
+use crate::emulation_core::mips::gp_registers::GpRegisterType::{A0, A1};
+use crate::emulation_core::stack::{Stack, StackFrame};
+use serde::{Deserialize, Serialize};
 
 /// An implementation of a datapath for the MIPS64 ISA.
 #[derive(Clone, PartialEq)]
@@ -60,13 +67,16 @@ pub struct MipsDatapath {
     pub memory: Memory,
     pub coprocessor: MipsFpCoprocessor,
 
-    pub instruction: Instruction,
+    pub instruction: MipsInstruction,
     pub signals: ControlSignals,
     pub datapath_signals: DatapathSignals,
     pub state: DatapathState,
 
     /// The currently-active stage in the datapath.
     pub current_stage: Stage,
+
+    /// The stack of instructions that have been executed
+    pub stack: Stack,
 
     /// Boolean value that states whether the datapath has halted.
     ///
@@ -76,7 +86,7 @@ pub struct MipsDatapath {
 }
 
 /// A collection of all the data lines and wires in the datapath.
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct DatapathState {
     /// *Data line.* The currently loaded instruction. Initialized after the
     /// Instruction Fetch stage.
@@ -161,7 +171,7 @@ pub struct DatapathState {
 }
 
 /// The possible stages the datapath could be in during execution.
-#[derive(Clone, Copy, Default, Eq, PartialEq)]
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Stage {
     #[default]
     InstructionFetch,
@@ -185,17 +195,30 @@ impl Stage {
     }
 }
 
+impl From<Stage> for String {
+    fn from(val: Stage) -> String {
+        String::from(match val {
+            Stage::InstructionFetch => "writeback",
+            Stage::InstructionDecode => "instruction_fetch",
+            Stage::Execute => "instruction_decode",
+            Stage::Memory => "execute",
+            Stage::WriteBack => "memory",
+        })
+    }
+}
+
 impl Default for MipsDatapath {
     fn default() -> Self {
         let mut datapath = MipsDatapath {
             registers: GpRegisters::default(),
             memory: Memory::default(),
             coprocessor: MipsFpCoprocessor::default(),
-            instruction: Instruction::default(),
+            instruction: MipsInstruction::default(),
             signals: ControlSignals::default(),
             datapath_signals: DatapathSignals::default(),
             state: DatapathState::default(),
             current_stage: Stage::default(),
+            stack: Stack::default(),
             is_halted: true,
         };
 
@@ -209,17 +232,16 @@ impl Default for MipsDatapath {
 
 impl Datapath for MipsDatapath {
     type RegisterData = u64;
-    type RegisterEnum = super::registers::GpRegisterType;
-    type MemoryType = Memory;
 
-    fn execute_instruction(&mut self) {
+    fn execute_instruction(&mut self) -> DatapathUpdateSignal {
+        let mut result_signals = DatapathUpdateSignal::default();
         loop {
             // Stop early if the datapath has halted.
             if self.is_halted {
                 break;
             }
 
-            self.execute_stage();
+            result_signals |= self.execute_stage();
 
             // This instruction is finished when the datapath has returned
             // to the IF stage.
@@ -227,21 +249,22 @@ impl Datapath for MipsDatapath {
                 break;
             }
         }
+        result_signals
     }
 
-    fn execute_stage(&mut self) {
+    fn execute_stage(&mut self) -> DatapathUpdateSignal {
         // If the datapath is halted, do nothing.
         if self.is_halted {
-            return;
+            return DatapathUpdateSignal::default();
         }
 
-        match self.current_stage {
+        let res = match self.current_stage {
             Stage::InstructionFetch => self.stage_instruction_fetch(),
             Stage::InstructionDecode => self.stage_instruction_decode(),
             Stage::Execute => self.stage_execute(),
             Stage::Memory => self.stage_memory(),
             Stage::WriteBack => self.stage_writeback(),
-        }
+        };
 
         // If the FPU has halted, reflect this in the main unit.
         if self.coprocessor.is_halted {
@@ -249,30 +272,70 @@ impl Datapath for MipsDatapath {
         }
 
         self.current_stage = Stage::get_next_stage(self.current_stage);
+        res
     }
 
-    fn get_register_by_enum(&self, register: Self::RegisterEnum) -> u64 {
-        self.registers[register]
+    fn set_register_by_str(&mut self, register: &str, data: Self::RegisterData) {
+        let register = &mut self.registers[register];
+        *register = data;
     }
 
-    fn get_memory(&self) -> &Self::MemoryType {
+    fn set_fp_register_by_str(&mut self, register: &str, data: Self::RegisterData) {
+        let register = &mut self.coprocessor.registers[register];
+        *register = data;
+    }
+
+    fn initialize(&mut self, initial_pc: usize, instructions: Vec<u32>) -> Result<(), String> {
+        self.reset();
+        self.load_instructions(instructions)?;
+        self.registers.pc = initial_pc as u64;
+        self.is_halted = false;
+
+        Ok(())
+    }
+
+    fn get_memory(&self) -> &Memory {
         &self.memory
+    }
+
+    fn get_memory_mut(&mut self) -> &mut Memory {
+        &mut self.memory
+    }
+
+    fn set_memory(&mut self, _ptr: u64, _data: u32) {
+        self.memory.store_word(_ptr, _data).unwrap_or_default();
     }
 
     fn is_halted(&self) -> bool {
         self.is_halted
     }
 
+    fn halt(&mut self) {
+        self.is_halted = true;
+    }
+
     fn reset(&mut self) {
         std::mem::take(self);
+    }
+
+    fn as_datapath_ref(&self) -> DatapathRef {
+        DatapathRef::MIPS(self)
+    }
+
+    fn get_syscall_arguments(&self) -> Syscall {
+        Syscall::from_register_data(
+            self.registers[A0],
+            self.registers[A1],
+            f32::from_bits(self.coprocessor.registers[FpRegisterType::F0] as u32),
+            f64::from_bits(self.coprocessor.registers[FpRegisterType::F0]),
+        )
     }
 }
 
 impl MipsDatapath {
     // ===================== General Functions =====================
-    /// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
-    /// flag. If the process fails, an [`Err`] is returned.
-    pub fn initialize(&mut self, instructions: Vec<u32>) -> Result<(), String> {
+    /// Legacy initialize function, to be removed later.
+    pub fn initialize_legacy(&mut self, instructions: Vec<u32>) -> Result<(), String> {
         self.reset();
         self.load_instructions(instructions)?;
         self.is_halted = false;
@@ -300,13 +363,19 @@ impl MipsDatapath {
     ///
     /// Fetch the current instruction based on the given PC and load it
     /// into the datapath.
-    fn stage_instruction_fetch(&mut self) {
+    fn stage_instruction_fetch(&mut self) -> DatapathUpdateSignal {
         self.instruction_fetch();
 
         // Upper part of datapath, PC calculation
         self.pc_plus_4();
-
         self.coprocessor.set_instruction(self.state.instruction);
+
+        // Both state and coprocessor state always update
+        DatapathUpdateSignal {
+            changed_state: true,
+            changed_coprocessor_state: true,
+            ..Default::default()
+        }
     }
 
     /// Stage 2 of 5: Instruction Decode (ID)
@@ -315,7 +384,7 @@ impl MipsDatapath {
     ///
     /// If the instruction is determined to be a `syscall`, immediately
     /// finish the instruction and set the `is_halted` flag.
-    fn stage_instruction_decode(&mut self) {
+    fn stage_instruction_decode(&mut self) -> DatapathUpdateSignal {
         self.instruction_decode();
         self.sign_extend();
         self.set_control_signals();
@@ -330,26 +399,45 @@ impl MipsDatapath {
         self.coprocessor
             .set_data_from_main_processor(self.state.read_data_2);
 
-        // Finish this instruction out of the datapath and halt if this is a syscall.
-        if let Instruction::SyscallType(_) = self.instruction {
-            self.is_halted = true;
+        // Check if we hit a syscall or breakpoint and signal it to the caller.
+        let (hit_syscall, hit_breakpoint) = match self.instruction {
+            MipsInstruction::SyscallType(instruction) => (
+                instruction.funct == FUNCT_SYSCALL,
+                instruction.funct == FUNCT_BREAK,
+            ),
+            _ => (false, false),
+        };
+
+        // Instruction decode always involves a state update
+        DatapathUpdateSignal {
+            changed_state: true,
+            changed_coprocessor_state: true,
+            hit_syscall,
+            hit_breakpoint,
+            ..Default::default()
         }
     }
 
     /// Stage 3 of 5: Execute (EX)
     ///
     /// Execute the current instruction with some arithmetic operation.
-    fn stage_execute(&mut self) {
+    fn stage_execute(&mut self) -> DatapathUpdateSignal {
         self.alu();
         self.calc_relative_pc_branch();
         self.calc_cpu_branch_signal();
         self.coprocessor.stage_execute();
+
+        DatapathUpdateSignal {
+            changed_state: true,
+            changed_coprocessor_state: true,
+            ..Default::default()
+        }
     }
 
     /// Stage 4 of 5: Memory (MEM)
     ///
     /// Read or write to memory.
-    fn stage_memory(&mut self) {
+    fn stage_memory(&mut self) -> DatapathUpdateSignal {
         if let MemRead::YesRead = self.signals.mem_read {
             self.memory_read();
         }
@@ -372,18 +460,78 @@ impl MipsDatapath {
         self.calc_general_branch_signal();
         self.pick_pc_plus_4_or_relative_branch_addr_mux1();
         self.set_new_pc_mux2();
+
+        let mut changed_stack = false;
+
+        // If this is the first instruction, push the initial frame to the stack
+        if self.stack.is_empty() {
+            let frame = StackFrame::new(
+                self.state.instruction,
+                self.registers.pc,
+                self.state.pc_plus_4,
+                self.registers[GpRegisterType::Sp],
+                // self.registers[GpRegisterType::Sp],
+                self.registers.pc,
+            );
+            self.stack.push(frame);
+            changed_stack = true;
+        }
+
+        let hit_jump = matches!(self.signals.jump, Jump::YesJump);
+        if hit_jump {
+            // Add current line to stack if we call a function
+            let frame = StackFrame::new(
+                self.state.instruction,
+                self.registers.pc,
+                self.state.pc_plus_4,
+                self.registers[GpRegisterType::Sp],
+                self.state.new_pc,
+            );
+            self.stack.push(frame);
+            changed_stack = true;
+        }
+
+        DatapathUpdateSignal {
+            changed_state: true,
+            changed_memory: self.signals.mem_write == MemWrite::YesWrite,
+            changed_coprocessor_state: true,
+            changed_stack,
+            ..Default::default()
+        }
     }
 
     /// Stage 5 of 5: Writeback (WB)
     ///
     /// Write the result of the instruction's operation to a register,
     /// if desired. Additionally, set the PC for the next instruction.
-    fn stage_writeback(&mut self) {
+    fn stage_writeback(&mut self) -> DatapathUpdateSignal {
         self.coprocessor
             .set_fp_register_data_from_main_processor(self.state.data_result);
         self.register_write();
         self.set_pc();
         self.coprocessor.stage_writeback();
+
+        // check if we are writing to the stack pointer
+        let mut changed_stack = false;
+        if self.state.write_register_destination == GpRegisterType::Sp as usize {
+            if let Some(last_frame) = self.stack.peek() {
+                if self.state.register_write_data >= last_frame.frame_pointer {
+                    // dellocating stack space
+                    self.stack.pop();
+                    changed_stack = true;
+                }
+            }
+        }
+
+        DatapathUpdateSignal {
+            changed_state: true,
+            changed_coprocessor_state: true,
+            changed_registers: true, // Always true because pc always gets updated
+            changed_coprocessor_registers: self.coprocessor.signals.fpu_reg_write
+                == FpuRegWrite::YesWrite,
+            changed_stack,
+            ..Default::default()
+        }
     }
 
     // ================== Instruction Fetch (IF) ==================
@@ -407,7 +555,7 @@ impl MipsDatapath {
     // ================== Instruction Decode (ID) ==================
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
-        match Instruction::try_from(self.state.instruction) {
+        match MipsInstruction::try_from(self.state.instruction) {
             Ok(instruction) => self.instruction = instruction,
             Err(message) => {
                 self.error(&message);
@@ -418,7 +566,7 @@ impl MipsDatapath {
         // Set the data lines based on the contents of the instruction.
         // Some lines will hold uninitialized values as a result.
         match self.instruction {
-            Instruction::RType(r) => {
+            MipsInstruction::RType(r) => {
                 self.state.rs = r.rs as u32;
                 self.state.rt = r.rt as u32;
                 self.state.rd = r.rd as u32;
@@ -426,19 +574,19 @@ impl MipsDatapath {
                 self.state.shamt = r.shamt as u32;
                 self.state.funct = r.funct as u32;
             }
-            Instruction::IType(i) => {
+            MipsInstruction::IType(i) => {
                 self.state.rs = i.rs as u32;
                 self.state.rt = i.rt as u32;
                 self.state.rd = 0; // Placeholder
                 self.state.imm = i.immediate as u32;
             }
-            Instruction::FpuRegImmType(i) => {
+            MipsInstruction::FpuRegImmType(i) => {
                 self.state.rs = 0; // Not applicable wire
                 self.state.rt = i.rt as u32;
                 self.state.rd = 0; // Not applicable
                 self.state.imm = 0; // Not applicable
             }
-            Instruction::SyscallType(s) => {
+            MipsInstruction::SyscallType(s) => {
                 self.state.funct = s.funct as u32;
                 // Not applicable:
                 self.state.rs = 0;
@@ -449,15 +597,15 @@ impl MipsDatapath {
             }
             // R-type and comparison FPU instructions exclusively use the
             // FPU, so these data lines do not need to be used.
-            Instruction::FpuRType(_) | Instruction::FpuCompareType(_) => (),
-            Instruction::FpuIType(i) => {
+            MipsInstruction::FpuRType(_) | MipsInstruction::FpuCompareType(_) => (),
+            MipsInstruction::FpuIType(i) => {
                 self.state.rs = i.base as u32;
                 self.state.imm = i.offset as u32;
             }
-            Instruction::JType(i) => {
+            MipsInstruction::JType(i) => {
                 self.state.lower_26 = i.addr;
             }
-            Instruction::FpuBranchType(b) => {
+            MipsInstruction::FpuBranchType(b) => {
                 self.state.imm = b.offset as u32;
                 self.state.funct = 0; // Not applicable
                 self.state.rs = 0; // Not applicable
@@ -478,23 +626,23 @@ impl MipsDatapath {
     /// instruction's opcode.
     fn set_control_signals(&mut self) {
         match self.instruction {
-            Instruction::RType(r) => {
+            MipsInstruction::RType(r) => {
                 self.set_rtype_control_signals(r);
             }
-            Instruction::IType(i) => {
+            MipsInstruction::IType(i) => {
                 self.set_itype_control_signals(i);
             }
-            Instruction::JType(j) => {
+            MipsInstruction::JType(j) => {
                 self.set_jtype_control_signals(j);
             }
-            Instruction::FpuRegImmType(i) => {
+            MipsInstruction::FpuRegImmType(i) => {
                 self.set_fpu_reg_imm_control_signals(i);
             }
             // Main processor does nothing.
-            Instruction::FpuRType(_)
-            | Instruction::FpuCompareType(_)
-            | Instruction::SyscallType(_)
-            | Instruction::FpuBranchType(_) => {
+            MipsInstruction::FpuRType(_)
+            | MipsInstruction::FpuCompareType(_)
+            | MipsInstruction::SyscallType(_)
+            | MipsInstruction::FpuBranchType(_) => {
                 self.signals = ControlSignals {
                     branch: Branch::NoBranch,
                     jump: Jump::NoJump,
@@ -504,7 +652,7 @@ impl MipsDatapath {
                     ..Default::default()
                 };
             }
-            Instruction::FpuIType(i) => {
+            MipsInstruction::FpuIType(i) => {
                 self.set_fpu_itype_control_signals(i);
             }
         }

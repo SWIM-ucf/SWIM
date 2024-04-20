@@ -1,5 +1,7 @@
 //! Tests for the floating-point branch instructions: bc1t, bc1f
 
+use crate::emulation_core::architectures::AvailableDatapaths;
+
 use super::*;
 
 #[test]
@@ -30,8 +32,8 @@ c.lt.s $f0, $f2
 bc1t loop"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -40,7 +42,10 @@ bc1t loop"#,
     // This should end when the loop has iterated 5 times.
     // Thus, $s2 should be 35 and $f0 should be 5.0.
     assert_eq!(datapath.registers.gpr[18], 35); // $s2
-    assert_eq!(f32::from_bits(datapath.coprocessor.fpr[0] as u32), 5.0); // $f0
+    assert_eq!(
+        f32::from_bits(datapath.coprocessor.registers.fpr[0] as u32),
+        5.0
+    ); // $f0
 
     Ok(())
 }
@@ -73,8 +78,8 @@ c.lt.s $f2, $f0
 bc1f loop"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -83,7 +88,10 @@ bc1f loop"#,
     // This should end when the loop has iterated 6 times.
     // Thus, $s2 should be 42 and $f0 should be 6.0.
     assert_eq!(datapath.registers.gpr[18], 42); // $s2
-    assert_eq!(f32::from_bits(datapath.coprocessor.fpr[0] as u32), 6.0); // $f0
+    assert_eq!(
+        f32::from_bits(datapath.coprocessor.registers.fpr[0] as u32),
+        6.0
+    ); // $f0
 
     Ok(())
 }

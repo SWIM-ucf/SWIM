@@ -1,11 +1,14 @@
+use crate::emulation_core::architectures::AvailableDatapaths;
 use crate::parser::parser_structs_and_enums::ErrorType::*;
 use crate::parser::parser_structs_and_enums::TokenType::{Directive, Label, Operator, Unknown};
 use crate::parser::parser_structs_and_enums::{
     Data, Error, Instruction, LabelInstance, MonacoLineInfo, Token, FP_REGISTERS, GP_REGISTERS,
-    SUPPORTED_INSTRUCTIONS,
+    RISCV_FP_REGISTERS, RISCV_GP_REGISTERS, SUPPORTED_INSTRUCTIONS_MIPS,
 };
 use levenshtein::levenshtein;
 use std::collections::HashMap;
+
+use super::parser_structs_and_enums::SUPPORTED_INSTRUCTIONS_RISCV;
 
 ///Takes the initial string of the program given by the editor and turns it into a vector of Line,
 /// a struct that holds tokens and the original line number.
@@ -188,7 +191,7 @@ pub fn remove_commas(line: &mut MonacoLineInfo) {
 
 ///This function takes the vector of lines created by tokenize program and turns them into instructions
 ///assigning labels, operators, operands, and line numbers and data assigning labels, data types, and values
-pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instruction>, Vec<Data>) {
+pub fn separate_data_and_text(lines: &mut [MonacoLineInfo]) -> (Vec<Instruction>, Vec<Data>) {
     let mut instruction_list: Vec<Instruction> = Vec::new();
     let mut data_list: Vec<Data> = Vec::new();
     let mut labels: Vec<LabelInstance> = Vec::new();
@@ -208,8 +211,7 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
             || lines[i].tokens[0].token_name.to_lowercase() == ".data"
         {
             lines[i].tokens[0].token_type = Directive;
-            while !labels.is_empty() {
-                let last = labels.pop().unwrap();
+            while let Some(last) = labels.pop() {
                 lines[last.token_line].errors.push(Error {
                     error_name: LabelAssignmentError,
                     token_causing_error: last.token.token_name,
@@ -217,11 +219,7 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
                     message: "".to_string(),
                 });
             }
-            if lines[i].tokens[0].token_name.to_lowercase() == ".text" {
-                is_text = true;
-            } else {
-                is_text = false;
-            }
+            is_text = lines[i].tokens[0].token_name.to_lowercase() == ".text";
             i += 1;
             continue;
         }
@@ -249,8 +247,8 @@ pub fn separate_data_and_text(lines: &mut Vec<MonacoLineInfo>) -> (Vec<Instructi
                 ..Default::default()
             };
             //push all incomplete labels to reference this instruction
-            while !labels.is_empty() {
-                instruction.labels.push(labels.pop().unwrap());
+            while let Some(label) = labels.pop() {
+                instruction.labels.push(label);
             }
             //the next token is the operator
             lines[i].tokens[j].token_type = Operator;
@@ -366,14 +364,12 @@ pub fn create_label_map(
     }
 
     let last_instruction = instruction_list.last();
+    let offset_for_instructions: u32 = match last_instruction {
+        Some(last_instruction) => ((last_instruction.instruction_number + 1) << 2) as u32,
+        None => 0_u32,
+    };
 
-    let offset_for_instructions: u32 = if let Some(..) = last_instruction {
-        (last_instruction.unwrap().instruction_number + 1) << 2
-    } else {
-        0
-    } as u32;
-
-    for (_i, data) in data_list.iter_mut().enumerate() {
+    for data in data_list.iter_mut() {
         //if the given label name is already used, an error is generated
         if labels.contains_key(&*data.label.clone().token_name) {
             data.errors.push(Error {
@@ -402,6 +398,7 @@ pub fn suggest_error_corrections(
     data: &mut [Data],
     labels: &HashMap<String, usize>,
     monaco_line_info: &mut [MonacoLineInfo],
+    arch: AvailableDatapaths,
 ) -> String {
     let levenshtein_threshold = 2_f32 / 3_f32;
     let mut console_out_string: String = "".to_string();
@@ -424,12 +421,26 @@ pub fn suggest_error_corrections(
                         let given_string = &error.token_causing_error;
                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
 
-                        for register in GP_REGISTERS {
-                            if levenshtein(given_string, register.names[0]) < closest.0 {
-                                closest.0 = levenshtein(given_string, register.names[0]);
-                                closest.1 = register.names[0].to_string();
+                        match arch {
+                            AvailableDatapaths::MIPS => {
+                                for register in GP_REGISTERS {
+                                    if levenshtein(given_string, register.names[0]) < closest.0 {
+                                        closest.0 = levenshtein(given_string, register.names[0]);
+                                        closest.1 = register.names[0].to_string();
+                                    }
+                                }
+                            }
+
+                            AvailableDatapaths::RISCV => {
+                                for register in RISCV_GP_REGISTERS {
+                                    if levenshtein(given_string, register.names[0]) < closest.0 {
+                                        closest.0 = levenshtein(given_string, register.names[0]);
+                                        closest.1 = register.names[0].to_string();
+                                    }
+                                }
                             }
                         }
+
                         let mut message = "GP register is not recognized.".to_string();
                         //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                         if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
@@ -446,12 +457,25 @@ pub fn suggest_error_corrections(
                         let given_string = &error.token_causing_error;
                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
 
-                        for register in FP_REGISTERS {
-                            if levenshtein(given_string, register.name) < closest.0 {
-                                closest.0 = levenshtein(given_string, register.name);
-                                closest.1 = register.name.to_string();
+                        match arch {
+                            AvailableDatapaths::MIPS => {
+                                for register in FP_REGISTERS {
+                                    if levenshtein(given_string, register.name) < closest.0 {
+                                        closest.0 = levenshtein(given_string, register.name);
+                                        closest.1 = register.name.to_string();
+                                    }
+                                }
+                            }
+                            AvailableDatapaths::RISCV => {
+                                for register in RISCV_FP_REGISTERS {
+                                    if levenshtein(given_string, register.names[0]) < closest.0 {
+                                        closest.0 = levenshtein(given_string, register.names[0]);
+                                        closest.1 = register.names[0].to_string();
+                                    }
+                                }
                             }
                         }
+
                         let mut message = "FP register is not recognized.".to_string();
                         //only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                         if (closest.0 as f32 / given_string.len() as f32) < levenshtein_threshold {
@@ -468,10 +492,22 @@ pub fn suggest_error_corrections(
                         let given_string = &instruction.operator.token_name;
                         let mut closest: (usize, String) = (usize::MAX, "".to_string());
 
-                        for instruction in SUPPORTED_INSTRUCTIONS {
-                            if levenshtein(given_string, instruction) < closest.0 {
-                                closest.0 = levenshtein(given_string, instruction);
-                                closest.1 = instruction.to_string();
+                        match arch {
+                            AvailableDatapaths::MIPS => {
+                                for instruction in SUPPORTED_INSTRUCTIONS_MIPS {
+                                    if levenshtein(given_string, instruction) < closest.0 {
+                                        closest.0 = levenshtein(given_string, instruction);
+                                        closest.1 = instruction.to_string();
+                                    }
+                                }
+                            }
+                            AvailableDatapaths::RISCV => {
+                                for instruction in SUPPORTED_INSTRUCTIONS_RISCV {
+                                    if levenshtein(given_string, instruction) < closest.0 {
+                                        closest.0 = levenshtein(given_string, instruction);
+                                        closest.1 = instruction.to_string();
+                                    }
+                                }
                             }
                         }
                         let mut message = "Instruction is not recognized.".to_string();

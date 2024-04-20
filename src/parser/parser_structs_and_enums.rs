@@ -3,6 +3,8 @@ use std::fmt;
 use std::fmt::Formatter;
 use std::string::ToString;
 
+use gloo_console::log;
+
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 ///Wrapper for all information gathered in the Parser/Assembler about the written program.
 pub struct ProgramInfo {
@@ -13,6 +15,7 @@ pub struct ProgramInfo {
     pub instructions: Vec<Instruction>,
     pub data: Vec<Data>,
     pub pc_starting_point: usize,
+    pub data_starting_point: usize,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -127,8 +130,11 @@ impl Instruction {
         for operand in &self.operands {
             recreated_string.push_str(&format!(" {},", operand.token_name.clone()));
         }
+
         //pop the extra comma
-        recreated_string.pop();
+        if recreated_string.ends_with(',') {
+            recreated_string.pop();
+        }
 
         recreated_string
     }
@@ -143,6 +149,23 @@ pub struct Data {
     pub label: Token,
     pub data_type: Token,
     pub data_entries: Vec<Token>,
+}
+
+impl Data {
+    ///Takes the operator, operands, and label(optional) associated with an instruction and recreates the string version
+    pub fn recreate_string(&self) -> String {
+        let mut recreated_string = "".to_string();
+        recreated_string.push_str(&format!("{}: ", self.label.clone().token_name));
+        recreated_string.push_str(&self.data_type.token_name.to_string());
+
+        for token in &self.data_entries {
+            recreated_string.push_str(&format!(" {},", token.token_name.clone()));
+        }
+        //pop the extra comma
+        recreated_string.pop();
+
+        recreated_string
+    }
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -215,6 +238,7 @@ pub enum ErrorType {
     NonASCIIString, //One or multiple characters within the given string cannot be represented in ASCII
     NonASCIIChar,   //The given char cannot be represented in ASCII
     JALRRDRegisterZero, //The destination address for JALR cannot be the zero register
+    IncorrectImmediateValue, //Ensure immediate value for li is valid
 }
 
 impl fmt::Display for ErrorType {
@@ -228,13 +252,15 @@ pub enum OperandType {
     RegisterGP,
     RegisterFP,
     Immediate,
+    UpperImmediate,
     MemoryAddress,
     LabelAbsolute,
     LabelRelative,
     ShiftAmount,
 }
 
-pub const SUPPORTED_INSTRUCTIONS: [&str; 64] = [
+pub const SUPPORTED_INSTRUCTIONS_MIPS: [&str; 64] = [
+    // MIPS Instructions
     "add", "add.d", "add.s", "addi", "addiu", "addu", "and", "andi", "aui", "b", "bc1f", "bc1t",
     "beq", "bne", "c.eq.d", "c.eq.s", "c.le.d", "c.le.s", "c.lt.d", "c.lt.s", "c.nge.d", "c.nge.s",
     "c.ngt.d", "c.ngt.s", "dadd", "daddi", "daddiu", "daddu", "dahi", "dati", "ddiv", "ddivu",
@@ -243,7 +269,147 @@ pub const SUPPORTED_INSTRUCTIONS: [&str; 64] = [
     "sll", "slt", "sltu", "sub", "sub.d", "sub.s", "sw", "swc1",
 ];
 
-pub const UNSUPPORTED_INSTRUCTIONS: [&str; 408] = [
+pub const SUPPORTED_INSTRUCTIONS_RISCV: [&str; 131] = [
+    // RV32I
+    "lui",
+    "auipc",
+    "addi",
+    "slti",
+    "xori",
+    "ori",
+    "andi",
+    "slli",
+    "srli",
+    "srai",
+    "add",
+    "sub",
+    "sll",
+    "slt",
+    "sltu",
+    "cor",
+    "srl",
+    "sra",
+    "or",
+    "and",
+    "fence",
+    "fence.i",
+    "csrrw",
+    "csrrs",
+    "csrrc",
+    "csrrwi",
+    "csrrsi",
+    "csrrci",
+    "ecall",
+    "ebreak",
+    "uret",
+    "sret",
+    "mret",
+    "wfi",
+    "sfence.vma",
+    "lb",
+    "lh",
+    "lw",
+    "lbu",
+    "lhu",
+    "sb",
+    "sh",
+    "sw",
+    "jal",
+    "jalr",
+    "beq",
+    "bne",
+    "blt",
+    "bge",
+    "bltu",
+    "bgeu",
+    // RV64I
+    "addiw",
+    "slliw",
+    "srliw",
+    "addw",
+    "subw",
+    "sllw",
+    "srlw",
+    "sraw",
+    "lwu",
+    "ld",
+    "sd",
+    // RV32M
+    "mul",
+    "mulh",
+    "mulhsu",
+    "mulhu",
+    "div",
+    "divu",
+    "rem",
+    "remu",
+    // RV64M
+    "mulw",
+    "divw",
+    "divuw",
+    "remw",
+    "remuw",
+    // RV32F
+    "fmadd.s",
+    "fmsub.s",
+    "fnmsub.s",
+    "fnmadd.s",
+    "fadd.s",
+    "fsub.s",
+    "fmul.s",
+    "fdiv.s",
+    "fsqrt.s",
+    "fsgnj.s",
+    "fsgnjn.s",
+    "fsgnjx.s",
+    "fmin.s",
+    "fmax.s",
+    "fcvt.w.s",
+    "fcvt.wu.s",
+    "fmv.x.w",
+    "feq.s",
+    "flt.s",
+    "fle.s",
+    "fclass.s",
+    "fcvt.s.w",
+    "fcvt.s.wu",
+    "fmv.w.x",
+    "fmadd.d",
+    "fmsub.d",
+    "fnmadd.d",
+    "fnmsub.d",
+    "fadd.d",
+    "fsub.d",
+    "fmul.d",
+    "fdiv.d",
+    "fsqrt.d",
+    "fsgnj.d",
+    "fsgnjn.d",
+    "fsgnjx.d",
+    "fmin.d",
+    "fmax.d",
+    "fcvt.s.d",
+    "fcvt.d.s",
+    "feq.d",
+    "flt.d",
+    "fle.d",
+    "fclass.d",
+    "fcvt.w.d",
+    "fcvt.wu.d",
+    "fcvt.d.w",
+    "fcvt.d.wu",
+    "flw",
+    "fsw",
+    "fld",
+    "fsd",
+    // RV64F
+    "fcvt.l.s",
+    "fcvt.lu.s",
+    "fcvt.s.l",
+    "fcvt.s.lu",
+];
+
+pub const UNSUPPORTED_INSTRUCTIONS_MIPS: [&str; 408] = [
     "abs.d",
     "abs.ps",
     "abs.s",
@@ -654,7 +820,79 @@ pub const UNSUPPORTED_INSTRUCTIONS: [&str; 408] = [
     "xori",
 ];
 
-///Contains every general purpose register's binary value and the various names they are recognized as. Any reference to gp registers throughout the parser/assembler should reference this array
+pub const UNSUPPORTED_INSTRUCTIONS_RISCV: [&str; 69] = [
+    "lr.w",
+    "sc.w",
+    "amoswap.w",
+    "amoadd.w",
+    "amoxor.w",
+    "amoand.w",
+    "amomin.w",
+    "amomax.w",
+    "amominu.w",
+    "amomaxu.w",
+    "lr.d",
+    "sc.d",
+    "amoswap.d",
+    "amoadd.d",
+    "amoxor.d",
+    "amoand.d",
+    "amoor.d",
+    "amomin.d",
+    "amomax.d",
+    "amominu.d",
+    "amomaxu.d",
+    "fcvt.l.d",
+    "scvt.lu.d",
+    "fmv.x.d",
+    "fcvt.d.l",
+    "fcvt.d.lu",
+    "fmv.d.x",
+    "c.addi4spn",
+    "c.fld",
+    "c.lw",
+    "c.flw",
+    "c.ld",
+    "c.fsd",
+    "c.sw",
+    "c.fsw",
+    "c.sd",
+    "c.nop",
+    "c.addi",
+    "c.jal",
+    "c.addiw",
+    "c.li",
+    "c.addi16sp",
+    "c.lui",
+    "c.srli",
+    "c.srai",
+    "c.andi",
+    "c.sub",
+    "c.xor",
+    "c.or",
+    "c.and",
+    "c.subw",
+    "c.addw",
+    "c.j",
+    "c.beqz",
+    "c.bnez",
+    "c.slli",
+    "c.fldsp",
+    "c.lwsp",
+    "c.flwsp",
+    "c.ldsp",
+    "c.jr",
+    "c.mv",
+    "c.ebreak",
+    "c.jalr",
+    "c.add",
+    "c.fsdsp",
+    "c.swsp",
+    "c.fswsp",
+    "c.sdsp",
+];
+
+///Contains every MIPS general purpose register's binary value and the various names they are recognized as. Any reference to gp registers throughout the parser/assembler should reference this array
 pub const GP_REGISTERS: &[GPRegister; 32] = &[
     GPRegister {
         names: &["$zero", "r0", "$0", "zero"],
@@ -790,7 +1028,7 @@ pub struct GPRegister<'a> {
     pub binary: u8,
 }
 
-///Contains every floating point register name and binary value. Any reference to fp registers throughout the parser/assembler should reference this array
+///Contains every MIPS floating point register name and binary value. Any reference to fp registers throughout the parser/assembler should reference this array
 pub const FP_REGISTERS: &[FPRegister] = &[
     FPRegister {
         name: "$f0",
@@ -927,6 +1165,280 @@ pub struct FPRegister<'a> {
     pub binary: u8,
 }
 
+pub struct GPRegisterRiscv<'a> {
+    pub names: &'a [&'a str],
+    pub binary: u8,
+}
+
+///Contains every RISC-V general purpose register's binary value and the various names they are recognized as. Any reference to gp registers throughout the parser/assembler should reference this array
+pub const RISCV_GP_REGISTERS: &[GPRegisterRiscv; 32] = &[
+    GPRegisterRiscv {
+        names: &["x0", "zero"],
+        binary: 0b00000,
+    },
+    GPRegisterRiscv {
+        names: &["x1", "ra"],
+        binary: 0b00001,
+    },
+    GPRegisterRiscv {
+        names: &["x2", "sp"],
+        binary: 0b00010,
+    },
+    GPRegisterRiscv {
+        names: &["x3", "gp"],
+        binary: 0b00011,
+    },
+    GPRegisterRiscv {
+        names: &["x4", "tp"],
+        binary: 0b00100,
+    },
+    GPRegisterRiscv {
+        names: &["x5", "t0"],
+        binary: 0b00101,
+    },
+    GPRegisterRiscv {
+        names: &["x6", "t1"],
+        binary: 0b00110,
+    },
+    GPRegisterRiscv {
+        names: &["x7", "t2"],
+        binary: 0b00111,
+    },
+    GPRegisterRiscv {
+        names: &["x8", "s0", "fp"],
+        binary: 0b01000,
+    },
+    GPRegisterRiscv {
+        names: &["x9", "s1"],
+        binary: 0b01001,
+    },
+    GPRegisterRiscv {
+        names: &["x10", "a0"],
+        binary: 0b01010,
+    },
+    GPRegisterRiscv {
+        names: &["x11", "a1"],
+        binary: 0b01011,
+    },
+    GPRegisterRiscv {
+        names: &["x12", "a2"],
+        binary: 0b01100,
+    },
+    GPRegisterRiscv {
+        names: &["x13", "a3"],
+        binary: 0b01101,
+    },
+    GPRegisterRiscv {
+        names: &["x14", "a4"],
+        binary: 0b01110,
+    },
+    GPRegisterRiscv {
+        names: &["x15", "a5"],
+        binary: 0b01111,
+    },
+    GPRegisterRiscv {
+        names: &["x16", "a6"],
+        binary: 0b10000,
+    },
+    GPRegisterRiscv {
+        names: &["x17", "a7"],
+        binary: 0b10001,
+    },
+    GPRegisterRiscv {
+        names: &["x18", "s2"],
+        binary: 0b10010,
+    },
+    GPRegisterRiscv {
+        names: &["x19", "s3"],
+        binary: 0b10011,
+    },
+    GPRegisterRiscv {
+        names: &["x20", "s4"],
+        binary: 0b10100,
+    },
+    GPRegisterRiscv {
+        names: &["x21", "s5"],
+        binary: 0b10101,
+    },
+    GPRegisterRiscv {
+        names: &["x22", "s6"],
+        binary: 0b10110,
+    },
+    GPRegisterRiscv {
+        names: &["x23", "s7"],
+        binary: 0b10111,
+    },
+    GPRegisterRiscv {
+        names: &["x24", "s8"],
+        binary: 0b11000,
+    },
+    GPRegisterRiscv {
+        names: &["x25", "s9"],
+        binary: 0b11001,
+    },
+    GPRegisterRiscv {
+        names: &["x26", "s10"],
+        binary: 0b11010,
+    },
+    GPRegisterRiscv {
+        names: &["x27", "s11"],
+        binary: 0b11011,
+    },
+    GPRegisterRiscv {
+        names: &["x28", "t3"],
+        binary: 0b11100,
+    },
+    GPRegisterRiscv {
+        names: &["x29", "t4"],
+        binary: 0b11101,
+    },
+    GPRegisterRiscv {
+        names: &["x30", "t5"],
+        binary: 0b11110,
+    },
+    GPRegisterRiscv {
+        names: &["x31", "t6"],
+        binary: 0b11111,
+    },
+];
+
+pub struct FPRegisterRiscv<'a> {
+    pub names: &'a [&'a str],
+    pub binary: u8,
+}
+
+///Contains every RISC-V floating point register name and binary value. Any reference to fp registers throughout the parser/assembler should reference this array
+pub const RISCV_FP_REGISTERS: &[FPRegisterRiscv; 32] = &[
+    FPRegisterRiscv {
+        names: &["f0", "ft0"],
+        binary: 0b00000,
+    },
+    FPRegisterRiscv {
+        names: &["f1", "ft1"],
+        binary: 0b00001,
+    },
+    FPRegisterRiscv {
+        names: &["f2", "ft2"],
+        binary: 0b00010,
+    },
+    FPRegisterRiscv {
+        names: &["f3", "ft3"],
+        binary: 0b00011,
+    },
+    FPRegisterRiscv {
+        names: &["f4", "ft4"],
+        binary: 0b00100,
+    },
+    FPRegisterRiscv {
+        names: &["f5", "ft5"],
+        binary: 0b00101,
+    },
+    FPRegisterRiscv {
+        names: &["f6", "ft6"],
+        binary: 0b00110,
+    },
+    FPRegisterRiscv {
+        names: &["f7", "ft7"],
+        binary: 0b00111,
+    },
+    FPRegisterRiscv {
+        names: &["f8", "fs0"],
+        binary: 0b01000,
+    },
+    FPRegisterRiscv {
+        names: &["f9", "fs1"],
+        binary: 0b01001,
+    },
+    FPRegisterRiscv {
+        names: &["f10", "fa0"],
+        binary: 0b01010,
+    },
+    FPRegisterRiscv {
+        names: &["f11", "fa1"],
+        binary: 0b01011,
+    },
+    FPRegisterRiscv {
+        names: &["f12", "fa2"],
+        binary: 0b01100,
+    },
+    FPRegisterRiscv {
+        names: &["f13", "fa3"],
+        binary: 0b01101,
+    },
+    FPRegisterRiscv {
+        names: &["f14", "fa4"],
+        binary: 0b01110,
+    },
+    FPRegisterRiscv {
+        names: &["f15", "fa5"],
+        binary: 0b01111,
+    },
+    FPRegisterRiscv {
+        names: &["f16", "fa6"],
+        binary: 0b10000,
+    },
+    FPRegisterRiscv {
+        names: &["f17", "fa7"],
+        binary: 0b10001,
+    },
+    FPRegisterRiscv {
+        names: &["f18", "fs2"],
+        binary: 0b10010,
+    },
+    FPRegisterRiscv {
+        names: &["f19", "fs3"],
+        binary: 0b10011,
+    },
+    FPRegisterRiscv {
+        names: &["f20", "fs4"],
+        binary: 0b10100,
+    },
+    FPRegisterRiscv {
+        names: &["f21", "fs5"],
+        binary: 0b10101,
+    },
+    FPRegisterRiscv {
+        names: &["f22", "fs6"],
+        binary: 0b10110,
+    },
+    FPRegisterRiscv {
+        names: &["f23", "fs7"],
+        binary: 0b10111,
+    },
+    FPRegisterRiscv {
+        names: &["f24", "fs8"],
+        binary: 0b11000,
+    },
+    FPRegisterRiscv {
+        names: &["f25", "fs9"],
+        binary: 0b11001,
+    },
+    FPRegisterRiscv {
+        names: &["f26", "fs10"],
+        binary: 0b11010,
+    },
+    FPRegisterRiscv {
+        names: &["f27", "fs11"],
+        binary: 0b11011,
+    },
+    FPRegisterRiscv {
+        names: &["f28", "ft8"],
+        binary: 0b11100,
+    },
+    FPRegisterRiscv {
+        names: &["f29", "ft9"],
+        binary: 0b11101,
+    },
+    FPRegisterRiscv {
+        names: &["f30", "ft10"],
+        binary: 0b11110,
+    },
+    FPRegisterRiscv {
+        names: &["f31", "ft11"],
+        binary: 0b11111,
+    },
+];
+
 //This enum is just for the read_register_function to determine which register type it should expect
 #[derive(Eq, PartialEq)]
 pub enum RegisterType {
@@ -949,19 +1461,21 @@ pub fn print_vec_of_data(data: Vec<Data>) {
 }
 
 pub fn print_instruction_contents(instruction: Instruction) {
-    println!("Operator: {}", instruction.operator.token_name);
-    print!("Operands: ");
+    log!("Operator: ", instruction.operator.token_name);
+    log!("Operands: ");
     for operand in instruction.operands {
-        print!("{} ", operand.token_name);
+        log!(operand.token_name);
     }
-    println!();
+    log!("");
     for label in instruction.labels {
-        println!("Label: {}", label.token.token_name);
+        log!("Label: ", label.token.token_name);
     }
-    print!("Errors: ");
+    log!("Errors: ");
     for error in instruction.errors {
-        print!("{:?} ", error.error_name);
+        log!(error.error_name.to_string());
     }
+
+    log!("Binary ", instruction.binary);
 }
 
 pub fn print_data_contents(data: Data) {

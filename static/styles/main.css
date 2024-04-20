@@ -1,108 +1,70 @@
 body {
   background-color: #474343;
+  color: #aeaeae;
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-}
-
-/****** Buttons ******/
-.buttons {
-  display: inline-block;
-  margin: 0 auto;
-}
-.buttons .button:first-child {
-  border-radius: 300px 0 0 300px;
-}
-.buttons .button:last-child {
-  border-radius: 0 300px 300px 0;
-}
-.buttons .button:only-child {
-  border-radius: 300px;
-}
-.button {
-  overflow: hidden;
-  background-color: rgb(255, 255, 255);
-  padding: 2px 16px 2px 16px;
-  color: black;
-  text-align: center;
-  display: inline-block;
-  cursor: pointer;
-  transition-duration: 0.3s;
-}
-.button:hover:not(:disabled), .button:hover:not([disabled]) {
-  opacity: 1;
-  background-color: gray;
-}
-.button:disabled, .button[disabled] {
-  border-color: black;
-  border-style: solid;
-  background-color: #222;
-  color: #777;
-}
-.button:active {
-  background-color: #2e2b2b;
 }
 
 /****** Editor ******/
 .editor {
-  max-height: 1px;
   max-width: 1px;
-  min-height: 100%;
+  min-height: 0;
   min-width: 100%;
+  flex-grow: 1;
 }
-.myInlineDecoration {
-	color: rgb(49, 212, 144) !important;
+.executedLine {
+  color: rgb(0 255 149) !important;
 	font-weight: bold;
+  /* animation-name: flash_executed;
+  animation-duration: 2s;
+  animation-fill-mode: forwards; */
+}
+.updatedLine {
+	/* color: rgb(49, 212, 144) !important; */
+	font-weight: bold;
+  animation-name: flash_updated;
+  animation-duration: 1s;
+  animation-timing-function: ease-in;
 }
 
-/****** Console ******/
-.console {
-  border: 3px groove #ccc;
-  background: #012456;
-  color: #ccc;
-  overflow-y: auto;
-  overflow-wrap: break-word;
-  word-break: break-all;
-  padding-top: 25px;
-  padding-right: 25px;
-  padding-bottom: 25px;
-  padding-left: 25px;
-  min-height: max(20%, 8em);
-  max-height: 50%;
+.highlightHex {
+  background-color: rgb(71 188 255 / 41%);
 }
 
-.memory-view {
-      font-size: 1rem;
+@keyframes flash_executed {
+  from {
+    color: transparent;
+  }
+  to {
+    color: transparent;
+  }
+  to {
+    color: rgb(0 255 149);
+  }
 }
 
-.datapath-wrapper {
-  flex-grow: 1.4;
-  border: 2px solid black;
-  overflow: auto;
-  width: 100%;
-  flex-basis: 50%;
-  background-color: #FFF;
+@keyframes flash_updated {
+  from {
+    color: red;
+  }
+  to {
+    color: red;
+  }
+  to {
+    color: white;
+  }
 }
 
-.button-bar {
-  width: 100%;
-}
-
-.button-bar > .tabs + .buttons {
-  margin-left: 8px;
-}
-
-/****** Register View ******/
-.table-wrapper {
-  border: 1px solid black;
-  overflow-y: auto;
-}
-
-thead {
-  background-color: #006591;
-  color: #fff;
+/****** Tables ******/
+th {
+  background-color: #303030;
 }
 th, td {
-  border: 1px solid black;
   padding: 2px 16px 2px 16px;
+  text-wrap: nowrap;
+}
+
+th:not(:last-child), td:not(:last-child) {
+  border-right: 1px solid black;
 }
 
 table {
@@ -110,12 +72,15 @@ table {
   border-spacing: 0;
   display: block;
   overflow-y: auto;
+  overflow-x: hidden;
 }
-tr:nth-child(even)
-{
-  background-color: #ccc;
-}
+tr {
+  background-color: #1e1e1e;
+  input {
 
+    background-color: #1e1e1e;
+  }
+}
 td:nth-child(2) {
   font-family: 'Iosevka', 'Droid Sans Mono', 'Consolas', monospace;
 }

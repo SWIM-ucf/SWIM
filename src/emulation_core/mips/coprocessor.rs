@@ -2,25 +2,26 @@
 
 use super::constants::*;
 use super::control_signals::floating_point::*;
-use super::instruction::Instruction;
+use super::fp_registers::FpRegisters;
+use super::instruction::MipsInstruction;
+use serde::{Deserialize, Serialize};
 
 /// An implementation of a floating-point coprocessor for the MIPS64 ISA.
 ///
 /// Different from the main processor, much of the functionality of the coprocessor
 /// is controlled remotely using its available API calls.
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, PartialEq, Default, Debug, Serialize, Deserialize)]
 pub struct MipsFpCoprocessor {
-    instruction: Instruction,
+    instruction: MipsInstruction,
     pub signals: FpuControlSignals,
     pub state: FpuState,
     pub is_halted: bool,
-
-    pub fpr: [u64; 32],
+    pub registers: FpRegisters,
     pub condition_code: u64,
     pub data: u64,
 }
 
-#[derive(Clone, Default, PartialEq)]
+#[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
 pub struct FpuState {
     pub instruction: u32,
     pub op: u32,
@@ -96,7 +97,7 @@ impl MipsFpCoprocessor {
     /// does not fetch instructions.
     pub fn set_instruction(&mut self, instruction_bits: u32) {
         self.state.instruction = instruction_bits;
-        if let Ok(instruction) = Instruction::try_from(self.state.instruction) {
+        if let Ok(instruction) = MipsInstruction::try_from(self.state.instruction) {
             self.instruction = instruction;
         }
     }
@@ -127,13 +128,37 @@ impl MipsFpCoprocessor {
         self.state.fp_register_to_memory
     }
 
+    pub fn set_register(&mut self, _register: usize, _data: u64) -> Result<(), String> {
+        if _register >= 32 {
+            return Err(format!("Register index out of bounds: {}", _register));
+        }
+
+        let register = &mut self.registers.fpr[_register];
+        *register = _data;
+
+        Ok(())
+    }
+
+    pub fn register_from_str(&self, _register: &str) -> Option<usize> {
+        // Check if register matches a register between f0 and f31
+        if _register.len() >= 2 && &_register[0..1] == "f" && _register.len() <= 3 {
+            let register = &_register[1..];
+            if let Ok(register) = register.parse::<usize>() {
+                if register < 32 {
+                    return Some(register);
+                }
+            }
+        }
+        None
+    }
+
     // ================== Instruction Decode (ID) ==================
     /// Decode an instruction into its individual fields.
     fn instruction_decode(&mut self) {
         // Set the data lines based on the contents of the instruction.
         // Some lines will hold uninitialized values as a result.
         match self.instruction {
-            Instruction::FpuRType(r) => {
+            MipsInstruction::FpuRType(r) => {
                 self.state.op = r.op as u32;
                 self.state.fmt = r.fmt as u32;
                 self.state.fs = r.fs as u32;
@@ -141,33 +166,33 @@ impl MipsFpCoprocessor {
                 self.state.fd = r.fd as u32;
                 self.state.function = r.function as u32;
             }
-            Instruction::FpuIType(i) => {
+            MipsInstruction::FpuIType(i) => {
                 self.state.ft = i.ft as u32;
             }
-            Instruction::FpuRegImmType(i) => {
+            MipsInstruction::FpuRegImmType(i) => {
                 self.state.op = i.op as u32;
                 self.state.fmt = 0; // Not applicable
                 self.state.fs = i.fs as u32;
                 self.state.ft = 0; // Not applicable
                 self.state.fd = 0; // Not applicable
             }
-            Instruction::FpuCompareType(c) => {
+            MipsInstruction::FpuCompareType(c) => {
                 self.state.op = c.op as u32;
                 self.state.fmt = c.fmt as u32;
                 self.state.ft = c.ft as u32;
                 self.state.fs = c.fs as u32;
                 self.state.function = c.function as u32;
             }
-            Instruction::FpuBranchType(b) => {
+            MipsInstruction::FpuBranchType(b) => {
                 self.state.op = b.op as u32;
                 self.state.fmt = b.bcc1 as u32;
                 self.state.branch_flag = b.tf == 1;
             }
             // These types do not use the floating-point unit so they can be ignored.
-            Instruction::RType(_)
-            | Instruction::IType(_)
-            | Instruction::JType(_)
-            | Instruction::SyscallType(_) => (),
+            MipsInstruction::RType(_)
+            | MipsInstruction::IType(_)
+            | MipsInstruction::JType(_)
+            | MipsInstruction::SyscallType(_) => (),
         }
     }
 
@@ -175,7 +200,7 @@ impl MipsFpCoprocessor {
     /// control signals.
     fn set_control_signals(&mut self) {
         match self.instruction {
-            Instruction::FpuRType(r) => {
+            MipsInstruction::FpuRType(r) => {
                 match r.op {
                     OPCODE_COP1 => match r.function {
                         FUNCTION_ADD => {
@@ -263,7 +288,7 @@ impl MipsFpCoprocessor {
                     )),
                 }
             }
-            Instruction::FpuIType(i) => match i.op {
+            MipsInstruction::FpuIType(i) => match i.op {
                 OPCODE_SWC1 => {
                     self.signals = FpuControlSignals {
                         cc_write: CcWrite::NoWrite,
@@ -291,7 +316,7 @@ impl MipsFpCoprocessor {
                     i.op
                 )),
             },
-            Instruction::FpuRegImmType(i) => match i.sub {
+            MipsInstruction::FpuRegImmType(i) => match i.sub {
                 SUB_MT => {
                     self.signals = FpuControlSignals {
                         cc_write: CcWrite::NoWrite,
@@ -345,7 +370,7 @@ impl MipsFpCoprocessor {
                     i.sub
                 )),
             },
-            Instruction::FpuCompareType(c) => {
+            MipsInstruction::FpuCompareType(c) => {
                 self.signals = FpuControlSignals {
                     // All floating-point branch instructions are forced to use the same
                     // one condition code register, regardless of the CC field in the
@@ -373,7 +398,7 @@ impl MipsFpCoprocessor {
                     ..Default::default()
                 }
             }
-            Instruction::FpuBranchType(_) => {
+            MipsInstruction::FpuBranchType(_) => {
                 self.signals = FpuControlSignals {
                     // All floating-point branch instructions are forced to use the same
                     // one condition code register, regardless of the CC field in the
@@ -385,10 +410,10 @@ impl MipsFpCoprocessor {
                 }
             }
             // These types do not use the floating-point unit so they can be ignored.
-            Instruction::RType(_)
-            | Instruction::IType(_)
-            | Instruction::JType(_)
-            | Instruction::SyscallType(_) => self.signals = FpuControlSignals::default(),
+            MipsInstruction::RType(_)
+            | MipsInstruction::IType(_)
+            | MipsInstruction::JType(_)
+            | MipsInstruction::SyscallType(_) => self.signals = FpuControlSignals::default(),
         }
     }
 
@@ -398,13 +423,13 @@ impl MipsFpCoprocessor {
         let reg1 = self.state.fs as usize;
         let reg2 = self.state.ft as usize;
 
-        self.state.read_data_1 = self.fpr[reg1];
-        self.state.read_data_2 = self.fpr[reg2];
+        self.state.read_data_1 = self.registers.fpr[reg1];
+        self.state.read_data_2 = self.registers.fpr[reg2];
 
         // Truncate the variable data if a 32-bit word is requested.
         if let FpuRegWidth::Word = self.signals.fpu_reg_width {
-            self.state.read_data_1 = self.fpr[reg1] as u32 as u64;
-            self.state.read_data_2 = self.fpr[reg2] as u32 as u64;
+            self.state.read_data_1 = self.registers.fpr[reg1] as u32 as u64;
+            self.state.read_data_2 = self.registers.fpr[reg2] as u32 as u64;
         }
     }
 
@@ -613,7 +638,6 @@ impl MipsFpCoprocessor {
             FpuMemToReg::UseDataWrite => self.state.register_write_mux_to_mux,
             FpuMemToReg::UseMemory => self.state.fp_register_data_from_main_processor,
         };
-
-        self.fpr[self.state.destination] = self.state.register_write_data;
+        self.registers.fpr[self.state.destination] = self.state.register_write_data;
     }
 }

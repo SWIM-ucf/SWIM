@@ -1,23 +1,32 @@
-use crate::emulation_core::mips::registers::{GpRegisterType, GpRegisters};
-//use gloo::console::log;
+use crate::agent::datapath_communicator::DatapathCommunicator;
+use crate::emulation_core::register::RegisterType;
+use crate::ui::swim_editor::tab::Tab;
+use std::rc::Rc;
 use wasm_bindgen::JsCast;
-use web_sys::HtmlElement;
+use web_sys::{HtmlInputElement, InputEvent};
 use yew::prelude::*;
+use yew::{html, Html};
 
-// datapath.coprocessor.fpr
+// ** Register View Component ** //
+// Container for the general purpose and floating point registers
+// Is architecture-independent, as long as the registers implement the RegisterType trait
+
 #[derive(PartialEq, Properties)]
 pub struct Regviewprops {
-    pub gp: GpRegisters,
-    pub fp: [u64; 32],
+    pub gp: Vec<(Rc<dyn RegisterType>, u64)>,
+    pub fp: Vec<(Rc<dyn RegisterType>, u64)>,
+    pub pc_limit: usize,
+    pub communicator: &'static DatapathCommunicator,
+}
+#[derive(PartialEq, Default)]
+pub enum RegviewTabState {
+    #[default]
+    Gp,
+    Fp,
 }
 
-#[derive(PartialEq, Properties)]
-pub struct Viewswitch {
-    pub switch_view: bool,
-}
-
-#[derive(Default, PartialEq)]
-enum UnitState {
+#[derive(Default, PartialEq, Clone, Copy, Debug)]
+pub enum UnitState {
     #[default]
     Dec,
     Hex,
@@ -25,132 +34,183 @@ enum UnitState {
     Float,
     Double,
 }
+// Stores the value and event data of the input
+pub struct InputData {
+    pub value: String,
+    pub event: InputEvent,
+}
 
 //Convert register to html through iterator
-pub fn generate_gpr_rows(gp: GpRegisters) -> Html {
-    gp.into_iter()
+// ============= General Purpose Registers =============
+pub fn generate_gpr_rows(props: &Regviewprops, radix: u32) -> Html {
+    let communicator = props.communicator;
+    let pc_limit = props.pc_limit;
+    let registers = props.gp.clone();
+
+    registers
+        .into_iter()
         .map(|(register, data)| {
+            let format_string = match radix {
+                16 => format!("{:#04x?}", data),
+                2 => format!("{:#b}", data),
+                _ => data.to_string(),
+            };
             html! {
                 <tr>
-                    <td>{get_gpr_name(register)}</td>
-                    <td>{(data as i64).to_string()}</td>
-                </tr>
-            }
-        })
-        .collect::<Html>()
-}
-pub fn generate_gpr_rows_hex(gp: GpRegisters) -> Html {
-    gp.into_iter()
-        .map(|(register, data)| {
-            html! {
-                <tr>
-                    <td>{get_gpr_name(register)}</td>
-                    <td>{format!("{data:#04x?}").to_string()}</td>
-                </tr>
-            }
-        })
-        .collect::<Html>()
-}
-pub fn generate_gpr_rows_bin(gp: GpRegisters) -> Html {
-    gp.into_iter()
-        .map(|(register, data)| {
-            html! {
-                <tr>
-                    <td>{get_gpr_name(register)}</td>
-                    <td>{format!("{data:#b}").to_string()}</td>
-                </tr>
-            }
-        })
-        .collect::<Html>()
-}
-pub fn generate_fpr_rows(fp: [u64; 32]) -> Html {
-    fp.iter()
-        .enumerate()
-        .map(|(register, data)| {
-            html! {
-                <tr>
-                    <td>{format!("f{register}")}</td>
-                    <td>{(*data as i64).to_string()}</td>
-                </tr>
-            }
-        })
-        .collect::<Html>()
-}
-pub fn generate_fpr_rows_hex(fp: [u64; 32]) -> Html {
-    fp.iter()
-        .enumerate()
-        .map(|(register, data)| {
-            html! {
-                <tr>
-                    <td>{format!("f{register}")}</td>
-                    <td>{format!("{data:#04x?}").to_string()}</td>
-                </tr>
-            }
-        })
-        .collect::<Html>()
-}
-pub fn generate_fpr_rows_bin(fp: [u64; 32]) -> Html {
-    fp.iter()
-        .enumerate()
-        .map(|(register, data)| {
-            html! {
-                <tr>
-                    <td>{format!("f{register}")}</td>
-                    <td>{format!("{data:#b}").to_string()}</td>
+                    <td>{register.get_register_name()}</td>
+                    <td>
+                        <input type="text" id={register.to_string()}
+                        oninput={move |e: InputEvent| {
+                            let target = e.target();
+                            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+                            let input_string = input.value();
+                            let mut number = input_string.as_str();
+                            // remove prefix from hex and binary inputs
+                            if radix == 2 || radix == 16 {
+                                number = &input_string[2..];
+                            }
+                            // use rust built-in parsing to convert string to u64
+                            let val = match u64::from_str_radix(number, radix) {
+                                Ok(value) => {
+                                    input.set_class_name("");
+                                    value
+                                },
+                                Err(_err) => {
+                                    input.set_class_name("text-accent-red-200");
+                                    return
+                                }
+                            };
+                            // if rust is like "yeah that's a perfectly valid u64 number right there", double check with the architecture
+                            if register.is_valid_register_value(val, pc_limit) {
+                                communicator.set_register(register.to_string(), val);
+                                input.set_class_name("");
+                            } else {
+                                input.set_class_name("text-accent-red-200");
+                            }
+                        }}
+                        value={format_string}/>
+                    </td>
                 </tr>
             }
         })
         .collect::<Html>()
 }
 
-pub fn generate_fpr_rows_float(fp: [u64; 32]) -> Html {
-    fp.iter()
-        .enumerate()
+// ============= Coprocessor Registers =============
+pub fn generate_fpr_rows(props: &Regviewprops, unit_type: UnitState) -> Html {
+    let communicator = props.communicator;
+    let pc_limit = props.pc_limit;
+    let registers = props.fp.clone();
+
+    registers
+        .into_iter()
         .map(|(register, data)| {
             html! {
                 <tr>
-                    <td>{format!("f{register}")}</td>
-                    <td>{format!("{:e}",f32::from_bits((*data).try_into().unwrap())).to_string()}</td>
+                    <td>{format!("{register}")}</td>
+                    <td>
+                        <input type="text" id={register.to_string()}
+                        oninput={move |e: InputEvent| {
+                            let target = e.target();
+                            let input = target.unwrap().unchecked_into::<HtmlInputElement>();
+                            let input_string = input.value();
+                            // parse the input depending on the unit type
+                            let value = match unit_type {
+                                UnitState::Float => {
+                                    match input_string.parse::<f32>() {
+                                        Ok(value) => {
+                                            input.set_class_name("");
+                                            value.to_bits() as u64 // need to convert to bits to store in u64
+                                        },
+                                        Err(_err) => {
+                                            input.set_class_name("text-accent-red-200");
+                                            return
+                                        }
+                                    }
+                                },
+                                UnitState::Double => {
+                                    match input_string.parse::<f64>() {
+                                        Ok(value) => {
+                                            input.set_class_name("");
+                                            value.to_bits() // need to convert to bits to store in u64
+                                        },
+                                        Err(_err) => {
+                                            input.set_class_name("text-accent-red-200");
+                                            return
+                                        }
+                                    }
+                                },
+                                UnitState::Hex => {
+                                    match u64::from_str_radix(&input_string[2..], 16) {
+                                        Ok(value) => {
+                                            input.set_class_name("");
+                                            value
+                                        },
+                                        Err(_err) => {
+                                            input.set_class_name("text-accent-red-200");
+                                            return
+                                        }
+                                    }
+                                },
+                                UnitState::Bin => {
+                                    match u64::from_str_radix(&input_string[2..], 2) {
+                                        Ok(value) => {
+                                            input.set_class_name("");
+                                            value
+                                        },
+                                        Err(_err) => {
+                                            input.set_class_name("text-accent-red-200");
+                                            return
+                                        }
+                                    }
+                                },
+                                _ => {
+                                    match input_string.parse::<u64>() {
+                                        Ok(value) => {
+                                            input.set_class_name("");
+                                            value
+                                        },
+                                        Err(_err) => {
+                                            input.set_class_name("text-accent-red-200");
+                                            return
+                                        }
+                                    }
+                                }
+                            };
+                            if register.is_valid_register_value(value, pc_limit) {
+                                communicator.set_fp_register(register.to_string(), value);
+                                input.set_class_name("");
+                            } else {
+                                input.set_class_name("text-accent-red-200");
+                            }
+                        }}
+                        value={
+                            match unit_type {
+                                UnitState::Float => format!("{:e}", f32::from_bits(data as u32)).to_string(),
+                                UnitState::Double => format!("{:e}", f64::from_bits(data)).to_string(),
+                                UnitState::Hex => format!("{:#04x?}", data).to_string(),
+                                UnitState::Bin => format!("{:#b}", data).to_string(),
+                                _ => format!("{:?}", data).to_string(),
+                            }
+                        }/>
+                    </td>
                 </tr>
             }
         })
         .collect::<Html>()
-}
-
-pub fn generate_fpr_rows_double(fp: [u64; 32]) -> Html {
-    fp.iter()
-        .enumerate()
-        .map(|(register, data)| {
-            html! {
-                <tr>
-                    <td>{format!("f{register}")}</td>
-                    <td>{format!("{:e}", f64::from_bits(*data)).to_string()}</td>
-                </tr>
-            }
-        })
-        .collect::<Html>()
-}
-
-/// Returns the text to be shown for a general-purpose register.
-pub fn get_gpr_name(register: GpRegisterType) -> String {
-    if register == GpRegisterType::Pc {
-        register.to_string()
-    } else {
-        format!("{} (r{})", register, register as u32)
-    }
 }
 
 #[function_component(Regview)]
 pub fn regview(props: &Regviewprops) -> Html {
     let active_view = use_state_eq(UnitState::default);
-    let switch_flag = use_state_eq(|| true);
+    let active_tab = use_state_eq(RegviewTabState::default);
+
+    // Change the unit type
     let change_view = {
         let active_view = active_view.clone();
-        Callback::from(move |event: MouseEvent| {
-            let target = event.target().unwrap().dyn_into::<HtmlElement>().unwrap();
-            let mode = target
-                .get_attribute("label")
-                .unwrap_or(String::from("regview"));
+        Callback::from(move |event: Event| {
+            let target = event.target().unwrap().unchecked_into::<HtmlInputElement>();
+            let mode = target.value();
 
             let new_mode = match mode.as_str() {
                 "bin" => UnitState::Bin,
@@ -164,104 +224,72 @@ pub fn regview(props: &Regviewprops) -> Html {
             active_view.set(new_mode);
         })
     };
-    let on_switch_clicked_fp = {
-        let switch_flag = switch_flag.clone();
-        use_callback(
-            move |_, switch_flag| {
-                if **switch_flag {
-                    switch_flag.set(false);
-                }
-            },
-            switch_flag,
-        )
+    // Change the active tab to GP or FP
+    let change_tab = {
+        let active_tab = active_tab.clone();
+        Callback::from(move |event: MouseEvent| {
+            let target = event
+                .target()
+                .unwrap()
+                .dyn_into::<web_sys::HtmlElement>()
+                .unwrap();
+            let tab_name = target.get_attribute("label").unwrap_or(String::from("gp"));
+
+            let new_tab = match tab_name.as_str() {
+                "gp" => RegviewTabState::Gp,
+                "fp" => RegviewTabState::Fp,
+                _ => RegviewTabState::default(),
+            };
+
+            active_tab.set(new_tab);
+        })
     };
-    let on_switch_clicked_gp = {
-        let switch_flag = switch_flag.clone();
-        use_callback(
-            move |_, switch_flag| {
-                if !(**switch_flag) {
-                    switch_flag.set(true);
-                }
-            },
-            switch_flag,
-        )
-    };
-    //log!("This is ", *switch_flag);
+
     html! {
-        <div style="flex-grow: 1; gap: 8px; display: flex; flex-direction: column; flex-wrap: nowrap;">
-            <div class="button-bar tabs">
-                if *active_view == UnitState::Dec {
-                    <button class={classes!("tab", "pressed")} label="dec" onclick={change_view.clone()}>{"Dec"}</button>
-                } else {
-                    <button class="tab" label="dec" onclick={change_view.clone()}>{"Dec"}</button>
-                }
-
-                if *active_view == UnitState::Bin {
-                    <button class={classes!("tab", "pressed")} label="bin" onclick={change_view.clone()}>{"Bin"}</button>
-                } else {
-                    <button class="tab" label="bin" onclick={change_view.clone()}>{"Bin"}</button>
-                }
-
-                if *active_view == UnitState::Hex {
-                    <button class={classes!("tab", "pressed")} label="hex" onclick={change_view.clone()}>{"Hex"}</button>
-                } else {
-                    <button class="tab" label="hex" onclick={change_view.clone()}>{"Hex"}</button>
-                }
-                if !*switch_flag{
-                    if *active_view == UnitState::Float {
-                        <button class={classes!("tab", "pressed")} label="float" onclick={change_view.clone()}>{"Float"}</button>
-                    } else {
-                        <button class="tab" label="float" onclick={change_view.clone()}>{"Float"}</button>
+        <div class="grow flex flex-col flex-no-wrap mt-12 min-w-0">
+            <div class="flex flex-row justify-between">
+                <div>
+                    <Tab<RegviewTabState> label="gp" text="GP" on_click={change_tab.clone()} disabled={false} active_tab={active_tab.clone()} tab_name={RegviewTabState::Gp}/>
+                    <Tab<RegviewTabState> label="fp" text="FP" on_click={change_tab.clone()} disabled={false} active_tab={active_tab.clone()} tab_name={RegviewTabState::Fp}/>
+                </div>
+                <select class="text-right bg-primary-600 text-primary-200 flex items-center flex-row" name="units" onchange={change_view.clone()} value={
+                    match *active_view {
+                        UnitState::Bin => "Binary",
+                        UnitState::Dec => "Decimal",
+                        UnitState::Hex => "Hex",
+                        UnitState::Float => "Float",
+                        UnitState::Double => "Double"
                     }
-                    if *active_view == UnitState::Double {
-                        <button class={classes!("tab", "pressed")} label="double" onclick={change_view.clone()}>{"Double"}</button>
-                    } else {
-                        <button class="tab" label="double" onclick={change_view.clone()}>{"Double"}</button>
+                }>
+                    <option value="hex">{"Hex"}</option>
+                    <option value="bin">{"Binary"}</option>
+                    <option value="dec">{"Decimal"}</option>
+                    if *active_tab == RegviewTabState::Fp {
+                        <option value="float">{"Float"}</option>
+                        <option value="double">{"Double"}</option>
                     }
-                }
+                </select>
             </div>
-            <div class="button-bar tabs">
-            if *switch_flag {
-                <button class={classes!("tab", "pressed")} style="width: 50%;" onclick={on_switch_clicked_gp.clone()}>{"GP"}</button>
-            } else {
-                <button class="tab" style="width: 50%;" onclick={on_switch_clicked_gp.clone()}>{"GP"}</button>
-            }
-            if !(*switch_flag){
-                <button class={classes!("tab", "pressed")} style="width: 50%;" onclick={on_switch_clicked_fp.clone()}>{"FP"}</button>
-            } else {
-                <button class="tab" style="width: 50%;" onclick={on_switch_clicked_fp.clone()}>{"FP"}</button>
-            }
-            </div>
-            <div class="table-wrapper">
-                <table style="background-color: #ffffff">
+            <div class="overflow-y-auto">
+                <table>
                     <thead>
                         <tr>
-                            <th>{"Register Name"}</th>
-                            <th>{"Data"}</th>
+                            <th class="bg-primary-800">{"Register Name"}</th>
+                            <th class="bg-primary-800">{"Data"}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        if *switch_flag{
+                        if *active_tab == RegviewTabState::Gp {
                             if *active_view == UnitState::Bin {
-                                {generate_gpr_rows_bin(props.gp)}
+                                {generate_gpr_rows(props, 2)}
                             }
                             else if *active_view == UnitState::Hex {
-                                {generate_gpr_rows_hex(props.gp)}
+                                {generate_gpr_rows(props, 16)}
                             } else {
-                                {generate_gpr_rows(props.gp)}
+                                {generate_gpr_rows(props, 10)}
                             }
                         } else {
-                            if *active_view == UnitState::Bin {
-                                {generate_fpr_rows_bin(props.fp)}
-                            } else if *active_view == UnitState::Hex{
-                                {generate_fpr_rows_hex(props.fp)}
-                            } else if *active_view == UnitState::Float{
-                                {generate_fpr_rows_float(props.fp)}
-                            } else if *active_view == UnitState::Double{
-                                {generate_fpr_rows_double(props.fp)}
-                            } else if *active_view == UnitState::Dec {
-                                {generate_fpr_rows(props.fp)}
-                            }
+                            {generate_fpr_rows(props, *active_view.clone())}
                         }
                     </tbody>
                 </table>

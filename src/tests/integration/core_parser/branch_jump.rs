@@ -1,5 +1,7 @@
 //! Tests for the branch and jump instructions: j, jr, jal, jalr, beq, bne
 
+use crate::emulation_core::architectures::AvailableDatapaths;
+
 use super::*;
 
 #[test]
@@ -16,8 +18,8 @@ loop: daddu $s1, $s1, $s0
 j loop"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     // Execute the ori instruction.
     datapath.execute_instruction();
@@ -44,8 +46,8 @@ fn basic_jr() -> Result<(), String> {
 jr r15"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     // Execute 2 instructions.
     for _ in 0..2 {
@@ -69,8 +71,8 @@ syscall
 function: ori $t0, $zero, 5831"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -95,8 +97,8 @@ or $zero, $zero, $zero
 function: ori $t1, $zero, 9548"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     // Execute 3 instructions.
     for _ in 0..3 {
@@ -144,8 +146,8 @@ daddiu $s2, $s2, 20
 change10: daddiu $s2, $s2, 10"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -185,8 +187,8 @@ syscall
 changez: daddiu $s2, $s2, 20"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     while !datapath.is_halted() {
         datapath.execute_instruction();
@@ -217,13 +219,15 @@ daddiu $s0, $s0, 1
 bne $s0, $s2, loop"#,
     );
 
-    let (_, instruction_bits) = parser(instructions);
-    datapath.initialize(instruction_bits)?;
+    let (_, instruction_bits, _labels) = parser(instructions, AvailableDatapaths::MIPS);
+    datapath.initialize_legacy(instruction_bits)?;
 
     let mut iterations = 0;
 
-    while !datapath.is_halted() {
-        datapath.execute_instruction();
+    loop {
+        if datapath.execute_instruction().hit_syscall {
+            break;
+        }
         iterations += 1;
 
         // Catch an infinite loop. This program should not cause over 300 instructions to run.

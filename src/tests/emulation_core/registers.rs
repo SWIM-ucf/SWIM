@@ -1,4 +1,4 @@
-use crate::emulation_core::mips::registers::{GpRegisterType, GpRegisters};
+use crate::emulation_core::mips::gp_registers::{GpRegisterType, GpRegisters};
 
 #[test]
 #[allow(clippy::field_reassign_with_default)]
@@ -13,6 +13,7 @@ fn direct_access_register() {
 #[test]
 #[should_panic]
 #[allow(unconditional_panic)]
+#[allow(clippy::out_of_bounds_indexing)]
 fn direct_access_register_bad_gpr() {
     let mut registers = GpRegisters::default();
 
