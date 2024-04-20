@@ -50,7 +50,6 @@ const UPDATE_INTERVAL: Duration = Duration::from_millis(250);
 /// the UI thread.
 #[reactor(EmulationCoreAgent)]
 pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) {
-    log!("Hello world!");
     let mut state = EmulatorCoreAgentState::new(scope);
     loop {
         let execution_delay = state.get_delay();
@@ -90,7 +89,6 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
         if state.should_send_datapath_update() {
             match state.current_datapath.as_datapath_ref() {
                 DatapathRef::MIPS(datapath) => {
-                    log!(format!("Updates: {:?}", state.updates));
                     // Stage always updates
                     send_update_mips!(
                         state.scope,
@@ -531,7 +529,6 @@ impl EmulatorCoreAgentState {
     }
 
     async fn add_message(&mut self, msg: String) {
-        log!("Pushed message");
         self.messages.push(msg);
         self.scope
             .send(DatapathUpdate::System(SystemUpdate::UpdateMessages(

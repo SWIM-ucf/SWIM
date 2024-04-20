@@ -66,11 +66,6 @@ impl Reducible for DatapathReducer {
     type Action = DatapathUpdate;
 
     fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
-        log!("Messages so far:");
-        for item in &self.messages {
-            log!(item);
-        }
-
         Rc::from(match action {
             DatapathUpdate::MIPS(update) => Self {
                 current_architecture: MIPS,

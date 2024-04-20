@@ -194,7 +194,6 @@ pub fn visual_line_to_data(
     variable: &str,
     datapath_state: &UseReducerHandle<DatapathReducer>,
 ) -> LineInformation {
-    log!("Calling here");
     match datapath_state.current_architecture {
         AvailableDatapaths::MIPS => {
             match variable {
