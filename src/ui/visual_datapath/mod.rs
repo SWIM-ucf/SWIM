@@ -330,7 +330,7 @@ impl VisualDatapath {
             let mouse_position = get_datapath_iframe_mouse_position(event);
             let popup_size = (popup.offset_width(), popup.offset_height());
             let popup_position =
-                calculate_popup_position(mouse_position, popup_size, get_window_size());
+                calculate_popup_position(mouse_position, popup_size, get_datapath_iframe_size());
 
             // Move popup.
             popup

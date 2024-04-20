@@ -1,7 +1,6 @@
 //! Helpful common functions used for the visual datapath.
 
 use gloo::utils::{document, window};
-use gloo_console::log;
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlCollection, HtmlElement, HtmlObjectElement, MouseEvent};
 use yew::UseReducerHandle;
@@ -48,6 +47,18 @@ pub fn get_window_size() -> (i32, i32) {
     (
         window().inner_width().unwrap().as_f64().unwrap() as i32,
         window().inner_height().unwrap().as_f64().unwrap() as i32,
+    )
+}
+
+pub fn get_datapath_iframe_size() -> (i32, i32) {
+    let datapath_wrapper = document()
+        .get_element_by_id("datapath-scrollbox")
+        .unwrap()
+        .unchecked_into::<HtmlElement>();
+
+    (
+        datapath_wrapper.client_width() as i32,
+        datapath_wrapper.client_height() as i32,
     )
 }
 
@@ -182,7 +193,6 @@ pub fn visual_line_to_data(
     variable: &str,
     datapath_state: &UseReducerHandle<DatapathReducer>,
 ) -> LineInformation {
-    log!("Calling here");
     match datapath_state.current_architecture {
         AvailableDatapaths::MIPS => {
             match variable {

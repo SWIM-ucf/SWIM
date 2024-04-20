@@ -130,8 +130,11 @@ impl Instruction {
         for operand in &self.operands {
             recreated_string.push_str(&format!(" {},", operand.token_name.clone()));
         }
+
         //pop the extra comma
-        recreated_string.pop();
+        if recreated_string.ends_with(',') {
+            recreated_string.pop();
+        }
 
         recreated_string
     }
@@ -407,7 +410,6 @@ pub const SUPPORTED_INSTRUCTIONS_RISCV: [&str; 131] = [
 ];
 
 pub const UNSUPPORTED_INSTRUCTIONS_MIPS: [&str; 408] = [
-    // MIPS Instructions
     "abs.d",
     "abs.ps",
     "abs.s",
@@ -816,7 +818,6 @@ pub const UNSUPPORTED_INSTRUCTIONS_MIPS: [&str; 408] = [
     "wrpgpr",
     "xor",
     "xori",
-    // RISC-V Instructions
 ];
 
 pub const UNSUPPORTED_INSTRUCTIONS_RISCV: [&str; 69] = [
@@ -891,7 +892,7 @@ pub const UNSUPPORTED_INSTRUCTIONS_RISCV: [&str; 69] = [
     "c.sdsp",
 ];
 
-///Contains every general purpose register's binary value and the various names they are recognized as. Any reference to gp registers throughout the parser/assembler should reference this array
+///Contains every MIPS general purpose register's binary value and the various names they are recognized as. Any reference to gp registers throughout the parser/assembler should reference this array
 pub const GP_REGISTERS: &[GPRegister; 32] = &[
     GPRegister {
         names: &["$zero", "r0", "$0", "zero"],
@@ -1027,7 +1028,7 @@ pub struct GPRegister<'a> {
     pub binary: u8,
 }
 
-///Contains every floating point register name and binary value. Any reference to fp registers throughout the parser/assembler should reference this array
+///Contains every MIPS floating point register name and binary value. Any reference to fp registers throughout the parser/assembler should reference this array
 pub const FP_REGISTERS: &[FPRegister] = &[
     FPRegister {
         name: "$f0",
@@ -1169,7 +1170,7 @@ pub struct GPRegisterRiscv<'a> {
     pub binary: u8,
 }
 
-///Contains every general purpose register's binary value and the various names they are recognized as. Any reference to gp registers throughout the parser/assembler should reference this array
+///Contains every RISC-V general purpose register's binary value and the various names they are recognized as. Any reference to gp registers throughout the parser/assembler should reference this array
 pub const RISCV_GP_REGISTERS: &[GPRegisterRiscv; 32] = &[
     GPRegisterRiscv {
         names: &["x0", "zero"],
@@ -1306,7 +1307,7 @@ pub struct FPRegisterRiscv<'a> {
     pub binary: u8,
 }
 
-///Contains every floating point register name and binary value. Any reference to fp registers throughout the parser/assembler should reference this array
+///Contains every RISC-V floating point register name and binary value. Any reference to fp registers throughout the parser/assembler should reference this array
 pub const RISCV_FP_REGISTERS: &[FPRegisterRiscv; 32] = &[
     FPRegisterRiscv {
         names: &["f0", "ft0"],

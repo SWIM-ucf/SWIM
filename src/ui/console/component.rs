@@ -3,6 +3,9 @@ use wasm_bindgen::JsCast;
 use web_sys::{HtmlInputElement, InputEvent, KeyboardEvent};
 use yew::prelude::*;
 
+// ** Console Component ** //
+// The console component is a container for the console messages and input
+
 #[derive(PartialEq, Properties)]
 pub struct Consoleprops {
     pub communicator: &'static DatapathCommunicator,
@@ -15,7 +18,6 @@ pub struct Consoleprops {
 pub fn console(props: &Consoleprops) -> Html {
     let show_input = props.show_input.clone();
     let input_value = use_state_eq(String::new);
-    let error_msg = use_state_eq(|| "");
 
     let on_keyup = {
         let input_value = input_value.clone();
@@ -50,17 +52,31 @@ pub fn console(props: &Consoleprops) -> Html {
 
     html! {
         <div>
-            {props.parsermsg.clone()}
+            {
+                (*props.parsermsg)
+                    .split('\n')
+                    .map(|line| {
+                        html! { <div>{line}</div> }
+                    })
+                    .collect::<Html>()
+            }
             <div>
-                {*error_msg}
-            </div>
-            <div>
-                {props.messages.iter().map(|msg| html! { <div>{msg}</div> }).collect::<Html>()}
+                {
+                    props
+                        .messages
+                        .iter()
+                        .flat_map(|msg| {
+                            msg.split('\n').map(|line| {
+                                html! { <div>{line}</div> }
+                            })
+                        })
+                        .collect::<Html>()
+                }
             </div>
             if *show_input {
-                <div class="console-input">
-                    <div class="prompt">{">\u{00a0}"}</div> // Prompt followed by a non-breaking space
-                    <input type="text" onkeyup={on_keyup} oninput={on_input} value={(*input_value).clone()}/>
+                <div class="flex flex-row items-center text-gray-400 relative w-full">
+                    <div class="text-white">{">\u{00a0}"}</div> // Prompt followed by a non-breaking space
+                    <input class="bg-console-bg text-white outline-none" type="text" onkeyup={on_keyup} oninput={on_input} value={(*input_value).clone()}/>
                 </div>
             }
         </div>

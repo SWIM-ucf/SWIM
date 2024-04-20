@@ -8,7 +8,6 @@ use crate::emulation_core::datapath::{Datapath, DatapathUpdateSignal, Syscall, U
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::emulation_core::riscv::datapath::RiscDatapath;
 use futures::{FutureExt, SinkExt, StreamExt};
-use gloo_console::log;
 use instant::Instant;
 use messages::DatapathUpdate;
 use std::collections::HashSet;
@@ -50,7 +49,6 @@ const UPDATE_INTERVAL: Duration = Duration::from_millis(250);
 /// the UI thread.
 #[reactor(EmulationCoreAgent)]
 pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) {
-    log!("Hello world!");
     let mut state = EmulatorCoreAgentState::new(scope);
     loop {
         let execution_delay = state.get_delay();
@@ -90,7 +88,6 @@ pub async fn emulation_core_agent(scope: ReactorScope<Command, DatapathUpdate>) 
         if state.should_send_datapath_update() {
             match state.current_datapath.as_datapath_ref() {
                 DatapathRef::MIPS(datapath) => {
-                    log!(format!("Updates: {:?}", state.updates));
                     // Stage always updates
                     send_update_mips!(
                         state.scope,
@@ -355,14 +352,14 @@ impl EmulatorCoreAgentState {
             Syscall::PrintString(addr) => {
                 let memory = self.current_datapath.get_memory_mut();
                 let mut buffer = Vec::new();
-                for i in 0.. {
+                'outer: for i in 0.. {
                     let word = memory.load_word(addr + (i * 4));
                     match word {
                         Ok(word) => {
                             for byte in word.to_be_bytes() {
                                 if byte == 0 {
                                     // Break on null terminator
-                                    break;
+                                    break 'outer;
                                 } else {
                                     buffer.push(byte);
                                 }
@@ -531,7 +528,6 @@ impl EmulatorCoreAgentState {
     }
 
     async fn add_message(&mut self, msg: String) {
-        log!("Pushed message");
         self.messages.push(msg);
         self.scope
             .send(DatapathUpdate::System(SystemUpdate::UpdateMessages(

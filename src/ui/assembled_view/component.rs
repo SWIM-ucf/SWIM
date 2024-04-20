@@ -10,13 +10,14 @@ use crate::emulation_core::stack::Stack;
 // use monaco::api::TextModel;
 use crate::parser::parser_structs_and_enums::ProgramInfo;
 use crate::ui::swim_editor::tab::TabState;
-use log::debug;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, HtmlInputElement};
 use yew::prelude::*;
 use yew::{Html, Properties};
 
-// TODO: Create Segment Viewer component for extendability to any segment
+// ** Segment Viewer Components ** //
+// Displays the text, data, stack segments, and stack frame view
+// IDEA: Create Segment Viewer component for extendability to any segment
 
 #[derive(PartialEq, Properties)]
 pub struct TextSegmentProps {
@@ -66,6 +67,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
         current_pc.set(props.pc);
     }
 
+    // Set or remove breakpoint on checkbox click
     let on_check = {
         let breakpoints = props.breakpoints.clone();
 
@@ -75,7 +77,6 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
             let input = target.unwrap().unchecked_into::<HtmlInputElement>();
 
             if input.checked() {
-                debug!("Breakpoint set at {:08x}", address as u64);
                 communicator.set_breakpoint(address as u64);
                 breakpoints.set({
                     let mut new_breakpoints = breakpoints.deref().clone();
@@ -83,7 +84,6 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                     new_breakpoints
                 });
             } else {
-                debug!("Breakpoint removed at {:08x}", address as u64);
                 communicator.remove_breakpoint(address as u64);
                 breakpoints.set({
                     let mut new_breakpoints = breakpoints.deref().clone();
@@ -146,7 +146,8 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                     let line_number = instruction.line_number;
 
                     let mut conditional_class = "";
-                    if props.pc as i64 == address + 4 {
+                    if **editor_curr_line != 0.0 && props.pc as i64 == address + 4 {
+                        // we add 4 to the address because we're highlighting the last executed instruction, and the pc is the address of the next instruction
                         conditional_class = "bg-primary-700 shadow-executing";
                         html!{
                             <tr ref={executed_ref} key={index} class={classes!(conditional_class)}>
@@ -168,6 +169,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                                 </td>
                                 <td>
                                     {format!("{}: {:?}", line_number + 1, lines_content.get(line_number).unwrap_or(&String::from("")))}
+                                    // Adding 1 to line number because it is 0-indexed
                                 </td>
                             </tr>
                         }
@@ -193,6 +195,7 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                                 </td>
                                 <td>
                                     {format!("{}: {:?}", line_number + 1, lines_content.get(line_number).unwrap_or(&String::from("")))}
+                                    // Adding 1 to line number because it is 0-indexed
                                 </td>
                             </tr>
                         }
@@ -415,7 +418,7 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
             {
                 if !stack.is_empty() && !program_info.instructions.is_empty() {
                     let stack = stack.stack.clone();
-                    stack.into_iter().enumerate().map(|(_address, frame)| {
+                    stack.into_iter().rev().enumerate().map(|(_address, frame)| {
                         // Get the call and return lines
                         let call_line_index = frame.call_address / 4;
                         let call_recreated_string = program_info.instructions[call_line_index as usize].recreate_string();
@@ -454,7 +457,7 @@ pub fn StackFrameView(props: &StackFrameProps) -> Html {
                                 <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", frame.call_address)} onclick={move |e: MouseEvent| {on_call_address_click.emit((e, frame.call_address as usize))}}>
                                     {format!("0x{:08x}", frame.call_address as u64)}
                                 </td>
-                                <td class="text-accent-blue-200 hover:text-accent-blue-100 cursor-pointer" title="Go to line" onclick={move |e: MouseEvent| {on_call_line_click.emit((e, call_line_number))}}>
+                                <td class="text-accent-blue-200 hover:text-accent-blue-100 cursor-pointer" title="Go to line" onclick={move |e: MouseEvent| {on_call_line_click.emit((e, call_line_number + 1))}}>
                                     {call_recreated_string}
                                 </td>
                                 <td class="text-accent-green-300 hover:text-accent-green-200 cursor-pointer" title={format!("Go to address in memory {:08x}", frame.return_address)} onclick={move |e: MouseEvent| {on_return_address_click.emit((e, frame.return_address as usize))}}>
