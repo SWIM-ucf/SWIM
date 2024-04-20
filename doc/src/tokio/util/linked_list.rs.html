@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.25.0/src/util/linked_list.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>linked_list.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../tokio/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-1.37.0/src/util/linked_list.rs`."><title>linked_list.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../tokio/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -692,12 +694,118 @@
 <a href="#692" id="692">692</a>
 <a href="#693" id="693">693</a>
 <a href="#694" id="694">694</a>
-</pre><pre class="rust"><code><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;full&quot;</span>), allow(dead_code))]
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+</pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(not(feature = <span class="string">"full"</span>), allow(dead_code))]
 
 </span><span class="doccomment">//! An intrusive double linked list of data.
 //!
 //! The data structure supports tracking pinned nodes. Most of the data
-//! structure&#39;s APIs are `unsafe` as they require the caller to ensure the
+//! structure's APIs are `unsafe` as they require the caller to ensure the
 //! specified node is actually contained by the list.
 
 </span><span class="kw">use </span>core::cell::UnsafeCell;
@@ -708,7 +816,7 @@
 
 <span class="doccomment">/// An intrusive linked list.
 ///
-/// Currently, the list is not emptied on drop. It is the caller&#39;s
+/// Currently, the list is not emptied on drop. It is the caller's
 /// responsibility to ensure the list is empty before dropping it.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>LinkedList&lt;L, T&gt; {
     <span class="doccomment">/// Linked list head
@@ -848,8 +956,8 @@
             <span class="kw">if let </span><span class="prelude-val">Some</span>(prev) = L::pointers(last).as_ref().get_prev() {
                 L::pointers(prev).as_mut().set_next(<span class="prelude-val">None</span>);
             } <span class="kw">else </span>{
-                <span class="self">self</span>.head = <span class="prelude-val">None
-            </span>}
+                <span class="self">self</span>.head = <span class="prelude-val">None</span>;
+            }
 
             L::pointers(last).as_mut().set_prev(<span class="prelude-val">None</span>);
             L::pointers(last).as_mut().set_next(<span class="prelude-val">None</span>);
@@ -872,8 +980,12 @@
     ///
     /// # Safety
     ///
-    /// The caller **must** ensure that `node` is currently contained by
-    /// `self` or not contained by any other list.
+    /// The caller **must** ensure that exactly one of the following is true:
+    /// - `node` is currently contained by `self`,
+    /// - `node` is not contained by any list,
+    /// - `node` is currently contained by some other `GuardedLinkedList` **and**
+    ///   the caller has an exclusive access to that list. This condition is
+    ///   used by the linked list in `sync::Notify`.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: NonNull&lt;L::Target&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;L::Handle&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(prev) = L::pointers(node).as_ref().get_prev() {
             <span class="macro">debug_assert_eq!</span>(L::pointers(prev).as_ref().get_next(), <span class="prelude-val">Some</span>(node));
@@ -910,20 +1022,20 @@
 }
 
 <span class="kw">impl</span>&lt;L: Link&gt; fmt::Debug <span class="kw">for </span>LinkedList&lt;L, L::Target&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;LinkedList&quot;</span>)
-            .field(<span class="string">&quot;head&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.head)
-            .field(<span class="string">&quot;tail&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.tail)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"LinkedList"</span>)
+            .field(<span class="string">"head"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.head)
+            .field(<span class="string">"tail"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.tail)
             .finish()
     }
 }
 
 <span class="attr">#[cfg(any(
-    feature = <span class="string">&quot;fs&quot;</span>,
-    feature = <span class="string">&quot;rt&quot;</span>,
-    all(unix, feature = <span class="string">&quot;process&quot;</span>),
-    feature = <span class="string">&quot;signal&quot;</span>,
-    feature = <span class="string">&quot;sync&quot;</span>,
+    feature = <span class="string">"fs"</span>,
+    feature = <span class="string">"rt"</span>,
+    all(unix, feature = <span class="string">"process"</span>),
+    feature = <span class="string">"signal"</span>,
+    feature = <span class="string">"sync"</span>,
 ))]
 </span><span class="kw">impl</span>&lt;L: Link&gt; LinkedList&lt;L, L::Target&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>last(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>L::Target&gt; {
@@ -940,17 +1052,17 @@
 
 <span class="comment">// ===== impl DrainFilter =====
 
-</span><span class="macro">cfg_io_readiness! </span>{
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>DrainFilter&lt;<span class="lifetime">&#39;a</span>, T: Link, F&gt; {
-        list: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>LinkedList&lt;T, T::Target&gt;,
+</span><span class="macro">cfg_io_driver_impl! </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>DrainFilter&lt;<span class="lifetime">'a</span>, T: Link, F&gt; {
+        list: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>LinkedList&lt;T, T::Target&gt;,
         filter: F,
         curr: <span class="prelude-ty">Option</span>&lt;NonNull&lt;T::Target&gt;&gt;,
     }
 
     <span class="kw">impl</span>&lt;T: Link&gt; LinkedList&lt;T, T::Target&gt; {
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>drain_filter&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, filter: F) -&gt; DrainFilter&lt;<span class="lifetime">&#39;_</span>, T, F&gt;
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>drain_filter&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, filter: F) -&gt; DrainFilter&lt;<span class="lifetime">'_</span>, T, F&gt;
         <span class="kw">where
-            </span>F: FnMut(<span class="kw-2">&amp;mut </span>T::Target) -&gt; bool,
+            </span>F: FnMut(<span class="kw-2">&amp;</span>T::Target) -&gt; bool,
         {
             <span class="kw">let </span>curr = <span class="self">self</span>.head;
             DrainFilter {
@@ -961,10 +1073,10 @@
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T, F&gt; Iterator <span class="kw">for </span>DrainFilter&lt;<span class="lifetime">&#39;a</span>, T, F&gt;
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T, F&gt; Iterator <span class="kw">for </span>DrainFilter&lt;<span class="lifetime">'a</span>, T, F&gt;
     <span class="kw">where
         </span>T: Link,
-        F: FnMut(<span class="kw-2">&amp;mut </span>T::Target) -&gt; bool,
+        F: FnMut(<span class="kw-2">&amp;</span>T::Target) -&gt; bool,
     {
         <span class="kw">type </span>Item = T::Handle;
 
@@ -981,6 +1093,115 @@
 
             <span class="prelude-val">None
         </span>}
+    }
+}
+
+<span class="macro">cfg_taskdump! </span>{
+    <span class="kw">impl</span>&lt;T: Link&gt; LinkedList&lt;T, T::Target&gt; {
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>for_each&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>f: F)
+        <span class="kw">where
+            </span>F: FnMut(<span class="kw-2">&amp;</span>T::Handle),
+        {
+            <span class="kw">let </span><span class="kw-2">mut </span>next = <span class="self">self</span>.head;
+
+            <span class="kw">while let </span><span class="prelude-val">Some</span>(curr) = next {
+                <span class="kw">unsafe </span>{
+                    <span class="kw">let </span>handle = ManuallyDrop::new(T::from_raw(curr));
+                    f(<span class="kw-2">&amp;</span>handle);
+                    next = T::pointers(curr).as_ref().get_next();
+                }
+            }
+        }
+    }
+}
+
+<span class="comment">// ===== impl GuardedLinkedList =====
+
+</span><span class="macro">feature! </span>{
+    <span class="attr">#![any(
+        feature = <span class="string">"process"</span>,
+        feature = <span class="string">"sync"</span>,
+        feature = <span class="string">"rt"</span>,
+        feature = <span class="string">"signal"</span>,
+    )]
+
+    </span><span class="doccomment">/// An intrusive linked list, but instead of keeping pointers to the head
+    /// and tail nodes, it uses a special guard node linked with those nodes.
+    /// It means that the list is circular and every pointer of a node from
+    /// the list is not `None`, including pointers from the guard node.
+    ///
+    /// If a list is empty, then both pointers of the guard node are pointing
+    /// at the guard node itself.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>GuardedLinkedList&lt;L, T&gt; {
+        <span class="doccomment">/// Pointer to the guard node.
+        </span>guard: NonNull&lt;T&gt;,
+
+        <span class="doccomment">/// Node type marker.
+        </span>_marker: PhantomData&lt;<span class="kw-2">*const </span>L&gt;,
+    }
+
+    <span class="kw">impl</span>&lt;U, L: Link&lt;Handle = NonNull&lt;U&gt;&gt;&gt; LinkedList&lt;L, L::Target&gt; {
+        <span class="doccomment">/// Turns a linked list into the guarded version by linking the guard node
+        /// with the head and tail nodes. Like with other nodes, you should guarantee
+        /// that the guard node is pinned in memory.
+        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>into_guarded(<span class="self">self</span>, guard_handle: L::Handle) -&gt; GuardedLinkedList&lt;L, L::Target&gt; {
+            <span class="comment">// `guard_handle` is a NonNull pointer, we don't have to care about dropping it.
+            </span><span class="kw">let </span>guard = L::as_raw(<span class="kw-2">&amp;</span>guard_handle);
+
+            <span class="kw">unsafe </span>{
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(head) = <span class="self">self</span>.head {
+                    <span class="macro">debug_assert!</span>(L::pointers(head).as_ref().get_prev().is_none());
+                    L::pointers(head).as_mut().set_prev(<span class="prelude-val">Some</span>(guard));
+                    L::pointers(guard).as_mut().set_next(<span class="prelude-val">Some</span>(head));
+
+                    <span class="comment">// The list is not empty, so the tail cannot be `None`.
+                    </span><span class="kw">let </span>tail = <span class="self">self</span>.tail.unwrap();
+                    <span class="macro">debug_assert!</span>(L::pointers(tail).as_ref().get_next().is_none());
+                    L::pointers(tail).as_mut().set_next(<span class="prelude-val">Some</span>(guard));
+                    L::pointers(guard).as_mut().set_prev(<span class="prelude-val">Some</span>(tail));
+                } <span class="kw">else </span>{
+                    <span class="comment">// The list is empty.
+                    </span>L::pointers(guard).as_mut().set_prev(<span class="prelude-val">Some</span>(guard));
+                    L::pointers(guard).as_mut().set_next(<span class="prelude-val">Some</span>(guard));
+                }
+            }
+
+            GuardedLinkedList { guard, _marker: PhantomData }
+        }
+    }
+
+    <span class="kw">impl</span>&lt;L: Link&gt; GuardedLinkedList&lt;L, L::Target&gt; {
+        <span class="kw">fn </span>tail(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NonNull&lt;L::Target&gt;&gt; {
+            <span class="kw">let </span>tail_ptr = <span class="kw">unsafe </span>{
+                L::pointers(<span class="self">self</span>.guard).as_ref().get_prev().unwrap()
+            };
+
+            <span class="comment">// Compare the tail pointer with the address of the guard node itself.
+            // If the guard points at itself, then there are no other nodes and
+            // the list is considered empty.
+            </span><span class="kw">if </span>tail_ptr != <span class="self">self</span>.guard {
+                <span class="prelude-val">Some</span>(tail_ptr)
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>}
+        }
+
+        <span class="doccomment">/// Removes the last element from a list and returns it, or None if it is
+        /// empty.
+        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>pop_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;L::Handle&gt; {
+            <span class="kw">unsafe </span>{
+                <span class="kw">let </span>last = <span class="self">self</span>.tail()<span class="question-mark">?</span>;
+                <span class="kw">let </span>before_last = L::pointers(last).as_ref().get_prev().unwrap();
+
+                L::pointers(<span class="self">self</span>.guard).as_mut().set_prev(<span class="prelude-val">Some</span>(before_last));
+                L::pointers(before_last).as_mut().set_next(<span class="prelude-val">Some</span>(<span class="self">self</span>.guard));
+
+                L::pointers(last).as_mut().set_prev(<span class="prelude-val">None</span>);
+                L::pointers(last).as_mut().set_next(<span class="prelude-val">None</span>);
+
+                <span class="prelude-val">Some</span>(L::from_raw(last))
+            }
+        }
     }
 }
 
@@ -1036,19 +1257,19 @@
 }
 
 <span class="kw">impl</span>&lt;T&gt; fmt::Debug <span class="kw">for </span>Pointers&lt;T&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">let </span>prev = <span class="self">self</span>.get_prev();
         <span class="kw">let </span>next = <span class="self">self</span>.get_next();
-        f.debug_struct(<span class="string">&quot;Pointers&quot;</span>)
-            .field(<span class="string">&quot;prev&quot;</span>, <span class="kw-2">&amp;</span>prev)
-            .field(<span class="string">&quot;next&quot;</span>, <span class="kw-2">&amp;</span>next)
+        f.debug_struct(<span class="string">"Pointers"</span>)
+            .field(<span class="string">"prev"</span>, <span class="kw-2">&amp;</span>prev)
+            .field(<span class="string">"next"</span>, <span class="kw-2">&amp;</span>next)
             .finish()
     }
 }
 
-<span class="attr">#[cfg(test)]
+<span class="attr">#[cfg(any(test, fuzzing))]
 #[cfg(not(loom))]
-</span><span class="kw">mod </span>tests {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="kw">use </span>std::pin::Pin;
@@ -1060,15 +1281,15 @@
         val: i32,
     }
 
-    <span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Link <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Entry {
-        <span class="kw">type </span>Handle = Pin&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Entry&gt;;
+    <span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>&gt; Link <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>Entry {
+        <span class="kw">type </span>Handle = Pin&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Entry&gt;;
         <span class="kw">type </span>Target = Entry;
 
-        <span class="kw">fn </span>as_raw(handle: <span class="kw-2">&amp;</span>Pin&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Entry&gt;) -&gt; NonNull&lt;Entry&gt; {
+        <span class="kw">fn </span>as_raw(handle: <span class="kw-2">&amp;</span>Pin&lt;<span class="kw-2">&amp;</span><span class="lifetime">'_ </span>Entry&gt;) -&gt; NonNull&lt;Entry&gt; {
             NonNull::from(handle.get_ref())
         }
 
-        <span class="kw">unsafe fn </span>from_raw(ptr: NonNull&lt;Entry&gt;) -&gt; Pin&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Entry&gt; {
+        <span class="kw">unsafe fn </span>from_raw(ptr: NonNull&lt;Entry&gt;) -&gt; Pin&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Entry&gt; {
             Pin::new_unchecked(<span class="kw-2">&amp;*</span>ptr.as_ptr())
         }
 
@@ -1088,7 +1309,7 @@
         r.as_ref().get_ref().into()
     }
 
-    <span class="kw">fn </span>collect_list(list: <span class="kw-2">&amp;mut </span>LinkedList&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Entry, &lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Entry <span class="kw">as </span>Link&gt;::Target&gt;) -&gt; Vec&lt;i32&gt; {
+    <span class="kw">fn </span>collect_list(list: <span class="kw-2">&amp;mut </span>LinkedList&lt;<span class="kw-2">&amp;</span><span class="lifetime">'_ </span>Entry, &lt;<span class="kw-2">&amp;</span><span class="lifetime">'_ </span>Entry <span class="kw">as </span>Link&gt;::Target&gt;) -&gt; Vec&lt;i32&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="macro">vec!</span>[];
 
         <span class="kw">while let </span><span class="prelude-val">Some</span>(entry) = list.pop_back() {
@@ -1098,23 +1319,25 @@
         ret
     }
 
-    <span class="kw">fn </span>push_all&lt;<span class="lifetime">&#39;a</span>&gt;(
-        list: <span class="kw-2">&amp;mut </span>LinkedList&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Entry, &lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Entry <span class="kw">as </span>Link&gt;::Target&gt;,
-        entries: <span class="kw-2">&amp;</span>[Pin&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Entry&gt;],
+    <span class="kw">fn </span>push_all&lt;<span class="lifetime">'a</span>&gt;(
+        list: <span class="kw-2">&amp;mut </span>LinkedList&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Entry, &lt;<span class="kw-2">&amp;</span><span class="lifetime">'_ </span>Entry <span class="kw">as </span>Link&gt;::Target&gt;,
+        entries: <span class="kw-2">&amp;</span>[Pin&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Entry&gt;],
     ) {
         <span class="kw">for </span>entry <span class="kw">in </span>entries.iter() {
             list.push_front(<span class="kw-2">*</span>entry);
         }
     }
 
-    <span class="macro">macro_rules! </span>assert_clean {
+    <span class="attr">#[cfg(test)]
+    </span><span class="macro">macro_rules! </span>assert_clean {
         (<span class="macro-nonterminal">$e</span>:ident) =&gt; {{
             <span class="macro">assert!</span>(<span class="macro-nonterminal">$e</span>.pointers.get_next().is_none());
             <span class="macro">assert!</span>(<span class="macro-nonterminal">$e</span>.pointers.get_prev().is_none());
         }};
     }
 
-    <span class="macro">macro_rules! </span>assert_ptr_eq {
+    <span class="attr">#[cfg(test)]
+    </span><span class="macro">macro_rules! </span>assert_ptr_eq {
         (<span class="macro-nonterminal">$a</span>:expr, <span class="macro-nonterminal">$b</span>:expr) =&gt; {{
             <span class="comment">// Deal with mapping a Pin&lt;&amp;mut T&gt; -&gt; Option&lt;NonNull&lt;T&gt;&gt;
             </span><span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="macro-nonterminal">$a</span>.as_ref().get_ref().into()), <span class="macro-nonterminal">$b</span>)
@@ -1181,19 +1404,19 @@
             push_all(<span class="kw-2">&amp;mut </span>list, <span class="kw-2">&amp;</span>[c.as_ref(), b.as_ref(), a.as_ref()]);
             <span class="macro">assert!</span>(list.remove(ptr(<span class="kw-2">&amp;</span>a)).is_some());
             <span class="macro">assert_clean!</span>(a);
-            <span class="comment">// `a` should be no longer there and can&#39;t be removed twice
+            <span class="comment">// `a` should be no longer there and can't be removed twice
             </span><span class="macro">assert!</span>(list.remove(ptr(<span class="kw-2">&amp;</span>a)).is_none());
             <span class="macro">assert!</span>(!list.is_empty());
 
             <span class="macro">assert!</span>(list.remove(ptr(<span class="kw-2">&amp;</span>b)).is_some());
             <span class="macro">assert_clean!</span>(b);
-            <span class="comment">// `b` should be no longer there and can&#39;t be removed twice
+            <span class="comment">// `b` should be no longer there and can't be removed twice
             </span><span class="macro">assert!</span>(list.remove(ptr(<span class="kw-2">&amp;</span>b)).is_none());
             <span class="macro">assert!</span>(!list.is_empty());
 
             <span class="macro">assert!</span>(list.remove(ptr(<span class="kw-2">&amp;</span>c)).is_some());
             <span class="macro">assert_clean!</span>(c);
-            <span class="comment">// `b` should be no longer there and can&#39;t be removed twice
+            <span class="comment">// `b` should be no longer there and can't be removed twice
             </span><span class="macro">assert!</span>(list.remove(ptr(<span class="kw-2">&amp;</span>c)).is_none());
             <span class="macro">assert!</span>(list.is_empty());
         }
@@ -1258,7 +1481,7 @@
 
             <span class="macro">assert_clean!</span>(a);
 
-            <span class="comment">// a should be no longer there and can&#39;t be removed twice
+            <span class="comment">// a should be no longer there and can't be removed twice
             </span><span class="macro">assert!</span>(list.remove(ptr(<span class="kw-2">&amp;</span>a)).is_none());
 
             <span class="macro">assert_ptr_eq!</span>(b, list.head);
@@ -1317,31 +1540,22 @@
         }
     }
 
-    <span class="attr">#[cfg(not(tokio_wasm))]
-    </span><span class="macro">proptest::proptest! </span>{
-        <span class="attr">#[test]
-        </span><span class="kw">fn </span>fuzz_linked_list(ops: Vec&lt;usize&gt;) {
-            run_fuzz(ops);
-        }
-    }
-
-    <span class="attr">#[cfg(not(tokio_wasm))]
-    </span><span class="kw">fn </span>run_fuzz(ops: Vec&lt;usize&gt;) {
-        <span class="kw">use </span>std::collections::VecDeque;
-
-        <span class="attr">#[derive(Debug)]
-        </span><span class="kw">enum </span>Op {
+    <span class="doccomment">/// This is a fuzz test. You run it by entering `cargo fuzz run fuzz_linked_list` in CLI in `/tokio/` module.
+    </span><span class="attr">#[cfg(fuzzing)]
+    </span><span class="kw">pub fn </span>fuzz_linked_list(ops: <span class="kw-2">&amp;</span>[u8]) {
+        <span class="kw">enum </span>Op {
             Push,
             Pop,
             Remove(usize),
         }
+        <span class="kw">use </span>std::collections::VecDeque;
 
         <span class="kw">let </span>ops = ops
             .iter()
-            .map(|i| <span class="kw">match </span>i % <span class="number">3 </span>{
+            .map(|i| <span class="kw">match </span>i % <span class="number">3u8 </span>{
                 <span class="number">0 </span>=&gt; Op::Push,
                 <span class="number">1 </span>=&gt; Op::Pop,
-                <span class="number">2 </span>=&gt; Op::Remove(i / <span class="number">3</span>),
+                <span class="number">2 </span>=&gt; Op::Remove((i / <span class="number">3u8</span>) <span class="kw">as </span>usize),
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             })
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
@@ -1386,5 +1600,4 @@
         }
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

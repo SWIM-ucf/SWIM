@@ -1,5 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/yew-0.20.0/src/virtual_dom/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../yew/index.html">
-                        <img src="https://yew.rs/img/logo.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yew-0.21.0/src/virtual_dom/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../yew/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -274,7 +275,23 @@
 <a href="#273" id="273">273</a>
 <a href="#274" id="274">274</a>
 <a href="#275" id="275">275</a>
-</pre><pre class="rust"><code><span class="doccomment">//! This module contains Yew&#39;s implementation of a reactive virtual DOM.
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! This module contains Yew's implementation of a reactive virtual DOM.
 
 </span><span class="attr">#[doc(hidden)]
 </span><span class="kw">pub mod </span>key;
@@ -325,14 +342,14 @@
 <span class="doccomment">/// Attribute value
 </span><span class="kw">pub type </span>AttrValue = implicit_clone::unsync::IString;
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;ssr&quot;</span>, feature = <span class="string">&quot;hydration&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"ssr"</span>, feature = <span class="string">"hydration"</span>))]
 </span><span class="kw">mod </span>feat_ssr_hydration {
     <span class="attr">#[cfg(debug_assertions)]
-    </span><span class="kw">type </span>ComponentName = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+    </span><span class="kw">type </span>ComponentName = <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
     <span class="attr">#[cfg(not(debug_assertions))]
     </span><span class="kw">type </span>ComponentName = std::marker::PhantomData&lt;()&gt;;
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;hydration&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"hydration"</span>)]
     </span><span class="kw">use </span>std::borrow::Cow;
 
     <span class="doccomment">/// A collectable.
@@ -340,56 +357,70 @@
     /// This indicates a kind that can be collected from fragment to be processed at a later time
     </span><span class="kw">pub enum </span>Collectable {
         Component(ComponentName),
+        Raw,
         Suspense,
     }
 
     <span class="kw">impl </span>Collectable {
-        <span class="kw">pub fn </span>for_component&lt;T: <span class="lifetime">&#39;static</span>&gt;() -&gt; <span class="self">Self </span>{
-            <span class="attr">#[cfg(debug_assertions)]
-            </span><span class="kw">let </span>comp_name = std::any::type_name::&lt;T&gt;();
-            <span class="attr">#[cfg(not(debug_assertions))]
-            </span><span class="kw">let </span>comp_name = std::marker::PhantomData;
+        <span class="attr">#[cfg(not(debug_assertions))]
+        #[inline(always)]
+        </span><span class="kw">pub fn </span>for_component&lt;T: <span class="lifetime">'static</span>&gt;() -&gt; <span class="self">Self </span>{
+            <span class="kw">use </span>std::marker::PhantomData;
+            <span class="comment">// This suppresses the clippy lint about unused generic.
+            // We inline this function
+            // so the function body is copied to its caller and generics get optimised away.
+            </span><span class="kw">let </span>_comp_type: PhantomData&lt;T&gt; = PhantomData;
+            <span class="self">Self</span>::Component(PhantomData)
+        }
+
+        <span class="attr">#[cfg(debug_assertions)]
+        </span><span class="kw">pub fn </span>for_component&lt;T: <span class="lifetime">'static</span>&gt;() -&gt; <span class="self">Self </span>{
+            <span class="kw">let </span>comp_name = std::any::type_name::&lt;T&gt;();
             <span class="self">Self</span>::Component(comp_name)
         }
 
-        <span class="kw">pub fn </span>open_start_mark(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">pub fn </span>open_start_mark(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
             <span class="kw">match </span><span class="self">self </span>{
-                <span class="self">Self</span>::Component(<span class="kw">_</span>) =&gt; <span class="string">&quot;&lt;[&quot;</span>,
-                <span class="self">Self</span>::Suspense =&gt; <span class="string">&quot;&lt;?&quot;</span>,
+                <span class="self">Self</span>::Component(<span class="kw">_</span>) =&gt; <span class="string">"&lt;["</span>,
+                <span class="self">Self</span>::Raw =&gt; <span class="string">"&lt;#"</span>,
+                <span class="self">Self</span>::Suspense =&gt; <span class="string">"&lt;?"</span>,
             }
         }
 
-        <span class="kw">pub fn </span>close_start_mark(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">pub fn </span>close_start_mark(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
             <span class="kw">match </span><span class="self">self </span>{
-                <span class="self">Self</span>::Component(<span class="kw">_</span>) =&gt; <span class="string">&quot;&lt;/[&quot;</span>,
-                <span class="self">Self</span>::Suspense =&gt; <span class="string">&quot;&lt;/?&quot;</span>,
+                <span class="self">Self</span>::Component(<span class="kw">_</span>) =&gt; <span class="string">"&lt;/["</span>,
+                <span class="self">Self</span>::Raw =&gt; <span class="string">"&lt;/#"</span>,
+                <span class="self">Self</span>::Suspense =&gt; <span class="string">"&lt;/?"</span>,
             }
         }
 
-        <span class="kw">pub fn </span>end_mark(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">pub fn </span>end_mark(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
             <span class="kw">match </span><span class="self">self </span>{
-                <span class="self">Self</span>::Component(<span class="kw">_</span>) =&gt; <span class="string">&quot;]&gt;&quot;</span>,
-                <span class="self">Self</span>::Suspense =&gt; <span class="string">&quot;&gt;&quot;</span>,
+                <span class="self">Self</span>::Component(<span class="kw">_</span>) =&gt; <span class="string">"]&gt;"</span>,
+                <span class="self">Self</span>::Raw =&gt; <span class="string">"&gt;"</span>,
+                <span class="self">Self</span>::Suspense =&gt; <span class="string">"&gt;"</span>,
             }
         }
 
-        <span class="attr">#[cfg(feature = <span class="string">&quot;hydration&quot;</span>)]
-        </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cow&lt;<span class="lifetime">&#39;static</span>, str&gt; {
+        <span class="attr">#[cfg(feature = <span class="string">"hydration"</span>)]
+        </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cow&lt;<span class="lifetime">'static</span>, str&gt; {
             <span class="kw">match </span><span class="self">self </span>{
                 <span class="attr">#[cfg(debug_assertions)]
-                </span><span class="self">Self</span>::Component(m) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Component({})&quot;</span>, m).into(),
+                </span><span class="self">Self</span>::Component(m) =&gt; <span class="macro">format!</span>(<span class="string">"Component({m})"</span>).into(),
                 <span class="attr">#[cfg(not(debug_assertions))]
-                </span><span class="self">Self</span>::Component(<span class="kw">_</span>) =&gt; <span class="string">&quot;Component&quot;</span>.into(),
-                <span class="self">Self</span>::Suspense =&gt; <span class="string">&quot;Suspense&quot;</span>.into(),
+                </span><span class="self">Self</span>::Component(<span class="kw">_</span>) =&gt; <span class="string">"Component"</span>.into(),
+                <span class="self">Self</span>::Raw =&gt; <span class="string">"Raw"</span>.into(),
+                <span class="self">Self</span>::Suspense =&gt; <span class="string">"Suspense"</span>.into(),
             }
         }
     }
 }
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;ssr&quot;</span>, feature = <span class="string">&quot;hydration&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"ssr"</span>, feature = <span class="string">"hydration"</span>))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>feat_ssr_hydration::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ssr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ssr"</span>)]
 </span><span class="kw">mod </span>feat_ssr {
     <span class="kw">use </span>std::fmt::Write;
 
@@ -398,7 +429,7 @@
 
     <span class="kw">impl </span>Collectable {
         <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>write_open_tag(<span class="kw-2">&amp;</span><span class="self">self</span>, w: <span class="kw-2">&amp;mut </span>BufWriter) {
-            <span class="kw">let _ </span>= w.write_str(<span class="string">&quot;&lt;!--&quot;</span>);
+            <span class="kw">let _ </span>= w.write_str(<span class="string">"&lt;!--"</span>);
             <span class="kw">let _ </span>= w.write_str(<span class="self">self</span>.open_start_mark());
 
             <span class="attr">#[cfg(debug_assertions)]
@@ -406,15 +437,16 @@
                 <span class="self">Self</span>::Component(type_name) =&gt; {
                     <span class="kw">let _ </span>= w.write_str(type_name);
                 }
+                <span class="self">Self</span>::Raw =&gt; {}
                 <span class="self">Self</span>::Suspense =&gt; {}
             }
 
             <span class="kw">let _ </span>= w.write_str(<span class="self">self</span>.end_mark());
-            <span class="kw">let _ </span>= w.write_str(<span class="string">&quot;--&gt;&quot;</span>);
+            <span class="kw">let _ </span>= w.write_str(<span class="string">"--&gt;"</span>);
         }
 
         <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>write_close_tag(<span class="kw-2">&amp;</span><span class="self">self</span>, w: <span class="kw-2">&amp;mut </span>BufWriter) {
-            <span class="kw">let _ </span>= w.write_str(<span class="string">&quot;&lt;!--&quot;</span>);
+            <span class="kw">let _ </span>= w.write_str(<span class="string">"&lt;!--"</span>);
             <span class="kw">let _ </span>= w.write_str(<span class="self">self</span>.close_start_mark());
 
             <span class="attr">#[cfg(debug_assertions)]
@@ -422,16 +454,17 @@
                 <span class="self">Self</span>::Component(type_name) =&gt; {
                     <span class="kw">let _ </span>= w.write_str(type_name);
                 }
+                <span class="self">Self</span>::Raw =&gt; {}
                 <span class="self">Self</span>::Suspense =&gt; {}
             }
 
             <span class="kw">let _ </span>= w.write_str(<span class="self">self</span>.end_mark());
-            <span class="kw">let _ </span>= w.write_str(<span class="string">&quot;--&gt;&quot;</span>);
+            <span class="kw">let _ </span>= w.write_str(<span class="string">"--&gt;"</span>);
         }
     }
 }
 
-<span class="doccomment">/// Defines if the [`Attributes`] is set as element&#39;s attribute or property
+<span class="doccomment">/// Defines if the [`Attributes`] is set as element's attribute or property
 </span><span class="attr">#[allow(missing_docs)]
 #[derive(PartialEq, Eq, Copy, Clone, Debug)]
 </span><span class="kw">pub enum </span>ApplyAttributeAs {
@@ -446,7 +479,7 @@
     ///
     /// Allows optimizing comparison to a simple pointer equality check and reducing allocations,
     /// if the attributes do not change on a node.
-    </span>Static(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, ApplyAttributeAs)]),
+    </span>Static(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>[(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, ApplyAttributeAs)]),
 
     <span class="doccomment">/// Static list of attribute keys with possibility to exclude attributes and dynamic attribute
     /// values.
@@ -455,7 +488,7 @@
     /// if the attributes keys do not change on a node.
     </span>Dynamic {
         <span class="doccomment">/// Attribute keys. Includes both always set and optional attribute keys.
-        </span>keys: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str],
+        </span>keys: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str],
 
         <span class="doccomment">/// Attribute values. Matches [keys](Attributes::Dynamic::keys). Optional attributes are
         /// designated by setting [None].
@@ -475,9 +508,9 @@
 
     <span class="doccomment">/// Return iterator over attribute key-value pairs.
     /// This function is suboptimal and does not inline well. Avoid on hot paths.
-    </span><span class="kw">pub fn </span>iter&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Iterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str)&gt; + <span class="lifetime">&#39;a</span>&gt; {
+    </span><span class="kw">pub fn </span>iter&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Iterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str)&gt; + <span class="lifetime">'a</span>&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Static(arr) =&gt; Box::new(arr.iter().map(|(k, v, <span class="kw">_</span>)| (<span class="kw-2">*</span>k, <span class="kw-2">*</span>v <span class="kw">as </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str))),
+            <span class="self">Self</span>::Static(arr) =&gt; Box::new(arr.iter().map(|(k, v, <span class="kw">_</span>)| (<span class="kw-2">*</span>k, <span class="kw-2">*</span>v <span class="kw">as </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>str))),
             <span class="self">Self</span>::Dynamic { keys, values } =&gt; Box::new(
                 keys.iter()
                     .zip(values.iter())
@@ -534,8 +567,8 @@
     }
 }
 
-<span class="kw">impl </span>From&lt;IndexMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, AttrValue&gt;&gt; <span class="kw">for </span>Attributes {
-    <span class="kw">fn </span>from(v: IndexMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, AttrValue&gt;) -&gt; <span class="self">Self </span>{
+<span class="kw">impl </span>From&lt;IndexMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, AttrValue&gt;&gt; <span class="kw">for </span>Attributes {
+    <span class="kw">fn </span>from(v: IndexMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, AttrValue&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>v = v
             .into_iter()
             .map(|(k, v)| (AttrValue::Static(k), (v, ApplyAttributeAs::Attribute)))
@@ -549,5 +582,4 @@
         <span class="self">Self</span>::Static(<span class="kw-2">&amp;</span>[])
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

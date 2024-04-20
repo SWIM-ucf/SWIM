@@ -1,5 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/yew-0.20.0/src/html/classes.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>classes.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../yew/index.html">
-                        <img src="https://yew.rs/img/logo.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yew-0.21.0/src/html/classes.rs`."><title>classes.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../yew/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -332,28 +333,84 @@
 <a href="#331" id="331">331</a>
 <a href="#332" id="332">332</a>
 <a href="#333" id="333">333</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::borrow::{Borrow, Cow};
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::iter::FromIterator;
 <span class="kw">use </span>std::rc::Rc;
 
+<span class="kw">use </span>implicit_clone::ImplicitClone;
 <span class="kw">use </span>indexmap::IndexSet;
 
 <span class="kw">use </span><span class="kw">super</span>::IntoPropValue;
 <span class="kw">use </span><span class="kw">crate</span>::virtual_dom::AttrValue;
 
-<span class="doccomment">/// A set of classes.
+<span class="doccomment">/// A set of classes, cheap to clone.
 ///
 /// The preferred way of creating this is using the [`classes!`][yew::classes!] macro.
 </span><span class="attr">#[derive(Debug, Clone, Default)]
 </span><span class="kw">pub struct </span>Classes {
-    set: IndexSet&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt;,
+    set: Rc&lt;IndexSet&lt;AttrValue&gt;&gt;,
 }
+
+<span class="kw">impl </span>ImplicitClone <span class="kw">for </span>Classes {}
 
 <span class="doccomment">/// helper method to efficiently turn a set of classes into a space-separated
 /// string. Abstracts differences between ToString and IntoPropValue. The
 /// `rest` iterator is cloned to pre-compute the length of the String; it
 /// should be cheap to clone.
-</span><span class="kw">fn </span>build_string&lt;<span class="lifetime">&#39;a</span>&gt;(first: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, rest: <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; + Clone) -&gt; String {
+</span><span class="kw">fn </span>build_attr_value(first: AttrValue, rest: <span class="kw">impl </span>Iterator&lt;Item = AttrValue&gt; + Clone) -&gt; AttrValue {
     <span class="comment">// The length of the string is known to be the length of all the
     // components, plus one space for each element in `rest`.
     </span><span class="kw">let </span><span class="kw-2">mut </span>s = String::with_capacity(
@@ -363,9 +420,13 @@
             .sum(),
     );
 
-    s.push_str(first);
-    s.extend(rest.flat_map(|class| [<span class="string">&quot; &quot;</span>, class]));
-    s
+    s.push_str(first.as_str());
+    <span class="comment">// NOTE: this can be improved once Iterator::intersperse() becomes stable
+    </span><span class="kw">for </span>class <span class="kw">in </span>rest {
+        s.push(<span class="string">' '</span>);
+        s.push_str(class.as_str());
+    }
+    s.into()
 }
 
 <span class="kw">impl </span>Classes {
@@ -373,7 +434,7 @@
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            set: IndexSet::new(),
+            set: Rc::new(IndexSet::new()),
         }
     }
 
@@ -382,7 +443,7 @@
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>with_capacity(n: usize) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            set: IndexSet::with_capacity(n),
+            set: Rc::new(IndexSet::with_capacity(n)),
         }
     }
 
@@ -394,7 +455,7 @@
         <span class="kw">if </span><span class="self">self</span>.is_empty() {
             <span class="kw-2">*</span><span class="self">self </span>= classes_to_add
         } <span class="kw">else </span>{
-            <span class="self">self</span>.set.extend(classes_to_add.set)
+            Rc::make_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.set).extend(classes_to_add.set.iter().cloned())
         }
     }
 
@@ -402,15 +463,15 @@
     ///
     /// If the provided class has already been added, this method will ignore it.
     ///
-    /// This method won&#39;t check if there are multiple classes in the input string.
+    /// This method won't check if there are multiple classes in the input string.
     ///
     /// # Safety
     ///
     /// This function will not split the string into multiple classes. Please do not use it unless
     /// you are absolutely certain that the string does not contain any whitespace and it is not
     /// empty. Using `push()`  is preferred.
-    </span><span class="kw">pub unsafe fn </span>unchecked_push&lt;T: Into&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, class: T) {
-        <span class="self">self</span>.set.insert(class.into());
+    </span><span class="kw">pub unsafe fn </span>unchecked_push&lt;T: Into&lt;AttrValue&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, class: T) {
+        Rc::make_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.set).insert(class.into());
     }
 
     <span class="doccomment">/// Check the set contains a class.
@@ -429,15 +490,12 @@
 <span class="kw">impl </span>IntoPropValue&lt;AttrValue&gt; <span class="kw">for </span>Classes {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>into_prop_value(<span class="self">self</span>) -&gt; AttrValue {
-        <span class="kw">let </span><span class="kw-2">mut </span>classes = <span class="self">self</span>.set.iter();
+        <span class="kw">let </span><span class="kw-2">mut </span>classes = <span class="self">self</span>.set.iter().cloned();
 
         <span class="kw">match </span>classes.next() {
-            <span class="prelude-val">None </span>=&gt; AttrValue::Static(<span class="string">&quot;&quot;</span>),
-            <span class="prelude-val">Some</span>(class) <span class="kw">if </span>classes.len() == <span class="number">0 </span>=&gt; <span class="kw">match </span><span class="kw-2">*</span>class {
-                Cow::Borrowed(class) =&gt; AttrValue::Static(class),
-                Cow::Owned(<span class="kw-2">ref </span>class) =&gt; AttrValue::Rc(Rc::from(class.as_str())),
-            },
-            <span class="prelude-val">Some</span>(first) =&gt; AttrValue::Rc(Rc::from(build_string(first, classes.map(Cow::borrow)))),
+            <span class="prelude-val">None </span>=&gt; AttrValue::Static(<span class="string">""</span>),
+            <span class="prelude-val">Some</span>(class) <span class="kw">if </span>classes.len() == <span class="number">0 </span>=&gt; class,
+            <span class="prelude-val">Some</span>(first) =&gt; build_attr_value(first, classes),
         }
     }
 }
@@ -453,7 +511,7 @@
     }
 }
 
-<span class="kw">impl </span>IntoPropValue&lt;Classes&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+<span class="kw">impl </span>IntoPropValue&lt;Classes&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>into_prop_value(<span class="self">self</span>) -&gt; Classes {
         <span class="self">self</span>.into()
@@ -475,27 +533,41 @@
 }
 
 <span class="kw">impl </span>IntoIterator <span class="kw">for </span>Classes {
-    <span class="kw">type </span>IntoIter = indexmap::set::IntoIter&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt;;
-    <span class="kw">type </span>Item = Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;;
+    <span class="kw">type </span>IntoIter = indexmap::set::IntoIter&lt;AttrValue&gt;;
+    <span class="kw">type </span>Item = AttrValue;
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
-        <span class="self">self</span>.set.into_iter()
+        <span class="comment">// NOTE: replace this by Rc::unwrap_or_clone() when it becomes stable
+        </span>Rc::try_unwrap(<span class="self">self</span>.set)
+            .unwrap_or_else(|rc| (<span class="kw-2">*</span>rc).clone())
+            .into_iter()
+    }
+}
+
+<span class="kw">impl </span>IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span>Classes {
+    <span class="kw">type </span>IntoIter = indexmap::set::IntoIter&lt;AttrValue&gt;;
+    <span class="kw">type </span>Item = AttrValue;
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
+        (<span class="kw-2">*</span><span class="self">self</span>.set).clone().into_iter()
     }
 }
 
 <span class="kw">impl </span>ToString <span class="kw">for </span>Classes {
     <span class="kw">fn </span>to_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
-        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.set.iter().map(Cow::borrow);
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.set.iter().cloned();
 
         iter.next()
-            .map(|first| build_string(first, iter))
+            .map(|first| build_attr_value(first, iter))
             .unwrap_or_default()
+            .to_string()
     }
 }
 
-<span class="kw">impl </span>From&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt; <span class="kw">for </span>Classes {
-    <span class="kw">fn </span>from(t: Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;) -&gt; <span class="self">Self </span>{
+<span class="kw">impl </span>From&lt;Cow&lt;<span class="lifetime">'static</span>, str&gt;&gt; <span class="kw">for </span>Classes {
+    <span class="kw">fn </span>from(t: Cow&lt;<span class="lifetime">'static</span>, str&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>t {
             Cow::Borrowed(x) =&gt; <span class="self">Self</span>::from(x),
             Cow::Owned(x) =&gt; <span class="self">Self</span>::from(x),
@@ -503,10 +575,10 @@
     }
 }
 
-<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; <span class="kw">for </span>Classes {
-    <span class="kw">fn </span>from(t: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>set = t.split_whitespace().map(Cow::Borrowed).collect();
-        <span class="self">Self </span>{ set }
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; <span class="kw">for </span>Classes {
+    <span class="kw">fn </span>from(t: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>set = t.split_whitespace().map(AttrValue::Static).collect();
+        <span class="self">Self </span>{ set: Rc::new(set) }
     }
 }
 
@@ -515,11 +587,11 @@
         <span class="kw">match </span>t.contains(|c: char| c.is_whitespace()) {
             <span class="comment">// If the string only contains a single class, we can just use it
             // directly (rather than cloning it into a new string). Need to make
-            // sure it&#39;s not empty, though.
+            // sure it's not empty, though.
             </span><span class="bool-val">false </span>=&gt; <span class="kw">match </span>t.is_empty() {
                 <span class="bool-val">true </span>=&gt; <span class="self">Self</span>::new(),
                 <span class="bool-val">false </span>=&gt; <span class="self">Self </span>{
-                    set: IndexSet::from_iter([Cow::Owned(t)]),
+                    set: Rc::new(IndexSet::from_iter([AttrValue::from(t)])),
                 },
             },
             <span class="bool-val">true </span>=&gt; <span class="self">Self</span>::from(<span class="kw-2">&amp;</span>t),
@@ -532,9 +604,37 @@
         <span class="kw">let </span>set = t
             .split_whitespace()
             .map(ToOwned::to_owned)
-            .map(Cow::Owned)
+            .map(AttrValue::from)
             .collect();
-        <span class="self">Self </span>{ set }
+        <span class="self">Self </span>{ set: Rc::new(set) }
+    }
+}
+
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>AttrValue&gt; <span class="kw">for </span>Classes {
+    <span class="kw">fn </span>from(t: <span class="kw-2">&amp;</span>AttrValue) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>set = t
+            .split_whitespace()
+            .map(ToOwned::to_owned)
+            .map(AttrValue::from)
+            .collect();
+        <span class="self">Self </span>{ set: Rc::new(set) }
+    }
+}
+
+<span class="kw">impl </span>From&lt;AttrValue&gt; <span class="kw">for </span>Classes {
+    <span class="kw">fn </span>from(t: AttrValue) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>t.contains(|c: char| c.is_whitespace()) {
+            <span class="comment">// If the string only contains a single class, we can just use it
+            // directly (rather than cloning it into a new string). Need to make
+            // sure it's not empty, though.
+            </span><span class="bool-val">false </span>=&gt; <span class="kw">match </span>t.is_empty() {
+                <span class="bool-val">true </span>=&gt; <span class="self">Self</span>::new(),
+                <span class="bool-val">false </span>=&gt; <span class="self">Self </span>{
+                    set: Rc::new(IndexSet::from_iter([t])),
+                },
+            },
+            <span class="bool-val">true </span>=&gt; <span class="self">Self</span>::from(<span class="kw-2">&amp;</span>t),
+        }
     }
 }
 
@@ -562,6 +662,12 @@
     }
 }
 
+<span class="kw">impl</span>&lt;T: Into&lt;Classes&gt;, <span class="kw">const </span>SIZE: usize&gt; From&lt;[T; SIZE]&gt; <span class="kw">for </span>Classes {
+    <span class="kw">fn </span>from(t: [T; SIZE]) -&gt; <span class="self">Self </span>{
+        t.into_iter().collect()
+    }
+}
+
 <span class="kw">impl </span>PartialEq <span class="kw">for </span>Classes {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="self">self</span>.set.len() == other.set.len() &amp;&amp; <span class="self">self</span>.set.iter().eq(other.set.iter())
@@ -577,8 +683,8 @@
     <span class="kw">struct </span>TestClass;
 
     <span class="kw">impl </span>TestClass {
-        <span class="kw">fn </span>as_class(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
-            <span class="string">&quot;test-class&quot;
+        <span class="kw">fn </span>as_class(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+            <span class="string">"test-class"
         </span>}
     }
 
@@ -597,37 +703,37 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>it_pushes_value() {
         <span class="kw">let </span><span class="kw-2">mut </span>subject = Classes::new();
-        subject.push(<span class="string">&quot;foo&quot;</span>);
+        subject.push(<span class="string">"foo"</span>);
         <span class="macro">assert!</span>(!subject.is_empty());
-        <span class="macro">assert!</span>(subject.contains(<span class="string">&quot;foo&quot;</span>));
+        <span class="macro">assert!</span>(subject.contains(<span class="string">"foo"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>it_adds_values_via_extend() {
         <span class="kw">let </span><span class="kw-2">mut </span>other = Classes::new();
-        other.push(<span class="string">&quot;bar&quot;</span>);
+        other.push(<span class="string">"bar"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>subject = Classes::new();
         subject.extend(other);
-        <span class="macro">assert!</span>(subject.contains(<span class="string">&quot;bar&quot;</span>));
+        <span class="macro">assert!</span>(subject.contains(<span class="string">"bar"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>it_contains_both_values() {
         <span class="kw">let </span><span class="kw-2">mut </span>other = Classes::new();
-        other.push(<span class="string">&quot;bar&quot;</span>);
+        other.push(<span class="string">"bar"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>subject = Classes::new();
         subject.extend(other);
-        subject.push(<span class="string">&quot;foo&quot;</span>);
-        <span class="macro">assert!</span>(subject.contains(<span class="string">&quot;foo&quot;</span>));
-        <span class="macro">assert!</span>(subject.contains(<span class="string">&quot;bar&quot;</span>));
+        subject.push(<span class="string">"foo"</span>);
+        <span class="macro">assert!</span>(subject.contains(<span class="string">"foo"</span>));
+        <span class="macro">assert!</span>(subject.contains(<span class="string">"bar"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>it_splits_class_with_spaces() {
         <span class="kw">let </span><span class="kw-2">mut </span>subject = Classes::new();
-        subject.push(<span class="string">&quot;foo bar&quot;</span>);
-        <span class="macro">assert!</span>(subject.contains(<span class="string">&quot;foo&quot;</span>));
-        <span class="macro">assert!</span>(subject.contains(<span class="string">&quot;bar&quot;</span>));
+        subject.push(<span class="string">"foo bar"</span>);
+        <span class="macro">assert!</span>(subject.contains(<span class="string">"foo"</span>));
+        <span class="macro">assert!</span>(subject.contains(<span class="string">"bar"</span>));
     }
 
     <span class="attr">#[test]
@@ -642,28 +748,28 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>can_be_extended_with_another_class() {
         <span class="kw">let </span><span class="kw-2">mut </span>other = Classes::new();
-        other.push(<span class="string">&quot;foo&quot;</span>);
-        other.push(<span class="string">&quot;bar&quot;</span>);
+        other.push(<span class="string">"foo"</span>);
+        other.push(<span class="string">"bar"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>subject = Classes::new();
+        subject.extend(<span class="kw-2">&amp;</span>other);
         subject.extend(other);
-        <span class="macro">assert!</span>(subject.contains(<span class="string">&quot;foo&quot;</span>));
-        <span class="macro">assert!</span>(subject.contains(<span class="string">&quot;bar&quot;</span>));
+        <span class="macro">assert!</span>(subject.contains(<span class="string">"foo"</span>));
+        <span class="macro">assert!</span>(subject.contains(<span class="string">"bar"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>can_be_collected() {
-        <span class="kw">let </span>classes = <span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>];
+        <span class="kw">let </span>classes = <span class="macro">vec!</span>[<span class="string">"foo"</span>, <span class="string">"bar"</span>];
         <span class="kw">let </span>subject = classes.into_iter().collect::&lt;Classes&gt;();
-        <span class="macro">assert!</span>(subject.contains(<span class="string">&quot;foo&quot;</span>));
-        <span class="macro">assert!</span>(subject.contains(<span class="string">&quot;bar&quot;</span>));
+        <span class="macro">assert!</span>(subject.contains(<span class="string">"foo"</span>));
+        <span class="macro">assert!</span>(subject.contains(<span class="string">"bar"</span>));
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>ignores_empty_string() {
-        <span class="kw">let </span>classes = String::from(<span class="string">&quot;&quot;</span>);
+        <span class="kw">let </span>classes = String::from(<span class="string">""</span>);
         <span class="kw">let </span>subject = Classes::from(classes);
         <span class="macro">assert!</span>(subject.is_empty())
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

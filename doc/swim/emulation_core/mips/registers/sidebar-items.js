@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":[["GpRegisterType","Specifies all of the valid registers accessible in an instance of [`GpRegisters`]."]],"struct":[["GpRegisterTypeIter","An iterator over the variants of [Self]"],["GpRegisters","Collection of general-purpose registers used by the datapath."],["GpRegistersIter","Iterator that is used to view each register in the register file."]]};

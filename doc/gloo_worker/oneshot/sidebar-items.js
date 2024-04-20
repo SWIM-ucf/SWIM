@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"attr":["oneshot"],"struct":["OneshotBridge","OneshotRegistrar","OneshotSpawner"],"trait":["Oneshot"]};

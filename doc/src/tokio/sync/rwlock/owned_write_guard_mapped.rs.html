@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.25.0/src/sync/rwlock/owned_write_guard_mapped.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>owned_write_guard_mapped.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../tokio/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-1.37.0/src/sync/rwlock/owned_write_guard_mapped.rs`."><title>owned_write_guard_mapped.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../tokio/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -189,12 +191,49 @@
 <a href="#189" id="189">189</a>
 <a href="#190" id="190">190</a>
 <a href="#191" id="191">191</a>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::sync::rwlock::RwLock;
-<span class="kw">use </span>std::fmt;
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::sync::rwlock::RwLock;
 <span class="kw">use </span>std::marker::PhantomData;
-<span class="kw">use </span>std::mem::{<span class="self">self</span>, ManuallyDrop};
-<span class="kw">use </span>std::ops;
 <span class="kw">use </span>std::sync::Arc;
+<span class="kw">use </span>std::{fmt, mem, ops, ptr};
 
 <span class="doccomment">/// Owned RAII structure used to release the exclusive write access of a lock when
 /// dropped.
@@ -205,17 +244,43 @@
 ///
 /// [mapping]: method@crate::sync::OwnedRwLockWriteGuard::map
 /// [`OwnedRwLockWriteGuard`]: struct@crate::sync::OwnedRwLockWriteGuard
+</span><span class="attr">#[clippy::has_significant_drop]
 </span><span class="kw">pub struct </span>OwnedRwLockMappedWriteGuard&lt;T: <span class="question-mark">?</span>Sized, U: <span class="question-mark">?</span>Sized = T&gt; {
-    <span class="attr">#[cfg(all(tokio_unstable, feature = <span class="string">&quot;tracing&quot;</span>))]
+    <span class="comment">// When changing the fields in this struct, make sure to update the
+    // `skip_drop` method.
+    </span><span class="attr">#[cfg(all(tokio_unstable, feature = <span class="string">"tracing"</span>))]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) resource_span: tracing::Span,
     <span class="kw">pub</span>(<span class="kw">super</span>) permits_acquired: u32,
-    <span class="comment">// ManuallyDrop allows us to destructure into this field without running the destructor.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) lock: ManuallyDrop&lt;Arc&lt;RwLock&lt;T&gt;&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) lock: Arc&lt;RwLock&lt;T&gt;&gt;,
     <span class="kw">pub</span>(<span class="kw">super</span>) data: <span class="kw-2">*mut </span>U,
     <span class="kw">pub</span>(<span class="kw">super</span>) _p: PhantomData&lt;T&gt;,
 }
 
+<span class="attr">#[allow(dead_code)] </span><span class="comment">// Unused fields are still used in Drop.
+</span><span class="kw">struct </span>Inner&lt;T: <span class="question-mark">?</span>Sized, U: <span class="question-mark">?</span>Sized&gt; {
+    <span class="attr">#[cfg(all(tokio_unstable, feature = <span class="string">"tracing"</span>))]
+    </span>resource_span: tracing::Span,
+    permits_acquired: u32,
+    lock: Arc&lt;RwLock&lt;T&gt;&gt;,
+    data: <span class="kw-2">*const </span>U,
+}
+
 <span class="kw">impl</span>&lt;T: <span class="question-mark">?</span>Sized, U: <span class="question-mark">?</span>Sized&gt; OwnedRwLockMappedWriteGuard&lt;T, U&gt; {
+    <span class="kw">fn </span>skip_drop(<span class="self">self</span>) -&gt; Inner&lt;T, U&gt; {
+        <span class="kw">let </span>me = mem::ManuallyDrop::new(<span class="self">self</span>);
+        <span class="comment">// SAFETY: This duplicates the values in every field of the guard, then
+        // forgets the originals, so in the end no value is duplicated.
+        </span><span class="kw">unsafe </span>{
+            Inner {
+                <span class="attr">#[cfg(all(tokio_unstable, feature = <span class="string">"tracing"</span>))]
+                </span>resource_span: ptr::read(<span class="kw-2">&amp;</span>me.resource_span),
+                permits_acquired: me.permits_acquired,
+                lock: ptr::read(<span class="kw-2">&amp;</span>me.lock),
+                data: me.data,
+            }
+        }
+    }
+
     <span class="doccomment">/// Makes a new `OwnedRwLockMappedWriteGuard` for a component of the locked
     /// data.
     ///
@@ -254,20 +319,15 @@
         </span>F: FnOnce(<span class="kw-2">&amp;mut </span>U) -&gt; <span class="kw-2">&amp;mut </span>V,
     {
         <span class="kw">let </span>data = f(<span class="kw-2">&amp;mut *</span>this) <span class="kw">as </span><span class="kw-2">*mut </span>V;
-        <span class="kw">let </span>lock = <span class="kw">unsafe </span>{ ManuallyDrop::take(<span class="kw-2">&amp;mut </span>this.lock) };
-        <span class="kw">let </span>permits_acquired = this.permits_acquired;
-        <span class="attr">#[cfg(all(tokio_unstable, feature = <span class="string">&quot;tracing&quot;</span>))]
-        </span><span class="kw">let </span>resource_span = this.resource_span.clone();
-        <span class="comment">// NB: Forget to avoid drop impl from being called.
-        </span>mem::forget(this);
+        <span class="kw">let </span>this = this.skip_drop();
 
         OwnedRwLockMappedWriteGuard {
-            permits_acquired,
-            lock: ManuallyDrop::new(lock),
+            permits_acquired: this.permits_acquired,
+            lock: this.lock,
             data,
             _p: PhantomData,
-            <span class="attr">#[cfg(all(tokio_unstable, feature = <span class="string">&quot;tracing&quot;</span>))]
-            </span>resource_span,
+            <span class="attr">#[cfg(all(tokio_unstable, feature = <span class="string">"tracing"</span>))]
+            </span>resource_span: this.resource_span,
         }
     }
 
@@ -297,7 +357,7 @@
     ///
     /// {
     ///     let guard = Arc::clone(&amp;lock).write_owned().await;
-    ///     let mut guard = OwnedRwLockWriteGuard::try_map(guard, |f| Some(&amp;mut f.0)).expect(&quot;should not fail&quot;);
+    ///     let mut guard = OwnedRwLockWriteGuard::try_map(guard, |f| Some(&amp;mut f.0)).expect("should not fail");
     ///     *guard = 2;
     /// }
     ///
@@ -316,21 +376,41 @@
             <span class="prelude-val">Some</span>(data) =&gt; data <span class="kw">as </span><span class="kw-2">*mut </span>V,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(this),
         };
-        <span class="kw">let </span>lock = <span class="kw">unsafe </span>{ ManuallyDrop::take(<span class="kw-2">&amp;mut </span>this.lock) };
-        <span class="kw">let </span>permits_acquired = this.permits_acquired;
-        <span class="attr">#[cfg(all(tokio_unstable, feature = <span class="string">&quot;tracing&quot;</span>))]
-        </span><span class="kw">let </span>resource_span = this.resource_span.clone();
-        <span class="comment">// NB: Forget to avoid drop impl from being called.
-        </span>mem::forget(this);
+        <span class="kw">let </span>this = this.skip_drop();
 
         <span class="prelude-val">Ok</span>(OwnedRwLockMappedWriteGuard {
-            permits_acquired,
-            lock: ManuallyDrop::new(lock),
+            permits_acquired: this.permits_acquired,
+            lock: this.lock,
             data,
             _p: PhantomData,
-            <span class="attr">#[cfg(all(tokio_unstable, feature = <span class="string">&quot;tracing&quot;</span>))]
-            </span>resource_span,
+            <span class="attr">#[cfg(all(tokio_unstable, feature = <span class="string">"tracing"</span>))]
+            </span>resource_span: this.resource_span,
         })
+    }
+
+    <span class="doccomment">/// Returns a reference to the original `Arc&lt;RwLock&gt;`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::sync::Arc;
+    /// use tokio::sync::{
+    ///     RwLock,
+    ///     OwnedRwLockWriteGuard,
+    ///     OwnedRwLockMappedWriteGuard,
+    /// };
+    ///
+    /// # #[tokio::main]
+    /// # async fn main() {
+    /// let lock = Arc::new(RwLock::new(1));
+    ///
+    /// let guard = lock.clone().write_owned().await;
+    /// let guard = OwnedRwLockWriteGuard::map(guard, |x| x);
+    /// assert!(Arc::ptr_eq(&amp;lock, OwnedRwLockMappedWriteGuard::rwlock(&amp;guard)));
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>rwlock(this: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="kw-2">&amp;</span>Arc&lt;RwLock&lt;T&gt;&gt; {
+        <span class="kw-2">&amp;</span>this.lock
     }
 }
 
@@ -352,7 +432,7 @@
 <span class="kw">where
     </span>U: fmt::Debug,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         fmt::Debug::fmt(<span class="kw-2">&amp;**</span><span class="self">self</span>, f)
     }
 }
@@ -361,7 +441,7 @@
 <span class="kw">where
     </span>U: fmt::Display,
 {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         fmt::Display::fmt(<span class="kw-2">&amp;**</span><span class="self">self</span>, f)
     }
 }
@@ -369,16 +449,15 @@
 <span class="kw">impl</span>&lt;T: <span class="question-mark">?</span>Sized, U: <span class="question-mark">?</span>Sized&gt; Drop <span class="kw">for </span>OwnedRwLockMappedWriteGuard&lt;T, U&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.lock.s.release(<span class="self">self</span>.permits_acquired <span class="kw">as </span>usize);
-        <span class="attr">#[cfg(all(tokio_unstable, feature = <span class="string">&quot;tracing&quot;</span>))]
+
+        <span class="attr">#[cfg(all(tokio_unstable, feature = <span class="string">"tracing"</span>))]
         </span><span class="self">self</span>.resource_span.in_scope(|| {
             <span class="macro">tracing::trace!</span>(
-            target: <span class="string">&quot;runtime::resource::state_update&quot;</span>,
+            target: <span class="string">"runtime::resource::state_update"</span>,
             write_locked = <span class="bool-val">false</span>,
-            write_locked.op = <span class="string">&quot;override&quot;</span>,
+            write_locked.op = <span class="string">"override"</span>,
             )
         });
-        <span class="kw">unsafe </span>{ ManuallyDrop::drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>.lock) };
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

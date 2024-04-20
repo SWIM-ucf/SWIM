@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/web-sys-0.3.61/src/features/gen_InputEvent.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gen_InputEvent.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../web_sys/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/web-sys-0.3.69/src/features/gen_InputEvent.rs`."><title>gen_InputEvent.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="web_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../web_sys/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -66,73 +68,74 @@
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
-</pre><pre class="rust"><code><span class="attr">#![allow(unused_imports)]
+<a href="#69" id="69">69</a>
+</pre></div><pre class="rust"><code><span class="attr">#![allow(unused_imports)]
+#![allow(clippy::all)]
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span>wasm_bindgen::prelude::<span class="kw-2">*</span>;
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    # [wasm_bindgen (extends = UiEvent , extends = Event , extends = :: js_sys :: Object , js_name = InputEvent , typescript_type = <span class="string">&quot;InputEvent&quot;</span>)]
+</span><span class="kw">extern </span><span class="string">"C" </span>{
+    # [wasm_bindgen (extends = UiEvent , extends = Event , extends = :: js_sys :: Object , js_name = InputEvent , typescript_type = <span class="string">"InputEvent"</span>)]
     <span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
-    #[doc = <span class="string">&quot;The `InputEvent` class.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `InputEvent`*&quot;</span>]
+    #[doc = <span class="string">"The `InputEvent` class."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `InputEvent`*"</span>]
     </span><span class="kw">pub type </span>InputEvent;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;InputEvent&quot; </span>, js_name = isComposing)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `isComposing` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/isComposing)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `InputEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"InputEvent" </span>, js_name = isComposing)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `isComposing` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/isComposing)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `InputEvent`*"</span>]
     </span><span class="kw">pub fn </span>is_composing(this: <span class="kw-2">&amp;</span>InputEvent) -&gt; bool;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;InputEvent&quot; </span>, js_name = inputType)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `inputType` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/inputType)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `InputEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"InputEvent" </span>, js_name = inputType)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `inputType` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/inputType)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `InputEvent`*"</span>]
     </span><span class="kw">pub fn </span>input_type(this: <span class="kw-2">&amp;</span>InputEvent) -&gt; String;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;InputEvent&quot; </span>, js_name = data)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `data` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/data)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `InputEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"InputEvent" </span>, js_name = data)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `data` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/data)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `InputEvent`*"</span>]
     </span><span class="kw">pub fn </span>data(this: <span class="kw-2">&amp;</span>InputEvent) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt;;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;DataTransfer&quot;</span>)]
-    </span># [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;InputEvent&quot; </span>, js_name = dataTransfer)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `dataTransfer` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/dataTransfer)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `DataTransfer`, `InputEvent`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"DataTransfer"</span>)]
+    </span># [wasm_bindgen (structural , method , getter , js_class = <span class="string">"InputEvent" </span>, js_name = dataTransfer)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `dataTransfer` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/dataTransfer)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `DataTransfer`, `InputEvent`*"</span>]
     </span><span class="kw">pub fn </span>data_transfer(this: <span class="kw-2">&amp;</span>InputEvent) -&gt; <span class="prelude-ty">Option</span>&lt;DataTransfer&gt;;
-    <span class="attr">#[wasm_bindgen(catch, constructor, js_class = <span class="string">&quot;InputEvent&quot;</span>)]
-    #[doc = <span class="string">&quot;The `new InputEvent(..)` constructor, creating a new instance of `InputEvent`.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/InputEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `InputEvent`*&quot;</span>]
+    <span class="attr">#[wasm_bindgen(catch, constructor, js_class = <span class="string">"InputEvent"</span>)]
+    #[doc = <span class="string">"The `new InputEvent(..)` constructor, creating a new instance of `InputEvent`."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/InputEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `InputEvent`*"</span>]
     </span><span class="kw">pub fn </span>new(type_: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;InputEvent, JsValue&gt;;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;InputEventInit&quot;</span>)]
-    #[wasm_bindgen(catch, constructor, js_class = <span class="string">&quot;InputEvent&quot;</span>)]
-    #[doc = <span class="string">&quot;The `new InputEvent(..)` constructor, creating a new instance of `InputEvent`.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/InputEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `InputEvent`, `InputEventInit`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"InputEventInit"</span>)]
+    #[wasm_bindgen(catch, constructor, js_class = <span class="string">"InputEvent"</span>)]
+    #[doc = <span class="string">"The `new InputEvent(..)` constructor, creating a new instance of `InputEvent`."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/InputEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `InputEvent`, `InputEventInit`*"</span>]
     </span><span class="kw">pub fn </span>new_with_event_init_dict(
         type_: <span class="kw-2">&amp;</span>str,
         event_init_dict: <span class="kw-2">&amp;</span>InputEventInit,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;InputEvent, JsValue&gt;;
-    # [wasm_bindgen (method , structural , js_class = <span class="string">&quot;InputEvent&quot; </span>, js_name = getTargetRanges)]
-    <span class="attr">#[doc = <span class="string">&quot;The `getTargetRanges()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/getTargetRanges)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `InputEvent`*&quot;</span>]
+    # [wasm_bindgen (method , structural , js_class = <span class="string">"InputEvent" </span>, js_name = getTargetRanges)]
+    <span class="attr">#[doc = <span class="string">"The `getTargetRanges()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/getTargetRanges)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `InputEvent`*"</span>]
     </span><span class="kw">pub fn </span>get_target_ranges(this: <span class="kw-2">&amp;</span>InputEvent) -&gt; ::js_sys::Array;
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="web_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

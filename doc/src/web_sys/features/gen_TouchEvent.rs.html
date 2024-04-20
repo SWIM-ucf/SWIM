@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/web-sys-0.3.61/src/features/gen_TouchEvent.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gen_TouchEvent.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../web_sys/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/web-sys-0.3.69/src/features/gen_TouchEvent.rs`."><title>gen_TouchEvent.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="web_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../web_sys/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -270,122 +272,124 @@
 <a href="#270" id="270">270</a>
 <a href="#271" id="271">271</a>
 <a href="#272" id="272">272</a>
-</pre><pre class="rust"><code><span class="attr">#![allow(unused_imports)]
+<a href="#273" id="273">273</a>
+</pre></div><pre class="rust"><code><span class="attr">#![allow(unused_imports)]
+#![allow(clippy::all)]
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span>wasm_bindgen::prelude::<span class="kw-2">*</span>;
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    # [wasm_bindgen (extends = UiEvent , extends = Event , extends = :: js_sys :: Object , js_name = TouchEvent , typescript_type = <span class="string">&quot;TouchEvent&quot;</span>)]
+</span><span class="kw">extern </span><span class="string">"C" </span>{
+    # [wasm_bindgen (extends = UiEvent , extends = Event , extends = :: js_sys :: Object , js_name = TouchEvent , typescript_type = <span class="string">"TouchEvent"</span>)]
     <span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
-    #[doc = <span class="string">&quot;The `TouchEvent` class.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`*&quot;</span>]
+    #[doc = <span class="string">"The `TouchEvent` class."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`*"</span>]
     </span><span class="kw">pub type </span>TouchEvent;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;TouchList&quot;</span>)]
-    </span># [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = touches)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `touches` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/touches)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`, `TouchList`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"TouchList"</span>)]
+    </span># [wasm_bindgen (structural , method , getter , js_class = <span class="string">"TouchEvent" </span>, js_name = touches)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `touches` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/touches)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`, `TouchList`*"</span>]
     </span><span class="kw">pub fn </span>touches(this: <span class="kw-2">&amp;</span>TouchEvent) -&gt; TouchList;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;TouchList&quot;</span>)]
-    </span># [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = targetTouches)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `targetTouches` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/targetTouches)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`, `TouchList`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"TouchList"</span>)]
+    </span># [wasm_bindgen (structural , method , getter , js_class = <span class="string">"TouchEvent" </span>, js_name = targetTouches)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `targetTouches` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/targetTouches)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`, `TouchList`*"</span>]
     </span><span class="kw">pub fn </span>target_touches(this: <span class="kw-2">&amp;</span>TouchEvent) -&gt; TouchList;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;TouchList&quot;</span>)]
-    </span># [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = changedTouches)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `changedTouches` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/changedTouches)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`, `TouchList`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"TouchList"</span>)]
+    </span># [wasm_bindgen (structural , method , getter , js_class = <span class="string">"TouchEvent" </span>, js_name = changedTouches)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `changedTouches` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/changedTouches)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`, `TouchList`*"</span>]
     </span><span class="kw">pub fn </span>changed_touches(this: <span class="kw-2">&amp;</span>TouchEvent) -&gt; TouchList;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = altKey)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `altKey` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/altKey)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"TouchEvent" </span>, js_name = altKey)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `altKey` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/altKey)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`*"</span>]
     </span><span class="kw">pub fn </span>alt_key(this: <span class="kw-2">&amp;</span>TouchEvent) -&gt; bool;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = metaKey)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `metaKey` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/metaKey)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"TouchEvent" </span>, js_name = metaKey)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `metaKey` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/metaKey)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`*"</span>]
     </span><span class="kw">pub fn </span>meta_key(this: <span class="kw-2">&amp;</span>TouchEvent) -&gt; bool;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = ctrlKey)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `ctrlKey` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/ctrlKey)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"TouchEvent" </span>, js_name = ctrlKey)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `ctrlKey` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/ctrlKey)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`*"</span>]
     </span><span class="kw">pub fn </span>ctrl_key(this: <span class="kw-2">&amp;</span>TouchEvent) -&gt; bool;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = shiftKey)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `shiftKey` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/shiftKey)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"TouchEvent" </span>, js_name = shiftKey)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `shiftKey` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/shiftKey)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`*"</span>]
     </span><span class="kw">pub fn </span>shift_key(this: <span class="kw-2">&amp;</span>TouchEvent) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(catch, constructor, js_class = <span class="string">&quot;TouchEvent&quot;</span>)]
-    #[doc = <span class="string">&quot;The `new TouchEvent(..)` constructor, creating a new instance of `TouchEvent`.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/TouchEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`*&quot;</span>]
+    <span class="attr">#[wasm_bindgen(catch, constructor, js_class = <span class="string">"TouchEvent"</span>)]
+    #[doc = <span class="string">"The `new TouchEvent(..)` constructor, creating a new instance of `TouchEvent`."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/TouchEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`*"</span>]
     </span><span class="kw">pub fn </span>new(type_: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;TouchEvent, JsValue&gt;;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;TouchEventInit&quot;</span>)]
-    #[wasm_bindgen(catch, constructor, js_class = <span class="string">&quot;TouchEvent&quot;</span>)]
-    #[doc = <span class="string">&quot;The `new TouchEvent(..)` constructor, creating a new instance of `TouchEvent`.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/TouchEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`, `TouchEventInit`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"TouchEventInit"</span>)]
+    #[wasm_bindgen(catch, constructor, js_class = <span class="string">"TouchEvent"</span>)]
+    #[doc = <span class="string">"The `new TouchEvent(..)` constructor, creating a new instance of `TouchEvent`."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/TouchEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`, `TouchEventInit`*"</span>]
     </span><span class="kw">pub fn </span>new_with_event_init_dict(
         type_: <span class="kw-2">&amp;</span>str,
         event_init_dict: <span class="kw-2">&amp;</span>TouchEventInit,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;TouchEvent, JsValue&gt;;
-    # [wasm_bindgen (method , structural , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = initTouchEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initTouchEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`*&quot;</span>]
+    # [wasm_bindgen (method , structural , js_class = <span class="string">"TouchEvent" </span>, js_name = initTouchEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initTouchEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`*"</span>]
     </span><span class="kw">pub fn </span>init_touch_event(this: <span class="kw-2">&amp;</span>TouchEvent, type_: <span class="kw-2">&amp;</span>str);
-    # [wasm_bindgen (method , structural , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = initTouchEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initTouchEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`*&quot;</span>]
+    # [wasm_bindgen (method , structural , js_class = <span class="string">"TouchEvent" </span>, js_name = initTouchEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initTouchEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`*"</span>]
     </span><span class="kw">pub fn </span>init_touch_event_with_can_bubble(this: <span class="kw-2">&amp;</span>TouchEvent, type_: <span class="kw-2">&amp;</span>str, can_bubble: bool);
-    # [wasm_bindgen (method , structural , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = initTouchEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initTouchEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`*&quot;</span>]
+    # [wasm_bindgen (method , structural , js_class = <span class="string">"TouchEvent" </span>, js_name = initTouchEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initTouchEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`*"</span>]
     </span><span class="kw">pub fn </span>init_touch_event_with_can_bubble_and_cancelable(
         this: <span class="kw-2">&amp;</span>TouchEvent,
         type_: <span class="kw-2">&amp;</span>str,
         can_bubble: bool,
         cancelable: bool,
     );
-    <span class="attr">#[cfg(feature = <span class="string">&quot;Window&quot;</span>)]
-    </span># [wasm_bindgen (method , structural , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = initTouchEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initTouchEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"Window"</span>)]
+    </span># [wasm_bindgen (method , structural , js_class = <span class="string">"TouchEvent" </span>, js_name = initTouchEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initTouchEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_touch_event_with_can_bubble_and_cancelable_and_view(
         this: <span class="kw-2">&amp;</span>TouchEvent,
         type_: <span class="kw-2">&amp;</span>str,
@@ -393,13 +397,13 @@
         cancelable: bool,
         view: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Window&gt;,
     );
-    <span class="attr">#[cfg(feature = <span class="string">&quot;Window&quot;</span>)]
-    </span># [wasm_bindgen (method , structural , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = initTouchEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initTouchEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"Window"</span>)]
+    </span># [wasm_bindgen (method , structural , js_class = <span class="string">"TouchEvent" </span>, js_name = initTouchEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initTouchEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_touch_event_with_can_bubble_and_cancelable_and_view_and_detail(
         this: <span class="kw-2">&amp;</span>TouchEvent,
         type_: <span class="kw-2">&amp;</span>str,
@@ -408,13 +412,13 @@
         view: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Window&gt;,
         detail: i32,
     );
-    <span class="attr">#[cfg(feature = <span class="string">&quot;Window&quot;</span>)]
-    </span># [wasm_bindgen (method , structural , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = initTouchEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initTouchEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"Window"</span>)]
+    </span># [wasm_bindgen (method , structural , js_class = <span class="string">"TouchEvent" </span>, js_name = initTouchEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initTouchEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_touch_event_with_can_bubble_and_cancelable_and_view_and_detail_and_ctrl_key(
         this: <span class="kw-2">&amp;</span>TouchEvent,
         type_: <span class="kw-2">&amp;</span>str,
@@ -424,13 +428,13 @@
         detail: i32,
         ctrl_key: bool,
     );
-    <span class="attr">#[cfg(feature = <span class="string">&quot;Window&quot;</span>)]
-    </span># [wasm_bindgen (method , structural , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = initTouchEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initTouchEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"Window"</span>)]
+    </span># [wasm_bindgen (method , structural , js_class = <span class="string">"TouchEvent" </span>, js_name = initTouchEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initTouchEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_touch_event_with_can_bubble_and_cancelable_and_view_and_detail_and_ctrl_key_and_alt_key(
         this: <span class="kw-2">&amp;</span>TouchEvent,
         type_: <span class="kw-2">&amp;</span>str,
@@ -441,13 +445,13 @@
         ctrl_key: bool,
         alt_key: bool,
     );
-    <span class="attr">#[cfg(feature = <span class="string">&quot;Window&quot;</span>)]
-    </span># [wasm_bindgen (method , structural , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = initTouchEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initTouchEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"Window"</span>)]
+    </span># [wasm_bindgen (method , structural , js_class = <span class="string">"TouchEvent" </span>, js_name = initTouchEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initTouchEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_touch_event_with_can_bubble_and_cancelable_and_view_and_detail_and_ctrl_key_and_alt_key_and_shift_key(
         this: <span class="kw-2">&amp;</span>TouchEvent,
         type_: <span class="kw-2">&amp;</span>str,
@@ -459,13 +463,13 @@
         alt_key: bool,
         shift_key: bool,
     );
-    <span class="attr">#[cfg(feature = <span class="string">&quot;Window&quot;</span>)]
-    </span># [wasm_bindgen (method , structural , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = initTouchEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initTouchEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"Window"</span>)]
+    </span># [wasm_bindgen (method , structural , js_class = <span class="string">"TouchEvent" </span>, js_name = initTouchEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initTouchEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_touch_event_with_can_bubble_and_cancelable_and_view_and_detail_and_ctrl_key_and_alt_key_and_shift_key_and_meta_key(
         this: <span class="kw-2">&amp;</span>TouchEvent,
         type_: <span class="kw-2">&amp;</span>str,
@@ -478,13 +482,13 @@
         shift_key: bool,
         meta_key: bool,
     );
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;TouchList&quot;</span>, feature = <span class="string">&quot;Window&quot;</span>,))]
-    </span># [wasm_bindgen (method , structural , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = initTouchEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initTouchEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`, `TouchList`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(all(feature = <span class="string">"TouchList"</span>, feature = <span class="string">"Window"</span>,))]
+    </span># [wasm_bindgen (method , structural , js_class = <span class="string">"TouchEvent" </span>, js_name = initTouchEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initTouchEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`, `TouchList`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_touch_event_with_can_bubble_and_cancelable_and_view_and_detail_and_ctrl_key_and_alt_key_and_shift_key_and_meta_key_and_touches(
         this: <span class="kw-2">&amp;</span>TouchEvent,
         type_: <span class="kw-2">&amp;</span>str,
@@ -498,13 +502,13 @@
         meta_key: bool,
         touches: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TouchList&gt;,
     );
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;TouchList&quot;</span>, feature = <span class="string">&quot;Window&quot;</span>,))]
-    </span># [wasm_bindgen (method , structural , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = initTouchEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initTouchEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`, `TouchList`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(all(feature = <span class="string">"TouchList"</span>, feature = <span class="string">"Window"</span>,))]
+    </span># [wasm_bindgen (method , structural , js_class = <span class="string">"TouchEvent" </span>, js_name = initTouchEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initTouchEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`, `TouchList`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_touch_event_with_can_bubble_and_cancelable_and_view_and_detail_and_ctrl_key_and_alt_key_and_shift_key_and_meta_key_and_touches_and_target_touches(
         this: <span class="kw-2">&amp;</span>TouchEvent,
         type_: <span class="kw-2">&amp;</span>str,
@@ -519,13 +523,13 @@
         touches: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TouchList&gt;,
         target_touches: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TouchList&gt;,
     );
-    <span class="attr">#[cfg(all(feature = <span class="string">&quot;TouchList&quot;</span>, feature = <span class="string">&quot;Window&quot;</span>,))]
-    </span># [wasm_bindgen (method , structural , js_class = <span class="string">&quot;TouchEvent&quot; </span>, js_name = initTouchEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initTouchEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `TouchEvent`, `TouchList`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(all(feature = <span class="string">"TouchList"</span>, feature = <span class="string">"Window"</span>,))]
+    </span># [wasm_bindgen (method , structural , js_class = <span class="string">"TouchEvent" </span>, js_name = initTouchEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initTouchEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/initTouchEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `TouchEvent`, `TouchList`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_touch_event_with_can_bubble_and_cancelable_and_view_and_detail_and_ctrl_key_and_alt_key_and_shift_key_and_meta_key_and_touches_and_target_touches_and_changed_touches(
         this: <span class="kw-2">&amp;</span>TouchEvent,
         type_: <span class="kw-2">&amp;</span>str,
@@ -542,5 +546,4 @@
         changed_touches: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TouchList&gt;,
     );
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="web_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

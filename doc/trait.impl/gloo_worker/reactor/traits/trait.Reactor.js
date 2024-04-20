@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"swim":[["impl <a class=\"trait\" href=\"gloo_worker/reactor/traits/trait.Reactor.html\" title=\"trait gloo_worker::reactor::traits::Reactor\">Reactor</a> for <a class=\"struct\" href=\"swim/agent/struct.EmulationCoreAgent.html\" title=\"struct swim::agent::EmulationCoreAgent\">EmulationCoreAgent</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"attr":["oneshot","reactor"],"enum":["Reach"],"struct":["ReactorScope","WorkerScope"],"trait":["Registrable","Spawnable"]};

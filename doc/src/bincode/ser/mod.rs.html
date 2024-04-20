@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bincode-1.3.3/src/ser/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../bincode/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bincode-1.3.3/src/ser/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="bincode" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../bincode/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -770,7 +772,7 @@
 <a href="#770" id="770">770</a>
 <a href="#771" id="771">771</a>
 <a href="#772" id="772">772</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::io::Write;
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::io::Write;
 <span class="kw">use </span>std::u32;
 
 <span class="kw">use </span>serde;
@@ -834,22 +836,22 @@
     };
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W: Write, O: Options&gt; serde::Serializer <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Serializer&lt;W, O&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, W: Write, O: Options&gt; serde::Serializer <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Serializer&lt;W, O&gt; {
     <span class="kw">type </span><span class="prelude-val">Ok </span>= ();
     <span class="kw">type </span>Error = Error;
-    <span class="kw">type </span>SerializeSeq = Compound&lt;<span class="lifetime">&#39;a</span>, W, O&gt;;
-    <span class="kw">type </span>SerializeTuple = Compound&lt;<span class="lifetime">&#39;a</span>, W, O&gt;;
-    <span class="kw">type </span>SerializeTupleStruct = Compound&lt;<span class="lifetime">&#39;a</span>, W, O&gt;;
-    <span class="kw">type </span>SerializeTupleVariant = Compound&lt;<span class="lifetime">&#39;a</span>, W, O&gt;;
-    <span class="kw">type </span>SerializeMap = Compound&lt;<span class="lifetime">&#39;a</span>, W, O&gt;;
-    <span class="kw">type </span>SerializeStruct = Compound&lt;<span class="lifetime">&#39;a</span>, W, O&gt;;
-    <span class="kw">type </span>SerializeStructVariant = Compound&lt;<span class="lifetime">&#39;a</span>, W, O&gt;;
+    <span class="kw">type </span>SerializeSeq = Compound&lt;<span class="lifetime">'a</span>, W, O&gt;;
+    <span class="kw">type </span>SerializeTuple = Compound&lt;<span class="lifetime">'a</span>, W, O&gt;;
+    <span class="kw">type </span>SerializeTupleStruct = Compound&lt;<span class="lifetime">'a</span>, W, O&gt;;
+    <span class="kw">type </span>SerializeTupleVariant = Compound&lt;<span class="lifetime">'a</span>, W, O&gt;;
+    <span class="kw">type </span>SerializeMap = Compound&lt;<span class="lifetime">'a</span>, W, O&gt;;
+    <span class="kw">type </span>SerializeStruct = Compound&lt;<span class="lifetime">'a</span>, W, O&gt;;
+    <span class="kw">type </span>SerializeStructVariant = Compound&lt;<span class="lifetime">'a</span>, W, O&gt;;
 
     <span class="kw">fn </span>serialize_unit(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>serialize_unit_struct(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">fn </span>serialize_unit_struct(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -930,7 +932,7 @@
 
     <span class="kw">fn </span>serialize_tuple_struct(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         _len: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTupleStruct&gt; {
         <span class="prelude-val">Ok</span>(Compound { ser: <span class="self">self </span>})
@@ -938,9 +940,9 @@
 
     <span class="kw">fn </span>serialize_tuple_variant(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         variant_index: u32,
-        _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _variant: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         _len: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTupleVariant&gt; {
         O::IntEncoding::serialize_u32(<span class="self">self</span>, variant_index)<span class="question-mark">?</span>;
@@ -953,22 +955,22 @@
         <span class="prelude-val">Ok</span>(Compound { ser: <span class="self">self </span>})
     }
 
-    <span class="kw">fn </span>serialize_struct(<span class="self">self</span>, _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, _len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStruct&gt; {
+    <span class="kw">fn </span>serialize_struct(<span class="self">self</span>, _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, _len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStruct&gt; {
         <span class="prelude-val">Ok</span>(Compound { ser: <span class="self">self </span>})
     }
 
     <span class="kw">fn </span>serialize_struct_variant(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         variant_index: u32,
-        _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _variant: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         _len: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStructVariant&gt; {
         O::IntEncoding::serialize_u32(<span class="self">self</span>, variant_index)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(Compound { ser: <span class="self">self </span>})
     }
 
-    <span class="kw">fn </span>serialize_newtype_struct&lt;T: <span class="question-mark">?</span>Sized&gt;(<span class="self">self</span>, _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    <span class="kw">fn </span>serialize_newtype_struct&lt;T: <span class="question-mark">?</span>Sized&gt;(<span class="self">self</span>, _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
     <span class="kw">where
         </span>T: serde::ser::Serialize,
     {
@@ -977,9 +979,9 @@
 
     <span class="kw">fn </span>serialize_newtype_variant&lt;T: <span class="question-mark">?</span>Sized&gt;(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         variant_index: u32,
-        _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _variant: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         value: <span class="kw-2">&amp;</span>T,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
     <span class="kw">where
@@ -991,9 +993,9 @@
 
     <span class="kw">fn </span>serialize_unit_variant(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         variant_index: u32,
-        _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _variant: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         O::IntEncoding::serialize_u32(<span class="self">self</span>, variant_index)
     }
@@ -1035,22 +1037,22 @@
     };
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, O: Options&gt; serde::Serializer <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>SizeChecker&lt;O&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, O: Options&gt; serde::Serializer <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>SizeChecker&lt;O&gt; {
     <span class="kw">type </span><span class="prelude-val">Ok </span>= ();
     <span class="kw">type </span>Error = Error;
-    <span class="kw">type </span>SerializeSeq = SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt;;
-    <span class="kw">type </span>SerializeTuple = SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt;;
-    <span class="kw">type </span>SerializeTupleStruct = SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt;;
-    <span class="kw">type </span>SerializeTupleVariant = SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt;;
-    <span class="kw">type </span>SerializeMap = SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt;;
-    <span class="kw">type </span>SerializeStruct = SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt;;
-    <span class="kw">type </span>SerializeStructVariant = SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt;;
+    <span class="kw">type </span>SerializeSeq = SizeCompound&lt;<span class="lifetime">'a</span>, O&gt;;
+    <span class="kw">type </span>SerializeTuple = SizeCompound&lt;<span class="lifetime">'a</span>, O&gt;;
+    <span class="kw">type </span>SerializeTupleStruct = SizeCompound&lt;<span class="lifetime">'a</span>, O&gt;;
+    <span class="kw">type </span>SerializeTupleVariant = SizeCompound&lt;<span class="lifetime">'a</span>, O&gt;;
+    <span class="kw">type </span>SerializeMap = SizeCompound&lt;<span class="lifetime">'a</span>, O&gt;;
+    <span class="kw">type </span>SerializeStruct = SizeCompound&lt;<span class="lifetime">'a</span>, O&gt;;
+    <span class="kw">type </span>SerializeStructVariant = SizeCompound&lt;<span class="lifetime">'a</span>, O&gt;;
 
     <span class="kw">fn </span>serialize_unit(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>serialize_unit_struct(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">fn </span>serialize_unit_struct(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -1124,7 +1126,7 @@
 
     <span class="kw">fn </span>serialize_tuple_struct(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         _len: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTupleStruct&gt; {
         <span class="prelude-val">Ok</span>(SizeCompound { ser: <span class="self">self </span>})
@@ -1132,9 +1134,9 @@
 
     <span class="kw">fn </span>serialize_tuple_variant(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         variant_index: u32,
-        _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _variant: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         _len: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTupleVariant&gt; {
         <span class="self">self</span>.add_raw(O::IntEncoding::u32_size(variant_index))<span class="question-mark">?</span>;
@@ -1148,15 +1150,15 @@
         <span class="prelude-val">Ok</span>(SizeCompound { ser: <span class="self">self </span>})
     }
 
-    <span class="kw">fn </span>serialize_struct(<span class="self">self</span>, _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, _len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStruct&gt; {
+    <span class="kw">fn </span>serialize_struct(<span class="self">self</span>, _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, _len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStruct&gt; {
         <span class="prelude-val">Ok</span>(SizeCompound { ser: <span class="self">self </span>})
     }
 
     <span class="kw">fn </span>serialize_struct_variant(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         variant_index: u32,
-        _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _variant: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         _len: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStructVariant&gt; {
         <span class="self">self</span>.add_discriminant(variant_index)<span class="question-mark">?</span>;
@@ -1165,7 +1167,7 @@
 
     <span class="kw">fn </span>serialize_newtype_struct&lt;V: serde::Serialize + <span class="question-mark">?</span>Sized&gt;(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         v: <span class="kw-2">&amp;</span>V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         v.serialize(<span class="self">self</span>)
@@ -1173,18 +1175,18 @@
 
     <span class="kw">fn </span>serialize_unit_variant(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         variant_index: u32,
-        _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _variant: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.add_discriminant(variant_index)
     }
 
     <span class="kw">fn </span>serialize_newtype_variant&lt;V: serde::Serialize + <span class="question-mark">?</span>Sized&gt;(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         variant_index: u32,
-        _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _variant: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         value: <span class="kw-2">&amp;</span>V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.add_discriminant(variant_index)<span class="question-mark">?</span>;
@@ -1196,11 +1198,11 @@
     </span>}
 }
 
-<span class="kw">pub struct </span>Compound&lt;<span class="lifetime">&#39;a</span>, W: <span class="lifetime">&#39;a</span>, O: Options + <span class="lifetime">&#39;a</span>&gt; {
-    ser: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Serializer&lt;W, O&gt;,
+<span class="kw">pub struct </span>Compound&lt;<span class="lifetime">'a</span>, W: <span class="lifetime">'a</span>, O: Options + <span class="lifetime">'a</span>&gt; {
+    ser: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Serializer&lt;W, O&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W, O&gt; serde::ser::SerializeSeq <span class="kw">for </span>Compound&lt;<span class="lifetime">&#39;a</span>, W, O&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, W, O&gt; serde::ser::SerializeSeq <span class="kw">for </span>Compound&lt;<span class="lifetime">'a</span>, W, O&gt;
 <span class="kw">where
     </span>W: Write,
     O: Options,
@@ -1222,7 +1224,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W, O&gt; serde::ser::SerializeTuple <span class="kw">for </span>Compound&lt;<span class="lifetime">&#39;a</span>, W, O&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, W, O&gt; serde::ser::SerializeTuple <span class="kw">for </span>Compound&lt;<span class="lifetime">'a</span>, W, O&gt;
 <span class="kw">where
     </span>W: Write,
     O: Options,
@@ -1244,7 +1246,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W, O&gt; serde::ser::SerializeTupleStruct <span class="kw">for </span>Compound&lt;<span class="lifetime">&#39;a</span>, W, O&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, W, O&gt; serde::ser::SerializeTupleStruct <span class="kw">for </span>Compound&lt;<span class="lifetime">'a</span>, W, O&gt;
 <span class="kw">where
     </span>W: Write,
     O: Options,
@@ -1266,7 +1268,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W, O&gt; serde::ser::SerializeTupleVariant <span class="kw">for </span>Compound&lt;<span class="lifetime">&#39;a</span>, W, O&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, W, O&gt; serde::ser::SerializeTupleVariant <span class="kw">for </span>Compound&lt;<span class="lifetime">'a</span>, W, O&gt;
 <span class="kw">where
     </span>W: Write,
     O: Options,
@@ -1288,7 +1290,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W, O&gt; serde::ser::SerializeMap <span class="kw">for </span>Compound&lt;<span class="lifetime">&#39;a</span>, W, O&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, W, O&gt; serde::ser::SerializeMap <span class="kw">for </span>Compound&lt;<span class="lifetime">'a</span>, W, O&gt;
 <span class="kw">where
     </span>W: Write,
     O: Options,
@@ -1318,7 +1320,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W, O&gt; serde::ser::SerializeStruct <span class="kw">for </span>Compound&lt;<span class="lifetime">&#39;a</span>, W, O&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, W, O&gt; serde::ser::SerializeStruct <span class="kw">for </span>Compound&lt;<span class="lifetime">'a</span>, W, O&gt;
 <span class="kw">where
     </span>W: Write,
     O: Options,
@@ -1327,7 +1329,7 @@
     <span class="kw">type </span>Error = Error;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>serialize_field&lt;T: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    </span><span class="kw">fn </span>serialize_field&lt;T: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _key: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
     <span class="kw">where
         </span>T: serde::ser::Serialize,
     {
@@ -1340,7 +1342,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W, O&gt; serde::ser::SerializeStructVariant <span class="kw">for </span>Compound&lt;<span class="lifetime">&#39;a</span>, W, O&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, W, O&gt; serde::ser::SerializeStructVariant <span class="kw">for </span>Compound&lt;<span class="lifetime">'a</span>, W, O&gt;
 <span class="kw">where
     </span>W: Write,
     O: Options,
@@ -1349,7 +1351,7 @@
     <span class="kw">type </span>Error = Error;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>serialize_field&lt;T: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    </span><span class="kw">fn </span>serialize_field&lt;T: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _key: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
     <span class="kw">where
         </span>T: serde::ser::Serialize,
     {
@@ -1362,11 +1364,11 @@
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>SizeCompound&lt;<span class="lifetime">&#39;a</span>, S: Options + <span class="lifetime">&#39;a</span>&gt; {
-    ser: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>SizeChecker&lt;S&gt;,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>SizeCompound&lt;<span class="lifetime">'a</span>, S: Options + <span class="lifetime">'a</span>&gt; {
+    ser: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>SizeChecker&lt;S&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, O: Options&gt; serde::ser::SerializeSeq <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, O: Options&gt; serde::ser::SerializeSeq <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">'a</span>, O&gt; {
     <span class="kw">type </span><span class="prelude-val">Ok </span>= ();
     <span class="kw">type </span>Error = Error;
 
@@ -1384,7 +1386,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, O: Options&gt; serde::ser::SerializeTuple <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, O: Options&gt; serde::ser::SerializeTuple <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">'a</span>, O&gt; {
     <span class="kw">type </span><span class="prelude-val">Ok </span>= ();
     <span class="kw">type </span>Error = Error;
 
@@ -1402,7 +1404,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, O: Options&gt; serde::ser::SerializeTupleStruct <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, O: Options&gt; serde::ser::SerializeTupleStruct <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">'a</span>, O&gt; {
     <span class="kw">type </span><span class="prelude-val">Ok </span>= ();
     <span class="kw">type </span>Error = Error;
 
@@ -1420,7 +1422,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, O: Options&gt; serde::ser::SerializeTupleVariant <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, O: Options&gt; serde::ser::SerializeTupleVariant <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">'a</span>, O&gt; {
     <span class="kw">type </span><span class="prelude-val">Ok </span>= ();
     <span class="kw">type </span>Error = Error;
 
@@ -1438,7 +1440,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, O: Options + <span class="lifetime">&#39;a</span>&gt; serde::ser::SerializeMap <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, O: Options + <span class="lifetime">'a</span>&gt; serde::ser::SerializeMap <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">'a</span>, O&gt; {
     <span class="kw">type </span><span class="prelude-val">Ok </span>= ();
     <span class="kw">type </span>Error = Error;
 
@@ -1464,12 +1466,12 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, O: Options&gt; serde::ser::SerializeStruct <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, O: Options&gt; serde::ser::SerializeStruct <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">'a</span>, O&gt; {
     <span class="kw">type </span><span class="prelude-val">Ok </span>= ();
     <span class="kw">type </span>Error = Error;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>serialize_field&lt;T: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    </span><span class="kw">fn </span>serialize_field&lt;T: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _key: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
     <span class="kw">where
         </span>T: serde::ser::Serialize,
     {
@@ -1482,12 +1484,12 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, O: Options&gt; serde::ser::SerializeStructVariant <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">&#39;a</span>, O&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, O: Options&gt; serde::ser::SerializeStructVariant <span class="kw">for </span>SizeCompound&lt;<span class="lifetime">'a</span>, O&gt; {
     <span class="kw">type </span><span class="prelude-val">Ok </span>= ();
     <span class="kw">type </span>Error = Error;
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>serialize_field&lt;T: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    </span><span class="kw">fn </span>serialize_field&lt;T: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _key: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
     <span class="kw">where
         </span>T: serde::ser::Serialize,
     {
@@ -1542,5 +1544,4 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.buf[<span class="self">self</span>.pos..]
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="bincode" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

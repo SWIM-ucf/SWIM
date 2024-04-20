@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/yew-hooks-0.2.0/src/web_sys_ext.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>web_sys_ext.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../yew_hooks/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yew-hooks-0.2.0/src/web_sys_ext.rs`."><title>web_sys_ext.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="yew_hooks" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../yew_hooks/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -105,7 +107,7 @@
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
-</pre><pre class="rust"><code><span class="doccomment">//! ResizeObserver/ClipboardEvent in web-sys is unstable and
+</pre></div><pre class="rust"><code><span class="doccomment">//! ResizeObserver/ClipboardEvent in web-sys is unstable and
 //! requires `--cfg=web_sys_unstable_apis` to be activated,
 //! which is inconvenient, so copy the binding code here for now.
 </span><span class="attr">#![allow(unused_imports)]
@@ -114,96 +116,96 @@
 <span class="kw">use </span>web_sys::{DataTransfer, DomRectReadOnly, Element, Event, EventTarget};
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    # [wasm_bindgen (extends = :: js_sys :: Object , js_name = ResizeObserver , typescript_type = <span class="string">&quot;ResizeObserver&quot;</span>)]
+</span><span class="kw">extern </span><span class="string">"C" </span>{
+    # [wasm_bindgen (extends = :: js_sys :: Object , js_name = ResizeObserver , typescript_type = <span class="string">"ResizeObserver"</span>)]
     <span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
     </span><span class="kw">pub type </span>ResizeObserver;
 
-    <span class="attr">#[wasm_bindgen(catch, constructor, js_class = <span class="string">&quot;ResizeObserver&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(catch, constructor, js_class = <span class="string">"ResizeObserver"</span>)]
     </span><span class="kw">pub fn </span>new(callback: <span class="kw-2">&amp;</span>::js_sys::Function) -&gt; <span class="prelude-ty">Result</span>&lt;ResizeObserver, JsValue&gt;;
 
-    # [wasm_bindgen (method , structural , js_class = <span class="string">&quot;ResizeObserver&quot; </span>, js_name = disconnect)]
+    # [wasm_bindgen (method , structural , js_class = <span class="string">"ResizeObserver" </span>, js_name = disconnect)]
     <span class="kw">pub fn </span>disconnect(this: <span class="kw-2">&amp;</span>ResizeObserver);
 
-    # [wasm_bindgen (method , structural , js_class = <span class="string">&quot;ResizeObserver&quot; </span>, js_name = observe)]
+    # [wasm_bindgen (method , structural , js_class = <span class="string">"ResizeObserver" </span>, js_name = observe)]
     <span class="kw">pub fn </span>observe(this: <span class="kw-2">&amp;</span>ResizeObserver, target: <span class="kw-2">&amp;</span>Element);
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    # [wasm_bindgen (extends = :: js_sys :: Object , js_name = ResizeObserverEntry , typescript_type = <span class="string">&quot;ResizeObserverEntry&quot;</span>)]
+</span><span class="kw">extern </span><span class="string">"C" </span>{
+    # [wasm_bindgen (extends = :: js_sys :: Object , js_name = ResizeObserverEntry , typescript_type = <span class="string">"ResizeObserverEntry"</span>)]
     <span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
     </span><span class="kw">pub type </span>ResizeObserverEntry;
 
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;ResizeObserverEntry&quot; </span>, js_name = target)]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"ResizeObserverEntry" </span>, js_name = target)]
     <span class="kw">pub fn </span>target(this: <span class="kw-2">&amp;</span>ResizeObserverEntry) -&gt; Element;
 
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;ResizeObserverEntry&quot; </span>, js_name = contentRect)]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"ResizeObserverEntry" </span>, js_name = contentRect)]
     <span class="kw">pub fn </span>content_rect(this: <span class="kw-2">&amp;</span>ResizeObserverEntry) -&gt; DomRectReadOnly;
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    # [wasm_bindgen (extends = Event , extends = :: js_sys :: Object , js_name = ClipboardEvent , typescript_type = <span class="string">&quot;ClipboardEvent&quot;</span>)]
+</span><span class="kw">extern </span><span class="string">"C" </span>{
+    # [wasm_bindgen (extends = Event , extends = :: js_sys :: Object , js_name = ClipboardEvent , typescript_type = <span class="string">"ClipboardEvent"</span>)]
     <span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
     </span><span class="kw">pub type </span>ClipboardEvent;
 
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;ClipboardEvent&quot; </span>, js_name = clipboardData)]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"ClipboardEvent" </span>, js_name = clipboardData)]
     <span class="kw">pub fn </span>clipboard_data(this: <span class="kw-2">&amp;</span>ClipboardEvent) -&gt; <span class="prelude-ty">Option</span>&lt;DataTransfer&gt;;
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    # [wasm_bindgen (extends = EventTarget , extends = :: js_sys :: Object , js_name = Clipboard , typescript_type = <span class="string">&quot;Clipboard&quot;</span>)]
+</span><span class="kw">extern </span><span class="string">"C" </span>{
+    # [wasm_bindgen (extends = EventTarget , extends = :: js_sys :: Object , js_name = Clipboard , typescript_type = <span class="string">"Clipboard"</span>)]
     <span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
     </span><span class="kw">pub type </span>Clipboard;
 
-    # [wasm_bindgen (method , structural , js_class = <span class="string">&quot;Clipboard&quot; </span>, js_name = read)]
+    # [wasm_bindgen (method , structural , js_class = <span class="string">"Clipboard" </span>, js_name = read)]
     <span class="kw">pub fn </span>read(this: <span class="kw-2">&amp;</span>Clipboard) -&gt; ::js_sys::Promise;
 
-    # [wasm_bindgen (method , structural , js_class = <span class="string">&quot;Clipboard&quot; </span>, js_name = readText)]
+    # [wasm_bindgen (method , structural , js_class = <span class="string">"Clipboard" </span>, js_name = readText)]
     <span class="kw">pub fn </span>read_text(this: <span class="kw-2">&amp;</span>Clipboard) -&gt; ::js_sys::Promise;
 
-    # [wasm_bindgen (method , structural , js_class = <span class="string">&quot;Clipboard&quot; </span>, js_name = write)]
+    # [wasm_bindgen (method , structural , js_class = <span class="string">"Clipboard" </span>, js_name = write)]
     <span class="kw">pub fn </span>write(this: <span class="kw-2">&amp;</span>Clipboard, data: <span class="kw-2">&amp;</span>::wasm_bindgen::JsValue) -&gt; ::js_sys::Promise;
 
-    # [wasm_bindgen (method , structural , js_class = <span class="string">&quot;Clipboard&quot; </span>, js_name = writeText)]
+    # [wasm_bindgen (method , structural , js_class = <span class="string">"Clipboard" </span>, js_name = writeText)]
     <span class="kw">pub fn </span>write_text(this: <span class="kw-2">&amp;</span>Clipboard, data: <span class="kw-2">&amp;</span>str) -&gt; ::js_sys::Promise;
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    # [wasm_bindgen (extends = :: js_sys :: Object , js_name = Navigator , typescript_type = <span class="string">&quot;Navigator&quot;</span>)]
+</span><span class="kw">extern </span><span class="string">"C" </span>{
+    # [wasm_bindgen (extends = :: js_sys :: Object , js_name = Navigator , typescript_type = <span class="string">"Navigator"</span>)]
     <span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
     </span><span class="kw">pub type </span>Navigator;
 
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;Navigator&quot; </span>, js_name = clipboard)]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"Navigator" </span>, js_name = clipboard)]
     <span class="kw">pub fn </span>clipboard(this: <span class="kw-2">&amp;</span>Navigator) -&gt; <span class="prelude-ty">Option</span>&lt;Clipboard&gt;;
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    # [wasm_bindgen (extends = EventTarget , extends = :: js_sys :: Object , js_name = Window , typescript_type = <span class="string">&quot;Window&quot;</span>)]
+</span><span class="kw">extern </span><span class="string">"C" </span>{
+    # [wasm_bindgen (extends = EventTarget , extends = :: js_sys :: Object , js_name = Window , typescript_type = <span class="string">"Window"</span>)]
     <span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
     </span><span class="kw">pub type </span>Window;
 
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;Window&quot; </span>, js_name = navigator)]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"Window" </span>, js_name = navigator)]
     <span class="kw">pub fn </span>navigator(this: <span class="kw-2">&amp;</span>Window) -&gt; Navigator;
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    # [wasm_bindgen (extends = :: js_sys :: Object , js_name = ClipboardItem , typescript_type = <span class="string">&quot;ClipboardItem&quot;</span>)]
+</span><span class="kw">extern </span><span class="string">"C" </span>{
+    # [wasm_bindgen (extends = :: js_sys :: Object , js_name = ClipboardItem , typescript_type = <span class="string">"ClipboardItem"</span>)]
     <span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
     </span><span class="kw">pub type </span>ClipboardItem;
 
-    <span class="attr">#[wasm_bindgen(catch, constructor, js_class = <span class="string">&quot;ClipboardItem&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(catch, constructor, js_class = <span class="string">"ClipboardItem"</span>)]
     </span><span class="kw">pub fn </span>new(item: <span class="kw-2">&amp;</span>::js_sys::Object) -&gt; <span class="prelude-ty">Result</span>&lt;ClipboardItem, JsValue&gt;;
 
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;ClipboardItem&quot; </span>, js_name = types)]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"ClipboardItem" </span>, js_name = types)]
     <span class="kw">pub fn </span>types(this: <span class="kw-2">&amp;</span>ClipboardItem) -&gt; ::js_sys::Array;
 
-    # [wasm_bindgen (method , structural , js_class = <span class="string">&quot;ClipboardItem&quot; </span>, js_name = getType)]
+    # [wasm_bindgen (method , structural , js_class = <span class="string">"ClipboardItem" </span>, js_name = getType)]
     <span class="kw">pub fn </span>get_type(this: <span class="kw-2">&amp;</span>ClipboardItem, type_: <span class="kw-2">&amp;</span>str) -&gt; ::js_sys::Promise;
 }
 
@@ -212,5 +214,4 @@
 
     js_sys::global().dyn_into::&lt;Window&gt;().ok()
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="yew_hooks" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

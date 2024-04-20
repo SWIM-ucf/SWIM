@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.25.0/src/time/clock.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>clock.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../tokio/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-1.37.0/src/time/clock.rs`."><title>clock.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../tokio/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -256,7 +258,60 @@
 <a href="#256" id="256">256</a>
 <a href="#257" id="257">257</a>
 <a href="#258" id="258">258</a>
-</pre><pre class="rust"><code><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;rt&quot;</span>), allow(dead_code))]
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+</pre></div><pre class="rust"><code><span class="attr">#![cfg_attr(not(feature = <span class="string">"rt"</span>), allow(dead_code))]
 
 </span><span class="doccomment">//! Source of time abstraction.
 //!
@@ -287,38 +342,59 @@
 
 <span class="macro">cfg_test_util! </span>{
     <span class="kw">use </span><span class="kw">crate</span>::time::{Duration, Instant};
-    <span class="kw">use </span><span class="kw">crate</span>::loom::sync::{Arc, Mutex};
+    <span class="kw">use </span><span class="kw">crate</span>::loom::sync::Mutex;
+    <span class="kw">use </span><span class="kw">crate</span>::loom::sync::atomic::Ordering;
+    <span class="kw">use </span>std::sync::atomic::AtomicBool <span class="kw">as </span>StdAtomicBool;
 
     <span class="macro">cfg_rt! </span>{
-        <span class="kw">fn </span>clock() -&gt; <span class="prelude-ty">Option</span>&lt;Clock&gt; {
+        <span class="attr">#[track_caller]
+        </span><span class="kw">fn </span>with_clock&lt;R&gt;(f: <span class="kw">impl </span>FnOnce(<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Clock&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;R, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;) -&gt; R {
             <span class="kw">use </span><span class="kw">crate</span>::runtime::Handle;
 
-            <span class="kw">match </span>Handle::try_current() {
-                <span class="prelude-val">Ok</span>(handle) =&gt; <span class="prelude-val">Some</span>(handle.inner.driver().clock().clone()),
-                <span class="prelude-val">Err</span>(<span class="kw-2">ref </span>e) <span class="kw">if </span>e.is_missing_context() =&gt; <span class="prelude-val">None</span>,
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, <span class="kw">crate</span>::util::error::THREAD_LOCAL_DESTROYED_ERROR),
+            <span class="kw">let </span>res = <span class="kw">match </span>Handle::try_current() {
+                <span class="prelude-val">Ok</span>(handle) =&gt; f(<span class="prelude-val">Some</span>(handle.inner.driver().clock())),
+                <span class="prelude-val">Err</span>(<span class="kw-2">ref </span>e) <span class="kw">if </span>e.is_missing_context() =&gt; f(<span class="prelude-val">None</span>),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"{}"</span>, <span class="kw">crate</span>::util::error::THREAD_LOCAL_DESTROYED_ERROR),
+            };
+
+            <span class="kw">match </span>res {
+                <span class="prelude-val">Ok</span>(ret) =&gt; ret,
+                <span class="prelude-val">Err</span>(msg) =&gt; <span class="macro">panic!</span>(<span class="string">"{}"</span>, msg),
             }
         }
     }
 
     <span class="macro">cfg_not_rt! </span>{
-        <span class="kw">fn </span>clock() -&gt; <span class="prelude-ty">Option</span>&lt;Clock&gt; {
-            <span class="prelude-val">None
-        </span>}
+        <span class="attr">#[track_caller]
+        </span><span class="kw">fn </span>with_clock&lt;R&gt;(f: <span class="kw">impl </span>FnOnce(<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Clock&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;R, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;) -&gt; R {
+            <span class="kw">match </span>f(<span class="prelude-val">None</span>) {
+                <span class="prelude-val">Ok</span>(ret) =&gt; ret,
+                <span class="prelude-val">Err</span>(msg) =&gt; <span class="macro">panic!</span>(<span class="string">"{}"</span>, msg),
+            }
+        }
     }
 
     <span class="doccomment">/// A handle to a source of time.
-    </span><span class="attr">#[derive(Debug, Clone)]
+    </span><span class="attr">#[derive(Debug)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Clock {
-        inner: Arc&lt;Mutex&lt;Inner&gt;&gt;,
+        inner: Mutex&lt;Inner&gt;,
     }
+
+    <span class="comment">// Used to track if the clock was ever paused. This is an optimization to
+    // avoid touching the mutex if `test-util` was accidentally enabled in
+    // release mode.
+    //
+    // A static is used so we can avoid accessing the thread-local as well. The
+    // `std` AtomicBool is used directly because loom does not support static
+    // atomics.
+    </span><span class="kw">static </span>DID_PAUSE_CLOCK: StdAtomicBool = StdAtomicBool::new(<span class="bool-val">false</span>);
 
     <span class="attr">#[derive(Debug)]
     </span><span class="kw">struct </span>Inner {
         <span class="doccomment">/// True if the ability to pause time is enabled.
         </span>enable_pausing: bool,
 
-        <span class="doccomment">/// Instant to use as the clock&#39;s base instant.
+        <span class="doccomment">/// Instant to use as the clock's base instant.
         </span>base: std::time::Instant,
 
         <span class="doccomment">/// Instant at which the clock was last unfrozen.
@@ -343,9 +419,9 @@
     /// For cases where time is immediately paused, it is better to pause
     /// the time using the `main` or `test` macro:
     /// ```
-    /// #[tokio::main(flavor = &quot;current_thread&quot;, start_paused = true)]
+    /// #[tokio::main(flavor = "current_thread", start_paused = true)]
     /// async fn main() {
-    ///    println!(&quot;Hello world&quot;);
+    ///    println!("Hello world");
     /// }
     /// ```
     ///
@@ -365,8 +441,12 @@
     /// [`advance`]: crate::time::advance
     </span><span class="attr">#[track_caller]
     </span><span class="kw">pub fn </span>pause() {
-        <span class="kw">let </span>clock = clock().expect(<span class="string">&quot;time cannot be frozen from outside the Tokio runtime&quot;</span>);
-        clock.pause();
+        with_clock(|maybe_clock| {
+            <span class="kw">match </span>maybe_clock {
+                <span class="prelude-val">Some</span>(clock) =&gt; clock.pause(),
+                <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">"time cannot be frozen from outside the Tokio runtime"</span>),
+            }
+        });
     }
 
     <span class="doccomment">/// Resumes time.
@@ -380,14 +460,21 @@
     /// runtime.
     </span><span class="attr">#[track_caller]
     </span><span class="kw">pub fn </span>resume() {
-        <span class="kw">let </span>clock = clock().expect(<span class="string">&quot;time cannot be frozen from outside the Tokio runtime&quot;</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>inner = clock.inner.lock();
+        with_clock(|maybe_clock| {
+            <span class="kw">let </span>clock = <span class="kw">match </span>maybe_clock {
+                <span class="prelude-val">Some</span>(clock) =&gt; clock,
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"time cannot be frozen from outside the Tokio runtime"</span>),
+            };
 
-        <span class="kw">if </span>inner.unfrozen.is_some() {
-            <span class="macro">panic!</span>(<span class="string">&quot;time is not frozen&quot;</span>);
-        }
+            <span class="kw">let </span><span class="kw-2">mut </span>inner = clock.inner.lock();
 
-        inner.unfrozen = <span class="prelude-val">Some</span>(std::time::Instant::now());
+            <span class="kw">if </span>inner.unfrozen.is_some() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"time is not frozen"</span>);
+            }
+
+            inner.unfrozen = <span class="prelude-val">Some</span>(std::time::Instant::now());
+            <span class="prelude-val">Ok</span>(())
+        });
     }
 
     <span class="doccomment">/// Advances time.
@@ -397,16 +484,16 @@
     ///
     /// This function will make the current time jump forward by the given
     /// duration in one jump. This means that all `sleep` calls with a deadline
-    /// before the new time will immediately complete &quot;at the same time&quot;, and
+    /// before the new time will immediately complete "at the same time", and
     /// the runtime is free to poll them in any order.  Additionally, this
     /// method will not wait for the `sleep` calls it advanced past to complete.
     /// If you want to do that, you should instead call [`sleep`] and rely on
-    /// the runtime&#39;s auto-advance feature.
+    /// the runtime's auto-advance feature.
     ///
     /// Note that calls to `sleep` are not guaranteed to complete the first time
     /// they are polled after a call to `advance`. For example, this can happen
     /// if the runtime has not yet touched the timer driver after the call to
-    /// `advance`. However if they don&#39;t, the runtime will poll the task again
+    /// `advance`. However if they don't, the runtime will poll the task again
     /// shortly.
     ///
     /// # Panics
@@ -422,56 +509,77 @@
     ///
     /// [`sleep`]: fn@crate::time::sleep
     </span><span class="kw">pub async fn </span>advance(duration: Duration) {
-        <span class="kw">let </span>clock = clock().expect(<span class="string">&quot;time cannot be frozen from outside the Tokio runtime&quot;</span>);
-        clock.advance(duration);
+        with_clock(|maybe_clock| {
+            <span class="kw">let </span>clock = <span class="kw">match </span>maybe_clock {
+                <span class="prelude-val">Some</span>(clock) =&gt; clock,
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"time cannot be frozen from outside the Tokio runtime"</span>),
+            };
+
+            clock.advance(duration)
+        });
 
         <span class="kw">crate</span>::task::yield_now().<span class="kw">await</span>;
     }
 
     <span class="doccomment">/// Returns the current instant, factoring in frozen time.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>now() -&gt; Instant {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(clock) = clock() {
-            clock.now()
-        } <span class="kw">else </span>{
-            Instant::from_std(std::time::Instant::now())
+        <span class="kw">if </span>!DID_PAUSE_CLOCK.load(Ordering::Acquire) {
+            <span class="kw">return </span>Instant::from_std(std::time::Instant::now());
         }
+
+        with_clock(|maybe_clock| {
+            <span class="prelude-val">Ok</span>(<span class="kw">if let </span><span class="prelude-val">Some</span>(clock) = maybe_clock {
+                clock.now()
+            } <span class="kw">else </span>{
+                Instant::from_std(std::time::Instant::now())
+            })
+        })
     }
 
     <span class="kw">impl </span>Clock {
-        <span class="doccomment">/// Returns a new `Clock` instance that uses the current execution context&#39;s
+        <span class="doccomment">/// Returns a new `Clock` instance that uses the current execution context's
         /// source of time.
         </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(enable_pausing: bool, start_paused: bool) -&gt; Clock {
             <span class="kw">let </span>now = std::time::Instant::now();
 
             <span class="kw">let </span>clock = Clock {
-                inner: Arc::new(Mutex::new(Inner {
+                inner: Mutex::new(Inner {
                     enable_pausing,
                     base: now,
                     unfrozen: <span class="prelude-val">Some</span>(now),
                     auto_advance_inhibit_count: <span class="number">0</span>,
-                })),
+                }),
             };
 
             <span class="kw">if </span>start_paused {
-                clock.pause();
+                <span class="kw">if let </span><span class="prelude-val">Err</span>(msg) = clock.pause() {
+                    <span class="macro">panic!</span>(<span class="string">"{}"</span>, msg);
+                }
             }
 
             clock
         }
 
-        <span class="attr">#[track_caller]
-        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>pause(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>pause(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.inner.lock();
 
             <span class="kw">if </span>!inner.enable_pausing {
                 drop(inner); <span class="comment">// avoid poisoning the lock
-                </span><span class="macro">panic!</span>(<span class="string">&quot;`time::pause()` requires the `current_thread` Tokio runtime. \
-                        This is the default Runtime used by `#[tokio::test].&quot;</span>);
+                </span><span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"`time::pause()` requires the `current_thread` Tokio runtime. \
+                        This is the default Runtime used by `#[tokio::test]."</span>);
             }
 
-            <span class="kw">let </span>elapsed = inner.unfrozen.as_ref().expect(<span class="string">&quot;time is already frozen&quot;</span>).elapsed();
+            <span class="comment">// Track that we paused the clock
+            </span>DID_PAUSE_CLOCK.store(<span class="bool-val">true</span>, Ordering::Release);
+
+            <span class="kw">let </span>elapsed = <span class="kw">match </span>inner.unfrozen.as_ref() {
+                <span class="prelude-val">Some</span>(v) =&gt; v.elapsed(),
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"time is already frozen"</span>)
+            };
             inner.base += elapsed;
             inner.unfrozen = <span class="prelude-val">None</span>;
+
+            <span class="prelude-val">Ok</span>(())
         }
 
         <span class="doccomment">/// Temporarily stop auto-advancing the clock (see `tokio::time::pause`).
@@ -490,15 +598,15 @@
             inner.unfrozen.is_none() &amp;&amp; inner.auto_advance_inhibit_count == <span class="number">0
         </span>}
 
-        <span class="attr">#[track_caller]
-        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>advance(<span class="kw-2">&amp;</span><span class="self">self</span>, duration: Duration) {
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>advance(<span class="kw-2">&amp;</span><span class="self">self</span>, duration: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.inner.lock();
 
             <span class="kw">if </span>inner.unfrozen.is_some() {
-                <span class="macro">panic!</span>(<span class="string">&quot;time is not frozen&quot;</span>);
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"time is not frozen"</span>);
             }
 
             inner.base += duration;
+            <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>now(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Instant {
@@ -514,5 +622,4 @@
         }
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

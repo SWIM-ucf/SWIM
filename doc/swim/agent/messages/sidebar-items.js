@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Command","DatapathUpdate","MipsStateUpdate","RiscStateUpdate","SystemUpdate"]};

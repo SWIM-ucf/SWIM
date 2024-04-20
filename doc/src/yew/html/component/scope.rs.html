@@ -1,5 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/yew-0.20.0/src/html/component/scope.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>scope.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../yew/index.html">
-                        <img src="https://yew.rs/img/logo.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yew-0.21.0/src/html/component/scope.rs`."><title>scope.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../yew/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -755,25 +756,7 @@
 <a href="#754" id="754">754</a>
 <a href="#755" id="755">755</a>
 <a href="#756" id="756">756</a>
-<a href="#757" id="757">757</a>
-<a href="#758" id="758">758</a>
-<a href="#759" id="759">759</a>
-<a href="#760" id="760">760</a>
-<a href="#761" id="761">761</a>
-<a href="#762" id="762">762</a>
-<a href="#763" id="763">763</a>
-<a href="#764" id="764">764</a>
-<a href="#765" id="765">765</a>
-<a href="#766" id="766">766</a>
-<a href="#767" id="767">767</a>
-<a href="#768" id="768">768</a>
-<a href="#769" id="769">769</a>
-<a href="#770" id="770">770</a>
-<a href="#771" id="771">771</a>
-<a href="#772" id="772">772</a>
-<a href="#773" id="773">773</a>
-<a href="#774" id="774">774</a>
-</pre><pre class="rust"><code><span class="doccomment">//! Component scope module
+</pre></div><pre class="rust"><code><span class="doccomment">//! Component scope module
 
 </span><span class="kw">use </span>std::any::{Any, TypeId};
 <span class="kw">use </span>std::future::Future;
@@ -784,13 +767,13 @@
 
 <span class="kw">use </span>futures::{Stream, StreamExt};
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;csr&quot;</span>, feature = <span class="string">&quot;ssr&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"csr"</span>, feature = <span class="string">"ssr"</span>))]
 </span><span class="kw">use </span><span class="kw">super</span>::lifecycle::ComponentState;
 <span class="kw">use </span><span class="kw">super</span>::BaseComponent;
 <span class="kw">use </span><span class="kw">crate</span>::callback::Callback;
 <span class="kw">use </span><span class="kw">crate</span>::context::{ContextHandle, ContextProvider};
 <span class="kw">use </span><span class="kw">crate</span>::platform::spawn_local;
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;csr&quot;</span>, feature = <span class="string">&quot;ssr&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"csr"</span>, feature = <span class="string">"ssr"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::scheduler::Shared;
 
 <span class="doccomment">/// Untyped scope used for accessing parent scope
@@ -802,8 +785,8 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>AnyScope {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;AnyScope&lt;_&gt;&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">"AnyScope&lt;_&gt;"</span>)
     }
 }
 
@@ -832,14 +815,14 @@
     ///
     /// # Panics
     ///
-    /// If the self value can&#39;t be cast into the target type.
+    /// If the self value can't be cast into the target type.
     </span><span class="kw">pub fn </span>downcast&lt;COMP: BaseComponent&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Scope&lt;COMP&gt; {
         <span class="self">self</span>.try_downcast::&lt;COMP&gt;().unwrap()
     }
 
     <span class="doccomment">/// Attempts to downcast into a typed scope
     ///
-    /// Returns [`None`] if the self value can&#39;t be cast into the target type.
+    /// Returns [`None`] if the self value can't be cast into the target type.
     </span><span class="kw">pub fn </span>try_downcast&lt;COMP: BaseComponent&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Scope&lt;COMP&gt;&gt; {
         <span class="self">self</span>.typed_scope.downcast_ref::&lt;Scope&lt;COMP&gt;&gt;().cloned()
     }
@@ -854,7 +837,7 @@
 
     <span class="doccomment">/// Accesses a value provided by a parent `ContextProvider` component of the
     /// same type.
-    </span><span class="kw">pub fn </span>context&lt;T: Clone + PartialEq + <span class="lifetime">&#39;static</span>&gt;(
+    </span><span class="kw">pub fn </span>context&lt;T: Clone + PartialEq + <span class="lifetime">'static</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         callback: Callback&lt;T&gt;,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;(T, ContextHandle&lt;T&gt;)&gt; {
@@ -870,18 +853,18 @@
     _marker: PhantomData&lt;COMP&gt;,
     parent: <span class="prelude-ty">Option</span>&lt;Rc&lt;AnyScope&gt;&gt;,
 
-    <span class="attr">#[cfg(any(feature = <span class="string">&quot;csr&quot;</span>, feature = <span class="string">&quot;ssr&quot;</span>))]
+    <span class="attr">#[cfg(any(feature = <span class="string">"csr"</span>, feature = <span class="string">"ssr"</span>))]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) pending_messages: MsgQueue&lt;COMP::Message&gt;,
 
-    <span class="attr">#[cfg(any(feature = <span class="string">&quot;csr&quot;</span>, feature = <span class="string">&quot;ssr&quot;</span>))]
+    <span class="attr">#[cfg(any(feature = <span class="string">"csr"</span>, feature = <span class="string">"ssr"</span>))]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) state: Shared&lt;<span class="prelude-ty">Option</span>&lt;ComponentState&gt;&gt;,
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) id: usize,
 }
 
 <span class="kw">impl</span>&lt;COMP: BaseComponent&gt; fmt::Debug <span class="kw">for </span>Scope&lt;COMP&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;Scope&lt;_&gt;&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">"Scope&lt;_&gt;"</span>)
     }
 }
 
@@ -890,11 +873,11 @@
         Scope {
             _marker: PhantomData,
 
-            <span class="attr">#[cfg(any(feature = <span class="string">&quot;csr&quot;</span>, feature = <span class="string">&quot;ssr&quot;</span>))]
+            <span class="attr">#[cfg(any(feature = <span class="string">"csr"</span>, feature = <span class="string">"ssr"</span>))]
             </span>pending_messages: <span class="self">self</span>.pending_messages.clone(),
             parent: <span class="self">self</span>.parent.clone(),
 
-            <span class="attr">#[cfg(any(feature = <span class="string">&quot;csr&quot;</span>, feature = <span class="string">&quot;ssr&quot;</span>))]
+            <span class="attr">#[cfg(any(feature = <span class="string">"csr"</span>, feature = <span class="string">"ssr"</span>))]
             </span>state: <span class="self">self</span>.state.clone(),
 
             id: <span class="self">self</span>.id,
@@ -909,14 +892,14 @@
     }
 
     <span class="doccomment">/// Creates a `Callback` which will send a message to the linked
-    /// component&#39;s update method when invoked.
+    /// component's update method when invoked.
     ///
     /// If your callback function returns a [Future],
     /// use [`callback_future`](Scope::callback_future) instead.
     </span><span class="kw">pub fn </span>callback&lt;F, IN, M&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, function: F) -&gt; Callback&lt;IN&gt;
     <span class="kw">where
         </span>M: Into&lt;COMP::Message&gt;,
-        F: Fn(IN) -&gt; M + <span class="lifetime">&#39;static</span>,
+        F: Fn(IN) -&gt; M + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>scope = <span class="self">self</span>.clone();
         <span class="kw">let </span>closure = <span class="kw">move </span>|input| {
@@ -927,9 +910,9 @@
     }
 
     <span class="doccomment">/// Creates a `Callback` which will send a batch of messages back
-    /// to the linked component&#39;s update method when invoked.
+    /// to the linked component's update method when invoked.
     ///
-    /// The callback function&#39;s return type is generic to allow for dealing with both
+    /// The callback function's return type is generic to allow for dealing with both
     /// `Option` and `Vec` nicely. `Option` can be used when dealing with a callback that
     /// might not need to send an update.
     ///
@@ -939,7 +922,7 @@
     /// ```
     </span><span class="kw">pub fn </span>batch_callback&lt;F, IN, OUT&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, function: F) -&gt; Callback&lt;IN&gt;
     <span class="kw">where
-        </span>F: Fn(IN) -&gt; OUT + <span class="lifetime">&#39;static</span>,
+        </span>F: Fn(IN) -&gt; OUT + <span class="lifetime">'static</span>,
         OUT: SendAsMessage&lt;COMP&gt;,
     {
         <span class="kw">let </span>scope = <span class="self">self</span>.clone();
@@ -952,7 +935,7 @@
 
     <span class="doccomment">/// Accesses a value provided by a parent `ContextProvider` component of the
     /// same type.
-    </span><span class="kw">pub fn </span>context&lt;T: Clone + PartialEq + <span class="lifetime">&#39;static</span>&gt;(
+    </span><span class="kw">pub fn </span>context&lt;T: Clone + PartialEq + <span class="lifetime">'static</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         callback: Callback&lt;T&gt;,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;(T, ContextHandle&lt;T&gt;)&gt; {
@@ -967,7 +950,7 @@
     </span><span class="kw">pub fn </span>send_future&lt;Fut, Msg&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, future: Fut)
     <span class="kw">where
         </span>Msg: Into&lt;COMP::Message&gt;,
-        Fut: Future&lt;Output = Msg&gt; + <span class="lifetime">&#39;static</span>,
+        Fut: Future&lt;Output = Msg&gt; + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>link = <span class="self">self</span>.clone();
         spawn_local(<span class="kw">async move </span>{
@@ -984,8 +967,8 @@
     </span><span class="kw">pub fn </span>callback_future&lt;F, Fut, IN, Msg&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, function: F) -&gt; Callback&lt;IN&gt;
     <span class="kw">where
         </span>Msg: Into&lt;COMP::Message&gt;,
-        Fut: Future&lt;Output = Msg&gt; + <span class="lifetime">&#39;static</span>,
-        F: Fn(IN) -&gt; Fut + <span class="lifetime">&#39;static</span>,
+        Fut: Future&lt;Output = Msg&gt; + <span class="lifetime">'static</span>,
+        F: Fn(IN) -&gt; Fut + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>link = <span class="self">self</span>.clone();
 
@@ -1003,7 +986,7 @@
     /// If the future panics, then the promise will not resolve, and will leak.
     </span><span class="kw">pub fn </span>send_future_batch&lt;Fut&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, future: Fut)
     <span class="kw">where
-        </span>Fut: Future + <span class="lifetime">&#39;static</span>,
+        </span>Fut: Future + <span class="lifetime">'static</span>,
         Fut::Output: SendAsMessage&lt;COMP&gt;,
     {
         <span class="kw">let </span>link = <span class="self">self</span>.clone();
@@ -1025,11 +1008,11 @@
     /// you want this feature, you can add an EOF message variant for your component and use
     /// [`StreamExt::chain`] and [`stream::once`](futures::stream::once) to chain an EOF message to
     /// the original stream. If your stream is produced by another crate, you can use
-    /// [`StreamExt::map`] to transform the stream&#39;s item type to the component message type.
+    /// [`StreamExt::map`] to transform the stream's item type to the component message type.
     </span><span class="kw">pub fn </span>send_stream&lt;S, M&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, stream: S)
     <span class="kw">where
         </span>M: Into&lt;COMP::Message&gt;,
-        S: Stream&lt;Item = M&gt; + <span class="lifetime">&#39;static</span>,
+        S: Stream&lt;Item = M&gt; + <span class="lifetime">'static</span>,
     {
         <span class="kw">let </span>link = <span class="self">self</span>.clone();
         <span class="kw">let </span>js_future = <span class="kw">async move </span>{
@@ -1043,7 +1026,7 @@
     }
 
     <span class="doccomment">/// Returns the linked component if available
-    </span><span class="kw">pub fn </span>get_component(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw">impl </span>Deref&lt;Target = COMP&gt; + <span class="lifetime">&#39;_</span>&gt; {
+    </span><span class="kw">pub fn </span>get_component(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw">impl </span>Deref&lt;Target = COMP&gt; + <span class="lifetime">'_</span>&gt; {
         <span class="self">self</span>.arch_get_component()
     }
 
@@ -1064,11 +1047,12 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ssr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ssr"</span>)]
 </span><span class="kw">mod </span>feat_ssr {
     <span class="kw">use </span>std::fmt::Write;
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::feat_ssr::VTagKind;
     <span class="kw">use </span><span class="kw">crate</span>::html::component::lifecycle::{
         ComponentRenderState, CreateRunner, DestroyRunner, RenderRunner,
     };
@@ -1083,8 +1067,9 @@
             w: <span class="kw-2">&amp;mut </span>BufWriter,
             props: Rc&lt;COMP::Properties&gt;,
             hydratable: bool,
+            parent_vtag_kind: VTagKind,
         ) {
-            <span class="comment">// Rust&#39;s Future implementation is stack-allocated and incurs zero runtime-cost.
+            <span class="comment">// Rust's Future implementation is stack-allocated and incurs zero runtime-cost.
             //
             // If the content of this channel is ready before it is awaited, it is
             // similar to taking the value from a mutex lock.
@@ -1097,7 +1082,7 @@
                     initial_render_state: state,
                     props,
                     scope: <span class="self">self</span>.clone(),
-                    <span class="attr">#[cfg(feature = <span class="string">&quot;hydration&quot;</span>)]
+                    <span class="attr">#[cfg(feature = <span class="string">"hydration"</span>)]
                     </span>prepared_state: <span class="prelude-val">None</span>,
                 }),
                 Box::new(RenderRunner {
@@ -1115,13 +1100,13 @@
             <span class="kw">let </span>html = rx.<span class="kw">await</span>.unwrap();
 
             <span class="kw">let </span>self_any_scope = AnyScope::from(<span class="self">self</span>.clone());
-            html.render_into_stream(w, <span class="kw-2">&amp;</span>self_any_scope, hydratable)
+            html.render_into_stream(w, <span class="kw-2">&amp;</span>self_any_scope, hydratable, parent_vtag_kind)
                 .<span class="kw">await</span>;
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(prepared_state) = <span class="self">self</span>.get_component().unwrap().prepare_state() {
-                <span class="kw">let _ </span>= w.write_str(<span class="string">r#&quot;&lt;script type=&quot;application/x-yew-comp-state&quot;&gt;&quot;#</span>);
+                <span class="kw">let _ </span>= w.write_str(<span class="string">r#"&lt;script type="application/x-yew-comp-state"&gt;"#</span>);
                 <span class="kw">let _ </span>= w.write_str(<span class="kw-2">&amp;</span>prepared_state);
-                <span class="kw">let _ </span>= w.write_str(<span class="string">r#&quot;&lt;/script&gt;&quot;#</span>);
+                <span class="kw">let _ </span>= w.write_str(<span class="string">r#"&lt;/script&gt;"#</span>);
             }
 
             <span class="kw">if </span>hydratable {
@@ -1137,13 +1122,13 @@
     }
 }
 
-<span class="attr">#[cfg(not(any(feature = <span class="string">&quot;ssr&quot;</span>, feature = <span class="string">&quot;csr&quot;</span>)))]
+<span class="attr">#[cfg(not(any(feature = <span class="string">"ssr"</span>, feature = <span class="string">"csr"</span>)))]
 </span><span class="kw">mod </span>feat_no_csr_ssr {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="comment">// Skeleton code to provide public methods when no renderer are enabled.
     </span><span class="kw">impl</span>&lt;COMP: BaseComponent&gt; Scope&lt;COMP&gt; {
-        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>arch_get_component(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw">impl </span>Deref&lt;Target = COMP&gt; + <span class="lifetime">&#39;_</span>&gt; {
+        <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>arch_get_component(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw">impl </span>Deref&lt;Target = COMP&gt; + <span class="lifetime">'_</span>&gt; {
             <span class="prelude-ty">Option</span>::&lt;<span class="kw-2">&amp;</span>COMP&gt;::None
         }
 
@@ -1157,7 +1142,7 @@
     }
 }
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;ssr&quot;</span>, feature = <span class="string">&quot;csr&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"ssr"</span>, feature = <span class="string">"csr"</span>))]
 </span><span class="kw">mod </span>feat_csr_ssr {
     <span class="kw">use </span>std::cell::{Ref, RefCell};
     <span class="kw">use </span>std::sync::atomic::{AtomicUsize, Ordering};
@@ -1227,26 +1212,10 @@
             }
         }
 
-        <span class="attr">#[rustversion::before(<span class="number">1.63</span>)]
-        #[inline]
-        </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>arch_get_component(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw">impl </span>Deref&lt;Target = COMP&gt; + <span class="lifetime">&#39;_</span>&gt; {
+        <span class="attr">#[inline]
+        </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>arch_get_component(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw">impl </span>Deref&lt;Target = COMP&gt; + <span class="lifetime">'_</span>&gt; {
             <span class="self">self</span>.state.try_borrow().ok().and_then(|state_ref| {
-                state_ref.as_ref()<span class="question-mark">?</span>;
-                <span class="prelude-val">Some</span>(Ref::map(state_ref, |state| {
-                    state
-                        .as_ref()
-                        .and_then(|m| m.downcast_comp_ref::&lt;COMP&gt;())
-                        .unwrap()
-                }))
-            })
-        }
-
-        <span class="attr">#[rustversion::since(<span class="number">1.63</span>)]
-        #[inline]
-        </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>arch_get_component(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw">impl </span>Deref&lt;Target = COMP&gt; + <span class="lifetime">&#39;_</span>&gt; {
-            <span class="self">self</span>.state.try_borrow().ok().and_then(|state_ref| {
-                <span class="comment">// Ref::filter_map is only available since 1.63
-                </span>Ref::filter_map(state_ref, |state| {
+                Ref::filter_map(state_ref, |state| {
                     state.as_ref().and_then(|m| m.downcast_comp_ref::&lt;COMP&gt;())
                 })
                 .ok()
@@ -1285,21 +1254,20 @@
     }
 }
 
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;ssr&quot;</span>, feature = <span class="string">&quot;csr&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"ssr"</span>, feature = <span class="string">"csr"</span>))]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>feat_csr_ssr::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
 </span><span class="kw">mod </span>feat_csr {
     <span class="kw">use </span>std::cell::Ref;
 
     <span class="kw">use </span>web_sys::Element;
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span><span class="kw">crate</span>::dom_bundle::{BSubtree, Bundle};
+    <span class="kw">use </span><span class="kw">crate</span>::dom_bundle::{BSubtree, Bundle, DomSlot, DynamicDomSlot};
     <span class="kw">use </span><span class="kw">crate</span>::html::component::lifecycle::{
         ComponentRenderState, CreateRunner, DestroyRunner, PropsUpdateRunner, RenderRunner,
     };
-    <span class="kw">use </span><span class="kw">crate</span>::html::NodeRef;
     <span class="kw">use </span><span class="kw">crate</span>::scheduler;
 
     <span class="kw">impl </span>AnyScope {
@@ -1316,11 +1284,11 @@
     <span class="kw">fn </span>schedule_props_update(
         state: Shared&lt;<span class="prelude-ty">Option</span>&lt;ComponentState&gt;&gt;,
         props: Rc&lt;<span class="kw">dyn </span>Any&gt;,
-        next_sibling: NodeRef,
+        next_sibling_slot: DomSlot,
     ) {
         scheduler::push_component_props_update(Box::new(PropsUpdateRunner {
             state,
-            next_sibling: <span class="prelude-val">Some</span>(next_sibling),
+            next_sibling_slot: <span class="prelude-val">Some</span>(next_sibling_slot),
             props: <span class="prelude-val">Some</span>(props),
         }));
         <span class="comment">// Not guaranteed to already have the scheduler started
@@ -1336,20 +1304,20 @@
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             root: BSubtree,
             parent: Element,
-            next_sibling: NodeRef,
-            internal_ref: NodeRef,
+            slot: DomSlot,
+            internal_ref: DynamicDomSlot,
             props: Rc&lt;COMP::Properties&gt;,
         ) {
             <span class="kw">let </span>bundle = Bundle::new();
-            internal_ref.link(next_sibling.clone());
-            <span class="kw">let </span>stable_next_sibling = NodeRef::default();
-            stable_next_sibling.link(next_sibling);
+            <span class="kw">let </span>sibling_slot = DynamicDomSlot::new(slot);
+            internal_ref.reassign(sibling_slot.to_position());
+
             <span class="kw">let </span>state = ComponentRenderState::Render {
                 bundle,
                 root,
-                internal_ref,
+                own_slot: internal_ref,
                 parent,
-                next_sibling: stable_next_sibling,
+                sibling_slot,
             };
 
             scheduler::push_component_create(
@@ -1358,7 +1326,7 @@
                     initial_render_state: state,
                     props,
                     scope: <span class="self">self</span>.clone(),
-                    <span class="attr">#[cfg(feature = <span class="string">&quot;hydration&quot;</span>)]
+                    <span class="attr">#[cfg(feature = <span class="string">"hydration"</span>)]
                     </span>prepared_state: <span class="prelude-val">None</span>,
                 }),
                 Box::new(RenderRunner {
@@ -1369,17 +1337,17 @@
             </span>scheduler::start();
         }
 
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>reuse(<span class="kw-2">&amp;</span><span class="self">self</span>, props: Rc&lt;COMP::Properties&gt;, next_sibling: NodeRef) {
-            schedule_props_update(<span class="self">self</span>.state.clone(), props, next_sibling)
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>reuse(<span class="kw-2">&amp;</span><span class="self">self</span>, props: Rc&lt;COMP::Properties&gt;, slot: DomSlot) {
+            schedule_props_update(<span class="self">self</span>.state.clone(), props, slot)
         }
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>Scoped {
         <span class="kw">fn </span>to_any(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyScope;
-        <span class="doccomment">/// Get the render state if it hasn&#39;t already been destroyed
-        </span><span class="kw">fn </span>render_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Ref&lt;<span class="lifetime">&#39;_</span>, ComponentRenderState&gt;&gt;;
+        <span class="doccomment">/// Get the render state if it hasn't already been destroyed
+        </span><span class="kw">fn </span>render_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Ref&lt;<span class="lifetime">'_</span>, ComponentRenderState&gt;&gt;;
         <span class="doccomment">/// Shift the node associated with this scope to a new place
-        </span><span class="kw">fn </span>shift_node(<span class="kw-2">&amp;</span><span class="self">self</span>, parent: Element, next_sibling: NodeRef);
+        </span><span class="kw">fn </span>shift_node(<span class="kw-2">&amp;</span><span class="self">self</span>, parent: Element, slot: DomSlot);
         <span class="doccomment">/// Process an event to destroy a component
         </span><span class="kw">fn </span>destroy(<span class="self">self</span>, parent_to_detach: bool);
         <span class="kw">fn </span>destroy_boxed(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;, parent_to_detach: bool);
@@ -1390,10 +1358,10 @@
             <span class="self">self</span>.clone().into()
         }
 
-        <span class="kw">fn </span>render_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Ref&lt;<span class="lifetime">&#39;_</span>, ComponentRenderState&gt;&gt; {
+        <span class="kw">fn </span>render_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Ref&lt;<span class="lifetime">'_</span>, ComponentRenderState&gt;&gt; {
             <span class="kw">let </span>state_ref = <span class="self">self</span>.state.borrow();
 
-            <span class="comment">// check that component hasn&#39;t been destroyed
+            <span class="comment">// check that component hasn't been destroyed
             </span>state_ref.as_ref()<span class="question-mark">?</span>;
 
             <span class="prelude-val">Some</span>(Ref::map(state_ref, |state_ref| {
@@ -1415,26 +1383,25 @@
             <span class="self">self</span>.destroy(parent_to_detach)
         }
 
-        <span class="kw">fn </span>shift_node(<span class="kw-2">&amp;</span><span class="self">self</span>, parent: Element, next_sibling: NodeRef) {
+        <span class="kw">fn </span>shift_node(<span class="kw-2">&amp;</span><span class="self">self</span>, parent: Element, slot: DomSlot) {
             <span class="kw">let </span><span class="kw-2">mut </span>state_ref = <span class="self">self</span>.state.borrow_mut();
             <span class="kw">if let </span><span class="prelude-val">Some</span>(render_state) = state_ref.as_mut() {
-                render_state.render_state.shift(parent, next_sibling)
+                render_state.render_state.shift(parent, slot)
             }
         }
     }
 }
-<span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>feat_csr::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;hydration&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"hydration"</span>)]
 </span><span class="kw">mod </span>feat_hydration {
     <span class="kw">use </span>wasm_bindgen::JsCast;
     <span class="kw">use </span>web_sys::{Element, HtmlScriptElement};
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span><span class="kw">crate</span>::dom_bundle::{BSubtree, Fragment};
+    <span class="kw">use </span><span class="kw">crate</span>::dom_bundle::{BSubtree, DomSlot, DynamicDomSlot, Fragment};
     <span class="kw">use </span><span class="kw">crate</span>::html::component::lifecycle::{ComponentRenderState, CreateRunner, RenderRunner};
-    <span class="kw">use </span><span class="kw">crate</span>::html::NodeRef;
     <span class="kw">use </span><span class="kw">crate</span>::scheduler;
     <span class="kw">use </span><span class="kw">crate</span>::virtual_dom::Collectable;
 
@@ -1455,7 +1422,7 @@
             root: BSubtree,
             parent: Element,
             fragment: <span class="kw-2">&amp;mut </span>Fragment,
-            internal_ref: NodeRef,
+            internal_ref: DynamicDomSlot,
             props: Rc&lt;COMP::Properties&gt;,
         ) {
             <span class="comment">// This is very helpful to see which component is failing during hydration
@@ -1463,28 +1430,26 @@
             // client-side and server-side.
             </span><span class="macro">tracing::trace!</span>(
                 component.id = <span class="self">self</span>.id,
-                <span class="string">&quot;hydration(type = {})&quot;</span>,
+                <span class="string">"hydration(type = {})"</span>,
                 std::any::type_name::&lt;COMP&gt;()
             );
 
             <span class="kw">let </span>collectable = Collectable::for_component::&lt;COMP&gt;();
 
             <span class="kw">let </span><span class="kw-2">mut </span>fragment = Fragment::collect_between(fragment, <span class="kw-2">&amp;</span>collectable, <span class="kw-2">&amp;</span>parent);
-            <span class="kw">match </span>fragment.front().cloned() {
-                front @ <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; internal_ref.set(front),
-                <span class="prelude-val">None </span>=&gt;
-                {
-                    <span class="attr">#[cfg(debug_assertions)]
-                    </span>internal_ref.link(NodeRef::new_debug_trapped())
-                }
-            }
+            <span class="kw">let </span>next_sibling = <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = fragment.front() {
+                <span class="prelude-val">Some</span>(n.clone())
+            } <span class="kw">else </span>{
+                fragment.sibling_at_end().cloned()
+            };
+            internal_ref.reassign(DomSlot::create(next_sibling));
 
             <span class="kw">let </span>prepared_state = <span class="kw">match </span>fragment
                 .back()
                 .cloned()
                 .and_then(|m| m.dyn_into::&lt;HtmlScriptElement&gt;().ok())
             {
-                <span class="prelude-val">Some</span>(m) <span class="kw">if </span>m.type_() == <span class="string">&quot;application/x-yew-comp-state&quot; </span>=&gt; {
+                <span class="prelude-val">Some</span>(m) <span class="kw">if </span>m.type_() == <span class="string">"application/x-yew-comp-state" </span>=&gt; {
                     fragment.pop_back();
                     parent.remove_child(<span class="kw-2">&amp;</span>m).unwrap();
                     <span class="prelude-val">Some</span>(m.text().unwrap())
@@ -1495,8 +1460,8 @@
             <span class="kw">let </span>state = ComponentRenderState::Hydration {
                 parent,
                 root,
-                internal_ref,
-                next_sibling: NodeRef::new_debug_trapped(),
+                own_slot: internal_ref,
+                sibling_slot: DynamicDomSlot::new_debug_trapped(),
                 fragment,
             };
 
@@ -1523,7 +1488,7 @@
 /// Used for the return value of closure given to
 /// [Scope::batch_callback](struct.Scope.html#method.batch_callback).
 </span><span class="kw">pub trait </span>SendAsMessage&lt;COMP: BaseComponent&gt; {
-    <span class="doccomment">/// Sends the message to the given component&#39;s scope.
+    <span class="doccomment">/// Sends the message to the given component's scope.
     /// See [Scope::batch_callback](struct.Scope.html#method.batch_callback).
     </span><span class="kw">fn </span>send(<span class="self">self</span>, scope: <span class="kw-2">&amp;</span>Scope&lt;COMP&gt;);
 }
@@ -1547,5 +1512,4 @@
         scope.send_message_batch(<span class="self">self</span>);
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/wasm-bindgen-0.2.84/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../wasm_bindgen/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/wasm-bindgen-0.2.92/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="wasm_bindgen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../wasm_bindgen/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1846,7 +1848,73 @@
 <a href="#1846" id="1846">1846</a>
 <a href="#1847" id="1847">1847</a>
 <a href="#1848" id="1848">1848</a>
-</pre><pre class="rust"><code><span class="doccomment">//! Runtime support for the `wasm-bindgen` tool
+<a href="#1849" id="1849">1849</a>
+<a href="#1850" id="1850">1850</a>
+<a href="#1851" id="1851">1851</a>
+<a href="#1852" id="1852">1852</a>
+<a href="#1853" id="1853">1853</a>
+<a href="#1854" id="1854">1854</a>
+<a href="#1855" id="1855">1855</a>
+<a href="#1856" id="1856">1856</a>
+<a href="#1857" id="1857">1857</a>
+<a href="#1858" id="1858">1858</a>
+<a href="#1859" id="1859">1859</a>
+<a href="#1860" id="1860">1860</a>
+<a href="#1861" id="1861">1861</a>
+<a href="#1862" id="1862">1862</a>
+<a href="#1863" id="1863">1863</a>
+<a href="#1864" id="1864">1864</a>
+<a href="#1865" id="1865">1865</a>
+<a href="#1866" id="1866">1866</a>
+<a href="#1867" id="1867">1867</a>
+<a href="#1868" id="1868">1868</a>
+<a href="#1869" id="1869">1869</a>
+<a href="#1870" id="1870">1870</a>
+<a href="#1871" id="1871">1871</a>
+<a href="#1872" id="1872">1872</a>
+<a href="#1873" id="1873">1873</a>
+<a href="#1874" id="1874">1874</a>
+<a href="#1875" id="1875">1875</a>
+<a href="#1876" id="1876">1876</a>
+<a href="#1877" id="1877">1877</a>
+<a href="#1878" id="1878">1878</a>
+<a href="#1879" id="1879">1879</a>
+<a href="#1880" id="1880">1880</a>
+<a href="#1881" id="1881">1881</a>
+<a href="#1882" id="1882">1882</a>
+<a href="#1883" id="1883">1883</a>
+<a href="#1884" id="1884">1884</a>
+<a href="#1885" id="1885">1885</a>
+<a href="#1886" id="1886">1886</a>
+<a href="#1887" id="1887">1887</a>
+<a href="#1888" id="1888">1888</a>
+<a href="#1889" id="1889">1889</a>
+<a href="#1890" id="1890">1890</a>
+<a href="#1891" id="1891">1891</a>
+<a href="#1892" id="1892">1892</a>
+<a href="#1893" id="1893">1893</a>
+<a href="#1894" id="1894">1894</a>
+<a href="#1895" id="1895">1895</a>
+<a href="#1896" id="1896">1896</a>
+<a href="#1897" id="1897">1897</a>
+<a href="#1898" id="1898">1898</a>
+<a href="#1899" id="1899">1899</a>
+<a href="#1900" id="1900">1900</a>
+<a href="#1901" id="1901">1901</a>
+<a href="#1902" id="1902">1902</a>
+<a href="#1903" id="1903">1903</a>
+<a href="#1904" id="1904">1904</a>
+<a href="#1905" id="1905">1905</a>
+<a href="#1906" id="1906">1906</a>
+<a href="#1907" id="1907">1907</a>
+<a href="#1908" id="1908">1908</a>
+<a href="#1909" id="1909">1909</a>
+<a href="#1910" id="1910">1910</a>
+<a href="#1911" id="1911">1911</a>
+<a href="#1912" id="1912">1912</a>
+<a href="#1913" id="1913">1913</a>
+<a href="#1914" id="1914">1914</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! Runtime support for the `wasm-bindgen` tool
 //!
 //! This crate contains the runtime support necessary for `wasm-bindgen` the
 //! attribute and tool. Crates pull in the `#[wasm_bindgen]` attribute through
@@ -1855,7 +1923,7 @@
 
 </span><span class="attr">#![no_std]
 #![allow(coherence_leak_check)]
-#![doc(html_root_url = <span class="string">&quot;https://docs.rs/wasm-bindgen/0.2&quot;</span>)]
+#![doc(html_root_url = <span class="string">"https://docs.rs/wasm-bindgen/0.2"</span>)]
 
 </span><span class="kw">use </span>core::convert::TryFrom;
 <span class="kw">use </span>core::fmt;
@@ -1866,27 +1934,27 @@
 };
 <span class="kw">use </span>core::u32;
 
-<span class="kw">use </span><span class="kw">crate</span>::convert::{FromWasmAbi, WasmSlice};
+<span class="kw">use </span><span class="kw">crate</span>::convert::{FromWasmAbi, TryFromJsValue, WasmRet, WasmSlice};
 
 <span class="macro">macro_rules! </span>if_std {
     ($(<span class="macro-nonterminal">$i</span>:item)<span class="kw-2">*</span>) =&gt; ($(
-        <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)] </span><span class="macro-nonterminal">$i
+        <span class="attr">#[cfg(feature = <span class="string">"std"</span>)] </span><span class="macro-nonterminal">$i
     </span>)<span class="kw-2">*</span>)
 }
 
 <span class="macro">macro_rules! </span>externs {
-    ($(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)* <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{ $(<span class="kw">fn </span><span class="macro-nonterminal">$name</span>:ident($(<span class="macro-nonterminal">$args</span>:tt)<span class="kw-2">*</span>) -&gt; <span class="macro-nonterminal">$ret</span>:ty;)* }) =&gt; (
-        <span class="attr">#[cfg(all(target_arch = <span class="string">&quot;wasm32&quot;</span>, not(target_os = <span class="string">&quot;emscripten&quot;</span>)))]
+    ($(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)* <span class="kw">extern </span><span class="string">"C" </span>{ $(<span class="kw">fn </span><span class="macro-nonterminal">$name</span>:ident($(<span class="macro-nonterminal">$args</span>:tt)<span class="kw-2">*</span>) -&gt; <span class="macro-nonterminal">$ret</span>:ty;)* }) =&gt; (
+        <span class="attr">#[cfg(all(target_arch = <span class="string">"wasm32"</span>, not(any(target_os = <span class="string">"emscripten"</span>, target_os = <span class="string">"wasi"</span>))))]
         </span>$(<span class="attr">#[<span class="macro-nonterminal">$attr</span>]</span>)*
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+        <span class="kw">extern </span><span class="string">"C" </span>{
             $(<span class="kw">fn </span><span class="macro-nonterminal">$name</span>($(<span class="macro-nonterminal">$args</span>)<span class="kw-2">*</span>) -&gt; <span class="macro-nonterminal">$ret</span>;)*
         }
 
         $(
-            <span class="attr">#[cfg(not(all(target_arch = <span class="string">&quot;wasm32&quot;</span>, not(target_os = <span class="string">&quot;emscripten&quot;</span>))))]
+            <span class="attr">#[cfg(not(all(target_arch = <span class="string">"wasm32"</span>, not(any(target_os = <span class="string">"emscripten"</span>, target_os = <span class="string">"wasi"</span>)))))]
             #[allow(unused_variables)]
             </span><span class="kw">unsafe extern fn </span><span class="macro-nonterminal">$name</span>($(<span class="macro-nonterminal">$args</span>)<span class="kw-2">*</span>) -&gt; <span class="macro-nonterminal">$ret </span>{
-                <span class="macro">panic!</span>(<span class="string">&quot;function not implemented on non-wasm32 targets&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"function not implemented on non-wasm32 targets"</span>)
             }
         )*
     )
@@ -1919,7 +1987,6 @@
 
 <span class="kw">mod </span>cast;
 <span class="kw">pub use </span><span class="kw">crate</span>::cast::{JsCast, JsObject};
-<span class="kw">use </span>convert::WasmOption;
 
 <span class="macro">if_std! </span>{
     <span class="kw">extern crate </span>std;
@@ -1933,7 +2000,7 @@
 
 <span class="doccomment">/// Representation of an object owned by JS.
 ///
-/// A `JsValue` doesn&#39;t actually live in Rust right now but actually in a table
+/// A `JsValue` doesn't actually live in Rust right now but actually in a table
 /// owned by the `wasm-bindgen` generated JS glue code. Eventually the ownership
 /// will transfer into wasm directly and this will likely become more efficient,
 /// but for now it may be slightly slow.
@@ -1943,7 +2010,7 @@
 </span>}
 
 <span class="kw">const </span>JSIDX_OFFSET: u32 = <span class="number">128</span>; <span class="comment">// keep in sync with js/mod.rs
-</span><span class="kw">const </span>JSIDX_UNDEFINED: u32 = JSIDX_OFFSET + <span class="number">0</span>;
+</span><span class="kw">const </span>JSIDX_UNDEFINED: u32 = JSIDX_OFFSET;
 <span class="kw">const </span>JSIDX_NULL: u32 = JSIDX_OFFSET + <span class="number">1</span>;
 <span class="kw">const </span>JSIDX_TRUE: u32 = JSIDX_OFFSET + <span class="number">2</span>;
 <span class="kw">const </span>JSIDX_FALSE: u32 = JSIDX_OFFSET + <span class="number">3</span>;
@@ -1951,31 +2018,19 @@
 
 <span class="kw">impl </span>JsValue {
     <span class="doccomment">/// The `null` JS value constant.
-    </span><span class="kw">pub const </span>NULL: JsValue = JsValue {
-        idx: JSIDX_NULL,
-        _marker: marker::PhantomData,
-    };
+    </span><span class="kw">pub const </span>NULL: JsValue = JsValue::_new(JSIDX_NULL);
 
     <span class="doccomment">/// The `undefined` JS value constant.
-    </span><span class="kw">pub const </span>UNDEFINED: JsValue = JsValue {
-        idx: JSIDX_UNDEFINED,
-        _marker: marker::PhantomData,
-    };
+    </span><span class="kw">pub const </span>UNDEFINED: JsValue = JsValue::_new(JSIDX_UNDEFINED);
 
     <span class="doccomment">/// The `true` JS value constant.
-    </span><span class="kw">pub const </span>TRUE: JsValue = JsValue {
-        idx: JSIDX_TRUE,
-        _marker: marker::PhantomData,
-    };
+    </span><span class="kw">pub const </span>TRUE: JsValue = JsValue::_new(JSIDX_TRUE);
 
     <span class="doccomment">/// The `false` JS value constant.
-    </span><span class="kw">pub const </span>FALSE: JsValue = JsValue {
-        idx: JSIDX_FALSE,
-        _marker: marker::PhantomData,
-    };
+    </span><span class="kw">pub const </span>FALSE: JsValue = JsValue::_new(JSIDX_FALSE);
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>_new(idx: u32) -&gt; JsValue {
+    </span><span class="kw">const fn </span>_new(idx: u32) -&gt; JsValue {
         JsValue {
             idx,
             _marker: marker::PhantomData,
@@ -1986,6 +2041,7 @@
     ///
     /// The utf-8 string provided is copied to the JS heap and the string will
     /// be owned by the JS garbage collector.
+    </span><span class="attr">#[allow(clippy::should_implement_trait)] </span><span class="comment">// cannot fix without breaking change
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; JsValue {
         <span class="kw">unsafe </span>{ JsValue::_new(__wbindgen_string_new(s.as_ptr(), s.len())) }
@@ -2014,7 +2070,7 @@
     /// This function creates a JS object representing a boolean (a heap
     /// allocated boolean) and returns a handle to the JS version of it.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>from_bool(b: bool) -&gt; JsValue {
+    </span><span class="kw">pub const fn </span>from_bool(b: bool) -&gt; JsValue {
         <span class="kw">if </span>b {
             JsValue::TRUE
         } <span class="kw">else </span>{
@@ -2024,13 +2080,13 @@
 
     <span class="doccomment">/// Creates a new JS value representing `undefined`.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>undefined() -&gt; JsValue {
+    </span><span class="kw">pub const fn </span>undefined() -&gt; JsValue {
         JsValue::UNDEFINED
     }
 
     <span class="doccomment">/// Creates a new JS value representing `null`.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>null() -&gt; JsValue {
+    </span><span class="kw">pub const fn </span>null() -&gt; JsValue {
         JsValue::NULL
     }
 
@@ -2063,8 +2119,8 @@
     ///
     /// This function will serialize the provided value `t` to a JSON string,
     /// send the JSON string to JS, parse it into a JS object, and then return
-    /// a handle to the JS object. This is unlikely to be super speedy so it&#39;s
-    /// not recommended for large payloads, but it&#39;s a nice to have in some
+    /// a handle to the JS object. This is unlikely to be super speedy so it's
+    /// not recommended for large payloads, but it's a nice to have in some
     /// situations!
     ///
     /// Usage of this API requires activating the `serde-serialize` feature of
@@ -2073,8 +2129,8 @@
     /// # Errors
     ///
     /// Returns any error encountered when serializing `T` into JSON.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;serde-serialize&quot;</span>)]
-    #[deprecated = <span class="string">&quot;causes dependency cycles, use `serde-wasm-bindgen` or `gloo_utils::format::JsValueSerdeExt` instead&quot;</span>]
+    </span><span class="attr">#[cfg(feature = <span class="string">"serde-serialize"</span>)]
+    #[deprecated = <span class="string">"causes dependency cycles, use `serde-wasm-bindgen` or `gloo_utils::format::JsValueSerdeExt` instead"</span>]
     </span><span class="kw">pub fn </span>from_serde&lt;T&gt;(t: <span class="kw-2">&amp;</span>T) -&gt; serde_json::Result&lt;JsValue&gt;
     <span class="kw">where
         </span>T: serde::ser::Serialize + <span class="question-mark">?</span>Sized,
@@ -2104,11 +2160,11 @@
     /// # Errors
     ///
     /// Returns any error encountered when parsing the JSON into a `T`.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;serde-serialize&quot;</span>)]
-    #[deprecated = <span class="string">&quot;causes dependency cycles, use `serde-wasm-bindgen` or `gloo_utils::format::JsValueSerdeExt` instead&quot;</span>]
+    </span><span class="attr">#[cfg(feature = <span class="string">"serde-serialize"</span>)]
+    #[deprecated = <span class="string">"causes dependency cycles, use `serde-wasm-bindgen` or `gloo_utils::format::JsValueSerdeExt` instead"</span>]
     </span><span class="kw">pub fn </span>into_serde&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; serde_json::Result&lt;T&gt;
     <span class="kw">where
-        </span>T: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; serde::de::Deserialize&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span>T: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; serde::de::Deserialize&lt;<span class="lifetime">'a</span>&gt;,
     {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>ret = __wbindgen_json_serialize(<span class="self">self</span>.idx);
@@ -2117,14 +2173,14 @@
         }
     }
 
-    <span class="doccomment">/// Returns the `f64` value of this JS value if it&#39;s an instance of a
+    <span class="doccomment">/// Returns the `f64` value of this JS value if it's an instance of a
     /// number.
     ///
     /// If this JS value is not an instance of a number then this returns
     /// `None`.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>as_f64(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;f64&gt; {
-        <span class="kw">unsafe </span>{ FromWasmAbi::from_abi(__wbindgen_number_get(<span class="self">self</span>.idx)) }
+        <span class="kw">unsafe </span>{ __wbindgen_number_get(<span class="self">self</span>.idx).join() }
     }
 
     <span class="doccomment">/// Tests whether this JS value is a JS string.
@@ -2141,7 +2197,7 @@
     /// `JsString::try_from()` function from [js-sys](https://docs.rs/js-sys)
     /// instead.
     ///
-    /// If this JS value is not an instance of a string or if it&#39;s not valid
+    /// If this JS value is not an instance of a string or if it's not valid
     /// utf-8 then this returns `None`.
     ///
     /// # UTF-16 vs UTF-8
@@ -2153,13 +2209,13 @@
     /// caveats about the encodings.
     ///
     /// [caveats]: https://rustwasm.github.io/docs/wasm-bindgen/reference/types/str.html
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     #[inline]
     </span><span class="kw">pub fn </span>as_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
         <span class="kw">unsafe </span>{ FromWasmAbi::from_abi(__wbindgen_string_get(<span class="self">self</span>.idx)) }
     }
 
-    <span class="doccomment">/// Returns the `bool` value of this JS value if it&#39;s an instance of a
+    <span class="doccomment">/// Returns the `bool` value of this JS value if it's an instance of a
     /// boolean.
     ///
     /// If this JS value is not an instance of a boolean then this returns
@@ -2193,7 +2249,7 @@
         <span class="kw">unsafe </span>{ __wbindgen_is_symbol(<span class="self">self</span>.idx) == <span class="number">1 </span>}
     }
 
-    <span class="doccomment">/// Tests whether `typeof self == &quot;object&quot; &amp;&amp; self !== null`.
+    <span class="doccomment">/// Tests whether `typeof self == "object" &amp;&amp; self !== null`.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">unsafe </span>{ __wbindgen_is_object(<span class="self">self</span>.idx) == <span class="number">1 </span>}
@@ -2233,24 +2289,24 @@
         <span class="kw">unsafe </span>{ __wbindgen_in(<span class="self">self</span>.idx, obj.idx) == <span class="number">1 </span>}
     }
 
-    <span class="doccomment">/// Tests whether the value is [&quot;truthy&quot;].
+    <span class="doccomment">/// Tests whether the value is ["truthy"].
     ///
-    /// [&quot;truthy&quot;]: https://developer.mozilla.org/en-US/docs/Glossary/Truthy
+    /// ["truthy"]: https://developer.mozilla.org/en-US/docs/Glossary/Truthy
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_truthy(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         !<span class="self">self</span>.is_falsy()
     }
 
-    <span class="doccomment">/// Tests whether the value is [&quot;falsy&quot;].
+    <span class="doccomment">/// Tests whether the value is ["falsy"].
     ///
-    /// [&quot;falsy&quot;]: https://developer.mozilla.org/en-US/docs/Glossary/Falsy
+    /// ["falsy"]: https://developer.mozilla.org/en-US/docs/Glossary/Falsy
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_falsy(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">unsafe </span>{ __wbindgen_is_falsy(<span class="self">self</span>.idx) == <span class="number">1 </span>}
     }
 
     <span class="doccomment">/// Get a string representation of the JavaScript object for debugging.
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">fn </span>as_debug_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>ret = [<span class="number">0</span>; <span class="number">2</span>];
@@ -2365,9 +2421,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>JsValue {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt; <span class="kw">for </span>JsValue {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">&#39;a </span>str) -&gt; bool {
+    </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">'a </span>str) -&gt; bool {
         &lt;JsValue <span class="kw">as </span>PartialEq&lt;str&gt;&gt;::eq(<span class="self">self</span>, other)
     }
 }
@@ -2379,9 +2435,9 @@
             &lt;JsValue <span class="kw">as </span>PartialEq&lt;str&gt;&gt;::eq(<span class="self">self</span>, other)
         }
     }
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>String&gt; <span class="kw">for </span>JsValue {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; PartialEq&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>String&gt; <span class="kw">for </span>JsValue {
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">&#39;a </span>String) -&gt; bool {
+        </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;<span class="lifetime">'a </span>String) -&gt; bool {
             &lt;JsValue <span class="kw">as </span>PartialEq&lt;str&gt;&gt;::eq(<span class="self">self</span>, other)
         }
     }
@@ -2390,10 +2446,10 @@
 <span class="macro">macro_rules! </span>forward_deref_unop {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident, <span class="macro-nonterminal">$method</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$t</span>:ty) =&gt; {
         <span class="kw">impl </span><span class="macro-nonterminal">$imp </span><span class="kw">for </span><span class="macro-nonterminal">$t </span>{
-            <span class="kw">type </span>Output = &lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&gt;::Output;
+            <span class="kw">type </span>Output = &lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&gt;::Output;
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span><span class="macro-nonterminal">$method</span>(<span class="self">self</span>) -&gt; &lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&gt;::Output {
+            </span><span class="kw">fn </span><span class="macro-nonterminal">$method</span>(<span class="self">self</span>) -&gt; &lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&gt;::Output {
                 <span class="macro-nonterminal">$imp</span>::<span class="macro-nonterminal">$method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
             }
         }
@@ -2402,29 +2458,29 @@
 
 <span class="macro">macro_rules! </span>forward_deref_binop {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident, <span class="macro-nonterminal">$method</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$t</span>:ty) =&gt; {
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; <span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$t</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="macro-nonterminal">$t </span>{
-            <span class="kw">type </span>Output = &lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$t</span>&gt;&gt;::Output;
+        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$t</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="macro-nonterminal">$t </span>{
+            <span class="kw">type </span>Output = &lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="macro-nonterminal">$t</span>&gt;&gt;::Output;
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span><span class="macro-nonterminal">$method</span>(<span class="self">self</span>, other: <span class="macro-nonterminal">$t</span>) -&gt; &lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$t</span>&gt;&gt;::Output {
+            </span><span class="kw">fn </span><span class="macro-nonterminal">$method</span>(<span class="self">self</span>, other: <span class="macro-nonterminal">$t</span>) -&gt; &lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="macro-nonterminal">$t</span>&gt;&gt;::Output {
                 <span class="macro-nonterminal">$imp</span>::<span class="macro-nonterminal">$method</span>(<span class="self">self</span>, <span class="kw-2">&amp;</span>other)
             }
         }
 
         <span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="macro-nonterminal">$t</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$t </span>{
-            <span class="kw">type </span>Output = &lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$t</span>&gt;&gt;::Output;
+            <span class="kw">type </span>Output = &lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="macro-nonterminal">$t</span>&gt;&gt;::Output;
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span><span class="macro-nonterminal">$method</span>(<span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$t</span>) -&gt; &lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$t</span>&gt;&gt;::Output {
+            </span><span class="kw">fn </span><span class="macro-nonterminal">$method</span>(<span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$t</span>) -&gt; &lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="macro-nonterminal">$t</span>&gt;&gt;::Output {
                 <span class="macro-nonterminal">$imp</span>::<span class="macro-nonterminal">$method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, other)
             }
         }
 
         <span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$t</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$t </span>{
-            <span class="kw">type </span>Output = &lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$t</span>&gt;&gt;::Output;
+            <span class="kw">type </span>Output = &lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="macro-nonterminal">$t</span>&gt;&gt;::Output;
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span><span class="macro-nonterminal">$method</span>(<span class="self">self</span>, other: <span class="macro-nonterminal">$t</span>) -&gt; &lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="macro-nonterminal">$t</span>&gt;&gt;::Output {
+            </span><span class="kw">fn </span><span class="macro-nonterminal">$method</span>(<span class="self">self</span>, other: <span class="macro-nonterminal">$t</span>) -&gt; &lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="macro-nonterminal">$t </span><span class="kw">as </span><span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="macro-nonterminal">$t</span>&gt;&gt;::Output {
                 <span class="macro-nonterminal">$imp</span>::<span class="macro-nonterminal">$method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">&amp;</span>other)
             }
         }
@@ -2468,10 +2524,10 @@
     </span><span class="attr">#[inline]
     </span><span class="kw">fn </span>try_from(val: <span class="kw-2">&amp;</span>JsValue) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">let </span>jsval = <span class="kw">unsafe </span>{ JsValue::_new(__wbindgen_try_into_number(val.idx)) };
-        <span class="kw">return match </span>jsval.as_f64() {
+        <span class="kw">match </span>jsval.as_f64() {
             <span class="prelude-val">Some</span>(num) =&gt; <span class="prelude-val">Ok</span>(num),
             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(jsval),
-        };
+        }
     }
 }
 
@@ -2629,9 +2685,9 @@
 
 <span class="macro">forward_deref_binop!</span>(<span class="kw">impl </span>Rem, rem <span class="kw">for </span>JsValue);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; <span class="kw">for </span>JsValue {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str&gt; <span class="kw">for </span>JsValue {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>from(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; JsValue {
+    </span><span class="kw">fn </span>from(s: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; JsValue {
         JsValue::from_str(s)
     }
 }
@@ -2651,9 +2707,9 @@
 }
 
 <span class="macro">if_std! </span>{
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>String&gt; <span class="kw">for </span>JsValue {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>String&gt; <span class="kw">for </span>JsValue {
         <span class="attr">#[inline]
-        </span><span class="kw">fn </span>from(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>String) -&gt; JsValue {
+        </span><span class="kw">fn </span>from(s: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>String) -&gt; JsValue {
             JsValue::from_str(s)
         }
     }
@@ -2662,6 +2718,28 @@
         <span class="attr">#[inline]
         </span><span class="kw">fn </span>from(s: String) -&gt; JsValue {
             JsValue::from_str(<span class="kw-2">&amp;</span>s)
+        }
+    }
+
+    <span class="kw">impl </span>TryFrom&lt;JsValue&gt; <span class="kw">for </span>String {
+        <span class="kw">type </span>Error = JsValue;
+
+        <span class="kw">fn </span>try_from(value: JsValue) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+            <span class="kw">match </span>value.as_string() {
+                <span class="prelude-val">Some</span>(s) =&gt; <span class="prelude-val">Ok</span>(s),
+                <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(value),
+            }
+        }
+    }
+
+    <span class="kw">impl </span>TryFromJsValue <span class="kw">for </span>String {
+        <span class="kw">type </span>Error = JsValue;
+
+        <span class="kw">fn </span>try_from_js_value(value: JsValue) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+            <span class="kw">match </span>value.as_string() {
+                <span class="prelude-val">Some</span>(s) =&gt; <span class="prelude-val">Ok</span>(s),
+                <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(value),
+            }
         }
     }
 }
@@ -2673,12 +2751,12 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T&gt; <span class="kw">for </span>JsValue
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T&gt; <span class="kw">for </span>JsValue
 <span class="kw">where
     </span>T: JsCast,
 {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>from(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T) -&gt; JsValue {
+    </span><span class="kw">fn </span>from(s: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>T) -&gt; JsValue {
         s.as_ref().clone()
     }
 }
@@ -2758,7 +2836,7 @@
 }
 
 <span class="kw">fn </span>bigint_get_as_i64(v: <span class="kw-2">&amp;</span>JsValue) -&gt; <span class="prelude-ty">Option</span>&lt;i64&gt; {
-    <span class="kw">unsafe </span>{ Option::from_abi(__wbindgen_bigint_get_as_i64(v.idx)) }
+    <span class="kw">unsafe </span>{ __wbindgen_bigint_get_as_i64(v.idx).join() }
 }
 
 <span class="macro">macro_rules! </span>try_from_for_num64 {
@@ -2772,7 +2850,7 @@
                     <span class="comment">// Reinterpret bits; ABI-wise this is safe to do and allows us to avoid
                     // having separate intrinsics per signed/unsigned types.
                     </span>.map(|as_i64| as_i64 <span class="kw">as </span><span class="self">Self</span>)
-                    <span class="comment">// Double-check that we didn&#39;t truncate the bigint to 64 bits.
+                    <span class="comment">// Double-check that we didn't truncate the bigint to 64 bits.
                     </span>.filter(|as_self| v == <span class="kw-2">*</span>as_self)
                     <span class="comment">// Not a bigint or not in range.
                     </span>.ok_or(v)
@@ -2798,7 +2876,7 @@
                     <span class="comment">// Not a bigint.
                     </span><span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(v),
                 };
-                <span class="comment">// Now we know it&#39;s a bigint, so we can safely use `&gt;&gt; 64n` without
+                <span class="comment">// Now we know it's a bigint, so we can safely use `&gt;&gt; 64n` without
                 // worrying about a JS exception on type mismatch.
                 </span><span class="kw">let </span>hi = v &gt;&gt; JsValue::from(<span class="number">64_u64</span>);
                 <span class="comment">// The high part is the one we want checked against a 64-bit range.
@@ -2822,7 +2900,7 @@
 }
 
 <span class="comment">// `usize` and `isize` have to be treated a bit specially, because we know that
-// they&#39;re 32-bit but the compiler conservatively assumes they might be bigger.
+// they're 32-bit but the compiler conservatively assumes they might be bigger.
 // So, we have to manually forward to the `u32`/`i32` versions.
 </span><span class="kw">impl </span>PartialEq&lt;usize&gt; <span class="kw">for </span>JsValue {
     <span class="attr">#[inline]
@@ -2853,8 +2931,8 @@
 }
 
 <span class="macro">externs! </span>{
-    <span class="attr">#[link(wasm_import_module = <span class="string">&quot;__wbindgen_placeholder__&quot;</span>)]
-    </span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attr">#[link(wasm_import_module = <span class="string">"__wbindgen_placeholder__"</span>)]
+    </span><span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">fn </span>__wbindgen_object_clone_ref(idx: u32) -&gt; u32;
         <span class="kw">fn </span>__wbindgen_object_drop_ref(idx: u32) -&gt; ();
 
@@ -2905,10 +2983,10 @@
         <span class="kw">fn </span>__wbindgen_ge(a: u32, b: u32) -&gt; u32;
         <span class="kw">fn </span>__wbindgen_gt(a: u32, b: u32) -&gt; u32;
 
-        <span class="kw">fn </span>__wbindgen_number_get(idx: u32) -&gt; WasmOption&lt;f64&gt;;
+        <span class="kw">fn </span>__wbindgen_number_get(idx: u32) -&gt; WasmRet&lt;<span class="prelude-ty">Option</span>&lt;f64&gt;&gt;;
         <span class="kw">fn </span>__wbindgen_boolean_get(idx: u32) -&gt; u32;
         <span class="kw">fn </span>__wbindgen_string_get(idx: u32) -&gt; WasmSlice;
-        <span class="kw">fn </span>__wbindgen_bigint_get_as_i64(idx: u32) -&gt; WasmOption&lt;i64&gt;;
+        <span class="kw">fn </span>__wbindgen_bigint_get_as_i64(idx: u32) -&gt; WasmRet&lt;<span class="prelude-ty">Option</span>&lt;i64&gt;&gt;;
 
         <span class="kw">fn </span>__wbindgen_debug_string(ret: <span class="kw-2">*mut </span>[usize; <span class="number">2</span>], idx: u32) -&gt; ();
 
@@ -2930,6 +3008,7 @@
 
         <span class="kw">fn </span>__wbindgen_not(idx: u32) -&gt; u32;
 
+        <span class="kw">fn </span>__wbindgen_exports() -&gt; u32;
         <span class="kw">fn </span>__wbindgen_memory() -&gt; u32;
         <span class="kw">fn </span>__wbindgen_module() -&gt; u32;
         <span class="kw">fn </span>__wbindgen_function_table() -&gt; u32;
@@ -2946,17 +3025,17 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>fmt::Debug <span class="kw">for </span>JsValue {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;JsValue({})&quot;</span>, <span class="self">self</span>.as_debug_string())
+        <span class="macro">write!</span>(f, <span class="string">"JsValue({})"</span>, <span class="self">self</span>.as_debug_string())
     }
 }
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
 </span><span class="kw">impl </span>fmt::Debug <span class="kw">for </span>JsValue {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;JsValue&quot;</span>)
+        f.write_str(<span class="string">"JsValue"</span>)
     }
 }
 
@@ -2965,9 +3044,9 @@
     </span><span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{
             <span class="comment">// We definitely should never drop anything in the stack area
-            </span><span class="macro">debug_assert!</span>(<span class="self">self</span>.idx &gt;= JSIDX_OFFSET, <span class="string">&quot;free of stack slot {}&quot;</span>, <span class="self">self</span>.idx);
+            </span><span class="macro">debug_assert!</span>(<span class="self">self</span>.idx &gt;= JSIDX_OFFSET, <span class="string">"free of stack slot {}"</span>, <span class="self">self</span>.idx);
 
-            <span class="comment">// Otherwise if we&#39;re not dropping one of our reserved values,
+            <span class="comment">// Otherwise if we're not dropping one of our reserved values,
             // actually call the intrinsic. See #1054 for eventually removing
             // this branch.
             </span><span class="kw">if </span><span class="self">self</span>.idx &gt;= JSIDX_RESERVED {
@@ -2990,7 +3069,7 @@
 ///
 /// ```ignore
 /// #[wasm_bindgen]
-/// extern &quot;C&quot; {
+/// extern "C" {
 ///     static console: JsValue;
 /// }
 /// ```
@@ -3001,16 +3080,16 @@
 /// static console: JsStatic&lt;JsValue&gt; = ...;
 /// ```
 ///
-/// This type implements `Deref` to the inner type so it&#39;s typically used as if
+/// This type implements `Deref` to the inner type so it's typically used as if
 /// it were `&amp;T`.
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-</span><span class="kw">pub struct </span>JsStatic&lt;T: <span class="lifetime">&#39;static</span>&gt; {
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub struct </span>JsStatic&lt;T: <span class="lifetime">'static</span>&gt; {
     <span class="attr">#[doc(hidden)]
-    </span><span class="kw">pub </span>__inner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>std::thread::LocalKey&lt;T&gt;,
+    </span><span class="kw">pub </span>__inner: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>std::thread::LocalKey&lt;T&gt;,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-</span><span class="kw">impl</span>&lt;T: FromWasmAbi + <span class="lifetime">&#39;static</span>&gt; Deref <span class="kw">for </span>JsStatic&lt;T&gt; {
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">impl</span>&lt;T: FromWasmAbi + <span class="lifetime">'static</span>&gt; Deref <span class="kw">for </span>JsStatic&lt;T&gt; {
     <span class="kw">type </span>Target = T;
     <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
         <span class="comment">// We know that our tls key is never overwritten after initialization,
@@ -3019,7 +3098,7 @@
         //
         // FIXME: this is not sound if we ever implement thread exit hooks on
         // wasm, as the pointer will eventually be invalidated but you can get
-        // `&amp;&#39;static T` from this interface. We... probably need to deprecate
+        // `&amp;'static T` from this interface. We... probably need to deprecate
         // and/or remove this interface nowadays.
         </span><span class="kw">unsafe </span>{ <span class="self">self</span>.__inner.with(|ptr| <span class="kw-2">&amp;*</span>(ptr <span class="kw">as </span><span class="kw-2">*const </span>T)) }
     }
@@ -3027,7 +3106,7 @@
 
 <span class="attr">#[cold]
 #[inline(never)]
-#[deprecated(note = <span class="string">&quot;renamed to `throw_str`&quot;</span>)]
+#[deprecated(note = <span class="string">"renamed to `throw_str`"</span>)]
 #[doc(hidden)]
 </span><span class="kw">pub fn </span>throw(s: <span class="kw-2">&amp;</span>str) -&gt; ! {
     throw_str(s)
@@ -3041,7 +3120,7 @@
 ///
 /// Note that it is very easy to leak memory with this function because this
 /// function, unlike `panic!` on other platforms, **will not run destructors**.
-/// It&#39;s recommended to return a `Result` where possible to avoid the worry of
+/// It's recommended to return a `Result` where possible to avoid the worry of
 /// leaks.
 </span><span class="attr">#[cold]
 #[inline(never)]
@@ -3059,7 +3138,7 @@
 ///
 /// Note that it is very easy to leak memory with this function because this
 /// function, unlike `panic!` on other platforms, **will not run destructors**.
-/// It&#39;s recommended to return a `Result` where possible to avoid the worry of
+/// It's recommended to return a `Result` where possible to avoid the worry of
 /// leaks.
 </span><span class="attr">#[cold]
 #[inline(never)]
@@ -3071,7 +3150,7 @@
     }
 }
 
-<span class="doccomment">/// Get the count of live `externref`s / `JsValue`s in `wasm-bindgen`&#39;s heap.
+<span class="doccomment">/// Get the count of live `externref`s / `JsValue`s in `wasm-bindgen`'s heap.
 ///
 /// ## Usage
 ///
@@ -3093,7 +3172,7 @@
 /// ## What is Counted
 ///
 /// Note that this only counts the *owned* `externref`s / `JsValue`s that end up in
-/// `wasm-bindgen`&#39;s heap. It does not count borrowed `externref`s / `JsValue`s
+/// `wasm-bindgen`'s heap. It does not count borrowed `externref`s / `JsValue`s
 /// that are on its stack.
 ///
 /// For example, these `JsValue`s are accounted for:
@@ -3101,7 +3180,7 @@
 /// ```ignore
 /// #[wasm_bindgen]
 /// pub fn my_function(this_is_counted: JsValue) {
-///     let also_counted = JsValue::from_str(&quot;hi&quot;);
+///     let also_counted = JsValue::from_str("hi");
 ///     assert!(wasm_bindgen::externref_heap_live_count() &gt;= 2);
 /// }
 /// ```
@@ -3151,24 +3230,41 @@
 /// //
 /// // And this call would throw an error to JS with a custom error message!
 /// //
-/// //     y.expect_throw(&quot;woopsie daisy!&quot;)
+/// //     y.expect_throw("woopsie daisy!")
 /// ```
 </span><span class="kw">pub trait </span>UnwrapThrowExt&lt;T&gt;: Sized {
     <span class="doccomment">/// Unwrap this `Option` or `Result`, but instead of panicking on failure,
     /// throw an exception to JavaScript.
+    </span><span class="attr">#[cfg_attr(debug_assertions, track_caller)]
     </span><span class="kw">fn </span>unwrap_throw(<span class="self">self</span>) -&gt; T {
-        <span class="self">self</span>.expect_throw(<span class="string">&quot;`unwrap_throw` failed&quot;</span>)
+        <span class="kw">if </span><span class="macro">cfg!</span>(all(debug_assertions, feature = <span class="string">"std"</span>)) {
+            <span class="kw">let </span>loc = core::panic::Location::caller();
+            <span class="kw">let </span>msg = <span class="macro">std::format!</span>(
+                <span class="string">"`unwrap_throw` failed ({}:{}:{})"</span>,
+                loc.file(),
+                loc.line(),
+                loc.column()
+            );
+            <span class="self">self</span>.expect_throw(<span class="kw-2">&amp;</span>msg)
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.expect_throw(<span class="string">"`unwrap_throw` failed"</span>)
+        }
     }
 
-    <span class="doccomment">/// Unwrap this container&#39;s `T` value, or throw an error to JS with the
+    <span class="doccomment">/// Unwrap this container's `T` value, or throw an error to JS with the
     /// given message if the `T` value is unavailable (e.g. an `Option&lt;T&gt;` is
     /// `None`).
+    </span><span class="attr">#[cfg_attr(debug_assertions, track_caller)]
     </span><span class="kw">fn </span>expect_throw(<span class="self">self</span>, message: <span class="kw-2">&amp;</span>str) -&gt; T;
 }
 
 <span class="kw">impl</span>&lt;T&gt; UnwrapThrowExt&lt;T&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;T&gt; {
-    <span class="kw">fn </span>expect_throw(<span class="self">self</span>, message: <span class="kw-2">&amp;</span>str) -&gt; T {
-        <span class="kw">if </span><span class="macro">cfg!</span>(all(target_arch = <span class="string">&quot;wasm32&quot;</span>, not(target_os = <span class="string">&quot;emscripten&quot;</span>))) {
+    <span class="attr">#[cfg_attr(debug_assertions, track_caller)]
+    </span><span class="kw">fn </span>expect_throw(<span class="self">self</span>, message: <span class="kw-2">&amp;</span>str) -&gt; T {
+        <span class="kw">if </span><span class="macro">cfg!</span>(all(
+            target_arch = <span class="string">"wasm32"</span>,
+            not(any(target_os = <span class="string">"emscripten"</span>, target_os = <span class="string">"wasi"</span>))
+        )) {
             <span class="kw">match </span><span class="self">self </span>{
                 <span class="prelude-val">Some</span>(val) =&gt; val,
                 <span class="prelude-val">None </span>=&gt; throw_str(message),
@@ -3183,8 +3279,12 @@
 <span class="kw">where
     </span>E: core::fmt::Debug,
 {
-    <span class="kw">fn </span>expect_throw(<span class="self">self</span>, message: <span class="kw-2">&amp;</span>str) -&gt; T {
-        <span class="kw">if </span><span class="macro">cfg!</span>(all(target_arch = <span class="string">&quot;wasm32&quot;</span>, not(target_os = <span class="string">&quot;emscripten&quot;</span>))) {
+    <span class="attr">#[cfg_attr(debug_assertions, track_caller)]
+    </span><span class="kw">fn </span>expect_throw(<span class="self">self</span>, message: <span class="kw-2">&amp;</span>str) -&gt; T {
+        <span class="kw">if </span><span class="macro">cfg!</span>(all(
+            target_arch = <span class="string">"wasm32"</span>,
+            not(any(target_os = <span class="string">"emscripten"</span>, target_os = <span class="string">"wasi"</span>))
+        )) {
             <span class="kw">match </span><span class="self">self </span>{
                 <span class="prelude-val">Ok</span>(val) =&gt; val,
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; throw_str(message),
@@ -3195,23 +3295,24 @@
     }
 }
 
-<span class="doccomment">/// Returns a handle to this wasm instance&#39;s `WebAssembly.Module`
-///
-/// Note that this is only available when the final wasm app is built with
-/// `--target no-modules`, it&#39;s not recommended to rely on this API yet! This is
-/// largely just an experimental addition to enable threading demos. Using this
-/// may prevent your wasm module from building down the road.
-</span><span class="attr">#[doc(hidden)]
+<span class="doccomment">/// Returns a handle to this Wasm instance's `WebAssembly.Module`.
+/// This is only available when the final Wasm app is built with
+/// `--target no-modules` or `--target web`.
 </span><span class="kw">pub fn </span>module() -&gt; JsValue {
     <span class="kw">unsafe </span>{ JsValue::_new(__wbindgen_module()) }
 }
 
-<span class="doccomment">/// Returns a handle to this wasm instance&#39;s `WebAssembly.Memory`
+<span class="doccomment">/// Returns a handle to this wasm instance's `WebAssembly.Instance.prototype.exports`
+</span><span class="kw">pub fn </span>exports() -&gt; JsValue {
+    <span class="kw">unsafe </span>{ JsValue::_new(__wbindgen_exports()) }
+}
+
+<span class="doccomment">/// Returns a handle to this wasm instance's `WebAssembly.Memory`
 </span><span class="kw">pub fn </span>memory() -&gt; JsValue {
     <span class="kw">unsafe </span>{ JsValue::_new(__wbindgen_memory()) }
 }
 
-<span class="doccomment">/// Returns a handle to this wasm instance&#39;s `WebAssembly.Table` which is the
+<span class="doccomment">/// Returns a handle to this wasm instance's `WebAssembly.Table` which is the
 /// indirect function table used by Rust
 </span><span class="kw">pub fn </span>function_table() -&gt; JsValue {
     <span class="kw">unsafe </span>{ JsValue::_new(__wbindgen_function_table()) }
@@ -3222,22 +3323,23 @@
     <span class="kw">use </span><span class="kw">crate</span>::JsValue;
     <span class="kw">use </span>core::borrow::{Borrow, BorrowMut};
     <span class="kw">use </span>core::cell::{Cell, UnsafeCell};
+    <span class="kw">use </span>core::convert::Infallible;
     <span class="kw">use </span>core::ops::{Deref, DerefMut};
 
     <span class="kw">pub extern crate </span>core;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub extern crate </span>std;
 
     <span class="attr">#[macro_export]
     #[doc(hidden)]
-    #[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    #[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="macro">macro_rules! </span>__wbindgen_if_not_std {
         ($(<span class="macro-nonterminal">$i</span>:item)<span class="kw-2">*</span>) =&gt; {};
     }
 
     <span class="attr">#[macro_export]
     #[doc(hidden)]
-    #[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+    #[cfg(not(feature = <span class="string">"std"</span>))]
     </span><span class="macro">macro_rules! </span>__wbindgen_if_not_std {
         ($(<span class="macro-nonterminal">$i</span>:item)<span class="kw-2">*</span>) =&gt; ($(<span class="macro-nonterminal">$i</span>)<span class="kw-2">*</span>)
     }
@@ -3252,25 +3354,25 @@
     <span class="attr">#[cold]
     #[inline(never)]
     </span><span class="kw">fn </span>throw_null() -&gt; ! {
-        <span class="kw">super</span>::throw_str(<span class="string">&quot;null pointer passed to rust&quot;</span>);
+        <span class="kw">super</span>::throw_str(<span class="string">"null pointer passed to rust"</span>);
     }
 
     <span class="doccomment">/// A vendored version of `RefCell` from the standard library.
     ///
     /// Now why, you may ask, would we do that? Surely `RefCell` in libstd is
-    /// quite good. And you&#39;re right, it is indeed quite good! Functionally
+    /// quite good. And you're right, it is indeed quite good! Functionally
     /// nothing more is needed from `RefCell` in the standard library but for
     /// now this crate is also sort of optimizing for compiled code size.
     ///
     /// One major factor to larger binaries in Rust is when a panic happens.
     /// Panicking in the standard library involves a fair bit of machinery
-    /// (formatting, panic hooks, synchronization, etc). It&#39;s all worthwhile if
-    /// you need it but for something like `WasmRefCell` here we don&#39;t actually
+    /// (formatting, panic hooks, synchronization, etc). It's all worthwhile if
+    /// you need it but for something like `WasmRefCell` here we don't actually
     /// need all that!
     ///
     /// This is just a wrapper around all Rust objects passed to JS intended to
     /// guard accidental reentrancy, so this vendored version is intended solely
-    /// to not panic in libstd. Instead when it &quot;panics&quot; it calls our `throw`
+    /// to not panic in libstd. Instead when it "panics" it calls our `throw`
     /// function in this crate which raises an error in JS.
     </span><span class="kw">pub struct </span>WasmRefCell&lt;T: <span class="question-mark">?</span>Sized&gt; {
         borrow: Cell&lt;usize&gt;,
@@ -3326,12 +3428,12 @@
         }
     }
 
-    <span class="kw">pub struct </span>Ref&lt;<span class="lifetime">&#39;b</span>, T: <span class="question-mark">?</span>Sized + <span class="lifetime">&#39;b</span>&gt; {
-        value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>T,
-        borrow: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>Cell&lt;usize&gt;,
+    <span class="kw">pub struct </span>Ref&lt;<span class="lifetime">'b</span>, T: <span class="question-mark">?</span>Sized + <span class="lifetime">'b</span>&gt; {
+        value: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>T,
+        borrow: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>Cell&lt;usize&gt;,
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, T: <span class="question-mark">?</span>Sized&gt; Deref <span class="kw">for </span>Ref&lt;<span class="lifetime">&#39;b</span>, T&gt; {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'b</span>, T: <span class="question-mark">?</span>Sized&gt; Deref <span class="kw">for </span>Ref&lt;<span class="lifetime">'b</span>, T&gt; {
         <span class="kw">type </span>Target = T;
 
         <span class="attr">#[inline]
@@ -3340,25 +3442,25 @@
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, T: <span class="question-mark">?</span>Sized&gt; Borrow&lt;T&gt; <span class="kw">for </span>Ref&lt;<span class="lifetime">&#39;b</span>, T&gt; {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'b</span>, T: <span class="question-mark">?</span>Sized&gt; Borrow&lt;T&gt; <span class="kw">for </span>Ref&lt;<span class="lifetime">'b</span>, T&gt; {
         <span class="attr">#[inline]
         </span><span class="kw">fn </span>borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
             <span class="self">self</span>.value
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, T: <span class="question-mark">?</span>Sized&gt; Drop <span class="kw">for </span>Ref&lt;<span class="lifetime">&#39;b</span>, T&gt; {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'b</span>, T: <span class="question-mark">?</span>Sized&gt; Drop <span class="kw">for </span>Ref&lt;<span class="lifetime">'b</span>, T&gt; {
         <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
             <span class="self">self</span>.borrow.set(<span class="self">self</span>.borrow.get() - <span class="number">1</span>);
         }
     }
 
-    <span class="kw">pub struct </span>RefMut&lt;<span class="lifetime">&#39;b</span>, T: <span class="question-mark">?</span>Sized + <span class="lifetime">&#39;b</span>&gt; {
-        value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>T,
-        borrow: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>Cell&lt;usize&gt;,
+    <span class="kw">pub struct </span>RefMut&lt;<span class="lifetime">'b</span>, T: <span class="question-mark">?</span>Sized + <span class="lifetime">'b</span>&gt; {
+        value: <span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span>T,
+        borrow: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>Cell&lt;usize&gt;,
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, T: <span class="question-mark">?</span>Sized&gt; Deref <span class="kw">for </span>RefMut&lt;<span class="lifetime">&#39;b</span>, T&gt; {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'b</span>, T: <span class="question-mark">?</span>Sized&gt; Deref <span class="kw">for </span>RefMut&lt;<span class="lifetime">'b</span>, T&gt; {
         <span class="kw">type </span>Target = T;
 
         <span class="attr">#[inline]
@@ -3367,28 +3469,28 @@
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, T: <span class="question-mark">?</span>Sized&gt; DerefMut <span class="kw">for </span>RefMut&lt;<span class="lifetime">&#39;b</span>, T&gt; {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'b</span>, T: <span class="question-mark">?</span>Sized&gt; DerefMut <span class="kw">for </span>RefMut&lt;<span class="lifetime">'b</span>, T&gt; {
         <span class="attr">#[inline]
         </span><span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>T {
             <span class="self">self</span>.value
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, T: <span class="question-mark">?</span>Sized&gt; Borrow&lt;T&gt; <span class="kw">for </span>RefMut&lt;<span class="lifetime">&#39;b</span>, T&gt; {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'b</span>, T: <span class="question-mark">?</span>Sized&gt; Borrow&lt;T&gt; <span class="kw">for </span>RefMut&lt;<span class="lifetime">'b</span>, T&gt; {
         <span class="attr">#[inline]
         </span><span class="kw">fn </span>borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
             <span class="self">self</span>.value
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, T: <span class="question-mark">?</span>Sized&gt; BorrowMut&lt;T&gt; <span class="kw">for </span>RefMut&lt;<span class="lifetime">&#39;b</span>, T&gt; {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'b</span>, T: <span class="question-mark">?</span>Sized&gt; BorrowMut&lt;T&gt; <span class="kw">for </span>RefMut&lt;<span class="lifetime">'b</span>, T&gt; {
         <span class="attr">#[inline]
         </span><span class="kw">fn </span>borrow_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>T {
             <span class="self">self</span>.value
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, T: <span class="question-mark">?</span>Sized&gt; Drop <span class="kw">for </span>RefMut&lt;<span class="lifetime">&#39;b</span>, T&gt; {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'b</span>, T: <span class="question-mark">?</span>Sized&gt; Drop <span class="kw">for </span>RefMut&lt;<span class="lifetime">'b</span>, T&gt; {
         <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
             <span class="self">self</span>.borrow.set(<span class="number">0</span>);
         }
@@ -3396,18 +3498,16 @@
 
     <span class="kw">fn </span>borrow_fail() -&gt; ! {
         <span class="kw">super</span>::throw_str(
-            <span class="string">&quot;recursive use of an object detected which would lead to \
-             unsafe aliasing in rust&quot;</span>,
+            <span class="string">"recursive use of an object detected which would lead to \
+             unsafe aliasing in rust"</span>,
         );
     }
 
     <span class="macro">if_std! </span>{
         <span class="kw">use </span>std::alloc::{alloc, dealloc, realloc, Layout};
-        <span class="kw">use </span>std::mem;
 
         <span class="attr">#[no_mangle]
-        </span><span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>__wbindgen_malloc(size: usize) -&gt; <span class="kw-2">*mut </span>u8 {
-            <span class="kw">let </span>align = mem::align_of::&lt;usize&gt;();
+        </span><span class="kw">pub extern </span><span class="string">"C" </span><span class="kw">fn </span>__wbindgen_malloc(size: usize, align: usize) -&gt; <span class="kw-2">*mut </span>u8 {
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(layout) = Layout::from_size_align(size, align) {
                 <span class="kw">unsafe </span>{
                     <span class="kw">if </span>layout.size() &gt; <span class="number">0 </span>{
@@ -3425,8 +3525,7 @@
         }
 
         <span class="attr">#[no_mangle]
-        </span><span class="kw">pub unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>__wbindgen_realloc(ptr: <span class="kw-2">*mut </span>u8, old_size: usize, new_size: usize) -&gt; <span class="kw-2">*mut </span>u8 {
-            <span class="kw">let </span>align = mem::align_of::&lt;usize&gt;();
+        </span><span class="kw">pub unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>__wbindgen_realloc(ptr: <span class="kw-2">*mut </span>u8, old_size: usize, new_size: usize, align: usize) -&gt; <span class="kw-2">*mut </span>u8 {
             <span class="macro">debug_assert!</span>(old_size &gt; <span class="number">0</span>);
             <span class="macro">debug_assert!</span>(new_size &gt; <span class="number">0</span>);
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(layout) = Layout::from_size_align(old_size, align) {
@@ -3441,36 +3540,35 @@
         <span class="attr">#[cold]
         </span><span class="kw">fn </span>malloc_failure() -&gt; ! {
             <span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) {
-                <span class="kw">super</span>::throw_str(<span class="string">&quot;invalid malloc request&quot;</span>)
+                <span class="kw">super</span>::throw_str(<span class="string">"invalid malloc request"</span>)
             } <span class="kw">else </span>{
                 std::process::abort();
             }
         }
 
         <span class="attr">#[no_mangle]
-        </span><span class="kw">pub unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>__wbindgen_free(ptr: <span class="kw-2">*mut </span>u8, size: usize) {
+        </span><span class="kw">pub unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>__wbindgen_free(ptr: <span class="kw-2">*mut </span>u8, size: usize, align: usize) {
             <span class="comment">// This happens for zero-length slices, and in that case `ptr` is
-            // likely bogus so don&#39;t actually send this to the system allocator
+            // likely bogus so don't actually send this to the system allocator
             </span><span class="kw">if </span>size == <span class="number">0 </span>{
                 <span class="kw">return
             </span>}
-            <span class="kw">let </span>align = mem::align_of::&lt;usize&gt;();
             <span class="kw">let </span>layout = Layout::from_size_align_unchecked(size, align);
             dealloc(ptr, layout);
         }
     }
 
     <span class="doccomment">/// This is a curious function necessary to get wasm-bindgen working today,
-    /// and it&#39;s a bit of an unfortunate hack.
+    /// and it's a bit of an unfortunate hack.
     ///
     /// The general problem is that somehow we need the above two symbols to
     /// exist in the final output binary (__wbindgen_malloc and
     /// __wbindgen_free). These symbols may be called by JS for various
-    /// bindings, so we for sure need to make sure they&#39;re exported.
+    /// bindings, so we for sure need to make sure they're exported.
     ///
     /// The problem arises, though, when what if no Rust code uses the symbols?
     /// For all intents and purposes it looks to LLVM and the linker like the
-    /// above two symbols are dead code, so they&#39;re completely discarded!
+    /// above two symbols are dead code, so they're completely discarded!
     ///
     /// Specifically what happens is this:
     ///
@@ -3480,7 +3578,7 @@
     ///   is loaded from the object. In this case, if the Rust code never calls
     ///   __wbindgen_malloc or __wbindgen_free then the symbols never get linked
     ///   in.
-    /// * Later when `wasm-bindgen` attempts to use the symbols they don&#39;t
+    /// * Later when `wasm-bindgen` attempts to use the symbols they don't
     ///   exist, causing an error.
     ///
     /// This function is a weird hack for this problem. We inject a call to this
@@ -3489,7 +3587,7 @@
     ///
     /// Due to how rustc creates object files this function (and anything inside
     /// it) will be placed into the same object file as the two intrinsics
-    /// above. That means if this function is called and referenced we&#39;ll pull
+    /// above. That means if this function is called and referenced we'll pull
     /// in the object file and link the intrinsics.
     ///
     /// Ideas for how to improve this are most welcome!
@@ -3500,7 +3598,7 @@
     <span class="kw">static </span><span class="kw-2">mut </span>GLOBAL_EXNDATA: [u32; <span class="number">2</span>] = [<span class="number">0</span>; <span class="number">2</span>];
 
     <span class="attr">#[no_mangle]
-    </span><span class="kw">pub unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>__wbindgen_exn_store(idx: u32) {
+    </span><span class="kw">pub unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>__wbindgen_exn_store(idx: u32) {
         <span class="macro">debug_assert_eq!</span>(GLOBAL_EXNDATA[<span class="number">0</span>], <span class="number">0</span>);
         GLOBAL_EXNDATA[<span class="number">0</span>] = <span class="number">1</span>;
         GLOBAL_EXNDATA[<span class="number">1</span>] = idx;
@@ -3515,13 +3613,13 @@
             };
             GLOBAL_EXNDATA[<span class="number">0</span>] = <span class="number">0</span>;
             GLOBAL_EXNDATA[<span class="number">1</span>] = <span class="number">0</span>;
-            <span class="kw">return </span>ret;
+            ret
         }
     }
 
     <span class="doccomment">/// An internal helper trait for usage in `#[wasm_bindgen]` on `async`
     /// functions to convert the return value of the function to
-    /// `Result&lt;JsValue, JsValue&gt;` which is what we&#39;ll return to JS (where an
+    /// `Result&lt;JsValue, JsValue&gt;` which is what we'll return to JS (where an
     /// error is a failed future).
     </span><span class="kw">pub trait </span>IntoJsResult {
         <span class="kw">fn </span>into_js_result(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;JsValue, JsValue&gt;;
@@ -3576,6 +3674,42 @@
             }
         }
     }
+
+    <span class="doccomment">/// An internal helper struct for usage in `#[wasm_bindgen(main)]`
+    /// functions to throw the error (if it is `Err`).
+    </span><span class="kw">pub struct </span>MainWrapper&lt;T&gt;(<span class="kw">pub </span><span class="prelude-ty">Option</span>&lt;T&gt;);
+
+    <span class="kw">pub trait </span>Main {
+        <span class="kw">fn </span>__wasm_bindgen_main(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
+    }
+
+    <span class="kw">impl </span>Main <span class="kw">for </span><span class="kw-2">&amp;mut &amp;mut </span>MainWrapper&lt;()&gt; {
+        <span class="attr">#[inline]
+        </span><span class="kw">fn </span>__wasm_bindgen_main(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
+    }
+
+    <span class="kw">impl </span>Main <span class="kw">for </span><span class="kw-2">&amp;mut &amp;mut </span>MainWrapper&lt;Infallible&gt; {
+        <span class="attr">#[inline]
+        </span><span class="kw">fn </span>__wasm_bindgen_main(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
+    }
+
+    <span class="kw">impl</span>&lt;E: Into&lt;JsValue&gt;&gt; Main <span class="kw">for </span><span class="kw-2">&amp;mut &amp;mut </span>MainWrapper&lt;<span class="prelude-ty">Result</span>&lt;(), E&gt;&gt; {
+        <span class="attr">#[inline]
+        </span><span class="kw">fn </span>__wasm_bindgen_main(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = <span class="self">self</span>.<span class="number">0</span>.take().unwrap() {
+                <span class="kw">crate</span>::throw_val(e.into());
+            }
+        }
+    }
+
+    <span class="kw">impl</span>&lt;E: std::fmt::Debug&gt; Main <span class="kw">for </span><span class="kw-2">&amp;mut </span>MainWrapper&lt;<span class="prelude-ty">Result</span>&lt;(), E&gt;&gt; {
+        <span class="attr">#[inline]
+        </span><span class="kw">fn </span>__wasm_bindgen_main(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = <span class="self">self</span>.<span class="number">0</span>.take().unwrap() {
+                <span class="kw">crate</span>::throw_str(<span class="kw-2">&amp;</span><span class="macro">std::format!</span>(<span class="string">"{:?}"</span>, e));
+            }
+        }
+    }
 }
 
 <span class="doccomment">/// A wrapper type around slices and vectors for binding the `Uint8ClampedArray`
@@ -3611,7 +3745,7 @@
 /// throw a JavaScript `Error` object.
 ///
 /// You can get wasm_bindgen to throw basic errors by simply returning
-/// `Err(JsError::new(&quot;message&quot;))` from such a function.
+/// `Err(JsError::new("message"))` from such a function.
 ///
 /// For more complex error handling, `JsError` implements `From&lt;T&gt; where T: std::error::Error` by
 /// converting it to a string, so you can use it with `?`. Many Rust error types already do this,
@@ -3630,7 +3764,7 @@
 ///
 /// #[wasm_bindgen]
 /// pub fn throwing_function() -&gt; Result&lt;(), JsError&gt; {
-///     Err(JsError::new(&quot;message&quot;))
+///     Err(JsError::new("message"))
 /// }
 /// ```
 ///
@@ -3647,8 +3781,8 @@
 /// use core::fmt;
 /// impl std::error::Error for MyErrorType {}
 /// impl fmt::Display for MyErrorType {
-///     fn fmt(&amp;self, f: &amp;mut fmt::Formatter&lt;&#39;_&gt;) -&gt; fmt::Result {
-///         write!(f, &quot;display implementation becomes the error message&quot;)
+///     fn fmt(&amp;self, f: &amp;mut fmt::Formatter&lt;'_&gt;) -&gt; fmt::Result {
+///         write!(f, "display implementation becomes the error message")
 ///     }
 /// }
 ///
@@ -3694,5 +3828,4 @@
         error.value
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="wasm_bindgen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

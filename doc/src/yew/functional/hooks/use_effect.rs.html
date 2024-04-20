@@ -1,5 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/yew-0.20.0/src/functional/hooks/use_effect.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>use_effect.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../yew/index.html">
-                        <img src="https://yew.rs/img/logo.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yew-0.21.0/src/functional/hooks/use_effect.rs`."><title>use_effect.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../yew/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -264,19 +265,12 @@
 <a href="#263" id="263">263</a>
 <a href="#264" id="264">264</a>
 <a href="#265" id="265">265</a>
-<a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a>
-<a href="#268" id="268">268</a>
-<a href="#269" id="269">269</a>
-<a href="#270" id="270">270</a>
-<a href="#271" id="271">271</a>
-<a href="#272" id="272">272</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::cell::RefCell;
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::cell::RefCell;
 
 <span class="kw">use </span><span class="kw">crate</span>::functional::{hook, Effect, Hook, HookContext};
 
 <span class="doccomment">/// Trait describing the destructor of [`use_effect`] hook.
-</span><span class="kw">pub trait </span>TearDown: Sized + <span class="lifetime">&#39;static </span>{
+</span><span class="kw">pub trait </span>TearDown: Sized + <span class="lifetime">'static </span>{
     <span class="doccomment">/// The function that is executed when destructor is called
     </span><span class="kw">fn </span>tear_down(<span class="self">self</span>);
 }
@@ -285,7 +279,7 @@
     <span class="kw">fn </span>tear_down(<span class="self">self</span>) {}
 }
 
-<span class="kw">impl</span>&lt;F: FnOnce() + <span class="lifetime">&#39;static</span>&gt; TearDown <span class="kw">for </span>F {
+<span class="kw">impl</span>&lt;F: FnOnce() + <span class="lifetime">'static</span>&gt; TearDown <span class="kw">for </span>F {
     <span class="kw">fn </span>tear_down(<span class="self">self</span>) {
         <span class="self">self</span>()
     }
@@ -293,8 +287,8 @@
 
 <span class="kw">struct </span>UseEffectBase&lt;T, F, D&gt;
 <span class="kw">where
-    </span>F: FnOnce(<span class="kw-2">&amp;</span>T) -&gt; D + <span class="lifetime">&#39;static</span>,
-    T: <span class="lifetime">&#39;static</span>,
+    </span>F: FnOnce(<span class="kw-2">&amp;</span>T) -&gt; D + <span class="lifetime">'static</span>,
+    T: <span class="lifetime">'static</span>,
     D: TearDown,
 {
     runner_with_deps: <span class="prelude-ty">Option</span>&lt;(T, F)&gt;,
@@ -305,8 +299,8 @@
 
 <span class="kw">impl</span>&lt;T, F, D&gt; Effect <span class="kw">for </span>RefCell&lt;UseEffectBase&lt;T, F, D&gt;&gt;
 <span class="kw">where
-    </span>F: FnOnce(<span class="kw-2">&amp;</span>T) -&gt; D + <span class="lifetime">&#39;static</span>,
-    T: <span class="lifetime">&#39;static</span>,
+    </span>F: FnOnce(<span class="kw-2">&amp;</span>T) -&gt; D + <span class="lifetime">'static</span>,
+    T: <span class="lifetime">'static</span>,
     D: TearDown,
 {
     <span class="kw">fn </span>rendered(<span class="kw-2">&amp;</span><span class="self">self</span>) {
@@ -331,8 +325,8 @@
 
 <span class="kw">impl</span>&lt;T, F, D&gt; Drop <span class="kw">for </span>UseEffectBase&lt;T, F, D&gt;
 <span class="kw">where
-    </span>F: FnOnce(<span class="kw-2">&amp;</span>T) -&gt; D + <span class="lifetime">&#39;static</span>,
-    T: <span class="lifetime">&#39;static</span>,
+    </span>F: FnOnce(<span class="kw-2">&amp;</span>T) -&gt; D + <span class="lifetime">'static</span>,
+    T: <span class="lifetime">'static</span>,
     D: TearDown,
 {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
@@ -343,18 +337,18 @@
 }
 
 <span class="kw">fn </span>use_effect_base&lt;T, D&gt;(
-    runner: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>T) -&gt; D + <span class="lifetime">&#39;static</span>,
+    runner: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>T) -&gt; D + <span class="lifetime">'static</span>,
     deps: T,
     effect_changed_fn: <span class="kw">fn</span>(<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt;, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt;) -&gt; bool,
 ) -&gt; <span class="kw">impl </span>Hook&lt;Output = ()&gt;
 <span class="kw">where
-    </span>T: <span class="lifetime">&#39;static</span>,
+    </span>T: <span class="lifetime">'static</span>,
     D: TearDown,
 {
     <span class="kw">struct </span>HookProvider&lt;T, F, D&gt;
     <span class="kw">where
-        </span>F: FnOnce(<span class="kw-2">&amp;</span>T) -&gt; D + <span class="lifetime">&#39;static</span>,
-        T: <span class="lifetime">&#39;static</span>,
+        </span>F: FnOnce(<span class="kw-2">&amp;</span>T) -&gt; D + <span class="lifetime">'static</span>,
+        T: <span class="lifetime">'static</span>,
         D: TearDown,
     {
         runner: F,
@@ -364,8 +358,8 @@
 
     <span class="kw">impl</span>&lt;T, F, D&gt; Hook <span class="kw">for </span>HookProvider&lt;T, F, D&gt;
     <span class="kw">where
-        </span>F: FnOnce(<span class="kw-2">&amp;</span>T) -&gt; D + <span class="lifetime">&#39;static</span>,
-        T: <span class="lifetime">&#39;static</span>,
+        </span>F: FnOnce(<span class="kw-2">&amp;</span>T) -&gt; D + <span class="lifetime">'static</span>,
+        T: <span class="lifetime">'static</span>,
         D: TearDown,
     {
         <span class="kw">type </span>Output = ();
@@ -397,9 +391,9 @@
     }
 }
 
-<span class="doccomment">/// `use_effect` is used for hooking into the component&#39;s lifecycle and creating side effects.
+<span class="doccomment">/// `use_effect` is used for hooking into the component's lifecycle and creating side effects.
 ///
-/// The callback is called every time after the component&#39;s render has finished.
+/// The callback is called every time after the component's render has finished.
 ///
 /// # Example
 ///
@@ -414,10 +408,10 @@
 ///     let counter_one = counter.clone();
 ///     use_effect(move || {
 ///         // Make a call to DOM API after component is rendered
-///         gloo::utils::document().set_title(&amp;format!(&quot;You clicked {} times&quot;, *counter_one));
+///         gloo::utils::document().set_title(&amp;format!("You clicked {} times", *counter_one));
 ///
 ///         // Perform the cleanup
-///         || gloo::utils::document().set_title(&amp;format!(&quot;You clicked 0 times&quot;))
+///         || gloo::utils::document().set_title(&amp;format!("You clicked 0 times"))
 ///     });
 ///
 ///     let onclick = {
@@ -426,7 +420,7 @@
 ///     };
 ///
 ///     html! {
-///         &lt;button {onclick}&gt;{ format!(&quot;Increment to {}&quot;, *counter) }&lt;/button&gt;
+///         &lt;button {onclick}&gt;{ format!("Increment to {}", *counter) }&lt;/button&gt;
 ///     }
 /// }
 /// ```
@@ -442,7 +436,7 @@
 </span><span class="attr">#[hook]
 </span><span class="kw">pub fn </span>use_effect&lt;F, D&gt;(f: F)
 <span class="kw">where
-    </span>F: FnOnce() -&gt; D + <span class="lifetime">&#39;static</span>,
+    </span>F: FnOnce() -&gt; D + <span class="lifetime">'static</span>,
     D: TearDown,
 {
     use_effect_base(|<span class="kw">_</span>| f(), (), |<span class="kw">_</span>, <span class="kw">_</span>| <span class="bool-val">true</span>);
@@ -451,7 +445,7 @@
 <span class="doccomment">/// This hook is similar to [`use_effect`] but it accepts dependencies.
 ///
 /// Whenever the dependencies are changed, the effect callback is called again.
-/// To detect changes, dependencies must implement `PartialEq`.
+/// To detect changes, dependencies must implement [`PartialEq`].
 ///
 /// # Note
 /// The destructor also runs when dependencies change.
@@ -459,7 +453,7 @@
 /// # Example
 ///
 /// ```rust
-/// use yew::{function_component, html, use_effect_with_deps, Html, Properties};
+/// use yew::{function_component, html, use_effect_with, Html, Properties};
 /// # use gloo::console::log;
 ///
 /// #[derive(Properties, PartialEq)]
@@ -471,14 +465,13 @@
 /// fn HelloWorld(props: &amp;Props) -&gt; Html {
 ///     let is_loading = props.is_loading.clone();
 ///
-///     use_effect_with_deps(
-///         move |_| {
-///             log!(&quot; Is loading prop changed!&quot;);
-///         },
-///         is_loading,
-///     );
+///     use_effect_with(is_loading, move |_| {
+///         log!(" Is loading prop changed!");
+///     });
 ///
-///     html! { &lt;&gt;{&quot;Am I loading? - &quot;}{is_loading}&lt;/&gt; }
+///     html! {
+///         &lt;&gt;{"Am I loading? - "}{is_loading}&lt;/&gt;
+///     }
 /// }
 /// ```
 ///
@@ -490,19 +483,16 @@
 /// render of a component.
 ///
 /// ```rust
-/// use yew::{function_component, html, use_effect_with_deps, Html};
+/// use yew::{function_component, html, use_effect_with, Html};
 /// # use gloo::console::log;
 ///
 /// #[function_component]
 /// fn HelloWorld() -&gt; Html {
-///     use_effect_with_deps(
-///         move |_| {
-///             log!(&quot;I got rendered, yay!&quot;);
-///         },
-///         (),
-///     );
+///     use_effect_with((), move |_| {
+///         log!("I got rendered, yay!");
+///     });
 ///
-///     html! { &quot;Hello&quot; }
+///     html! { "Hello" }
 /// }
 /// ```
 ///
@@ -512,20 +502,18 @@
 /// It will only get called when the component is removed from view / gets destroyed.
 ///
 /// ```rust
-/// use yew::{function_component, html, use_effect_with_deps, Html};
+/// use yew::{function_component, html, use_effect_with, Html};
 /// # use gloo::console::log;
 ///
 /// #[function_component]
 /// fn HelloWorld() -&gt; Html {
-///     use_effect_with_deps(
-///         move |_| {
-///             || {
-///                 log!(&quot;Noo dont kill me, ahhh!&quot;);
-///             }
-///         },
-///         (),
-///     );
-///     html! { &quot;Hello&quot; }
+///     use_effect_with((), move |_| {
+///         || {
+///             log!("Noo dont kill me, ahhh!");
+///         }
+///     });
+///
+///     html! { "Hello" }
 /// }
 /// ```
 ///
@@ -534,14 +522,12 @@
 /// ### Tip
 ///
 /// The callback can return [`()`] if there is no destructor to run.
-</span><span class="attr">#[hook]
-</span><span class="kw">pub fn </span>use_effect_with_deps&lt;T, F, D&gt;(f: F, deps: T)
+</span><span class="kw">pub fn </span>use_effect_with&lt;T, F, D&gt;(deps: T, f: F) -&gt; <span class="kw">impl </span>Hook&lt;Output = ()&gt;
 <span class="kw">where
-    </span>T: PartialEq + <span class="lifetime">&#39;static</span>,
-    F: FnOnce(<span class="kw-2">&amp;</span>T) -&gt; D + <span class="lifetime">&#39;static</span>,
+    </span>T: PartialEq + <span class="lifetime">'static</span>,
+    F: FnOnce(<span class="kw-2">&amp;</span>T) -&gt; D + <span class="lifetime">'static</span>,
     D: TearDown,
 {
     use_effect_base(f, deps, |lhs, rhs| lhs != rhs)
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

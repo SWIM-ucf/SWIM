@@ -1,5 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/yew-0.20.0/src/virtual_dom/vnode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>vnode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../yew/index.html">
-                        <img src="https://yew.rs/img/logo.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yew-0.21.0/src/virtual_dom/vnode.rs`."><title>vnode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../yew/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -248,11 +249,21 @@
 <a href="#247" id="247">247</a>
 <a href="#248" id="248">248</a>
 <a href="#249" id="249">249</a>
-</pre><pre class="rust"><code><span class="doccomment">//! This module contains the implementation of abstract virtual node.
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! This module contains the implementation of abstract virtual node.
 
 </span><span class="kw">use </span>std::cmp::PartialEq;
-<span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::iter::FromIterator;
+<span class="kw">use </span>std::{fmt, mem};
 
 <span class="kw">use </span>web_sys::Node;
 
@@ -262,7 +273,8 @@
 <span class="kw">use </span><span class="kw">crate</span>::AttrValue;
 
 <span class="doccomment">/// Bind virtual element to a DOM reference.
-</span><span class="attr">#[derive(Clone)]
+</span><span class="attr">#[derive(Clone, PartialEq)]
+#[must_use = <span class="string">"html does not do anything unless returned to Yew for rendering."</span>]
 </span><span class="kw">pub enum </span>VNode {
     <span class="doccomment">/// A bind between `VTag` and `Element`.
     </span>VTag(Box&lt;VTag&gt;),
@@ -303,6 +315,20 @@
         <span class="self">self</span>.key().is_some()
     }
 
+    <span class="doccomment">/// Acquires a mutable reference of current VNode as a VList.
+    ///
+    /// Creates a VList with the current node as the first child if current VNode is not a VList.
+    </span><span class="kw">pub fn </span>to_vlist_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>VList {
+        <span class="kw">loop </span>{
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+                <span class="self">Self</span>::VList(<span class="kw-2">ref mut </span>m) =&gt; <span class="kw">return </span>m,
+                <span class="kw">_ </span>=&gt; {
+                    <span class="kw-2">*</span><span class="self">self </span>= VNode::VList(VList::with_children(<span class="macro">vec!</span>[mem::take(<span class="self">self</span>)], <span class="prelude-val">None</span>));
+                }
+            }
+        }
+    }
+
     <span class="doccomment">/// Create a [`VNode`] from a string of HTML
     ///
     /// # Behavior in browser
@@ -325,7 +351,7 @@
     /// ```rust
     /// use yew::{html, AttrValue, Html};
     /// # fn _main() {
-    /// let parsed = Html::from_html_unchecked(AttrValue::from(&quot;&lt;div&gt;content&lt;/div&gt;&quot;));
+    /// let parsed = Html::from_html_unchecked(AttrValue::from("&lt;div&gt;content&lt;/div&gt;"));
     /// let _: Html = html! {
     ///     &lt;div&gt;
     ///         {parsed}
@@ -411,80 +437,74 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>VNode {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             VNode::VTag(<span class="kw-2">ref </span>vtag) =&gt; vtag.fmt(f),
             VNode::VText(<span class="kw-2">ref </span>vtext) =&gt; vtext.fmt(f),
             VNode::VComp(<span class="kw-2">ref </span>vcomp) =&gt; vcomp.fmt(f),
             VNode::VList(<span class="kw-2">ref </span>vlist) =&gt; vlist.fmt(f),
-            VNode::VRef(<span class="kw-2">ref </span>vref) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;VRef ( \&quot;{}\&quot; )&quot;</span>, <span class="kw">crate</span>::utils::print_node(vref)),
+            VNode::VRef(<span class="kw-2">ref </span>vref) =&gt; <span class="macro">write!</span>(f, <span class="string">"VRef ( \"{}\" )"</span>, <span class="kw">crate</span>::utils::print_node(vref)),
             VNode::VPortal(<span class="kw-2">ref </span>vportal) =&gt; vportal.fmt(f),
             VNode::VSuspense(<span class="kw-2">ref </span>vsuspense) =&gt; vsuspense.fmt(f),
-            VNode::VRaw(<span class="kw-2">ref </span>vraw) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;VRaw {{ {} }}&quot;</span>, vraw.html),
+            VNode::VRaw(<span class="kw-2">ref </span>vraw) =&gt; <span class="macro">write!</span>(f, <span class="string">"VRaw {{ {} }}"</span>, vraw.html),
         }
     }
 }
 
-<span class="kw">impl </span>PartialEq <span class="kw">for </span>VNode {
-    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>VNode) -&gt; bool {
-        <span class="kw">match </span>(<span class="self">self</span>, other) {
-            (VNode::VTag(a), VNode::VTag(b)) =&gt; a == b,
-            (VNode::VText(a), VNode::VText(b)) =&gt; a == b,
-            (VNode::VList(a), VNode::VList(b)) =&gt; a == b,
-            (VNode::VRef(a), VNode::VRef(b)) =&gt; a == b,
-            <span class="comment">// TODO: Need to improve PartialEq for VComp before enabling.
-            </span>(VNode::VComp(<span class="kw">_</span>), VNode::VComp(<span class="kw">_</span>)) =&gt; <span class="bool-val">false</span>,
-            (VNode::VRaw(a), VNode::VRaw(b)) =&gt; a.html == b.html,
-            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
-        }
-    }
-}
-
-<span class="attr">#[cfg(feature = <span class="string">&quot;ssr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ssr"</span>)]
 </span><span class="kw">mod </span>feat_ssr {
     <span class="kw">use </span>futures::future::{FutureExt, LocalBoxFuture};
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::feat_ssr::VTagKind;
     <span class="kw">use </span><span class="kw">crate</span>::html::AnyScope;
     <span class="kw">use </span><span class="kw">crate</span>::platform::fmt::BufWriter;
 
     <span class="kw">impl </span>VNode {
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>render_into_stream&lt;<span class="lifetime">&#39;a</span>&gt;(
-            <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-            w: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>BufWriter,
-            parent_scope: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AnyScope,
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>render_into_stream&lt;<span class="lifetime">'a</span>&gt;(
+            <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+            w: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>BufWriter,
+            parent_scope: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AnyScope,
             hydratable: bool,
-        ) -&gt; LocalBoxFuture&lt;<span class="lifetime">&#39;a</span>, ()&gt; {
+            parent_vtag_kind: VTagKind,
+        ) -&gt; LocalBoxFuture&lt;<span class="lifetime">'a</span>, ()&gt; {
             <span class="kw">async fn </span>render_into_stream_(
                 this: <span class="kw-2">&amp;</span>VNode,
                 w: <span class="kw-2">&amp;mut </span>BufWriter,
                 parent_scope: <span class="kw-2">&amp;</span>AnyScope,
                 hydratable: bool,
+                parent_vtag_kind: VTagKind,
             ) {
                 <span class="kw">match </span>this {
                     VNode::VTag(vtag) =&gt; vtag.render_into_stream(w, parent_scope, hydratable).<span class="kw">await</span>,
                     VNode::VText(vtext) =&gt; {
-                        vtext.render_into_stream(w, parent_scope, hydratable).<span class="kw">await
+                        vtext
+                            .render_into_stream(w, parent_scope, hydratable, parent_vtag_kind)
+                            .<span class="kw">await
                     </span>}
                     VNode::VComp(vcomp) =&gt; {
-                        vcomp.render_into_stream(w, parent_scope, hydratable).<span class="kw">await
+                        vcomp
+                            .render_into_stream(w, parent_scope, hydratable, parent_vtag_kind)
+                            .<span class="kw">await
                     </span>}
                     VNode::VList(vlist) =&gt; {
-                        vlist.render_into_stream(w, parent_scope, hydratable).<span class="kw">await
+                        vlist
+                            .render_into_stream(w, parent_scope, hydratable, parent_vtag_kind)
+                            .<span class="kw">await
                     </span>}
-                    <span class="comment">// We are pretty safe here as it&#39;s not possible to get a web_sys::Node without
+                    <span class="comment">// We are pretty safe here as it's not possible to get a web_sys::Node without
                     // DOM support in the first place.
                     //
                     // The only exception would be to use `ServerRenderer` in a browser or wasm32
                     // environment with jsdom present.
                     </span>VNode::VRef(<span class="kw">_</span>) =&gt; {
-                        <span class="macro">panic!</span>(<span class="string">&quot;VRef is not possible to be rendered in to a string.&quot;</span>)
+                        <span class="macro">panic!</span>(<span class="string">"VRef is not possible to be rendered in to a string."</span>)
                     }
                     <span class="comment">// Portals are not rendered.
                     </span>VNode::VPortal(<span class="kw">_</span>) =&gt; {}
                     VNode::VSuspense(vsuspense) =&gt; {
                         vsuspense
-                            .render_into_stream(w, parent_scope, hydratable)
+                            .render_into_stream(w, parent_scope, hydratable, parent_vtag_kind)
                             .<span class="kw">await
                     </span>}
 
@@ -492,10 +512,10 @@
                 }
             }
 
-            <span class="kw">async move </span>{ render_into_stream_(<span class="self">self</span>, w, parent_scope, hydratable).<span class="kw">await </span>}
-                .boxed_local()
+            <span class="kw">async move </span>{
+                render_into_stream_(<span class="self">self</span>, w, parent_scope, hydratable, parent_vtag_kind).<span class="kw">await
+            </span>}.boxed_local()
         }
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

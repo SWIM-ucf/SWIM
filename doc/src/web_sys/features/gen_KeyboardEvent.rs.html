@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/web-sys-0.3.61/src/features/gen_KeyboardEvent.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gen_KeyboardEvent.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../web_sys/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/web-sys-0.3.69/src/features/gen_KeyboardEvent.rs`."><title>gen_KeyboardEvent.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="web_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../web_sys/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -281,158 +283,160 @@
 <a href="#281" id="281">281</a>
 <a href="#282" id="282">282</a>
 <a href="#283" id="283">283</a>
-</pre><pre class="rust"><code><span class="attr">#![allow(unused_imports)]
+<a href="#284" id="284">284</a>
+</pre></div><pre class="rust"><code><span class="attr">#![allow(unused_imports)]
+#![allow(clippy::all)]
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span>wasm_bindgen::prelude::<span class="kw-2">*</span>;
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-    # [wasm_bindgen (extends = UiEvent , extends = Event , extends = :: js_sys :: Object , js_name = KeyboardEvent , typescript_type = <span class="string">&quot;KeyboardEvent&quot;</span>)]
+</span><span class="kw">extern </span><span class="string">"C" </span>{
+    # [wasm_bindgen (extends = UiEvent , extends = Event , extends = :: js_sys :: Object , js_name = KeyboardEvent , typescript_type = <span class="string">"KeyboardEvent"</span>)]
     <span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
-    #[doc = <span class="string">&quot;The `KeyboardEvent` class.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    #[doc = <span class="string">"The `KeyboardEvent` class."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub type </span>KeyboardEvent;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = charCode)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `charCode` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/charCode)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"KeyboardEvent" </span>, js_name = charCode)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `charCode` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/charCode)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>char_code(this: <span class="kw-2">&amp;</span>KeyboardEvent) -&gt; u32;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = keyCode)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `keyCode` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"KeyboardEvent" </span>, js_name = keyCode)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `keyCode` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>key_code(this: <span class="kw-2">&amp;</span>KeyboardEvent) -&gt; u32;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = altKey)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `altKey` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/altKey)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"KeyboardEvent" </span>, js_name = altKey)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `altKey` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/altKey)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>alt_key(this: <span class="kw-2">&amp;</span>KeyboardEvent) -&gt; bool;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = ctrlKey)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `ctrlKey` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/ctrlKey)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"KeyboardEvent" </span>, js_name = ctrlKey)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `ctrlKey` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/ctrlKey)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>ctrl_key(this: <span class="kw-2">&amp;</span>KeyboardEvent) -&gt; bool;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = shiftKey)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `shiftKey` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/shiftKey)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"KeyboardEvent" </span>, js_name = shiftKey)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `shiftKey` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/shiftKey)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>shift_key(this: <span class="kw-2">&amp;</span>KeyboardEvent) -&gt; bool;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = metaKey)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `metaKey` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/metaKey)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"KeyboardEvent" </span>, js_name = metaKey)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `metaKey` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/metaKey)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>meta_key(this: <span class="kw-2">&amp;</span>KeyboardEvent) -&gt; bool;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = location)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `location` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/location)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"KeyboardEvent" </span>, js_name = location)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `location` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/location)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>location(this: <span class="kw-2">&amp;</span>KeyboardEvent) -&gt; u32;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = repeat)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `repeat` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/repeat)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"KeyboardEvent" </span>, js_name = repeat)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `repeat` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/repeat)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>repeat(this: <span class="kw-2">&amp;</span>KeyboardEvent) -&gt; bool;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = isComposing)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `isComposing` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/isComposing)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"KeyboardEvent" </span>, js_name = isComposing)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `isComposing` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/isComposing)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>is_composing(this: <span class="kw-2">&amp;</span>KeyboardEvent) -&gt; bool;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = key)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `key` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"KeyboardEvent" </span>, js_name = key)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `key` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>key(this: <span class="kw-2">&amp;</span>KeyboardEvent) -&gt; String;
-    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = code)]
-    <span class="attr">#[doc = <span class="string">&quot;Getter for the `code` field of this object.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    # [wasm_bindgen (structural , method , getter , js_class = <span class="string">"KeyboardEvent" </span>, js_name = code)]
+    <span class="attr">#[doc = <span class="string">"Getter for the `code` field of this object."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>code(this: <span class="kw-2">&amp;</span>KeyboardEvent) -&gt; String;
-    <span class="attr">#[wasm_bindgen(catch, constructor, js_class = <span class="string">&quot;KeyboardEvent&quot;</span>)]
-    #[doc = <span class="string">&quot;The `new KeyboardEvent(..)` constructor, creating a new instance of `KeyboardEvent`.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/KeyboardEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    <span class="attr">#[wasm_bindgen(catch, constructor, js_class = <span class="string">"KeyboardEvent"</span>)]
+    #[doc = <span class="string">"The `new KeyboardEvent(..)` constructor, creating a new instance of `KeyboardEvent`."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/KeyboardEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>new(type_arg: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;KeyboardEvent, JsValue&gt;;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;KeyboardEventInit&quot;</span>)]
-    #[wasm_bindgen(catch, constructor, js_class = <span class="string">&quot;KeyboardEvent&quot;</span>)]
-    #[doc = <span class="string">&quot;The `new KeyboardEvent(..)` constructor, creating a new instance of `KeyboardEvent`.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/KeyboardEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`, `KeyboardEventInit`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"KeyboardEventInit"</span>)]
+    #[wasm_bindgen(catch, constructor, js_class = <span class="string">"KeyboardEvent"</span>)]
+    #[doc = <span class="string">"The `new KeyboardEvent(..)` constructor, creating a new instance of `KeyboardEvent`."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/KeyboardEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`, `KeyboardEventInit`*"</span>]
     </span><span class="kw">pub fn </span>new_with_keyboard_event_init_dict(
         type_arg: <span class="kw-2">&amp;</span>str,
         keyboard_event_init_dict: <span class="kw-2">&amp;</span>KeyboardEventInit,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;KeyboardEvent, JsValue&gt;;
-    # [wasm_bindgen (method , structural , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = getModifierState)]
-    <span class="attr">#[doc = <span class="string">&quot;The `getModifierState()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/getModifierState)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    # [wasm_bindgen (method , structural , js_class = <span class="string">"KeyboardEvent" </span>, js_name = getModifierState)]
+    <span class="attr">#[doc = <span class="string">"The `getModifierState()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/getModifierState)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>get_modifier_state(this: <span class="kw-2">&amp;</span>KeyboardEvent, key: <span class="kw-2">&amp;</span>str) -&gt; bool;
-    # [wasm_bindgen (catch , method , structural , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = initKeyboardEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initKeyboardEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    # [wasm_bindgen (catch , method , structural , js_class = <span class="string">"KeyboardEvent" </span>, js_name = initKeyboardEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initKeyboardEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>init_keyboard_event(this: <span class="kw-2">&amp;</span>KeyboardEvent, type_arg: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt;;
-    # [wasm_bindgen (catch , method , structural , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = initKeyboardEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initKeyboardEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    # [wasm_bindgen (catch , method , structural , js_class = <span class="string">"KeyboardEvent" </span>, js_name = initKeyboardEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initKeyboardEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>init_keyboard_event_with_bubbles_arg(
         this: <span class="kw-2">&amp;</span>KeyboardEvent,
         type_arg: <span class="kw-2">&amp;</span>str,
         bubbles_arg: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt;;
-    # [wasm_bindgen (catch , method , structural , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = initKeyboardEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initKeyboardEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    # [wasm_bindgen (catch , method , structural , js_class = <span class="string">"KeyboardEvent" </span>, js_name = initKeyboardEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initKeyboardEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub fn </span>init_keyboard_event_with_bubbles_arg_and_cancelable_arg(
         this: <span class="kw-2">&amp;</span>KeyboardEvent,
         type_arg: <span class="kw-2">&amp;</span>str,
         bubbles_arg: bool,
         cancelable_arg: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt;;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;Window&quot;</span>)]
-    </span># [wasm_bindgen (catch , method , structural , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = initKeyboardEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initKeyboardEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"Window"</span>)]
+    </span># [wasm_bindgen (catch , method , structural , js_class = <span class="string">"KeyboardEvent" </span>, js_name = initKeyboardEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initKeyboardEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_keyboard_event_with_bubbles_arg_and_cancelable_arg_and_view_arg(
         this: <span class="kw-2">&amp;</span>KeyboardEvent,
         type_arg: <span class="kw-2">&amp;</span>str,
@@ -440,13 +444,13 @@
         cancelable_arg: bool,
         view_arg: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Window&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt;;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;Window&quot;</span>)]
-    </span># [wasm_bindgen (catch , method , structural , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = initKeyboardEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initKeyboardEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"Window"</span>)]
+    </span># [wasm_bindgen (catch , method , structural , js_class = <span class="string">"KeyboardEvent" </span>, js_name = initKeyboardEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initKeyboardEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_keyboard_event_with_bubbles_arg_and_cancelable_arg_and_view_arg_and_key_arg(
         this: <span class="kw-2">&amp;</span>KeyboardEvent,
         type_arg: <span class="kw-2">&amp;</span>str,
@@ -455,13 +459,13 @@
         view_arg: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Window&gt;,
         key_arg: <span class="kw-2">&amp;</span>str,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt;;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;Window&quot;</span>)]
-    </span># [wasm_bindgen (catch , method , structural , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = initKeyboardEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initKeyboardEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"Window"</span>)]
+    </span># [wasm_bindgen (catch , method , structural , js_class = <span class="string">"KeyboardEvent" </span>, js_name = initKeyboardEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initKeyboardEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_keyboard_event_with_bubbles_arg_and_cancelable_arg_and_view_arg_and_key_arg_and_location_arg(
         this: <span class="kw-2">&amp;</span>KeyboardEvent,
         type_arg: <span class="kw-2">&amp;</span>str,
@@ -471,13 +475,13 @@
         key_arg: <span class="kw-2">&amp;</span>str,
         location_arg: u32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt;;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;Window&quot;</span>)]
-    </span># [wasm_bindgen (catch , method , structural , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = initKeyboardEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initKeyboardEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"Window"</span>)]
+    </span># [wasm_bindgen (catch , method , structural , js_class = <span class="string">"KeyboardEvent" </span>, js_name = initKeyboardEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initKeyboardEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_keyboard_event_with_bubbles_arg_and_cancelable_arg_and_view_arg_and_key_arg_and_location_arg_and_ctrl_key(
         this: <span class="kw-2">&amp;</span>KeyboardEvent,
         type_arg: <span class="kw-2">&amp;</span>str,
@@ -488,13 +492,13 @@
         location_arg: u32,
         ctrl_key: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt;;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;Window&quot;</span>)]
-    </span># [wasm_bindgen (catch , method , structural , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = initKeyboardEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initKeyboardEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"Window"</span>)]
+    </span># [wasm_bindgen (catch , method , structural , js_class = <span class="string">"KeyboardEvent" </span>, js_name = initKeyboardEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initKeyboardEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_keyboard_event_with_bubbles_arg_and_cancelable_arg_and_view_arg_and_key_arg_and_location_arg_and_ctrl_key_and_alt_key(
         this: <span class="kw-2">&amp;</span>KeyboardEvent,
         type_arg: <span class="kw-2">&amp;</span>str,
@@ -506,13 +510,13 @@
         ctrl_key: bool,
         alt_key: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt;;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;Window&quot;</span>)]
-    </span># [wasm_bindgen (catch , method , structural , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = initKeyboardEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initKeyboardEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"Window"</span>)]
+    </span># [wasm_bindgen (catch , method , structural , js_class = <span class="string">"KeyboardEvent" </span>, js_name = initKeyboardEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initKeyboardEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_keyboard_event_with_bubbles_arg_and_cancelable_arg_and_view_arg_and_key_arg_and_location_arg_and_ctrl_key_and_alt_key_and_shift_key(
         this: <span class="kw-2">&amp;</span>KeyboardEvent,
         type_arg: <span class="kw-2">&amp;</span>str,
@@ -525,13 +529,13 @@
         alt_key: bool,
         shift_key: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt;;
-    <span class="attr">#[cfg(feature = <span class="string">&quot;Window&quot;</span>)]
-    </span># [wasm_bindgen (catch , method , structural , js_class = <span class="string">&quot;KeyboardEvent&quot; </span>, js_name = initKeyboardEvent)]
-    <span class="attr">#[doc = <span class="string">&quot;The `initKeyboardEvent()` method.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`, `Window`*&quot;</span>]
+    <span class="attr">#[cfg(feature = <span class="string">"Window"</span>)]
+    </span># [wasm_bindgen (catch , method , structural , js_class = <span class="string">"KeyboardEvent" </span>, js_name = initKeyboardEvent)]
+    <span class="attr">#[doc = <span class="string">"The `initKeyboardEvent()` method."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"[MDN Documentation](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyboardEvent)"</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`, `Window`*"</span>]
     </span><span class="kw">pub fn </span>init_keyboard_event_with_bubbles_arg_and_cancelable_arg_and_view_arg_and_key_arg_and_location_arg_and_ctrl_key_and_alt_key_and_shift_key_and_meta_key(
         this: <span class="kw-2">&amp;</span>KeyboardEvent,
         type_arg: <span class="kw-2">&amp;</span>str,
@@ -547,22 +551,21 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt;;
 }
 <span class="kw">impl </span>KeyboardEvent {
-    <span class="attr">#[doc = <span class="string">&quot;The `KeyboardEvent.DOM_KEY_LOCATION_STANDARD` const.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    <span class="attr">#[doc = <span class="string">"The `KeyboardEvent.DOM_KEY_LOCATION_STANDARD` const."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub const </span>DOM_KEY_LOCATION_STANDARD: u32 = <span class="number">0u64 </span><span class="kw">as </span>u32;
-    <span class="attr">#[doc = <span class="string">&quot;The `KeyboardEvent.DOM_KEY_LOCATION_LEFT` const.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    <span class="attr">#[doc = <span class="string">"The `KeyboardEvent.DOM_KEY_LOCATION_LEFT` const."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub const </span>DOM_KEY_LOCATION_LEFT: u32 = <span class="number">1u64 </span><span class="kw">as </span>u32;
-    <span class="attr">#[doc = <span class="string">&quot;The `KeyboardEvent.DOM_KEY_LOCATION_RIGHT` const.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    <span class="attr">#[doc = <span class="string">"The `KeyboardEvent.DOM_KEY_LOCATION_RIGHT` const."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub const </span>DOM_KEY_LOCATION_RIGHT: u32 = <span class="number">2u64 </span><span class="kw">as </span>u32;
-    <span class="attr">#[doc = <span class="string">&quot;The `KeyboardEvent.DOM_KEY_LOCATION_NUMPAD` const.&quot;</span>]
-    #[doc = <span class="string">&quot;&quot;</span>]
-    #[doc = <span class="string">&quot;*This API requires the following crate features to be activated: `KeyboardEvent`*&quot;</span>]
+    <span class="attr">#[doc = <span class="string">"The `KeyboardEvent.DOM_KEY_LOCATION_NUMPAD` const."</span>]
+    #[doc = <span class="string">""</span>]
+    #[doc = <span class="string">"*This API requires the following crate features to be activated: `KeyboardEvent`*"</span>]
     </span><span class="kw">pub const </span>DOM_KEY_LOCATION_NUMPAD: u32 = <span class="number">3u64 </span><span class="kw">as </span>u32;
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="web_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/emulation_core/datapath.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>datapath.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../swim/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/emulation_core/datapath.rs`."><title>datapath.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="swim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../swim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -68,9 +70,136 @@
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
-</pre><pre class="rust"><code><span class="doccomment">//! Module for the API of a generic datapath.
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! Module for the API of a generic datapath.
 
-/// A generic datapath.
+</span><span class="kw">use </span><span class="kw">crate</span>::emulation_core::architectures::DatapathRef;
+<span class="kw">use </span><span class="kw">crate</span>::emulation_core::datapath::Syscall::{
+    Exit, PrintDouble, PrintFloat, PrintInt, PrintString, ReadDouble, ReadFloat, ReadInt,
+    ReadString,
+};
+<span class="kw">use </span><span class="kw">crate</span>::emulation_core::mips::memory::Memory;
+<span class="kw">use </span>std::ops::BitOrAssign;
+
+<span class="doccomment">/// A generic datapath.
 ///
 /// This has the ability to execute instructions, and to interface with
 /// registers and memory. The generic datapath interface additionally
@@ -86,57 +215,167 @@
     /// registers, respectively.)
     </span><span class="kw">type </span>RegisterData;
 
-    <span class="doccomment">/// The enum used to describe all available registers used in the
-    /// datapath. This must be defined separately, and at minimum simply
-    /// contain a list of registers. Further implementation details are
-    /// at the discretion of the developer.
-    </span><span class="kw">type </span>RegisterEnum;
-
-    <span class="doccomment">/// The data type that describes memory for this datapath. This must be
-    /// defined separately. This allows raw access to any parts of memory
-    /// or its own interface at will.
-    </span><span class="kw">type </span>MemoryType;
-
     <span class="doccomment">/// Execute a single instruction based on the current state of the
     /// datapath. Should the datapath support stages, if the datapath is
     /// midway through a stage, the current instruction will be finished
     /// instead of executing a new instruction. Should the datapath be in
-    /// a &quot;halted&quot; state, behavior is undefined.
-    </span><span class="kw">fn </span>execute_instruction(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
+    /// a "halted" state, behavior is undefined.
+    </span><span class="kw">fn </span>execute_instruction(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; DatapathUpdateSignal;
 
     <span class="doccomment">/// Execute a single stage of execution based on the current state of
     /// the datapath. Should the datapath not support stages, assume the
     /// same behavior as [`Self::execute_instruction()`]. Should the
-    /// datapath be in a &quot;halted&quot; state, behavior is undefined.
-    </span><span class="kw">fn </span>execute_stage(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
+    /// datapath be in a "halted" state, behavior is undefined.
+    </span><span class="kw">fn </span>execute_stage(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; DatapathUpdateSignal;
 
-    <span class="doccomment">/// Retrieve the data in the register indicated by the provided enum.
-    /// It can be assumed valid data will be retrieved since any valid
-    /// registers should be listed within [`Self::RegisterEnum`].
-    </span><span class="kw">fn </span>get_register_by_enum(<span class="kw-2">&amp;</span><span class="self">self</span>, register: <span class="self">Self</span>::RegisterEnum) -&gt; <span class="self">Self</span>::RegisterData;
+    <span class="doccomment">/// Sets the data in the GP register indicated by the provided string. If it doesn't exist,
+    /// this function returns Err.
+    </span><span class="kw">fn </span>set_register_by_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, register: <span class="kw-2">&amp;</span>str, data: <span class="self">Self</span>::RegisterData);
+
+    <span class="comment">// Set the data in the FP register indicated by the provided string
+    </span><span class="kw">fn </span>set_fp_register_by_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, register: <span class="kw-2">&amp;</span>str, data: <span class="self">Self</span>::RegisterData);
+
+    <span class="doccomment">/// Reset the datapath, load instructions into memory, and un-sets the `is_halted`
+    /// flag. If the process fails, an [`Err`] is returned.
+    </span><span class="kw">fn </span>initialize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, initial_pc: usize, instructions: Vec&lt;u32&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt;;
 
     <span class="doccomment">/// Retrieve all memory as-is.
-    </span><span class="kw">fn </span>get_memory(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::MemoryType;
+    </span><span class="kw">fn </span>get_memory(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Memory;
 
-    <span class="doccomment">/// Returns if the datapath is in a &quot;halted&quot; or &quot;stopped&quot; state. This may
+    <span class="doccomment">/// Retrieve a mutable reference to memory.
+    </span><span class="kw">fn </span>get_memory_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Memory;
+
+    <span class="comment">// Store word in memory at ptr
+    </span><span class="kw">fn </span>set_memory(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ptr: u64, data: u32);
+
+    <span class="doccomment">/// Returns if the datapath is in a "halted" or "stopped" state. This may
     /// be true in the case where an error had occurred previously.
     </span><span class="kw">fn </span>is_halted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 
+    <span class="doccomment">/// Halts the datapath. In order to un-halt the datapath, either call reset() or initialize().
+    </span><span class="kw">fn </span>halt(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
+
     <span class="doccomment">/// Restore the datapath to its default state.
     </span><span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
+
+    <span class="doccomment">/// Obtain a reference to the concrete datapath type. Used when datapath-specific logic is
+    /// needed while dealing with a datapath as a trait object.
+    </span><span class="kw">fn </span>as_datapath_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DatapathRef;
+
+    <span class="doccomment">/// Returns the type of syscall and its arguments (if any exist for that syscall). See the
+    /// syscall enum for a list of syscalls and what they do.
+    </span><span class="kw">fn </span>get_syscall_arguments(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Syscall;
 }
 
 <span class="doccomment">/// A datapath that supports a visual diagram component.
 ///
 /// This requires a corresponding visual diagram with labels that can be mapped
 /// to the datapath.
-</span><span class="kw">pub trait </span>VisualDatapath {
-    <span class="doccomment">/// The information about a piece of the diagram that is returned from the datapath.
-    </span><span class="kw">type </span>LineInformation;
+</span><span class="kw">pub trait </span>VisualDatapath {}
 
-    <span class="doccomment">/// Return the information from the datapath corresponding to the `variable` attribute on a
-    /// part of the visual datapath diagram.
-    </span><span class="kw">fn </span>visual_line_to_data(<span class="kw-2">&amp;</span><span class="self">self</span>, variable: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self</span>::LineInformation;
+<span class="doccomment">/// Enum describing all syscalls that can be executed. The register used for indicating the syscall
+/// (and its argument) is different for each architecture.
+</span><span class="attr">#[derive(Clone, Debug, PartialEq)]
+</span><span class="kw">pub enum </span>Syscall {
+    <span class="doccomment">/// Halts the emulator core. This should generally be the default syscall if the syscall number
+    /// does not match any of the other variants.
+    ///
+    /// Call number: 0
+    </span>Exit,
+    <span class="doccomment">/// Prints the integer value of the argument register.
+    ///
+    /// Call number: 1
+    </span>PrintInt(u64),
+    <span class="doccomment">/// Prints the float value of the argument register.
+    ///
+    /// Call number: 2
+    </span>PrintFloat(f32),
+    <span class="doccomment">/// Prints the double value of the argument register.
+    ///
+    /// Call number: 3
+    </span>PrintDouble(f64),
+    <span class="doccomment">/// Prints a string to console, starting at the memory address in the argument and ending at a
+    /// null byte.
+    ///
+    /// Call number: 4
+    </span>PrintString(u64),
+    <span class="doccomment">/// Reads the next int from the console.
+    ///
+    /// Call number: 5
+    </span>ReadInt,
+    <span class="doccomment">/// Reads the next double from the console.
+    ///
+    /// Call number: 6
+    </span>ReadFloat,
+    <span class="doccomment">/// Reads the next float from the console.
+    ///
+    /// Call number 7
+    </span>ReadDouble,
+    <span class="doccomment">/// Reads from the console until a newline character and stores it at the provided memory
+    /// address with a null terminator.
+    ///
+    /// Call number 8
+    </span>ReadString(u64),
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="swim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+
+<span class="kw">impl </span>Syscall {
+    <span class="kw">pub fn </span>from_register_data(
+        syscall: u64,
+        integer_arg: u64,
+        float_arg: f32,
+        double_arg: f64,
+    ) -&gt; Syscall {
+        <span class="kw">match </span>syscall {
+            <span class="number">1 </span>=&gt; PrintInt(integer_arg),
+            <span class="number">2 </span>=&gt; PrintFloat(float_arg),
+            <span class="number">3 </span>=&gt; PrintDouble(double_arg),
+            <span class="number">4 </span>=&gt; PrintString(integer_arg),
+            <span class="number">5 </span>=&gt; ReadInt,
+            <span class="number">6 </span>=&gt; ReadFloat,
+            <span class="number">7 </span>=&gt; ReadDouble,
+            <span class="number">8 </span>=&gt; ReadString(integer_arg),
+            <span class="kw">_ </span>=&gt; Exit,
+        }
+    }
+}
+
+<span class="doccomment">/// Struct used for signalling the results of execution. This can then be used to determine which
+/// additional actions the emulator core thread needs to perform after it executes a cycle/stage.
+</span><span class="attr">#[derive(Default, Debug, Copy, Clone, PartialEq)]
+</span><span class="kw">pub struct </span>DatapathUpdateSignal {
+    <span class="kw">pub </span>changed_state: bool,
+    <span class="kw">pub </span>changed_registers: bool,
+    <span class="kw">pub </span>changed_coprocessor_state: bool,
+    <span class="kw">pub </span>changed_coprocessor_registers: bool,
+    <span class="kw">pub </span>changed_memory: bool,
+    <span class="kw">pub </span>changed_stack: bool,
+    <span class="kw">pub </span>hit_syscall: bool,
+    <span class="kw">pub </span>hit_breakpoint: bool,
+}
+
+<span class="doccomment">/// Constant used to easily trigger an update for everything but to avoid triggering any other
+/// execution (i.e. breakpoints or syscalls).
+</span><span class="kw">pub const </span>UPDATE_EVERYTHING: DatapathUpdateSignal = DatapathUpdateSignal {
+    changed_state: <span class="bool-val">true</span>,
+    changed_registers: <span class="bool-val">true</span>,
+    changed_coprocessor_state: <span class="bool-val">true</span>,
+    changed_coprocessor_registers: <span class="bool-val">true</span>,
+    changed_memory: <span class="bool-val">true</span>,
+    changed_stack: <span class="bool-val">true</span>,
+    hit_syscall: <span class="bool-val">false</span>,
+    hit_breakpoint: <span class="bool-val">false</span>,
+};
+
+<span class="kw">impl </span>BitOrAssign <span class="kw">for </span>DatapathUpdateSignal {
+    <span class="kw">fn </span>bitor_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: <span class="self">Self</span>) {
+        <span class="self">self</span>.changed_state |= rhs.changed_state;
+        <span class="self">self</span>.changed_registers |= rhs.changed_registers;
+        <span class="self">self</span>.changed_coprocessor_state |= rhs.changed_coprocessor_state;
+        <span class="self">self</span>.changed_coprocessor_registers |= rhs.changed_coprocessor_registers;
+        <span class="self">self</span>.changed_memory |= rhs.changed_memory;
+        <span class="self">self</span>.changed_stack |= rhs.changed_stack;
+        <span class="self">self</span>.hit_syscall |= rhs.hit_syscall;
+        <span class="self">self</span>.hit_breakpoint |= rhs.hit_breakpoint;
+    }
+}
+</code></pre></div></section></main></body></html>

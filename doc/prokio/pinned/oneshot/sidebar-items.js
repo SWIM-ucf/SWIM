@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["channel","Creates a oneshot channel."]],"struct":[["Receiver","The receiver of a oneshot channel."],["RecvError","Error returned when the channel is closed before a value is sent to the [`Receiver`]."],["Sender","The sender of a oneshot channel."]]};
+window.SIDEBAR_ITEMS = {"fn":["channel"],"struct":["Receiver","RecvError","Sender"]};

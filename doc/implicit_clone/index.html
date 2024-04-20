@@ -1,22 +1,117 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="ImplicitClone"><meta name="keywords" content="rust, rustlang, rust-lang, implicit_clone"><title>implicit_clone - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../implicit_clone/index.html"><div class="logo-container"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../implicit_clone/index.html"><div class="logo-container"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></div></a><h2 class="location"><a href="#">Crate implicit_clone</a></h2><div class="sidebar-elems"><ul class="block"><li class="version">Version 0.3.5</li><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#traits">Traits</a></li></ul></section></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Crate <a class="mod" href="#">implicit_clone</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/implicit_clone/lib.rs.html#1-120">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="implicitclone"><a href="#implicitclone">ImplicitClone</a></h2>
-<p>A library that introduces the marker trait <a href="trait.ImplicitClone.html"><code>ImplicitClone</code></a> which allows
-reproducing the behavior of the trait <a href="https://doc.rust-lang.org/std/marker/trait.Copy.html"><code>Copy</code></a> but calls the
-<a href="https://doc.rust-lang.org/std/clone/trait.Clone.html"><code>Clone</code></a> implementation instead and must be implemented in the host
-library.</p>
-<p>The idea is that you must implement this trait on types that are cheap to clone
-(<a href="https://doc.rust-lang.org/std/rc/struct.Rc.html"><code>std::rc::Rc</code></a> and <a href="https://doc.rust-lang.org/std/sync/struct.Arc.html"><code>std::sync::Arc</code></a> types are
-automatically implemented). Then the host library must use the trait
-<a href="trait.ImplicitClone.html"><code>ImplicitClone</code></a> to allow their users to pass objects that will be
-cloned automatically.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="ImplicitClone"><title>implicit_clone - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="implicit_clone" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-4c98445ec4002617.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../implicit_clone/index.html">implicit_clone</a><span class="version">0.4.9</span></h2></div><div class="sidebar-elems"><ul class="block">
+            <li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#traits">Traits</a></li><li><a href="#derives">Derive Macros</a></li></ul></section></div></nav><div class="sidebar-resizer"></div>
+    <main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../implicit_clone/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">implicit_clone</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../src/implicit_clone/lib.rs.html#1-324">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="implicitclone"><a class="doc-anchor" href="#implicitclone">§</a>ImplicitClone</h2>
+<p>This library introduces the marker trait <a href="trait.ImplicitClone.html" title="trait implicit_clone::ImplicitClone"><code>ImplicitClone</code></a> intended for
+cheap-to-clone types that should be allowed to be cloned implicitly. It enables host libraries
+using this crate to have the syntax of <a href="https://doc.rust-lang.org/std/marker/trait.Copy.html"><code>Copy</code></a> while actually calling the
+<a href="https://doc.rust-lang.org/std/clone/trait.Clone.html"><code>Clone</code></a> implementation instead (usually when host library does such syntax
+in a macro).</p>
+<p>The idea is that you must implement this trait on your cheap-to-clone types, and then the host
+library using the trait will allow users to pass values of your types and they will be cloned
+automatically.</p>
+<p>Standard types that the <a href="trait.ImplicitClone.html" title="trait implicit_clone::ImplicitClone"><code>ImplicitClone</code></a> is already implemented for:</p>
+<ul>
+<li><a href="https://doc.rust-lang.org/std/rc/struct.Rc.html"><code>std::rc::Rc</code></a></li>
+<li><a href="https://doc.rust-lang.org/std/sync/struct.Arc.html"><code>std::sync::Arc</code></a></li>
+<li>Tuples with 1-12 elements, all of which are also <a href="trait.ImplicitClone.html" title="trait implicit_clone::ImplicitClone"><code>ImplicitClone</code></a></li>
+<li><a href="https://doc.rust-lang.org/stable/std/option/enum.Option.html"><code>Option</code></a>, where inner value is <a href="trait.ImplicitClone.html" title="trait implicit_clone::ImplicitClone"><code>ImplicitClone</code></a></li>
+<li>Some built-in <a href="https://doc.rust-lang.org/std/marker/trait.Copy.html"><code>Copy</code></a> types, like <code>()</code>, <code>bool</code>, <code>&amp;T</code>, etc.</li>
+</ul>
 <p>This crate is in the category <code>rust-patterns</code> but this is actually a Rust anti-pattern. In Rust
 the user should always handle borrowing and ownership by themselves. Nevertheless, this pattern
 is sometimes desirable. For example, UI frameworks that rely on propagating properties from
-ancestors to children will always need to use Rc’ed types to allow every child component to
-update. This is the case in React-like framework like Yew.</p>
-<p>This crates also provide a few convenient immutable types for handling cheap-to-clone string,
-array and maps which you can find in the modules <a href="sync/index.html"><code>sync</code></a> and
-<a href="unsync/index.html"><code>unsync</code></a>. Those types implement <a href="trait.ImplicitClone.html"><code>ImplicitClone</code></a> and
-hold only types that implement <a href="trait.ImplicitClone.html"><code>ImplicitClone</code></a> as well. <strong>One big
+ancestors to multiple children will always need to use <code>Rc</code>’d types to cheaply and concisely
+update every child component. This is the case in React-like frameworks like
+<a href="https://yew.rs/">Yew</a>.</p>
+<p>This crate also provides a few convenient immutable types for handling cheap-to-clone strings,
+arrays and maps, you can find them in the modules <a href="sync/index.html" title="mod implicit_clone::sync"><code>sync</code></a> and
+<a href="unsync/index.html" title="mod implicit_clone::unsync"><code>unsync</code></a>. Those types implement <a href="trait.ImplicitClone.html" title="trait implicit_clone::ImplicitClone"><code>ImplicitClone</code></a> and
+hold only types that implement <a href="trait.ImplicitClone.html" title="trait implicit_clone::ImplicitClone"><code>ImplicitClone</code></a> as well. <strong>One big
 particularity: iterating on these types yields clones of the items and not references.</strong> This
 can be particularly handy when using a React-like framework.</p>
-</div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2><div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="sync/index.html" title="implicit_clone::sync mod">sync</a></div><div class="item-right docblock-short">Thread-safe version of immutable types.</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="unsync/index.html" title="implicit_clone::unsync mod">unsync</a></div><div class="item-right docblock-short">Single-threaded version of immutable types.</div></div></div><h2 id="macros" class="small-section-header"><a href="#macros">Macros</a></h2><div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="macro" href="macro.imap_deconstruct.html" title="implicit_clone::imap_deconstruct macro">imap_deconstruct</a></div><div class="item-right docblock-short">A macro to help deconstructs maps inspired by JS.</div></div></div><h2 id="traits" class="small-section-header"><a href="#traits">Traits</a></h2><div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.ImplicitClone.html" title="implicit_clone::ImplicitClone trait">ImplicitClone</a></div><div class="item-right docblock-short">Marker trait for types that can be cloned implicitly.</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="implicit_clone" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+<h3 id="example"><a class="doc-anchor" href="#example">§</a>Example</h3>
+<p>As an example, here is an implementation of a macro called <code>html_input! {}</code> which allows its
+user to build an <code>&lt;input&gt;</code> HTML node:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// In the host library source code:
+
+</span><span class="kw">use </span>implicit_clone::ImplicitClone;
+<span class="kw">use </span>implicit_clone::unsync::{IArray, IString};
+
+<span class="macro">macro_rules! </span>html_input {
+    (&lt;input $(<span class="kw">type</span>={<span class="macro-nonterminal">$ty</span>:expr})<span class="question-mark">? </span>$(name={<span class="macro-nonterminal">$name</span>:expr})<span class="question-mark">? </span>$(value={<span class="macro-nonterminal">$value</span>:expr})<span class="question-mark">?</span>&gt;) =&gt; {{
+        <span class="kw">let </span><span class="kw-2">mut </span>input = Input::new();
+        $(input.set_type(<span class="macro-nonterminal">$ty</span>);)*
+        $(input.set_name(<span class="macro-nonterminal">$name</span>);)*
+        $(input.set_value(<span class="macro-nonterminal">$value</span>);)*
+        input
+    }}
+}
+
+<span class="attr">#[derive(Clone)]
+</span><span class="kw">pub struct </span>Input {
+    ty: IString,
+    name: <span class="prelude-ty">Option</span>&lt;IString&gt;,
+    value: <span class="prelude-ty">Option</span>&lt;IString&gt;,
+}
+
+<span class="kw">impl </span>ImplicitClone <span class="kw">for </span>Input {}
+
+<span class="kw">impl </span>Input {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            ty: IString::Static(<span class="string">"text"</span>),
+            name: <span class="prelude-val">None</span>,
+            value: <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="kw">pub fn </span>set_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ty: <span class="kw">impl </span>Into&lt;IString&gt;) {
+        <span class="self">self</span>.ty = ty.into();
+    }
+
+    <span class="kw">pub fn </span>set_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw">impl </span>Into&lt;IString&gt;) {
+        <span class="self">self</span>.name.replace(name.into());
+    }
+
+    <span class="kw">pub fn </span>set_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="kw">impl </span>Into&lt;IString&gt;) {
+        <span class="self">self</span>.value.replace(value.into());
+    }
+}
+
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Input {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"&lt;input type=\"{}\""</span>, <span class="self">self</span>.ty)<span class="question-mark">?</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.name.as_ref() {
+            <span class="macro">write!</span>(f, <span class="string">" name=\"{}\""</span>, name)<span class="question-mark">?</span>;
+        }
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = <span class="self">self</span>.value.as_ref() {
+            <span class="macro">write!</span>(f, <span class="string">" value=\"{}\""</span>, value)<span class="question-mark">?</span>;
+        }
+        <span class="macro">write!</span>(f, <span class="string">"&gt;"</span>)
+    }
+}
+
+<span class="comment">// In the user's source code:
+
+</span><span class="kw">fn </span>component(age: <span class="kw-2">&amp;</span>IString) -&gt; IArray&lt;Input&gt; {
+    <span class="comment">// `age` is implicitly cloned to the 2 different inputs
+    </span><span class="kw">let </span>input1 = <span class="macro">html_input!</span>(&lt;input name={<span class="string">"age"</span>} value={age}&gt;);
+    <span class="kw">let </span>input2 = <span class="macro">html_input!</span>(&lt;input name={<span class="string">"age"</span>} value={age}&gt;);
+
+    IArray::from(<span class="macro">vec!</span>[input1, input2])
+}
+
+<span class="kw">let </span>age = IString::from(<span class="number">20</span>.to_string());
+<span class="kw">let </span>output = component(<span class="kw-2">&amp;</span>age);
+<span class="kw">let </span>output_str = output
+    .iter()
+    .map(|x| x.to_string())
+    .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
+    .join(<span class="string">""</span>);
+
+<span class="macro">assert_eq!</span>(
+    output_str,
+    <span class="string">r#"&lt;input type="text" name="age" value="20"&gt;&lt;input type="text" name="age" value="20"&gt;"#</span>,
+);</code></pre></div>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="sync/index.html" title="mod implicit_clone::sync">sync</a></div><div class="desc docblock-short">Thread-safe version of immutable types.</div></li><li><div class="item-name"><a class="mod" href="unsync/index.html" title="mod implicit_clone::unsync">unsync</a></div><div class="desc docblock-short">Single-threaded version of immutable types.</div></li></ul><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="macro" href="macro.imap_deconstruct.html" title="macro implicit_clone::imap_deconstruct">imap_deconstruct</a></div><div class="desc docblock-short">A macro to help deconstructs maps inspired by JS.</div></li></ul><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="trait" href="trait.ImplicitClone.html" title="trait implicit_clone::ImplicitClone">ImplicitClone</a></div><div class="desc docblock-short">Marker trait for cheap-to-clone types that should be allowed to be cloned implicitly.</div></li></ul><h2 id="derives" class="section-header">Derive Macros<a href="#derives" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="derive" href="derive.ImplicitClone.html" title="derive implicit_clone::ImplicitClone">ImplicitClone</a></div></li></ul></section></div></main></body></html>

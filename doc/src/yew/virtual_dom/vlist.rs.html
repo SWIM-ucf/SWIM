@@ -1,5 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/yew-0.20.0/src/virtual_dom/vlist.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>vlist.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../yew/index.html">
-                        <img src="https://yew.rs/img/logo.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yew-0.21.0/src/virtual_dom/vlist.rs`."><title>vlist.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../yew/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -306,8 +307,36 @@
 <a href="#305" id="305">305</a>
 <a href="#306" id="306">306</a>
 <a href="#307" id="307">307</a>
-</pre><pre class="rust"><code><span class="doccomment">//! This module contains fragments implementation.
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! This module contains fragments implementation.
 </span><span class="kw">use </span>std::ops::{Deref, DerefMut};
+<span class="kw">use </span>std::rc::Rc;
 
 <span class="kw">use super</span>::{Key, VNode};
 
@@ -322,7 +351,7 @@
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>VList {
     <span class="doccomment">/// The list of child [VNode]s
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) children: Vec&lt;VNode&gt;,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) children: <span class="prelude-ty">Option</span>&lt;Rc&lt;Vec&lt;VNode&gt;&gt;&gt;,
 
     <span class="doccomment">/// All [VNode]s in the VList have keys
     </span>fully_keyed: FullyKeyedState,
@@ -332,7 +361,7 @@
 
 <span class="kw">impl </span>PartialEq <span class="kw">for </span>VList {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
-        <span class="self">self</span>.children == other.children &amp;&amp; <span class="self">self</span>.key == other.key
+        <span class="self">self</span>.key == other.key &amp;&amp; <span class="self">self</span>.children == other.children
     }
 }
 
@@ -346,14 +375,22 @@
     <span class="kw">type </span>Target = Vec&lt;VNode&gt;;
 
     <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.children
+        <span class="kw">match </span><span class="self">self</span>.children {
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>m) =&gt; m,
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="comment">// This is mutable because the Vec&lt;VNode&gt; is not Sync
+                </span><span class="kw">static </span><span class="kw-2">mut </span>EMPTY: Vec&lt;VNode&gt; = Vec::new();
+                <span class="comment">// SAFETY: The EMPTY value is always read-only
+                </span><span class="kw">unsafe </span>{ <span class="kw-2">&amp;</span>EMPTY }
+            }
+        }
     }
 }
 
 <span class="kw">impl </span>DerefMut <span class="kw">for </span>VList {
     <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
         <span class="self">self</span>.fully_keyed = FullyKeyedState::Unknown;
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>.children
+        <span class="self">self</span>.children_mut()
     }
 }
 
@@ -361,7 +398,7 @@
     <span class="doccomment">/// Creates a new empty [VList] instance.
     </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            children: Vec::new(),
+            children: <span class="prelude-val">None</span>,
             key: <span class="prelude-val">None</span>,
             fully_keyed: FullyKeyedState::KnownFullyKeyed,
         }
@@ -371,15 +408,25 @@
     </span><span class="kw">pub fn </span>with_children(children: Vec&lt;VNode&gt;, key: <span class="prelude-ty">Option</span>&lt;Key&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>vlist = VList {
             fully_keyed: FullyKeyedState::Unknown,
-            children,
+            children: <span class="prelude-val">Some</span>(Rc::new(children)),
             key,
         };
-        vlist.fully_keyed = <span class="kw">if </span>vlist.fully_keyed() {
-            FullyKeyedState::KnownFullyKeyed
-        } <span class="kw">else </span>{
-            FullyKeyedState::KnownMissingKeys
-        };
+        vlist.recheck_fully_keyed();
         vlist
+    }
+
+    <span class="comment">// Returns a mutable reference to children, allocates the children if it hasn't been done.
+    //
+    // This method does not reassign key state. So it should only be used internally.
+    </span><span class="kw">fn </span>children_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Vec&lt;VNode&gt; {
+        <span class="kw">loop </span>{
+            <span class="kw">match </span><span class="self">self</span>.children {
+                <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>m) =&gt; <span class="kw">return </span>Rc::make_mut(m),
+                <span class="prelude-val">None </span>=&gt; {
+                    <span class="self">self</span>.children = <span class="prelude-val">Some</span>(Rc::new(Vec::new()));
+                }
+            }
+        }
     }
 
     <span class="doccomment">/// Add [VNode] child.
@@ -387,14 +434,14 @@
         <span class="kw">if </span><span class="self">self</span>.fully_keyed == FullyKeyedState::KnownFullyKeyed &amp;&amp; !child.has_key() {
             <span class="self">self</span>.fully_keyed = FullyKeyedState::KnownMissingKeys;
         }
-        <span class="self">self</span>.children.push(child);
+        <span class="self">self</span>.children_mut().push(child);
     }
 
     <span class="doccomment">/// Add multiple [VNode] children.
     </span><span class="kw">pub fn </span>add_children(<span class="kw-2">&amp;mut </span><span class="self">self</span>, children: <span class="kw">impl </span>IntoIterator&lt;Item = VNode&gt;) {
         <span class="kw">let </span>it = children.into_iter();
         <span class="kw">let </span>bound = it.size_hint();
-        <span class="self">self</span>.children.reserve(bound.<span class="number">1</span>.unwrap_or(bound.<span class="number">0</span>));
+        <span class="self">self</span>.children_mut().reserve(bound.<span class="number">1</span>.unwrap_or(bound.<span class="number">0</span>));
         <span class="kw">for </span>ch <span class="kw">in </span>it {
             <span class="self">self</span>.add_child(ch);
         }
@@ -416,7 +463,7 @@
         <span class="kw">match </span><span class="self">self</span>.fully_keyed {
             FullyKeyedState::KnownFullyKeyed =&gt; <span class="bool-val">true</span>,
             FullyKeyedState::KnownMissingKeys =&gt; <span class="bool-val">false</span>,
-            FullyKeyedState::Unknown =&gt; <span class="self">self</span>.children.iter().all(|c| c.has_key()),
+            FullyKeyedState::Unknown =&gt; <span class="self">self</span>.iter().all(|c| c.has_key()),
         }
     }
 }
@@ -432,37 +479,37 @@
         <span class="macro">assert_eq!</span>(
             vlist.fully_keyed,
             FullyKeyedState::KnownFullyKeyed,
-            <span class="string">&quot;should start fully keyed&quot;
+            <span class="string">"should start fully keyed"
         </span>);
         <span class="comment">// add a child that is keyed
         </span>vlist.add_child(VNode::VTag({
-            <span class="kw">let </span><span class="kw-2">mut </span>tag = VTag::new(<span class="string">&quot;a&quot;</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>tag = VTag::new(<span class="string">"a"</span>);
             tag.key = <span class="prelude-val">Some</span>(<span class="number">42u32</span>.into());
             tag.into()
         }));
         <span class="macro">assert_eq!</span>(
             vlist.fully_keyed,
             FullyKeyedState::KnownFullyKeyed,
-            <span class="string">&quot;should still be fully keyed&quot;
+            <span class="string">"should still be fully keyed"
         </span>);
-        <span class="macro">assert_eq!</span>(vlist.len(), <span class="number">1</span>, <span class="string">&quot;should contain 1 child&quot;</span>);
+        <span class="macro">assert_eq!</span>(vlist.len(), <span class="number">1</span>, <span class="string">"should contain 1 child"</span>);
         <span class="comment">// now add a child that is not keyed
-        </span>vlist.add_child(VNode::VText(VText::new(<span class="string">&quot;lorem ipsum&quot;</span>)));
+        </span>vlist.add_child(VNode::VText(VText::new(<span class="string">"lorem ipsum"</span>)));
         <span class="macro">assert_eq!</span>(
             vlist.fully_keyed,
             FullyKeyedState::KnownMissingKeys,
-            <span class="string">&quot;should not be fully keyed, text tags have no key&quot;
+            <span class="string">"should not be fully keyed, text tags have no key"
         </span>);
         <span class="kw">let _</span>: <span class="kw-2">&amp;mut </span>[VNode] = <span class="kw-2">&amp;mut </span>vlist; <span class="comment">// Use deref mut
         </span><span class="macro">assert_eq!</span>(
             vlist.fully_keyed,
             FullyKeyedState::Unknown,
-            <span class="string">&quot;key state should be unknown, since it was potentially modified through children&quot;
+            <span class="string">"key state should be unknown, since it was potentially modified through children"
         </span>);
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ssr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ssr"</span>)]
 </span><span class="kw">mod </span>feat_ssr {
     <span class="kw">use </span>std::fmt::Write;
     <span class="kw">use </span>std::task::Poll;
@@ -471,6 +518,7 @@
     <span class="kw">use </span>futures::{join, pin_mut, poll, FutureExt};
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::feat_ssr::VTagKind;
     <span class="kw">use </span><span class="kw">crate</span>::html::AnyScope;
     <span class="kw">use </span><span class="kw">crate</span>::platform::fmt::{<span class="self">self</span>, BufWriter};
 
@@ -480,31 +528,36 @@
             w: <span class="kw-2">&amp;mut </span>BufWriter,
             parent_scope: <span class="kw-2">&amp;</span>AnyScope,
             hydratable: bool,
+            parent_vtag_kind: VTagKind,
         ) {
-            <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.children[..] {
+            <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>[..] {
                 [] =&gt; {}
                 [child] =&gt; {
-                    child.render_into_stream(w, parent_scope, hydratable).<span class="kw">await</span>;
+                    child
+                        .render_into_stream(w, parent_scope, hydratable, parent_vtag_kind)
+                        .<span class="kw">await</span>;
                 }
                 <span class="kw">_ </span>=&gt; {
-                    <span class="kw">async fn </span>render_child_iter&lt;<span class="lifetime">&#39;a</span>, I&gt;(
+                    <span class="kw">async fn </span>render_child_iter&lt;<span class="lifetime">'a</span>, I&gt;(
                         <span class="kw-2">mut </span>children: I,
                         w: <span class="kw-2">&amp;mut </span>BufWriter,
                         parent_scope: <span class="kw-2">&amp;</span>AnyScope,
                         hydratable: bool,
+                        parent_vtag_kind: VTagKind,
                     ) <span class="kw">where
-                        </span>I: Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>VNode&gt;,
+                        </span>I: Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>VNode&gt;,
                     {
                         <span class="kw">let </span><span class="kw-2">mut </span>w = w;
                         <span class="kw">while let </span><span class="prelude-val">Some</span>(m) = children.next() {
                             <span class="kw">let </span>child_fur = <span class="kw">async move </span>{
-                                <span class="comment">// Rust&#39;s Compiler does not release the mutable reference to
+                                <span class="comment">// Rust's Compiler does not release the mutable reference to
                                 // BufWriter until the end of the loop, regardless of whether an
                                 // await statement has dropped the child_fur.
                                 //
                                 // We capture and return the mutable reference to avoid this.
 
-                                </span>m.render_into_stream(w, parent_scope, hydratable).<span class="kw">await</span>;
+                                </span>m.render_into_stream(w, parent_scope, hydratable, parent_vtag_kind)
+                                    .<span class="kw">await</span>;
                                 w
                             };
                             <span class="macro">pin_mut!</span>(child_fur);
@@ -520,6 +573,7 @@
                                             <span class="kw-2">&amp;mut </span>next_w,
                                             parent_scope,
                                             hydratable,
+                                            parent_vtag_kind,
                                         )
                                         .<span class="kw">await</span>;
                                     }
@@ -545,16 +599,17 @@
                         }
                     }
 
-                    <span class="kw">let </span>children = <span class="self">self</span>.children.iter();
-                    render_child_iter(children, w, parent_scope, hydratable).<span class="kw">await</span>;
+                    <span class="kw">let </span>children = <span class="self">self</span>.iter();
+                    render_child_iter(children, w, parent_scope, hydratable, parent_vtag_kind)
+                        .<span class="kw">await</span>;
                 }
             }
         }
     }
 }
 
-<span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
-#[cfg(feature = <span class="string">&quot;ssr&quot;</span>)]
+<span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
+#[cfg(feature = <span class="string">"ssr"</span>)]
 #[cfg(test)]
 </span><span class="kw">mod </span>ssr_tests {
     <span class="kw">use </span>tokio::test;
@@ -566,9 +621,9 @@
     </span><span class="kw">async fn </span>test_text_back_to_back() {
         <span class="attr">#[function_component]
         </span><span class="kw">fn </span>Comp() -&gt; Html {
-            <span class="kw">let </span>s = <span class="string">&quot;world&quot;</span>;
+            <span class="kw">let </span>s = <span class="string">"world"</span>;
 
-            <span class="macro">html! </span>{ &lt;div&gt;{<span class="string">&quot;Hello &quot;</span>}{s}{<span class="string">&quot;!&quot;</span>}&lt;/div&gt; }
+            <span class="macro">html! </span>{ &lt;div&gt;{<span class="string">"Hello "</span>}{s}{<span class="string">"!"</span>}&lt;/div&gt; }
         }
 
         <span class="kw">let </span>s = ServerRenderer::&lt;Comp&gt;::new()
@@ -576,7 +631,7 @@
             .render()
             .<span class="kw">await</span>;
 
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;&lt;div&gt;Hello world!&lt;/div&gt;&quot;</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">"&lt;div&gt;Hello world!&lt;/div&gt;"</span>);
     }
 
     <span class="attr">#[test]
@@ -588,16 +643,16 @@
 
         <span class="attr">#[function_component]
         </span><span class="kw">fn </span>Child(props: <span class="kw-2">&amp;</span>ChildProps) -&gt; Html {
-            <span class="macro">html! </span>{ &lt;div&gt;{<span class="string">&quot;Hello, &quot;</span>}{<span class="kw-2">&amp;</span>props.name}{<span class="string">&quot;!&quot;</span>}&lt;/div&gt; }
+            <span class="macro">html! </span>{ &lt;div&gt;{<span class="string">"Hello, "</span>}{<span class="kw-2">&amp;</span>props.name}{<span class="string">"!"</span>}&lt;/div&gt; }
         }
 
         <span class="attr">#[function_component]
         </span><span class="kw">fn </span>Comp() -&gt; Html {
             <span class="macro">html! </span>{
                 &lt;&gt;
-                    &lt;Child name=<span class="string">&quot;Jane&quot; </span>/&gt;
-                    &lt;Child name=<span class="string">&quot;John&quot; </span>/&gt;
-                    &lt;Child name=<span class="string">&quot;Josh&quot; </span>/&gt;
+                    &lt;Child name=<span class="string">"Jane" </span>/&gt;
+                    &lt;Child name=<span class="string">"John" </span>/&gt;
+                    &lt;Child name=<span class="string">"Josh" </span>/&gt;
                 &lt;/&gt;
             }
         }
@@ -609,9 +664,8 @@
 
         <span class="macro">assert_eq!</span>(
             s,
-            <span class="string">&quot;&lt;div&gt;Hello, Jane!&lt;/div&gt;&lt;div&gt;Hello, John!&lt;/div&gt;&lt;div&gt;Hello, Josh!&lt;/div&gt;&quot;
+            <span class="string">"&lt;div&gt;Hello, Jane!&lt;/div&gt;&lt;div&gt;Hello, John!&lt;/div&gt;&lt;div&gt;Hello, Josh!&lt;/div&gt;"
         </span>);
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

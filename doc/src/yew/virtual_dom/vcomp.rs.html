@@ -1,5 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/yew-0.20.0/src/virtual_dom/vcomp.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>vcomp.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../yew/index.html">
-                        <img src="https://yew.rs/img/logo.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yew-0.21.0/src/virtual_dom/vcomp.rs`."><title>vcomp.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../yew/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -297,29 +298,48 @@
 <a href="#296" id="296">296</a>
 <a href="#297" id="297">297</a>
 <a href="#298" id="298">298</a>
-</pre><pre class="rust"><code><span class="doccomment">//! This module contains the implementation of a virtual component (`VComp`).
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! This module contains the implementation of a virtual component (`VComp`).
 
-</span><span class="kw">use </span>std::any::TypeId;
+</span><span class="kw">use </span>std::any::{Any, TypeId};
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::rc::Rc;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ssr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ssr"</span>)]
 </span><span class="kw">use </span>futures::future::{FutureExt, LocalBoxFuture};
-<span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
 </span><span class="kw">use </span>web_sys::Element;
 
 <span class="kw">use </span><span class="kw">super</span>::Key;
-<span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::dom_bundle::BSubtree;
-<span class="attr">#[cfg(feature = <span class="string">&quot;hydration&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"hydration"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::dom_bundle::Fragment;
+<span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::dom_bundle::{BSubtree, DomSlot, DynamicDomSlot};
 <span class="kw">use </span><span class="kw">crate</span>::html::BaseComponent;
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;ssr&quot;</span>, feature = <span class="string">&quot;csr&quot;</span>))]
+<span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::html::Scoped;
+<span class="attr">#[cfg(any(feature = <span class="string">"ssr"</span>, feature = <span class="string">"csr"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::html::{AnyScope, Scope};
-<span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::html::{NodeRef, Scoped};
-<span class="attr">#[cfg(feature = <span class="string">&quot;ssr&quot;</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::platform::fmt::BufWriter;
+<span class="attr">#[cfg(feature = <span class="string">"ssr"</span>)]
+</span><span class="kw">use crate</span>::{feat_ssr::VTagKind, platform::fmt::BufWriter};
 
 <span class="doccomment">/// A virtual component.
 </span><span class="kw">pub struct </span>VComp {
@@ -331,11 +351,11 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>VComp {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;VComp&quot;</span>)
-            .field(<span class="string">&quot;type_id&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.type_id)
-            .field(<span class="string">&quot;mountable&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;..&quot;</span>)
-            .field(<span class="string">&quot;key&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.key)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"VComp"</span>)
+            .field(<span class="string">"type_id"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.type_id)
+            .field(<span class="string">"mountable"</span>, <span class="kw-2">&amp;</span><span class="string">".."</span>)
+            .field(<span class="string">"key"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.key)
             .finish()
     }
 }
@@ -354,34 +374,38 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>Mountable {
     <span class="kw">fn </span>copy(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Box&lt;<span class="kw">dyn </span>Mountable&gt;;
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
+    <span class="kw">fn </span>mountable_eq(<span class="kw-2">&amp;</span><span class="self">self</span>, rhs: <span class="kw-2">&amp;</span><span class="kw">dyn </span>Mountable) -&gt; bool;
+    <span class="kw">fn </span>as_any(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw">dyn </span>Any;
+
+    <span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
     </span><span class="kw">fn </span>mount(
         <span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;,
         root: <span class="kw-2">&amp;</span>BSubtree,
         parent_scope: <span class="kw-2">&amp;</span>AnyScope,
         parent: Element,
-        internal_ref: NodeRef,
-        next_sibling: NodeRef,
+        slot: DomSlot,
+        internal_ref: DynamicDomSlot,
     ) -&gt; Box&lt;<span class="kw">dyn </span>Scoped&gt;;
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
-    </span><span class="kw">fn </span>reuse(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;, scope: <span class="kw-2">&amp;</span><span class="kw">dyn </span>Scoped, next_sibling: NodeRef);
+    <span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
+    </span><span class="kw">fn </span>reuse(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;, scope: <span class="kw-2">&amp;</span><span class="kw">dyn </span>Scoped, slot: DomSlot);
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;ssr&quot;</span>)]
-    </span><span class="kw">fn </span>render_into_stream&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        w: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>BufWriter,
-        parent_scope: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AnyScope,
+    <span class="attr">#[cfg(feature = <span class="string">"ssr"</span>)]
+    </span><span class="kw">fn </span>render_into_stream&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        w: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>BufWriter,
+        parent_scope: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AnyScope,
         hydratable: bool,
-    ) -&gt; LocalBoxFuture&lt;<span class="lifetime">&#39;a</span>, ()&gt;;
+        parent_vtag_kind: VTagKind,
+    ) -&gt; LocalBoxFuture&lt;<span class="lifetime">'a</span>, ()&gt;;
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;hydration&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"hydration"</span>)]
     </span><span class="kw">fn </span>hydrate(
         <span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;,
         root: BSubtree,
         parent_scope: <span class="kw-2">&amp;</span>AnyScope,
         parent: Element,
-        internal_ref: NodeRef,
+        internal_ref: DynamicDomSlot,
         fragment: <span class="kw-2">&amp;mut </span>Fragment,
     ) -&gt; Box&lt;<span class="kw">dyn </span>Scoped&gt;;
 }
@@ -404,51 +428,63 @@
         Box::new(wrapper)
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
+    <span class="kw">fn </span>as_any(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw">dyn </span>Any {
+        <span class="self">self
+    </span>}
+
+    <span class="kw">fn </span>mountable_eq(<span class="kw-2">&amp;</span><span class="self">self</span>, rhs: <span class="kw-2">&amp;</span><span class="kw">dyn </span>Mountable) -&gt; bool {
+        rhs.as_any()
+            .downcast_ref::&lt;<span class="self">Self</span>&gt;()
+            .map(|rhs| <span class="self">self</span>.props == rhs.props)
+            .unwrap_or(<span class="bool-val">false</span>)
+    }
+
+    <span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
     </span><span class="kw">fn </span>mount(
         <span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;,
         root: <span class="kw-2">&amp;</span>BSubtree,
         parent_scope: <span class="kw-2">&amp;</span>AnyScope,
         parent: Element,
-        internal_ref: NodeRef,
-        next_sibling: NodeRef,
+        slot: DomSlot,
+        internal_ref: DynamicDomSlot,
     ) -&gt; Box&lt;<span class="kw">dyn </span>Scoped&gt; {
         <span class="kw">let </span>scope: Scope&lt;COMP&gt; = Scope::new(<span class="prelude-val">Some</span>(parent_scope.clone()));
-        scope.mount_in_place(root.clone(), parent, next_sibling, internal_ref, <span class="self">self</span>.props);
+        scope.mount_in_place(root.clone(), parent, slot, internal_ref, <span class="self">self</span>.props);
 
         Box::new(scope)
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
-    </span><span class="kw">fn </span>reuse(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;, scope: <span class="kw-2">&amp;</span><span class="kw">dyn </span>Scoped, next_sibling: NodeRef) {
+    <span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
+    </span><span class="kw">fn </span>reuse(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;, scope: <span class="kw-2">&amp;</span><span class="kw">dyn </span>Scoped, slot: DomSlot) {
         <span class="kw">let </span>scope: Scope&lt;COMP&gt; = scope.to_any().downcast::&lt;COMP&gt;();
-        scope.reuse(<span class="self">self</span>.props, next_sibling);
+        scope.reuse(<span class="self">self</span>.props, slot);
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;ssr&quot;</span>)]
-    </span><span class="kw">fn </span>render_into_stream&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        w: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>BufWriter,
-        parent_scope: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AnyScope,
+    <span class="attr">#[cfg(feature = <span class="string">"ssr"</span>)]
+    </span><span class="kw">fn </span>render_into_stream&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+        w: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>BufWriter,
+        parent_scope: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AnyScope,
         hydratable: bool,
-    ) -&gt; LocalBoxFuture&lt;<span class="lifetime">&#39;a</span>, ()&gt; {
+        parent_vtag_kind: VTagKind,
+    ) -&gt; LocalBoxFuture&lt;<span class="lifetime">'a</span>, ()&gt; {
         <span class="kw">let </span>scope: Scope&lt;COMP&gt; = Scope::new(<span class="prelude-val">Some</span>(parent_scope.clone()));
 
         <span class="kw">async move </span>{
             scope
-                .render_into_stream(w, <span class="self">self</span>.props.clone(), hydratable)
+                .render_into_stream(w, <span class="self">self</span>.props.clone(), hydratable, parent_vtag_kind)
                 .<span class="kw">await</span>;
         }
         .boxed_local()
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;hydration&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"hydration"</span>)]
     </span><span class="kw">fn </span>hydrate(
         <span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;,
         root: BSubtree,
         parent_scope: <span class="kw-2">&amp;</span>AnyScope,
         parent: Element,
-        internal_ref: NodeRef,
+        internal_ref: DynamicDomSlot,
         fragment: <span class="kw-2">&amp;mut </span>Fragment,
     ) -&gt; Box&lt;<span class="kw">dyn </span>Scoped&gt; {
         <span class="kw">let </span>scope: Scope&lt;COMP&gt; = Scope::new(<span class="prelude-val">Some</span>(parent_scope.clone()));
@@ -523,17 +559,19 @@
 
 <span class="kw">impl </span>PartialEq <span class="kw">for </span>VComp {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>VComp) -&gt; bool {
-        <span class="self">self</span>.type_id == other.type_id
+        <span class="self">self</span>.key == other.key
+            &amp;&amp; <span class="self">self</span>.type_id == other.type_id
+            &amp;&amp; <span class="self">self</span>.mountable.mountable_eq(other.mountable.as_ref())
     }
 }
 
 <span class="kw">impl</span>&lt;COMP: BaseComponent&gt; fmt::Debug <span class="kw">for </span>VChild&lt;COMP&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.write_str(<span class="string">&quot;VChild&lt;_&gt;&quot;</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">"VChild&lt;_&gt;"</span>)
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ssr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ssr"</span>)]
 </span><span class="kw">mod </span>feat_ssr {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::html::AnyScope;
@@ -545,16 +583,17 @@
             w: <span class="kw-2">&amp;mut </span>BufWriter,
             parent_scope: <span class="kw-2">&amp;</span>AnyScope,
             hydratable: bool,
+            parent_vtag_kind: VTagKind,
         ) {
             <span class="self">self</span>.mountable
                 .as_ref()
-                .render_into_stream(w, parent_scope, hydratable)
+                .render_into_stream(w, parent_scope, hydratable, parent_vtag_kind)
                 .<span class="kw">await</span>;
         }
     }
 }
 
-<span class="attr">#[cfg(all(test, not(target_arch = <span class="string">&quot;wasm32&quot;</span>), feature = <span class="string">&quot;ssr&quot;</span>))]
+<span class="attr">#[cfg(all(test, not(target_arch = <span class="string">"wasm32"</span>), feature = <span class="string">"ssr"</span>))]
 </span><span class="kw">mod </span>ssr_tests {
     <span class="kw">use </span>tokio::test;
 
@@ -570,16 +609,16 @@
 
         <span class="attr">#[function_component]
         </span><span class="kw">fn </span>Child(props: <span class="kw-2">&amp;</span>ChildProps) -&gt; Html {
-            <span class="macro">html! </span>{ &lt;div&gt;{<span class="string">&quot;Hello, &quot;</span>}{<span class="kw-2">&amp;</span>props.name}{<span class="string">&quot;!&quot;</span>}&lt;/div&gt; }
+            <span class="macro">html! </span>{ &lt;div&gt;{<span class="string">"Hello, "</span>}{<span class="kw-2">&amp;</span>props.name}{<span class="string">"!"</span>}&lt;/div&gt; }
         }
 
         <span class="attr">#[function_component]
         </span><span class="kw">fn </span>Comp() -&gt; Html {
             <span class="macro">html! </span>{
                 &lt;div&gt;
-                    &lt;Child name=<span class="string">&quot;Jane&quot; </span>/&gt;
-                    &lt;Child name=<span class="string">&quot;John&quot; </span>/&gt;
-                    &lt;Child name=<span class="string">&quot;Josh&quot; </span>/&gt;
+                    &lt;Child name=<span class="string">"Jane" </span>/&gt;
+                    &lt;Child name=<span class="string">"John" </span>/&gt;
+                    &lt;Child name=<span class="string">"Josh" </span>/&gt;
                 &lt;/div&gt;
             }
         }
@@ -591,9 +630,8 @@
 
         <span class="macro">assert_eq!</span>(
             s,
-            <span class="string">&quot;&lt;div&gt;&lt;div&gt;Hello, Jane!&lt;/div&gt;&lt;div&gt;Hello, John!&lt;/div&gt;&lt;div&gt;Hello, Josh!&lt;/div&gt;&lt;/div&gt;&quot;
+            <span class="string">"&lt;div&gt;&lt;div&gt;Hello, Jane!&lt;/div&gt;&lt;div&gt;Hello, John!&lt;/div&gt;&lt;div&gt;Hello, Josh!&lt;/div&gt;&lt;/div&gt;"
         </span>);
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["ensure_environment_set","Set up the environment if it’s not already set up."],["is_environment_set","Check if the Monaco environment is set."],["set_environment","Initialize the Monaco environment."]]};
+window.SIDEBAR_ITEMS = {"fn":["ensure_environment_set","is_environment_set","set_environment"]};

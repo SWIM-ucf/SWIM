@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":[["read_as_array_buffer","Returns the contents of `blob` as an array buffer."],["read_as_bytes","Returns the contents of `blob` as a `Vec<u8>`."],["read_as_data_url","Returns the contents of `blob` as a base64 encoded `data:` URL."],["read_as_text","Returns the contents of `blob` as a text string."]]};

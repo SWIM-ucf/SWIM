@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/serde-1.0.152/src/macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../serde/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-1.0.197/src/macros.rs`."><title>macros.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="serde" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../serde/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -229,12 +231,7 @@
 <a href="#229" id="229">229</a>
 <a href="#230" id="230">230</a>
 <a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-</pre><pre class="rust"><code><span class="comment">// Super explicit first paragraph because this shows up at the top level and
+</pre></div><pre class="rust"><code><span class="comment">// Super explicit first paragraph because this shows up at the top level and
 // trips up people who are just looking for basic Serialize / Deserialize
 // documentation.
 //
@@ -247,18 +244,18 @@
 /// input. This requires repetitive implementations of all the [`Deserializer`]
 /// trait methods.
 ///
-/// ```edition2018
+/// ```edition2021
 /// # use serde::forward_to_deserialize_any;
 /// # use serde::de::{value, Deserializer, Visitor};
 /// #
 /// # struct MyDeserializer;
 /// #
-/// # impl&lt;&#39;de&gt; Deserializer&lt;&#39;de&gt; for MyDeserializer {
+/// # impl&lt;'de&gt; Deserializer&lt;'de&gt; for MyDeserializer {
 /// #     type Error = value::Error;
 /// #
 /// #     fn deserialize_any&lt;V&gt;(self, _: V) -&gt; Result&lt;V::Value, Self::Error&gt;
 /// #     where
-/// #         V: Visitor&lt;&#39;de&gt;,
+/// #         V: Visitor&lt;'de&gt;,
 /// #     {
 /// #         unimplemented!()
 /// #     }
@@ -266,7 +263,7 @@
 /// #[inline]
 /// fn deserialize_bool&lt;V&gt;(self, visitor: V) -&gt; Result&lt;V::Value, Self::Error&gt;
 /// where
-///     V: Visitor&lt;&#39;de&gt;,
+///     V: Visitor&lt;'de&gt;,
 /// {
 ///     self.deserialize_any(visitor)
 /// }
@@ -283,18 +280,18 @@
 /// methods so that they forward directly to [`Deserializer::deserialize_any`].
 /// You can choose which methods to forward.
 ///
-/// ```edition2018
+/// ```edition2021
 /// # use serde::forward_to_deserialize_any;
 /// # use serde::de::{value, Deserializer, Visitor};
 /// #
 /// # struct MyDeserializer;
 /// #
-/// impl&lt;&#39;de&gt; Deserializer&lt;&#39;de&gt; for MyDeserializer {
+/// impl&lt;'de&gt; Deserializer&lt;'de&gt; for MyDeserializer {
 /// #   type Error = value::Error;
 /// #
 ///     fn deserialize_any&lt;V&gt;(self, visitor: V) -&gt; Result&lt;V::Value, Self::Error&gt;
 ///     where
-///         V: Visitor&lt;&#39;de&gt;,
+///         V: Visitor&lt;'de&gt;,
 ///     {
 ///         /* ... */
 /// #       let _ = visitor;
@@ -310,30 +307,29 @@
 /// ```
 ///
 /// The macro assumes the convention that your `Deserializer` lifetime parameter
-/// is called `&#39;de` and that the `Visitor` type parameters on each method are
+/// is called `'de` and that the `Visitor` type parameters on each method are
 /// called `V`. A different type parameter and a different lifetime can be
 /// specified explicitly if necessary.
 ///
-/// ```edition2018
-/// # use std::marker::PhantomData;
-/// #
+/// ```edition2021
 /// # use serde::forward_to_deserialize_any;
 /// # use serde::de::{value, Deserializer, Visitor};
+/// # use std::marker::PhantomData;
 /// #
 /// # struct MyDeserializer&lt;V&gt;(PhantomData&lt;V&gt;);
 /// #
-/// # impl&lt;&#39;q, V&gt; Deserializer&lt;&#39;q&gt; for MyDeserializer&lt;V&gt; {
+/// # impl&lt;'q, V&gt; Deserializer&lt;'q&gt; for MyDeserializer&lt;V&gt; {
 /// #     type Error = value::Error;
 /// #
 /// #     fn deserialize_any&lt;W&gt;(self, visitor: W) -&gt; Result&lt;W::Value, Self::Error&gt;
 /// #     where
-/// #         W: Visitor&lt;&#39;q&gt;,
+/// #         W: Visitor&lt;'q&gt;,
 /// #     {
 /// #         unimplemented!()
 /// #     }
 /// #
 /// forward_to_deserialize_any! {
-///     &lt;W: Visitor&lt;&#39;q&gt;&gt;
+///     &lt;W: Visitor&lt;'q&gt;&gt;
 ///     bool i8 i16 i32 i64 i128 u8 u16 u32 u64 u128 f32 f64 char str string
 ///     bytes byte_buf option unit unit_struct newtype_struct seq tuple
 ///     tuple_struct map struct enum identifier ignored_any
@@ -351,7 +347,7 @@
     };
     <span class="comment">// This case must be after the previous one.
     </span>($(<span class="macro-nonterminal">$func</span>:ident)<span class="kw-2">*</span>) =&gt; {
-        $(<span class="macro">forward_to_deserialize_any_helper!</span>{<span class="macro-nonterminal">$func</span>&lt;<span class="lifetime">&#39;de</span>, V&gt;})*
+        $(<span class="macro">forward_to_deserialize_any_helper!</span>{<span class="macro-nonterminal">$func</span>&lt;<span class="lifetime">'de</span>, V&gt;})*
     };
 }
 
@@ -391,9 +387,7 @@
         <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_i64&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;()}
     };
     (i128&lt;<span class="macro-nonterminal">$l</span>:tt, <span class="macro-nonterminal">$v</span>:ident&gt;) =&gt; {
-        <span class="macro">serde_if_integer128! </span>{
-            <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_i128&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;()}
-        }
+        <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_i128&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;()}
     };
     (u8&lt;<span class="macro-nonterminal">$l</span>:tt, <span class="macro-nonterminal">$v</span>:ident&gt;) =&gt; {
         <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_u8&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;()}
@@ -408,9 +402,7 @@
         <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_u64&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;()}
     };
     (u128&lt;<span class="macro-nonterminal">$l</span>:tt, <span class="macro-nonterminal">$v</span>:ident&gt;) =&gt; {
-        <span class="macro">serde_if_integer128! </span>{
-            <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_u128&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;()}
-        }
+        <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_u128&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;()}
     };
     (f32&lt;<span class="macro-nonterminal">$l</span>:tt, <span class="macro-nonterminal">$v</span>:ident&gt;) =&gt; {
         <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_f32&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;()}
@@ -440,10 +432,10 @@
         <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_unit&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;()}
     };
     (unit_struct&lt;<span class="macro-nonterminal">$l</span>:tt, <span class="macro-nonterminal">$v</span>:ident&gt;) =&gt; {
-        <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_unit_struct&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;(name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str)}
+        <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_unit_struct&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;(name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)}
     };
     (newtype_struct&lt;<span class="macro-nonterminal">$l</span>:tt, <span class="macro-nonterminal">$v</span>:ident&gt;) =&gt; {
-        <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_newtype_struct&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;(name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str)}
+        <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_newtype_struct&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;(name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str)}
     };
     (seq&lt;<span class="macro-nonterminal">$l</span>:tt, <span class="macro-nonterminal">$v</span>:ident&gt;) =&gt; {
         <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_seq&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;()}
@@ -452,16 +444,16 @@
         <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_tuple&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;(len: usize)}
     };
     (tuple_struct&lt;<span class="macro-nonterminal">$l</span>:tt, <span class="macro-nonterminal">$v</span>:ident&gt;) =&gt; {
-        <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_tuple_struct&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;(name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, len: usize)}
+        <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_tuple_struct&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;(name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, len: usize)}
     };
     (map&lt;<span class="macro-nonterminal">$l</span>:tt, <span class="macro-nonterminal">$v</span>:ident&gt;) =&gt; {
         <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_map&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;()}
     };
     (<span class="kw">struct</span>&lt;<span class="macro-nonterminal">$l</span>:tt, <span class="macro-nonterminal">$v</span>:ident&gt;) =&gt; {
-        <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_struct&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;(name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str])}
+        <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_struct&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;(name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, fields: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str])}
     };
     (<span class="kw">enum</span>&lt;<span class="macro-nonterminal">$l</span>:tt, <span class="macro-nonterminal">$v</span>:ident&gt;) =&gt; {
-        <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_enum&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;(name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, variants: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str])}
+        <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_enum&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;(name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, variants: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str])}
     };
     (identifier&lt;<span class="macro-nonterminal">$l</span>:tt, <span class="macro-nonterminal">$v</span>:ident&gt;) =&gt; {
         <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_identifier&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;()}
@@ -470,5 +462,4 @@
         <span class="macro">forward_to_deserialize_any_method!</span>{deserialize_ignored_any&lt;<span class="macro-nonterminal">$l</span>, <span class="macro-nonterminal">$v</span>&gt;()}
     };
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="serde" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

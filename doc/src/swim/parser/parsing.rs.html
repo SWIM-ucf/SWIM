@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/parser/parsing.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parsing.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../swim/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/parser/parsing.rs`."><title>parsing.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="swim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../swim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -727,14 +729,53 @@
 <a href="#727" id="727">727</a>
 <a href="#728" id="728">728</a>
 <a href="#729" id="729">729</a>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::ErrorType::<span class="kw-2">*</span>;
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::emulation_core::architectures::AvailableDatapaths;
+<span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::ErrorType::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::TokenType::{Directive, Label, Operator, Unknown};
 <span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::{
     Data, Error, Instruction, LabelInstance, MonacoLineInfo, Token, FP_REGISTERS, GP_REGISTERS,
-    SUPPORTED_INSTRUCTIONS,
+    RISCV_FP_REGISTERS, RISCV_GP_REGISTERS, SUPPORTED_INSTRUCTIONS_MIPS,
 };
 <span class="kw">use </span>levenshtein::levenshtein;
 <span class="kw">use </span>std::collections::HashMap;
+
+<span class="kw">use </span><span class="kw">super</span>::parser_structs_and_enums::SUPPORTED_INSTRUCTIONS_RISCV;
 
 <span class="doccomment">///Takes the initial string of the program given by the editor and turns it into a vector of Line,
 /// a struct that holds tokens and the original line number.
@@ -742,14 +783,14 @@
     <span class="kw">let </span><span class="kw-2">mut </span>monaco_line_info_vec: Vec&lt;MonacoLineInfo&gt; = Vec::new();
 
     <span class="kw">let </span><span class="kw-2">mut </span>token: Token = Token {
-        token_name: <span class="string">&quot;&quot;</span>.to_string(),
+        token_name: <span class="string">""</span>.to_string(),
         start_end_columns: (<span class="number">0</span>, <span class="number">0</span>),
         token_type: Unknown,
     };
 
     <span class="kw">for </span>(i, line_of_program) <span class="kw">in </span>program.lines().enumerate() {
         <span class="kw">let </span><span class="kw-2">mut </span>line = MonacoLineInfo {
-            mouse_hover_string: <span class="string">&quot;&quot;</span>.to_string(),
+            mouse_hover_string: <span class="string">""</span>.to_string(),
             updated_monaco_string: line_of_program.to_string(),
             tokens: <span class="macro">vec!</span>[],
             line_number: i,
@@ -762,7 +803,7 @@
         <span class="comment">//iterates through every character on each line of the program
         </span><span class="kw">for </span>(j, char) <span class="kw">in </span>line_of_program.chars().enumerate() {
             token.start_end_columns.<span class="number">1 </span>= j + <span class="number">1</span>;
-            <span class="kw">if </span>char == <span class="string">&#39;#&#39; </span>{
+            <span class="kw">if </span>char == <span class="string">'#' </span>{
                 <span class="kw">if </span>j &gt; <span class="number">0 </span>{
                     token.start_end_columns.<span class="number">1 </span>-= <span class="number">1</span>;
                 }
@@ -770,52 +811,52 @@
             };
             <span class="comment">//is string is a flag to handle strings and read them in as a single token
             </span><span class="kw">if </span>is_string {
-                <span class="kw">if </span>char == <span class="string">&#39;\\&#39; </span>{
+                <span class="kw">if </span>char == <span class="string">'\\' </span>{
                     check_escape = <span class="bool-val">true</span>;
                     <span class="kw">continue</span>;
                 }
                 <span class="kw">if </span>check_escape {
                     <span class="kw">match </span>char {
-                        <span class="string">&#39;n&#39; </span>=&gt; {
-                            token.token_name.push(<span class="string">&#39;\n&#39;</span>);
+                        <span class="string">'n' </span>=&gt; {
+                            token.token_name.push(<span class="string">'\n'</span>);
                         }
-                        <span class="string">&#39;t&#39; </span>=&gt; {
-                            token.token_name.push(<span class="string">&#39;\t&#39;</span>);
+                        <span class="string">'t' </span>=&gt; {
+                            token.token_name.push(<span class="string">'\t'</span>);
                         }
-                        <span class="string">&#39;\\&#39; </span>=&gt; {
-                            token.token_name.push(<span class="string">&#39;\\&#39;</span>);
+                        <span class="string">'\\' </span>=&gt; {
+                            token.token_name.push(<span class="string">'\\'</span>);
                         }
-                        <span class="string">&#39;\&quot;&#39; </span>=&gt; {
-                            token.token_name.push(<span class="string">&#39;\&quot;&#39;</span>);
+                        <span class="string">'\"' </span>=&gt; {
+                            token.token_name.push(<span class="string">'\"'</span>);
                         }
-                        <span class="string">&#39;\&#39;&#39; </span>=&gt; {
-                            token.token_name.push(<span class="string">&#39;\&#39;&#39;</span>);
+                        <span class="string">'\'' </span>=&gt; {
+                            token.token_name.push(<span class="string">'\''</span>);
                         }
                         <span class="kw">_ </span>=&gt; {
-                            token.token_name.push(<span class="string">&#39;\\&#39;</span>);
+                            token.token_name.push(<span class="string">'\\'</span>);
                             token.token_name.push(char);
                         }
                     }
                     check_escape = <span class="bool-val">false</span>;
-                } <span class="kw">else if </span>char == <span class="string">&#39;\&quot;&#39; </span>{
-                    token.token_name.push(<span class="string">&#39;\&quot;&#39;</span>);
+                } <span class="kw">else if </span>char == <span class="string">'\"' </span>{
+                    token.token_name.push(<span class="string">'\"'</span>);
                     is_string = <span class="bool-val">false</span>;
                 } <span class="kw">else </span>{
                     token.token_name.push(char);
                 }
-            } <span class="kw">else if </span>char == <span class="string">&#39;\&quot;&#39; </span>{
+            } <span class="kw">else if </span>char == <span class="string">'\"' </span>{
                 <span class="kw">if </span>!token.token_name.is_empty() {
                     line.tokens.push(token.clone());
                 }
-                token.token_name = <span class="string">&#39;\&quot;&#39;</span>.to_string();
+                token.token_name = <span class="string">'\"'</span>.to_string();
                 token.start_end_columns.<span class="number">0 </span>= j;
                 is_string = <span class="bool-val">true</span>;
-            } <span class="kw">else if </span>char != <span class="string">&#39; &#39; </span>{
+            } <span class="kw">else if </span>char != <span class="string">' ' </span>{
                 <span class="kw">if </span>token.token_name.is_empty() {
                     token.start_end_columns.<span class="number">0 </span>= j;
                 }
                 token.token_name.push(char);
-                <span class="kw">if </span>char == <span class="string">&#39;,&#39; </span>{
+                <span class="kw">if </span>char == <span class="string">',' </span>{
                     <span class="kw">if </span>token.token_name.len() == <span class="number">1 </span>{
                         <span class="kw">let </span>length = line.tokens.len();
                         line.tokens[length - <span class="number">1</span>].token_name.push(char);
@@ -823,17 +864,17 @@
                         token.start_end_columns.<span class="number">1 </span>-= <span class="number">1</span>;
                         line.tokens.push(token.clone());
                     }
-                    token.token_name = <span class="string">&quot;&quot;</span>.to_string();
+                    token.token_name = <span class="string">""</span>.to_string();
                 }
             } <span class="kw">else if </span>!token.token_name.is_empty() {
                 token.start_end_columns.<span class="number">1 </span>-= <span class="number">1</span>;
                 line.tokens.push(token.clone());
-                token.token_name = <span class="string">&quot;&quot;</span>.to_string();
+                token.token_name = <span class="string">""</span>.to_string();
             }
         }
         <span class="kw">if </span>!token.token_name.is_empty() {
             line.tokens.push(token.clone());
-            token.token_name = <span class="string">&quot;&quot;</span>.to_string();
+            token.token_name = <span class="string">""</span>.to_string();
         }
 
         monaco_line_info_vec.push(line);
@@ -842,8 +883,8 @@
     <span class="comment">//creates an empty monaco line if there is nothing in Monaco.
     </span><span class="kw">if </span>monaco_line_info_vec.is_empty() {
         monaco_line_info_vec.push(MonacoLineInfo {
-            mouse_hover_string: <span class="string">&quot;&quot;</span>.to_string(),
-            updated_monaco_string: <span class="string">&quot;&quot;</span>.to_string(),
+            mouse_hover_string: <span class="string">""</span>.to_string(),
+            updated_monaco_string: <span class="string">""</span>.to_string(),
             tokens: <span class="macro">vec!</span>[],
             line_number: <span class="number">0</span>,
             error_start_end_columns: <span class="macro">vec!</span>[],
@@ -860,7 +901,7 @@
     <span class="comment">//first check every token to see if they end in commas
     </span><span class="kw">let </span><span class="kw-2">mut </span>has_commas: Vec&lt;bool&gt; = Vec::new();
     <span class="kw">for </span>token <span class="kw">in </span><span class="kw-2">&amp;mut </span>line.tokens {
-        <span class="kw">if </span>token.token_name.ends_with(<span class="string">&#39;,&#39;</span>) {
+        <span class="kw">if </span>token.token_name.ends_with(<span class="string">','</span>) {
             token.token_name.pop();
             has_commas.push(<span class="bool-val">true</span>);
         } <span class="kw">else </span>{
@@ -869,13 +910,13 @@
     }
     <span class="comment">//check all labels. No label should end in a comma
     </span><span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
-    <span class="kw">while </span>line.tokens.len() &gt; i &amp;&amp; line.tokens[i].token_name.ends_with(<span class="string">&#39;:&#39;</span>) {
+    <span class="kw">while </span>line.tokens.len() &gt; i &amp;&amp; line.tokens[i].token_name.ends_with(<span class="string">':'</span>) {
         <span class="kw">if </span>has_commas[i] {
             line.errors.push(Error {
                 error_name: UnnecessaryComma,
                 token_causing_error: line.tokens[i].clone().token_name,
                 start_end_columns: line.tokens[i].start_end_columns,
-                message: <span class="string">&quot;&quot;</span>.to_string(),
+                message: <span class="string">""</span>.to_string(),
             });
         }
         i += <span class="number">1</span>;
@@ -886,7 +927,7 @@
             error_name: UnnecessaryComma,
             token_causing_error: line.tokens[i].clone().token_name,
             start_end_columns: line.tokens[i].start_end_columns,
-            message: <span class="string">&quot;&quot;</span>.to_string(),
+            message: <span class="string">""</span>.to_string(),
         });
     }
     i += <span class="number">1</span>;
@@ -898,7 +939,7 @@
                 error_name: MissingComma,
                 token_causing_error: line.tokens[i].clone().token_name,
                 start_end_columns: line.tokens[i].start_end_columns,
-                message: <span class="string">&quot;&quot;</span>.to_string(),
+                message: <span class="string">""</span>.to_string(),
             });
         }
         i += <span class="number">1</span>;
@@ -910,14 +951,14 @@
             error_name: UnnecessaryComma,
             token_causing_error: line.tokens[i].clone().token_name,
             start_end_columns: line.tokens[i].start_end_columns,
-            message: <span class="string">&quot;&quot;</span>.to_string(),
+            message: <span class="string">""</span>.to_string(),
         });
     }
 }
 
 <span class="doccomment">///This function takes the vector of lines created by tokenize program and turns them into instructions
 ///assigning labels, operators, operands, and line numbers and data assigning labels, data types, and values
-</span><span class="kw">pub fn </span>separate_data_and_text(lines: <span class="kw-2">&amp;mut </span>Vec&lt;MonacoLineInfo&gt;) -&gt; (Vec&lt;Instruction&gt;, Vec&lt;Data&gt;) {
+</span><span class="kw">pub fn </span>separate_data_and_text(lines: <span class="kw-2">&amp;mut </span>[MonacoLineInfo]) -&gt; (Vec&lt;Instruction&gt;, Vec&lt;Data&gt;) {
     <span class="kw">let </span><span class="kw-2">mut </span>instruction_list: Vec&lt;Instruction&gt; = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>data_list: Vec&lt;Data&gt; = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>labels: Vec&lt;LabelInstance&gt; = Vec::new();
@@ -933,30 +974,25 @@
         </span>remove_commas(<span class="kw-2">&amp;mut </span>lines[i]);
 
         <span class="comment">//handle transitions between .data and .text
-        </span><span class="kw">if </span>lines[i].tokens[<span class="number">0</span>].token_name.to_lowercase() == <span class="string">&quot;.text&quot;
-            </span>|| lines[i].tokens[<span class="number">0</span>].token_name.to_lowercase() == <span class="string">&quot;.data&quot;
+        </span><span class="kw">if </span>lines[i].tokens[<span class="number">0</span>].token_name.to_lowercase() == <span class="string">".text"
+            </span>|| lines[i].tokens[<span class="number">0</span>].token_name.to_lowercase() == <span class="string">".data"
         </span>{
             lines[i].tokens[<span class="number">0</span>].token_type = Directive;
-            <span class="kw">while </span>!labels.is_empty() {
-                <span class="kw">let </span>last = labels.pop().unwrap();
+            <span class="kw">while let </span><span class="prelude-val">Some</span>(last) = labels.pop() {
                 lines[last.token_line].errors.push(Error {
                     error_name: LabelAssignmentError,
                     token_causing_error: last.token.token_name,
                     start_end_columns: last.token.start_end_columns,
-                    message: <span class="string">&quot;&quot;</span>.to_string(),
+                    message: <span class="string">""</span>.to_string(),
                 });
             }
-            <span class="kw">if </span>lines[i].tokens[<span class="number">0</span>].token_name.to_lowercase() == <span class="string">&quot;.text&quot; </span>{
-                is_text = <span class="bool-val">true</span>;
-            } <span class="kw">else </span>{
-                is_text = <span class="bool-val">false</span>;
-            }
+            is_text = lines[i].tokens[<span class="number">0</span>].token_name.to_lowercase() == <span class="string">".text"</span>;
             i += <span class="number">1</span>;
             <span class="kw">continue</span>;
         }
         <span class="kw">let </span><span class="kw-2">mut </span>j = <span class="number">0</span>;
         <span class="comment">//add all labels to the label stack
-        </span><span class="kw">while </span>lines[i].tokens.len() &gt; j &amp;&amp; lines[i].tokens[j].token_name.ends_with(<span class="string">&#39;:&#39;</span>) {
+        </span><span class="kw">while </span>lines[i].tokens.len() &gt; j &amp;&amp; lines[i].tokens[j].token_name.ends_with(<span class="string">':'</span>) {
             lines[i].tokens[j].token_name.pop();
             lines[i].tokens[j].start_end_columns.<span class="number">1 </span>-= <span class="number">1</span>;
             lines[i].tokens[j].token_type = Label;
@@ -978,8 +1014,8 @@
                 ..Default::default()
             };
             <span class="comment">//push all incomplete labels to reference this instruction
-            </span><span class="kw">while </span>!labels.is_empty() {
-                instruction.labels.push(labels.pop().unwrap());
+            </span><span class="kw">while let </span><span class="prelude-val">Some</span>(label) = labels.pop() {
+                instruction.labels.push(label);
             }
             <span class="comment">//the next token is the operator
             </span>lines[i].tokens[j].token_type = Operator;
@@ -1008,7 +1044,7 @@
                     error_name: ImproperlyFormattedLabel,
                     token_causing_error: token_name,
                     start_end_columns: start_end,
-                    message: <span class="string">&quot;&quot;</span>.to_string(),
+                    message: <span class="string">""</span>.to_string(),
                 });
                 data.label = lines[i].tokens[j].clone();
                 j += <span class="number">1</span>;
@@ -1050,7 +1086,7 @@
                 error_name: LabelAssignmentError,
                 token_causing_error: label.token.token_name,
                 start_end_columns: label.token.start_end_columns,
-                message: <span class="string">&quot;&quot;</span>.to_string(),
+                message: <span class="string">""</span>.to_string(),
             });
         }
     } <span class="kw">else </span>{
@@ -1082,7 +1118,7 @@
                     error_name: LabelMultipleDefinition,
                     token_causing_error: label.token.token_name,
                     start_end_columns: label.token.start_end_columns,
-                    message: <span class="string">&quot;&quot;</span>.to_string(),
+                    message: <span class="string">""</span>.to_string(),
                 });
                 <span class="comment">//otherwise, it is inserted
             </span>} <span class="kw">else </span>{
@@ -1095,21 +1131,19 @@
     }
 
     <span class="kw">let </span>last_instruction = instruction_list.last();
+    <span class="kw">let </span>offset_for_instructions: u32 = <span class="kw">match </span>last_instruction {
+        <span class="prelude-val">Some</span>(last_instruction) =&gt; ((last_instruction.instruction_number + <span class="number">1</span>) &lt;&lt; <span class="number">2</span>) <span class="kw">as </span>u32,
+        <span class="prelude-val">None </span>=&gt; <span class="number">0_u32</span>,
+    };
 
-    <span class="kw">let </span>offset_for_instructions: u32 = <span class="kw">if let </span><span class="prelude-val">Some</span>(..) = last_instruction {
-        (last_instruction.unwrap().instruction_number + <span class="number">1</span>) &lt;&lt; <span class="number">2
-    </span>} <span class="kw">else </span>{
-        <span class="number">0
-    </span>} <span class="kw">as </span>u32;
-
-    <span class="kw">for </span>(_i, data) <span class="kw">in </span>data_list.iter_mut().enumerate() {
+    <span class="kw">for </span>data <span class="kw">in </span>data_list.iter_mut() {
         <span class="comment">//if the given label name is already used, an error is generated
         </span><span class="kw">if </span>labels.contains_key(<span class="kw-2">&amp;*</span>data.label.clone().token_name) {
             data.errors.push(Error {
                 error_name: LabelMultipleDefinition,
                 token_causing_error: data.label.token_name.to_string(),
                 start_end_columns: data.label.start_end_columns,
-                message: <span class="string">&quot;&quot;</span>.to_string(),
+                message: <span class="string">""</span>.to_string(),
             });
             <span class="comment">//otherwise, it is inserted
         </span>} <span class="kw">else </span>{
@@ -1131,118 +1165,158 @@
     data: <span class="kw-2">&amp;mut </span>[Data],
     labels: <span class="kw-2">&amp;</span>HashMap&lt;String, usize&gt;,
     monaco_line_info: <span class="kw-2">&amp;mut </span>[MonacoLineInfo],
+    arch: AvailableDatapaths,
 ) -&gt; String {
     <span class="kw">let </span>levenshtein_threshold = <span class="number">2_f32 </span>/ <span class="number">3_f32</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>console_out_string: String = <span class="string">&quot;&quot;</span>.to_string();
+    <span class="kw">let </span><span class="kw-2">mut </span>console_out_string: String = <span class="string">""</span>.to_string();
     <span class="comment">//go through each error in the instructions and suggest a correction
     </span><span class="kw">for </span>instruction <span class="kw">in </span>instructions {
         <span class="comment">//if there are no errors, instead push the binary of the instruction to mouse hover
         </span><span class="kw">if </span>instruction.errors.is_empty() {
             monaco_line_info[instruction.line_number]
                 .mouse_hover_string
-                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\n\n**Binary:** `0b{:032b}`&quot;</span>, instruction.binary));
+                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"\n\n**Binary:** `0b{:032b}`"</span>, instruction.binary));
         } <span class="kw">else </span>{
             <span class="kw">for </span>error <span class="kw">in </span><span class="kw-2">&amp;mut </span>instruction.errors {
                 <span class="kw">match </span>error.error_name {
                     UnsupportedInstruction =&gt; {
                         error.message =
-                            <span class="string">&quot;While this is a valid instruction, it is not currently supported by SWIM\n&quot;
+                            <span class="string">"While this is a valid instruction, it is not currently supported by SWIM\n"
                                 </span>.to_string();
                     }
                     UnrecognizedGPRegister =&gt; {
                         <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>error.token_causing_error;
-                        <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">&quot;&quot;</span>.to_string());
+                        <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">""</span>.to_string());
 
-                        <span class="kw">for </span>register <span class="kw">in </span>GP_REGISTERS {
-                            <span class="kw">if </span>levenshtein(given_string, register.names[<span class="number">0</span>]) &lt; closest.<span class="number">0 </span>{
-                                closest.<span class="number">0 </span>= levenshtein(given_string, register.names[<span class="number">0</span>]);
-                                closest.<span class="number">1 </span>= register.names[<span class="number">0</span>].to_string();
+                        <span class="kw">match </span>arch {
+                            AvailableDatapaths::MIPS =&gt; {
+                                <span class="kw">for </span>register <span class="kw">in </span>GP_REGISTERS {
+                                    <span class="kw">if </span>levenshtein(given_string, register.names[<span class="number">0</span>]) &lt; closest.<span class="number">0 </span>{
+                                        closest.<span class="number">0 </span>= levenshtein(given_string, register.names[<span class="number">0</span>]);
+                                        closest.<span class="number">1 </span>= register.names[<span class="number">0</span>].to_string();
+                                    }
+                                }
+                            }
+
+                            AvailableDatapaths::RISCV =&gt; {
+                                <span class="kw">for </span>register <span class="kw">in </span>RISCV_GP_REGISTERS {
+                                    <span class="kw">if </span>levenshtein(given_string, register.names[<span class="number">0</span>]) &lt; closest.<span class="number">0 </span>{
+                                        closest.<span class="number">0 </span>= levenshtein(given_string, register.names[<span class="number">0</span>]);
+                                        closest.<span class="number">1 </span>= register.names[<span class="number">0</span>].to_string();
+                                    }
+                                }
                             }
                         }
-                        <span class="kw">let </span><span class="kw-2">mut </span>message = <span class="string">&quot;GP register is not recognized.&quot;</span>.to_string();
+
+                        <span class="kw">let </span><span class="kw-2">mut </span>message = <span class="string">"GP register is not recognized."</span>.to_string();
                         <span class="comment">//only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                         </span><span class="kw">if </span>(closest.<span class="number">0 </span><span class="kw">as </span>f32 / given_string.len() <span class="kw">as </span>f32) &lt; levenshtein_threshold {
                             message.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                                <span class="string">&quot; A valid, similar register is: {}.\n&quot;</span>,
+                                <span class="string">" A valid, similar register is: {}.\n"</span>,
                                 <span class="kw-2">&amp;</span>closest.<span class="number">1
                             </span>));
                         } <span class="kw">else </span>{
-                            message.push(<span class="string">&#39;\n&#39;</span>);
+                            message.push(<span class="string">'\n'</span>);
                         }
                         error.message = message;
                     }
                     UnrecognizedFPRegister =&gt; {
                         <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>error.token_causing_error;
-                        <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">&quot;&quot;</span>.to_string());
+                        <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">""</span>.to_string());
 
-                        <span class="kw">for </span>register <span class="kw">in </span>FP_REGISTERS {
-                            <span class="kw">if </span>levenshtein(given_string, register.name) &lt; closest.<span class="number">0 </span>{
-                                closest.<span class="number">0 </span>= levenshtein(given_string, register.name);
-                                closest.<span class="number">1 </span>= register.name.to_string();
+                        <span class="kw">match </span>arch {
+                            AvailableDatapaths::MIPS =&gt; {
+                                <span class="kw">for </span>register <span class="kw">in </span>FP_REGISTERS {
+                                    <span class="kw">if </span>levenshtein(given_string, register.name) &lt; closest.<span class="number">0 </span>{
+                                        closest.<span class="number">0 </span>= levenshtein(given_string, register.name);
+                                        closest.<span class="number">1 </span>= register.name.to_string();
+                                    }
+                                }
+                            }
+                            AvailableDatapaths::RISCV =&gt; {
+                                <span class="kw">for </span>register <span class="kw">in </span>RISCV_FP_REGISTERS {
+                                    <span class="kw">if </span>levenshtein(given_string, register.names[<span class="number">0</span>]) &lt; closest.<span class="number">0 </span>{
+                                        closest.<span class="number">0 </span>= levenshtein(given_string, register.names[<span class="number">0</span>]);
+                                        closest.<span class="number">1 </span>= register.names[<span class="number">0</span>].to_string();
+                                    }
+                                }
                             }
                         }
-                        <span class="kw">let </span><span class="kw-2">mut </span>message = <span class="string">&quot;FP register is not recognized.&quot;</span>.to_string();
+
+                        <span class="kw">let </span><span class="kw-2">mut </span>message = <span class="string">"FP register is not recognized."</span>.to_string();
                         <span class="comment">//only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                         </span><span class="kw">if </span>(closest.<span class="number">0 </span><span class="kw">as </span>f32 / given_string.len() <span class="kw">as </span>f32) &lt; levenshtein_threshold {
                             message.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                                <span class="string">&quot; A valid, similar register is: {}.\n&quot;</span>,
+                                <span class="string">" A valid, similar register is: {}.\n"</span>,
                                 <span class="kw-2">&amp;</span>closest.<span class="number">1
                             </span>));
                         } <span class="kw">else </span>{
-                            message.push(<span class="string">&#39;\n&#39;</span>);
+                            message.push(<span class="string">'\n'</span>);
                         }
                         error.message = message;
                     }
                     UnrecognizedInstruction =&gt; {
                         <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>instruction.operator.token_name;
-                        <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">&quot;&quot;</span>.to_string());
+                        <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">""</span>.to_string());
 
-                        <span class="kw">for </span>instruction <span class="kw">in </span>SUPPORTED_INSTRUCTIONS {
-                            <span class="kw">if </span>levenshtein(given_string, instruction) &lt; closest.<span class="number">0 </span>{
-                                closest.<span class="number">0 </span>= levenshtein(given_string, instruction);
-                                closest.<span class="number">1 </span>= instruction.to_string();
+                        <span class="kw">match </span>arch {
+                            AvailableDatapaths::MIPS =&gt; {
+                                <span class="kw">for </span>instruction <span class="kw">in </span>SUPPORTED_INSTRUCTIONS_MIPS {
+                                    <span class="kw">if </span>levenshtein(given_string, instruction) &lt; closest.<span class="number">0 </span>{
+                                        closest.<span class="number">0 </span>= levenshtein(given_string, instruction);
+                                        closest.<span class="number">1 </span>= instruction.to_string();
+                                    }
+                                }
+                            }
+                            AvailableDatapaths::RISCV =&gt; {
+                                <span class="kw">for </span>instruction <span class="kw">in </span>SUPPORTED_INSTRUCTIONS_RISCV {
+                                    <span class="kw">if </span>levenshtein(given_string, instruction) &lt; closest.<span class="number">0 </span>{
+                                        closest.<span class="number">0 </span>= levenshtein(given_string, instruction);
+                                        closest.<span class="number">1 </span>= instruction.to_string();
+                                    }
+                                }
                             }
                         }
-                        <span class="kw">let </span><span class="kw-2">mut </span>message = <span class="string">&quot;Instruction is not recognized.&quot;</span>.to_string();
+                        <span class="kw">let </span><span class="kw-2">mut </span>message = <span class="string">"Instruction is not recognized."</span>.to_string();
                         <span class="comment">//only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                         </span><span class="kw">if </span>(closest.<span class="number">0 </span><span class="kw">as </span>f32 / given_string.len() <span class="kw">as </span>f32) &lt; levenshtein_threshold {
                             message.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                                <span class="string">&quot; A valid, similar instruction is: {}.\n&quot;</span>,
+                                <span class="string">" A valid, similar instruction is: {}.\n"</span>,
                                 <span class="kw-2">&amp;</span>closest.<span class="number">1
                             </span>));
                         } <span class="kw">else </span>{
-                            message.push(<span class="string">&#39;\n&#39;</span>);
+                            message.push(<span class="string">'\n'</span>);
                         }
                         error.message = message;
                     }
                     IncorrectRegisterTypeGP =&gt; {
                         error.message =
-                            <span class="string">&quot;Expected FP register but received GP register.\n&quot;</span>.to_string();
+                            <span class="string">"Expected FP register but received GP register.\n"</span>.to_string();
                     }
                     IncorrectRegisterTypeFP =&gt; {
                         error.message =
-                            <span class="string">&quot;Expected GP register but received FP register.\n&quot;</span>.to_string();
+                            <span class="string">"Expected GP register but received FP register.\n"</span>.to_string();
                     }
                     MissingComma =&gt; {
                         error.message =
-                            <span class="string">&quot;Operand expected to end with a comma but it does not.\n&quot;</span>.to_string()
+                            <span class="string">"Operand expected to end with a comma but it does not.\n"</span>.to_string()
                     }
                     ImmediateOutOfBounds =&gt; {
-                        error.message = <span class="string">&quot;Immediate value given cannot be expressed in the available number of bits.\n&quot;</span>.to_string();
+                        error.message = <span class="string">"Immediate value given cannot be expressed in the available number of bits.\n"</span>.to_string();
                     }
                     NonIntImmediate =&gt; {
                         error.message =
-                            <span class="string">&quot;The given string cannot be recognized as an integer.\n&quot;</span>.to_string();
+                            <span class="string">"The given string cannot be recognized as an integer.\n"</span>.to_string();
                     }
                     NonFloatImmediate =&gt; {
                         error.message =
-                            <span class="string">&quot;The given string cannot be recognized as a float.\n&quot;</span>.to_string();
+                            <span class="string">"The given string cannot be recognized as a float.\n"</span>.to_string();
                     }
                     InvalidMemorySyntax =&gt; {
-                        error.message = <span class="string">&quot;The given string for memory does not match syntax of \&quot;offset(base)\&quot; or \&quot;label\&quot;.\n&quot;</span>.to_string();
+                        error.message = <span class="string">"The given string for memory does not match syntax of \"offset(base)\" or \"label\".\n"</span>.to_string();
 
                         <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>error.token_causing_error;
-                        <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">&quot;&quot;</span>.to_string());
+                        <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">""</span>.to_string());
 
                         <span class="kw">for </span>label <span class="kw">in </span>labels {
                             <span class="kw">if </span>levenshtein(given_string, label.<span class="number">0</span>) &lt; closest.<span class="number">0 </span>{
@@ -1250,35 +1324,35 @@
                                 closest.<span class="number">1 </span>= label.<span class="number">0</span>.to_string();
                             }
                         }
-                        <span class="kw">let </span><span class="kw-2">mut </span>message = <span class="string">&quot;&quot;</span>.to_string();
+                        <span class="kw">let </span><span class="kw-2">mut </span>message = <span class="string">""</span>.to_string();
                         <span class="comment">//only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                         </span><span class="kw">if </span>(closest.<span class="number">0 </span><span class="kw">as </span>f32 / given_string.len() <span class="kw">as </span>f32) &lt; levenshtein_threshold {
                             message.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                                <span class="string">&quot; A valid, similar label is: {}.\n&quot;</span>,
+                                <span class="string">" A valid, similar label is: {}.\n"</span>,
                                 <span class="kw-2">&amp;</span>closest.<span class="number">1
                             </span>));
                         }
                         error.message.push_str(<span class="kw-2">&amp;</span>message);
                     }
                     IncorrectNumberOfOperands =&gt; {
-                        error.message = <span class="string">&quot;The given number of operands does not match the number expected for the given instruction.\n&quot;</span>.to_string();
+                        error.message = <span class="string">"The given number of operands does not match the number expected for the given instruction.\n"</span>.to_string();
                     }
                     LabelMultipleDefinition =&gt; {
                         error.message =
-                            <span class="string">&quot;The given label name is already used elsewhere in the project.\n&quot;
+                            <span class="string">"The given label name is already used elsewhere in the project.\n"
                                 </span>.to_string();
                     }
                     LabelAssignmentError =&gt; {
-                        error.message = <span class="string">&quot;A label is specified but it is not followed by data or an instruction committed to memory.\n&quot;</span>.to_string();
+                        error.message = <span class="string">"A label is specified but it is not followed by data or an instruction committed to memory.\n"</span>.to_string();
                     }
                     LabelNotFound =&gt; {
                         <span class="kw">if </span>labels.is_empty() {
-                            error.message = <span class="string">&quot;There is no recognized labelled memory.\n&quot;</span>.to_string();
+                            error.message = <span class="string">"There is no recognized labelled memory.\n"</span>.to_string();
                             <span class="kw">continue</span>;
                         }
 
                         <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>error.token_causing_error;
-                        <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">&quot;&quot;</span>.to_string());
+                        <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">""</span>.to_string());
 
                         <span class="kw">for </span>label <span class="kw">in </span>labels {
                             <span class="kw">if </span>levenshtein(given_string, label.<span class="number">0</span>) &lt; closest.<span class="number">0 </span>{
@@ -1286,28 +1360,28 @@
                                 closest.<span class="number">1 </span>= label.<span class="number">0</span>.to_string();
                             }
                         }
-                        <span class="kw">let </span><span class="kw-2">mut </span>message = <span class="string">&quot;Given label is not found in the project.&quot;</span>.to_string();
+                        <span class="kw">let </span><span class="kw-2">mut </span>message = <span class="string">"Given label is not found in the project."</span>.to_string();
                         <span class="comment">//only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                         </span><span class="kw">if </span>(closest.<span class="number">0 </span><span class="kw">as </span>f32 / given_string.len() <span class="kw">as </span>f32) &lt; levenshtein_threshold {
                             message.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                                <span class="string">&quot; A valid, similar label is: {}.\n&quot;</span>,
+                                <span class="string">" A valid, similar label is: {}.\n"</span>,
                                 <span class="kw-2">&amp;</span>closest.<span class="number">1
                             </span>));
                         } <span class="kw">else </span>{
-                            message.push(<span class="string">&#39;\n&#39;</span>);
+                            message.push(<span class="string">'\n'</span>);
                         }
                         error.message = message;
                     }
                     JALRRDRegisterZero =&gt; {
                         error.message =
-                            <span class="string">&quot;The destination address for JALR cannot be the zero register\n&quot;
+                            <span class="string">"The destination address for JALR cannot be the zero register\n"
                                 </span>.to_string();
                     }
                     UnnecessaryComma =&gt; {
-                        error.message = <span class="string">&quot;The given token should not end with a comma\n&quot;</span>.to_string()
+                        error.message = <span class="string">"The given token should not end with a comma\n"</span>.to_string()
                     }
                     <span class="kw">_ </span>=&gt; {
-                        error.message = <span class="macro">format!</span>(<span class="string">&quot;{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH TEXT.\n&quot;</span>, error.error_name);
+                        error.message = <span class="macro">format!</span>(<span class="string">"{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH TEXT.\n"</span>, error.error_name);
                     }
                 }
 
@@ -1328,7 +1402,7 @@
 
                 <span class="comment">//push a message about the error to the string for console
                 </span>console_out_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;{} on line {} with token \&quot;{}\&quot;\n{}\n&quot;</span>,
+                    <span class="string">"{} on line {} with token \"{}\"\n{}\n"</span>,
                     <span class="kw-2">&amp;</span>error.error_name.to_string(),
                     <span class="kw-2">&amp;</span>(instruction.line_number + <span class="number">1</span>).to_string(),
                     <span class="kw-2">&amp;</span>error.token_causing_error,
@@ -1341,7 +1415,7 @@
     <span class="comment">//special section to remove the syscall binary from mouse hover if syscall was added in by the parser since this would be added on to the mouse hover of a completely unrelated string
     </span><span class="kw">let </span><span class="kw-2">mut </span>contains = <span class="bool-val">false</span>;
     <span class="kw">for </span>token <span class="kw">in </span>monaco_line_info.last().unwrap().tokens.clone() {
-        <span class="kw">if </span>token.token_name == <span class="string">&quot;syscall&quot; </span>{
+        <span class="kw">if </span>token.token_name == <span class="string">"syscall" </span>{
             contains = <span class="bool-val">true</span>;
         }
     }
@@ -1349,7 +1423,7 @@
     <span class="kw">if </span>!contains {
         monaco_line_info[index].mouse_hover_string = monaco_line_info[index]
             .mouse_hover_string
-            .replace(<span class="string">&quot;**Binary:** `0b00000000000000000000000000001100`&quot;</span>, <span class="string">&quot;&quot;</span>);
+            .replace(<span class="string">"**Binary:** `0b00000000000000000000000000001100`"</span>, <span class="string">""</span>);
     }
 
     <span class="comment">//go through each error in the data and suggest a correction
@@ -1358,12 +1432,12 @@
             <span class="kw">match </span><span class="kw-2">&amp;</span>error.error_name {
                 UnrecognizedDataType =&gt; {
                     <span class="kw">let </span>recognized_data_types = [
-                        <span class="string">&quot;.ascii&quot;</span>, <span class="string">&quot;.asciiz&quot;</span>, <span class="string">&quot;.byte&quot;</span>, <span class="string">&quot;.double&quot;</span>, <span class="string">&quot;.float&quot;</span>, <span class="string">&quot;.half&quot;</span>, <span class="string">&quot;.space&quot;</span>,
-                        <span class="string">&quot;.word&quot;</span>,
+                        <span class="string">".ascii"</span>, <span class="string">".asciiz"</span>, <span class="string">".byte"</span>, <span class="string">".double"</span>, <span class="string">".float"</span>, <span class="string">".half"</span>, <span class="string">".space"</span>,
+                        <span class="string">".word"</span>,
                     ];
 
                     <span class="kw">let </span>given_string = <span class="kw-2">&amp;</span>datum.data_type.token_name.to_string();
-                    <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">&quot;&quot;</span>.to_string());
+                    <span class="kw">let </span><span class="kw-2">mut </span>closest: (usize, String) = (usize::MAX, <span class="string">""</span>.to_string());
 
                     <span class="kw">for </span>data_type <span class="kw">in </span>recognized_data_types {
                         <span class="kw">if </span>levenshtein(given_string, data_type) &lt; closest.<span class="number">0 </span>{
@@ -1373,65 +1447,65 @@
                     }
 
                     <span class="kw">let </span><span class="kw-2">mut </span>message =
-                        <span class="string">&quot;Given string does not match data type directives.&quot;</span>.to_string();
+                        <span class="string">"Given string does not match data type directives."</span>.to_string();
                     <span class="comment">//only suggest a different register if the ratio of chars needed to change vs chars in string is under a threshold
                     </span><span class="kw">if </span>(closest.<span class="number">0 </span><span class="kw">as </span>f32 / given_string.len() <span class="kw">as </span>f32) &lt; levenshtein_threshold {
                         message.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                            <span class="string">&quot; A valid, similar data type is: {}.\n&quot;</span>,
+                            <span class="string">" A valid, similar data type is: {}.\n"</span>,
                             <span class="kw-2">&amp;</span>closest.<span class="number">1
                         </span>));
                     } <span class="kw">else </span>{
-                        message.push(<span class="string">&#39;\n&#39;</span>);
+                        message.push(<span class="string">'\n'</span>);
                     }
                     error.message = message;
                 }
                 LabelAssignmentError =&gt; {
-                    error.message = <span class="string">&quot;A label is specified but it is not followed by data or an instruction committed to memory.\n&quot;</span>.to_string();
+                    error.message = <span class="string">"A label is specified but it is not followed by data or an instruction committed to memory.\n"</span>.to_string();
                 }
                 LabelMultipleDefinition =&gt; {
                     error.message =
-                        <span class="string">&quot;The given label name is already used elsewhere in the project.\n&quot;
+                        <span class="string">"The given label name is already used elsewhere in the project.\n"
                             </span>.to_string();
                 }
                 ImmediateOutOfBounds =&gt; {
-                    error.message = <span class="string">&quot;Immediate value given cannot be expressed in the available number of bits.\n&quot;</span>.to_string();
+                    error.message = <span class="string">"Immediate value given cannot be expressed in the available number of bits.\n"</span>.to_string();
                 }
                 ImproperlyFormattedASCII =&gt; {
                     error.message =
-                        <span class="string">&quot;Token recognized as ASCII does not start and or end with double quotes (\&quot;).\n&quot;
+                        <span class="string">"Token recognized as ASCII does not start and or end with double quotes (\").\n"
                             </span>.to_string();
                 }
                 ImproperlyFormattedChar =&gt; {
-                    error.message = <span class="string">&quot;Token recognized as a char does not end with &#39; or is larger than a single char.\n&quot;</span>.to_string();
+                    error.message = <span class="string">"Token recognized as a char does not end with ' or is larger than a single char.\n"</span>.to_string();
                 }
                 MissingComma =&gt; {
                     error.message =
-                        <span class="string">&quot;Operand expected to end with a comma but it does not.\n&quot;</span>.to_string()
+                        <span class="string">"Operand expected to end with a comma but it does not.\n"</span>.to_string()
                 }
                 NonIntImmediate =&gt; {
                     error.message =
-                        <span class="string">&quot;The given string cannot be recognized as an integer.\n&quot;</span>.to_string();
+                        <span class="string">"The given string cannot be recognized as an integer.\n"</span>.to_string();
                 }
                 NonFloatImmediate =&gt; {
                     error.message =
-                        <span class="string">&quot;The given string cannot be recognized as a float.\n&quot;</span>.to_string();
+                        <span class="string">"The given string cannot be recognized as a float.\n"</span>.to_string();
                 }
                 ImproperlyFormattedLabel =&gt; {
                     error.message =
-                        <span class="string">&quot;Label assignment recognized but does not end in a colon.\n&quot;</span>.to_string();
+                        <span class="string">"Label assignment recognized but does not end in a colon.\n"</span>.to_string();
                 }
                 NonASCIIChar =&gt; {
-                    error.message = <span class="string">&quot;The given char cannot be represented in ASCII\n&quot;</span>.to_string();
+                    error.message = <span class="string">"The given char cannot be represented in ASCII\n"</span>.to_string();
                 }
                 NonASCIIString =&gt; {
                     error.message =
-                        <span class="string">&quot;One or multiple characters within the given string cannot be represented in ASCII.\n&quot;</span>.to_string();
+                        <span class="string">"One or multiple characters within the given string cannot be represented in ASCII.\n"</span>.to_string();
                 }
                 UnnecessaryComma =&gt; {
-                    error.message = <span class="string">&quot;The given token should not end with a comma\n&quot;</span>.to_string()
+                    error.message = <span class="string">"The given token should not end with a comma\n"</span>.to_string()
                 }
                 <span class="kw">_ </span>=&gt; {
-                    error.message = <span class="macro">format!</span>(<span class="string">&quot;{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n&quot;</span>, error.error_name);
+                    error.message = <span class="macro">format!</span>(<span class="string">"{:?} PARSER/ASSEMBLER ERROR. THIS ERROR TYPE SHOULD NOT BE ABLE TO BE ASSOCIATED WITH DATA.\n"</span>, error.error_name);
                 }
             }
 
@@ -1441,7 +1515,7 @@
                 .push(error.clone());
 
             console_out_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                <span class="string">&quot;{} on line {} with token \&quot;{}\&quot;\n{}\n&quot;</span>,
+                <span class="string">"{} on line {} with token \"{}\"\n{}\n"</span>,
                 <span class="kw-2">&amp;</span>error.error_name.to_string(),
                 <span class="kw-2">&amp;</span>(datum.line_number + <span class="number">1</span>).to_string(),
                 error.token_causing_error,
@@ -1451,10 +1525,9 @@
     }
 
     <span class="kw">if </span>console_out_string.is_empty() {
-        <span class="kw">return </span><span class="string">&quot;Program assembled successfully!&quot;</span>.to_string();
+        <span class="kw">return </span><span class="string">"Program assembled successfully!"</span>.to_string();
     }
 
     console_out_string
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="swim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

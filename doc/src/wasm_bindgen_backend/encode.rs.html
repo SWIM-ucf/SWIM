@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/wasm-bindgen-backend-0.2.84/src/encode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>encode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../wasm_bindgen_backend/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/wasm-bindgen-backend-0.2.92/src/encode.rs`."><title>encode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="wasm_bindgen_backend" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../wasm_bindgen_backend/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -550,8 +552,7 @@
 <a href="#550" id="550">550</a>
 <a href="#551" id="551">551</a>
 <a href="#552" id="552">552</a>
-<a href="#553" id="553">553</a>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::util::ShortHash;
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::util::ShortHash;
 <span class="kw">use </span>proc_macro2::{Ident, Span};
 <span class="kw">use </span>std::cell::{Cell, RefCell};
 <span class="kw">use </span>std::collections::HashMap;
@@ -601,10 +602,10 @@
 
 <span class="kw">impl </span>Interner {
     <span class="kw">fn </span>new() -&gt; Interner {
-        <span class="kw">let </span>root = env::var_os(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>)
-            .expect(<span class="string">&quot;should have CARGO_MANIFEST_DIR env var&quot;</span>)
+        <span class="kw">let </span>root = env::var_os(<span class="string">"CARGO_MANIFEST_DIR"</span>)
+            .expect(<span class="string">"should have CARGO_MANIFEST_DIR env var"</span>)
             .into();
-        <span class="kw">let </span>crate_name = env::var(<span class="string">&quot;CARGO_PKG_NAME&quot;</span>).expect(<span class="string">&quot;should have CARGO_PKG_NAME env var&quot;</span>);
+        <span class="kw">let </span>crate_name = env::var(<span class="string">"CARGO_PKG_NAME"</span>).expect(<span class="string">"should have CARGO_PKG_NAME env var"</span>);
         Interner {
             bump: bumpalo::Bump::new(),
             files: RefCell::new(HashMap::new()),
@@ -620,7 +621,7 @@
 
     <span class="kw">fn </span>intern_str(<span class="kw-2">&amp;</span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="comment">// NB: eventually this could be used to intern `s` to only allocate one
-        // copy, but for now let&#39;s just &quot;transmute&quot; `s` to have the same
+        // copy, but for now let's just "transmute" `s` to have the same
         // lifetime as this struct itself (which is our main goal here)
         </span><span class="self">self</span>.bump.alloc_str(s)
     }
@@ -636,10 +637,10 @@
             <span class="kw">return </span><span class="prelude-val">Ok</span>(ImportModule::Named(<span class="self">self</span>.intern_str(<span class="kw-2">&amp;</span>file.new_identifier)));
         }
         <span class="self">self</span>.check_for_package_json();
-        <span class="kw">let </span>path = <span class="kw">if </span>id.starts_with(<span class="string">&quot;/&quot;</span>) {
-            <span class="self">self</span>.root.join(<span class="kw-2">&amp;</span>id[<span class="number">1</span>..])
-        } <span class="kw">else if </span>id.starts_with(<span class="string">&quot;./&quot;</span>) || id.starts_with(<span class="string">&quot;../&quot;</span>) {
-            <span class="kw">let </span>msg = <span class="string">&quot;relative module paths aren&#39;t supported yet&quot;</span>;
+        <span class="kw">let </span>path = <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = id.strip_prefix(<span class="string">'/'</span>) {
+            <span class="self">self</span>.root.join(id)
+        } <span class="kw">else if </span>id.starts_with(<span class="string">"./"</span>) || id.starts_with(<span class="string">"../"</span>) {
+            <span class="kw">let </span>msg = <span class="string">"relative module paths aren't supported yet"</span>;
             <span class="kw">return </span><span class="prelude-val">Err</span>(Diagnostic::span_error(span, msg));
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Ok</span>(ImportModule::RawNamed(<span class="self">self</span>.intern_str(id)));
@@ -647,7 +648,7 @@
 
         <span class="comment">// Generate a unique ID which is somewhat readable as well, so mix in
         // the crate name, hash to make it unique, and then the original path.
-        </span><span class="kw">let </span>new_identifier = <span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">self</span>.unique_crate_identifier(), id);
+        </span><span class="kw">let </span>new_identifier = <span class="macro">format!</span>(<span class="string">"{}{}"</span>, <span class="self">self</span>.unique_crate_identifier(), id);
         <span class="kw">let </span>file = LocalFile {
             path,
             definition: span,
@@ -659,24 +660,24 @@
     }
 
     <span class="kw">fn </span>unique_crate_identifier(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
-        <span class="macro">format!</span>(<span class="string">&quot;{}-{}&quot;</span>, <span class="self">self</span>.crate_name, ShortHash(<span class="number">0</span>))
+        <span class="macro">format!</span>(<span class="string">"{}-{}"</span>, <span class="self">self</span>.crate_name, ShortHash(<span class="number">0</span>))
     }
 
     <span class="kw">fn </span>check_for_package_json(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="kw">if </span><span class="self">self</span>.has_package_json.get() {
             <span class="kw">return</span>;
         }
-        <span class="kw">let </span>path = <span class="self">self</span>.root.join(<span class="string">&quot;package.json&quot;</span>);
+        <span class="kw">let </span>path = <span class="self">self</span>.root.join(<span class="string">"package.json"</span>);
         <span class="kw">if </span>path.exists() {
             <span class="self">self</span>.has_package_json.set(<span class="bool-val">true</span>);
         }
     }
 }
 
-<span class="kw">fn </span>shared_program&lt;<span class="lifetime">&#39;a</span>&gt;(
-    prog: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::Program,
-    intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Program&lt;<span class="lifetime">&#39;a</span>&gt;, Diagnostic&gt; {
+<span class="kw">fn </span>shared_program&lt;<span class="lifetime">'a</span>&gt;(
+    prog: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::Program,
+    intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Program&lt;<span class="lifetime">'a</span>&gt;, Diagnostic&gt; {
     <span class="prelude-val">Ok</span>(Program {
         exports: prog
             .exports
@@ -697,7 +698,7 @@
         typescript_custom_sections: prog
             .typescript_custom_sections
             .iter()
-            .map(|x| -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str { <span class="kw-2">&amp;</span>x })
+            .map(|x| -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str { x })
             .collect(),
         linked_modules: prog
             .linked_modules
@@ -716,7 +717,7 @@
                         contents: intern.intern_str(<span class="kw-2">&amp;</span>s),
                     })
                     .map_err(|e| {
-                        <span class="kw">let </span>msg = <span class="macro">format!</span>(<span class="string">&quot;failed to read file `{}`: {}&quot;</span>, file.path.display(), e);
+                        <span class="kw">let </span>msg = <span class="macro">format!</span>(<span class="string">"failed to read file `{}`: {}"</span>, file.path.display(), e);
                         Diagnostic::span_error(file.definition, msg)
                     })
             })
@@ -728,24 +729,21 @@
             .collect(),
         unique_crate_identifier: intern.intern_str(<span class="kw-2">&amp;</span>intern.unique_crate_identifier()),
         package_json: <span class="kw">if </span>intern.has_package_json.get() {
-            <span class="prelude-val">Some</span>(intern.intern_str(intern.root.join(<span class="string">&quot;package.json&quot;</span>).to_str().unwrap()))
+            <span class="prelude-val">Some</span>(intern.intern_str(intern.root.join(<span class="string">"package.json"</span>).to_str().unwrap()))
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>},
     })
 }
 
-<span class="kw">fn </span>shared_export&lt;<span class="lifetime">&#39;a</span>&gt;(
-    export: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::Export,
-    intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner,
-) -&gt; <span class="prelude-ty">Result</span>&lt;Export&lt;<span class="lifetime">&#39;a</span>&gt;, Diagnostic&gt; {
-    <span class="kw">let </span>consumed = <span class="kw">match </span>export.method_self {
-        <span class="prelude-val">Some</span>(ast::MethodSelf::ByValue) =&gt; <span class="bool-val">true</span>,
-        <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
-    };
+<span class="kw">fn </span>shared_export&lt;<span class="lifetime">'a</span>&gt;(
+    export: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::Export,
+    intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Export&lt;<span class="lifetime">'a</span>&gt;, Diagnostic&gt; {
+    <span class="kw">let </span>consumed = <span class="macro">matches!</span>(export.method_self, <span class="prelude-val">Some</span>(ast::MethodSelf::ByValue));
     <span class="kw">let </span>method_kind = from_ast_method_kind(<span class="kw-2">&amp;</span>export.function, intern, <span class="kw-2">&amp;</span>export.method_kind)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(Export {
-        class: export.js_class.as_ref().map(|s| <span class="kw-2">&amp;**</span>s),
+        class: export.js_class.as_deref(),
         comments: export.comments.iter().map(|s| <span class="kw-2">&amp;**</span>s).collect(),
         consumed,
         function: shared_function(<span class="kw-2">&amp;</span>export.function, intern),
@@ -754,7 +752,7 @@
     })
 }
 
-<span class="kw">fn </span>shared_function&lt;<span class="lifetime">&#39;a</span>&gt;(func: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::Function, _intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner) -&gt; Function&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">fn </span>shared_function&lt;<span class="lifetime">'a</span>&gt;(func: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::Function, _intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner) -&gt; Function&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">let </span>arg_names = func
         .arguments
         .iter()
@@ -763,7 +761,7 @@
             <span class="kw">if let </span>syn::Pat::Ident(x) = <span class="kw-2">&amp;*</span>arg.pat {
                 <span class="kw">return </span>x.ident.to_string();
             }
-            <span class="macro">format!</span>(<span class="string">&quot;arg{}&quot;</span>, idx)
+            <span class="macro">format!</span>(<span class="string">"arg{}"</span>, idx)
         })
         .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
     Function {
@@ -771,11 +769,12 @@
         asyncness: func.r#async,
         name: <span class="kw-2">&amp;</span>func.name,
         generate_typescript: func.generate_typescript,
+        generate_jsdoc: func.generate_jsdoc,
         variadic: func.variadic,
     }
 }
 
-<span class="kw">fn </span>shared_enum&lt;<span class="lifetime">&#39;a</span>&gt;(e: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::Enum, intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner) -&gt; Enum&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">fn </span>shared_enum&lt;<span class="lifetime">'a</span>&gt;(e: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::Enum, intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner) -&gt; Enum&lt;<span class="lifetime">'a</span>&gt; {
     Enum {
         name: <span class="kw-2">&amp;</span>e.js_name,
         variants: e
@@ -788,7 +787,7 @@
     }
 }
 
-<span class="kw">fn </span>shared_variant&lt;<span class="lifetime">&#39;a</span>&gt;(v: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::Variant, intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner) -&gt; EnumVariant&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">fn </span>shared_variant&lt;<span class="lifetime">'a</span>&gt;(v: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::Variant, intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner) -&gt; EnumVariant&lt;<span class="lifetime">'a</span>&gt; {
     EnumVariant {
         name: intern.intern(<span class="kw-2">&amp;</span>v.name),
         value: v.value,
@@ -796,7 +795,7 @@
     }
 }
 
-<span class="kw">fn </span>shared_import&lt;<span class="lifetime">&#39;a</span>&gt;(i: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::Import, intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner) -&gt; <span class="prelude-ty">Result</span>&lt;Import&lt;<span class="lifetime">&#39;a</span>&gt;, Diagnostic&gt; {
+<span class="kw">fn </span>shared_import&lt;<span class="lifetime">'a</span>&gt;(i: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::Import, intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner) -&gt; <span class="prelude-ty">Result</span>&lt;Import&lt;<span class="lifetime">'a</span>&gt;, Diagnostic&gt; {
     <span class="prelude-val">Ok</span>(Import {
         module: i
             .module
@@ -808,21 +807,21 @@
     })
 }
 
-<span class="kw">fn </span>shared_linked_module&lt;<span class="lifetime">&#39;a</span>&gt;(
+<span class="kw">fn </span>shared_linked_module&lt;<span class="lifetime">'a</span>&gt;(
     name: <span class="kw-2">&amp;</span>str,
-    i: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::ImportModule,
-    intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner,
-) -&gt; <span class="prelude-ty">Result</span>&lt;LinkedModule&lt;<span class="lifetime">&#39;a</span>&gt;, Diagnostic&gt; {
+    i: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::ImportModule,
+    intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner,
+) -&gt; <span class="prelude-ty">Result</span>&lt;LinkedModule&lt;<span class="lifetime">'a</span>&gt;, Diagnostic&gt; {
     <span class="prelude-val">Ok</span>(LinkedModule {
         module: shared_module(i, intern)<span class="question-mark">?</span>,
         link_function_name: intern.intern_str(name),
     })
 }
 
-<span class="kw">fn </span>shared_module&lt;<span class="lifetime">&#39;a</span>&gt;(
-    m: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::ImportModule,
-    intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner,
-) -&gt; <span class="prelude-ty">Result</span>&lt;ImportModule&lt;<span class="lifetime">&#39;a</span>&gt;, Diagnostic&gt; {
+<span class="kw">fn </span>shared_module&lt;<span class="lifetime">'a</span>&gt;(
+    m: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::ImportModule,
+    intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ImportModule&lt;<span class="lifetime">'a</span>&gt;, Diagnostic&gt; {
     <span class="prelude-val">Ok</span>(<span class="kw">match </span>m {
         ast::ImportModule::Named(m, span) =&gt; intern.resolve_import_module(m, <span class="kw-2">*</span>span)<span class="question-mark">?</span>,
         ast::ImportModule::RawNamed(m, _span) =&gt; ImportModule::RawNamed(intern.intern_str(m)),
@@ -830,10 +829,10 @@
     })
 }
 
-<span class="kw">fn </span>shared_import_kind&lt;<span class="lifetime">&#39;a</span>&gt;(
-    i: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::ImportKind,
-    intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner,
-) -&gt; <span class="prelude-ty">Result</span>&lt;ImportKind&lt;<span class="lifetime">&#39;a</span>&gt;, Diagnostic&gt; {
+<span class="kw">fn </span>shared_import_kind&lt;<span class="lifetime">'a</span>&gt;(
+    i: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::ImportKind,
+    intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ImportKind&lt;<span class="lifetime">'a</span>&gt;, Diagnostic&gt; {
     <span class="prelude-val">Ok</span>(<span class="kw">match </span>i {
         ast::ImportKind::Function(f) =&gt; ImportKind::Function(shared_import_function(f, intern)<span class="question-mark">?</span>),
         ast::ImportKind::Static(f) =&gt; ImportKind::Static(shared_import_static(f, intern)),
@@ -842,10 +841,10 @@
     })
 }
 
-<span class="kw">fn </span>shared_import_function&lt;<span class="lifetime">&#39;a</span>&gt;(
-    i: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::ImportFunction,
-    intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner,
-) -&gt; <span class="prelude-ty">Result</span>&lt;ImportFunction&lt;<span class="lifetime">&#39;a</span>&gt;, Diagnostic&gt; {
+<span class="kw">fn </span>shared_import_function&lt;<span class="lifetime">'a</span>&gt;(
+    i: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::ImportFunction,
+    intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ImportFunction&lt;<span class="lifetime">'a</span>&gt;, Diagnostic&gt; {
     <span class="kw">let </span>method = <span class="kw">match </span><span class="kw-2">&amp;</span>i.kind {
         ast::ImportFunctionKind::Method { class, kind, .. } =&gt; {
             <span class="kw">let </span>kind = from_ast_method_kind(<span class="kw-2">&amp;</span>i.function, intern, kind)<span class="question-mark">?</span>;
@@ -865,14 +864,14 @@
     })
 }
 
-<span class="kw">fn </span>shared_import_static&lt;<span class="lifetime">&#39;a</span>&gt;(i: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::ImportStatic, intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner) -&gt; ImportStatic&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">fn </span>shared_import_static&lt;<span class="lifetime">'a</span>&gt;(i: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::ImportStatic, intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner) -&gt; ImportStatic&lt;<span class="lifetime">'a</span>&gt; {
     ImportStatic {
         name: <span class="kw-2">&amp;</span>i.js_name,
         shim: intern.intern(<span class="kw-2">&amp;</span>i.shim),
     }
 }
 
-<span class="kw">fn </span>shared_import_type&lt;<span class="lifetime">&#39;a</span>&gt;(i: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::ImportType, intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner) -&gt; ImportType&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">fn </span>shared_import_type&lt;<span class="lifetime">'a</span>&gt;(i: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::ImportType, intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner) -&gt; ImportType&lt;<span class="lifetime">'a</span>&gt; {
     ImportType {
         name: <span class="kw-2">&amp;</span>i.js_name,
         instanceof_shim: <span class="kw-2">&amp;</span>i.instanceof_shim,
@@ -880,11 +879,11 @@
     }
 }
 
-<span class="kw">fn </span>shared_import_enum&lt;<span class="lifetime">&#39;a</span>&gt;(_i: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::ImportEnum, _intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner) -&gt; ImportEnum {
+<span class="kw">fn </span>shared_import_enum&lt;<span class="lifetime">'a</span>&gt;(_i: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::ImportEnum, _intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner) -&gt; ImportEnum {
     ImportEnum {}
 }
 
-<span class="kw">fn </span>shared_struct&lt;<span class="lifetime">&#39;a</span>&gt;(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::Struct, intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner) -&gt; Struct&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">fn </span>shared_struct&lt;<span class="lifetime">'a</span>&gt;(s: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::Struct, intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner) -&gt; Struct&lt;<span class="lifetime">'a</span>&gt; {
     Struct {
         name: <span class="kw-2">&amp;</span>s.js_name,
         fields: s
@@ -898,12 +897,13 @@
     }
 }
 
-<span class="kw">fn </span>shared_struct_field&lt;<span class="lifetime">&#39;a</span>&gt;(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::StructField, _intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner) -&gt; StructField&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">fn </span>shared_struct_field&lt;<span class="lifetime">'a</span>&gt;(s: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::StructField, _intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner) -&gt; StructField&lt;<span class="lifetime">'a</span>&gt; {
     StructField {
         name: <span class="kw-2">&amp;</span>s.js_name,
         readonly: s.readonly,
         comments: s.comments.iter().map(|s| <span class="kw-2">&amp;**</span>s).collect(),
         generate_typescript: s.generate_typescript,
+        generate_jsdoc: s.generate_jsdoc,
     }
 }
 
@@ -958,20 +958,20 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Encode <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8] {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Encode <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8] {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>Encoder) {
         <span class="self">self</span>.len().encode(dst);
-        dst.dst.extend_from_slice(<span class="kw-2">*</span><span class="self">self</span>);
+        dst.dst.extend_from_slice(<span class="self">self</span>);
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Encode <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Encode <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>str {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>Encoder) {
         <span class="self">self</span>.as_bytes().encode(dst);
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Encode <span class="kw">for </span>String {
+<span class="kw">impl </span>Encode <span class="kw">for </span>String {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>Encoder) {
         <span class="self">self</span>.as_bytes().encode(dst);
     }
@@ -1055,16 +1055,16 @@
 
 <span class="macro">macro_rules! </span>encode_api {
     () =&gt; ();
-    (<span class="kw">struct </span><span class="macro-nonterminal">$name</span>:ident&lt;<span class="lifetime">&#39;a</span>&gt; { $(<span class="macro-nonterminal">$fields</span>:tt)* } $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; (
-        <span class="macro">encode_struct!</span>(<span class="macro-nonterminal">$name </span>(&lt;<span class="lifetime">&#39;a</span>&gt;) $(<span class="macro-nonterminal">$fields</span>)<span class="kw-2">*</span>);
+    (<span class="kw">struct </span><span class="macro-nonterminal">$name</span>:ident&lt;<span class="lifetime">'a</span>&gt; { $(<span class="macro-nonterminal">$fields</span>:tt)* } $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; (
+        <span class="macro">encode_struct!</span>(<span class="macro-nonterminal">$name </span>(&lt;<span class="lifetime">'a</span>&gt;) $(<span class="macro-nonterminal">$fields</span>)<span class="kw-2">*</span>);
         <span class="macro">encode_api!</span>($(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>);
     );
     (<span class="kw">struct </span><span class="macro-nonterminal">$name</span>:ident { $(<span class="macro-nonterminal">$fields</span>:tt)* } $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; (
         <span class="macro">encode_struct!</span>(<span class="macro-nonterminal">$name </span>() $(<span class="macro-nonterminal">$fields</span>)<span class="kw-2">*</span>);
         <span class="macro">encode_api!</span>($(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>);
     );
-    (<span class="kw">enum </span><span class="macro-nonterminal">$name</span>:ident&lt;<span class="lifetime">&#39;a</span>&gt; { $(<span class="macro-nonterminal">$variants</span>:tt)* } $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; (
-        <span class="macro">encode_enum!</span>(<span class="macro-nonterminal">$name </span>(&lt;<span class="lifetime">&#39;a</span>&gt;) $(<span class="macro-nonterminal">$variants</span>)<span class="kw-2">*</span>);
+    (<span class="kw">enum </span><span class="macro-nonterminal">$name</span>:ident&lt;<span class="lifetime">'a</span>&gt; { $(<span class="macro-nonterminal">$variants</span>:tt)* } $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; (
+        <span class="macro">encode_enum!</span>(<span class="macro-nonterminal">$name </span>(&lt;<span class="lifetime">'a</span>&gt;) $(<span class="macro-nonterminal">$variants</span>)<span class="kw-2">*</span>);
         <span class="macro">encode_api!</span>($(<span class="macro-nonterminal">$rest</span>)<span class="kw-2">*</span>);
     );
     (<span class="kw">enum </span><span class="macro-nonterminal">$name</span>:ident { $(<span class="macro-nonterminal">$variants</span>:tt)* } $(<span class="macro-nonterminal">$rest</span>:tt)<span class="kw-2">*</span>) =&gt; (
@@ -1074,11 +1074,11 @@
 }
 <span class="macro">wasm_bindgen_shared::shared_api!</span>(encode_api);
 
-<span class="kw">fn </span>from_ast_method_kind&lt;<span class="lifetime">&#39;a</span>&gt;(
-    function: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::Function,
-    intern: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Interner,
-    method_kind: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ast::MethodKind,
-) -&gt; <span class="prelude-ty">Result</span>&lt;MethodKind&lt;<span class="lifetime">&#39;a</span>&gt;, Diagnostic&gt; {
+<span class="kw">fn </span>from_ast_method_kind&lt;<span class="lifetime">'a</span>&gt;(
+    function: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::Function,
+    intern: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Interner,
+    method_kind: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ast::MethodKind,
+) -&gt; <span class="prelude-ty">Result</span>&lt;MethodKind&lt;<span class="lifetime">'a</span>&gt;, Diagnostic&gt; {
     <span class="prelude-val">Ok</span>(<span class="kw">match </span>method_kind {
         ast::MethodKind::Constructor =&gt; MethodKind::Constructor,
         ast::MethodKind::Operation(ast::Operation { is_static, kind }) =&gt; {
@@ -1104,5 +1104,4 @@
         }
     })
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="wasm_bindgen_backend" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

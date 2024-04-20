@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["AluZ","The “Zero” line that comes out of the ALU."],["CpuBranch","CPU branch signal. This is the final determined branch signal from the CPU."],["GeneralBranch","General branch signal. This is the final determined branch signal from the CPU and FPU combined."]],"struct":[["DatapathSignals",""]]};
+window.SIDEBAR_ITEMS = {"enum":["AluZ","CpuBranch","GeneralBranch"],"struct":["DatapathSignals"]};

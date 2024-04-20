@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/serde-wasm-bindgen-0.4.5/src/de.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>de.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../serde_wasm_bindgen/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde-wasm-bindgen-0.6.5/src/de.rs`."><title>de.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="serde_wasm_bindgen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../serde_wasm_bindgen/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -596,23 +598,88 @@
 <a href="#596" id="596">596</a>
 <a href="#597" id="597">597</a>
 <a href="#598" id="598">598</a>
-</pre><pre class="rust"><code><span class="kw">use </span>js_sys::{Array, ArrayBuffer, JsString, Number, Object, Symbol, Uint8Array};
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>js_sys::{Array, ArrayBuffer, JsString, Map, Number, Object, Symbol, Uint8Array};
 <span class="kw">use </span>serde::de::value::{MapDeserializer, SeqDeserializer};
 <span class="kw">use </span>serde::de::{<span class="self">self</span>, IntoDeserializer};
 <span class="kw">use </span>std::convert::TryFrom;
+<span class="kw">use </span>wasm_bindgen::convert::IntoWasmAbi;
 <span class="kw">use </span>wasm_bindgen::{JsCast, JsValue, UnwrapThrowExt};
 
-<span class="kw">use super</span>::{static_str_to_js, Error, ObjectExt, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span><span class="kw">crate</span>::preserve::PRESERVED_VALUE_MAGIC;
+<span class="kw">use crate</span>::{static_str_to_js, Error, ObjectExt, <span class="prelude-ty">Result</span>};
 
 <span class="doccomment">/// Provides [`de::SeqAccess`] from any JS iterator.
 </span><span class="kw">struct </span>SeqAccess {
     iter: js_sys::IntoIter,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; de::SeqAccess&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>SeqAccess {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; de::SeqAccess&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>SeqAccess {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>next_element_seed&lt;T: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>next_element_seed&lt;T: de::DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         seed: T,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;T::Value&gt;&gt; {
@@ -623,7 +690,7 @@
     }
 }
 
-<span class="doccomment">/// Provides [`serde::de::MapAccess`] from any JS iterator that returns `[key, value]` pairs.
+<span class="doccomment">/// Provides [`de::MapAccess`] from any JS iterator that returns `[key, value]` pairs.
 </span><span class="kw">struct </span>MapAccess {
     iter: js_sys::IntoIter,
     next_value: <span class="prelude-ty">Option</span>&lt;Deserializer&gt;,
@@ -638,10 +705,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; de::MapAccess&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>MapAccess {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; de::MapAccess&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>MapAccess {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>next_key_seed&lt;K: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;&gt; {
+    <span class="kw">fn </span>next_key_seed&lt;K: de::DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;&gt; {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.next_value.is_none());
 
         <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self</span>.iter.next().transpose()<span class="question-mark">? </span>{
@@ -654,19 +721,19 @@
         })
     }
 
-    <span class="kw">fn </span>next_value_seed&lt;V: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>next_value_seed&lt;V: de::DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         seed.deserialize(<span class="self">self</span>.next_value.take().unwrap_throw())
     }
 }
 
 <span class="kw">struct </span>ObjectAccess {
     obj: ObjectExt,
-    fields: std::slice::Iter&lt;<span class="lifetime">&#39;static</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
+    fields: std::slice::Iter&lt;<span class="lifetime">'static</span>, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;,
     next_value: <span class="prelude-ty">Option</span>&lt;Deserializer&gt;,
 }
 
 <span class="kw">impl </span>ObjectAccess {
-    <span class="kw">fn </span>new(obj: ObjectExt, fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str]) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>new(obj: ObjectExt, fields: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str]) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             obj,
             fields: fields.iter(),
@@ -679,10 +746,10 @@
     de::IntoDeserializer::into_deserializer(s)
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; de::MapAccess&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>ObjectAccess {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; de::MapAccess&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>ObjectAccess {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>next_key_seed&lt;K: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;&gt; {
+    <span class="kw">fn </span>next_key_seed&lt;K: de::DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;&gt; {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.next_value.is_none());
 
         <span class="kw">for </span>field <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.fields {
@@ -700,22 +767,53 @@
         <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
     }
 
-    <span class="kw">fn </span>next_value_seed&lt;V: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>next_value_seed&lt;V: de::DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         seed.deserialize(<span class="self">self</span>.next_value.take().unwrap_throw())
     }
 }
 
-<span class="doccomment">/// Provides [`serde::de::EnumAccess`] from given JS values for the `tag` and the `payload`.
+<span class="kw">enum </span>PreservedValueAccess {
+    OnMagic(JsValue),
+    OnValue(JsValue),
+    Done,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; de::SeqAccess&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>PreservedValueAccess {
+    <span class="kw">type </span>Error = Error;
+
+    <span class="kw">fn </span>next_element_seed&lt;T: de::DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        seed: T,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;T::Value&gt;&gt; {
+        <span class="comment">// Temporary replacement to avoid borrow checker issues when moving out `JsValue`.
+        </span><span class="kw">let </span>this = std::mem::replace(<span class="self">self</span>, <span class="self">Self</span>::Done);
+        <span class="kw">match </span>this {
+            <span class="self">Self</span>::OnMagic(value) =&gt; {
+                <span class="kw-2">*</span><span class="self">self </span>= <span class="self">Self</span>::OnValue(value);
+                seed.deserialize(str_deserializer(PRESERVED_VALUE_MAGIC))
+                    .map(<span class="prelude-val">Some</span>)
+            }
+            <span class="self">Self</span>::OnValue(value) =&gt; seed
+                .deserialize(Deserializer {
+                    value: JsValue::from(value.into_abi()),
+                })
+                .map(<span class="prelude-val">Some</span>),
+            <span class="self">Self</span>::Done =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+        }
+    }
+}
+
+<span class="doccomment">/// Provides [`de::EnumAccess`] from given JS values for the `tag` and the `payload`.
 </span><span class="kw">struct </span>EnumAccess {
     tag: Deserializer,
     payload: Deserializer,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; de::EnumAccess&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>EnumAccess {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; de::EnumAccess&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>EnumAccess {
     <span class="kw">type </span>Error = Error;
     <span class="kw">type </span>Variant = Deserializer;
 
-    <span class="kw">fn </span>variant_seed&lt;V: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>variant_seed&lt;V: de::DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
         seed: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(V::Value, <span class="self">Self</span>::Variant)&gt; {
@@ -723,7 +821,7 @@
     }
 }
 
-<span class="doccomment">/// A newtype that allows using any [`JsValue`] as a [`serde::Deserializer`].
+<span class="doccomment">/// A newtype that allows using any [`JsValue`] as a [`de::Deserializer`].
 </span><span class="kw">pub struct </span>Deserializer {
     value: JsValue,
 }
@@ -734,9 +832,9 @@
     }
 }
 
-<span class="comment">// Ideally this would be implemented for `JsValue` instead, but we can&#39;t because
+<span class="comment">// Ideally this would be implemented for `JsValue` instead, but we can't because
 // of the orphan rule.
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; IntoDeserializer&lt;<span class="lifetime">&#39;de</span>, Error&gt; <span class="kw">for </span>Deserializer {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; IntoDeserializer&lt;<span class="lifetime">'de</span>, Error&gt; <span class="kw">for </span>Deserializer {
     <span class="kw">type </span>Deserializer = <span class="self">Self</span>;
 
     <span class="kw">fn </span>into_deserializer(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Deserializer {
@@ -751,9 +849,7 @@
 }
 
 <span class="kw">impl </span>Deserializer {
-    <span class="doccomment">/// Casts the internal value into an object, including support for prototype-less objects.
-    /// See https://github.com/rustwasm/wasm-bindgen/issues/1366 for why we don&#39;t use `dyn_ref`.
-    </span><span class="kw">fn </span>as_object_entries(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Array&gt; {
+    <span class="kw">fn </span>as_object_entries(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Array&gt; {
         <span class="kw">if </span><span class="self">self</span>.value.is_object() {
             <span class="prelude-val">Some</span>(Object::entries(<span class="self">self</span>.value.unchecked_ref()))
         } <span class="kw">else </span>{
@@ -798,27 +894,25 @@
             bytes = v;
             de::Unexpected::Bytes(<span class="kw-2">&amp;</span>bytes)
         } <span class="kw">else </span>{
-            string = <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.value);
+            string = <span class="macro">format!</span>(<span class="string">"{:?}"</span>, <span class="self">self</span>.value);
             de::Unexpected::Other(<span class="kw-2">&amp;</span>string)
         };
 
         de::Error::invalid_type(unexpected, visitor)
     }
 
-    <span class="kw">fn </span>invalid_type&lt;<span class="lifetime">&#39;de</span>, V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>invalid_type&lt;<span class="lifetime">'de</span>, V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="prelude-val">Err</span>(<span class="self">self</span>.invalid_type_(<span class="kw-2">&amp;</span>visitor))
     }
 
     <span class="kw">fn </span>as_safe_integer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i64&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="self">self</span>.value.as_f64() {
-            <span class="kw">if </span>Number::is_safe_integer(<span class="kw-2">&amp;</span><span class="self">self</span>.value) {
-                <span class="kw">return </span><span class="prelude-val">Some</span>(v <span class="kw">as </span>i64);
-            }
+        <span class="kw">if </span>Number::is_safe_integer(<span class="kw-2">&amp;</span><span class="self">self</span>.value) {
+            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.value.unchecked_into_f64() <span class="kw">as </span>i64);
         }
         <span class="prelude-val">None
     </span>}
 
-    <span class="kw">fn </span>deserialize_from_js_number_signed&lt;<span class="lifetime">&#39;de</span>, V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_from_js_number_signed&lt;<span class="lifetime">'de</span>, V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
@@ -828,7 +922,7 @@
         }
     }
 
-    <span class="kw">fn </span>deserialize_from_js_number_unsigned&lt;<span class="lifetime">&#39;de</span>, V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_from_js_number_unsigned&lt;<span class="lifetime">'de</span>, V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
@@ -837,12 +931,20 @@
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_type(visitor),
         }
     }
+
+    <span class="kw">fn </span>deserialize_from_array&lt;<span class="lifetime">'de</span>, V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        visitor: V,
+        array: <span class="kw-2">&amp;</span>Array,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+        visitor.visit_seq(SeqDeserializer::new(array.iter().map(Deserializer::from)))
+    }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; de::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Deserializer {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; de::Deserializer&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>Deserializer {
     <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn </span>deserialize_any&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>deserialize_any&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">if </span><span class="self">self</span>.is_nullish() {
             <span class="comment">// Ideally we would only treat `undefined` as `()` / `None` which would be semantically closer
             // to JS definitions, but, unfortunately, WebIDL generates missing values as `null`
@@ -855,7 +957,7 @@
                 <span class="prelude-val">Ok</span>(v) =&gt; visitor.visit_i64(v),
                 <span class="prelude-val">Err</span>(value) =&gt; <span class="kw">match </span>u64::try_from(value) {
                     <span class="prelude-val">Ok</span>(v) =&gt; visitor.visit_u64(v),
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(de::Error::custom(<span class="string">&quot;Couldn&#39;t deserialize i64 or u64 from a BigInt outside i64::MIN..u64::MAX bounds&quot;</span>))
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(de::Error::custom(<span class="string">"Couldn't deserialize i64 or u64 from a BigInt outside i64::MIN..u64::MAX bounds"</span>))
                 }
             }
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(v) = <span class="self">self</span>.value.as_f64() {
@@ -868,18 +970,25 @@
             visitor.visit_string(v)
         } <span class="kw">else if </span>Array::is_array(<span class="kw-2">&amp;</span><span class="self">self</span>.value) {
             <span class="self">self</span>.deserialize_seq(visitor)
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(bytes) = <span class="self">self</span>.as_bytes() {
+            <span class="comment">// We need to handle this here because serde uses `deserialize_any`
+            // for internally tagged enums
+            </span>visitor.visit_byte_buf(bytes)
         } <span class="kw">else if </span><span class="self">self</span>.value.is_object() &amp;&amp;
             <span class="comment">// The only reason we want to support objects here is because serde uses
             // `deserialize_any` for internally tagged enums
-            // (see https://github.com/cloudflare/serde-wasm-bindgen/pull/4#discussion_r352245020).
+            // (see https://github.com/RReverser/serde-wasm-bindgen/pull/4#discussion_r352245020).
             //
-            // We expect such enums to be represented via plain JS objects, so let&#39;s explicitly
-            // exclude Sets, Maps and any other iterables. These should be deserialized via concrete
+            // We expect such enums to be represented via plain JS objects, so let's explicitly
+            // exclude Sets and other iterables. These should be deserialized via concrete
             // `deserialize_*` methods instead of us trying to guess the right target type.
+            //
+            // We still do support Map, so that the format described here stays a self-describing
+            // format: we happen to serialize to Map, and it is not ambiguous.
             //
             // Hopefully we can rid of these hacks altogether once
             // https://github.com/serde-rs/serde/issues/1183 is implemented / fixed on serde side.
-            </span>!Symbol::iterator().js_in(<span class="kw-2">&amp;</span><span class="self">self</span>.value)
+            </span>(!Symbol::iterator().js_in(<span class="kw-2">&amp;</span><span class="self">self</span>.value) || <span class="self">self</span>.value.has_type::&lt;Map&gt;())
         {
             <span class="self">self</span>.deserialize_map(visitor)
         } <span class="kw">else </span>{
@@ -887,7 +996,7 @@
         }
     }
 
-    <span class="kw">fn </span>deserialize_unit&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>deserialize_unit&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">if </span><span class="self">self</span>.is_nullish() {
             visitor.visit_unit()
         } <span class="kw">else </span>{
@@ -895,15 +1004,15 @@
         }
     }
 
-    <span class="kw">fn </span>deserialize_unit_struct&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>deserialize_unit_struct&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="self">self</span>.deserialize_unit(visitor)
     }
 
-    <span class="kw">fn </span>deserialize_bool&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>deserialize_bool&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="self">self</span>.value.as_bool() {
             visitor.visit_bool(v)
         } <span class="kw">else </span>{
@@ -912,11 +1021,11 @@
     }
 
     <span class="comment">// Serde happily converts `f64` to `f32` (with checks), so we can forward.
-    </span><span class="kw">fn </span>deserialize_f32&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    </span><span class="kw">fn </span>deserialize_f32&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="self">self</span>.deserialize_f64(visitor)
     }
 
-    <span class="kw">fn </span>deserialize_f64&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>deserialize_f64&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="self">self</span>.value.as_f64() {
             visitor.visit_f64(v)
         } <span class="kw">else </span>{
@@ -924,15 +1033,15 @@
         }
     }
 
-    <span class="kw">fn </span>deserialize_identifier&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>deserialize_identifier&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="self">self</span>.deserialize_str(visitor)
     }
 
-    <span class="kw">fn </span>deserialize_str&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>deserialize_str&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="self">self</span>.deserialize_string(visitor)
     }
 
-    <span class="kw">fn </span>deserialize_string&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>deserialize_string&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="self">self</span>.value.as_string() {
             visitor.visit_string(v)
         } <span class="kw">else </span>{
@@ -940,39 +1049,42 @@
         }
     }
 
-    <span class="comment">// Serde happily converts any integer to any integer (with checks), so let&#39;s forward all of
+    <span class="comment">// Serde happily converts any integer to any integer (with checks), so let's forward all of
     // these to 64-bit methods to save some space in the generated WASM.
 
-    </span><span class="kw">fn </span>deserialize_i8&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    </span><span class="kw">fn </span>deserialize_i8&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="self">self</span>.deserialize_from_js_number_signed(visitor)
     }
 
-    <span class="kw">fn </span>deserialize_i16&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>deserialize_i16&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="self">self</span>.deserialize_from_js_number_signed(visitor)
     }
 
-    <span class="kw">fn </span>deserialize_i32&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>deserialize_i32&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="self">self</span>.deserialize_from_js_number_signed(visitor)
     }
 
-    <span class="kw">fn </span>deserialize_u8&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>deserialize_u8&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="self">self</span>.deserialize_from_js_number_unsigned(visitor)
     }
 
-    <span class="kw">fn </span>deserialize_u16&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>deserialize_u16&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="self">self</span>.deserialize_from_js_number_unsigned(visitor)
     }
 
-    <span class="kw">fn </span>deserialize_u32&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>deserialize_u32&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="self">self</span>.deserialize_from_js_number_unsigned(visitor)
     }
 
-    <span class="kw">fn </span>deserialize_i64&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="doccomment">/// Supported inputs:
+    /// - `BigInt` within `i64` boundaries.
+    /// - number within safe integer boundaries.
+    </span><span class="kw">fn </span>deserialize_i64&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">if </span><span class="self">self</span>.value.is_bigint() {
             <span class="kw">match </span>i64::try_from(<span class="self">self</span>.value) {
                 <span class="prelude-val">Ok</span>(v) =&gt; visitor.visit_i64(v),
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(de::Error::custom(
-                    <span class="string">&quot;Couldn&#39;t deserialize i64 from a BigInt outside i64::MIN..i64::MAX bounds&quot;</span>,
+                    <span class="string">"Couldn't deserialize i64 from a BigInt outside i64::MIN..i64::MAX bounds"</span>,
                 )),
             }
         } <span class="kw">else </span>{
@@ -980,12 +1092,15 @@
         }
     }
 
-    <span class="kw">fn </span>deserialize_u64&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="doccomment">/// Supported inputs:
+    /// - `BigInt` within `u64` boundaries.
+    /// - number within safe integer boundaries.
+    </span><span class="kw">fn </span>deserialize_u64&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">if </span><span class="self">self</span>.value.is_bigint() {
             <span class="kw">match </span>u64::try_from(<span class="self">self</span>.value) {
                 <span class="prelude-val">Ok</span>(v) =&gt; visitor.visit_u64(v),
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(de::Error::custom(
-                    <span class="string">&quot;Couldn&#39;t deserialize u64 from a BigInt outside u64::MIN..u64::MAX bounds&quot;</span>,
+                    <span class="string">"Couldn't deserialize u64 from a BigInt outside u64::MIN..u64::MAX bounds"</span>,
                 )),
             }
         } <span class="kw">else </span>{
@@ -993,12 +1108,14 @@
         }
     }
 
-    <span class="kw">fn </span>deserialize_i128&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="doccomment">/// Supported inputs:
+    /// - `BigInt` within `i128` boundaries.
+    </span><span class="kw">fn </span>deserialize_i128&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">if </span><span class="self">self</span>.value.is_bigint() {
             <span class="kw">match </span>i128::try_from(<span class="self">self</span>.value) {
                 <span class="prelude-val">Ok</span>(v) =&gt; visitor.visit_i128(v),
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(de::Error::custom(
-                    <span class="string">&quot;Couldn&#39;t deserialize i128 from a BigInt outside i128::MIN..i128::MAX bounds&quot;</span>,
+                    <span class="string">"Couldn't deserialize i128 from a BigInt outside i128::MIN..i128::MAX bounds"</span>,
                 )),
             }
         } <span class="kw">else </span>{
@@ -1006,12 +1123,14 @@
         }
     }
 
-    <span class="kw">fn </span>deserialize_u128&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="doccomment">/// Supported inputs:
+    /// - `BigInt` within `u128` boundaries.
+    </span><span class="kw">fn </span>deserialize_u128&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">if </span><span class="self">self</span>.value.is_bigint() {
             <span class="kw">match </span>u128::try_from(<span class="self">self</span>.value) {
                 <span class="prelude-val">Ok</span>(v) =&gt; visitor.visit_u128(v),
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(de::Error::custom(
-                    <span class="string">&quot;Couldn&#39;t deserialize u128 from a BigInt outside u128::MIN..u128::MAX bounds&quot;</span>,
+                    <span class="string">"Couldn't deserialize u128 from a BigInt outside u128::MIN..u128::MAX bounds"</span>,
                 )),
             }
         } <span class="kw">else </span>{
@@ -1019,12 +1138,12 @@
         }
     }
 
-    <span class="doccomment">/// Converts a JavaScript string to a Rust char.
+    <span class="doccomment">/// Converts a JavaScript string to a Rust `char`.
     ///
-    /// By default we don&#39;t perform detection of single chars because it&#39;s pretty complicated,
-    /// but if we get a hint that they&#39;re expected, this methods allows to avoid heap allocations
+    /// By default we don't perform detection of single chars because it's pretty complicated,
+    /// but if we get a hint that they're expected, this methods allows to avoid heap allocations
     /// of an intermediate `String` by directly converting numeric codepoints instead.
-    </span><span class="kw">fn </span>deserialize_char&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    </span><span class="kw">fn </span>deserialize_char&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(s) = <span class="self">self</span>.value.dyn_ref::&lt;JsString&gt;() {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = s.as_char() {
                 <span class="kw">return </span>visitor.visit_char(c);
@@ -1033,9 +1152,10 @@
         <span class="self">self</span>.invalid_type(visitor)
     }
 
-    <span class="comment">// Serde can deserialize `visit_unit` into `None`, but can&#39;t deserialize arbitrary value
+    <span class="doccomment">/// Deserializes `undefined` or `null` into `None` and any other value into `Some(value)`.
+    </span><span class="comment">// Serde can deserialize `visit_unit` into `None`, but can't deserialize arbitrary value
     // as `Some`, so we need to provide own simple implementation.
-    </span><span class="kw">fn </span>deserialize_option&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    </span><span class="kw">fn </span>deserialize_option&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.is_nullish() {
             visitor.visit_some(<span class="self">self</span>)
         } <span class="kw">else </span>{
@@ -1043,10 +1163,10 @@
         }
     }
 
-    <span class="doccomment">/// Simply calls `visit_newtype_struct`.
-    </span><span class="kw">fn </span>deserialize_newtype_struct&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="doccomment">/// Forwards to deserializing newtype contents.
+    </span><span class="kw">fn </span>deserialize_newtype_struct&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         visitor.visit_newtype_struct(<span class="self">self</span>)
@@ -1054,11 +1174,12 @@
 
     <span class="doccomment">/// Supported inputs:
     ///  - JS iterable (an object with [`[Symbol.iterator]`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/iterator)).
+    ///
     /// Supported outputs:
     ///  - Any Rust sequence from Serde point of view ([`Vec`], [`HashSet`](std::collections::HashSet), etc.)
-    </span><span class="kw">fn </span>deserialize_seq&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    </span><span class="kw">fn </span>deserialize_seq&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(arr) = <span class="self">self</span>.value.dyn_ref::&lt;Array&gt;() {
-            visitor.visit_seq(SeqDeserializer::new(arr.iter().map(Deserializer::from)))
+            <span class="self">self</span>.deserialize_from_array(visitor, arr)
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(iter) = js_sys::try_iter(<span class="kw-2">&amp;</span><span class="self">self</span>.value)<span class="question-mark">? </span>{
             visitor.visit_seq(SeqAccess { iter })
         } <span class="kw">else </span>{
@@ -1067,27 +1188,31 @@
     }
 
     <span class="doccomment">/// Forwards to [`Self::deserialize_seq`](#method.deserialize_seq).
-    </span><span class="kw">fn </span>deserialize_tuple&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, _len: usize, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    </span><span class="kw">fn </span>deserialize_tuple&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, _len: usize, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="self">self</span>.deserialize_seq(visitor)
     }
 
     <span class="doccomment">/// Forwards to [`Self::deserialize_tuple`](#method.deserialize_tuple).
-    </span><span class="kw">fn </span>deserialize_tuple_struct&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    </span><span class="kw">fn </span>deserialize_tuple_struct&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         len: usize,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+        <span class="kw">if </span>name == PRESERVED_VALUE_MAGIC {
+            <span class="kw">return </span>visitor.visit_seq(PreservedValueAccess::OnMagic(<span class="self">self</span>.value));
+        }
         <span class="self">self</span>.deserialize_tuple(len, visitor)
     }
 
     <span class="doccomment">/// Supported inputs:
     ///  - A JS iterable that is expected to return `[key, value]` pairs.
     ///  - A JS object, which will be iterated using [`Object.entries`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries).
+    ///
     /// Supported outputs:
     ///  - A Rust key-value map ([`HashMap`](std::collections::HashMap), [`BTreeMap`](std::collections::BTreeMap), etc.).
     ///  - A typed Rust structure with `#[derive(Deserialize)]`.
-    </span><span class="kw">fn </span>deserialize_map&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    </span><span class="kw">fn </span>deserialize_map&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">match </span>js_sys::try_iter(<span class="kw-2">&amp;</span><span class="self">self</span>.value)<span class="question-mark">? </span>{
             <span class="prelude-val">Some</span>(iter) =&gt; visitor.visit_map(MapAccess::new(iter)),
             <span class="prelude-val">None </span>=&gt; <span class="kw">match </span><span class="self">self</span>.as_object_entries() {
@@ -1099,12 +1224,13 @@
 
     <span class="doccomment">/// Supported inputs:
     ///  - A plain JS object.
+    ///
     /// Supported outputs:
     ///  - A typed Rust structure with `#[derive(Deserialize)]`.
-    </span><span class="kw">fn </span>deserialize_struct&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    </span><span class="kw">fn </span>deserialize_struct&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
-        fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str],
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
+        fields: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str],
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">let </span>obj = <span class="kw">if </span><span class="self">self</span>.value.is_object() {
@@ -1116,12 +1242,12 @@
     }
 
     <span class="doccomment">/// Here we try to be compatible with `serde-json`, which means supporting:
-    ///  - `&quot;Variant&quot;` - gets converted to a unit variant `MyEnum::Variant`
+    ///  - `"Variant"` - gets converted to a unit variant `MyEnum::Variant`
     ///  - `{ Variant: ...payload... }` - gets converted to a `MyEnum::Variant { ...payload... }`.
-    </span><span class="kw">fn </span>deserialize_enum&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    </span><span class="kw">fn </span>deserialize_enum&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
-        _variants: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str],
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
+        _variants: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str],
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">let </span>access = <span class="kw">if </span><span class="self">self</span>.value.is_string() {
@@ -1131,7 +1257,7 @@
             }
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(entries) = <span class="self">self</span>.as_object_entries() {
             <span class="kw">if </span>entries.length() != <span class="number">1 </span>{
-                <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::invalid_length(entries.length() <span class="kw">as _</span>, <span class="kw-2">&amp;</span><span class="string">&quot;1&quot;</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::invalid_length(entries.length() <span class="kw">as _</span>, <span class="kw-2">&amp;</span><span class="string">"1"</span>));
             }
             <span class="kw">let </span>entry = entries.get(<span class="number">0</span>);
             <span class="kw">let </span>(tag, payload) = convert_pair(entry);
@@ -1143,12 +1269,12 @@
     }
 
     <span class="doccomment">/// Ignores any value without calling to the JS side even to check its type.
-    </span><span class="kw">fn </span>deserialize_ignored_any&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    </span><span class="kw">fn </span>deserialize_ignored_any&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         visitor.visit_unit()
     }
 
-    <span class="doccomment">/// We can&#39;t take references to JS memory, so forwards to an owned [`Self::deserialize_byte_buf`](#method.deserialize_byte_buf).
-    </span><span class="kw">fn </span>deserialize_bytes&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="doccomment">/// We can't take references to JS memory, so forwards to an owned [`Self::deserialize_byte_buf`](#method.deserialize_byte_buf).
+    </span><span class="kw">fn </span>deserialize_bytes&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="self">self</span>.deserialize_byte_buf(visitor)
     }
 
@@ -1157,10 +1283,12 @@
     ///
     /// Supported inputs:
     ///  - `ArrayBuffer` - converted to an `Uint8Array` view first.
-    ///  - `Uint8Array` - copied to a newly created `Vec&lt;u8&gt;` on the Rust side.
-    </span><span class="kw">fn </span>deserialize_byte_buf&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    ///  - `Uint8Array`, `Array` - copied to a newly created `Vec&lt;u8&gt;` on the Rust side.
+    </span><span class="kw">fn </span>deserialize_byte_buf&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(bytes) = <span class="self">self</span>.as_bytes() {
             visitor.visit_byte_buf(bytes)
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(arr) = <span class="self">self</span>.value.dyn_ref::&lt;Array&gt;() {
+            <span class="self">self</span>.deserialize_from_array(visitor, arr)
         } <span class="kw">else </span>{
             <span class="self">self</span>.invalid_type(visitor)
         }
@@ -1171,28 +1299,27 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; de::VariantAccess&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Deserializer {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; de::VariantAccess&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>Deserializer {
     <span class="kw">type </span>Error = Error;
 
     <span class="kw">fn </span>unit_variant(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         de::Deserialize::deserialize(<span class="self">self</span>)
     }
 
-    <span class="kw">fn </span>newtype_variant_seed&lt;T: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, seed: T) -&gt; <span class="prelude-ty">Result</span>&lt;T::Value&gt; {
+    <span class="kw">fn </span>newtype_variant_seed&lt;T: de::DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, seed: T) -&gt; <span class="prelude-ty">Result</span>&lt;T::Value&gt; {
         seed.deserialize(<span class="self">self</span>)
     }
 
-    <span class="kw">fn </span>tuple_variant&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, len: usize, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
+    <span class="kw">fn </span>tuple_variant&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(<span class="self">self</span>, len: usize, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
         de::Deserializer::deserialize_tuple(<span class="self">self</span>, len, visitor)
     }
 
-    <span class="kw">fn </span>struct_variant&lt;V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+    <span class="kw">fn </span>struct_variant&lt;V: de::Visitor&lt;<span class="lifetime">'de</span>&gt;&gt;(
         <span class="self">self</span>,
-        fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str],
+        fields: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str],
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt; {
-        de::Deserializer::deserialize_struct(<span class="self">self</span>, <span class="string">&quot;&quot;</span>, fields, visitor)
+        de::Deserializer::deserialize_struct(<span class="self">self</span>, <span class="string">""</span>, fields, visitor)
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="serde_wasm_bindgen" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

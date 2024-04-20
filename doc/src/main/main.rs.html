@@ -1,0 +1,1515 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/bin/main.rs`."><title>main.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="main" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../main/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<a href="#2" id="2">2</a>
+<a href="#3" id="3">3</a>
+<a href="#4" id="4">4</a>
+<a href="#5" id="5">5</a>
+<a href="#6" id="6">6</a>
+<a href="#7" id="7">7</a>
+<a href="#8" id="8">8</a>
+<a href="#9" id="9">9</a>
+<a href="#10" id="10">10</a>
+<a href="#11" id="11">11</a>
+<a href="#12" id="12">12</a>
+<a href="#13" id="13">13</a>
+<a href="#14" id="14">14</a>
+<a href="#15" id="15">15</a>
+<a href="#16" id="16">16</a>
+<a href="#17" id="17">17</a>
+<a href="#18" id="18">18</a>
+<a href="#19" id="19">19</a>
+<a href="#20" id="20">20</a>
+<a href="#21" id="21">21</a>
+<a href="#22" id="22">22</a>
+<a href="#23" id="23">23</a>
+<a href="#24" id="24">24</a>
+<a href="#25" id="25">25</a>
+<a href="#26" id="26">26</a>
+<a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+<a href="#29" id="29">29</a>
+<a href="#30" id="30">30</a>
+<a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
+<a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
+<a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a>
+<a href="#41" id="41">41</a>
+<a href="#42" id="42">42</a>
+<a href="#43" id="43">43</a>
+<a href="#44" id="44">44</a>
+<a href="#45" id="45">45</a>
+<a href="#46" id="46">46</a>
+<a href="#47" id="47">47</a>
+<a href="#48" id="48">48</a>
+<a href="#49" id="49">49</a>
+<a href="#50" id="50">50</a>
+<a href="#51" id="51">51</a>
+<a href="#52" id="52">52</a>
+<a href="#53" id="53">53</a>
+<a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>gloo::file::FileList;
+<span class="kw">use </span>gloo_console::warn;
+<span class="kw">use </span>js_sys::Object;
+<span class="kw">use </span>monaco::{
+    api::TextModel,
+    sys::{editor::IMarkerData, MarkerSeverity},
+};
+<span class="kw">use </span>std::collections::HashMap;
+<span class="kw">use </span>std::collections::HashSet;
+<span class="kw">use </span>std::rc::Rc;
+<span class="kw">use </span>swim::agent::datapath_communicator::DatapathCommunicator;
+<span class="kw">use </span>swim::agent::datapath_reducer::DatapathReducer;
+<span class="kw">use </span>swim::agent::EmulationCoreAgent;
+<span class="kw">use </span>swim::emulation_core::mips::datapath::Stage;
+<span class="kw">use </span>swim::parser::parser_assembler_main::parser;
+<span class="kw">use </span>swim::parser::parser_structs_and_enums::ProgramInfo;
+<span class="kw">use </span>swim::ui::footer::component::Footer;
+<span class="kw">use </span>swim::ui::regview::component::Regview;
+<span class="kw">use </span>swim::ui::swim_editor::component::SwimEditor;
+<span class="kw">use </span>swim::{
+    emulation_core::{
+        architectures::AvailableDatapaths, mips::instruction::MipsInstruction,
+        riscv::instruction::RiscInstruction,
+    },
+    ui::{
+        hex_editor::component::{parse_hexdump, UpdatedLine},
+        swim_editor::tab::TabState,
+    },
+};
+<span class="kw">use </span>wasm_bindgen::{JsCast, JsValue};
+<span class="kw">use </span>wasm_bindgen_futures::spawn_local;
+<span class="kw">use </span>web_sys::HtmlInputElement;
+<span class="kw">use </span>yew::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>yew::{html, Html, Properties};
+
+<span class="kw">use </span>swim::emulation_core::riscv::datapath::RiscStage;
+<span class="kw">use </span>yew_agent::Spawnable;
+
+<span class="comment">// To load in the Fibonacci example, uncomment the CONTENT and fib_model lines
+// and comment the code, language, and text_model lines. IMPORTANT:
+// rename fib_model to text_model to have it work.
+</span><span class="kw">const </span>CONTENT_MIPS: <span class="kw-2">&amp;</span>str = <span class="macro">include_str!</span>(<span class="string">"../../static/assembly_examples/fibonacci.asm"</span>);
+<span class="kw">const </span>CONTENT_RISCV: <span class="kw-2">&amp;</span>str = <span class="macro">include_str!</span>(<span class="string">"../../static/assembly_examples/riscv_fib_recursive.asm"</span>);
+
+<span class="attr">#[derive(Properties, Clone, PartialEq)]
+</span><span class="kw">struct </span>AppProps {
+    communicator: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>DatapathCommunicator,
+}
+
+<span class="attr">#[function_component(App)]
+</span><span class="kw">fn </span>app(props: <span class="kw-2">&amp;</span>AppProps) -&gt; Html {
+    <span class="comment">// This contains the binary representation of "ori $s0, $zero, 12345", which
+    // stores 12345 in register $s0.
+    // let code = String::from("ori $s0, $zero, 12345\n");
+    // let language = String::from("mips");
+
+    // This is the initial text model with default text contents. The
+    // use_state_eq hook is created so that the component can be updated
+    // when the text model changes.
+    //let text_model = use_mut_ref(|| TextModel::create(&amp;code, Some(&amp;language), None).unwrap());
+    </span><span class="kw">let </span>text_model = use_state_eq(|| TextModel::create(CONTENT_MIPS, <span class="prelude-val">Some</span>(<span class="string">"mips"</span>), <span class="prelude-val">None</span>).unwrap());
+
+    <span class="comment">// Store the currently executed line in code editor and hex editor
+    </span><span class="kw">let </span>editor_curr_line = use_state_eq(|| <span class="number">0.0</span>);
+    <span class="kw">let </span>memory_curr_instr = use_state_eq(|| <span class="number">0</span>);
+
+    <span class="comment">// Output strings for the console and memory viewers.
+    </span><span class="kw">let </span>parser_text_output = use_state_eq(String::new);
+    <span class="kw">let </span>memory_text_output = use_state_eq(String::new);
+    <span class="kw">let </span>pc_limit = use_state(|| <span class="number">0</span>);
+
+    <span class="comment">// Breakpoints for the text segment viewer
+    </span><span class="kw">let </span>breakpoints = use_state(HashSet::default);
+
+    <span class="comment">// Input strings from the code editor
+    </span><span class="kw">let </span>lines_content = use_mut_ref(Vec::&lt;String&gt;::new);
+
+    <span class="kw">let </span>program_info_ref = use_mut_ref(ProgramInfo::default);
+    <span class="kw">let </span>binary_ref = use_mut_ref(Vec::&lt;u32&gt;::new);
+    <span class="kw">let </span>labels_ref = use_mut_ref(HashMap::&lt;String, usize&gt;::new);
+
+    <span class="kw">let </span>memory_text_model =
+        use_state_eq(|| TextModel::create(<span class="kw-2">&amp;</span>memory_text_output, <span class="prelude-val">Some</span>(<span class="string">"ini"</span>), <span class="prelude-val">None</span>).unwrap());
+
+    <span class="comment">// Show input
+    </span><span class="kw">let </span>show_input = use_state_eq(bool::default);
+    show_input.set(<span class="bool-val">true</span>);
+
+    <span class="comment">// Store the currently selected tabs in windows
+    </span><span class="kw">let </span>console_active_tab = use_state_eq(|| TabState::Console);
+    <span class="kw">let </span>editor_active_tab = use_state_eq(|| TabState::Editor);
+
+    <span class="kw">let </span>datapath_state = use_reducer(DatapathReducer::default);
+
+    <span class="kw">let </span>parser_found_errors = use_state(|| <span class="bool-val">false</span>);
+
+    <span class="comment">// Start listening for messages from the communicator. This effectively links the worker thread to the main thread
+    // and will force updates whenever its internal state changes.
+    </span>{
+        <span class="kw">let </span>dispatcher = datapath_state.dispatcher();
+        use_effect_with_deps(
+            <span class="kw">move </span>|communicator: &amp;&amp;DatapathCommunicator| {
+                spawn_local(communicator.listen_for_updates(dispatcher));
+            },
+            props.communicator,
+        );
+    }
+
+    <span class="comment">// Sync the language/example in the text model with the current architecture set in state.
+    </span>use_effect_with_deps(
+        |(current_architecture, text_model)| <span class="kw">match </span>current_architecture {
+            AvailableDatapaths::MIPS =&gt; {
+                text_model.set_language(<span class="string">"mips"</span>);
+                text_model.set_value(CONTENT_MIPS);
+            }
+            AvailableDatapaths::RISCV =&gt; {
+                text_model.set_language(<span class="string">"riscv"</span>);
+                text_model.set_value(CONTENT_RISCV);
+            }
+        },
+        (datapath_state.current_architecture, text_model.clone()),
+    );
+
+    <span class="comment">// This is where code is assembled and loaded into the emulation core's memory.
+    </span><span class="kw">let </span>on_assemble_clicked = {
+        <span class="kw">let </span>text_model = text_model.clone();
+        <span class="kw">let </span>memory_curr_instr = memory_curr_instr.clone();
+        <span class="kw">let </span>datapath_state = datapath_state.clone();
+        <span class="kw">let </span>parser_text_output = parser_text_output.clone();
+        <span class="kw">let </span>trigger = use_force_update();
+        <span class="kw">let </span>editor_curr_line = editor_curr_line.clone();
+        <span class="kw">let </span>breakpoints = breakpoints.clone();
+        <span class="kw">let </span>communicator = props.communicator;
+        <span class="kw">let </span>parser_found_errors = parser_found_errors.clone();
+
+        <span class="comment">// Clone the value before moving it into the closure
+        </span><span class="kw">let </span>pc_limit = pc_limit.clone();
+        <span class="kw">let </span>program_info_ref = Rc::clone(<span class="kw-2">&amp;</span>program_info_ref);
+        <span class="kw">let </span>binary_ref = Rc::clone(<span class="kw-2">&amp;</span>binary_ref);
+        <span class="kw">let </span>labels_ref = Rc::clone(<span class="kw-2">&amp;</span>labels_ref);
+
+        use_callback(
+            <span class="kw">move </span>|<span class="kw">_</span>,
+                  (
+                text_model,
+                editor_curr_line,
+                memory_curr_instr,
+                datapath_state,
+                parser_found_errors,
+            )| {
+                <span class="kw">let </span>text_model = text_model.clone();
+                <span class="comment">// parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
+                </span><span class="kw">let </span>(program_info, assembled, labels) =
+                    parser(text_model.get_value(), datapath_state.current_architecture);
+                <span class="kw-2">*</span>program_info_ref.borrow_mut() = program_info.clone();
+                <span class="kw-2">*</span>binary_ref.borrow_mut() = assembled.clone();
+                <span class="kw-2">*</span>labels_ref.borrow_mut() = labels.clone();
+                pc_limit.set(assembled.len() * <span class="number">4</span>);
+                parser_text_output.set(program_info.console_out_post_assembly);
+
+                <span class="kw">let </span><span class="kw-2">mut </span>markers: Vec&lt;IMarkerData&gt; = <span class="macro">vec!</span>[];
+
+                <span class="comment">// Parse output from parser and create an instance of IMarkerData for each error.
+                </span><span class="kw">for </span>(line_number, line_information) <span class="kw">in
+                    </span>program_info.monaco_line_info.iter().enumerate()
+                {
+                    <span class="kw">for </span>error <span class="kw">in </span><span class="kw-2">&amp;</span>line_information.errors {
+                        <span class="kw">let </span>new_marker: IMarkerData = new_object().into();
+                        new_marker.set_message(<span class="kw-2">&amp;</span>error.message);
+                        new_marker.set_severity(MarkerSeverity::Error);
+                        new_marker.set_start_line_number((line_number + <span class="number">1</span>) <span class="kw">as </span>f64);
+                        new_marker.set_start_column((error.start_end_columns.<span class="number">0 </span>+ <span class="number">1</span>) <span class="kw">as </span>f64);
+                        new_marker.set_end_line_number((line_number + <span class="number">1</span>) <span class="kw">as </span>f64);
+                        new_marker.set_end_column((error.start_end_columns.<span class="number">1 </span>+ <span class="number">1</span>) <span class="kw">as </span>f64);
+                        markers.push(new_marker);
+                    }
+                }
+
+                <span class="comment">// Convert Vec&lt;IMarkerData&gt; to Javascript array
+                </span><span class="kw">let </span>marker_jsarray = js_sys::Array::new();
+                <span class="kw">for </span>marker <span class="kw">in </span>markers {
+                    marker_jsarray.push(<span class="kw-2">&amp;</span>marker);
+                }
+
+                monaco::sys::editor::set_model_markers(
+                    text_model.as_ref(),
+                    <span class="string">"owner"</span>,
+                    <span class="kw-2">&amp;</span>marker_jsarray,
+                );
+
+                <span class="comment">// Reset highlighted line to 0
+                </span>editor_curr_line.set(<span class="number">0.0</span>);
+
+                <span class="comment">// Proceed with loading into memory and expand pseudo-instructions if there are no errors.
+                </span><span class="kw">if </span>marker_jsarray.length() == <span class="number">0 </span>{
+                    <span class="comment">// Send the binary over to the emulation core thread
+                    </span>communicator.initialize(program_info.pc_starting_point, assembled);
+                    memory_curr_instr.set(datapath_state.get_pc());
+                    breakpoints.set(HashSet::default());
+
+                    text_model.set_value(<span class="kw-2">&amp;</span>program_info.updated_monaco_string); <span class="comment">// Expands pseudo-instructions to their hardware counterpart.
+
+                    // After adding pseudo instructions, update program info
+                    </span><span class="kw">let </span>(program_info, assembled, labels) =
+                        parser(text_model.get_value(), datapath_state.current_architecture);
+                    <span class="kw-2">*</span>program_info_ref.borrow_mut() = program_info.clone();
+                    <span class="kw-2">*</span>binary_ref.borrow_mut() = assembled.clone();
+                    <span class="kw-2">*</span>labels_ref.borrow_mut() = labels.clone();
+                    parser_found_errors.set(<span class="bool-val">false</span>);
+                } <span class="kw">else </span>{
+                    parser_found_errors.set(<span class="bool-val">true</span>);
+                }
+
+                trigger.force_update();
+            },
+            (
+                text_model,
+                editor_curr_line,
+                memory_curr_instr,
+                datapath_state,
+                parser_found_errors,
+            ),
+        )
+    };
+
+    <span class="comment">// This is where the code will get executed. If you execute further
+    // than when the code ends, the program crashes. This is remedied via the
+    // syscall instruction, which will halt the datapath. As you execute the
+    // code, the previously executed line is highlighted.
+    </span><span class="kw">let </span>on_execute_clicked = {
+        <span class="kw">let </span>datapath_state = datapath_state.clone();
+        <span class="kw">let </span>text_model = text_model.clone();
+
+        <span class="comment">// Code editor
+        </span><span class="kw">let </span>editor_curr_line = editor_curr_line.clone();
+        <span class="kw">let </span>memory_curr_instr = memory_curr_instr.clone();
+
+        <span class="kw">let </span>trigger = use_force_update();
+        <span class="kw">let </span>communicator = props.communicator;
+
+        <span class="kw">let </span>program_info_ref = Rc::clone(<span class="kw-2">&amp;</span>program_info_ref);
+        <span class="kw">let </span>binary_ref = Rc::clone(<span class="kw-2">&amp;</span>binary_ref);
+        <span class="kw">let </span>labels_ref = Rc::clone(<span class="kw-2">&amp;</span>labels_ref);
+
+        use_callback(
+            <span class="kw">move </span>|<span class="kw">_</span>, (editor_curr_line, memory_curr_instr, text_model, datapath_state)| {
+                <span class="comment">// Get the current line and convert it to f64
+                </span><span class="kw">let </span>(program_info, assembled, labels) =
+                    parser(text_model.get_value(), datapath_state.current_architecture);
+                <span class="kw-2">*</span>program_info_ref.borrow_mut() = program_info.clone();
+                <span class="kw-2">*</span>binary_ref.borrow_mut() = assembled.clone();
+                <span class="kw-2">*</span>labels_ref.borrow_mut() = labels.clone();
+
+                <span class="kw">let </span>list_of_line_numbers = program_info.address_to_line_number;
+                <span class="kw">let </span>index = datapath_state.get_pc() <span class="kw">as </span>usize / <span class="number">4</span>;
+                editor_curr_line.set(<span class="kw">match </span>list_of_line_numbers.get(index) {
+                    <span class="prelude-val">Some</span>(val) =&gt; (val + <span class="number">1</span>) <span class="kw">as </span>f64,
+                    <span class="prelude-val">None </span>=&gt; <span class="number">0f64</span>,
+                });
+                memory_curr_instr.set(datapath_state.get_pc());
+
+                <span class="comment">// Execute instruction
+                </span>communicator.execute_instruction();
+
+                trigger.force_update();
+            },
+            (
+                editor_curr_line,
+                memory_curr_instr,
+                text_model,
+                datapath_state,
+            ),
+        )
+    };
+
+    <span class="kw">let </span>on_execute_stage_clicked = {
+        <span class="kw">let </span>datapath_state = datapath_state.clone();
+        <span class="kw">let </span>text_model = text_model.clone();
+        <span class="kw">let </span>communicator = props.communicator;
+
+        <span class="comment">// Code editor
+        </span><span class="kw">let </span>editor_curr_line = editor_curr_line.clone();
+
+        <span class="comment">// Hex editor
+        </span><span class="kw">let </span>memory_curr_instr = memory_curr_instr.clone();
+
+        <span class="kw">let </span>trigger = use_force_update();
+
+        <span class="kw">let </span>program_info_ref = Rc::clone(<span class="kw-2">&amp;</span>program_info_ref);
+        <span class="kw">let </span>binary_ref = Rc::clone(<span class="kw-2">&amp;</span>binary_ref);
+        <span class="kw">let </span>labels_ref = Rc::clone(<span class="kw-2">&amp;</span>labels_ref);
+
+        use_callback(
+            <span class="kw">move </span>|<span class="kw">_</span>, (editor_curr_line, memory_curr_instr, text_model, datapath_state)| {
+                <span class="kw">let </span>is_instruction_decode = <span class="kw">match </span>datapath_state.current_architecture {
+                    AvailableDatapaths::MIPS =&gt; {
+                        datapath_state.mips.current_stage == Stage::InstructionDecode
+                    }
+                    AvailableDatapaths::RISCV =&gt; {
+                        datapath_state.riscv.current_stage == RiscStage::InstructionDecode
+                    }
+                };
+
+                <span class="kw">if </span>is_instruction_decode {
+                    <span class="comment">// highlight on InstructionDecode since syscall stops at that stage.
+
+                    // highlight on InstructionDecode since syscall stops at that stage.
+                    </span><span class="kw">let </span>(program_info, assembled, labels) =
+                        parser(text_model.get_value(), datapath_state.current_architecture);
+                    <span class="kw-2">*</span>program_info_ref.borrow_mut() = program_info.clone();
+                    <span class="kw-2">*</span>binary_ref.borrow_mut() = assembled.clone();
+                    <span class="kw-2">*</span>labels_ref.borrow_mut() = labels.clone();
+
+                    <span class="kw">let </span>list_of_line_numbers = program_info.address_to_line_number;
+                    <span class="kw">let </span>index = datapath_state.get_pc() <span class="kw">as </span>usize / <span class="number">4</span>;
+                    editor_curr_line.set(<span class="kw">match </span>list_of_line_numbers.get(index) {
+                        <span class="prelude-val">Some</span>(val) =&gt; (val + <span class="number">1</span>) <span class="kw">as </span>f64,
+                        <span class="prelude-val">None </span>=&gt; <span class="number">0f64</span>,
+                    });
+                    memory_curr_instr.set(datapath_state.get_pc());
+                    communicator.execute_stage();
+                } <span class="kw">else </span>{
+                    communicator.execute_stage();
+                }
+
+                trigger.force_update();
+            },
+            (
+                editor_curr_line,
+                memory_curr_instr,
+                text_model,
+                datapath_state,
+            ),
+        )
+    };
+
+    <span class="kw">let </span>on_continue_execution = {
+        <span class="kw">let </span>communicator = props.communicator;
+        <span class="kw">let </span>program_info_ref = Rc::clone(<span class="kw-2">&amp;</span>program_info_ref);
+        <span class="kw">let </span>binary_ref = Rc::clone(<span class="kw-2">&amp;</span>binary_ref);
+        <span class="kw">let </span>labels_ref = Rc::clone(<span class="kw-2">&amp;</span>labels_ref);
+
+        <span class="kw">let </span>text_model = text_model.clone();
+
+        <span class="kw">let </span>datapath_state = datapath_state.clone();
+        use_callback(
+            <span class="kw">move </span>|<span class="kw">_</span>, (text_model, datapath_state)| {
+                <span class="kw">let </span>(program_info, assembled, labels) =
+                    parser(text_model.get_value(), datapath_state.current_architecture);
+                <span class="kw-2">*</span>program_info_ref.borrow_mut() = program_info.clone();
+                <span class="kw-2">*</span>binary_ref.borrow_mut() = assembled.clone();
+                <span class="kw-2">*</span>labels_ref.borrow_mut() = labels.clone();
+
+                communicator.execute();
+            },
+            (text_model, datapath_state),
+        )
+    };
+
+    <span class="kw">let </span>on_pause_execution = {
+        <span class="kw">let </span>communicator = props.communicator;
+        use_callback(
+            <span class="kw">move </span>|<span class="kw">_</span>, <span class="kw">_</span>| {
+                communicator.pause_core();
+            },
+            (),
+        )
+    };
+
+    <span class="kw">let </span>on_memory_clicked = {
+        <span class="comment">// Code editor
+        </span><span class="kw">let </span>text_model = text_model.clone();
+
+        <span class="comment">// Hex editor
+        </span><span class="kw">let </span>memory_text_model = memory_text_model.clone();
+
+        <span class="kw">let </span>trigger = use_force_update();
+        <span class="kw">let </span>communicator = props.communicator;
+        <span class="kw">let </span>datapath_state = datapath_state.clone();
+
+        <span class="kw">let </span>program_info_ref = Rc::clone(<span class="kw-2">&amp;</span>program_info_ref);
+        <span class="kw">let </span>labels_ref = Rc::clone(<span class="kw-2">&amp;</span>labels_ref);
+
+        use_callback(
+            <span class="kw">move </span>|<span class="kw">_</span>, datapath_state| {
+                <span class="kw">let </span>text_model = text_model.clone();
+
+                <span class="comment">// Update memory
+                </span><span class="kw">let </span>memory_text_model = memory_text_model.clone();
+
+                <span class="kw">let </span>current_memory_text_model_value = memory_text_model.get_value();
+
+                <span class="kw">match </span>parse_hexdump(<span class="kw-2">&amp;</span>current_memory_text_model_value) {
+                    <span class="prelude-val">Ok</span>((hex_instructions, ascii_instructions)) =&gt; {
+                        <span class="kw">let </span><span class="kw-2">mut </span>changed_lines: Vec&lt;UpdatedLine&gt; = <span class="macro">vec!</span>[];
+                        <span class="kw">for </span>(i, data) <span class="kw">in </span>hex_instructions.iter().enumerate() {
+                            <span class="kw">let </span>address = i <span class="kw">as </span>u64;
+                            <span class="kw">let </span>curr_word = <span class="kw">match </span>datapath_state.get_memory().load_word(address * <span class="number">4</span>)
+                            {
+                                <span class="prelude-val">Ok</span>(data) =&gt; data,
+                                <span class="prelude-val">Err</span>(e) =&gt; {
+                                    <span class="macro">warn!</span>(<span class="string">"{:?}"</span>, e);
+                                    <span class="number">0
+                                </span>}
+                            };
+
+                            <span class="kw">let </span><span class="kw-2">mut </span>new_word = <span class="number">0</span>;
+                            <span class="kw">let </span><span class="kw-2">mut </span>differs = <span class="bool-val">false</span>;
+                            <span class="comment">// hex portion gets priority when checking for changes
+                            </span><span class="kw">if </span>curr_word != <span class="kw-2">*</span>data {
+                                <span class="comment">// hex portion was changed
+                                </span>differs = <span class="bool-val">true</span>;
+                                new_word = <span class="kw-2">*</span>data;
+                            } <span class="kw">else if </span>i &lt; ascii_instructions.len()
+                                &amp;&amp; curr_word != ascii_instructions[i]
+                                &amp;&amp; ascii_instructions[i] != <span class="number">0
+                            </span>{
+                                <span class="comment">// ascii portion was changed
+                                </span>differs = <span class="bool-val">true</span>;
+                                new_word = ascii_instructions[i];
+                            }
+
+                            <span class="kw">if </span>differs {
+                                <span class="comment">// change string version based on architecture
+                                </span><span class="kw">let </span>string_version = <span class="kw">match </span>datapath_state.current_architecture {
+                                    AvailableDatapaths::MIPS =&gt; {
+                                        <span class="kw">match </span>MipsInstruction::get_string_version(
+                                            new_word,
+                                            labels_ref.borrow().clone(),
+                                            i,
+                                        ) {
+                                            <span class="prelude-val">Ok</span>(string) =&gt; string,
+                                            <span class="prelude-val">Err</span>(string) =&gt; string,
+                                        }
+                                    }
+                                    AvailableDatapaths::RISCV =&gt; {
+                                        <span class="kw">match </span>RiscInstruction::get_string_version(
+                                            new_word,
+                                            labels_ref.borrow().clone(),
+                                        ) {
+                                            <span class="prelude-val">Ok</span>(string) =&gt; string,
+                                            <span class="prelude-val">Err</span>(string) =&gt; string,
+                                        }
+                                    }
+                                };
+
+                                changed_lines.push(UpdatedLine::new(string_version, i));
+                                communicator.set_memory(address * <span class="number">4</span>, new_word);
+                            }
+                        }
+                        <span class="comment">// Memory updated successfully
+                        </span><span class="kw">let </span>(program_info, _assembled, _labels) =
+                            parser(text_model.get_value(), datapath_state.current_architecture);
+                        <span class="kw">let </span><span class="kw-2">mut </span>lines_beyond_counter = program_info.address_to_line_number.len();
+                        <span class="kw">let </span><span class="kw-2">mut </span>curr_value = text_model.get_value();
+                        <span class="kw">let </span><span class="kw-2">mut </span>add_new_lines = <span class="bool-val">false</span>;
+                        <span class="kw">for </span>line <span class="kw">in </span>changed_lines {
+                            <span class="comment">// Check if we're updating or appending instruction
+                            </span><span class="kw">if </span>line.line_number &lt; program_info.address_to_line_number.len() {
+                                <span class="kw">let </span>updated_line =
+                                    program_info.address_to_line_number[line.line_number] <span class="kw">as </span>f64
+                                        + <span class="number">1.0</span>;
+                                <span class="kw">let </span>curr_model = text_model.as_ref();
+
+                                <span class="comment">// Get the current line's contents in the code editor
+                                </span><span class="kw">let </span>line_to_replace = curr_model.get_line_content(updated_line);
+                                <span class="comment">// Create the range to replace
+                                </span><span class="kw">let </span><span class="kw-2">mut </span>start_line_column = <span class="number">0.0</span>;
+                                <span class="kw">let </span>end_line_column = line_to_replace.len() <span class="kw">as </span>f64 + <span class="number">2.0</span>;
+                                <span class="kw">for </span>(i, c) <span class="kw">in </span>line_to_replace.chars().enumerate() {
+                                    <span class="kw">if </span>c.is_alphanumeric() {
+                                        start_line_column = i <span class="kw">as </span>f64 + <span class="number">1.0</span>;
+                                        <span class="kw">break</span>;
+                                    }
+                                }
+                                <span class="kw">let </span>edit_range = monaco::sys::Range::new(
+                                    updated_line,
+                                    start_line_column,
+                                    updated_line,
+                                    end_line_column,
+                                );
+                                <span class="kw">let </span>before_cursor_state = monaco::sys::Selection::new(
+                                    updated_line,
+                                    start_line_column,
+                                    updated_line,
+                                    end_line_column,
+                                );
+                                <span class="comment">// Create the edit operation using the range and new text
+                                </span><span class="kw">let </span>edit_operations: monaco::sys::editor::IIdentifiedSingleEditOperation = Object::new().unchecked_into();
+                                edit_operations.set_range(<span class="kw-2">&amp;</span>edit_range);
+                                edit_operations.set_text(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>line.text));
+                                <span class="comment">// Append it to JavaScript Array
+                                </span><span class="kw">let </span>edit_operations_array = js_sys::Array::new();
+                                edit_operations_array.push(<span class="kw-2">&amp;</span>edit_operations);
+                                <span class="kw">let </span>before_cursor_state_array = js_sys::Array::new();
+                                before_cursor_state_array.push(<span class="kw-2">&amp;</span>before_cursor_state);
+                                <span class="comment">// Do the edit!
+                                </span>curr_model.push_edit_operations(
+                                    <span class="kw-2">&amp;</span>before_cursor_state_array,
+                                    <span class="kw-2">&amp;</span>edit_operations_array,
+                                    <span class="prelude-val">None</span>,
+                                );
+                            } <span class="kw">else if </span>line.line_number == lines_beyond_counter {
+                                <span class="comment">// Append instruction
+                                </span><span class="kw">if </span>!add_new_lines {
+                                    <span class="comment">// If we've added new lines already,
+                                    // start adding new lines by getting a copy of the current text model to append to
+                                    </span>add_new_lines = <span class="bool-val">true</span>;
+                                    curr_value = text_model.get_value();
+                                }
+                                curr_value.push(<span class="string">'\n'</span>);
+                                curr_value.push_str(<span class="kw-2">&amp;</span>line.text);
+                                lines_beyond_counter += <span class="number">1</span>;
+                            }
+                        }
+                        <span class="kw">if </span>add_new_lines {
+                            text_model.set_value(<span class="kw-2">&amp;</span>curr_value);
+                        }
+                    }
+                    <span class="prelude-val">Err</span>(err) =&gt; {
+                        <span class="macro">warn!</span>(<span class="string">"Error updating memory: {}"</span>, err)
+                    }
+                }
+
+                <span class="comment">// Update the parsed info for text and data segment views
+                </span><span class="kw">let </span>(program_info, <span class="kw">_</span>, <span class="kw">_</span>) =
+                    parser(text_model.get_value(), datapath_state.current_architecture);
+                <span class="kw-2">*</span>program_info_ref.borrow_mut() = program_info;
+
+                trigger.force_update();
+            },
+            datapath_state,
+        )
+    };
+
+    <span class="comment">// This is how we will reset the datapath.
+    // This will also clear any highlight on the editor.
+    </span><span class="kw">let </span>on_reset_clicked = {
+        <span class="kw">let </span>trigger = use_force_update();
+        <span class="kw">let </span>parser_text_output = parser_text_output.clone();
+        <span class="kw">let </span>communicator = props.communicator;
+
+        <span class="comment">// Code editor
+        </span><span class="kw">let </span>parser_text_output = parser_text_output;
+        <span class="kw">let </span>editor_curr_line = editor_curr_line.clone();
+        <span class="kw">let </span>breakpoints = breakpoints.clone();
+
+        <span class="comment">// Hex editor
+        </span><span class="kw">let </span>memory_curr_instr = memory_curr_instr.clone();
+
+        use_callback(
+            <span class="kw">move </span>|<span class="kw">_</span>, (editor_curr_line, program_info_ref, binary_ref, labels_ref)| {
+                <span class="comment">// Set highlighted line to 0
+                </span>editor_curr_line.set(<span class="number">0.0</span>);
+                memory_curr_instr.set(<span class="number">0</span>);
+
+                parser_text_output.set(<span class="string">""</span>.to_string());
+
+                <span class="kw-2">*</span>program_info_ref.borrow_mut() = ProgramInfo::default();
+                <span class="kw-2">*</span>binary_ref.borrow_mut() = <span class="macro">vec!</span>[];
+                <span class="kw-2">*</span>labels_ref.borrow_mut() = HashMap::&lt;String, usize&gt;::new();
+
+                communicator.reset();
+                breakpoints.set(HashSet::default());
+                trigger.force_update();
+            },
+            (
+                editor_curr_line,
+                program_info_ref.clone(),
+                binary_ref.clone(),
+                labels_ref.clone(),
+            ),
+        )
+    };
+
+    <span class="comment">// This is where we will have the user prompted to load in a file
+    </span><span class="kw">let </span>upload_clicked_callback = use_callback(
+        <span class="kw">move </span>|e: MouseEvent, <span class="kw">_</span>| {
+            e.stop_propagation();
+            on_upload_file_clicked();
+        },
+        (),
+    );
+
+    <span class="comment">// This is the callback to get the file's contents and load it onto the Editor
+    </span><span class="kw">let </span>file_picked_callback = {
+        <span class="kw">let </span>text_model = text_model.clone();
+        use_callback(
+            <span class="kw">move </span>|e: Event, <span class="kw">_</span>| {
+                <span class="kw">let </span>text_model = text_model.clone();
+                <span class="kw">let </span>input: HtmlInputElement = e.target_unchecked_into();
+                <span class="comment">// gloo making the code readable and easy to implement
+                </span><span class="kw">let </span>filelist = FileList::from(input.files().unwrap());
+                <span class="kw">let </span>file = filelist.first().unwrap();
+                <span class="kw">let </span>contents = gloo::file::futures::read_as_text(file);
+                spawn_local(<span class="kw">async move </span>{
+                    <span class="kw">let </span>contents = contents.<span class="kw">await</span>;
+
+                    <span class="kw">let </span>contents = contents.expect(<span class="string">"File contains invalid utf8"</span>); <span class="comment">// TODO: implement a file checker, will load in anything
+
+                    </span>text_model.set_value(<span class="kw-2">&amp;</span>contents);
+                })
+            },
+            (),
+        )
+    };
+
+    <span class="macro">html! </span>{
+        &lt;div class=<span class="string">"overflow-hidden"</span>&gt;
+            <span class="comment">// button tied to the input file element, which is hidden to be more clean
+            </span>&lt;input <span class="kw">type</span>=<span class="string">"file" </span>class=<span class="string">"hidden" </span>id=<span class="string">"file_input" </span>accept=<span class="string">".txt,.asm,.mips" </span>onchange={file_picked_callback} /&gt;
+            &lt;div class=<span class="string">"flex flex-row flex-no-wrap h-screen p-2 gap-2"</span>&gt;
+                <span class="comment">// Left column
+                </span>&lt;div class=<span class="string">"flex basis-3/4 flex-col items-stretch min-w-0"</span>&gt;
+                    <span class="comment">// Top buttons
+                    </span>&lt;div&gt;
+                        &lt;div class=<span class="string">"my-0 mx-auto flex flex-row items-center gap-2 overflow-visible"</span>&gt;
+                            &lt;button class=<span class="string">"opacity-90 duration-300 border-0 border-r-4 border solid border-primary-300 pr-2 " </span>title=<span class="string">"Upload file" </span>onclick={upload_clicked_callback}&gt;
+                                &lt;svg width=<span class="string">"32" </span>height=<span class="string">"28" </span>viewBox=<span class="string">"0 0 32 28" </span>fill=<span class="string">"none" </span>xmlns=<span class="string">"http://www.w3.org/2000/svg"</span>&gt;
+                                    &lt;path d=<span class="string">"M18 4.30769L14 0H0V28H32V4.30769H18ZM16 11.8462L23 19.3846H18V28H14V19.3846H9L16 11.8462Z" </span>fill=<span class="string">"#BBBBBB"</span>/&gt;
+                                &lt;/svg&gt;
+                            &lt;/button&gt;
+                            &lt;button class=<span class="string">"group disabled:opacity-30 duration-300 " </span>title=<span class="string">"Assemble" </span>onclick={on_assemble_clicked}&gt;
+                                &lt;svg width=<span class="string">"38" </span>height=<span class="string">"38" </span>viewBox=<span class="string">"0 0 38 38" </span>fill=<span class="string">"none" </span>xmlns=<span class="string">"http://www.w3.org/2000/svg"</span>&gt;
+                                    &lt;path class=<span class="string">"group-hover:group-enabled:stroke-primary-100 group-hover:group-enabled:fill-primary-100" </span>fill-rule=<span class="string">"evenodd" </span>clip-rule=<span class="string">"evenodd" </span>d=<span class="string">"M34.1794 19.1007C34.1794 23.0891 32.595 26.9142 29.7748 29.7345C26.9545 32.5547 23.1294 34.1392 19.141 34.1392C15.1525 34.1392 11.3274 32.5547 8.50714 29.7345C5.68688 26.9142 4.10247 23.0891 4.10247 19.1007C4.10247 15.1122 5.68688 11.2871 8.50714 8.46686C11.3274 5.6466 15.1525 4.06219 19.141 4.06219C23.1294 4.06219 26.9545 5.6466 29.7748 8.46686C32.595 11.2871 34.1794 15.1122 34.1794 19.1007ZM34.1183 17.5507L36.2416 19.1007L34.1183 20.4552L35.9114 22.4366L33.5523 23.3059L34.941 25.6444L32.4369 25.9915L33.3606 28.6029L30.6009 28.8385L31.2344 31.1941L28.5455 30.894L28.6432 33.3203L26.1295 32.508L25.6847 34.9007L23.4439 33.6234L22.4768 35.8711L20.5932 34.0981L19.141 36.2013L17.6887 34.0981L15.8051 35.8711L14.838 33.532L12.5972 34.9007L12.1524 32.4167L9.63871 33.3203L9.5403 30.8617L7.04749 31.1941L7.48485 28.8063L4.92128 28.6029L5.87082 26.3903L3.34095 25.6444L4.75548 23.7047L2.3705 22.4366L4.18939 20.4552L2.04028 19.1007L4.18939 17.5507L2.3705 15.7648L4.75548 14.7L3.34095 12.5569L5.87082 12.0144L4.92128 9.59843H7.48485L7.04749 7.00721L9.64964 7.44457L9.63871 4.881L12.0656 5.83053L12.5972 3.30066L14.7512 4.7152L15.8051 2.33022L17.6019 4.14911L19.141 2L20.4564 3.97315L22.4768 2.33022L23.4161 4.30201L25.6847 3.30066L26.2272 5.83053L28.6432 4.881V7.44457L31.2344 7.00721L30.6986 9.50002L33.3606 9.59843L32.3127 11.916L34.941 12.5569L33.5523 14.7L35.9114 15.7648L34.1183 17.5507Z" </span>stroke=<span class="string">"#BBBBBB" </span>stroke-width=<span class="string">"3" </span>stroke-linecap=<span class="string">"round" </span>stroke-linejoin=<span class="string">"round"</span>/&gt;
+                                    &lt;path class=<span class="string">"group-hover:group-enabled:stroke-primary-100 group-hover:group-enabled:fill-primary-100" </span>d=<span class="string">"M27.4664 24.3107L22.6243 19.1458C22.3246 18.8261 21.8341 18.8261 21.5343 19.1458L21.171 19.5333L18.2164 16.3818L23.0667 11.2081H17.9283L15.6471 13.6413L15.4214 13.4005H14.3314V14.5632L14.5571 14.804L11.2483 18.3334L13.8175 21.0739L17.1263 17.5445L20.0809 20.6961L19.7176 21.0836C19.4178 21.4034 19.4178 21.9266 19.7176 22.2463L24.5597 27.4112C24.8594 27.731 25.3499 27.731 25.6497 27.4112L27.4664 25.4734C27.7662 25.1537 27.7662 24.6305 27.4664 24.3107Z" </span>fill=<span class="string">"#BBBBBB"</span>/&gt;
+                                &lt;/svg&gt;
+                            &lt;/button&gt;
+                            &lt;button class=<span class="string">"group hover:stroke-primary-100 disabled:opacity-30 duration-300 " </span>title=<span class="string">"Execute" </span>onclick={on_continue_execution} disabled={datapath_state.executing || !datapath_state.initialized || <span class="kw-2">*</span>parser_found_errors}&gt;
+                                &lt;svg width=<span class="string">"38" </span>height=<span class="string">"38" </span>viewBox=<span class="string">"0 0 38 38" </span>fill=<span class="string">"none" </span>xmlns=<span class="string">"http://www.w3.org/2000/svg"</span>&gt;
+                                    &lt;path class=<span class="string">"fill-accent-red-200 stroke-accent-red-200 group-hover:group-enabled:stroke-accent-red-100 group-hover:group-enabled:fill-accent-red-100" </span>fill-rule=<span class="string">"evenodd" </span>clip-rule=<span class="string">"evenodd" </span>d=<span class="string">"M33.9311 19.1007C33.9311 23.0891 32.3467 26.9142 29.5265 29.7345C26.7062 32.5547 22.8811 34.1392 18.8927 34.1392C14.9042 34.1392 11.0791 32.5547 8.25885 29.7345C5.43859 26.9142 3.85418 23.0891 3.85418 19.1007C3.85418 15.1122 5.43859 11.2871 8.25885 8.46686C11.0791 5.6466 14.9042 4.06219 18.8927 4.06219C22.8811 4.06219 26.7062 5.6466 29.5265 8.46686C32.3467 11.2871 33.9311 15.1122 33.9311 19.1007ZM33.8701 17.5507L35.9933 19.1007L33.8701 20.4552L35.6631 22.4366L33.304 23.3059L34.6927 25.6444L32.1886 25.9915L33.1123 28.6029L30.3526 28.8385L30.9861 31.1941L28.2972 30.894L28.3949 33.3203L25.8812 32.508L25.4364 34.9007L23.1956 33.6234L22.2286 35.8711L20.345 34.0981L18.8927 36.2013L17.4404 34.0981L15.5568 35.8711L14.5897 33.532L12.3489 34.9007L11.9041 32.4167L9.39042 33.3203L9.29201 30.8617L6.7992 31.1941L7.23656 28.8063L4.67299 28.6029L5.62253 26.3903L3.09265 25.6444L4.50719 23.7047L2.12221 22.4366L3.9411 20.4552L1.79199 19.1007L3.9411 17.5507L2.12221 15.7648L4.50719 14.7L3.09265 12.5569L5.62253 12.0144L4.67299 9.59843H7.23656L6.7992 7.00721L9.40135 7.44457L9.39042 4.881L11.8173 5.83053L12.3489 3.30066L14.5029 4.7152L15.5568 2.33022L17.3536 4.14911L18.8927 2L20.2081 3.97315L22.2286 2.33022L23.1678 4.30201L25.4364 3.30066L25.9789 5.83053L28.3949 4.881V7.44457L30.9861 7.00721L30.4504 9.50002L33.1123 9.59843L32.0644 11.916L34.6927 12.5569L33.304 14.7L35.6631 15.7648L33.8701 17.5507Z" </span>stroke-width=<span class="string">"3" </span>stroke-linecap=<span class="string">"round" </span>stroke-linejoin=<span class="string">"round"</span>/&gt;
+                                    &lt;path class=<span class="string">"fill-accent-red-200 stroke-accent-red-200 group-hover:group-enabled:stroke-accent-red-100 group-hover:group-enabled:fill-accent-red-100" </span>d=<span class="string">"M15.1309 13.536C15.1309 13.1414 15.5664 12.9023 15.8993 13.1142L24.6438 18.6789C24.9526 18.8753 24.9526 19.326 24.6438 19.5225L15.8993 25.0872C15.5664 25.2991 15.1309 25.0599 15.1309 24.6654V13.536Z" </span>stroke-width=<span class="string">"3"</span>/&gt;
+                                &lt;/svg&gt;
+                            &lt;/button&gt;
+                            &lt;button class=<span class="string">"disabled:opacity-30 group duration-300 " </span>title=<span class="string">"Pause Execution" </span>disabled={! datapath_state.executing} onclick={on_pause_execution}&gt;
+                                &lt;svg width=<span class="string">"38" </span>height=<span class="string">"38" </span>viewBox=<span class="string">"0 0 38 38" </span>fill=<span class="string">"none" </span>xmlns=<span class="string">"http://www.w3.org/2000/svg"</span>&gt;
+                                    &lt;path class=<span class="string">"fill-accent-green-200 stroke-accent-green-200 group-hover:group-enabled:stroke-accent-green-100 group-hover:group-enabled:fill-accent-green-100" </span>fill-rule=<span class="string">"evenodd" </span>clip-rule=<span class="string">"evenodd" </span>d=<span class="string">"M34.186 19.1007C34.186 23.0891 32.6016 26.9142 29.7814 29.7345C26.9611 32.5547 23.136 34.1392 19.1475 34.1392C15.1591 34.1392 11.334 32.5547 8.51373 29.7345C5.69347 26.9142 4.10906 23.0891 4.10906 19.1007C4.10906 15.1122 5.69347 11.2871 8.51373 8.46686C11.334 5.6466 15.1591 4.06219 19.1475 4.06219C23.136 4.06219 26.9611 5.6466 29.7814 8.46686C32.6016 11.2871 34.186 15.1122 34.186 19.1007ZM34.1249 17.5507L36.2482 19.1007L34.1249 20.4552L35.918 22.4366L33.5589 23.3059L34.9476 25.6444L32.4435 25.9915L33.3672 28.6029L30.6075 28.8385L31.241 31.1941L28.5521 30.894L28.6498 33.3203L26.1361 32.508L25.6913 34.9007L23.4505 33.6234L22.4834 35.8711L20.5998 34.0981L19.1475 36.2013L17.6953 34.0981L15.8117 35.8711L14.8446 33.532L12.6038 34.9007L12.159 32.4167L9.6453 33.3203L9.54689 30.8617L7.05409 31.1941L7.49145 28.8063L4.92788 28.6029L5.87741 26.3903L3.34754 25.6444L4.76208 23.7047L2.3771 22.4366L4.19599 20.4552L2.04688 19.1007L4.19599 17.5507L2.3771 15.7648L4.76208 14.7L3.34754 12.5569L5.87741 12.0144L4.92788 9.59843H7.49144L7.05409 7.00721L9.65624 7.44457L9.6453 4.881L12.0722 5.83053L12.6038 3.30066L14.7578 4.7152L15.8117 2.33022L17.6085 4.14911L19.1475 2L20.463 3.97315L22.4834 2.33022L23.4227 4.30201L25.6913 3.30066L26.2338 5.83053L28.6498 4.881V7.44457L31.241 7.00721L30.7052 9.50002L33.3672 9.59843L32.3193 11.916L34.9476 12.5569L33.5589 14.7L35.918 15.7648L34.1249 17.5507Z" </span>stroke-width=<span class="string">"3" </span>stroke-linecap=<span class="string">"round" </span>stroke-linejoin=<span class="string">"round"</span>/&gt;
+                                    &lt;path class=<span class="string">"fill-accent-green-200 stroke-accent-green-200 group-hover:group-enabled:stroke-accent-green-100 group-hover:group-enabled:fill-accent-green-100" </span>d=<span class="string">"M13.228 13.1812H18.435V25.6779H13.228V13.1812ZM20.5177 13.1812H25.7247V25.6779H20.5177V13.1812Z"</span>/&gt;
+                                &lt;/svg&gt;
+                            &lt;/button&gt;
+                            &lt;button class=<span class="string">"disabled:opacity-30 group duration-300 " </span>title=<span class="string">"Execute Next Stage" </span>onclick={on_execute_stage_clicked} disabled={!datapath_state.initialized || <span class="kw-2">*</span>parser_found_errors}&gt;
+                                &lt;svg width=<span class="string">"38" </span>height=<span class="string">"38" </span>viewBox=<span class="string">"0 0 38 38" </span>xmlns=<span class="string">"http://www.w3.org/2000/svg"</span>&gt;
+                                    &lt;path class=<span class="string">"stroke-primary-200 fill-transparent group-enabled:group-hover:stroke-primary-100"  </span>fill-rule=<span class="string">"evenodd" </span>clip-rule=<span class="string">"evenodd" </span>d=<span class="string">"M33.6829 19.1007C33.6829 23.0891 32.0984 26.9142 29.2782 29.7345C26.4579 32.5547 22.6328 34.1392 18.6444 34.1392C14.6559 34.1392 10.8308 32.5547 8.01056 29.7345C5.1903 26.9142 3.60589 23.0891 3.60589 19.1007C3.60589 15.1122 5.1903 11.2871 8.01056 8.46686C10.8308 5.6466 14.6559 4.06219 18.6444 4.06219C22.6328 4.06219 26.4579 5.6466 29.2782 8.46686C32.0984 11.2871 33.6829 15.1122 33.6829 19.1007ZM33.6218 17.5507L35.745 19.1007L33.6218 20.4552L35.4148 22.4366L33.0557 23.3059L34.4444 25.6444L31.9403 25.9915L32.864 28.6029L30.1043 28.8385L30.7378 31.1941L28.0489 30.894L28.1466 33.3203L25.6329 32.508L25.1881 34.9007L22.9473 33.6234L21.9803 35.8711L20.0967 34.0981L18.6444 36.2013L17.1921 34.0981L15.3085 35.8711L14.3414 33.532L12.1006 34.9007L11.6558 32.4167L9.14213 33.3203L9.04372 30.8617L6.55091 31.1941L6.98827 28.8063L4.4247 28.6029L5.37424 26.3903L2.84436 25.6444L4.2589 23.7047L1.87392 22.4366L3.69281 20.4552L1.5437 19.1007L3.69281 17.5507L1.87392 15.7648L4.2589 14.7L2.84436 12.5569L5.37424 12.0144L4.4247 9.59843H6.98827L6.55091 7.00721L9.15306 7.44457L9.14213 4.881L11.5691 5.83053L12.1006 3.30066L14.2546 4.7152L15.3085 2.33022L17.1053 4.14911L18.6444 2L19.9598 3.97315L21.9803 2.33022L22.9195 4.30201L25.1881 3.30066L25.7306 5.83053L28.1466 4.881V7.44457L30.7378 7.00721L30.2021 9.50002L32.864 9.59843L31.8161 11.916L34.4444 12.5569L33.0557 14.7L35.4148 15.7648L33.6218 17.5507Z" </span>stroke-width=<span class="string">"3" </span>stroke-linecap=<span class="string">"round" </span>stroke-linejoin=<span class="string">"round"</span>/&gt;
+                                    &lt;path class=<span class="string">"stroke-primary-200 fill-transparent group-enabled:group-hover:stroke-primary-100" </span>d=<span class="string">"M10.094 19.2668C10.094 6.98941 26.2081 6.66046 26.2081 18.9379M26.2081 18.9379L23.4875 16.5044M26.2081 18.9379L28.5101 15.8905" </span>stroke-width=<span class="string">"3" </span>stroke-linecap=<span class="string">"round" </span>stroke-linejoin=<span class="string">"round"</span>/&gt;
+                                    &lt;rect class=<span class="string">"stroke-primary-200 fill-primary-200 group-enabled:group-hover:stroke-primary-100 group-enabled:group-hover:fill-primary-100" </span>x=<span class="string">"17" </span>y=<span class="string">"17" </span>width=<span class="string">"4" </span>height=<span class="string">"4" </span>rx=<span class="string">"2"</span>/&gt;
+                                &lt;/svg&gt;
+                            &lt;/button&gt;
+                            &lt;button class=<span class="string">"hover:stroke-primary-100 disabled:opacity-30 duration-300 group " </span>title=<span class="string">"Execute Next Instruction" </span>onclick={on_execute_clicked} disabled={!datapath_state.initialized || <span class="kw-2">*</span>parser_found_errors}&gt;
+                                &lt;svg width=<span class="string">"38" </span>height=<span class="string">"38" </span>viewBox=<span class="string">"0 0 38 38" </span>xmlns=<span class="string">"http://www.w3.org/2000/svg"</span>&gt;
+                                    &lt;path class=<span class="string">"stroke-primary-200 fill-transparent group-enabled:group-hover:stroke-primary-100" </span>fill-rule=<span class="string">"evenodd" </span>clip-rule=<span class="string">"evenodd" </span>d=<span class="string">"M34.4346 19.1007C34.4346 23.0891 32.8502 26.9142 30.0299 29.7345C27.2096 32.5547 23.3845 34.1392 19.3961 34.1392C15.4076 34.1392 11.5825 32.5547 8.76227 29.7345C5.94201 26.9142 4.3576 23.0891 4.3576 19.1007C4.3576 15.1122 5.94201 11.2871 8.76227 8.46686C11.5825 5.6466 15.4076 4.06219 19.3961 4.06219C23.3845 4.06219 27.2096 5.6466 30.0299 8.46686C32.8502 11.2871 34.4346 15.1122 34.4346 19.1007ZM34.3735 17.5507L36.4968 19.1007L34.3735 20.4552L36.1665 22.4366L33.8074 23.3059L35.1961 25.6444L32.6921 25.9915L33.6158 28.6029L30.8561 28.8385L31.4895 31.1941L28.8006 30.894L28.8983 33.3203L26.3846 32.508L25.9398 34.9007L23.699 33.6234L22.732 35.8711L20.8484 34.0981L19.3961 36.2013L17.9438 34.0981L16.0602 35.8711L15.0931 33.532L12.8523 34.9007L12.4076 32.4167L9.89384 33.3203L9.79543 30.8617L7.30262 31.1941L7.73998 28.8063L5.17641 28.6029L6.12595 26.3903L3.59607 25.6444L5.01061 23.7047L2.62563 22.4366L4.44452 20.4552L2.29541 19.1007L4.44452 17.5507L2.62563 15.7648L5.01061 14.7L3.59607 12.5569L6.12595 12.0144L5.17641 9.59843H7.73998L7.30262 7.00721L9.90477 7.44457L9.89384 4.881L12.3208 5.83053L12.8523 3.30066L15.0063 4.7152L16.0602 2.33022L17.857 4.14911L19.3961 2L20.7115 3.97315L22.732 2.33022L23.6712 4.30201L25.9398 3.30066L26.4823 5.83053L28.8983 4.881V7.44457L31.4895 7.00721L30.9538 9.50002L33.6158 9.59843L32.5678 11.916L35.1961 12.5569L33.8074 14.7L36.1665 15.7648L34.3735 17.5507Z" </span>stroke-width=<span class="string">"3" </span>stroke-linecap=<span class="string">"round" </span>stroke-linejoin=<span class="string">"round"</span>/&gt;
+                                    &lt;path class=<span class="string">"stroke-primary-200 fill-transparent group-enabled:group-hover:stroke-primary-100" </span>d=<span class="string">"M14.9766 13.536C14.9766 13.1414 15.4121 12.9023 15.745 13.1142L24.4895 18.6789C24.7983 18.8753 24.7983 19.326 24.4895 19.5225L15.745 25.0872C15.4121 25.2991 14.9766 25.0599 14.9766 24.6654V13.536Z" </span>stroke-width=<span class="string">"3"</span>/&gt;
+                                    &lt;path class=<span class="string">"stroke-primary-200 fill-transparent group-enabled:group-hover:stroke-primary-100" </span>d=<span class="string">"M25.9731 11.8658L25.9731 26.3356" </span>stroke-width=<span class="string">"3" </span>stroke-linecap=<span class="string">"round"</span>/&gt;
+                                &lt;/svg&gt;
+                            &lt;/button&gt;
+                            &lt;button class=<span class="string">"hover:stroke-primary-100 disabled:opacity-30 duration-300 group " </span>title=<span class="string">"Reset Program" </span>onclick={on_reset_clicked} disabled={!datapath_state.initialized}&gt;
+                                &lt;svg width=<span class="string">"38" </span>height=<span class="string">"38" </span>viewBox=<span class="string">"0 0 38 38" </span>xmlns=<span class="string">"http://www.w3.org/2000/svg"</span>&gt;
+                                    &lt;path class=<span class="string">"stroke-primary-200 fill-transparent group-enabled:group-hover:stroke-primary-100" </span>fill-rule=<span class="string">"evenodd" </span>clip-rule=<span class="string">"evenodd" </span>d=<span class="string">"M34.1392 19.1007C34.1392 23.0891 32.5548 26.9142 29.7345 29.7345C26.9142 32.5548 23.0891 34.1392 19.1007 34.1392C15.1122 34.1392 11.2871 32.5548 8.46686 29.7345C5.6466 26.9142 4.06219 23.0891 4.06219 19.1007C4.06219 15.1122 5.6466 11.2871 8.46686 8.46686C11.2871 5.6466 15.1122 4.06219 19.1007 4.06219C23.0891 4.06219 26.9142 5.6466 29.7345 8.46686C32.5548 11.2871 34.1392 15.1122 34.1392 19.1007ZM34.0781 17.5507L36.2013 19.1007L34.0781 20.4552L35.8711 22.4366L33.512 23.3059L34.9007 25.6444L32.3966 25.9915L33.3203 28.6029L30.5606 28.8385L31.1941 31.1941L28.5052 30.894L28.6029 33.3203L26.0892 32.508L25.6444 34.9007L23.4036 33.6234L22.4366 35.8711L20.553 34.0981L19.1007 36.2013L17.6484 34.0981L15.7648 35.8711L14.7977 33.532L12.5569 34.9007L12.1121 32.4167L9.59843 33.3203L9.50002 30.8617L7.00721 31.1941L7.44457 28.8063L4.881 28.6029L5.83054 26.3903L3.30066 25.6444L4.7152 23.7047L2.33022 22.4366L4.14911 20.4552L2 19.1007L4.14911 17.5507L2.33022 15.7648L4.7152 14.7L3.30066 12.5569L5.83054 12.0144L4.881 9.59843H7.44457L7.00721 7.00721L9.60936 7.44457L9.59843 4.881L12.0254 5.83053L12.5569 3.30066L14.7109 4.7152L15.7648 2.33022L17.5616 4.14911L19.1007 2L20.4161 3.97315L22.4366 2.33022L23.3758 4.30201L25.6444 3.30066L26.1869 5.83053L28.6029 4.881V7.44457L31.1941 7.00721L30.6584 9.50002L33.3203 9.59843L32.2724 11.916L34.9007 12.5569L33.512 14.7L35.8711 15.7648L34.0781 17.5507Z" </span>stroke-width=<span class="string">"3" </span>stroke-linecap=<span class="string">"round" </span>stroke-linejoin=<span class="string">"round"</span>/&gt;
+                                    &lt;path class=<span class="string">"stroke-primary-200 fill-transparent group-enabled:group-hover:stroke-primary-100" </span>d=<span class="string">"M12.5 16.0526C13.3205 14.3684 15.1026 11 19.2051 11C23.3077 11 27 13.9474 27 19C27 24.0526 23.3077 27 19.2051 27C19.2051 27 19.2051 27 19.2051 27C19.2051 27 16.3333 27 14.6923 25.7368M12.5 16.0526C12.859 16.0526 17 16.0526 17 16.0526M12.5 16.0526C11.8591 14.9016 11 13.1053 11 13.1053" </span>stroke-width=<span class="string">"3" </span>stroke-linecap=<span class="string">"round"</span>/&gt;
+                                &lt;/svg&gt;
+                            &lt;/button&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+
+                    <span class="comment">// Editor
+                    </span>&lt;div class=<span class="string">"flex flex-col grow min-h-16 mt-2 h-full overflow-auto"</span>&gt;
+                        &lt;SwimEditor
+                            breakpoints={breakpoints.clone()}
+                            text_model={text_model}
+                            lines_content={lines_content}
+                            program_info={program_info_ref.borrow().clone()}
+                            pc_limit={<span class="kw-2">*</span>pc_limit}
+                            binary={binary_ref.borrow().clone()}
+                            labels={labels_ref.borrow().clone()}
+                            memory_curr_instr={memory_curr_instr.clone()}
+                            editor_curr_line={editor_curr_line.clone()}
+                            editor_active_tab={editor_active_tab.clone()}
+                            console_active_tab={console_active_tab.clone()}
+                            pc={datapath_state.get_pc()}
+                            communicator={props.communicator}
+                            current_architecture={datapath_state.current_architecture}
+                            speed={datapath_state.speed}
+                            sp={datapath_state.get_sp()}
+                            memory={datapath_state.get_memory().clone()}
+                            stack={datapath_state.get_stack().clone()}
+                            initialized={datapath_state.initialized}
+                            executing={datapath_state.executing}
+                        /&gt;
+                    &lt;/div&gt;
+
+                    <span class="comment">// Console
+                    </span>&lt;Footer
+                        parsermsg={(<span class="kw-2">*</span>parser_text_output).clone()}
+                        datapath_state={datapath_state.clone()}
+                        memory_text_model={memory_text_model}
+                        memory_curr_instr={memory_curr_instr.clone()}
+                        active_tab={console_active_tab.clone()}
+                        communicator={props.communicator}
+                        show_input={show_input.clone()}
+                        on_memory_clicked={on_memory_clicked.clone()}
+                        memory={datapath_state.get_memory().clone()}
+                        pc={datapath_state.get_pc()}
+                    /&gt;
+                &lt;/div&gt;
+
+                <span class="comment">// Right column
+                </span>&lt;Regview gp={datapath_state.get_dyn_gp_registers()} fp={datapath_state.get_dyn_fp_registers()} pc_limit={<span class="kw-2">*</span>pc_limit} communicator={props.communicator}/&gt;
+            &lt;/div&gt;
+            &lt;div class=<span class="string">"absolute w-8 top-2 right-2 hover:w-9 duration-300"</span>&gt;
+                &lt;a href=<span class="string">"https://github.com/SWIM-ucf/SWIM/issues" </span>target=<span class="string">"_blank" </span>class=<span class="string">"group"</span>&gt;
+                    &lt;img src=<span class="string">"/static/github-mark-white.svg" </span>alt=<span class="string">"GitHub"</span>/&gt;
+                    <span class="comment">// tooltip for hovering over github link
+                    </span>&lt;div class=<span class="string">"hidden group-hover:block absolute top-[0.4rem] right-12 w-[5.8rem] bg-primary-100 text-primary-900 p-1 rounded-md text-xs"</span>&gt;
+                        &lt;p&gt;{<span class="string">"Report an issue"</span>}&lt;/p&gt;
+                        <span class="comment">// create arrow
+                        </span>&lt;div class=<span class="string">"absolute w-2 h-2 bg-primary-100 top-2 right-[-4px] transform rotate-45"</span>&gt;&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/a&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    }
+}
+
+<span class="doccomment">/// Creates a new `JsValue`.
+</span><span class="kw">fn </span>new_object() -&gt; JsValue {
+    js_sys::Object::new().into()
+}
+
+<span class="comment">/**********************  File I/O Function ***********************/
+</span><span class="kw">pub fn </span>on_upload_file_clicked() {
+    <span class="kw">let </span>window = web_sys::window().expect(<span class="string">"should have a window in this context"</span>);
+    <span class="kw">let </span>document = window.document().expect(<span class="string">"window should have a document"</span>);
+
+    <span class="kw">let </span>file_input_elem = document
+        .get_element_by_id(<span class="string">"file_input"</span>)
+        .expect(<span class="string">"File input element with id \"file_input\" should exist."</span>);
+
+    <span class="kw">let </span>file_input_elem = file_input_elem
+        .dyn_into::&lt;HtmlInputElement&gt;()
+        .expect(<span class="string">"Element should be an HtmlInputElement"</span>);
+
+    <span class="comment">// workaround for https://github.com/yewstack/yew/pull/3037 since it's not in 0.20
+    </span>spawn_local(<span class="kw">async move </span>{
+        file_input_elem.click();
+    });
+}
+
+<span class="kw">fn </span>main() {
+    <span class="comment">// Initialize and leak the communicator to ensure that the thread spawns immediately and the bridge to it lives
+    // for the remainder of the program.
+    </span><span class="kw">let </span>bridge = EmulationCoreAgent::spawner().spawn(<span class="string">"./worker.js"</span>);
+    <span class="kw">let </span>communicator = Box::new(DatapathCommunicator::new(bridge));
+    yew::Renderer::&lt;App&gt;::with_props(AppProps {
+        communicator: Box::leak(communicator),
+    })
+    .render();
+}
+</code></pre></div></section></main></body></html>

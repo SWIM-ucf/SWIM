@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["use_worker_bridge","use_worker_subscription"],"struct":["HandlerId","UseWorkerBridgeHandle","UseWorkerSubscriptionHandle","WorkerBridge","WorkerDestroyHandle","WorkerProvider","WorkerProviderProps","WorkerRegistrar","WorkerScope"],"trait":["Worker"]};

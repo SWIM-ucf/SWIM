@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/akin-0.4.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../akin/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/akin-0.4.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="akin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../akin/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -581,7 +583,7 @@
 <a href="#581" id="581">581</a>
 <a href="#582" id="582">582</a>
 <a href="#583" id="583">583</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::fmt::Write;
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt::Write;
 
 <span class="kw">use </span>proc_macro::{Delimiter, Spacing, TokenTree};
 
@@ -595,8 +597,8 @@
 /// ```
 /// # use akin::akin;
 /// akin! {
-///     let &amp;var = [&#39;a&#39;, &#39;b&#39;];
-///     println!(&quot;{}&quot;, *var);
+///     let &amp;var = ['a', 'b'];
+///     println!("{}", *var);
 /// }
 
 /// ```
@@ -608,13 +610,13 @@
 /// akin! {
 ///     let &amp;v1 = [c];
 ///     let &amp;v2 = [a, b];
-///     println!(&quot;*v1*v2&quot;);
+///     println!("*v1*v2");
 /// }
 /// ```
 /// Expands to
 /// ```rust
-/// println!(&quot;ca&quot;);
-/// println!(&quot;cb&quot;);
+/// println!("ca");
+/// println!("cb");
 /// ```
 /// All code in variables must be enclosed in brackets `{...}`.
 /// ```
@@ -623,10 +625,10 @@
 ///     let &amp;var = [-1, 1];
 ///     let &amp;code = [
 ///         {
-///             println!(&quot;true&quot;);
+///             println!("true");
 ///         },
 ///         {
-///             println!(&quot;false&quot;);
+///             println!("false");
 ///         }
 ///     ];
 ///
@@ -638,10 +640,10 @@
 /// Will expand to
 /// ```rust
 /// if -1 &lt; 0 {
-///     println!(&quot;true&quot;);
+///     println!("true");
 /// }
 /// if 1 &lt; 0 {
-///     println!(&quot;false&quot;)
+///     println!("false")
 /// }
 /// ```
 /// ## Example
@@ -651,7 +653,7 @@
 ///     let &amp;a = [1, 2, 3, 4, 5, 6];
 ///     let &amp;b = [4, 5, 6];
 ///     let &amp;code = {
-///         println!(&quot;*a + *b = {}&quot;, *a + *b);
+///         println!("*a + *b = {}", *a + *b);
 ///     };
 ///     let print = true;
 ///     if print {
@@ -663,12 +665,12 @@
 /// ```
 /// let print = true;
 /// if print {
-///    println!(&quot;1 + 4 = 5&quot;);
-///    println!(&quot;2 + 5 = 7&quot;);
-///    println!(&quot;3 + 6 = 9&quot;);
-///    println!(&quot;4 + 6 = 10&quot;);
-///    println!(&quot;5 + 6 = 11&quot;);
-///    println!(&quot;6 + 6 = 12&quot;);
+///    println!("1 + 4 = 5");
+///    println!("2 + 5 = 7");
+///    println!("3 + 6 = 9");
+///    println!("4 + 6 = 10");
+///    println!("5 + 6 = 11");
+///    println!("6 + 6 = 12");
 /// }
 /// ```
 ///
@@ -683,7 +685,7 @@
 /// ```
 ///
 /// Presently, only unsigned integers that can fit in `u64` are supported in ranges, i.e. ranges
-/// like `-10..-1` or `&#39;a&#39;..&#39;c&#39;`, which are fine in regular Rust, aren&#39;t accepted by `akin`.
+/// like `-10..-1` or `'a'..'c'`, which are fine in regular Rust, aren't accepted by `akin`.
 ///
 /// ## NONE
 /// `NONE` is the way you can tell `akin` to simply skip that value and not write anything.
@@ -701,11 +703,11 @@
 ///         }
 ///     ];
 ///
-///     println!(&quot;*num^2 = {}&quot;, *num~u32*code);
-///     // *num~u32 is necessary to ensure the type is written correctly (it would be &quot;1 u32&quot; without it)
-///     # writeln!(&amp;mut out, &quot;*num^2 = *numu32*code&quot;);
+///     println!("*num^2 = {}", *num~u32*code);
+///     // *num~u32 is necessary to ensure the type is written correctly (it would be "1 u32" without it)
+///     # writeln!(&amp;mut out, "*num^2 = *numu32*code");
 /// }
-/// # assert_eq!(out, &quot;1^2 = 1u32\n2^2 = 2u32 . pow( 2)\n3^2 = 3u32 . pow( 2)\n&quot;);
+/// # assert_eq!(out, "1^2 = 1u32\n2^2 = 2u32 . pow( 2)\n3^2 = 3u32 . pow( 2)\n");
 /// ```
 ///
 /// ## Joint modifier
@@ -719,7 +721,7 @@
 ///     # {}
 /// }
 /// ```
-/// Will get wrongly expanded because &#39;_&#39; is an identifier
+/// Will get wrongly expanded because '_' is an identifier
 /// ```compile_fail
 /// fn _ 1()
 /// ```
@@ -738,14 +740,14 @@
 /// fn _1()
 /// # {}
 /// ```
-/// Inside string literals `&quot;...&quot;` it is not necessary to use the modifier, as Rust does not count them as identifiers.
+/// Inside string literals `"..."` it is not necessary to use the modifier, as Rust does not count them as identifiers.
 ///
-/// This is a limitation on proc_macro parsing, so I doubt it&#39;ll be fixed soon.
+/// This is a limitation on proc_macro parsing, so I doubt it'll be fixed soon.
 ///
 /// ## More examples
 /// ```
 /// trait Sqrt {
-///     fn dumb_sqrt(self) -&gt; Result&lt;f64, &amp;&#39;static str&gt;;
+///     fn dumb_sqrt(self) -&gt; Result&lt;f64, &amp;'static str&gt;;
 /// }
 ///
 /// # use akin::akin;
@@ -754,7 +756,7 @@
 ///     let &amp;negative_check = [
 ///         {
 ///             if self &lt; 0 {
-///                 return Err(&quot;Sqrt of negative number&quot;)
+///                 return Err("Sqrt of negative number")
 ///             }
 ///         },
 ///         NONE
@@ -767,33 +769,33 @@
 ///     };
 ///
 ///     impl Sqrt for *int_type {
-///         fn dumb_sqrt(self) -&gt; Result&lt;f64, &amp;&#39;static str&gt; {
+///         fn dumb_sqrt(self) -&gt; Result&lt;f64, &amp;'static str&gt; {
 ///             *negative_check
 ///
 ///             match self {
 ///                 *branch
-///                 _ =&gt; Err(&quot;Sqrt of num not in [1, 4]&quot;)
+///                 _ =&gt; Err("Sqrt of num not in [1, 4]")
 ///             }
 ///         }
 ///     }
 /// }
 ///
-/// # assert_eq!(10i64.dumb_sqrt(), Err(&quot;Sqrt of num not in [1, 4]&quot;));
-/// # assert_eq!(15u64.dumb_sqrt(), Err(&quot;Sqrt of num not in [1, 4]&quot;));
+/// # assert_eq!(10i64.dumb_sqrt(), Err("Sqrt of num not in [1, 4]"));
+/// # assert_eq!(15u64.dumb_sqrt(), Err("Sqrt of num not in [1, 4]"));
 /// # assert_eq!(2u64.dumb_sqrt(), Ok(1.41));
 /// # assert_eq!(3i64.dumb_sqrt(), Ok(1.73));
-/// # assert_eq!((-5i64).dumb_sqrt(), Err(&quot;Sqrt of negative number&quot;));
+/// # assert_eq!((-5i64).dumb_sqrt(), Err("Sqrt of negative number"));
 /// ```
 /// Is expanded to:
 /// ```
 /// trait Sqrt {
-///     fn dumb_sqrt(self) -&gt; Result&lt;f64, &amp;&#39;static str&gt;;
+///     fn dumb_sqrt(self) -&gt; Result&lt;f64, &amp;'static str&gt;;
 /// }
 ///
 /// impl Sqrt for i64 {
-///     fn dumb_sqrt(self) -&gt; Result&lt;f64, &amp;&#39;static str&gt; {
+///     fn dumb_sqrt(self) -&gt; Result&lt;f64, &amp;'static str&gt; {
 ///         if self &lt; 0 {
-///             return Err(&quot;Sqrt of negative number&quot;)
+///             return Err("Sqrt of negative number")
 ///         }
 ///
 ///         match self {
@@ -801,19 +803,19 @@
 ///             2 =&gt; Ok(1.41),
 ///             3 =&gt; Ok(1.73),
 ///             4 =&gt; Ok(2.),
-///             _ =&gt; Err(&quot;Sqrt of num not in [1, 4]&quot;)
+///             _ =&gt; Err("Sqrt of num not in [1, 4]")
 ///         }
 ///     }
 /// }
 ///
 /// impl Sqrt for u64 {
-///     fn dumb_sqrt(self) -&gt; Result&lt;f64, &amp;&#39;static str&gt; {
+///     fn dumb_sqrt(self) -&gt; Result&lt;f64, &amp;'static str&gt; {
 ///         match self {
 ///             1 =&gt; Ok(1.),
 ///             2 =&gt; Ok(1.41),
 ///             3 =&gt; Ok(1.73),
 ///             4 =&gt; Ok(2.),
-///             _ =&gt; Err(&quot;Sqrt of num not in [1, 4]&quot;)
+///             _ =&gt; Err("Sqrt of num not in [1, 4]")
 ///         }
 ///     }
 /// }
@@ -821,7 +823,7 @@
 </span><span class="attr">#[proc_macro]
 </span><span class="kw">pub fn </span>akin(input: proc_macro::TokenStream) -&gt; proc_macro::TokenStream {
     <span class="kw">let </span><span class="kw-2">mut </span>vars: Map&lt;String, Vec&lt;String&gt;&gt; = Map::new();
-    <span class="comment">//panic!(&quot;Tokens: {input:#?}&quot;);
+    <span class="comment">//panic!("Tokens: {input:#?}");
     </span><span class="kw">let </span><span class="kw-2">mut </span>tokens: Lookahead = input.into_iter().into();
 
     <span class="kw">while let </span><span class="prelude-val">Some</span>((name, values)) = parse_var(<span class="kw-2">&amp;mut </span>tokens, <span class="kw-2">&amp;</span>vars) {
@@ -836,9 +838,9 @@
 
     <span class="kw">let </span>out = duplicate(<span class="kw-2">&amp;</span>out_raw, <span class="kw-2">&amp;</span>vars);
 
-    <span class="comment">//let tokens = format!(&quot;proc_macro: {:#?}&quot;, input.into_iter().collect::&lt;Vec&lt;_&gt;&gt;());
-    //let tokens = format!(&quot;vars: {:#?}&quot;, vars);
-    //panic!(&quot;\nVars: {vars:#?}\nRaw: {out_raw}\nOut: {out}\n&quot;);
+    <span class="comment">//let tokens = format!("proc_macro: {:#?}", input.into_iter().collect::&lt;Vec&lt;_&gt;&gt;());
+    //let tokens = format!("vars: {:#?}", vars);
+    //panic!("\nVars: {vars:#?}\nRaw: {out_raw}\nOut: {out}\n");
 
     </span>out.parse().unwrap()
 }
@@ -863,12 +865,12 @@
         } <span class="kw">else if </span><span class="self">self</span>.queue[<span class="number">1</span>].is_none() {
             <span class="self">self</span>.queue[<span class="number">1</span>] = <span class="prelude-val">Some</span>(elem)
         } <span class="kw">else </span>{
-            <span class="macro">panic!</span>(<span class="string">&quot;akin: internal bug, lookahead buffer size exceeded&quot;</span>)
+            <span class="macro">panic!</span>(<span class="string">"akin: internal bug, lookahead buffer size exceeded"</span>)
         }
     }
 
     <span class="kw">fn </span>peek_nth(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TokenTree&gt; {
-        <span class="macro">assert!</span>(i &lt; <span class="self">self</span>.queue.len(), <span class="string">&quot;akin: internal bug, lookahead buffer index too big: {}&quot;</span>, i);
+        <span class="macro">assert!</span>(i &lt; <span class="self">self</span>.queue.len(), <span class="string">"akin: internal bug, lookahead buffer index too big: {}"</span>, i);
         <span class="kw">while </span><span class="self">self</span>.queue[i].is_none() {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(elem) = <span class="self">self</span>.iter.next() {
                 <span class="self">self</span>.queue_push(elem);
@@ -898,11 +900,11 @@
     tokens: <span class="kw-2">&amp;mut </span>Lookahead,
     vars: <span class="kw-2">&amp;</span>Map&lt;String, Vec&lt;String&gt;&gt;,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;(String, Vec&lt;String&gt;)&gt; {
-    <span class="kw">if </span>!<span class="macro">matches!</span>(tokens.peek_nth(<span class="number">0</span>), <span class="prelude-val">Some</span>(TokenTree::Ident(id)) <span class="kw">if </span>id.to_string() == <span class="string">&quot;let&quot;</span>) {
+    <span class="kw">if </span>!<span class="macro">matches!</span>(tokens.peek_nth(<span class="number">0</span>), <span class="prelude-val">Some</span>(TokenTree::Ident(id)) <span class="kw">if </span>id.to_string() == <span class="string">"let"</span>) {
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="kw">if </span>!<span class="macro">matches!</span>(tokens.peek_nth(<span class="number">1</span>), <span class="prelude-val">Some</span>(TokenTree::Punct(p)) <span class="kw">if </span>p.as_char() == <span class="string">&#39;&amp;&#39;</span>) {
+    <span class="kw">if </span>!<span class="macro">matches!</span>(tokens.peek_nth(<span class="number">1</span>), <span class="prelude-val">Some</span>(TokenTree::Punct(p)) <span class="kw">if </span>p.as_char() == <span class="string">'&amp;'</span>) {
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
@@ -910,12 +912,12 @@
     tokens.next();
 
     <span class="kw">let </span>name = <span class="macro">format!</span>(
-        <span class="string">&quot;*{}&quot;</span>,
-        tokens.next().expect(<span class="string">&quot;akin: expected variable name after &#39;let &amp;&#39;&quot;</span>)
+        <span class="string">"*{}"</span>,
+        tokens.next().expect(<span class="string">"akin: expected variable name after 'let &amp;'"</span>)
     );
 
-    <span class="kw">if </span>!<span class="macro">matches!</span>(tokens.next(), <span class="prelude-val">Some</span>(TokenTree::Punct(p)) <span class="kw">if </span>p.as_char() == <span class="string">&#39;=&#39;</span>) {
-        <span class="macro">panic!</span>( <span class="string">&quot;akin: expected &#39;=&#39; after variable name &#39;&amp;{}&#39;&quot;</span>, <span class="kw-2">&amp;</span>name[<span class="number">1</span>..]);
+    <span class="kw">if </span>!<span class="macro">matches!</span>(tokens.next(), <span class="prelude-val">Some</span>(TokenTree::Punct(p)) <span class="kw">if </span>p.as_char() == <span class="string">'='</span>) {
+        <span class="macro">panic!</span>( <span class="string">"akin: expected '=' after variable name '&amp;{}'"</span>, <span class="kw-2">&amp;</span>name[<span class="number">1</span>..]);
     }
 
     <span class="kw">let </span>group = <span class="kw">match </span>tokens.next() {
@@ -925,7 +927,7 @@
             <span class="kw">let </span>values = parse_range_expr(<span class="kw-2">&amp;</span>name[<span class="number">1</span>..], tokens);
             <span class="kw">return </span><span class="prelude-val">Some</span>((name, values));
         },
-        tt =&gt; <span class="macro">panic!</span>(<span class="string">&quot;akin: expected bracketed/braced group or range expression after &#39;&amp;{}=&#39;, got {:?}&quot;</span>, <span class="kw-2">&amp;</span>name[<span class="number">1</span>..], tt),
+        tt =&gt; <span class="macro">panic!</span>(<span class="string">"akin: expected bracketed/braced group or range expression after '&amp;{}=', got {:?}"</span>, <span class="kw-2">&amp;</span>name[<span class="number">1</span>..], tt),
     };
 
     <span class="kw">let </span><span class="kw-2">mut </span>values: Vec&lt;String&gt; = Vec::new();
@@ -935,7 +937,7 @@
 
         <span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>var) = stream.next() {
             <span class="kw">let </span><span class="kw-2">mut </span>new = String::new();
-            <span class="kw">while </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>var, TokenTree::Punct(p) <span class="kw">if </span>p.as_char() == <span class="string">&#39;,&#39;</span>) {
+            <span class="kw">while </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>var, TokenTree::Punct(p) <span class="kw">if </span>p.as_char() == <span class="string">','</span>) {
                 <span class="kw">match </span><span class="kw-2">&amp;</span>var {
                     TokenTree::Group(g) <span class="kw">if </span>g.delimiter() == Delimiter::Brace =&gt; {
                         <span class="kw">let </span><span class="kw-2">mut </span>prev = <span class="prelude-val">None</span>;
@@ -943,7 +945,7 @@
                             fold_tt(<span class="kw-2">&amp;mut </span>new, tt, <span class="kw-2">&amp;mut </span>prev)
                         }
                     },
-                    <span class="kw">_ </span>=&gt; <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>new, <span class="string">&quot;{var}&quot;</span>).unwrap(),
+                    <span class="kw">_ </span>=&gt; <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>new, <span class="string">"{var}"</span>).unwrap(),
                 };
 
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = stream.next() {
@@ -953,7 +955,7 @@
                 }
             }
 
-            <span class="kw">if </span>new == <span class="string">&quot;NONE&quot; </span>{
+            <span class="kw">if </span>new == <span class="string">"NONE" </span>{
                 values.push(String::new())
             } <span class="kw">else </span>{
                 values.push(duplicate(<span class="kw-2">&amp;</span>new, vars));
@@ -968,25 +970,25 @@
         values.push(duplicate(<span class="kw-2">&amp;</span>fold, vars));
     }
 
-    <span class="kw">if </span>!<span class="macro">matches!</span>(tokens.next(), <span class="prelude-val">Some</span>(TokenTree::Punct(p)) <span class="kw">if </span>p.as_char() == <span class="string">&#39;;&#39;</span>) {
-        <span class="macro">panic!</span>( <span class="string">&quot;akin: expected &#39;;&#39; on end of &#39;&amp;{}&#39; declaration&quot;</span>, <span class="kw-2">&amp;</span>name[<span class="number">1</span>..]);
+    <span class="kw">if </span>!<span class="macro">matches!</span>(tokens.next(), <span class="prelude-val">Some</span>(TokenTree::Punct(p)) <span class="kw">if </span>p.as_char() == <span class="string">';'</span>) {
+        <span class="macro">panic!</span>( <span class="string">"akin: expected ';' on end of '&amp;{}' declaration"</span>, <span class="kw-2">&amp;</span>name[<span class="number">1</span>..]);
     }
 
     <span class="prelude-val">Some</span>((name, values))
 }
 
-<span class="kw">fn </span>parse_integer_literal(tokens: <span class="kw-2">&amp;mut </span>Lookahead) -&gt; <span class="prelude-ty">Result</span>&lt;u64, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+<span class="kw">fn </span>parse_integer_literal(tokens: <span class="kw-2">&amp;mut </span>Lookahead) -&gt; <span class="prelude-ty">Result</span>&lt;u64, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
     <span class="kw">match </span>tokens.peek_nth(<span class="number">0</span>) {
         <span class="prelude-val">Some</span>(TokenTree::Literal(l)) =&gt; {
             l.to_string().parse().map(|i| {
                 tokens.next();
                 i
             }).map_err(|<span class="kw">_</span>| {
-                <span class="string">&quot;non-integer literal&quot;
+                <span class="string">"non-integer literal"
             </span>})
         },
-        <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;non-literal token&quot;</span>),
-        <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;unexpected end of input&quot;</span>),
+        <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="string">"non-literal token"</span>),
+        <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">"unexpected end of input"</span>),
     }
 }
 
@@ -998,37 +1000,37 @@
         <span class="prelude-val">Ok</span>(v) =&gt; v,
         <span class="prelude-val">Err</span>(e) =&gt; {
             <span class="macro">panic!</span>(
-                <span class="string">&quot;akin: integer literal expected after &#39;let &amp;{}=&#39;{}&quot;</span>,
-                var_name, tokens.peek_nth(<span class="number">0</span>).map(|tt| <span class="macro">format!</span>(<span class="string">&quot;, got {} &#39;{}&#39;&quot;</span>, e, tt)).unwrap_or_default()
+                <span class="string">"akin: integer literal expected after 'let &amp;{}='{}"</span>,
+                var_name, tokens.peek_nth(<span class="number">0</span>).map(|tt| <span class="macro">format!</span>(<span class="string">", got {} '{}'"</span>, e, tt)).unwrap_or_default()
             );
         }
     };
 
     <span class="kw">let </span>inclusive = <span class="kw">match </span>(tokens.next(), tokens.next(), tokens.peek_nth(<span class="number">0</span>)) {
-        (<span class="prelude-val">Some</span>(TokenTree::Punct(p1)), <span class="prelude-val">Some</span>(TokenTree::Punct(p2)), p3) <span class="kw">if </span>p1.spacing() == Spacing::Joint &amp;&amp; (p1.as_char(), p2.as_char()) == (<span class="string">&#39;.&#39;</span>, <span class="string">&#39;.&#39;</span>) =&gt; {
-            p2.spacing() == Spacing::Joint &amp;&amp; <span class="macro">matches!</span>(p3, <span class="prelude-val">Some</span>(TokenTree::Punct(p3)) <span class="kw">if </span>p3.as_char() == <span class="string">&#39;=&#39;</span>)
+        (<span class="prelude-val">Some</span>(TokenTree::Punct(p1)), <span class="prelude-val">Some</span>(TokenTree::Punct(p2)), p3) <span class="kw">if </span>p1.spacing() == Spacing::Joint &amp;&amp; (p1.as_char(), p2.as_char()) == (<span class="string">'.'</span>, <span class="string">'.'</span>) =&gt; {
+            p2.spacing() == Spacing::Joint &amp;&amp; <span class="macro">matches!</span>(p3, <span class="prelude-val">Some</span>(TokenTree::Punct(p3)) <span class="kw">if </span>p3.as_char() == <span class="string">'='</span>)
         },
         <span class="kw">_ </span>=&gt; {
-            <span class="macro">panic!</span>( <span class="string">&quot;akin: expected &#39;..&#39; or &#39;..=&#39; after &#39;let &amp;{}={}&#39;&quot;</span>, var_name, range_start);
+            <span class="macro">panic!</span>( <span class="string">"akin: expected '..' or '..=' after 'let &amp;{}={}'"</span>, var_name, range_start);
         },
     };
 
     <span class="kw">if </span>inclusive {
-        tokens.next(); <span class="comment">// drop the &#39;=&#39; in &#39;..=&#39;
+        tokens.next(); <span class="comment">// drop the '=' in '..='
     </span>}
 
     <span class="kw">let </span>range_end = <span class="kw">match </span>parse_integer_literal(tokens) {
         <span class="prelude-val">Ok</span>(v) =&gt; v,
         <span class="prelude-val">Err</span>(e) =&gt; {
             <span class="macro">panic!</span>(
-                <span class="string">&quot;akin: integer literal expected after &#39;let &amp;{}={}..&#39;{}&quot;</span>,
-                var_name, range_start, tokens.peek_nth(<span class="number">0</span>).map(|tt| <span class="macro">format!</span>(<span class="string">&quot;, got {} &#39;{}&#39;&quot;</span>, e, tt)).unwrap_or_default()
+                <span class="string">"akin: integer literal expected after 'let &amp;{}={}..'{}"</span>,
+                var_name, range_start, tokens.peek_nth(<span class="number">0</span>).map(|tt| <span class="macro">format!</span>(<span class="string">", got {} '{}'"</span>, e, tt)).unwrap_or_default()
             );
         }
     };
 
-    <span class="kw">if </span>!<span class="macro">matches!</span>(tokens.next(), <span class="prelude-val">Some</span>(TokenTree::Punct(p)) <span class="kw">if </span>p.as_char() == <span class="string">&#39;;&#39;</span>) {
-        <span class="macro">panic!</span>( <span class="string">&quot;akin: expected &#39;;&#39; on end of &#39;&amp;{}&#39; declaration&quot;</span>, var_name);
+    <span class="kw">if </span>!<span class="macro">matches!</span>(tokens.next(), <span class="prelude-val">Some</span>(TokenTree::Punct(p)) <span class="kw">if </span>p.as_char() == <span class="string">';'</span>) {
+        <span class="macro">panic!</span>( <span class="string">"akin: expected ';' on end of '&amp;{}' declaration"</span>, var_name);
     }
 
     <span class="kw">let </span>last = <span class="prelude-val">Some</span>(range_end).filter(|<span class="kw">_</span>| inclusive);
@@ -1055,14 +1057,14 @@
 }
 
 <span class="doccomment">/// Represents a substitution chunk. A fixed piece of text followed by 0 or more text variants.
-</span><span class="kw">struct </span>Chunk&lt;<span class="lifetime">&#39;c</span>&gt; {
-    prefix: <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span>str,
-    suffix_variants: <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span>[String],
+</span><span class="kw">struct </span>Chunk&lt;<span class="lifetime">'c</span>&gt; {
+    prefix: <span class="kw-2">&amp;</span><span class="lifetime">'c </span>str,
+    suffix_variants: <span class="kw-2">&amp;</span><span class="lifetime">'c </span>[String],
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;c</span>&gt; Chunk&lt;<span class="lifetime">&#39;c</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'c</span>&gt; Chunk&lt;<span class="lifetime">'c</span>&gt; {
     <span class="doccomment">/// Creates a chunk from a fixed piece of text.
-    </span><span class="kw">fn </span>new(prefix: <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">fn </span>new(prefix: <span class="kw-2">&amp;</span><span class="lifetime">'c </span>str) -&gt; <span class="self">Self </span>{
         Chunk { prefix, suffix_variants: <span class="kw-2">&amp;</span>[] }
     }
 
@@ -1089,11 +1091,11 @@
         total_len
     }
 
-    <span class="kw">fn </span>split_by_var&lt;<span class="lifetime">&#39;s</span>: <span class="lifetime">&#39;c</span>&gt;(
+    <span class="kw">fn </span>split_by_var&lt;<span class="lifetime">'s</span>: <span class="lifetime">'c</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        var_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>str,
-        var_values: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>[String],
-    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = Chunk&lt;<span class="lifetime">&#39;c</span>&gt;&gt; {
+        var_name: <span class="kw-2">&amp;</span><span class="lifetime">'s </span>str,
+        var_values: <span class="kw-2">&amp;</span><span class="lifetime">'s </span>[String],
+    ) -&gt; <span class="kw">impl </span>Iterator&lt;Item = Chunk&lt;<span class="lifetime">'c</span>&gt;&gt; {
         <span class="kw">let </span>Chunk { prefix, suffix_variants } = <span class="kw-2">*</span><span class="self">self</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>text_start = <span class="number">0usize</span>;
@@ -1107,18 +1109,18 @@
         chopped
     }
 
-    <span class="kw">fn </span>split_by_vars&lt;<span class="lifetime">&#39;s</span>: <span class="lifetime">&#39;c</span>&gt;(
+    <span class="kw">fn </span>split_by_vars&lt;<span class="lifetime">'s</span>: <span class="lifetime">'c</span>&gt;(
         <span class="self">self</span>,
-        vars: <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>Map&lt;String, Vec&lt;String&gt;&gt;,
-    ) -&gt; Vec&lt;Chunk&lt;<span class="lifetime">&#39;c</span>&gt;&gt; {
+        vars: <span class="kw-2">&amp;</span><span class="lifetime">'s </span>Map&lt;String, Vec&lt;String&gt;&gt;,
+    ) -&gt; Vec&lt;Chunk&lt;<span class="lifetime">'c</span>&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>chunks = Vec::with_capacity(<span class="number">16</span>);
         chunks.push(<span class="self">self</span>);
 
         <span class="comment">// Iterate over vars in reverse lexicographical order,
-        // so that &quot;*foobar&quot; has a chance to get substituted before &quot;*foo&quot;.
+        // so that "*foobar" has a chance to get substituted before "*foo".
         </span><span class="kw">for </span>(name, values) <span class="kw">in </span>vars.iter().rev() {
             <span class="comment">// Iterate over chunks in reverse order, so that newly inserted chunks
-            // don&#39;t get processed more than once for the same variable.
+            // don't get processed more than once for the same variable.
             </span><span class="kw">for </span>i <span class="kw">in </span>(<span class="number">0</span>..chunks.len()).rev() {
                 chunks.splice(i..=i, chunks[i].split_by_var(name, values));
             }
@@ -1130,10 +1132,10 @@
 
 <span class="kw">fn </span>get_delimiters(delimiter: Delimiter) -&gt; (char, char) {
     <span class="kw">match </span>delimiter {
-        Delimiter::Parenthesis =&gt; (<span class="string">&#39;(&#39;</span>, <span class="string">&#39;)&#39;</span>),
-        Delimiter::Brace =&gt; (<span class="string">&#39;{&#39;</span>, <span class="string">&#39;}&#39;</span>),
-        Delimiter::Bracket =&gt; (<span class="string">&#39;[&#39;</span>, <span class="string">&#39;]&#39;</span>),
-        Delimiter::None =&gt; (<span class="string">&#39;\0&#39;</span>, <span class="string">&#39;\0&#39;</span>),
+        Delimiter::Parenthesis =&gt; (<span class="string">'('</span>, <span class="string">')'</span>),
+        Delimiter::Brace =&gt; (<span class="string">'{'</span>, <span class="string">'}'</span>),
+        Delimiter::Bracket =&gt; (<span class="string">'['</span>, <span class="string">']'</span>),
+        Delimiter::None =&gt; (<span class="string">'\0'</span>, <span class="string">'\0'</span>),
     }
 }
 
@@ -1147,16 +1149,16 @@
             }
             a.push(end);
         }
-        TokenTree::Punct(p) <span class="kw">if </span>p.as_char() == <span class="string">&#39;~&#39; </span>=&gt; {
+        TokenTree::Punct(p) <span class="kw">if </span>p.as_char() == <span class="string">'~' </span>=&gt; {
             <span class="comment">// skip character
         </span>}
-        <span class="kw">_ if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>prev, <span class="prelude-val">Some</span>(TokenTree::Punct(p)) <span class="kw">if </span>p.spacing() == Spacing::Joint || <span class="macro">matches!</span>(p.as_char(), <span class="string">&#39;*&#39; </span>| <span class="string">&#39;~&#39;</span>)) =&gt; {
-            <span class="comment">// Case &#39;*&#39; =&gt; To make variable formatting simpler (&#39;*var&#39; instead of &#39;* var&#39;)
-            // Case &#39;~&#39; =&gt; Behaviour of the &#39;~&#39; modifier
-            </span><span class="macro">write!</span>(a, <span class="string">&quot;{tt}&quot;</span>).unwrap();
+        <span class="kw">_ if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>prev, <span class="prelude-val">Some</span>(TokenTree::Punct(p)) <span class="kw">if </span>p.spacing() == Spacing::Joint || <span class="macro">matches!</span>(p.as_char(), <span class="string">'*' </span>| <span class="string">'~'</span>)) =&gt; {
+            <span class="comment">// Case '*' =&gt; To make variable formatting simpler ('*var' instead of '* var')
+            // Case '~' =&gt; Behaviour of the '~' modifier
+            </span><span class="macro">write!</span>(a, <span class="string">"{tt}"</span>).unwrap();
         }
         <span class="kw">_ </span>=&gt; {
-            <span class="macro">write!</span>(a, <span class="string">&quot; {tt}&quot;</span>).unwrap();
+            <span class="macro">write!</span>(a, <span class="string">" {tt}"</span>).unwrap();
         }
     };
 
@@ -1164,5 +1166,4 @@
 }
 
 <span class="kw">type </span>Map&lt;T, S&gt; = std::collections::BTreeMap&lt;T, S&gt;;
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="akin" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

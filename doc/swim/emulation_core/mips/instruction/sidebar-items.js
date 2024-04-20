@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Instruction",""]],"struct":[["FpuBranchType","Branching FPU Instruction"],["FpuCompareType",""],["FpuIType",""],["FpuRType",""],["FpuRegImmType","Register-Immediate FPU Instruction"],["IType",""],["JType",""],["RType","Register (R-Type) Instruction"],["SyscallType","Syscall (“System Call”) Instruction"]]};
+window.SIDEBAR_ITEMS = {"enum":["MipsInstruction"],"fn":["find_register_name","find_register_name_fp"],"struct":["FpuBranchType","FpuCompareType","FpuIType","FpuRType","FpuRegImmType","IType","JType","RType","SyscallType"]};

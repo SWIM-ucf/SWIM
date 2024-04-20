@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["buffer","Creates an asynchronous buffer that operates over String."]],"struct":[["BufReader","An asynchronous [`String`] reader."],["BufStream","A buffered asynchronous [`String`] `Stream`."],["BufWriter","An asynchronous [`String`] writer."]]};
+window.SIDEBAR_ITEMS = {"fn":["buffer"],"struct":["BufReader","BufStream","BufWriter"]};

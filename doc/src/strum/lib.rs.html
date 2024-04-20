@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/strum-0.24.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../strum/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/strum-0.24.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="strum" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../strum/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -230,7 +232,7 @@
 <a href="#230" id="230">230</a>
 <a href="#231" id="231">231</a>
 <a href="#232" id="232">232</a>
-</pre><pre class="rust"><code><span class="doccomment">//! # Strum
+</pre></div><pre class="rust"><code><span class="doccomment">//! # Strum
 //!
 //! [![Build Status](https://travis-ci.org/Peternator7/strum.svg?branch=master)](https://travis-ci.org/Peternator7/strum)
 //! [![Latest Version](https://img.shields.io/crates/v/strum.svg)](https://crates.io/crates/strum)
@@ -248,21 +250,21 @@
 //!
 //! ```toml
 //! [dependencies]
-//! strum = &quot;0.24&quot;
-//! strum_macros = &quot;0.24&quot;
+//! strum = "0.24"
+//! strum_macros = "0.24"
 //!
-//! # You can also access strum_macros exports directly through strum using the &quot;derive&quot; feature
-//! strum = { version = &quot;0.24&quot;, features = [&quot;derive&quot;] }
+//! # You can also access strum_macros exports directly through strum using the "derive" feature
+//! strum = { version = "0.24", features = ["derive"] }
 //! ```
 //!
 
-</span><span class="attr">#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), no_std)]
+</span><span class="attr">#![cfg_attr(not(feature = <span class="string">"std"</span>), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 </span><span class="comment">// only for documentation purposes
 </span><span class="kw">pub mod </span>additional_attributes;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;phf&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"phf"</span>)]
 #[doc(hidden)]
 </span><span class="kw">pub use </span>phf <span class="kw">as </span>_private_phf_reexport_for_macro_if_phf_feature;
 
@@ -273,24 +275,24 @@
     VariantNotFound,
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>ParseError {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
-        <span class="comment">// We could use our macro here, but this way we don&#39;t take a dependency on the
+        <span class="comment">// We could use our macro here, but this way we don't take a dependency on the
         // macros crate.
         </span><span class="kw">match </span><span class="self">self </span>{
-            ParseError::VariantNotFound =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Matching variant not found&quot;</span>),
+            ParseError::VariantNotFound =&gt; <span class="macro">write!</span>(f, <span class="string">"Matching variant not found"</span>),
         }
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>ParseError {
     <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">match </span><span class="self">self </span>{
             ParseError::VariantNotFound =&gt; {
-                <span class="string">&quot;Unable to find a variant of the given enum matching the string given. Matching \
-                 can be extended with the Serialize attribute and is case sensitive.&quot;
+                <span class="string">"Unable to find a variant of the given enum matching the string given. Matching \
+                 can be extended with the Serialize attribute and is case sensitive."
             </span>}
         }
     }
@@ -325,7 +327,7 @@
 ///     }
 /// }
 ///
-/// generic_iterator::&lt;Color, _&gt;(|color| println!(&quot;{:?}&quot;, color));
+/// generic_iterator::&lt;Color, _&gt;(|color| println!("{:?}", color));
 /// ```
 </span><span class="kw">pub trait </span>IntoEnumIterator: Sized {
     <span class="kw">type </span>Iterator: Iterator&lt;Item = <span class="self">Self</span>&gt;;
@@ -335,7 +337,7 @@
 
 <span class="doccomment">/// Associates additional pieces of information with an Enum. This can be
 /// autoimplemented by deriving `EnumMessage` and annotating your variants with
-/// `#[strum(message=&quot;...&quot;)]`.
+/// `#[strum(message="...")]`.
 ///
 /// # Example
 ///
@@ -346,24 +348,24 @@
 ///
 /// #[derive(PartialEq, Eq, Debug, EnumMessage)]
 /// enum Pet {
-///     #[strum(message=&quot;I have a dog&quot;)]
-///     #[strum(detailed_message=&quot;My dog&#39;s name is Spots&quot;)]
+///     #[strum(message="I have a dog")]
+///     #[strum(detailed_message="My dog's name is Spots")]
 ///     Dog,
 ///     /// I am documented.
-///     #[strum(message=&quot;I don&#39;t have a cat&quot;)]
+///     #[strum(message="I don't have a cat")]
 ///     Cat,
 /// }
 ///
 /// let my_pet = Pet::Dog;
-/// assert_eq!(&quot;I have a dog&quot;, my_pet.get_message().unwrap());
+/// assert_eq!("I have a dog", my_pet.get_message().unwrap());
 /// ```
 </span><span class="kw">pub trait </span>EnumMessage {
-    <span class="kw">fn </span>get_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;;
-    <span class="kw">fn </span>get_detailed_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;;
+    <span class="kw">fn </span>get_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;;
+    <span class="kw">fn </span>get_detailed_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;;
 
     <span class="doccomment">/// Get the doc comment associated with a variant if it exists.
-    </span><span class="kw">fn </span>get_documentation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;;
-    <span class="kw">fn </span>get_serializations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str];
+    </span><span class="kw">fn </span>get_documentation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;;
+    <span class="kw">fn </span>get_serializations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str];
 }
 
 <span class="doccomment">/// `EnumProperty` is a trait that makes it possible to store additional information
@@ -381,20 +383,20 @@
 ///
 /// #[derive(PartialEq, Eq, Debug, EnumProperty)]
 /// enum Class {
-///     #[strum(props(Teacher=&quot;Ms.Frizzle&quot;, Room=&quot;201&quot;))]
+///     #[strum(props(Teacher="Ms.Frizzle", Room="201"))]
 ///     History,
-///     #[strum(props(Teacher=&quot;Mr.Smith&quot;))]
-///     #[strum(props(Room=&quot;103&quot;))]
+///     #[strum(props(Teacher="Mr.Smith"))]
+///     #[strum(props(Room="103"))]
 ///     Mathematics,
-///     #[strum(props(Time=&quot;2:30&quot;))]
+///     #[strum(props(Time="2:30"))]
 ///     Science,
 /// }
 ///
 /// let history = Class::History;
-/// assert_eq!(&quot;Ms.Frizzle&quot;, history.get_str(&quot;Teacher&quot;).unwrap());
+/// assert_eq!("Ms.Frizzle", history.get_str("Teacher").unwrap());
 /// ```
 </span><span class="kw">pub trait </span>EnumProperty {
-    <span class="kw">fn </span>get_str(<span class="kw-2">&amp;</span><span class="self">self</span>, prop: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;;
+    <span class="kw">fn </span>get_str(<span class="kw-2">&amp;</span><span class="self">self</span>, prop: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;;
     <span class="kw">fn </span>get_int(<span class="kw-2">&amp;</span><span class="self">self</span>, _prop: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
         Option::None
     }
@@ -405,16 +407,16 @@
 }
 
 <span class="doccomment">/// A cheap reference-to-reference conversion. Used to convert a value to a
-/// reference value with `&#39;static` lifetime within generic code.
+/// reference value with `'static` lifetime within generic code.
 </span><span class="attr">#[deprecated(
-    since = <span class="string">&quot;0.22.0&quot;</span>,
-    note = <span class="string">&quot;please use `#[derive(IntoStaticStr)]` instead&quot;
+    since = <span class="string">"0.22.0"</span>,
+    note = <span class="string">"please use `#[derive(IntoStaticStr)]` instead"
 </span>)]
 </span><span class="kw">pub trait </span>AsStaticRef&lt;T&gt;
 <span class="kw">where
     </span>T: <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">fn </span>as_static(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>T;
+    <span class="kw">fn </span>as_static(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>T;
 }
 
 <span class="doccomment">/// A trait for capturing the number of variants in Enum. This trait can be autoderived by
@@ -427,26 +429,26 @@
 /// be autoderived by `strum_macros`.
 </span><span class="kw">pub trait </span>VariantNames {
     <span class="doccomment">/// Names of the variants of this enum
-    </span><span class="kw">const </span>VARIANTS: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str];
+    </span><span class="kw">const </span>VARIANTS: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str];
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;derive&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"derive"</span>)]
 </span><span class="kw">pub use </span>strum_macros::<span class="kw-2">*</span>;
 
 <span class="macro">macro_rules! </span>DocumentMacroRexports {
     ($(<span class="macro-nonterminal">$export</span>:ident),+) =&gt; {
         $(
-            <span class="attr">#[cfg(all(docsrs, feature = <span class="string">&quot;derive&quot;</span>))]
-            #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;derive&quot;</span>)))]
+            <span class="attr">#[cfg(all(docsrs, feature = <span class="string">"derive"</span>))]
+            #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"derive"</span>)))]
             </span><span class="kw">pub use </span>strum_macros::<span class="macro-nonterminal">$export</span>;
         )+
     };
 }
 
-<span class="comment">// We actually only re-export these items individually if we&#39;re building
+<span class="comment">// We actually only re-export these items individually if we're building
 // for docsrs. You can do a weird thing where you rename the macro
 // and then reference it through strum. The renaming feature should be deprecated now that
-// 2018 edition is almost 2 years old, but we&#39;ll need to give people some time to do that.
+// 2018 edition is almost 2 years old, but we'll need to give people some time to do that.
 </span><span class="macro">DocumentMacroRexports! </span>{
     AsRefStr,
     AsStaticStr,
@@ -462,5 +464,4 @@
     IntoStaticStr,
     ToString
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="strum" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

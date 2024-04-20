@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/emulation_core/mips/instruction.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>instruction.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../swim/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/emulation_core/mips/instruction.rs`."><title>instruction.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="swim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../swim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -301,9 +303,545 @@
 <a href="#301" id="301">301</a>
 <a href="#302" id="302">302</a>
 <a href="#303" id="303">303</a>
-</pre><pre class="rust"><code><span class="doccomment">//! Abstract representation of an instruction.
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! Abstract representation of an instruction.
 
-</span><span class="kw">use </span><span class="kw">super</span>::constants::<span class="kw-2">*</span>;
+</span><span class="kw">use </span>std::collections::HashMap;
+
+<span class="kw">use </span><span class="kw">crate</span>::parser::parser_structs_and_enums::{FP_REGISTERS, GP_REGISTERS};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
+
+<span class="kw">use </span><span class="kw">super</span>::constants::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// Register (R-Type) Instruction
 ///
@@ -320,12 +858,12 @@
 /// - rs: CPU register - used as a source to read from in the register file.
 /// - rt: CPU register - used as a source to read from in the register file.
 /// - rd: CPU register - can be used as a destination for the result of executed instructions.
-/// - shamt: Shift amount. Also called &quot;shamt&quot;. Determines the amount of bits to shift in those instructions
+/// - shamt: Shift amount. Also called "shamt". Determines the amount of bits to shift in those instructions
 ///   that shift bits. Depending on the instruction, this field may be repurposed as a tertiary field for
 ///   determining the type of instruction executed (in `mul`, `dmul`, `dmulu`, `div`, `ddiv`,
-///   `ddivu`), or be used as a &quot;hint&quot; field for certain instructions (of note are `jr` and `jalr`).
+///   `ddivu`), or be used as a "hint" field for certain instructions (of note are `jr` and `jalr`).
 /// - function: Secondary field for determining the type of instruction executed.
-</span><span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq)]
+</span><span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>RType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>rs: u8,
@@ -335,7 +873,7 @@
     <span class="kw">pub </span>funct: u8,
 }
 
-<span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq)]
+<span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>IType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>rs: u8,
@@ -343,13 +881,13 @@
     <span class="kw">pub </span>immediate: u16,
 }
 
-<span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq)]
+<span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>JType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>addr: u32,
 }
 
-<span class="doccomment">/// Syscall (&quot;System Call&quot;) Instruction
+<span class="doccomment">/// Syscall ("System Call") Instruction
 ///
 /// ```text
 /// 31              26   25                                           6   5              0
@@ -362,15 +900,15 @@
 ///
 /// - opcode: SPECIAL (`000000`)
 /// - code: Available for use as software parameters.
-/// - funct: SYSCALL (`001100`)
-</span><span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq)]
+/// - funct: SYSCALL (`001100`), BREAK (`001101`)
+</span><span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>SyscallType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>code: u32,
     <span class="kw">pub </span>funct: u8,
 }
 
-<span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq)]
+<span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>FpuRType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>fmt: u8,
@@ -380,7 +918,7 @@
     <span class="kw">pub </span>function: u8,
 }
 
-<span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
+<span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>FpuIType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>base: u8,
@@ -406,7 +944,7 @@
 /// - sub: Operation subcode field for COP1 register immediate-mode instructions.
 /// - rt: CPU register - can be either source or destination.
 /// - fs: FPU register - can be either source or destination.
-</span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
+</span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>FpuRegImmType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>sub: u8,
@@ -414,7 +952,7 @@
     <span class="kw">pub </span>fs: u8,
 }
 
-<span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
+<span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>FpuCompareType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>fmt: u8,
@@ -438,12 +976,12 @@
 /// ```
 ///
 /// - opcode: COP1 (`010001`)
-/// - BCC1: &quot;Branch conditional coprocessor 1&quot; subcode.
+/// - BCC1: "Branch conditional coprocessor 1" subcode.
 /// - cc: Branch instruction condition code.
 /// - nd: Nullify delay. If set, the branch is Likely, and the delay slot instruction is not executed. (Not necessary for this project.)
 /// - tf: True/False. The type of condition for a comparison.
 /// - offset: Signed offset field used in address calculations.
-</span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
+</span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>FpuBranchType {
     <span class="kw">pub </span>op: u8,
     <span class="kw">pub </span>bcc1: u8,
@@ -453,8 +991,8 @@
     <span class="kw">pub </span>offset: u16,
 }
 
-<span class="attr">#[derive(Clone, Debug, PartialEq)]
-</span><span class="kw">pub enum </span>Instruction {
+<span class="attr">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>MipsInstruction {
     RType(RType),
     IType(IType),
     JType(JType),
@@ -466,13 +1004,13 @@
     FpuBranchType(FpuBranchType),
 }
 
-<span class="kw">impl </span>Default <span class="kw">for </span>Instruction {
+<span class="kw">impl </span>Default <span class="kw">for </span>MipsInstruction {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        Instruction::RType(RType::default())
+        MipsInstruction::RType(RType::default())
     }
 }
 
-<span class="kw">impl </span>TryFrom&lt;u32&gt; <span class="kw">for </span>Instruction {
+<span class="kw">impl </span>TryFrom&lt;u32&gt; <span class="kw">for </span>MipsInstruction {
     <span class="kw">type </span>Error = String;
 
     <span class="doccomment">/// Based on the opcode, convert a binary instruction into a struct representation.
@@ -493,12 +1031,17 @@
                 <span class="kw">let </span>funct = (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8;
 
                 <span class="kw">match </span>funct {
-                    FUNCT_SYSCALL =&gt; <span class="prelude-val">Ok</span>(Instruction::SyscallType(SyscallType {
+                    FUNCT_SYSCALL =&gt; <span class="prelude-val">Ok</span>(MipsInstruction::SyscallType(SyscallType {
                         op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                         code: ((value &gt;&gt; <span class="number">6</span>) &amp; <span class="number">0xFFFFF</span>),
                         funct: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                     })),
-                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(Instruction::RType(RType {
+                    FUNCT_BREAK =&gt; <span class="prelude-val">Ok</span>(MipsInstruction::SyscallType(SyscallType {
+                        op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
+                        code: (value &gt;&gt; <span class="number">6</span>) &amp; <span class="number">0xFFFFF</span>,
+                        funct: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
+                    })),
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(MipsInstruction::RType(RType {
                         op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                         rs: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                         rt: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
@@ -516,13 +1059,13 @@
                 </span><span class="kw">let </span>sub = ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8;
 
                 <span class="kw">match </span>sub {
-                    <span class="comment">// If it is the &quot;s&quot; or &quot;d&quot; fmts, use the `function` field.
+                    <span class="comment">// If it is the "s" or "d" fmts, use the `function` field.
                     </span>FMT_SINGLE | FMT_DOUBLE =&gt; {
                         <span class="kw">let </span>function = (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8;
                         <span class="kw">match </span>function {
                             <span class="comment">// add.fmt, sub.fmt, mul.fmt, div.fmt
                             </span>FUNCTION_ADD | FUNCTION_SUB | FUNCTION_MUL | FUNCTION_DIV =&gt; {
-                                <span class="prelude-val">Ok</span>(Instruction::FpuRType(FpuRType {
+                                <span class="prelude-val">Ok</span>(MipsInstruction::FpuRType(FpuRType {
                                     op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                                     fmt: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                                     ft: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
@@ -534,16 +1077,18 @@
                             <span class="comment">// Comparison instructions:
                             // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
                             </span>FUNCTION_C_EQ | FUNCTION_C_LT | FUNCTION_C_NGE | FUNCTION_C_LE
-                            | FUNCTION_C_NGT =&gt; <span class="prelude-val">Ok</span>(Instruction::FpuCompareType(FpuCompareType {
-                                op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
-                                fmt: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                                ft: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                                fs: ((value &gt;&gt; <span class="number">11</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
-                                cc: ((value &gt;&gt; <span class="number">8</span>) &amp; <span class="number">0x7</span>) <span class="kw">as </span>u8,
-                                function: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
-                            })),
+                            | FUNCTION_C_NGT =&gt; {
+                                <span class="prelude-val">Ok</span>(MipsInstruction::FpuCompareType(FpuCompareType {
+                                    op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
+                                    fmt: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
+                                    ft: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
+                                    fs: ((value &gt;&gt; <span class="number">11</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
+                                    cc: ((value &gt;&gt; <span class="number">8</span>) &amp; <span class="number">0x7</span>) <span class="kw">as </span>u8,
+                                    function: (value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
+                                }))
+                            }
                             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
-                                <span class="string">&quot;function `{function}` not supported for opcode {op}&quot;
+                                <span class="string">"function `{function}` not supported for opcode {op}"
                             </span>)),
                         }
                     }
@@ -553,7 +1098,7 @@
                     // Move word from coprocessor 1 (mfc1)
                     // Move doubleword from coprocessor 1 (dmfc1)
                     </span>SUB_MT | SUB_DMT | SUB_MF | SUB_DMF =&gt; {
-                        <span class="prelude-val">Ok</span>(Instruction::FpuRegImmType(FpuRegImmType {
+                        <span class="prelude-val">Ok</span>(MipsInstruction::FpuRegImmType(FpuRegImmType {
                             op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                             sub: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                             rt: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
@@ -563,7 +1108,7 @@
 
                     <span class="comment">// Branch on coprocessor 1 true (bc1t)
                     // Branch on coprocessor 1 false (bc1f)
-                    </span>SUB_BC =&gt; <span class="prelude-val">Ok</span>(Instruction::FpuBranchType(FpuBranchType {
+                    </span>SUB_BC =&gt; <span class="prelude-val">Ok</span>(MipsInstruction::FpuBranchType(FpuBranchType {
                         op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                         bcc1: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                         cc: ((value &gt;&gt; <span class="number">18</span>) &amp; <span class="number">0x7</span>) <span class="kw">as </span>u8,
@@ -572,14 +1117,14 @@
                         offset: (value &amp; <span class="number">0xFFFF</span>) <span class="kw">as </span>u16,
                     })),
 
-                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;sub code `{sub}` not supported for opcode {op}&quot;</span>)),
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"sub code `{sub}` not supported for opcode {op}"</span>)),
                 }
             }
 
             <span class="comment">// I-Type instructions:
             </span>OPCODE_ADDI | OPCODE_ADDIU | OPCODE_DADDI | OPCODE_DADDIU | OPCODE_LW | OPCODE_SW
             | OPCODE_LUI | OPCODE_ORI | OPCODE_ANDI | OPCODE_REGIMM | OPCODE_BEQ | OPCODE_BNE =&gt; {
-                <span class="prelude-val">Ok</span>(Instruction::IType(IType {
+                <span class="prelude-val">Ok</span>(MipsInstruction::IType(IType {
                     op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                     rs: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                     rt: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
@@ -588,21 +1133,539 @@
             }
 
             <span class="comment">// Store/load word to Coprocessor 1
-            </span>OPCODE_SWC1 | OPCODE_LWC1 =&gt; <span class="prelude-val">Ok</span>(Instruction::FpuIType(FpuIType {
+            </span>OPCODE_SWC1 | OPCODE_LWC1 =&gt; <span class="prelude-val">Ok</span>(MipsInstruction::FpuIType(FpuIType {
                 op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                 base: ((value &gt;&gt; <span class="number">21</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                 ft: ((value &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8,
                 offset: (value &amp; <span class="number">0xFFFF</span>) <span class="kw">as </span>u16,
             })),
 
-            OPCODE_J | OPCODE_JAL =&gt; <span class="prelude-val">Ok</span>(Instruction::JType(JType {
+            OPCODE_J | OPCODE_JAL =&gt; <span class="prelude-val">Ok</span>(MipsInstruction::JType(JType {
                 op: ((value &gt;&gt; <span class="number">26</span>) &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8,
                 addr: value &amp; <span class="number">0x03ffffff</span>,
             })),
 
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;opcode `{op}` not supported&quot;</span>)),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"opcode `{op}` not supported"</span>)),
         }
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="swim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+
+<span class="kw">impl </span>MipsInstruction {
+    <span class="kw">pub fn </span>get_string_version(
+        value: u32,
+        labels: HashMap&lt;String, usize&gt;,
+        instruction_number: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;String, String&gt; {
+        <span class="kw">let </span>struct_representation = <span class="kw">match </span>MipsInstruction::try_from(value) {
+            <span class="prelude-val">Ok</span>(struct_representation) =&gt; struct_representation,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="string">"nop"</span>.to_string()),
+        };
+        <span class="kw">let </span><span class="kw-2">mut </span>string_version = String::new();
+
+        <span class="macro">log::debug!</span>(<span class="string">"struct_representation: {:?}"</span>, struct_representation);
+        <span class="comment">// log all the fields of the struct_representation
+
+        </span><span class="kw">match </span>struct_representation {
+            MipsInstruction::RType(r_type) =&gt; {
+                <span class="comment">// R-type instructions:
+                // add, sub, mul, div
+                // addu
+                // dadd, dsub, dmul, ddiv
+                // daddu, dsubu, dmulu, ddivu
+                // or, and, sll
+                // slt, sltu
+                // jalr, jr
+
+                </span><span class="kw">let </span>str_rs = find_register_name(r_type.rs).unwrap_or(<span class="string">"##"</span>);
+                <span class="kw">let </span>str_rt = find_register_name(r_type.rt).unwrap_or(<span class="string">"##"</span>);
+                <span class="kw">let </span>str_rd = find_register_name(r_type.rd).unwrap_or(<span class="string">"##"</span>);
+                <span class="kw">let </span>shamt_binary_str = <span class="macro">format!</span>(<span class="string">"{:?}"</span>, r_type.shamt);
+                <span class="kw">let </span>str_shamt = shamt_binary_str.as_str();
+
+                <span class="kw">match </span>r_type.op {
+                    OPCODE_SPECIAL =&gt; <span class="kw">match </span>r_type.funct {
+                        FUNCT_SYSCALL =&gt; {
+                            string_version.push_str(<span class="string">"syscall"</span>);
+                        }
+                        FUNCT_BREAK =&gt; {
+                            string_version.push_str(<span class="string">"break"</span>);
+                        }
+                        FUNCT_ADD =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"add {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_ADDU =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"addu {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_DADD =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"dadd {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_DADDU =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"daddu {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_SUB =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"sub {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_DSUB =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"dsub {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_DSUBU =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"dsubu {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_AND =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"and {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_OR =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"or {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_SLL =&gt; {
+                            <span class="comment">// if all the fields are 0, then it is a nop
+                            </span><span class="kw">if </span>r_type.rd == <span class="number">0 </span>&amp;&amp; r_type.rt == <span class="number">0 </span>&amp;&amp; r_type.shamt == <span class="number">0 </span>{
+                                string_version.push_str(<span class="string">"nop"</span>);
+                            } <span class="kw">else </span>{
+                                string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                                    <span class="string">"sll {}, {}, {}"</span>,
+                                    str_rd, str_rt, str_shamt
+                                ));
+                            }
+                        }
+                        FUNCT_SLT =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"slt {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_SLTU =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"sltu {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_SOP30 =&gt; <span class="kw">match </span>r_type.shamt {
+                            ENC_MUL =&gt; {
+                                string_version
+                                    .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"mul {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                            }
+                            <span class="kw">_ </span>=&gt; {
+                                string_version.push_str(<span class="string">"###"</span>);
+                            }
+                        },
+                        FUNCT_SOP31 =&gt; <span class="kw">match </span>r_type.shamt {
+                            ENC_MULU =&gt; {
+                                string_version
+                                    .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"mulu {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                            }
+                            <span class="kw">_ </span>=&gt; {
+                                string_version.push_str(<span class="string">"###"</span>);
+                            }
+                        },
+                        FUNCT_SOP32 =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"div {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                        }
+                        FUNCT_SOP33 =&gt; <span class="kw">match </span>r_type.shamt {
+                            ENC_DIVU =&gt; {
+                                string_version
+                                    .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"divu {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                            }
+                            <span class="kw">_ </span>=&gt; {
+                                string_version.push_str(<span class="string">"###"</span>);
+                            }
+                        },
+                        FUNCT_SOP34 =&gt; <span class="kw">match </span>r_type.shamt {
+                            ENC_DMUL =&gt; {
+                                string_version
+                                    .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"dmul {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                            }
+                            <span class="kw">_ </span>=&gt; {
+                                string_version.push_str(<span class="string">"###"</span>);
+                            }
+                        },
+                        FUNCT_SOP35 =&gt; <span class="kw">match </span>r_type.shamt {
+                            ENC_DMULU =&gt; {
+                                string_version
+                                    .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"dmulu {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                            }
+                            <span class="kw">_ </span>=&gt; {
+                                string_version.push_str(<span class="string">"###"</span>);
+                            }
+                        },
+                        FUNCT_SOP36 =&gt; <span class="kw">match </span>r_type.shamt {
+                            ENC_DIV =&gt; {
+                                string_version
+                                    .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"ddiv {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                            }
+                            <span class="kw">_ </span>=&gt; {
+                                string_version.push_str(<span class="string">"###"</span>);
+                            }
+                        },
+                        FUNCT_SOP37 =&gt; <span class="kw">match </span>r_type.shamt {
+                            ENC_DIVU =&gt; {
+                                string_version
+                                    .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"ddivu {}, {}, {}"</span>, str_rd, str_rs, str_rt));
+                            }
+                            <span class="kw">_ </span>=&gt; {
+                                string_version.push_str(<span class="string">"###"</span>);
+                            }
+                        },
+                        FUNCT_JR =&gt; {
+                            string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"jr {}"</span>, str_rs));
+                        }
+                        <span class="kw">_ </span>=&gt; {
+                            string_version.push_str(<span class="string">"###"</span>);
+                        }
+                    },
+                    <span class="kw">_ </span>=&gt; {
+                        string_version.push_str(<span class="string">"###"</span>);
+                    }
+                }
+            }
+            MipsInstruction::IType(i_type) =&gt; {
+                <span class="comment">// I-Type instructions:
+                // addi, addiu, daddi, daddiu
+                // lw, sw
+                // lui
+                // ori, andi
+                // regimm
+                // beq, bne
+
+                </span><span class="kw">let </span>str_rs = find_register_name(i_type.rs).unwrap_or(<span class="string">"##"</span>);
+                <span class="kw">let </span>str_rt = find_register_name(i_type.rt).unwrap_or(<span class="string">"##"</span>);
+
+                <span class="comment">// Check if immediate is negative
+                </span><span class="kw">let </span><span class="kw-2">mut </span>str_immediate = <span class="macro">format!</span>(<span class="string">"{}"</span>, i_type.immediate);
+                <span class="kw">if </span>i_type.immediate &amp; <span class="number">0x800 </span>!= <span class="number">0 </span>{
+                    str_immediate = <span class="macro">format!</span>(
+                        <span class="string">"-{}"</span>,
+                        (!(i_type.immediate) + <span class="number">1</span>) &amp; <span class="number">0b00000000000000000000111111111111
+                    </span>);
+                }
+
+                <span class="kw">match </span>i_type.op {
+                    OPCODE_ADDI =&gt; {
+                        string_version
+                            .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"addi {}, {}, {}"</span>, str_rt, str_rs, str_immediate));
+                    }
+                    OPCODE_ADDIU =&gt; {
+                        string_version
+                            .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"addiu {}, {}, {}"</span>, str_rt, str_rs, str_immediate));
+                    }
+                    OPCODE_DADDI =&gt; {
+                        string_version
+                            .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"daddi {}, {}, {}"</span>, str_rt, str_rs, str_immediate));
+                    }
+                    OPCODE_DADDIU =&gt; {
+                        string_version
+                            .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"daddiu {}, {}, {}"</span>, str_rt, str_rs, str_immediate));
+                    }
+                    OPCODE_LW =&gt; {
+                        string_version
+                            .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"lw {}, {}({})"</span>, str_rt, str_immediate, str_rs));
+                    }
+                    OPCODE_SW =&gt; {
+                        string_version
+                            .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"sw {}, {}({})"</span>, str_rt, str_immediate, str_rs));
+                    }
+                    OPCODE_LUI =&gt; {
+                        <span class="kw">let </span>str_immediate = i_type.immediate <span class="kw">as </span>u32;
+                        string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"lui {}, 0x{:x}"</span>, str_rt, str_immediate));
+                    }
+                    OPCODE_ORI =&gt; {
+                        string_version
+                            .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"ori {}, {}, {}"</span>, str_rt, str_rs, str_immediate));
+                    }
+                    OPCODE_ANDI =&gt; {
+                        string_version
+                            .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"andi {}, {}, {}"</span>, str_rt, str_rs, str_immediate));
+                    }
+                    OPCODE_REGIMM =&gt; {
+                        <span class="comment">// rt field is used as the register immediate subcode
+                        </span><span class="kw">match </span>i_type.rt {
+                            RMSUB_DAHI =&gt; {
+                                string_version
+                                    .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"dahi {}, {}"</span>, str_rs, str_immediate));
+                            }
+                            RMSUB_DATI =&gt; {
+                                string_version
+                                    .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"dati {}, {}"</span>, str_rs, str_immediate));
+                            }
+                            <span class="kw">_ </span>=&gt; {
+                                string_version.push_str(<span class="string">"###"</span>);
+                            }
+                        }
+                    }
+                    OPCODE_BEQ =&gt; {
+                        <span class="kw">let </span><span class="kw-2">mut </span>str_label = String::new();
+                        <span class="kw">for </span>label <span class="kw">in </span>labels {
+                            <span class="kw">if </span>label.<span class="number">1 </span>== (i_type.immediate <span class="kw">as </span>usize) + instruction_number * <span class="number">4 </span>{
+                                str_label = label.<span class="number">0</span>;
+                            }
+                        }
+                        string_version
+                            .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"beq {}, {}, {}"</span>, str_rs, str_rt, str_label));
+                    }
+                    OPCODE_BNE =&gt; {
+                        <span class="kw">let </span><span class="kw-2">mut </span>str_label = String::new();
+                        <span class="kw">for </span>label <span class="kw">in </span>labels {
+                            <span class="kw">if </span>label.<span class="number">1 </span>== (i_type.immediate <span class="kw">as </span>usize) + instruction_number * <span class="number">4 </span>{
+                                str_label = label.<span class="number">0</span>;
+                            }
+                        }
+                        string_version
+                            .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"bne {}, {}, {}"</span>, str_rs, str_rt, str_label));
+                    }
+                    <span class="kw">_ </span>=&gt; {
+                        string_version.push_str(<span class="string">"###"</span>);
+                    }
+                }
+            }
+            MipsInstruction::JType(j_type) =&gt; {
+                <span class="comment">// J-Type instructions:
+                // j, jal
+                </span><span class="kw">let </span>addr = j_type.addr;
+
+                <span class="kw">let </span><span class="kw-2">mut </span>str_addr = addr.to_string();
+
+                <span class="kw">for </span>label <span class="kw">in </span>labels {
+                    <span class="kw">if </span>label.<span class="number">1 </span>== (addr <span class="kw">as </span>usize) * <span class="number">4 </span>{
+                        str_addr = label.<span class="number">0</span>;
+                    }
+                }
+
+                <span class="kw">match </span>j_type.op {
+                    OPCODE_J =&gt; {
+                        string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"j {}"</span>, str_addr));
+                    }
+                    OPCODE_JAL =&gt; {
+                        string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"jal {}"</span>, str_addr));
+                    }
+                    <span class="kw">_ </span>=&gt; {
+                        string_version.push_str(<span class="string">"###"</span>);
+                    }
+                }
+            }
+            MipsInstruction::SyscallType(syscall_type) =&gt; {
+                <span class="comment">// Syscall ("System Call") Instruction
+                </span><span class="kw">match </span>syscall_type.funct {
+                    FUNCT_SYSCALL =&gt; {
+                        string_version.push_str(<span class="string">"syscall"</span>);
+                    }
+                    <span class="comment">// FUNCT_BREAK =&gt; {
+                    //     string_version.push_str("break");
+                    // }
+                    </span><span class="kw">_ </span>=&gt; {
+                        string_version.push_str(<span class="string">"###"</span>);
+                    }
+                }
+            }
+            MipsInstruction::FpuRType(fpu_r_type) =&gt; {
+                <span class="comment">// FPU R-Type instructions:
+                // add.fmt, sub.fmt, mul.fmt, div.fmt
+
+                </span><span class="kw">let </span>str_fs = find_register_name_fp(fpu_r_type.fs).unwrap_or(<span class="string">"##"</span>);
+                <span class="kw">let </span>str_ft = find_register_name_fp(fpu_r_type.ft).unwrap_or(<span class="string">"##"</span>);
+                <span class="kw">let </span>str_fd = find_register_name_fp(fpu_r_type.fd).unwrap_or(<span class="string">"##"</span>);
+
+                <span class="kw">match </span>fpu_r_type.fmt {
+                    FMT_SINGLE =&gt; <span class="kw">match </span>fpu_r_type.function {
+                        FUNCTION_ADD =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"add.s {}, {}, {}"</span>, str_fd, str_fs, str_ft));
+                        }
+                        FUNCTION_SUB =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"sub.s {}, {}, {}"</span>, str_fd, str_fs, str_ft));
+                        }
+                        FUNCTION_MUL =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"mul.s {}, {}, {}"</span>, str_fd, str_fs, str_ft));
+                        }
+                        FUNCTION_DIV =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"div.s {}, {}, {}"</span>, str_fd, str_fs, str_ft));
+                        }
+                        <span class="kw">_ </span>=&gt; {
+                            string_version.push_str(<span class="string">"###"</span>);
+                        }
+                    },
+                    FMT_DOUBLE =&gt; <span class="kw">match </span>fpu_r_type.function {
+                        FUNCTION_ADD =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"add.d {}, {}, {}"</span>, str_fd, str_fs, str_ft));
+                        }
+                        FUNCTION_SUB =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"sub.d {}, {}, {}"</span>, str_fd, str_fs, str_ft));
+                        }
+                        FUNCTION_MUL =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"mul.d {}, {}, {}"</span>, str_fd, str_fs, str_ft));
+                        }
+                        FUNCTION_DIV =&gt; {
+                            string_version
+                                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"div.d {}, {}, {}"</span>, str_fd, str_fs, str_ft));
+                        }
+                        <span class="kw">_ </span>=&gt; {
+                            string_version.push_str(<span class="string">"###"</span>);
+                        }
+                    },
+                    <span class="kw">_ </span>=&gt; {
+                        string_version.push_str(<span class="string">"###"</span>);
+                    }
+                }
+            }
+            MipsInstruction::FpuIType(fpu_i_type) =&gt; {
+                <span class="comment">// FPU I-Type instructions:
+                // swc1, lwc1
+                </span><span class="kw">let </span>str_base = find_register_name(fpu_i_type.base).unwrap_or(<span class="string">"##"</span>); <span class="comment">// base is a GPRegister
+                </span><span class="kw">let </span>str_ft = find_register_name_fp(fpu_i_type.ft).unwrap_or(<span class="string">"##"</span>);
+                <span class="kw">let </span>str_offset = fpu_i_type.offset.to_string();
+                <span class="kw">let </span>str_offset = str_offset.as_str();
+
+                <span class="kw">match </span>fpu_i_type.op {
+                    OPCODE_SWC1 =&gt; {
+                        string_version
+                            .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"swc1 {}, {}({})"</span>, str_ft, str_offset, str_base));
+                    }
+                    OPCODE_LWC1 =&gt; {
+                        string_version
+                            .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"lwc1 {}, {}({})"</span>, str_ft, str_offset, str_base));
+                    }
+                    <span class="kw">_ </span>=&gt; {
+                        string_version.push_str(<span class="string">"###"</span>);
+                    }
+                }
+            }
+            MipsInstruction::FpuRegImmType(fpu_reg_imm_type) =&gt; {
+                <span class="comment">// FPU Register-Immediate instructions:
+                // mtc1, dmtc1, mfc1, dmfc1
+
+                </span><span class="kw">let </span>str_rt = find_register_name(fpu_reg_imm_type.rt).unwrap_or(<span class="string">"##"</span>);
+                <span class="kw">let </span>str_fs = find_register_name_fp(fpu_reg_imm_type.fs).unwrap_or(<span class="string">"##"</span>);
+
+                <span class="kw">match </span>fpu_reg_imm_type.sub {
+                    SUB_MT =&gt; {
+                        string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"mtc1 {}, {}"</span>, str_rt, str_fs));
+                    }
+                    SUB_DMT =&gt; {
+                        string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"dmtc1 {}, {}"</span>, str_rt, str_fs));
+                    }
+                    SUB_MF =&gt; {
+                        string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"mfc1 {}, {}"</span>, str_rt, str_fs));
+                    }
+                    SUB_DMF =&gt; {
+                        string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"dmfc1 {}, {}"</span>, str_rt, str_fs));
+                    }
+                    <span class="kw">_ </span>=&gt; {
+                        string_version.push_str(<span class="string">"###"</span>);
+                    }
+                }
+            }
+            MipsInstruction::FpuBranchType(fpu_branch_type) =&gt; {
+                <span class="comment">// FPU Branching instructions:
+                // bc1t, bc1f
+                // TODO add support for labels
+
+                </span><span class="kw">match </span>fpu_branch_type.bcc1 {
+                    SUB_BC =&gt; {
+                        <span class="kw">let </span>str_offset = fpu_branch_type.offset.to_string();
+                        <span class="kw">let </span>str_offset = str_offset.as_str();
+
+                        <span class="kw">match </span>fpu_branch_type.tf {
+                            <span class="number">1 </span>=&gt; {
+                                string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"bc1t {}"</span>, str_offset));
+                            }
+                            <span class="kw">_ </span>=&gt; {
+                                string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"bc1f {}"</span>, str_offset));
+                            }
+                        }
+                    }
+                    <span class="kw">_ </span>=&gt; {
+                        string_version.push_str(<span class="string">"###"</span>);
+                    }
+                }
+            }
+            MipsInstruction::FpuCompareType(fpu_compare_type) =&gt; {
+                <span class="comment">// FPU Comparison instructions:
+                // c.eq.fmt, c.lt.fmt, c.le.fmt, c.ngt.fmt, c.nge.fmt
+
+                </span><span class="kw">let </span>str_fs = find_register_name_fp(fpu_compare_type.fs).unwrap_or(<span class="string">"##"</span>);
+                <span class="kw">let </span>str_ft = find_register_name_fp(fpu_compare_type.ft).unwrap_or(<span class="string">"##"</span>);
+
+                <span class="kw">match </span>fpu_compare_type.fmt {
+                    FMT_SINGLE =&gt; <span class="kw">match </span>fpu_compare_type.function {
+                        FUNCTION_C_EQ =&gt; {
+                            string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"c.eq.s {}, {}"</span>, str_fs, str_ft));
+                        }
+                        FUNCTION_C_LT =&gt; {
+                            string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"c.lt.s {}, {}"</span>, str_fs, str_ft));
+                        }
+                        FUNCTION_C_NGE =&gt; {
+                            string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"c.nge.s {}, {}"</span>, str_fs, str_ft));
+                        }
+                        FUNCTION_C_LE =&gt; {
+                            string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"c.le.s {}, {}"</span>, str_fs, str_ft));
+                        }
+                        FUNCTION_C_NGT =&gt; {
+                            string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"c.ngt.s {}, {}"</span>, str_fs, str_ft));
+                        }
+                        <span class="kw">_ </span>=&gt; {
+                            string_version.push_str(<span class="string">"###"</span>);
+                        }
+                    },
+                    FMT_DOUBLE =&gt; <span class="kw">match </span>fpu_compare_type.function {
+                        FUNCTION_C_EQ =&gt; {
+                            string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"c.eq.d {}, {}"</span>, str_fs, str_ft));
+                        }
+                        FUNCTION_C_LT =&gt; {
+                            string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"c.lt.d {}, {}"</span>, str_fs, str_ft));
+                        }
+                        FUNCTION_C_NGE =&gt; {
+                            string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"c.nge.d {}, {}"</span>, str_fs, str_ft));
+                        }
+                        FUNCTION_C_LE =&gt; {
+                            string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"c.le.d {}, {}"</span>, str_fs, str_ft));
+                        }
+                        FUNCTION_C_NGT =&gt; {
+                            string_version.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"c.ngt.d {}, {}"</span>, str_fs, str_ft));
+                        }
+                        <span class="kw">_ </span>=&gt; {
+                            string_version.push_str(<span class="string">"###"</span>);
+                        }
+                    },
+                    <span class="kw">_ </span>=&gt; {
+                        string_version.push_str(<span class="string">"###"</span>);
+                    }
+                }
+            }
+        }
+        <span class="prelude-val">Ok</span>(string_version)
+    }
+}
+
+<span class="kw">pub fn </span>find_register_name(binary: u8) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
+    <span class="kw">for </span>register <span class="kw">in </span>GP_REGISTERS {
+        <span class="kw">if </span>register.binary == binary {
+            <span class="comment">// If a match is found, return the first name in the names array
+            </span><span class="kw">return </span><span class="prelude-val">Some</span>(register.names[<span class="number">0</span>]);
+        }
+    }
+    <span class="comment">// If no match is found, return None
+    </span><span class="prelude-val">None
+</span>}
+
+<span class="kw">pub fn </span>find_register_name_fp(binary: u8) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
+    <span class="kw">for </span>register <span class="kw">in </span>FP_REGISTERS {
+        <span class="kw">if </span>register.binary == binary {
+            <span class="comment">// If a match is found, return the first name in the names array
+            </span><span class="kw">return </span><span class="prelude-val">Some</span>(register.name);
+        }
+    }
+    <span class="comment">// If no match is found, return None
+    </span><span class="prelude-val">None
+</span>}
+</code></pre></div></section></main></body></html>

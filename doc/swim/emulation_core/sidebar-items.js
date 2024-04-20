@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["datapath","Module for the API of a generic datapath."],["mips","All facets of this project’s implementation of the MIPS64 ISA, including the datapath, control signals, registers, and memory."]]};
+window.SIDEBAR_ITEMS = {"mod":["architectures","datapath","line_info","mips","register","riscv","stack"]};

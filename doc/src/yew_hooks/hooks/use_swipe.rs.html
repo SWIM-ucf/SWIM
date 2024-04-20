@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/yew-hooks-0.2.0/src/hooks/use_swipe.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>use_swipe.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../yew_hooks/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yew-hooks-0.2.0/src/hooks/use_swipe.rs`."><title>use_swipe.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="yew_hooks" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../yew_hooks/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -279,7 +281,7 @@
 <a href="#279" id="279">279</a>
 <a href="#280" id="280">280</a>
 <a href="#281" id="281">281</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::cmp::max;
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::cmp::max;
 <span class="kw">use </span>std::rc::Rc;
 
 <span class="kw">use </span>yew::prelude::<span class="kw-2">*</span>;
@@ -360,17 +362,17 @@
 ///     
 ///     html! {
 ///         &lt;div ref={node}&gt;
-///             &lt;b&gt;{ &quot; swiping: &quot; }&lt;/b&gt;
+///             &lt;b&gt;{ " swiping: " }&lt;/b&gt;
 ///             { *state.swiping }
-///             &lt;b&gt;{ &quot; direction: &quot; }&lt;/b&gt;
-///             { format!(&quot;{:?}&quot;, *state.direction) }
-///             &lt;b&gt;{ &quot; coords_start: &quot; }&lt;/b&gt;
-///             { format!(&quot;{:?}&quot;, *state.coords_start) }
-///             &lt;b&gt;{ &quot; coords_end: &quot; }&lt;/b&gt;
-///             { format!(&quot;{:?}&quot;, *state.coords_end) }
-///             &lt;b&gt;{ &quot; length_x: &quot; }&lt;/b&gt;
+///             &lt;b&gt;{ " direction: " }&lt;/b&gt;
+///             { format!("{:?}", *state.direction) }
+///             &lt;b&gt;{ " coords_start: " }&lt;/b&gt;
+///             { format!("{:?}", *state.coords_start) }
+///             &lt;b&gt;{ " coords_end: " }&lt;/b&gt;
+///             { format!("{:?}", *state.coords_end) }
+///             &lt;b&gt;{ " length_x: " }&lt;/b&gt;
 ///             { *state.length_x }
-///             &lt;b&gt;{ &quot; length_y: &quot; }&lt;/b&gt;
+///             &lt;b&gt;{ " length_y: " }&lt;/b&gt;
 ///             { *state.length_y }
 ///         &lt;/div&gt;
 ///     }
@@ -404,24 +406,24 @@
 ///     let state = use_swipe_with_options(node.clone(), UseSwipeOptions {
 ///         onswipeend: Some(Box::new(move |_e, direction| {
 ///             // Deal with TouchEvent.
-///             log::debug!(&quot;Swipe direction: {:?}&quot;, direction);
+///             log::debug!("Swipe direction: {:?}", direction);
 ///         })),
 ///         ..Default::default()
 ///     });
 ///     
 ///     html! {
 ///         &lt;div ref={node}&gt;
-///             &lt;b&gt;{ &quot; swiping: &quot; }&lt;/b&gt;
+///             &lt;b&gt;{ " swiping: " }&lt;/b&gt;
 ///             { *state.swiping }
-///             &lt;b&gt;{ &quot; direction: &quot; }&lt;/b&gt;
-///             { format!(&quot;{:?}&quot;, *state.direction) }
-///             &lt;b&gt;{ &quot; coords_start: &quot; }&lt;/b&gt;
-///             { format!(&quot;{:?}&quot;, *state.coords_start) }
-///             &lt;b&gt;{ &quot; coords_end: &quot; }&lt;/b&gt;
-///             { format!(&quot;{:?}&quot;, *state.coords_end) }
-///             &lt;b&gt;{ &quot; length_x: &quot; }&lt;/b&gt;
+///             &lt;b&gt;{ " direction: " }&lt;/b&gt;
+///             { format!("{:?}", *state.direction) }
+///             &lt;b&gt;{ " coords_start: " }&lt;/b&gt;
+///             { format!("{:?}", *state.coords_start) }
+///             &lt;b&gt;{ " coords_end: " }&lt;/b&gt;
+///             { format!("{:?}", *state.coords_end) }
+///             &lt;b&gt;{ " length_x: " }&lt;/b&gt;
 ///             { *state.length_x }
-///             &lt;b&gt;{ &quot; length_y: &quot; }&lt;/b&gt;
+///             &lt;b&gt;{ " length_y: " }&lt;/b&gt;
 ///             { *state.length_y }
 ///         &lt;/div&gt;
 ///     }
@@ -480,7 +482,7 @@
         <span class="kw">let </span>node = node.clone();
         <span class="kw">let </span>coords_start = coords_start.clone();
         <span class="kw">let </span>coords_end = coords_end.clone();
-        use_event(node, <span class="string">&quot;touchstart&quot;</span>, <span class="kw">move </span>|e: TouchEvent| {
+        use_event(node, <span class="string">"touchstart"</span>, <span class="kw">move </span>|e: TouchEvent| {
             <span class="kw">let </span>x = e.touches().get(<span class="number">0</span>).map_or(<span class="number">0</span>, |t| t.client_x());
             <span class="kw">let </span>y = e.touches().get(<span class="number">0</span>).map_or(<span class="number">0</span>, |t| t.client_y());
             coords_start.set((x, y));
@@ -501,7 +503,7 @@
         <span class="kw">let </span>length_x = length_x.clone();
         <span class="kw">let </span>length_y = length_y.clone();
         <span class="kw">let </span>direction = direction.clone();
-        use_event(node, <span class="string">&quot;touchmove&quot;</span>, <span class="kw">move </span>|e: TouchEvent| {
+        use_event(node, <span class="string">"touchmove"</span>, <span class="kw">move </span>|e: TouchEvent| {
             <span class="kw">let </span>x = e.touches().get(<span class="number">0</span>).map_or(<span class="number">0</span>, |t| t.client_x());
             <span class="kw">let </span>y = e.touches().get(<span class="number">0</span>).map_or(<span class="number">0</span>, |t| t.client_y());
             coords_end.set((x, y));
@@ -539,14 +541,14 @@
     {
         <span class="kw">let </span>node = node.clone();
         <span class="kw">let </span>ontouchend = ontouchend.clone();
-        use_event(node, <span class="string">&quot;touchend&quot;</span>, <span class="kw">move </span>|e: TouchEvent| {
+        use_event(node, <span class="string">"touchend"</span>, <span class="kw">move </span>|e: TouchEvent| {
             ontouchend(e);
         });
     }
 
     {
         <span class="kw">let </span>ontouchend = ontouchend.clone();
-        use_event(node, <span class="string">&quot;touchcancel&quot;</span>, <span class="kw">move </span>|e: TouchEvent| {
+        use_event(node, <span class="string">"touchcancel"</span>, <span class="kw">move </span>|e: TouchEvent| {
             ontouchend(e);
         });
     }
@@ -560,5 +562,4 @@
         length_y,
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="yew_hooks" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

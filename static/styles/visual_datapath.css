@@ -6,6 +6,71 @@
   width: auto;
 }
 
+/** Zoom Levels **/
+.datapath.size-0 {
+  width: 100%;
+}
+.datapath.size-10 {
+  width: 110%;
+}
+.datapath.size-20 {
+  width: 120%;
+}
+.datapath.size-30 {
+  width: 130%;
+}
+.datapath.size-40 {
+  width: 140%;
+}
+.datapath.size-50 {
+  width: 150%;
+}
+.datapath.size-60 {
+  width: 160%;
+}
+.datapath.size-70 {
+  width: 170%;
+}
+.datapath.size-80 {
+  width: 180%;
+}
+.datapath.size-90 {
+  width: 190%;
+}
+.datapath.size-100 {
+  width: 200%;
+}
+.datapath.size-110 {
+  width: 210%;
+}
+.datapath.size-120 {
+  width: 220%;
+}
+.datapath.size-130 {
+  width: 230%;
+}
+.datapath.size-140 {
+  width: 240%;
+}
+.datapath.size-150 {
+  width: 250%;
+}
+.datapath.size-160 {
+  width: 260%;
+}
+.datapath.size-170 {
+  width: 270%;
+}
+.datapath.size-180 {
+  width: 280%;
+}
+.datapath.size-190 {
+  width: 290%;
+}
+.datapath.size-200 {
+  width: 300%;
+}
+
 #popup {
   display: none;
   position: absolute;

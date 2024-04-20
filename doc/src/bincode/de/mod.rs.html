@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bincode-1.3.3/src/de/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../bincode/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bincode-1.3.3/src/de/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="bincode" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../bincode/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -513,7 +515,7 @@
 <a href="#513" id="513">513</a>
 <a href="#514" id="514">514</a>
 <a href="#515" id="515">515</a>
-</pre><pre class="rust"><code><span class="kw">use </span>config::{BincodeByteOrder, Options};
+</pre></div><pre class="rust"><code><span class="kw">use </span>config::{BincodeByteOrder, Options};
 <span class="kw">use </span>std::io::Read;
 
 <span class="kw">use </span><span class="self">self</span>::read::{BincodeRead, IoReader, SliceReader};
@@ -557,7 +559,7 @@
     };
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, IR: Read, O: Options&gt; Deserializer&lt;IoReader&lt;IR&gt;, O&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, IR: Read, O: Options&gt; Deserializer&lt;IoReader&lt;IR&gt;, O&gt; {
     <span class="doccomment">/// Creates a new Deserializer with a given `Read`er and options.
     </span><span class="kw">pub fn </span>with_reader(r: IR, options: O) -&gt; <span class="self">Self </span>{
         Deserializer {
@@ -567,9 +569,9 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, O: Options&gt; Deserializer&lt;SliceReader&lt;<span class="lifetime">&#39;de</span>&gt;, O&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, O: Options&gt; Deserializer&lt;SliceReader&lt;<span class="lifetime">'de</span>&gt;, O&gt; {
     <span class="doccomment">/// Creates a new Deserializer that will read from the given slice.
-    </span><span class="kw">pub fn </span>from_slice(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>[u8], options: O) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>from_slice(slice: <span class="kw-2">&amp;</span><span class="lifetime">'de </span>[u8], options: O) -&gt; <span class="self">Self </span>{
         Deserializer {
             reader: SliceReader::new(slice),
             options,
@@ -577,7 +579,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt; Deserializer&lt;R, O&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt; Deserializer&lt;R, O&gt; {
     <span class="doccomment">/// Creates a new Deserializer with the given `BincodeRead`er
     </span><span class="kw">pub fn </span>with_bincode_read(r: R, options: O) -&gt; Deserializer&lt;R, O&gt; {
         Deserializer { reader: r, options }
@@ -622,16 +624,16 @@
         <span class="attr">#[inline]
         </span><span class="kw">fn </span><span class="macro-nonterminal">$name</span>&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
         <span class="kw">where
-            </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+            </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
         {
             visitor.<span class="macro-nonterminal">$visitor_method</span>(O::IntEncoding::<span class="macro-nonterminal">$dser_method</span>(<span class="self">self</span>)<span class="question-mark">?</span>)
         }
     };
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>, R, O&gt; serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Deserializer&lt;R, O&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'a</span>, R, O&gt; serde::Deserializer&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Deserializer&lt;R, O&gt;
 <span class="kw">where
-    </span>R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;,
+    </span>R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;,
     O: Options,
 {
     <span class="kw">type </span>Error = Error;
@@ -639,14 +641,14 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>deserialize_any&lt;V&gt;(<span class="self">self</span>, _visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="prelude-val">Err</span>(Box::new(ErrorKind::DeserializeAnyNotSupported))
     }
 
     <span class="kw">fn </span>deserialize_bool&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">match </span><span class="self">self</span>.deserialize_byte()<span class="question-mark">? </span>{
             <span class="number">1 </span>=&gt; visitor.visit_bool(<span class="bool-val">true</span>),
@@ -664,7 +666,7 @@
 
     <span class="kw">fn </span>deserialize_f32&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="self">self</span>.read_literal_type::&lt;f32&gt;()<span class="question-mark">?</span>;
         <span class="kw">let </span>value = <span class="self">self
@@ -675,7 +677,7 @@
 
     <span class="kw">fn </span>deserialize_f64&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="self">self</span>.read_literal_type::&lt;f64&gt;()<span class="question-mark">?</span>;
         <span class="kw">let </span>value = <span class="self">self
@@ -692,7 +694,7 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>deserialize_u8&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         visitor.visit_u8(<span class="self">self</span>.deserialize_byte()<span class="question-mark">? </span><span class="kw">as </span>u8)
     }
@@ -700,21 +702,21 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>deserialize_i8&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         visitor.visit_i8(<span class="self">self</span>.deserialize_byte()<span class="question-mark">? </span><span class="kw">as </span>i8)
     }
 
     <span class="kw">fn </span>deserialize_unit&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         visitor.visit_unit()
     }
 
     <span class="kw">fn </span>deserialize_char&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">use </span>std::str;
 
@@ -745,7 +747,7 @@
 
     <span class="kw">fn </span>deserialize_str&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">let </span>len = O::IntEncoding::deserialize_len(<span class="self">self</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.read_bytes(len <span class="kw">as </span>u64)<span class="question-mark">?</span>;
@@ -754,14 +756,14 @@
 
     <span class="kw">fn </span>deserialize_string&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         visitor.visit_string(<span class="self">self</span>.read_string()<span class="question-mark">?</span>)
     }
 
     <span class="kw">fn </span>deserialize_bytes&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">let </span>len = O::IntEncoding::deserialize_len(<span class="self">self</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.read_bytes(len <span class="kw">as </span>u64)<span class="question-mark">?</span>;
@@ -770,23 +772,23 @@
 
     <span class="kw">fn </span>deserialize_byte_buf&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         visitor.visit_byte_buf(<span class="self">self</span>.read_vec()<span class="question-mark">?</span>)
     }
 
     <span class="kw">fn </span>deserialize_enum&lt;V&gt;(
         <span class="self">self</span>,
-        _enum: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
-        _variants: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str],
+        _enum: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
+        _variants: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str],
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>, R: <span class="lifetime">&#39;a</span>, O&gt; serde::de::EnumAccess&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Deserializer&lt;R, O&gt;
+        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'a</span>, R: <span class="lifetime">'a</span>, O&gt; serde::de::EnumAccess&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Deserializer&lt;R, O&gt;
         <span class="kw">where
-            </span>R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;,
+            </span>R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;,
             O: Options,
         {
             <span class="kw">type </span>Error = Error;
@@ -794,7 +796,7 @@
 
             <span class="kw">fn </span>variant_seed&lt;V&gt;(<span class="self">self</span>, seed: V) -&gt; <span class="prelude-ty">Result</span>&lt;(V::Value, <span class="self">Self</span>::Variant)&gt;
             <span class="kw">where
-                </span>V: serde::de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;,
+                </span>V: serde::de::DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;,
             {
                 <span class="kw">let </span>idx: u32 = O::IntEncoding::deserialize_u32(<span class="self">self</span>)<span class="question-mark">?</span>;
                 <span class="kw">let </span>val: <span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>&gt; = seed.deserialize(idx.into_deserializer());
@@ -807,21 +809,21 @@
 
     <span class="kw">fn </span>deserialize_tuple&lt;V&gt;(<span class="self">self</span>, len: usize, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
-        <span class="kw">struct </span>Access&lt;<span class="lifetime">&#39;a</span>, R: Read + <span class="lifetime">&#39;a</span>, O: Options + <span class="lifetime">&#39;a</span>&gt; {
-            deserializer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Deserializer&lt;R, O&gt;,
+        <span class="kw">struct </span>Access&lt;<span class="lifetime">'a</span>, R: Read + <span class="lifetime">'a</span>, O: Options + <span class="lifetime">'a</span>&gt; {
+            deserializer: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Deserializer&lt;R, O&gt;,
             len: usize,
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt; + <span class="lifetime">&#39;b</span>, O: Options&gt; serde::de::SeqAccess&lt;<span class="lifetime">&#39;de</span>&gt;
-            <span class="kw">for </span>Access&lt;<span class="lifetime">&#39;a</span>, R, O&gt;
+        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'a</span>, <span class="lifetime">'b</span>: <span class="lifetime">'a</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt; + <span class="lifetime">'b</span>, O: Options&gt; serde::de::SeqAccess&lt;<span class="lifetime">'de</span>&gt;
+            <span class="kw">for </span>Access&lt;<span class="lifetime">'a</span>, R, O&gt;
         {
             <span class="kw">type </span>Error = Error;
 
             <span class="kw">fn </span>next_element_seed&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;T::Value&gt;&gt;
             <span class="kw">where
-                </span>T: serde::de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;,
+                </span>T: serde::de::DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;,
             {
                 <span class="kw">if </span><span class="self">self</span>.len &gt; <span class="number">0 </span>{
                     <span class="self">self</span>.len -= <span class="number">1</span>;
@@ -846,7 +848,7 @@
 
     <span class="kw">fn </span>deserialize_option&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">let </span>value: u8 = serde::de::Deserialize::deserialize(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)<span class="question-mark">?</span>;
         <span class="kw">match </span>value {
@@ -858,7 +860,7 @@
 
     <span class="kw">fn </span>deserialize_seq&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">let </span>len = O::IntEncoding::deserialize_len(<span class="self">self</span>)<span class="question-mark">?</span>;
 
@@ -867,21 +869,21 @@
 
     <span class="kw">fn </span>deserialize_map&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
-        <span class="kw">struct </span>Access&lt;<span class="lifetime">&#39;a</span>, R: Read + <span class="lifetime">&#39;a</span>, O: Options + <span class="lifetime">&#39;a</span>&gt; {
-            deserializer: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Deserializer&lt;R, O&gt;,
+        <span class="kw">struct </span>Access&lt;<span class="lifetime">'a</span>, R: Read + <span class="lifetime">'a</span>, O: Options + <span class="lifetime">'a</span>&gt; {
+            deserializer: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Deserializer&lt;R, O&gt;,
             len: usize,
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt; + <span class="lifetime">&#39;b</span>, O: Options&gt; serde::de::MapAccess&lt;<span class="lifetime">&#39;de</span>&gt;
-            <span class="kw">for </span>Access&lt;<span class="lifetime">&#39;a</span>, R, O&gt;
+        <span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'a</span>, <span class="lifetime">'b</span>: <span class="lifetime">'a</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt; + <span class="lifetime">'b</span>, O: Options&gt; serde::de::MapAccess&lt;<span class="lifetime">'de</span>&gt;
+            <span class="kw">for </span>Access&lt;<span class="lifetime">'a</span>, R, O&gt;
         {
             <span class="kw">type </span>Error = Error;
 
             <span class="kw">fn </span>next_key_seed&lt;K&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;&gt;
             <span class="kw">where
-                </span>K: serde::de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;,
+                </span>K: serde::de::DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;,
             {
                 <span class="kw">if </span><span class="self">self</span>.len &gt; <span class="number">0 </span>{
                     <span class="self">self</span>.len -= <span class="number">1</span>;
@@ -895,7 +897,7 @@
 
             <span class="kw">fn </span>next_value_seed&lt;V&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
             <span class="kw">where
-                </span>V: serde::de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;,
+                </span>V: serde::de::DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;,
             {
                 <span class="kw">let </span>value = serde::de::DeserializeSeed::deserialize(seed, <span class="kw-2">&amp;mut *</span><span class="self">self</span>.deserializer)<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(value)
@@ -917,54 +919,54 @@
     <span class="kw">fn </span>deserialize_struct&lt;V&gt;(
         <span class="self">self</span>,
         _name: <span class="kw-2">&amp;</span>str,
-        fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str],
+        fields: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str],
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="self">self</span>.deserialize_tuple(fields.len(), visitor)
     }
 
     <span class="kw">fn </span>deserialize_identifier&lt;V&gt;(<span class="self">self</span>, _visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
-        <span class="kw">let </span>message = <span class="string">&quot;Bincode does not support Deserializer::deserialize_identifier&quot;</span>;
+        <span class="kw">let </span>message = <span class="string">"Bincode does not support Deserializer::deserialize_identifier"</span>;
         <span class="prelude-val">Err</span>(Error::custom(message))
     }
 
     <span class="kw">fn </span>deserialize_newtype_struct&lt;V&gt;(<span class="self">self</span>, _name: <span class="kw-2">&amp;</span>str, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         visitor.visit_newtype_struct(<span class="self">self</span>)
     }
 
-    <span class="kw">fn </span>deserialize_unit_struct&lt;V&gt;(<span class="self">self</span>, _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
+    <span class="kw">fn </span>deserialize_unit_struct&lt;V&gt;(<span class="self">self</span>, _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         visitor.visit_unit()
     }
 
     <span class="kw">fn </span>deserialize_tuple_struct&lt;V&gt;(
         <span class="self">self</span>,
-        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         len: usize,
         visitor: V,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="self">self</span>.deserialize_tuple(len, visitor)
     }
 
     <span class="kw">fn </span>deserialize_ignored_any&lt;V&gt;(<span class="self">self</span>, _visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
-        <span class="kw">let </span>message = <span class="string">&quot;Bincode does not support Deserializer::deserialize_ignored_any&quot;</span>;
+        <span class="kw">let </span>message = <span class="string">"Bincode does not support Deserializer::deserialize_ignored_any"</span>;
         <span class="prelude-val">Err</span>(Error::custom(message))
     }
 
@@ -973,9 +975,9 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>, R, O&gt; serde::de::VariantAccess&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Deserializer&lt;R, O&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, <span class="lifetime">'a</span>, R, O&gt; serde::de::VariantAccess&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Deserializer&lt;R, O&gt;
 <span class="kw">where
-    </span>R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;,
+    </span>R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;,
     O: Options,
 {
     <span class="kw">type </span>Error = Error;
@@ -986,21 +988,21 @@
 
     <span class="kw">fn </span>newtype_variant_seed&lt;T&gt;(<span class="self">self</span>, seed: T) -&gt; <span class="prelude-ty">Result</span>&lt;T::Value&gt;
     <span class="kw">where
-        </span>T: serde::de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>T: serde::de::DeserializeSeed&lt;<span class="lifetime">'de</span>&gt;,
     {
         serde::de::DeserializeSeed::deserialize(seed, <span class="self">self</span>)
     }
 
     <span class="kw">fn </span>tuple_variant&lt;V&gt;(<span class="self">self</span>, len: usize, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         serde::de::Deserializer::deserialize_tuple(<span class="self">self</span>, len, visitor)
     }
 
-    <span class="kw">fn </span>struct_variant&lt;V&gt;(<span class="self">self</span>, fields: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str], visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
+    <span class="kw">fn </span>struct_variant&lt;V&gt;(<span class="self">self</span>, fields: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str], visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value&gt;
     <span class="kw">where
-        </span>V: serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
+        </span>V: serde::de::Visitor&lt;<span class="lifetime">'de</span>&gt;,
     {
         serde::de::Deserializer::deserialize_tuple(<span class="self">self</span>, fields.len(), visitor)
     }
@@ -1028,5 +1030,4 @@
 </span><span class="kw">fn </span>utf8_char_width(b: u8) -&gt; usize {
     UTF8_CHAR_WIDTH[b <span class="kw">as </span>usize] <span class="kw">as </span>usize
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="bincode" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

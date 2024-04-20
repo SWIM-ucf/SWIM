@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["DatapathSize",""]],"mod":[["consts",""],["utils","Helpful common functions used for the visual datapath."]],"struct":[["VisualDatapath",""],["VisualDatapathProps",""]]};
+window.SIDEBAR_ITEMS = {"enum":["DatapathSize"],"mod":["consts","utils"],"struct":["VisualDatapath","VisualDatapathProps"]};

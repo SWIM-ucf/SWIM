@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":[["imap_deconstruct","A macro to help deconstructs maps inspired by JS."]],"mod":[["sync","Thread-safe version of immutable types."],["unsync","Single-threaded version of immutable types."]],"trait":[["ImplicitClone","Marker trait for types that can be cloned implicitly."]]};
+window.SIDEBAR_ITEMS = {"derive":["ImplicitClone"],"macro":["imap_deconstruct"],"mod":["sync","unsync"],"trait":["ImplicitClone"]};

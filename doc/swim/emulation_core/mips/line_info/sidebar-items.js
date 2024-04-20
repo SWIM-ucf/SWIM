@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":[["LineInformation","A collection of data surrounding a line in the visual datapath."]]};

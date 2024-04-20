@@ -1,5 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/yew-0.20.0/src/virtual_dom/vtag.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>vtag.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../yew/index.html">
-                        <img src="https://yew.rs/img/logo.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yew-0.21.0/src/virtual_dom/vtag.rs`."><title>vtag.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../yew/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -620,7 +621,68 @@
 <a href="#619" id="619">619</a>
 <a href="#620" id="620">620</a>
 <a href="#621" id="621">621</a>
-</pre><pre class="rust"><code><span class="doccomment">//! This module contains the implementation of a virtual element node [VTag].
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! This module contains the implementation of a virtual element node [VTag].
 
 </span><span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::cmp::PartialEq;
@@ -631,16 +693,19 @@
 
 <span class="kw">use </span>web_sys::{HtmlInputElement <span class="kw">as </span>InputElement, HtmlTextAreaElement <span class="kw">as </span>TextAreaElement};
 
-<span class="kw">use super</span>::{ApplyAttributeAs, AttrValue, Attributes, Key, Listener, Listeners, VList, VNode};
+<span class="kw">use super</span>::{ApplyAttributeAs, AttrValue, Attributes, Key, Listener, Listeners, VNode};
 <span class="kw">use </span><span class="kw">crate</span>::html::{IntoPropValue, NodeRef};
 
 <span class="doccomment">/// SVG namespace string used for creating svg elements
-</span><span class="kw">pub const </span>SVG_NAMESPACE: <span class="kw-2">&amp;</span>str = <span class="string">&quot;http://www.w3.org/2000/svg&quot;</span>;
+</span><span class="kw">pub const </span>SVG_NAMESPACE: <span class="kw-2">&amp;</span>str = <span class="string">"http://www.w3.org/2000/svg"</span>;
+
+<span class="doccomment">/// MathML namespace string used for creating MathML elements
+</span><span class="kw">pub const </span>MATHML_NAMESPACE: <span class="kw-2">&amp;</span>str = <span class="string">"http://www.w3.org/1998/Math/MathML"</span>;
 
 <span class="doccomment">/// Default namespace for html elements
-</span><span class="kw">pub const </span>HTML_NAMESPACE: <span class="kw-2">&amp;</span>str = <span class="string">&quot;http://www.w3.org/1999/xhtml&quot;</span>;
+</span><span class="kw">pub const </span>HTML_NAMESPACE: <span class="kw-2">&amp;</span>str = <span class="string">"http://www.w3.org/1999/xhtml"</span>;
 
-<span class="doccomment">/// Value field corresponding to an [Element]&#39;s `value` property
+<span class="doccomment">/// Value field corresponding to an [Element]'s `value` property
 </span><span class="attr">#[derive(Clone, Debug, Eq, PartialEq)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Value&lt;T&gt;(<span class="prelude-ty">Option</span>&lt;AttrValue&gt;, PhantomData&lt;T&gt;);
 
@@ -651,13 +716,13 @@
 }
 
 <span class="kw">impl</span>&lt;T&gt; Value&lt;T&gt; {
-    <span class="doccomment">/// Create a new value. The caller should take care that the value is valid for the element&#39;s
+    <span class="doccomment">/// Create a new value. The caller should take care that the value is valid for the element's
     /// `value` property
     </span><span class="kw">fn </span>new(value: <span class="prelude-ty">Option</span>&lt;AttrValue&gt;) -&gt; <span class="self">Self </span>{
         Value(value, PhantomData)
     }
 
-    <span class="doccomment">/// Set a new value. The caller should take care that the value is valid for the element&#39;s
+    <span class="doccomment">/// Set a new value. The caller should take care that the value is valid for the element's
     /// `value` property
     </span><span class="kw">fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="prelude-ty">Option</span>&lt;AttrValue&gt;) {
         <span class="self">self</span>.<span class="number">0 </span>= value;
@@ -683,7 +748,7 @@
     /// [input](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-checked).
     /// It exists to override standard behavior of `checked` attribute, because
     /// in original HTML it sets `defaultChecked` value of `InputElement`, but for reactive
-    /// frameworks it&#39;s more useful to control `checked` value of an `InputElement`.
+    /// frameworks it's more useful to control `checked` value of an `InputElement`.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) checked: <span class="prelude-ty">Option</span>&lt;bool&gt;,
 }
 
@@ -730,9 +795,9 @@
     <span class="doccomment">/// Fields for all other kinds of [VTag]s
     </span>Other {
         <span class="doccomment">/// A tag of the element.
-        </span>tag: Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;,
-        <span class="doccomment">/// List of child nodes
-        </span>children: VList,
+        </span>tag: Cow&lt;<span class="lifetime">'static</span>, str&gt;,
+        <span class="doccomment">/// children of the element.
+        </span>children: VNode,
     },
 }
 
@@ -754,12 +819,12 @@
 
 <span class="kw">impl </span>VTag {
     <span class="doccomment">/// Creates a new [VTag] instance with `tag` name (cannot be changed later in DOM).
-    </span><span class="kw">pub fn </span>new(tag: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt;) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>tag: Cow&lt;<span class="lifetime">&#39;static</span>, str&gt; = tag.into();
+    </span><span class="kw">pub fn </span>new(tag: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">'static</span>, str&gt;&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>tag: Cow&lt;<span class="lifetime">'static</span>, str&gt; = tag.into();
         <span class="self">Self</span>::new_base(
             <span class="kw">match </span><span class="kw-2">&amp;*</span>tag.to_ascii_lowercase() {
-                <span class="string">&quot;input&quot; </span>=&gt; VTagInner::Input(Default::default()),
-                <span class="string">&quot;textarea&quot; </span>=&gt; VTagInner::Textarea {
+                <span class="string">"input" </span>=&gt; VTagInner::Input(Default::default()),
+                <span class="string">"textarea" </span>=&gt; VTagInner::Textarea {
                     value: Default::default(),
                 },
                 <span class="kw">_ </span>=&gt; VTagInner::Other {
@@ -845,13 +910,13 @@
     </span><span class="attr">#[doc(hidden)]
     #[allow(clippy::too_many_arguments)]
     </span><span class="kw">pub fn </span>__new_other(
-        tag: Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;,
+        tag: Cow&lt;<span class="lifetime">'static</span>, str&gt;,
         node_ref: NodeRef,
         key: <span class="prelude-ty">Option</span>&lt;Key&gt;,
         <span class="comment">// at bottom for more readable macro-expanded coded
         </span>attributes: Attributes,
         listeners: Listeners,
-        children: VList,
+        children: VNode,
     ) -&gt; <span class="self">Self </span>{
         VTag::new_base(
             VTagInner::Other { tag, children },
@@ -884,8 +949,8 @@
     <span class="doccomment">/// Returns tag of an [Element](web_sys::Element). In HTML tags are always uppercase.
     </span><span class="kw">pub fn </span>tag(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.inner {
-            VTagInner::Input { .. } =&gt; <span class="string">&quot;input&quot;</span>,
-            VTagInner::Textarea { .. } =&gt; <span class="string">&quot;textarea&quot;</span>,
+            VTagInner::Input { .. } =&gt; <span class="string">"input"</span>,
+            VTagInner::Textarea { .. } =&gt; <span class="string">"textarea"</span>,
             VTagInner::Other { tag, .. } =&gt; tag.as_ref(),
         }
     }
@@ -893,45 +958,41 @@
     <span class="doccomment">/// Add [VNode] child.
     </span><span class="kw">pub fn </span>add_child(<span class="kw-2">&amp;mut </span><span class="self">self</span>, child: VNode) {
         <span class="kw">if let </span>VTagInner::Other { children, .. } = <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner {
-            children.add_child(child)
+            children.to_vlist_mut().add_child(child)
         }
     }
 
     <span class="doccomment">/// Add multiple [VNode] children.
     </span><span class="kw">pub fn </span>add_children(<span class="kw-2">&amp;mut </span><span class="self">self</span>, children: <span class="kw">impl </span>IntoIterator&lt;Item = VNode&gt;) {
         <span class="kw">if let </span>VTagInner::Other { children: dst, .. } = <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner {
-            dst.add_children(children)
+            dst.to_vlist_mut().add_children(children)
         }
     }
 
-    <span class="doccomment">/// Returns a reference to the children of this [VTag]
-    </span><span class="kw">pub fn </span>children(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>VList {
+    <span class="doccomment">/// Returns a reference to the children of this [VTag], if the node can have
+    /// children
+    </span><span class="kw">pub fn </span>children(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>VNode&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.inner {
-            VTagInner::Other { children, .. } =&gt; children,
-            <span class="kw">_ </span>=&gt; {
-                <span class="comment">// This is mutable because the VList is not Sync
-                </span><span class="kw">static </span><span class="kw-2">mut </span>EMPTY: VList = VList::new();
-
-                <span class="comment">// SAFETY: The EMPTY value is always read-only
-                </span><span class="kw">unsafe </span>{ <span class="kw-2">&amp;</span>EMPTY }
-            }
+            VTagInner::Other { children, .. } =&gt; <span class="prelude-val">Some</span>(children),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 
     <span class="doccomment">/// Returns a mutable reference to the children of this [VTag], if the node can have
     /// children
-    </span><span class="kw">pub fn </span>children_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>VList&gt; {
+    </span><span class="kw">pub fn </span>children_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>VNode&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.inner {
             VTagInner::Other { children, .. } =&gt; <span class="prelude-val">Some</span>(children),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Returns the children of this [VTag]
-    </span><span class="kw">pub fn </span>into_children(<span class="self">self</span>) -&gt; VList {
+    <span class="doccomment">/// Returns the children of this [VTag], if the node can have
+    /// children
+    </span><span class="kw">pub fn </span>into_children(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;VNode&gt; {
         <span class="kw">match </span><span class="self">self</span>.inner {
-            VTagInner::Other { children, .. } =&gt; children,
-            <span class="kw">_ </span>=&gt; VList::new(),
+            VTagInner::Other { children, .. } =&gt; <span class="prelude-val">Some</span>(children),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 
@@ -963,7 +1024,7 @@
 
     <span class="doccomment">/// Returns `checked` property of an
     /// [InputElement](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input).
-    /// (Does not affect the value of the node&#39;s attribute).
+    /// (Does not affect the value of the node's attribute).
     </span><span class="kw">pub fn </span>checked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.inner {
             VTagInner::Input(f) =&gt; f.checked,
@@ -973,7 +1034,7 @@
 
     <span class="doccomment">/// Sets `checked` property of an
     /// [InputElement](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input).
-    /// (Does not affect the value of the node&#39;s attribute).
+    /// (Does not affect the value of the node's attribute).
     </span><span class="kw">pub fn </span>set_checked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: bool) {
         <span class="kw">if let </span>VTagInner::Input(f) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner {
             f.checked = <span class="prelude-val">Some</span>(value);
@@ -982,7 +1043,7 @@
 
     <span class="doccomment">/// Keeps the current value of the `checked` property of an
     /// [InputElement](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input).
-    /// (Does not affect the value of the node&#39;s attribute).
+    /// (Does not affect the value of the node's attribute).
     </span><span class="kw">pub fn </span>preserve_checked(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if let </span>VTagInner::Input(f) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner {
             f.checked = <span class="prelude-val">None</span>;
@@ -993,7 +1054,7 @@
     ///
     /// Not every attribute works when it set as an attribute. We use workarounds for:
     /// `value` and `checked`.
-    </span><span class="kw">pub fn </span>add_attribute(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, value: <span class="kw">impl </span>Into&lt;AttrValue&gt;) {
+    </span><span class="kw">pub fn </span>add_attribute(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, value: <span class="kw">impl </span>Into&lt;AttrValue&gt;) {
         <span class="self">self</span>.attributes.get_mut_index_map().insert(
             AttrValue::Static(key),
             (value.into(), ApplyAttributeAs::Attribute),
@@ -1003,7 +1064,7 @@
     <span class="doccomment">/// Set the given key as property on the element
     ///
     /// [`js_sys::Reflect`] is used for setting properties.
-    </span><span class="kw">pub fn </span>add_property(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, value: <span class="kw">impl </span>Into&lt;AttrValue&gt;) {
+    </span><span class="kw">pub fn </span>add_property(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, value: <span class="kw">impl </span>Into&lt;AttrValue&gt;) {
         <span class="self">self</span>.attributes.get_mut_index_map().insert(
             AttrValue::Static(key),
             (value.into(), ApplyAttributeAs::Property),
@@ -1019,14 +1080,14 @@
     }
 
     <span class="attr">#[doc(hidden)]
-    </span><span class="kw">pub fn </span>__macro_push_attr(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, value: <span class="kw">impl </span>IntoPropValue&lt;AttrValue&gt;) {
+    </span><span class="kw">pub fn </span>__macro_push_attr(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, value: <span class="kw">impl </span>IntoPropValue&lt;AttrValue&gt;) {
         <span class="self">self</span>.attributes.get_mut_index_map().insert(
             AttrValue::from(key),
             (value.into_prop_value(), ApplyAttributeAs::Property),
         );
     }
 
-    <span class="doccomment">/// Add event listener on the [VTag]&#39;s  [Element](web_sys::Element).
+    <span class="doccomment">/// Add event listener on the [VTag]'s  [Element](web_sys::Element).
     /// Returns `true` if the listener has been added, `false` otherwise.
     </span><span class="kw">pub fn </span>add_listener(<span class="kw-2">&amp;mut </span><span class="self">self</span>, listener: Rc&lt;<span class="kw">dyn </span>Listener&gt;) -&gt; bool {
         <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.listeners {
@@ -1044,7 +1105,7 @@
         }
     }
 
-    <span class="doccomment">/// Set event listeners on the [VTag]&#39;s  [Element](web_sys::Element)
+    <span class="doccomment">/// Set event listeners on the [VTag]'s  [Element](web_sys::Element)
     </span><span class="kw">pub fn </span>set_listeners(<span class="kw-2">&amp;mut </span><span class="self">self</span>, listeners: Box&lt;[<span class="prelude-ty">Option</span>&lt;Rc&lt;<span class="kw">dyn </span>Listener&gt;&gt;]&gt;) {
         <span class="self">self</span>.listeners = Listeners::Pending(listeners);
     }
@@ -1069,19 +1130,20 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;ssr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ssr"</span>)]
 </span><span class="kw">mod </span>feat_ssr {
     <span class="kw">use </span>std::fmt::Write;
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::feat_ssr::VTagKind;
     <span class="kw">use </span><span class="kw">crate</span>::html::AnyScope;
     <span class="kw">use </span><span class="kw">crate</span>::platform::fmt::BufWriter;
     <span class="kw">use </span><span class="kw">crate</span>::virtual_dom::VText;
 
     <span class="comment">// Elements that cannot have any child elements.
     </span><span class="kw">static </span>VOID_ELEMENTS: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str; <span class="number">14</span>] = <span class="kw-2">&amp;</span>[
-        <span class="string">&quot;area&quot;</span>, <span class="string">&quot;base&quot;</span>, <span class="string">&quot;br&quot;</span>, <span class="string">&quot;col&quot;</span>, <span class="string">&quot;embed&quot;</span>, <span class="string">&quot;hr&quot;</span>, <span class="string">&quot;img&quot;</span>, <span class="string">&quot;input&quot;</span>, <span class="string">&quot;link&quot;</span>, <span class="string">&quot;meta&quot;</span>, <span class="string">&quot;param&quot;</span>,
-        <span class="string">&quot;source&quot;</span>, <span class="string">&quot;track&quot;</span>, <span class="string">&quot;wbr&quot;</span>,
+        <span class="string">"area"</span>, <span class="string">"base"</span>, <span class="string">"br"</span>, <span class="string">"col"</span>, <span class="string">"embed"</span>, <span class="string">"hr"</span>, <span class="string">"img"</span>, <span class="string">"input"</span>, <span class="string">"link"</span>, <span class="string">"meta"</span>, <span class="string">"param"</span>,
+        <span class="string">"source"</span>, <span class="string">"track"</span>, <span class="string">"wbr"</span>,
     ];
 
     <span class="kw">impl </span>VTag {
@@ -1091,29 +1153,29 @@
             parent_scope: <span class="kw-2">&amp;</span>AnyScope,
             hydratable: bool,
         ) {
-            <span class="kw">let _ </span>= w.write_str(<span class="string">&quot;&lt;&quot;</span>);
+            <span class="kw">let _ </span>= w.write_str(<span class="string">"&lt;"</span>);
             <span class="kw">let _ </span>= w.write_str(<span class="self">self</span>.tag());
 
             <span class="kw">let </span>write_attr = |w: <span class="kw-2">&amp;mut </span>BufWriter, name: <span class="kw-2">&amp;</span>str, val: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;| {
-                <span class="kw">let _ </span>= w.write_str(<span class="string">&quot; &quot;</span>);
+                <span class="kw">let _ </span>= w.write_str(<span class="string">" "</span>);
                 <span class="kw">let _ </span>= w.write_str(name);
 
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(m) = val {
-                    <span class="kw">let _ </span>= w.write_str(<span class="string">&quot;=\&quot;&quot;</span>);
+                    <span class="kw">let _ </span>= w.write_str(<span class="string">"=\""</span>);
                     <span class="kw">let _ </span>= w.write_str(<span class="kw-2">&amp;</span>html_escape::encode_double_quoted_attribute(m));
-                    <span class="kw">let _ </span>= w.write_str(<span class="string">&quot;\&quot;&quot;</span>);
+                    <span class="kw">let _ </span>= w.write_str(<span class="string">"\""</span>);
                 }
             };
 
             <span class="kw">if let </span>VTagInner::Input(<span class="kw">_</span>) = <span class="self">self</span>.inner {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(m) = <span class="self">self</span>.value() {
-                    write_attr(w, <span class="string">&quot;value&quot;</span>, <span class="prelude-val">Some</span>(m));
+                    write_attr(w, <span class="string">"value"</span>, <span class="prelude-val">Some</span>(m));
                 }
 
                 <span class="comment">// Setting is as an attribute sets the `defaultChecked` property. Only emit this
-                // if it&#39;s explicitly set to checked.
+                // if it's explicitly set to checked.
                 </span><span class="kw">if </span><span class="self">self</span>.checked() == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
-                    write_attr(w, <span class="string">&quot;checked&quot;</span>, <span class="prelude-val">None</span>);
+                    write_attr(w, <span class="string">"checked"</span>, <span class="prelude-val">None</span>);
                 }
             }
 
@@ -1121,18 +1183,18 @@
                 write_attr(w, k, <span class="prelude-val">Some</span>(v));
             }
 
-            <span class="kw">let _ </span>= w.write_str(<span class="string">&quot;&gt;&quot;</span>);
+            <span class="kw">let _ </span>= w.write_str(<span class="string">"&gt;"</span>);
 
             <span class="kw">match </span><span class="self">self</span>.inner {
                 VTagInner::Input(<span class="kw">_</span>) =&gt; {}
                 VTagInner::Textarea { .. } =&gt; {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(m) = <span class="self">self</span>.value() {
                         VText::new(m.to_owned())
-                            .render_into_stream(w, parent_scope, hydratable)
+                            .render_into_stream(w, parent_scope, hydratable, VTagKind::Other)
                             .<span class="kw">await</span>;
                     }
 
-                    <span class="kw">let _ </span>= w.write_str(<span class="string">&quot;&lt;/textarea&gt;&quot;</span>);
+                    <span class="kw">let _ </span>= w.write_str(<span class="string">"&lt;/textarea&gt;"</span>);
                 }
                 VTagInner::Other {
                     <span class="kw-2">ref </span>tag,
@@ -1141,15 +1203,21 @@
                 } =&gt; {
                     <span class="kw">if </span>!VOID_ELEMENTS.contains(<span class="kw-2">&amp;</span>tag.as_ref()) {
                         children
-                            .render_into_stream(w, parent_scope, hydratable)
+                            .render_into_stream(w, parent_scope, hydratable, tag.into())
                             .<span class="kw">await</span>;
 
-                        <span class="kw">let _ </span>= w.write_str(<span class="string">&quot;&lt;/&quot;</span>);
+                        <span class="kw">let _ </span>= w.write_str(<span class="string">"&lt;/"</span>);
                         <span class="kw">let _ </span>= w.write_str(tag);
-                        <span class="kw">let _ </span>= w.write_str(<span class="string">&quot;&gt;&quot;</span>);
+                        <span class="kw">let _ </span>= w.write_str(<span class="string">"&gt;"</span>);
                     } <span class="kw">else </span>{
-                        <span class="comment">// We don&#39;t write children of void elements nor closing tags.
-                        </span><span class="macro">debug_assert!</span>(children.is_empty(), <span class="string">&quot;{} cannot have any children!&quot;</span>, tag);
+                        <span class="comment">// We don't write children of void elements nor closing tags.
+                        </span><span class="macro">debug_assert!</span>(
+                            <span class="kw">match </span>children {
+                                VNode::VList(m) =&gt; m.is_empty(),
+                                <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
+                            },
+                            <span class="string">"{tag} cannot have any children!"
+                        </span>);
                     }
                 }
             }
@@ -1157,8 +1225,8 @@
     }
 }
 
-<span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
-#[cfg(feature = <span class="string">&quot;ssr&quot;</span>)]
+<span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
+#[cfg(feature = <span class="string">"ssr"</span>)]
 #[cfg(test)]
 </span><span class="kw">mod </span>ssr_tests {
     <span class="kw">use </span>tokio::test;
@@ -1178,14 +1246,14 @@
             .render()
             .<span class="kw">await</span>;
 
-        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;&lt;div&gt;&lt;/div&gt;&quot;</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">"&lt;div&gt;&lt;/div&gt;"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">async fn </span>test_simple_tag_with_attr() {
         <span class="attr">#[function_component]
         </span><span class="kw">fn </span>Comp() -&gt; Html {
-            <span class="macro">html! </span>{ &lt;div class=<span class="string">&quot;abc&quot;</span>&gt;&lt;/div&gt; }
+            <span class="macro">html! </span>{ &lt;div class=<span class="string">"abc"</span>&gt;&lt;/div&gt; }
         }
 
         <span class="kw">let </span>s = ServerRenderer::&lt;Comp&gt;::new()
@@ -1193,14 +1261,14 @@
             .render()
             .<span class="kw">await</span>;
 
-        <span class="macro">assert_eq!</span>(s, <span class="string">r#&quot;&lt;div class=&quot;abc&quot;&gt;&lt;/div&gt;&quot;#</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">r#"&lt;div class="abc"&gt;&lt;/div&gt;"#</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">async fn </span>test_simple_tag_with_content() {
         <span class="attr">#[function_component]
         </span><span class="kw">fn </span>Comp() -&gt; Html {
-            <span class="macro">html! </span>{ &lt;div&gt;{<span class="string">&quot;Hello!&quot;</span>}&lt;/div&gt; }
+            <span class="macro">html! </span>{ &lt;div&gt;{<span class="string">"Hello!"</span>}&lt;/div&gt; }
         }
 
         <span class="kw">let </span>s = ServerRenderer::&lt;Comp&gt;::new()
@@ -1208,14 +1276,14 @@
             .render()
             .<span class="kw">await</span>;
 
-        <span class="macro">assert_eq!</span>(s, <span class="string">r#&quot;&lt;div&gt;Hello!&lt;/div&gt;&quot;#</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">r#"&lt;div&gt;Hello!&lt;/div&gt;"#</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">async fn </span>test_simple_tag_with_nested_tag_and_input() {
         <span class="attr">#[function_component]
         </span><span class="kw">fn </span>Comp() -&gt; Html {
-            <span class="macro">html! </span>{ &lt;div&gt;{<span class="string">&quot;Hello!&quot;</span>}&lt;input value=<span class="string">&quot;abc&quot; </span><span class="kw">type</span>=<span class="string">&quot;text&quot; </span>/&gt;&lt;/div&gt; }
+            <span class="macro">html! </span>{ &lt;div&gt;{<span class="string">"Hello!"</span>}&lt;input value=<span class="string">"abc" </span><span class="kw">type</span>=<span class="string">"text" </span>/&gt;&lt;/div&gt; }
         }
 
         <span class="kw">let </span>s = ServerRenderer::&lt;Comp&gt;::new()
@@ -1223,14 +1291,14 @@
             .render()
             .<span class="kw">await</span>;
 
-        <span class="macro">assert_eq!</span>(s, <span class="string">r#&quot;&lt;div&gt;Hello!&lt;input value=&quot;abc&quot; type=&quot;text&quot;&gt;&lt;/div&gt;&quot;#</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">r#"&lt;div&gt;Hello!&lt;input value="abc" type="text"&gt;&lt;/div&gt;"#</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">async fn </span>test_textarea() {
         <span class="attr">#[function_component]
         </span><span class="kw">fn </span>Comp() -&gt; Html {
-            <span class="macro">html! </span>{ &lt;textarea value=<span class="string">&quot;teststring&quot; </span>/&gt; }
+            <span class="macro">html! </span>{ &lt;textarea value=<span class="string">"teststring" </span>/&gt; }
         }
 
         <span class="kw">let </span>s = ServerRenderer::&lt;Comp&gt;::new()
@@ -1238,8 +1306,62 @@
             .render()
             .<span class="kw">await</span>;
 
-        <span class="macro">assert_eq!</span>(s, <span class="string">r#&quot;&lt;textarea&gt;teststring&lt;/textarea&gt;&quot;#</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">r#"&lt;textarea&gt;teststring&lt;/textarea&gt;"#</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">async fn </span>test_escaping_in_style_tag() {
+        <span class="attr">#[function_component]
+        </span><span class="kw">fn </span>Comp() -&gt; Html {
+            <span class="macro">html! </span>{ &lt;style&gt;{<span class="string">"body &gt; a {color: #cc0;}"</span>}&lt;/style&gt; }
+        }
+
+        <span class="kw">let </span>s = ServerRenderer::&lt;Comp&gt;::new()
+            .hydratable(<span class="bool-val">false</span>)
+            .render()
+            .<span class="kw">await</span>;
+
+        <span class="macro">assert_eq!</span>(s, <span class="string">r#"&lt;style&gt;body &gt; a {color: #cc0;}&lt;/style&gt;"#</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">async fn </span>test_escaping_in_script_tag() {
+        <span class="attr">#[function_component]
+        </span><span class="kw">fn </span>Comp() -&gt; Html {
+            <span class="macro">html! </span>{ &lt;script&gt;{<span class="string">"foo.bar = x &lt; y;"</span>}&lt;/script&gt; }
+        }
+
+        <span class="kw">let </span>s = ServerRenderer::&lt;Comp&gt;::new()
+            .hydratable(<span class="bool-val">false</span>)
+            .render()
+            .<span class="kw">await</span>;
+
+        <span class="macro">assert_eq!</span>(s, <span class="string">r#"&lt;script&gt;foo.bar = x &lt; y;&lt;/script&gt;"#</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">async fn </span>test_multiple_vtext_in_style_tag() {
+        <span class="attr">#[function_component]
+        </span><span class="kw">fn </span>Comp() -&gt; Html {
+            <span class="kw">let </span>one = <span class="string">"html { background: black } "</span>;
+            <span class="kw">let </span>two = <span class="string">"body &gt; a { color: white } "</span>;
+            <span class="macro">html! </span>{
+                &lt;style&gt;
+                    {one}
+                    {two}
+                &lt;/style&gt;
+            }
+        }
+
+        <span class="kw">let </span>s = ServerRenderer::&lt;Comp&gt;::new()
+            .hydratable(<span class="bool-val">false</span>)
+            .render()
+            .<span class="kw">await</span>;
+
+        <span class="macro">assert_eq!</span>(
+            s,
+            <span class="string">r#"&lt;style&gt;html { background: black } body &gt; a { color: white } &lt;/style&gt;"#
+        </span>);
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

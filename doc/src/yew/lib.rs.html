@@ -1,5 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/yew-0.20.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../yew/index.html">
-                        <img src="https://yew.rs/img/logo.png" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yew-0.21.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../yew/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -345,8 +346,8 @@
 <a href="#344" id="344">344</a>
 <a href="#345" id="345">345</a>
 <a href="#346" id="346">346</a>
-</pre><pre class="rust"><code><span class="attr">#![allow(clippy::needless_doctest_main)]
-#![doc(html_logo_url = <span class="string">&quot;https://yew.rs/img/logo.png&quot;</span>)]
+</pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::needless_doctest_main)]
+#![doc(html_logo_url = <span class="string">"https://yew.rs/img/logo.png"</span>)]
 #![cfg_attr(documenting, feature(doc_cfg))]
 #![cfg_attr(documenting, feature(doc_auto_cfg))]
 #![cfg_attr(nightly_yew, feature(fn_traits, async_closure, unboxed_closures))]
@@ -408,7 +409,7 @@
 //!     fn view(&amp;self, ctx: &amp;Context&lt;Self&gt;) -&gt; Html {
 //!         html! {
 //!             &lt;div&gt;
-//!                 &lt;button onclick={ctx.link().callback(|_| Msg::AddOne)}&gt;{ &quot;+1&quot; }&lt;/button&gt;
+//!                 &lt;button onclick={ctx.link().callback(|_| Msg::AddOne)}&gt;{ "+1" }&lt;/button&gt;
 //!                 &lt;p&gt;{ self.value }&lt;/p&gt;
 //!             &lt;/div&gt;
 //!         }
@@ -430,7 +431,7 @@
     elided_lifetimes_in_paths
 )]
 #![allow(macro_expanded_macro_exports_accessed_by_absolute_paths)]
-#![recursion_limit = <span class="string">&quot;512&quot;</span>]
+#![recursion_limit = <span class="string">"512"</span>]
 </span><span class="kw">extern crate </span><span class="self">self </span><span class="kw">as </span>yew;
 
 <span class="doccomment">/// This macro provides a convenient way to create [`Classes`].
@@ -444,16 +445,16 @@
 /// ```
 /// # use yew::prelude::*;
 /// # fn test() {
-/// let conditional_class = Some(&quot;my-other-class&quot;);
+/// let conditional_class = Some("my-other-class");
 /// let vec_of_classes = vec![
-///     &quot;one-bean&quot;,
-///     &quot;two-beans&quot;,
-///     &quot;three-beans&quot;,
-///     &quot;a-very-small-casserole&quot;,
+///     "one-bean",
+///     "two-beans",
+///     "three-beans",
+///     "a-very-small-casserole",
 /// ];
 ///
 /// html! {
-///     &lt;div class={classes!(&quot;my-container-class&quot;, conditional_class, vec_of_classes)}&gt;
+///     &lt;div class={classes!("my-container-class", conditional_class, vec_of_classes)}&gt;
 ///         // ...
 ///     &lt;/div&gt;
 /// };
@@ -475,7 +476,7 @@
 /// of wrapping it in [`Html`].
 ///
 /// That macro is useful when, for example, in a typical implementation of a list
-/// component (let&#39;s assume it&#39;s called `List`).
+/// component (let's assume it's called `List`).
 /// In a typical implementation you might find two component types -- `List` and `ListItem`.
 /// Only `ListItem` components are allowed to be children of List`.
 ///
@@ -559,11 +560,11 @@
 </span><span class="kw">pub use </span>yew_macro::html_nested;
 <span class="doccomment">/// Build [`Properties`] outside of the [`html!`] macro.
 ///
-/// It&#39;s already possible to create properties like normal Rust structs
+/// It's already possible to create properties like normal Rust structs
 /// but if there are lots of optional props the end result is often needlessly verbose.
 /// This macro allows you to build properties the same way the [`html!`] macro does.
 ///
-/// The macro doesn&#39;t support special props like `ref` and `key`, they need to be set in the
+/// The macro doesn't support special props like `ref` and `key`, they need to be set in the
 /// [`html!`] macro.
 ///
 /// You can read more about `Properties` in the [Yew Docs].
@@ -578,7 +579,7 @@
 /// struct Props {
 ///     #[prop_or_default]
 ///     id: usize,
-///     name: Cow&lt;&#39;static, str&gt;,
+///     name: Cow&lt;'static, str&gt;,
 /// }
 ///
 /// struct MyComponent(Props);
@@ -593,13 +594,13 @@
 /// # fn foo() -&gt; Html {
 /// // You can build props directly ...
 /// let props = yew::props!(Props {
-///     name: Cow::from(&quot;Minka&quot;)
+///     name: Cow::from("Minka")
 /// });
-/// # assert_eq!(props.name, &quot;Minka&quot;);
+/// # assert_eq!(props.name, "Minka");
 /// // ... or build the associated properties of a component
 /// let props = yew::props!(MyComponent::Properties {
 ///     id: 2,
-///     name: Cow::from(&quot;Lemmy&quot;)
+///     name: Cow::from("Lemmy")
 /// });
 /// # assert_eq!(props.id, 2);
 ///
@@ -622,27 +623,27 @@
 
 <span class="kw">pub mod </span>callback;
 <span class="kw">pub mod </span>context;
-<span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
 </span><span class="kw">mod </span>dom_bundle;
 <span class="kw">pub mod </span>functional;
 <span class="kw">pub mod </span>html;
 <span class="kw">pub mod </span>platform;
 <span class="kw">pub mod </span>scheduler;
 <span class="kw">mod </span>sealed;
-<span class="attr">#[cfg(feature = <span class="string">&quot;ssr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ssr"</span>)]
 </span><span class="kw">mod </span>server_renderer;
 <span class="kw">pub mod </span>suspense;
 <span class="kw">pub mod </span>utils;
 <span class="kw">pub mod </span>virtual_dom;
-<span class="attr">#[cfg(feature = <span class="string">&quot;ssr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"ssr"</span>)]
 </span><span class="kw">pub use </span>server_renderer::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
 </span><span class="kw">mod </span>app_handle;
-<span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
 </span><span class="kw">mod </span>renderer;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
 #[cfg(test)]
 </span><span class="kw">pub mod </span>tests;
 
@@ -655,14 +656,14 @@
         WheelEvent,
     };
 
-    <span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
     </span><span class="kw">pub use </span><span class="kw">crate</span>::dom_bundle::set_event_bubbling;
     <span class="kw">pub use </span><span class="kw">crate</span>::html::TargetCast;
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::app_handle::AppHandle;
-<span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::renderer::{set_custom_panic_hook, Renderer};
 
 <span class="kw">pub mod </span>prelude {
@@ -675,7 +676,7 @@
     //! use yew::prelude::*;
     //! ```
 
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;csr&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"csr"</span>)]
     </span><span class="kw">pub use </span><span class="kw">crate</span>::app_handle::AppHandle;
     <span class="kw">pub use </span><span class="kw">crate</span>::callback::Callback;
     <span class="kw">pub use </span><span class="kw">crate</span>::context::{ContextHandle, ContextProvider};
@@ -683,7 +684,7 @@
     <span class="kw">pub use </span><span class="kw">crate</span>::functional::<span class="kw-2">*</span>;
     <span class="kw">pub use </span><span class="kw">crate</span>::html::{
         create_portal, BaseComponent, Children, ChildrenWithProps, Classes, Component, Context,
-        Html, HtmlResult, NodeRef, Properties,
+        Html, HtmlResult, NodeRef, Properties, ToHtml,
     };
     <span class="kw">pub use </span><span class="kw">crate</span>::macros::{classes, html, html_nested};
     <span class="kw">pub use </span><span class="kw">crate</span>::suspense::Suspense;
@@ -691,5 +692,4 @@
 }
 
 <span class="kw">pub use </span><span class="self">self</span>::prelude::<span class="kw-2">*</span>;
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="yew" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

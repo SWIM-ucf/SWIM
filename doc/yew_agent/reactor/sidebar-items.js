@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"attr":["reactor"],"enum":["ReactorEvent"],"fn":["use_reactor_bridge","use_reactor_subscription"],"struct":["ReactorBridge","ReactorProvider","ReactorRegistrar","ReactorScope","ReactorSpawner","UseReactorBridgeHandle","UseReactorSubscriptionHandle"],"trait":["Reactor","ReactorScoped"]};

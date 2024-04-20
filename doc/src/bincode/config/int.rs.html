@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bincode-1.3.3/src/config/int.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>int.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../bincode/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bincode-1.3.3/src/config/int.rs`."><title>int.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="bincode" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../bincode/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -680,7 +682,7 @@
 <a href="#680" id="680">680</a>
 <a href="#681" id="681">681</a>
 <a href="#682" id="682">682</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::io::Write;
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::io::Write;
 <span class="kw">use </span>std::mem::size_of;
 
 <span class="kw">use </span><span class="kw">super</span>::Options;
@@ -748,33 +750,33 @@
 
     <span class="doccomment">/// Deserializes a sequence length.
     </span><span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>deserialize_len&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    </span><span class="kw">fn </span>deserialize_len&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::de::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
         <span class="self">Self</span>::deserialize_u64(de).and_then(cast_u64_to_usize)
     }
 
-    <span class="kw">fn </span>deserialize_u16&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    <span class="kw">fn </span>deserialize_u16&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::de::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;u16&gt;;
 
-    <span class="kw">fn </span>deserialize_u32&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    <span class="kw">fn </span>deserialize_u32&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::de::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt;;
 
-    <span class="kw">fn </span>deserialize_u64&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    <span class="kw">fn </span>deserialize_u64&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::de::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt;;
 
-    <span class="kw">fn </span>deserialize_i16&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    <span class="kw">fn </span>deserialize_i16&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::de::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;i16&gt;;
 
-    <span class="kw">fn </span>deserialize_i32&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    <span class="kw">fn </span>deserialize_i32&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::de::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;i32&gt;;
 
-    <span class="kw">fn </span>deserialize_i64&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    <span class="kw">fn </span>deserialize_i64&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::de::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;i64&gt;;
 
@@ -785,14 +787,14 @@
             ser: <span class="kw-2">&amp;mut </span>::Serializer&lt;W, O&gt;,
             val: u128,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
-        <span class="kw">fn </span>deserialize_u128&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+        <span class="kw">fn </span>deserialize_u128&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
             de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;u128&gt;;
         <span class="kw">fn </span>serialize_i128&lt;W: Write, O: Options&gt;(
             ser: <span class="kw-2">&amp;mut </span>::Serializer&lt;W, O&gt;,
             val: i128,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
-        <span class="kw">fn </span>deserialize_i128&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+        <span class="kw">fn </span>deserialize_i128&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
             de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;i128&gt;;
     }
@@ -856,10 +858,10 @@
 <span class="kw">const </span>U32_BYTE: u8 = <span class="number">252</span>;
 <span class="kw">const </span>U64_BYTE: u8 = <span class="number">253</span>;
 <span class="kw">const </span>U128_BYTE: u8 = <span class="number">254</span>;
-<span class="kw">const </span>DESERIALIZE_EXTENSION_POINT_ERR: <span class="kw-2">&amp;</span>str = <span class="string">r#&quot;
+<span class="kw">const </span>DESERIALIZE_EXTENSION_POINT_ERR: <span class="kw-2">&amp;</span>str = <span class="string">r#"
 Byte 255 is treated as an extension point; it should not be encoding anything.
 Do you have a mismatched bincode version or configuration?
-&quot;#</span>;
+"#</span>;
 
 <span class="kw">impl </span>VarintEncoding {
     <span class="kw">fn </span>varint_size(n: u64) -&gt; u64 {
@@ -877,7 +879,7 @@ Do you have a mismatched bincode version or configuration?
     <span class="attr">#[inline(always)]
     </span><span class="kw">fn </span>zigzag_encode(n: i64) -&gt; u64 {
         <span class="kw">if </span>n &lt; <span class="number">0 </span>{
-            <span class="comment">// let&#39;s avoid the edge case of i64::min_value()
+            <span class="comment">// let's avoid the edge case of i64::min_value()
             // !n is equal to `-n - 1`, so this is:
             // !n * 2 + 1 = 2(-n - 1) + 1 = -2n - 2 + 1 = -2n - 1
             </span>!(n <span class="kw">as </span>u64) * <span class="number">2 </span>+ <span class="number">1
@@ -920,7 +922,7 @@ Do you have a mismatched bincode version or configuration?
         }
     }
 
-    <span class="kw">fn </span>deserialize_varint&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    <span class="kw">fn </span>deserialize_varint&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::de::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
         <span class="attr">#[allow(ellipsis_inclusive_range_patterns)]
@@ -930,7 +932,7 @@ Do you have a mismatched bincode version or configuration?
             U32_BYTE =&gt; <span class="prelude-val">Ok</span>(de.deserialize_literal_u32()<span class="question-mark">? </span><span class="kw">as </span>u64),
             U64_BYTE =&gt; de.deserialize_literal_u64(),
             U128_BYTE =&gt; <span class="prelude-val">Err</span>(Box::new(ErrorKind::Custom(
-                <span class="string">&quot;Invalid value (u128 range): you may have a version or configuration disagreement?&quot;
+                <span class="string">"Invalid value (u128 range): you may have a version or configuration disagreement?"
                     </span>.to_string(),
             ))),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Box::new(ErrorKind::Custom(
@@ -993,7 +995,7 @@ Do you have a mismatched bincode version or configuration?
             }
         }
 
-        <span class="kw">fn </span>deserialize_varint128&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+        <span class="kw">fn </span>deserialize_varint128&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
             de: <span class="kw-2">&amp;mut </span>::de::Deserializer&lt;R, O&gt;,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;u128&gt; {
             <span class="attr">#[allow(ellipsis_inclusive_range_patterns)]
@@ -1063,38 +1065,38 @@ Do you have a mismatched bincode version or configuration?
     }
 
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>deserialize_u16&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    </span><span class="kw">fn </span>deserialize_u16&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;u16&gt; {
         de.deserialize_literal_u16()
     }
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>deserialize_u32&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    </span><span class="kw">fn </span>deserialize_u32&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; {
         de.deserialize_literal_u32()
     }
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>deserialize_u64&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    </span><span class="kw">fn </span>deserialize_u64&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
         de.deserialize_literal_u64()
     }
 
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>deserialize_i16&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    </span><span class="kw">fn </span>deserialize_i16&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;i16&gt; {
         <span class="prelude-val">Ok</span>(de.deserialize_literal_u16()<span class="question-mark">? </span><span class="kw">as </span>i16)
     }
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>deserialize_i32&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    </span><span class="kw">fn </span>deserialize_i32&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;i32&gt; {
         <span class="prelude-val">Ok</span>(de.deserialize_literal_u32()<span class="question-mark">? </span><span class="kw">as </span>i32)
     }
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>deserialize_i64&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    </span><span class="kw">fn </span>deserialize_i64&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;i64&gt; {
         <span class="prelude-val">Ok</span>(de.deserialize_literal_u64()<span class="question-mark">? </span><span class="kw">as </span>i64)
@@ -1125,13 +1127,13 @@ Do you have a mismatched bincode version or configuration?
             ser.serialize_literal_u128(val <span class="kw">as </span>u128)
         }
         <span class="attr">#[inline(always)]
-        </span><span class="kw">fn </span>deserialize_u128&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+        </span><span class="kw">fn </span>deserialize_u128&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
             de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;u128&gt; {
             de.deserialize_literal_u128()
         }
         <span class="attr">#[inline(always)]
-        </span><span class="kw">fn </span>deserialize_i128&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+        </span><span class="kw">fn </span>deserialize_i128&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
             de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;i128&gt; {
             <span class="prelude-val">Ok</span>(de.deserialize_literal_u128()<span class="question-mark">? </span><span class="kw">as </span>i128)
@@ -1193,26 +1195,26 @@ Do you have a mismatched bincode version or configuration?
     }
 
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>deserialize_u16&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    </span><span class="kw">fn </span>deserialize_u16&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;u16&gt; {
         <span class="self">Self</span>::deserialize_varint(de).and_then(cast_u64_to_u16)
     }
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>deserialize_u32&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    </span><span class="kw">fn </span>deserialize_u32&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; {
         <span class="self">Self</span>::deserialize_varint(de).and_then(cast_u64_to_u32)
     }
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>deserialize_u64&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    </span><span class="kw">fn </span>deserialize_u64&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
         <span class="self">Self</span>::deserialize_varint(de)
     }
 
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>deserialize_i16&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    </span><span class="kw">fn </span>deserialize_i16&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;i16&gt; {
         <span class="self">Self</span>::deserialize_varint(de)
@@ -1220,7 +1222,7 @@ Do you have a mismatched bincode version or configuration?
             .and_then(cast_i64_to_i16)
     }
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>deserialize_i32&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    </span><span class="kw">fn </span>deserialize_i32&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;i32&gt; {
         <span class="self">Self</span>::deserialize_varint(de)
@@ -1228,7 +1230,7 @@ Do you have a mismatched bincode version or configuration?
             .and_then(cast_i64_to_i32)
     }
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>deserialize_i64&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+    </span><span class="kw">fn </span>deserialize_i64&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
         de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;i64&gt; {
         <span class="self">Self</span>::deserialize_varint(de).map(<span class="self">Self</span>::zigzag_decode)
@@ -1258,13 +1260,13 @@ Do you have a mismatched bincode version or configuration?
             <span class="self">Self</span>::serialize_varint128(ser, <span class="self">Self</span>::zigzag128_encode(val))
         }
         <span class="attr">#[inline(always)]
-        </span><span class="kw">fn </span>deserialize_u128&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+        </span><span class="kw">fn </span>deserialize_u128&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
             de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;u128&gt; {
             <span class="self">Self</span>::deserialize_varint128(de)
         }
         <span class="attr">#[inline(always)]
-        </span><span class="kw">fn </span>deserialize_i128&lt;<span class="lifetime">&#39;de</span>, R: BincodeRead&lt;<span class="lifetime">&#39;de</span>&gt;, O: Options&gt;(
+        </span><span class="kw">fn </span>deserialize_i128&lt;<span class="lifetime">'de</span>, R: BincodeRead&lt;<span class="lifetime">'de</span>&gt;, O: Options&gt;(
             de: <span class="kw-2">&amp;mut </span>::Deserializer&lt;R, O&gt;,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;i128&gt; {
             <span class="self">Self</span>::deserialize_varint128(de).map(<span class="self">Self</span>::zigzag128_decode)
@@ -1277,7 +1279,7 @@ Do you have a mismatched bincode version or configuration?
         <span class="prelude-val">Ok</span>(n <span class="kw">as </span>usize)
     } <span class="kw">else </span>{
         <span class="prelude-val">Err</span>(Box::new(ErrorKind::Custom(<span class="macro">format!</span>(
-            <span class="string">&quot;Invalid size {}: sizes must fit in a usize (0 to {})&quot;</span>,
+            <span class="string">"Invalid size {}: sizes must fit in a usize (0 to {})"</span>,
             n,
             usize::max_value()
         ))))
@@ -1288,7 +1290,7 @@ Do you have a mismatched bincode version or configuration?
         <span class="prelude-val">Ok</span>(n <span class="kw">as </span>u32)
     } <span class="kw">else </span>{
         <span class="prelude-val">Err</span>(Box::new(ErrorKind::Custom(<span class="macro">format!</span>(
-            <span class="string">&quot;Invalid u32 {}: you may have a version disagreement?&quot;</span>,
+            <span class="string">"Invalid u32 {}: you may have a version disagreement?"</span>,
             n,
         ))))
     }
@@ -1298,7 +1300,7 @@ Do you have a mismatched bincode version or configuration?
         <span class="prelude-val">Ok</span>(n <span class="kw">as </span>u16)
     } <span class="kw">else </span>{
         <span class="prelude-val">Err</span>(Box::new(ErrorKind::Custom(<span class="macro">format!</span>(
-            <span class="string">&quot;Invalid u16 {}: you may have a version disagreement?&quot;</span>,
+            <span class="string">"Invalid u16 {}: you may have a version disagreement?"</span>,
             n,
         ))))
     }
@@ -1309,7 +1311,7 @@ Do you have a mismatched bincode version or configuration?
         <span class="prelude-val">Ok</span>(n <span class="kw">as </span>i32)
     } <span class="kw">else </span>{
         <span class="prelude-val">Err</span>(Box::new(ErrorKind::Custom(<span class="macro">format!</span>(
-            <span class="string">&quot;Invalid i32 {}: you may have a version disagreement?&quot;</span>,
+            <span class="string">"Invalid i32 {}: you may have a version disagreement?"</span>,
             n,
         ))))
     }
@@ -1320,7 +1322,7 @@ Do you have a mismatched bincode version or configuration?
         <span class="prelude-val">Ok</span>(n <span class="kw">as </span>i16)
     } <span class="kw">else </span>{
         <span class="prelude-val">Err</span>(Box::new(ErrorKind::Custom(<span class="macro">format!</span>(
-            <span class="string">&quot;Invalid i16 {}: you may have a version disagreement?&quot;</span>,
+            <span class="string">"Invalid i16 {}: you may have a version disagreement?"</span>,
             n,
         ))))
     }
@@ -1343,7 +1345,7 @@ Do you have a mismatched bincode version or configuration?
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_zigzag_decode() {
-        <span class="comment">// zigzag&#39;
+        <span class="comment">// zigzag'
         </span><span class="kw">let </span>zigzagp = VarintEncoding::zigzag_decode;
         <span class="kw">for </span>x <span class="kw">in </span>(<span class="number">0</span>..<span class="number">512</span>).map(|x| x * <span class="number">2</span>) {
             <span class="macro">assert_eq!</span>(zigzagp(x), x <span class="kw">as </span>i64 / <span class="number">2</span>);
@@ -1362,5 +1364,4 @@ Do you have a mismatched bincode version or configuration?
         <span class="macro">assert_eq!</span>(zigzagp(u64::max_value()), i64::min_value());
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="bincode" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

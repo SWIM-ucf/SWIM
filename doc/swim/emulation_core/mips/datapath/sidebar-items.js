@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Stage","The possible stages the datapath could be in during execution."]],"struct":[["DatapathState","A collection of all the data lines and wires in the datapath."],["MipsDatapath","An implementation of a datapath for the MIPS64 ISA."]]};
+window.SIDEBAR_ITEMS = {"enum":["Stage"],"struct":["DatapathState","MipsDatapath"]};

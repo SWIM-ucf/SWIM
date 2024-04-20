@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/implicit-clone-0.3.5/src/map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../implicit_clone/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/implicit-clone-0.4.9/src/map.rs`."><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="implicit_clone" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../implicit_clone/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -384,34 +386,96 @@
 <a href="#384" id="384">384</a>
 <a href="#385" id="385">385</a>
 <a href="#386" id="386">386</a>
-</pre><pre class="rust"><code><span class="kw">use </span>indexmap::map::Iter <span class="kw">as </span>MapIter;
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>indexmap::map::Iter <span class="kw">as </span>MapIter;
 <span class="kw">use </span>indexmap::map::Keys <span class="kw">as </span>MapKeys;
 <span class="kw">use </span>indexmap::map::Values <span class="kw">as </span>MapValues;
 <span class="kw">use </span>indexmap::IndexMap <span class="kw">as </span>Map;
 <span class="kw">use </span>std::borrow::Borrow;
+<span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::hash::Hash;
+
+<span class="kw">use </span><span class="kw">crate</span>::ImplicitClone;
+
+<span class="kw">use </span><span class="kw">super</span>::IString;
+<span class="kw">use </span><span class="kw">super</span>::Rc;
 
 <span class="doccomment">/// An immutable hash map type inspired by [Immutable.js](https://immutable-js.com/).
 ///
 /// This type is cheap to clone and thus implements [`ImplicitClone`]. It can be created based on a
-/// `&amp;&#39;static [(K, V)]`, or based on a reference counted
+/// `&amp;'static [(K, V)]`, or based on a reference counted
 /// [`IndexMap`](https://crates.io/crates/indexmap).
 ///
 /// This type has the least stable API at the moment and is subject to change a lot before the 1.0
 /// release.
-</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;map&quot;</span>)))]
+</span><span class="attr">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"map"</span>)))]
 #[derive(PartialEq, Eq)]
-</span><span class="kw">pub enum </span>IMap&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">&#39;static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">&#39;static</span>&gt; {
+</span><span class="kw">pub enum </span>IMap&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">'static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">'static</span>&gt; {
     <span class="doccomment">/// A (small) static map.
-    </span>Static(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(K, V)]),
+    </span>Static(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>[(K, V)]),
     <span class="doccomment">/// An reference counted map.
     </span>Rc(Rc&lt;Map&lt;K, V&gt;&gt;),
 }
 
 <span class="comment">// TODO add insta tests
 </span><span class="kw">impl</span>&lt;
-        K: fmt::Debug + Eq + Hash + ImplicitClone + <span class="lifetime">&#39;static</span>,
-        V: fmt::Debug + PartialEq + ImplicitClone + <span class="lifetime">&#39;static</span>,
+        K: fmt::Debug + Eq + Hash + ImplicitClone + <span class="lifetime">'static</span>,
+        V: fmt::Debug + PartialEq + ImplicitClone + <span class="lifetime">'static</span>,
     &gt; fmt::Debug <span class="kw">for </span>IMap&lt;K, V&gt;
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
@@ -422,7 +486,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">&#39;static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">&#39;static</span>&gt; Clone
+<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">'static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">'static</span>&gt; Clone
     <span class="kw">for </span>IMap&lt;K, V&gt;
 {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
@@ -433,7 +497,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">&#39;static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">&#39;static</span>&gt; Default
+<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">'static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">'static</span>&gt; Default
     <span class="kw">for </span>IMap&lt;K, V&gt;
 {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
@@ -441,7 +505,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">&#39;static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">&#39;static</span>&gt;
+<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">'static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">'static</span>&gt;
     FromIterator&lt;(K, V)&gt; <span class="kw">for </span>IMap&lt;K, V&gt;
 {
     <span class="kw">fn </span>from_iter&lt;I: IntoIterator&lt;Item = (K, V)&gt;&gt;(it: I) -&gt; <span class="self">Self </span>{
@@ -450,20 +514,20 @@
     }
 }
 
-<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">&#39;static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">&#39;static</span>&gt; ImplicitClone
+<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">'static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">'static</span>&gt; ImplicitClone
     <span class="kw">for </span>IMap&lt;K, V&gt;
 {
 }
 
-<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">&#39;static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">&#39;static</span>&gt;
-    From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(K, V)]&gt; <span class="kw">for </span>IMap&lt;K, V&gt;
+<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">'static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">'static</span>&gt;
+    From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>[(K, V)]&gt; <span class="kw">for </span>IMap&lt;K, V&gt;
 {
-    <span class="kw">fn </span>from(a: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(K, V)]) -&gt; IMap&lt;K, V&gt; {
+    <span class="kw">fn </span>from(a: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[(K, V)]) -&gt; IMap&lt;K, V&gt; {
         IMap::Static(a)
     }
 }
 
-<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">&#39;static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">&#39;static</span>&gt; From&lt;Map&lt;K, V&gt;&gt;
+<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">'static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">'static</span>&gt; From&lt;Map&lt;K, V&gt;&gt;
     <span class="kw">for </span>IMap&lt;K, V&gt;
 {
     <span class="kw">fn </span>from(a: Map&lt;K, V&gt;) -&gt; IMap&lt;K, V&gt; {
@@ -471,7 +535,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">&#39;static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">&#39;static</span>&gt;
+<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">'static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">'static</span>&gt;
     From&lt;Rc&lt;Map&lt;K, V&gt;&gt;&gt; <span class="kw">for </span>IMap&lt;K, V&gt;
 {
     <span class="kw">fn </span>from(a: Rc&lt;Map&lt;K, V&gt;&gt;) -&gt; IMap&lt;K, V&gt; {
@@ -479,7 +543,15 @@
     }
 }
 
-<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">&#39;static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">&#39;static</span>&gt; IMap&lt;K, V&gt; {
+<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">'static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">'static</span>&gt;
+    From&lt;<span class="kw-2">&amp;</span>IMap&lt;K, V&gt;&gt; <span class="kw">for </span>IMap&lt;K, V&gt;
+{
+    <span class="kw">fn </span>from(a: <span class="kw-2">&amp;</span>IMap&lt;K, V&gt;) -&gt; IMap&lt;K, V&gt; {
+        a.clone()
+    }
+}
+
+<span class="kw">impl</span>&lt;K: Eq + Hash + ImplicitClone + <span class="lifetime">'static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">'static</span>&gt; IMap&lt;K, V&gt; {
     <span class="doccomment">/// Return an iterator over the key-value pairs of the map, in their order.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; IMapIter&lt;K, V&gt; {
@@ -638,10 +710,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;V: PartialEq + ImplicitClone + <span class="lifetime">&#39;static</span>&gt; IMap&lt;IString, V&gt; {
+<span class="kw">impl</span>&lt;V: PartialEq + ImplicitClone + <span class="lifetime">'static</span>&gt; IMap&lt;IString, V&gt; {
     <span class="attr">#[doc(hidden)]
     #[inline]
-    </span><span class="kw">pub fn </span>get_static_str(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt; {
+    </span><span class="kw">pub fn </span>get_static_str(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt; {
         <span class="kw">let </span>key = IString::from(key);
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Static(a) =&gt; a.iter().find_map(|(k, v)| (<span class="kw-2">*</span>k == key).then(|| v)).cloned(),
@@ -650,10 +722,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;V: PartialEq + ImplicitClone + <span class="lifetime">&#39;static</span>&gt; IMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, V&gt; {
+<span class="kw">impl</span>&lt;V: PartialEq + ImplicitClone + <span class="lifetime">'static</span>&gt; IMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, V&gt; {
     <span class="attr">#[doc(hidden)]
     #[inline]
-    </span><span class="kw">pub fn </span>get_static_str(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt; {
+    </span><span class="kw">pub fn </span>get_static_str(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Static(a) =&gt; a.iter().find_map(|(k, v)| (<span class="kw-2">*</span>k == key).then(|| v)).cloned(),
             <span class="self">Self</span>::Rc(a) =&gt; a.get(key).cloned(),
@@ -662,13 +734,13 @@
 }
 
 <span class="attr">#[allow(missing_docs, missing_debug_implementations)]
-</span><span class="kw">pub enum </span>IMapIter&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
-    Slice(std::slice::Iter&lt;<span class="lifetime">&#39;a</span>, (K, V)&gt;),
-    Map(MapIter&lt;<span class="lifetime">&#39;a</span>, K, V&gt;),
+</span><span class="kw">pub enum </span>IMapIter&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    Slice(std::slice::Iter&lt;<span class="lifetime">'a</span>, (K, V)&gt;),
+    Map(MapIter&lt;<span class="lifetime">'a</span>, K, V&gt;),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash + ImplicitClone + <span class="lifetime">&#39;static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">&#39;static</span>&gt; Iterator
-    <span class="kw">for </span>IMapIter&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash + ImplicitClone + <span class="lifetime">'static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">'static</span>&gt; Iterator
+    <span class="kw">for </span>IMapIter&lt;<span class="lifetime">'a</span>, K, V&gt;
 {
     <span class="kw">type </span>Item = (K, V);
 
@@ -681,13 +753,13 @@
 }
 
 <span class="attr">#[allow(missing_docs, missing_debug_implementations)]
-</span><span class="kw">pub enum </span>IMapKeys&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
-    Slice(std::slice::Iter&lt;<span class="lifetime">&#39;a</span>, (K, V)&gt;),
-    Map(MapKeys&lt;<span class="lifetime">&#39;a</span>, K, V&gt;),
+</span><span class="kw">pub enum </span>IMapKeys&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    Slice(std::slice::Iter&lt;<span class="lifetime">'a</span>, (K, V)&gt;),
+    Map(MapKeys&lt;<span class="lifetime">'a</span>, K, V&gt;),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash + ImplicitClone + <span class="lifetime">&#39;static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">&#39;static</span>&gt; Iterator
-    <span class="kw">for </span>IMapKeys&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash + ImplicitClone + <span class="lifetime">'static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">'static</span>&gt; Iterator
+    <span class="kw">for </span>IMapKeys&lt;<span class="lifetime">'a</span>, K, V&gt;
 {
     <span class="kw">type </span>Item = K;
 
@@ -700,13 +772,13 @@
 }
 
 <span class="attr">#[allow(missing_docs, missing_debug_implementations)]
-</span><span class="kw">pub enum </span>IMapValues&lt;<span class="lifetime">&#39;a</span>, K, V&gt; {
-    Slice(std::slice::Iter&lt;<span class="lifetime">&#39;a</span>, (K, V)&gt;),
-    Map(MapValues&lt;<span class="lifetime">&#39;a</span>, K, V&gt;),
+</span><span class="kw">pub enum </span>IMapValues&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    Slice(std::slice::Iter&lt;<span class="lifetime">'a</span>, (K, V)&gt;),
+    Map(MapValues&lt;<span class="lifetime">'a</span>, K, V&gt;),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash + ImplicitClone + <span class="lifetime">&#39;static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">&#39;static</span>&gt; Iterator
-    <span class="kw">for </span>IMapValues&lt;<span class="lifetime">&#39;a</span>, K, V&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash + ImplicitClone + <span class="lifetime">'static</span>, V: PartialEq + ImplicitClone + <span class="lifetime">'static</span>&gt; Iterator
+    <span class="kw">for </span>IMapValues&lt;<span class="lifetime">'a</span>, K, V&gt;
 {
     <span class="kw">type </span>Item = V;
 
@@ -718,6 +790,42 @@
     }
 }
 
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">impl</span>&lt;K, V&gt; serde::Serialize <span class="kw">for </span>IMap&lt;K, V&gt;
+<span class="kw">where
+    </span>K: Eq + Hash + ImplicitClone + <span class="lifetime">'static </span>+ serde::Serialize,
+    V: PartialEq + ImplicitClone + <span class="lifetime">'static </span>+ serde::Serialize,
+{
+    <span class="kw">fn </span>serialize&lt;S: serde::Serializer&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
+        <span class="kw">use </span>serde::ser::SerializeMap;
+        <span class="kw">let </span><span class="kw-2">mut </span>seq = serializer.serialize_map(<span class="prelude-val">Some</span>(<span class="self">self</span>.len()))<span class="question-mark">?</span>;
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Static(a) =&gt; {
+                <span class="kw">for </span>(k, v) <span class="kw">in </span>a.iter() {
+                    seq.serialize_entry(k, v)<span class="question-mark">?</span>;
+                }
+            }
+            <span class="self">Self</span>::Rc(a) =&gt; {
+                <span class="kw">for </span>(k, v) <span class="kw">in </span>a.iter() {
+                    seq.serialize_entry(k, v)<span class="question-mark">?</span>;
+                }
+            }
+        }
+        seq.end()
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>, K, V&gt; serde::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>IMap&lt;K, V&gt;
+<span class="kw">where
+    </span>K: Eq + Hash + ImplicitClone + <span class="lifetime">'static </span>+ serde::Deserialize&lt;<span class="lifetime">'de</span>&gt;,
+    V: PartialEq + ImplicitClone + <span class="lifetime">'static </span>+ serde::Deserialize&lt;<span class="lifetime">'de</span>&gt;,
+{
+    <span class="kw">fn </span>deserialize&lt;D: serde::Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
+        &lt;Map&lt;K, V&gt; <span class="kw">as </span>serde::Deserialize&gt;::deserialize(deserializer).map(IMap::&lt;K, V&gt;::from)
+    }
+}
+
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test_map {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
@@ -725,22 +833,22 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>map_in_map() {
         <span class="kw">let </span>map_1 = [
-            (IString::from(<span class="string">&quot;foo1&quot;</span>), <span class="number">1</span>),
-            (IString::from(<span class="string">&quot;bar1&quot;</span>), <span class="number">2</span>),
-            (IString::from(<span class="string">&quot;baz1&quot;</span>), <span class="number">3</span>),
+            (IString::from(<span class="string">"foo1"</span>), <span class="number">1</span>),
+            (IString::from(<span class="string">"bar1"</span>), <span class="number">2</span>),
+            (IString::from(<span class="string">"baz1"</span>), <span class="number">3</span>),
         ]
         .into_iter()
         .collect::&lt;IMap&lt;IString, u32&gt;&gt;();
         <span class="kw">let </span>map_2 = [
-            (IString::from(<span class="string">&quot;foo2&quot;</span>), <span class="number">4</span>),
-            (IString::from(<span class="string">&quot;bar2&quot;</span>), <span class="number">5</span>),
-            (IString::from(<span class="string">&quot;baz2&quot;</span>), <span class="number">6</span>),
+            (IString::from(<span class="string">"foo2"</span>), <span class="number">4</span>),
+            (IString::from(<span class="string">"bar2"</span>), <span class="number">5</span>),
+            (IString::from(<span class="string">"baz2"</span>), <span class="number">6</span>),
         ]
         .into_iter()
         .collect::&lt;IMap&lt;IString, u32&gt;&gt;();
-        <span class="kw">let </span>map_of_map = [(<span class="string">&quot;map_1&quot;</span>, map_1), (<span class="string">&quot;map_2&quot;</span>, map_2)]
+        <span class="kw">let </span>map_of_map = [(<span class="string">"map_1"</span>, map_1), (<span class="string">"map_2"</span>, map_2)]
             .into_iter()
-            .collect::&lt;IMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, IMap&lt;IString, u32&gt;&gt;&gt;();
+            .collect::&lt;IMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, IMap&lt;IString, u32&gt;&gt;&gt;();
         <span class="kw">let </span>flattened_vec = map_of_map
             .iter()
             .flat_map(|(_key, map)| map.iter().collect::&lt;Vec&lt;(<span class="kw">_</span>, <span class="kw">_</span>)&gt;&gt;())
@@ -749,19 +857,19 @@
         </span><span class="macro">assert_eq!</span>(
             flattened_vec,
             [
-                (IString::from(<span class="string">&quot;foo1&quot;</span>), <span class="number">1</span>),
-                (IString::from(<span class="string">&quot;bar1&quot;</span>), <span class="number">2</span>),
-                (IString::from(<span class="string">&quot;baz1&quot;</span>), <span class="number">3</span>),
-                (IString::from(<span class="string">&quot;foo2&quot;</span>), <span class="number">4</span>),
-                (IString::from(<span class="string">&quot;bar2&quot;</span>), <span class="number">5</span>),
-                (IString::from(<span class="string">&quot;baz2&quot;</span>), <span class="number">6</span>),
+                (IString::from(<span class="string">"foo1"</span>), <span class="number">1</span>),
+                (IString::from(<span class="string">"bar1"</span>), <span class="number">2</span>),
+                (IString::from(<span class="string">"baz1"</span>), <span class="number">3</span>),
+                (IString::from(<span class="string">"foo2"</span>), <span class="number">4</span>),
+                (IString::from(<span class="string">"bar2"</span>), <span class="number">5</span>),
+                (IString::from(<span class="string">"baz2"</span>), <span class="number">6</span>),
             ]
         );
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>static_map() {
-        <span class="kw">const </span>_MAP: IMap&lt;<span class="kw-2">&amp;</span>str, u32&gt; = IMap::Static(<span class="kw-2">&amp;</span>[(<span class="string">&quot;foo&quot;</span>, <span class="number">1</span>)]);
+        <span class="kw">const </span>_MAP: IMap&lt;<span class="kw-2">&amp;</span>str, u32&gt; = IMap::Static(<span class="kw-2">&amp;</span>[(<span class="string">"foo"</span>, <span class="number">1</span>)]);
     }
 
     <span class="attr">#[test]
@@ -769,6 +877,11 @@
         <span class="kw">const </span>_MAP_F32: IMap&lt;u32, f32&gt; = IMap::Static(<span class="kw-2">&amp;</span>[]);
         <span class="kw">const </span>_MAP_F64: IMap&lt;u32, f64&gt; = IMap::Static(<span class="kw-2">&amp;</span>[]);
     }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>from() {
+        <span class="kw">let </span>x: IMap&lt;u32, u32&gt; = IMap::Static(<span class="kw-2">&amp;</span>[]);
+        <span class="kw">let </span>_out = IMap::from(<span class="kw-2">&amp;</span>x);
+    }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="implicit_clone" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

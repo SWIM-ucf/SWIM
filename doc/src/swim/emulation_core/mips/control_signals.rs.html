@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/emulation_core/mips/control_signals.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>control_signals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../swim/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/emulation_core/mips/control_signals.rs`."><title>control_signals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="swim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../swim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -524,7 +526,8 @@
 <a href="#524" id="524">524</a>
 <a href="#525" id="525">525</a>
 <a href="#526" id="526">526</a>
-</pre><pre class="rust"><code><span class="doccomment">//! Internal datapath control signals.
+<a href="#527" id="527">527</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! Internal datapath control signals.
 
 /// Full collection of control signals.
 </span><span class="attr">#[derive(Clone, Default, PartialEq)]
@@ -563,22 +566,22 @@
     <span class="doccomment">/// `_0001` (1) - Perform a subtraction. Will not set any underflow signal on underflow.
     </span>Subtraction,
 
-    <span class="doccomment">/// `_0010` (2) - Perform a &quot;set on less than&quot; operation.
+    <span class="doccomment">/// `_0010` (2) - Perform a "set on less than" operation.
     </span>SetOnLessThanSigned,
 
-    <span class="doccomment">/// `_0011` (3) - Perform a &quot;set on less than unsigned&quot; operation.
+    <span class="doccomment">/// `_0011` (3) - Perform a "set on less than unsigned" operation.
     </span>SetOnLessThanUnsigned,
 
-    <span class="doccomment">/// `_0100` (4) - Perform a bitwise &quot;AND&quot; operation.
+    <span class="doccomment">/// `_0100` (4) - Perform a bitwise "AND" operation.
     </span>And,
 
-    <span class="doccomment">/// `_0101` (5) - Perform a bitwise &quot;OR&quot; operation.
+    <span class="doccomment">/// `_0101` (5) - Perform a bitwise "OR" operation.
     </span>Or,
 
     <span class="doccomment">/// `_0110` (6) - Left shift the sign-extended immediate value 16 bits.
     </span>LeftShift16,
 
-    <span class="doccomment">/// `_0111` (7) - Perform a bitwise &quot;NOT&quot; operation.
+    <span class="doccomment">/// `_0111` (7) - Perform a bitwise "NOT" operation.
     </span>Not,
 
     <span class="doccomment">/// `_1000` (8) - Perform signed multiplication.
@@ -611,16 +614,16 @@
     <span class="doccomment">/// `0001` (1) - Perform a subtraction. Will not set any underflow signal on underflow.
     </span>Subtraction = <span class="number">1</span>,
 
-    <span class="doccomment">/// `0010` (2) - Perform a &quot;set on less than&quot; operation.
+    <span class="doccomment">/// `0010` (2) - Perform a "set on less than" operation.
     </span>SetOnLessThanSigned = <span class="number">2</span>,
 
-    <span class="doccomment">/// `0011` (3) - Perform a &quot;set on less than unsigned&quot; operation.
+    <span class="doccomment">/// `0011` (3) - Perform a "set on less than unsigned" operation.
     </span>SetOnLessThanUnsigned = <span class="number">3</span>,
 
-    <span class="doccomment">/// `0100` (4) - Perform a binary &quot;AND&quot; operation.
+    <span class="doccomment">/// `0100` (4) - Perform a binary "AND" operation.
     </span>And = <span class="number">4</span>,
 
-    <span class="doccomment">/// `0101` (5) - Perform a binary &quot;OR&quot; operation.
+    <span class="doccomment">/// `0101` (5) - Perform a binary "OR" operation.
     </span>Or = <span class="number">5</span>,
 
     <span class="doccomment">/// `0110` (6) - Left shift the sign-extended immediate value 16 bits.
@@ -702,7 +705,7 @@
     </span><span class="attr">#[default]
     </span>NoJump = <span class="number">0</span>,
 
-    <span class="doccomment">/// Jump by using the address specified in the instruction&#39;s lower bits.
+    <span class="doccomment">/// Jump by using the address specified in the instruction's lower bits.
     </span>YesJump = <span class="number">1</span>,
 
     <span class="doccomment">/// Jump by using the address specified in the contents of register `rs`.
@@ -721,10 +724,10 @@
 }
 
 <span class="doccomment">/// Determines, given [`RegWrite`] is set, what the source of a
-/// register&#39;s new data will be.
+/// register's new data will be.
 ///
 /// The decision can be completely overridden by the floating point
-/// unit&#39;s [`DataWrite`](floating_point::DataWrite) control signal.
+/// unit's [`DataWrite`](floating_point::DataWrite) control signal.
 ///
 /// This control signal also applies to what data is sent to the
 /// floating-point unit to be stored in its registers.
@@ -805,8 +808,9 @@
 
 <span class="kw">pub mod </span>floating_point {
     <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::constants::<span class="kw-2">*</span>;
+    <span class="kw">use </span>serde::{Deserialize, Serialize};
 
-    <span class="attr">#[derive(Clone, Default, PartialEq)]
+    <span class="attr">#[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     </span><span class="kw">pub struct </span>FpuControlSignals {
         <span class="kw">pub </span>cc: Cc,
         <span class="kw">pub </span>cc_write: CcWrite,
@@ -826,7 +830,7 @@
     ///
     /// For the sake of this project, it will usually be assumed that this will
     /// be 0, however the functionality is available to be extended.
-    </span><span class="attr">#[derive(Clone, Default, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     </span><span class="kw">pub enum </span>Cc {
         <span class="doccomment">/// Use condition code register 0. Default in most operations. Can be
         /// additionally used in the case where the condition code register is
@@ -836,7 +840,7 @@
     }
 
     <span class="doccomment">/// Determines if the condition code register file should be written to.
-    </span><span class="attr">#[derive(Clone, Default, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     </span><span class="kw">pub enum </span>CcWrite {
         <span class="attr">#[default]
         </span>NoWrite = <span class="number">0</span>,
@@ -847,7 +851,7 @@
     ///
     /// This is a special intermediary register that facilitates passing data between
     /// the main processing unit and the floating-point unit.
-    </span><span class="attr">#[derive(Clone, Default, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     </span><span class="kw">pub enum </span>DataSrc {
         <span class="doccomment">/// Use data from the main processing unit. Specifically, the data from register
         /// `rt` from a given instruction. This value can additionally be used in the cases
@@ -868,7 +872,7 @@
     /// For the latter two functions, it is imperative to unset the [`RegWrite`](super::RegWrite) and
     /// [`FpuRegWrite`] control signals in cases where registers should not be modified
     /// with unintended data.
-    </span><span class="attr">#[derive(Clone, Default, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     </span><span class="kw">pub enum </span>DataWrite {
         <span class="doccomment">/// - Do not write to the data register.
         /// - Source data to write to the main processing unit register file from the main
@@ -899,7 +903,7 @@
     ///
     /// *Implementation note:* The bits set for the comparator are intended to match
     /// the bits used in the `cond` field of a `c.cond.fmt` instruction.
-    </span><span class="attr">#[derive(Clone, Debug, Default, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
     </span><span class="kw">pub enum </span>FpuAluOp {
         <span class="attr">#[default]
         </span><span class="doccomment">/// `_0000` (0):
@@ -920,11 +924,11 @@
         </span>Division = <span class="number">3</span>,
 
         <span class="doccomment">/// `_0100` (4):
-        /// - ALU: Perform an &quot;AND&quot; operation.
+        /// - ALU: Perform an "AND" operation.
         </span>And = <span class="number">4</span>,
 
         <span class="doccomment">/// `_0101` (5):
-        /// - ALU: Perform an &quot;OR&quot; operation.
+        /// - ALU: Perform an "OR" operation.
         </span>Or = <span class="number">5</span>,
 
         <span class="doccomment">/// `_1100` (12):
@@ -953,7 +957,7 @@
                 FUNCTION_C_NGE =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Snge),
                 FUNCTION_C_LE =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Sle),
                 FUNCTION_C_NGT =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Sngt),
-                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Unsupported function code `{function}`&quot;</span>)),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"Unsupported function code `{function}`"</span>)),
             }
         }
     }
@@ -963,7 +967,7 @@
     ///
     /// This directly overrides any branch decisions decided by the main processing unit.
     /// The [`Branch`](super::Branch) control signal should not be set in addition to this signal.
-    </span><span class="attr">#[derive(Clone, Default, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     </span><span class="kw">pub enum </span>FpuBranch {
         <span class="doccomment">/// Do not consider branching.
         </span><span class="attr">#[default]
@@ -974,10 +978,10 @@
     }
 
     <span class="doccomment">/// Determines, given that [`FpuRegWrite`] is set, what the source of a floating-point
-    /// register&#39;s new data will be.
+    /// register's new data will be.
     ///
     /// This decision, if set, overrides the decision from the [`DataWrite`] control signal.
-    </span><span class="attr">#[derive(Clone, Default, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     </span><span class="kw">pub enum </span>FpuMemToReg {
         <span class="doccomment">/// Do not use data from memory. Use the result of the [`DataWrite`] control signal.
         </span><span class="attr">#[default]
@@ -989,7 +993,7 @@
 
     <span class="doccomment">/// Determines, given that [`FpuRegWrite`] is set, which destination register to write
     /// to, which largely depends on the instruction format.
-    </span><span class="attr">#[derive(Clone, Default, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     </span><span class="kw">pub enum </span>FpuRegDst {
         <span class="doccomment">/// Use register `ft`.
         </span>Reg1 = <span class="number">0</span>,
@@ -1006,7 +1010,7 @@
     ///
     /// While all buses carrying information are 64-bits wide, some bits of the bus may be
     /// ignored in the case of this control signal.
-    </span><span class="attr">#[derive(Clone, Default, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     </span><span class="kw">pub enum </span>FpuRegWidth {
         <span class="doccomment">/// Use words (32 bits). Equivalent to a single-precision floating-point value.
         </span>Word = <span class="number">0</span>,
@@ -1023,13 +1027,13 @@
             <span class="kw">match </span>fmt {
                 FMT_SINGLE =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Word),
                 FMT_DOUBLE =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::DoubleWord),
-                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;`{fmt}` is an invalid fmt value&quot;</span>)),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"`{fmt}` is an invalid fmt value"</span>)),
             }
         }
     }
 
     <span class="doccomment">/// Determines if the floating-point register file should be written to.
-    </span><span class="attr">#[derive(Clone, Default, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     </span><span class="kw">pub enum </span>FpuRegWrite {
         <span class="doccomment">/// Do not write to the floating-point register file.
         </span><span class="attr">#[default]
@@ -1043,12 +1047,11 @@
     /// to follow through with a branch.
     ///
     /// This signal is what is sent to the main processor.
-    </span><span class="attr">#[derive(Clone, Default, PartialEq)]
+    </span><span class="attr">#[derive(Clone, Default, PartialEq, Serialize, Deserialize, Debug)]
     </span><span class="kw">pub enum </span>FpuTakeBranch {
         <span class="attr">#[default]
         </span>NoBranch = <span class="number">0</span>,
         YesBranch = <span class="number">1</span>,
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="swim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/ui/visual_datapath/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../swim/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/ui/visual_datapath/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="swim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../swim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -469,9 +471,24 @@
 <a href="#469" id="469">469</a>
 <a href="#470" id="470">470</a>
 <a href="#471" id="471">471</a>
-</pre><pre class="rust"><code><span class="doccomment">//! The visual datapath component.
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! The visual datapath component.
 //!
-//! This component operates largely in JS-land, manipulating the page&#39;s DOM directly.
+//! This component operates largely in JS-land, manipulating the page's DOM directly.
 //! The visual datapath operates by instantiating an `&lt;object&gt;` element that contains
 //! the SVG diagram of the datapath. This offers direct access to its own sub-DOM that
 //! can be manipulated, including but not limited to changing the colors of individual
@@ -489,7 +506,7 @@
 //! the Yew framework. After this, it will proceed to re-render the diagram and create new
 //! event listeners.
 //!
-//! Displaying information about a line is done via a &quot;popup&quot; element, which is moved around
+//! Displaying information about a line is done via a "popup" element, which is moved around
 //! the page depending on the position of the mouse. Its visibility is controlled by
 //! the aforementioned event listeners.
 
@@ -500,24 +517,23 @@
 
 <span class="kw">use </span>gloo_events::EventListener;
 <span class="kw">use </span>wasm_bindgen::{JsCast, JsValue};
-<span class="kw">use </span>web_sys::{Element, Event, HtmlCollection, HtmlElement};
+<span class="kw">use </span>web_sys::{Element, Event, HtmlCollection, HtmlElement, HtmlInputElement};
 <span class="kw">use </span>yew::prelude::<span class="kw-2">*</span>;
 
-<span class="kw">use </span><span class="kw">crate</span>::emulation_core::mips::datapath::{MipsDatapath, Stage};
 <span class="kw">use </span>consts::<span class="kw-2">*</span>;
 <span class="kw">use </span>utils::<span class="kw-2">*</span>;
 
+<span class="kw">use </span><span class="kw">crate</span>::agent::datapath_reducer::DatapathReducer;
+
 <span class="attr">#[derive(PartialEq, Properties)]
 </span><span class="kw">pub struct </span>VisualDatapathProps {
-    <span class="kw">pub </span>datapath: MipsDatapath,
+    <span class="kw">pub </span>datapath_state: UseReducerHandle&lt;DatapathReducer&gt;,
 
     <span class="doccomment">/// A path to the location of the datapath SVG file. This path should be
     /// relative to the project root.
     ///
-    /// For example, &quot;`static/datapath_full.svg`&quot;.
+    /// For example, "`static/datapath_full.svg`".
     </span><span class="kw">pub </span>svg_path: String,
-
-    <span class="kw">pub </span>size: <span class="prelude-ty">Option</span>&lt;DatapathSize&gt;,
 }
 
 <span class="kw">pub struct </span>VisualDatapath {
@@ -526,6 +542,7 @@
     ///
     /// This can occur if the `svg_path` property of the component changes.
     </span>should_reinitialize: bool,
+    size: Rc&lt;RefCell&lt;i32&gt;&gt;,
 }
 
 <span class="attr">#[derive(Clone, Copy, Default, PartialEq)]
@@ -543,54 +560,72 @@
         VisualDatapath {
             active_listeners: Rc::new(RefCell::new(<span class="macro">vec!</span>[])),
             should_reinitialize: <span class="bool-val">false</span>,
+            size: Rc::new(RefCell::new(<span class="number">0</span>)),
         }
     }
 
     <span class="kw">fn </span>view(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>Context&lt;<span class="self">Self</span>&gt;) -&gt; Html {
-        <span class="comment">// Set the size of the datapath based on props.
-        </span><span class="kw">let </span>size = ctx.props().size.unwrap_or_default();
-        <span class="kw">let </span>size_class = <span class="kw">match </span>size {
-            DatapathSize::Big =&gt; <span class="string">&quot;big-datapath&quot;</span>,
-            DatapathSize::Small =&gt; <span class="string">&quot;small-datapath&quot;</span>,
-        };
-
+        <span class="kw">let </span>zoom_in_size = Rc::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.size);
+        <span class="kw">let </span>zoom_range_size = Rc::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.size);
+        <span class="kw">let </span>zoom_value_size = Rc::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.size);
+        <span class="kw">let </span>zoom_out_size = Rc::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.size);
         <span class="macro">html! </span>{
-            &lt;&gt;
-                &lt;object data={ctx.props().svg_path.clone()} <span class="kw">type</span>=<span class="string">&quot;image/svg+xml&quot; </span>id={DATAPATH_ID} class={size_class}&gt;&lt;/object&gt;
-                &lt;div id=<span class="string">&quot;popup&quot;</span>&gt;
-                    &lt;h1 class=<span class="string">&quot;title&quot;</span>&gt;{ <span class="string">&quot;[Title]&quot; </span>}&lt;/h1&gt;
-                    &lt;p class=<span class="string">&quot;description&quot;</span>&gt;{ <span class="string">&quot;[Description]&quot; </span>}&lt;/p&gt;
-                    &lt;div class=<span class="string">&quot;data&quot;</span>&gt;
-                        &lt;span class=<span class="string">&quot;label&quot;</span>&gt;{ <span class="string">&quot;Value:&quot; </span>}&lt;/span&gt;
-                        &lt;span class=<span class="string">&quot;code&quot;</span>&gt;{ <span class="string">&quot;[bits]&quot; </span>}&lt;/span&gt;
-                        &lt;span class=<span class="string">&quot;meaning&quot;</span>&gt;{ <span class="string">&quot;[base 10]&quot; </span>}&lt;/span&gt;
+            &lt;div id=<span class="string">"datapath-wrapper" </span>class=<span class="string">"max-h-[50%] relative"</span>&gt;
+                &lt;div id=<span class="string">"datapath-scrollbox" </span>class=<span class="string">"overflow-auto w-full h-full basis-1/2 bg-primary-100 z-10 relative"</span>&gt;
+                    &lt;object data={ctx.props().svg_path.clone()} <span class="kw">type</span>=<span class="string">"image/svg+xml" </span>id={DATAPATH_ID} class={<span class="macro">classes!</span>(<span class="string">"datapath"</span>, <span class="macro">format!</span>(<span class="string">"size-{}"</span>, <span class="self">self</span>.size.borrow()))}&gt;&lt;/object&gt;
+                &lt;/div&gt;
+                &lt;div id=<span class="string">"popup"</span>&gt;
+                    &lt;h1 class=<span class="string">"title"</span>&gt;{ <span class="string">"[Title]" </span>}&lt;/h1&gt;
+                    &lt;p class=<span class="string">"description"</span>&gt;{ <span class="string">"[Description]" </span>}&lt;/p&gt;
+                    &lt;div class=<span class="string">"data"</span>&gt;
+                        &lt;span class=<span class="string">"label"</span>&gt;{ <span class="string">"Value:" </span>}&lt;/span&gt;
+                        &lt;span class=<span class="string">"code"</span>&gt;{ <span class="string">"[bits]" </span>}&lt;/span&gt;
+                        &lt;span class=<span class="string">"meaning"</span>&gt;{ <span class="string">"[base 10]" </span>}&lt;/span&gt;
                     &lt;/div&gt;
                 &lt;/div&gt;
-            &lt;/&gt;
+                &lt;div class=<span class="string">"absolute left-7 bottom-4 z-50 flex items-center gap-4"</span>&gt;
+                    &lt;button class=<span class="string">"zoom-button" </span>onclick={ctx.link().callback(<span class="kw">move </span>|<span class="kw">_</span>| {
+                        <span class="kw">let </span><span class="kw-2">mut </span>size = zoom_out_size.borrow_mut();
+                        <span class="kw-2">*</span>size -= <span class="number">10</span>;
+                    })}&gt;
+                        &lt;svg class=<span class="string">"inline-block w-4 h-4 stroke-w-0 fill-accent-blue-400 icon-minus" </span>viewBox=<span class="string">"0 0 32 32"</span>&gt;
+                            &lt;path d=<span class="string">"M0 13v6c0 0.552 0.448 1 1 1h30c0.552 0 1-0.448 1-1v-6c0-0.552-0.448-1-1-1h-30c-0.552 0-1 0.448-1 1z"</span>&gt;&lt;/path&gt;
+                        &lt;/svg&gt;
+                    &lt;/button&gt;
+                    &lt;input <span class="kw">type</span>=<span class="string">"range" </span>min=<span class="string">"0" </span>max=<span class="string">"200" </span>step=<span class="string">"10" </span>value={zoom_value_size.borrow().to_string()} onchange={ctx.link().callback(<span class="kw">move </span>|e: Event| {
+                        <span class="kw">let </span>target = e.target().unwrap().unchecked_into::&lt;HtmlInputElement&gt;();
+                        <span class="kw">let </span>value = target.value().parse::&lt;i32&gt;().unwrap();
+                        <span class="kw">let </span><span class="kw-2">mut </span>size = zoom_range_size.borrow_mut();
+                        <span class="kw-2">*</span>size = value;
+                    })}/&gt;
+                    &lt;button class=<span class="string">"zoom-button" </span>onclick={ctx.link().callback(<span class="kw">move </span>|<span class="kw">_</span>| {
+                        <span class="kw">let </span><span class="kw-2">mut </span>size = zoom_in_size.borrow_mut();
+                        <span class="kw-2">*</span>size += <span class="number">10</span>;
+                    })}&gt;
+                        &lt;svg class=<span class="string">"inline-block w-4 h-4 stroke-w-0 fill-accent-blue-400 icon-plus" </span>viewBox=<span class="string">"0 0 32 32"</span>&gt;
+                            &lt;path d=<span class="string">"M31 12h-11v-11c0-0.552-0.448-1-1-1h-6c-0.552 0-1 0.448-1 1v11h-11c-0.552 0-1 0.448-1 1v6c0 0.552 0.448 1 1 1h11v11c0 0.552 0.448 1 1 1h6c0.552 0 1-0.448 1-1v-11h11c0.552 0 1-0.448 1-1v-6c0-0.552-0.448-1-1-1z"</span>&gt;&lt;/path&gt;
+                        &lt;/svg&gt;
+                    &lt;/button&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
         }
     }
 
     <span class="kw">fn </span>rendered(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>Context&lt;<span class="self">Self</span>&gt;, first_render: bool) {
         <span class="comment">// The diagram views the lines *after* the stage has executed. This is so
-        // there is actual data to view. A better way to see this is &quot;when stage X is
-        // set on the datapath, highlight the lines for stage Y.&quot; The datapath stage
-        // tells where it will start the next time &quot;execute&quot; is pressed.
-        </span><span class="kw">let </span>current_stage = String::from(<span class="kw">match </span>ctx.props().datapath.current_stage {
-            Stage::InstructionFetch =&gt; <span class="string">&quot;writeback&quot;</span>,
-            Stage::InstructionDecode =&gt; <span class="string">&quot;instruction_fetch&quot;</span>,
-            Stage::Execute =&gt; <span class="string">&quot;instruction_decode&quot;</span>,
-            Stage::Memory =&gt; <span class="string">&quot;execute&quot;</span>,
-            Stage::WriteBack =&gt; <span class="string">&quot;memory&quot;</span>,
-        });
+        // there is actual data to view. A better way to see this is "when stage X is
+        // set on the datapath, highlight the lines for stage Y." The datapath stage
+        // tells where it will start the next time "execute" is pressed.
+        </span><span class="kw">let </span>current_stage = ctx.props().datapath_state.get_current_stage();
 
         <span class="kw">if </span>first_render || <span class="self">self</span>.should_reinitialize {
-            <span class="self">self</span>.initialize(current_stage, ctx.props().datapath.clone());
+            <span class="self">self</span>.initialize(current_stage, ctx.props().datapath_state.clone());
             <span class="self">self</span>.should_reinitialize = <span class="bool-val">false</span>;
         } <span class="kw">else </span>{
             <span class="kw">let </span>result = <span class="self">Self</span>::highlight_stage(
                 <span class="kw-2">&amp;</span>get_g_elements(),
                 current_stage,
-                ctx.props().datapath.clone(),
+                <span class="kw-2">&amp;</span>ctx.props().datapath_state.clone(),
             );
 
             <span class="comment">// Capture new event listeners.
@@ -648,27 +683,31 @@
     /// `rendered()` function is called, there is a likely chance that the virtual
     /// DOM within the `&lt;object&gt;` element has *not* yet finished loading. This is
     /// circumvented by creating an event listener on the `&lt;object&gt;` element for the
-    /// &quot;load&quot; event, which will guarantee when that virtual DOM is actually ready
+    /// "load" event, which will guarantee when that virtual DOM is actually ready
     /// to be manipulated.
-    </span><span class="kw">pub fn </span>initialize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, current_stage: String, datapath: MipsDatapath) {
+    </span><span class="kw">pub fn </span>initialize(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        current_stage: String,
+        datapath_state: UseReducerHandle&lt;DatapathReducer&gt;,
+    ) {
         <span class="kw">let </span>on_load = Callback::from(<span class="kw">move </span>|<span class="kw">_</span>| {
             <span class="kw">let </span>nodes = get_g_elements();
 
             do_over_html_collection(<span class="kw-2">&amp;</span>nodes, |g| {
-                <span class="kw">if </span>g.has_attribute(<span class="string">&quot;data-stage&quot;</span>) {
+                <span class="kw">if </span>g.has_attribute(<span class="string">"data-stage"</span>) {
                     <span class="kw">let </span>paths = g.children();
 
                     do_over_html_collection_safe(<span class="kw-2">&amp;</span>paths, |item| {
                         <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = item {
                             <span class="comment">// Allow the path to have event listeners.
-                            </span>path.set_attribute(<span class="string">&quot;pointer-events&quot;</span>, <span class="string">&quot;auto&quot;</span>).ok();
+                            </span>path.set_attribute(<span class="string">"pointer-events"</span>, <span class="string">"auto"</span>).ok();
 
-                            <span class="kw">if </span>path.tag_name() == <span class="string">&quot;ellipse&quot; </span>{
+                            <span class="kw">if </span>path.tag_name() == <span class="string">"ellipse" </span>{
                                 <span class="comment">// Remove the large &lt;rect&gt; surrounding the ellipse. It covers up elements and is stupid.
                                 </span><span class="kw">let </span>rects = path
                                     .parent_element()
                                     .unwrap()
-                                    .get_elements_by_tag_name(<span class="string">&quot;rect&quot;</span>);
+                                    .get_elements_by_tag_name(<span class="string">"rect"</span>);
 
                                 <span class="kw">for </span>k <span class="kw">in </span><span class="number">0</span>..rects.length() {
                                     <span class="kw">let </span>rect = rects.item(k).unwrap();
@@ -679,14 +718,13 @@
                     });
                 }
             });
-
-            <span class="self">Self</span>::highlight_stage(<span class="kw-2">&amp;</span>nodes, current_stage.clone(), datapath.clone())
+            <span class="self">Self</span>::highlight_stage(<span class="kw-2">&amp;</span>nodes, current_stage.clone(), <span class="kw-2">&amp;</span>datapath_state.clone())
         });
 
         <span class="kw">let </span>active_listeners = Rc::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.active_listeners);
 
         <span class="comment">// Attach the on load listener.
-        </span><span class="kw">let </span>on_load_listener = EventListener::new(<span class="kw-2">&amp;</span>get_datapath_root(), <span class="string">&quot;load&quot;</span>, <span class="kw">move </span>|event| {
+        </span><span class="kw">let </span>on_load_listener = EventListener::new(<span class="kw-2">&amp;</span>get_datapath_root(), <span class="string">"load"</span>, <span class="kw">move </span>|event| {
             <span class="kw">let </span>result = on_load.emit(event.clone());
 
             <span class="comment">// Capture the new event listeners.
@@ -698,7 +736,7 @@
             }
         });
 
-        <span class="comment">// Capture the &quot;load&quot; event listener.
+        <span class="comment">// Capture the "load" event listener.
         </span><span class="kw">let </span>active_listeners = Rc::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.active_listeners);
         <span class="kw">let </span><span class="kw-2">mut </span>active_listeners = (<span class="kw-2">*</span>active_listeners).borrow_mut();
         (<span class="kw-2">*</span>active_listeners).push(on_load_listener);
@@ -723,15 +761,15 @@
     </span><span class="kw">pub fn </span>highlight_stage(
         nodes: <span class="kw-2">&amp;</span>HtmlCollection,
         stage: String,
-        datapath: MipsDatapath,
+        datapath_state: <span class="kw-2">&amp;</span>UseReducerHandle&lt;DatapathReducer&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;EventListener&gt;, JsValue&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>active_listeners: Vec&lt;EventListener&gt; = <span class="macro">vec!</span>[];
 
         do_over_html_collection(nodes, |element| {
-            <span class="kw">if </span>element.has_attribute(<span class="string">&quot;data-stage&quot;</span>) {
-                <span class="kw">let </span>is_in_current_stage = element.get_attribute(<span class="string">&quot;data-stage&quot;</span>).unwrap() == stage;
+            <span class="kw">if </span>element.has_attribute(<span class="string">"data-stage"</span>) {
+                <span class="kw">let </span>is_in_current_stage = element.get_attribute(<span class="string">"data-stage"</span>).unwrap() == stage;
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(listeners) =
-                    <span class="self">Self</span>::enable_interactivity(element, datapath.clone(), is_in_current_stage)
+                    <span class="self">Self</span>::enable_interactivity(element, datapath_state, is_in_current_stage)
                 {
                     <span class="kw">for </span>l <span class="kw">in </span>listeners {
                         active_listeners.push(l);
@@ -751,7 +789,7 @@
     /// If successful, returns a [`Vec&lt;EventListener&gt;`] containing the newly created event listeners.
     </span><span class="kw">pub fn </span>enable_interactivity(
         element: <span class="kw-2">&amp;</span>Element,
-        datapath: MipsDatapath,
+        datapath_state: <span class="kw-2">&amp;</span>UseReducerHandle&lt;DatapathReducer&gt;,
         is_active: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;EventListener&gt;, JsValue&gt; {
         <span class="comment">// Color a line when hovering.
@@ -770,39 +808,6 @@
             }
         });
 
-        <span class="comment">// Show the popup when hovering.
-        </span><span class="kw">let </span>popup_on_mouseover = Callback::from(<span class="kw">move </span>|event: web_sys::Event| {
-            <span class="kw">let </span>event = event.unchecked_into::&lt;MouseEvent&gt;();
-
-            <span class="comment">// Get relevant elements.
-            </span><span class="kw">let </span>target = event.target().unwrap().unchecked_into::&lt;HtmlElement&gt;();
-            <span class="kw">let </span>popup = get_popup_element();
-
-            <span class="comment">// Show popup.
-            </span><span class="kw">let </span>variable = target
-                .parent_element()
-                .unwrap()
-                .get_attribute(<span class="string">&quot;data-variable&quot;</span>)
-                .unwrap_or_default();
-            populate_popup_information(<span class="kw-2">&amp;</span>datapath, <span class="kw-2">&amp;</span>variable);
-
-            <span class="comment">// Calculate popup position.
-            </span><span class="kw">let </span>mouse_position = get_datapath_iframe_mouse_position(event);
-            <span class="kw">let </span>popup_size = (popup.offset_width(), popup.offset_height());
-            <span class="kw">let </span>popup_position =
-                calculate_popup_position(mouse_position, popup_size, get_window_size());
-
-            popup
-                .style()
-                .set_property(<span class="string">&quot;left&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}px&quot;</span>, popup_position.<span class="number">0</span>))
-                .ok();
-            popup
-                .style()
-                .set_property(<span class="string">&quot;top&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}px&quot;</span>, popup_position.<span class="number">1</span>))
-                .ok();
-            popup.style().set_property(<span class="string">&quot;display&quot;</span>, <span class="string">&quot;block&quot;</span>).ok();
-        });
-
         <span class="comment">// Move the popup if the mouse moves while still hovering.
         </span><span class="kw">let </span>popup_on_mousemove = Callback::from(<span class="kw">move </span>|event: Event| {
             <span class="kw">let </span>event = event.unchecked_into::&lt;MouseEvent&gt;();
@@ -813,23 +818,23 @@
             </span><span class="kw">let </span>mouse_position = get_datapath_iframe_mouse_position(event);
             <span class="kw">let </span>popup_size = (popup.offset_width(), popup.offset_height());
             <span class="kw">let </span>popup_position =
-                calculate_popup_position(mouse_position, popup_size, get_window_size());
+                calculate_popup_position(mouse_position, popup_size, get_datapath_iframe_size());
 
             <span class="comment">// Move popup.
             </span>popup
                 .style()
-                .set_property(<span class="string">&quot;left&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}px&quot;</span>, popup_position.<span class="number">0</span>))
+                .set_property(<span class="string">"left"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}px"</span>, popup_position.<span class="number">0</span>))
                 .ok();
             popup
                 .style()
-                .set_property(<span class="string">&quot;top&quot;</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}px&quot;</span>, popup_position.<span class="number">1</span>))
+                .set_property(<span class="string">"top"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}px"</span>, popup_position.<span class="number">1</span>))
                 .ok();
         });
 
         <span class="comment">// Hide the popup when no longer hovering.
         </span><span class="kw">let </span>popup_on_mouseout = Callback::from(<span class="kw">move </span>|<span class="kw">_</span>| {
             <span class="kw">let </span>popup = get_popup_element();
-            popup.style().set_property(<span class="string">&quot;display&quot;</span>, <span class="string">&quot;none&quot;</span>).ok();
+            popup.style().set_property(<span class="string">"display"</span>, <span class="string">"none"</span>).ok();
         });
 
         <span class="kw">let </span><span class="kw-2">mut </span>active_listeners: Vec&lt;EventListener&gt; = <span class="macro">vec!</span>[];
@@ -847,39 +852,66 @@
                 <span class="self">Self</span>::set_inactive(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
             }
 
-            <span class="kw">if </span>path.tag_name() == <span class="string">&quot;path&quot; </span>{
+            <span class="kw">if </span>path.tag_name() == <span class="string">"path" </span>{
                 <span class="comment">// Set the initial state of this path:
                 // Make the mouse look like a hand when the path is hovered.
-                </span>path.style().set_property(<span class="string">&quot;cursor&quot;</span>, <span class="string">&quot;pointer&quot;</span>)<span class="question-mark">?</span>;
+                </span>path.style().set_property(<span class="string">"cursor"</span>, <span class="string">"pointer"</span>)<span class="question-mark">?</span>;
 
                 <span class="comment">// Attach all the event listeners.
                 </span><span class="kw">let </span>color_on_mouseover = color_on_mouseover.clone();
                 <span class="kw">let </span>color_on_mouseover_listener =
-                    EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">&quot;mouseover&quot;</span>, <span class="kw">move </span>|event| {
+                    EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">"mouseover"</span>, <span class="kw">move </span>|event| {
                         color_on_mouseover.emit(event.clone())
                     });
 
                 <span class="kw">let </span>color_on_mouseout = color_on_mouseout.clone();
                 <span class="kw">let </span>color_on_mouseout_listener =
-                    EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">&quot;mouseout&quot;</span>, <span class="kw">move </span>|event| {
+                    EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">"mouseout"</span>, <span class="kw">move </span>|event| {
                         color_on_mouseout.emit(event.clone())
                     });
 
-                <span class="kw">let </span>popup_on_mouseover = popup_on_mouseover.clone();
+                <span class="kw">let </span>datapath_state_ref = datapath_state.clone();
                 <span class="kw">let </span>popup_on_mouseover_listener =
-                    EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">&quot;mouseover&quot;</span>, <span class="kw">move </span>|event| {
-                        popup_on_mouseover.emit(event.clone())
+                    EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">"mouseover"</span>, <span class="kw">move </span>|event| {
+                        <span class="kw">let </span>event = event.clone().unchecked_into::&lt;MouseEvent&gt;();
+                        <span class="comment">// Get relevant elements.
+                        </span><span class="kw">let </span>target = event.target().unwrap().unchecked_into::&lt;HtmlElement&gt;();
+                        <span class="kw">let </span>popup = get_popup_element();
+
+                        <span class="comment">// Show popup.
+                        </span><span class="kw">let </span>variable = target
+                            .parent_element()
+                            .unwrap()
+                            .get_attribute(<span class="string">"data-variable"</span>)
+                            .unwrap_or_default();
+                        populate_popup_information(<span class="kw-2">&amp;</span>datapath_state_ref, <span class="kw-2">&amp;</span>variable);
+
+                        <span class="comment">// Calculate popup position.
+                        </span><span class="kw">let </span>mouse_position = get_datapath_iframe_mouse_position(event);
+                        <span class="kw">let </span>popup_size = (popup.offset_width(), popup.offset_height());
+                        <span class="kw">let </span>popup_position =
+                            calculate_popup_position(mouse_position, popup_size, get_window_size());
+
+                        popup
+                            .style()
+                            .set_property(<span class="string">"left"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}px"</span>, popup_position.<span class="number">0</span>))
+                            .ok();
+                        popup
+                            .style()
+                            .set_property(<span class="string">"top"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}px"</span>, popup_position.<span class="number">1</span>))
+                            .ok();
+                        popup.style().set_property(<span class="string">"display"</span>, <span class="string">"block"</span>).ok();
                     });
 
                 <span class="kw">let </span>popup_on_mousemove = popup_on_mousemove.clone();
                 <span class="kw">let </span>popup_on_mousemove_listener =
-                    EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">&quot;mousemove&quot;</span>, <span class="kw">move </span>|event| {
+                    EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">"mousemove"</span>, <span class="kw">move </span>|event| {
                         popup_on_mousemove.emit(event.clone())
                     });
 
                 <span class="kw">let </span>popup_on_mouseout = popup_on_mouseout.clone();
                 <span class="kw">let </span>popup_on_mouseout_listener =
-                    EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">&quot;mouseout&quot;</span>, <span class="kw">move </span>|event| {
+                    EventListener::new(<span class="kw-2">&amp;</span>path, <span class="string">"mouseout"</span>, <span class="kw">move </span>|event| {
                         popup_on_mouseout.emit(event.clone())
                     });
 
@@ -929,16 +961,15 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Set a line&#39;s color.
+    <span class="doccomment">/// Set a line's color.
     </span><span class="kw">pub fn </span>set_color(path: <span class="kw-2">&amp;</span>HtmlElement, color: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt; {
-        path.set_attribute(<span class="string">&quot;stroke&quot;</span>, color)<span class="question-mark">?</span>;
+        path.set_attribute(<span class="string">"stroke"</span>, color)<span class="question-mark">?</span>;
 
-        <span class="kw">if </span>path.tag_name() == <span class="string">&quot;ellipse&quot; </span>{
-            path.set_attribute(<span class="string">&quot;fill&quot;</span>, color)<span class="question-mark">?</span>;
+        <span class="kw">if </span>path.tag_name() == <span class="string">"ellipse" </span>{
+            path.set_attribute(<span class="string">"fill"</span>, color)<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="swim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

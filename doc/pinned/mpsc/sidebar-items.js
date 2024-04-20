@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["unbounded","Creates an unbounded channel."]],"struct":[["SendError","Error returned by `send_now`."],["TryRecvError","Error returned by `try_next`."],["TrySendError","Error returned by [`UnboundedSender`] when used as a `Sink`."],["UnboundedReceiver","The receiver of an unbounded mpsc channel."],["UnboundedSender","The sender of an unbounded mpsc channel."]]};
+window.SIDEBAR_ITEMS = {"fn":["unbounded"],"struct":["SendError","TryRecvError","TrySendError","UnboundedReceiver","UnboundedSender"]};

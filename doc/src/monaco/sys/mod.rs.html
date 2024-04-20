@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/git/checkouts/rust-monaco-c1709f204b78bf7e/c9586e4/src/sys/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../monaco/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/git/checkouts/rust-monaco-c1709f204b78bf7e/630610e/src/sys/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="monaco" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../monaco/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -867,7 +869,7 @@
 <a href="#867" id="867">867</a>
 <a href="#868" id="868">868</a>
 <a href="#869" id="869">869</a>
-</pre><pre class="rust"><code><span class="doccomment">//! Bindings for the `monaco` namespace.
+</pre></div><pre class="rust"><code><span class="doccomment">//! Bindings for the `monaco` namespace.
 </span><span class="kw">use </span>js_sys::{Array, Function, Object};
 <span class="kw">use </span>wasm_bindgen::{prelude::<span class="kw-2">*</span>, JsCast};
 <span class="kw">use </span>web_sys::{HtmlElement, KeyboardEvent, MouseEvent, Worker};
@@ -886,33 +888,33 @@
     }
 }
 
-<span class="comment">// You&#39;re entering generated land, tread with care.
+<span class="comment">// You're entering generated land, tread with care.
 
-</span><span class="attr">#[cfg_attr(debug_assertions, wasm_bindgen(module = <span class="string">&quot;/js/debug/editor.js&quot;</span>))]
-#[cfg_attr(not(debug_assertions), wasm_bindgen(module = <span class="string">&quot;/js/release/editor.js&quot;</span>))]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+</span><span class="attr">#[cfg_attr(debug_assertions, wasm_bindgen(module = <span class="string">"/js/debug/editor.js"</span>))]
+#[cfg_attr(not(debug_assertions), wasm_bindgen(module = <span class="string">"/js/release/editor.js"</span>))]
+</span><span class="kw">extern </span><span class="string">"C" </span>{
     <span class="doccomment">/// A helper that allows to emit and listen to typed events
     </span><span class="attr">#[derive(Debug)]
     </span><span class="kw">pub type </span>Emitter;
-    <span class="attr">#[wasm_bindgen(constructor, js_class = <span class="string">&quot;Emitter&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(constructor, js_class = <span class="string">"Emitter"</span>)]
     </span><span class="kw">pub fn </span>new() -&gt; Emitter;
     <span class="doccomment">/// Type: `(listener: (e: any) =&gt; any, thisArg?: any) =&gt; IDisposable`
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Emitter&quot;</span>, js_name = <span class="string">&quot;event&quot;</span>, getter = event)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Emitter"</span>, js_name = <span class="string">"event"</span>, getter = event)]
     </span><span class="kw">pub fn </span>event(this: <span class="kw-2">&amp;</span>Emitter) -&gt; Function;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Emitter&quot;</span>, js_name = <span class="string">&quot;fire&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Emitter"</span>, js_name = <span class="string">"fire"</span>)]
     </span><span class="kw">pub fn </span>fire(this: <span class="kw-2">&amp;</span>Emitter, event: <span class="kw-2">&amp;</span>JsValue);
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Emitter&quot;</span>, js_name = <span class="string">&quot;dispose&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Emitter"</span>, js_name = <span class="string">"dispose"</span>)]
     </span><span class="kw">pub fn </span>dispose(this: <span class="kw-2">&amp;</span>Emitter);
 
     <span class="attr">#[derive(Debug)]
     </span><span class="kw">pub type </span>CancellationTokenSource;
-    <span class="attr">#[wasm_bindgen(constructor, js_class = <span class="string">&quot;CancellationTokenSource&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(constructor, js_class = <span class="string">"CancellationTokenSource"</span>)]
     </span><span class="kw">pub fn </span>new(parent: <span class="kw-2">&amp;</span>CancellationToken) -&gt; CancellationTokenSource;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;CancellationTokenSource&quot;</span>, js_name = <span class="string">&quot;token&quot;</span>, getter = token)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"CancellationTokenSource"</span>, js_name = <span class="string">"token"</span>, getter = token)]
     </span><span class="kw">pub fn </span>token(this: <span class="kw-2">&amp;</span>CancellationTokenSource) -&gt; CancellationToken;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;CancellationTokenSource&quot;</span>, js_name = <span class="string">&quot;cancel&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"CancellationTokenSource"</span>, js_name = <span class="string">"cancel"</span>)]
     </span><span class="kw">pub fn </span>cancel(this: <span class="kw-2">&amp;</span>CancellationTokenSource);
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;CancellationTokenSource&quot;</span>, js_name = <span class="string">&quot;dispose&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"CancellationTokenSource"</span>, js_name = <span class="string">"dispose"</span>)]
     </span><span class="kw">pub fn </span>dispose(this: <span class="kw-2">&amp;</span>CancellationTokenSource, cancel: bool);
 
     <span class="doccomment">/// Uniform Resource Identifier (Uri) http://tools.ietf.org/html/rfc3986.
@@ -932,24 +934,24 @@
     </span><span class="attr">#[derive(Debug)]
     #[wasm_bindgen(extends = UriComponents)]
     </span><span class="kw">pub type </span>Uri;
-    <span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Uri&quot;</span>, js_name = <span class="string">&quot;isUri&quot;</span>, static_method_of = Uri)]
+    <span class="attr">#[wasm_bindgen(js_class = <span class="string">"Uri"</span>, js_name = <span class="string">"isUri"</span>, static_method_of = Uri)]
     </span><span class="kw">pub fn </span>is_uri(thing: <span class="kw-2">&amp;</span>JsValue) -&gt; bool;
-    <span class="doccomment">/// scheme is the &#39;http&#39; part of &#39;http://www.msft.com/some/path?query#fragment&#39;.
+    <span class="doccomment">/// scheme is the 'http' part of 'http://www.msft.com/some/path?query#fragment'.
     /// The part before the first colon.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Uri&quot;</span>, js_name = <span class="string">&quot;scheme&quot;</span>, getter = scheme)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Uri"</span>, js_name = <span class="string">"scheme"</span>, getter = scheme)]
     </span><span class="kw">pub fn </span>scheme(this: <span class="kw-2">&amp;</span>Uri) -&gt; String;
-    <span class="doccomment">/// authority is the &#39;www.msft.com&#39; part of &#39;http://www.msft.com/some/path?query#fragment&#39;.
+    <span class="doccomment">/// authority is the 'www.msft.com' part of 'http://www.msft.com/some/path?query#fragment'.
     /// The part between the first double slashes and the next slash.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Uri&quot;</span>, js_name = <span class="string">&quot;authority&quot;</span>, getter = authority)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Uri"</span>, js_name = <span class="string">"authority"</span>, getter = authority)]
     </span><span class="kw">pub fn </span>authority(this: <span class="kw-2">&amp;</span>Uri) -&gt; String;
-    <span class="doccomment">/// path is the &#39;/some/path&#39; part of &#39;http://www.msft.com/some/path?query#fragment&#39;.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Uri&quot;</span>, js_name = <span class="string">&quot;path&quot;</span>, getter = path)]
+    <span class="doccomment">/// path is the '/some/path' part of 'http://www.msft.com/some/path?query#fragment'.
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Uri"</span>, js_name = <span class="string">"path"</span>, getter = path)]
     </span><span class="kw">pub fn </span>path(this: <span class="kw-2">&amp;</span>Uri) -&gt; String;
-    <span class="doccomment">/// query is the &#39;query&#39; part of &#39;http://www.msft.com/some/path?query#fragment&#39;.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Uri&quot;</span>, js_name = <span class="string">&quot;query&quot;</span>, getter = query)]
+    <span class="doccomment">/// query is the 'query' part of 'http://www.msft.com/some/path?query#fragment'.
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Uri"</span>, js_name = <span class="string">"query"</span>, getter = query)]
     </span><span class="kw">pub fn </span>query(this: <span class="kw-2">&amp;</span>Uri) -&gt; String;
-    <span class="doccomment">/// fragment is the &#39;fragment&#39; part of &#39;http://www.msft.com/some/path?query#fragment&#39;.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Uri&quot;</span>, js_name = <span class="string">&quot;fragment&quot;</span>, getter = fragment)]
+    <span class="doccomment">/// fragment is the 'fragment' part of 'http://www.msft.com/some/path?query#fragment'.
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Uri"</span>, js_name = <span class="string">"fragment"</span>, getter = fragment)]
     </span><span class="kw">pub fn </span>fragment(this: <span class="kw-2">&amp;</span>Uri) -&gt; String;
     <span class="doccomment">/// Returns a string representing the corresponding file system path of this
     /// Uri. Will handle UNC paths, normalizes windows drive letters to
@@ -967,40 +969,40 @@
     ///
     /// Using `Uri#path` to read a file (using fs-apis) would not be enough
     /// because parts of the path, namely the server name, would be missing.
-    /// Therefore `Uri#fsPath` exists - it&#39;s sugar to ease working with URIs
+    /// Therefore `Uri#fsPath` exists - it's sugar to ease working with URIs
     /// that represent files on disk (`file` scheme).
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Uri&quot;</span>, js_name = <span class="string">&quot;fsPath&quot;</span>, getter = fsPath)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Uri"</span>, js_name = <span class="string">"fsPath"</span>, getter = fsPath)]
     </span><span class="kw">pub fn </span>fs_path(this: <span class="kw-2">&amp;</span>Uri) -&gt; String;
     <span class="doccomment">/// # Arguments
     ///
     /// * `change` - `{ scheme?: string; authority?: string | null; path?:
     ///   string | null; query?: string | null; fragment?: string | null; }`
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Uri&quot;</span>, js_name = <span class="string">&quot;with&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Uri"</span>, js_name = <span class="string">"with"</span>)]
     </span><span class="kw">pub fn </span>with(this: <span class="kw-2">&amp;</span>Uri, change: <span class="kw-2">&amp;</span>Object) -&gt; Uri;
     <span class="doccomment">/// Creates a new Uri from a string, e.g. `http://www.msft.com/some/path`,
     /// `file:///usr/home`, or `scheme:with/path`.
     ///
     /// @param value A string which represents an Uri (see `Uri#toString`).
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Uri&quot;</span>, js_name = <span class="string">&quot;parse&quot;</span>, static_method_of = Uri)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Uri"</span>, js_name = <span class="string">"parse"</span>, static_method_of = Uri)]
     </span><span class="kw">pub fn </span>parse(value: <span class="kw-2">&amp;</span>str, _strict: bool) -&gt; Uri;
     <span class="doccomment">/// Creates a new Uri from a file system path, e.g. `c:\my\files`,
     /// `/usr/home`, or `\\server\share\some\path`.
     ///
     /// The *difference* between `Uri#parse` and `Uri#file` is that the latter
     /// treats the argument as path, not as stringified-uri. E.g.
-    /// `Uri.file(path)` is **not the same as** `Uri.parse(&#39;file://&#39; + path)` because the path might contain characters that are
+    /// `Uri.file(path)` is **not the same as** `Uri.parse('file://' + path)` because the path might contain characters that are
     /// interpreted (# and ?).
     ///
     /// @param path A file system path (see `Uri#fsPath`)
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Uri&quot;</span>, js_name = <span class="string">&quot;file&quot;</span>, static_method_of = Uri)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Uri"</span>, js_name = <span class="string">"file"</span>, static_method_of = Uri)]
     </span><span class="kw">pub fn </span>file(path: <span class="kw-2">&amp;</span>str) -&gt; Uri;
     <span class="doccomment">/// # Arguments
     ///
     /// * `components` - `{ scheme: string; authority?: string; path?: string;
     ///   query?: string; fragment?: string; }`
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Uri&quot;</span>, js_name = <span class="string">&quot;from&quot;</span>, static_method_of = Uri)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Uri"</span>, js_name = <span class="string">"from"</span>, static_method_of = Uri)]
     </span><span class="kw">pub fn </span>from(components: <span class="kw-2">&amp;</span>Object) -&gt; Uri;
-    <span class="doccomment">/// Creates a string representation for this Uri. It&#39;s guaranteed that
+    <span class="doccomment">/// Creates a string representation for this Uri. It's guaranteed that
     /// calling `Uri.parse` with the result of this function creates an Uri
     /// which is equal to this Uri.
     ///
@@ -1011,87 +1013,87 @@
     /// ignore the scheme-specific encoding rules.
     ///
     /// @param skipEncoding Do not encode the result, default is `false`
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Uri&quot;</span>, js_name = <span class="string">&quot;toString&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Uri"</span>, js_name = <span class="string">"toString"</span>)]
     </span><span class="kw">pub fn </span>to_string(this: <span class="kw-2">&amp;</span>Uri, skip_encoding: bool) -&gt; String;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Uri&quot;</span>, js_name = <span class="string">&quot;toJSON&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Uri"</span>, js_name = <span class="string">"toJSON"</span>)]
     </span><span class="kw">pub fn </span>to_json(this: <span class="kw-2">&amp;</span>Uri) -&gt; UriComponents;
-    <span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Uri&quot;</span>, js_name = <span class="string">&quot;revive&quot;</span>, static_method_of = Uri)]
+    <span class="attr">#[wasm_bindgen(js_class = <span class="string">"Uri"</span>, js_name = <span class="string">"revive"</span>, static_method_of = Uri)]
     </span><span class="kw">pub fn </span>revive(data: <span class="kw-2">&amp;</span>UriComponents) -&gt; Uri;
-    <span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Uri&quot;</span>, js_name = <span class="string">&quot;revive&quot;</span>, static_method_of = Uri)]
+    <span class="attr">#[wasm_bindgen(js_class = <span class="string">"Uri"</span>, js_name = <span class="string">"revive"</span>, static_method_of = Uri)]
     </span><span class="kw">pub fn </span>revive_option(data: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>UriComponents&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Uri&gt;;
 
     <span class="attr">#[derive(Debug)]
     </span><span class="kw">pub type </span>KeyMod;
-    <span class="attr">#[wasm_bindgen(static_method_of = KeyMod, js_class = <span class="string">&quot;KeyMod&quot;</span>, js_name = <span class="string">&quot;CtrlCmd&quot;</span>, getter = CtrlCmd)]
+    <span class="attr">#[wasm_bindgen(static_method_of = KeyMod, js_class = <span class="string">"KeyMod"</span>, js_name = <span class="string">"CtrlCmd"</span>, getter = CtrlCmd)]
     </span><span class="kw">pub fn </span>ctrl_cmd() -&gt; f64;
-    <span class="attr">#[wasm_bindgen(static_method_of = KeyMod, js_class = <span class="string">&quot;KeyMod&quot;</span>, js_name = <span class="string">&quot;Shift&quot;</span>, getter = Shift)]
+    <span class="attr">#[wasm_bindgen(static_method_of = KeyMod, js_class = <span class="string">"KeyMod"</span>, js_name = <span class="string">"Shift"</span>, getter = Shift)]
     </span><span class="kw">pub fn </span>shift() -&gt; f64;
-    <span class="attr">#[wasm_bindgen(static_method_of = KeyMod, js_class = <span class="string">&quot;KeyMod&quot;</span>, js_name = <span class="string">&quot;Alt&quot;</span>, getter = Alt)]
+    <span class="attr">#[wasm_bindgen(static_method_of = KeyMod, js_class = <span class="string">"KeyMod"</span>, js_name = <span class="string">"Alt"</span>, getter = Alt)]
     </span><span class="kw">pub fn </span>alt() -&gt; f64;
-    <span class="attr">#[wasm_bindgen(static_method_of = KeyMod, js_class = <span class="string">&quot;KeyMod&quot;</span>, js_name = <span class="string">&quot;WinCtrl&quot;</span>, getter = WinCtrl)]
+    <span class="attr">#[wasm_bindgen(static_method_of = KeyMod, js_class = <span class="string">"KeyMod"</span>, js_name = <span class="string">"WinCtrl"</span>, getter = WinCtrl)]
     </span><span class="kw">pub fn </span>win_ctrl() -&gt; f64;
-    <span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;KeyMod&quot;</span>, js_name = <span class="string">&quot;chord&quot;</span>, static_method_of = KeyMod)]
+    <span class="attr">#[wasm_bindgen(js_class = <span class="string">"KeyMod"</span>, js_name = <span class="string">"chord"</span>, static_method_of = KeyMod)]
     </span><span class="kw">pub fn </span>chord(first_part: f64, second_part: f64) -&gt; f64;
 
     <span class="doccomment">/// A position in the editor.
     </span><span class="attr">#[derive(Debug)]
     </span><span class="kw">pub type </span>Position;
     <span class="doccomment">/// line number (starts at 1)
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Position&quot;</span>, js_name = <span class="string">&quot;lineNumber&quot;</span>, getter = lineNumber)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Position"</span>, js_name = <span class="string">"lineNumber"</span>, getter = lineNumber)]
     </span><span class="kw">pub fn </span>line_number(this: <span class="kw-2">&amp;</span>Position) -&gt; f64;
     <span class="doccomment">/// column (the first character in a line is between column 1 and column 2)
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Position&quot;</span>, js_name = <span class="string">&quot;column&quot;</span>, getter = column)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Position"</span>, js_name = <span class="string">"column"</span>, getter = column)]
     </span><span class="kw">pub fn </span>column(this: <span class="kw-2">&amp;</span>Position) -&gt; f64;
-    <span class="attr">#[wasm_bindgen(constructor, js_class = <span class="string">&quot;Position&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(constructor, js_class = <span class="string">"Position"</span>)]
     </span><span class="kw">pub fn </span>new(line_number: f64, column: f64) -&gt; Position;
     <span class="doccomment">/// Create a new position from this position.
     ///
     /// @param newLineNumber new line number
     /// @param newColumn new column
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Position&quot;</span>, js_name = <span class="string">&quot;with&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Position"</span>, js_name = <span class="string">"with"</span>)]
     </span><span class="kw">pub fn </span>with(this: <span class="kw-2">&amp;</span>Position, new_line_number: f64, new_column: f64) -&gt; Position;
     <span class="doccomment">/// Derive a new position from this position.
     ///
     /// @param deltaLineNumber line number delta
     /// @param deltaColumn column delta
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Position&quot;</span>, js_name = <span class="string">&quot;delta&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Position"</span>, js_name = <span class="string">"delta"</span>)]
     </span><span class="kw">pub fn </span>delta(this: <span class="kw-2">&amp;</span>Position, delta_line_number: f64, delta_column: f64) -&gt; Position;
     <span class="doccomment">/// Test if this position equals other position
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Position&quot;</span>, js_name = <span class="string">&quot;equals&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Position"</span>, js_name = <span class="string">"equals"</span>)]
     </span><span class="kw">pub fn </span>equals(this: <span class="kw-2">&amp;</span>Position, other: <span class="kw-2">&amp;</span>IPosition) -&gt; bool;
     <span class="doccomment">/// Test if position `a` equals position `b`
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Position&quot;</span>, js_name = <span class="string">&quot;equals&quot;</span>, static_method_of = Position)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Position"</span>, js_name = <span class="string">"equals"</span>, static_method_of = Position)]
     </span><span class="kw">pub fn </span>equals_static(a: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>IPosition&gt;, b: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>IPosition&gt;) -&gt; bool;
     <span class="doccomment">/// Test if this position is before other position.
     /// If the two positions are equal, the result will be false.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Position&quot;</span>, js_name = <span class="string">&quot;isBefore&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Position"</span>, js_name = <span class="string">"isBefore"</span>)]
     </span><span class="kw">pub fn </span>is_before(this: <span class="kw-2">&amp;</span>Position, other: <span class="kw-2">&amp;</span>IPosition) -&gt; bool;
     <span class="doccomment">/// Test if position `a` is before position `b`.
     /// If the two positions are equal, the result will be false.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Position&quot;</span>, js_name = <span class="string">&quot;isBefore&quot;</span>, static_method_of = Position)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Position"</span>, js_name = <span class="string">"isBefore"</span>, static_method_of = Position)]
     </span><span class="kw">pub fn </span>is_before_static(a: <span class="kw-2">&amp;</span>IPosition, b: <span class="kw-2">&amp;</span>IPosition) -&gt; bool;
     <span class="doccomment">/// Test if this position is before other position.
     /// If the two positions are equal, the result will be true.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Position&quot;</span>, js_name = <span class="string">&quot;isBeforeOrEqual&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Position"</span>, js_name = <span class="string">"isBeforeOrEqual"</span>)]
     </span><span class="kw">pub fn </span>is_before_or_equal(this: <span class="kw-2">&amp;</span>Position, other: <span class="kw-2">&amp;</span>IPosition) -&gt; bool;
     <span class="doccomment">/// Test if position `a` is before position `b`.
     /// If the two positions are equal, the result will be true.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Position&quot;</span>, js_name = <span class="string">&quot;isBeforeOrEqual&quot;</span>, static_method_of = Position)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Position"</span>, js_name = <span class="string">"isBeforeOrEqual"</span>, static_method_of = Position)]
     </span><span class="kw">pub fn </span>is_before_or_equal_static(a: <span class="kw-2">&amp;</span>IPosition, b: <span class="kw-2">&amp;</span>IPosition) -&gt; bool;
     <span class="doccomment">/// A function that compares positions, useful for sorting
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Position&quot;</span>, js_name = <span class="string">&quot;compare&quot;</span>, static_method_of = Position)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Position"</span>, js_name = <span class="string">"compare"</span>, static_method_of = Position)]
     </span><span class="kw">pub fn </span>compare(a: <span class="kw-2">&amp;</span>IPosition, b: <span class="kw-2">&amp;</span>IPosition) -&gt; f64;
     <span class="doccomment">/// Clone this position.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Position&quot;</span>, js_name = <span class="string">&quot;clone&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Position"</span>, js_name = <span class="string">"clone"</span>)]
     </span><span class="kw">pub fn </span>clone(this: <span class="kw-2">&amp;</span>Position) -&gt; Position;
     <span class="doccomment">/// Convert to a human-readable representation.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Position&quot;</span>, js_name = <span class="string">&quot;toString&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Position"</span>, js_name = <span class="string">"toString"</span>)]
     </span><span class="kw">pub fn </span>to_string(this: <span class="kw-2">&amp;</span>Position) -&gt; String;
     <span class="doccomment">/// Create a `Position` from an `IPosition`.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Position&quot;</span>, js_name = <span class="string">&quot;lift&quot;</span>, static_method_of = Position)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Position"</span>, js_name = <span class="string">"lift"</span>, static_method_of = Position)]
     </span><span class="kw">pub fn </span>lift(pos: <span class="kw-2">&amp;</span>IPosition) -&gt; Position;
     <span class="doccomment">/// Test if `obj` is an `IPosition`.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Position&quot;</span>, js_name = <span class="string">&quot;isIPosition&quot;</span>, static_method_of = Position)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Position"</span>, js_name = <span class="string">"isIPosition"</span>, static_method_of = Position)]
     </span><span class="kw">pub fn </span>is_iposition(obj: <span class="kw-2">&amp;</span>JsValue) -&gt; bool;
 
     <span class="doccomment">/// A range in the editor. (startLineNumber,startColumn) is &lt;=
@@ -1099,19 +1101,19 @@
     </span><span class="attr">#[derive(Debug)]
     </span><span class="kw">pub type </span>Range;
     <span class="doccomment">/// Line number on which the range starts (starts at 1).
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;startLineNumber&quot;</span>, getter = startLineNumber)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"startLineNumber"</span>, getter = startLineNumber)]
     </span><span class="kw">pub fn </span>start_line_number(this: <span class="kw-2">&amp;</span>Range) -&gt; f64;
     <span class="doccomment">/// Column on which the range starts in line `startLineNumber` (starts at
     /// 1).
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;startColumn&quot;</span>, getter = startColumn)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"startColumn"</span>, getter = startColumn)]
     </span><span class="kw">pub fn </span>start_column(this: <span class="kw-2">&amp;</span>Range) -&gt; f64;
     <span class="doccomment">/// Line number on which the range ends.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;endLineNumber&quot;</span>, getter = endLineNumber)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"endLineNumber"</span>, getter = endLineNumber)]
     </span><span class="kw">pub fn </span>end_line_number(this: <span class="kw-2">&amp;</span>Range) -&gt; f64;
     <span class="doccomment">/// Column on which the range ends in line `endLineNumber`.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;endColumn&quot;</span>, getter = endColumn)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"endColumn"</span>, getter = endColumn)]
     </span><span class="kw">pub fn </span>end_column(this: <span class="kw-2">&amp;</span>Range) -&gt; f64;
-    <span class="attr">#[wasm_bindgen(constructor, js_class = <span class="string">&quot;Range&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(constructor, js_class = <span class="string">"Range"</span>)]
     </span><span class="kw">pub fn </span>new(
         start_line_number: f64,
         start_column: f64,
@@ -1119,108 +1121,108 @@
         end_column: f64,
     ) -&gt; Range;
     <span class="doccomment">/// Test if this range is empty.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;isEmpty&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"isEmpty"</span>)]
     </span><span class="kw">pub fn </span>is_empty(this: <span class="kw-2">&amp;</span>Range) -&gt; bool;
     <span class="doccomment">/// Test if `range` is empty.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;isEmpty&quot;</span>, static_method_of = Range)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"isEmpty"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>is_empty_static(range: <span class="kw-2">&amp;</span>IRange) -&gt; bool;
     <span class="doccomment">/// Test if position is in this range. If the position is at the edges, will
     /// return true.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;containsPosition&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"containsPosition"</span>)]
     </span><span class="kw">pub fn </span>contains_position(this: <span class="kw-2">&amp;</span>Range, position: <span class="kw-2">&amp;</span>IPosition) -&gt; bool;
     <span class="doccomment">/// Test if `position` is in `range`. If the position is at the edges, will
     /// return true.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;containsPosition&quot;</span>, static_method_of = Range)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"containsPosition"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>contains_position_static(range: <span class="kw-2">&amp;</span>IRange, position: <span class="kw-2">&amp;</span>IPosition) -&gt; bool;
     <span class="doccomment">/// Test if range is in this range. If the range is equal to this range,
     /// will return true.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;containsRange&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"containsRange"</span>)]
     </span><span class="kw">pub fn </span>contains_range(this: <span class="kw-2">&amp;</span>Range, range: <span class="kw-2">&amp;</span>IRange) -&gt; bool;
     <span class="doccomment">/// Test if `otherRange` is in `range`. If the ranges are equal, will return
     /// true.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;containsRange&quot;</span>, static_method_of = Range)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"containsRange"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>contains_range_static(range: <span class="kw-2">&amp;</span>IRange, other_range: <span class="kw-2">&amp;</span>IRange) -&gt; bool;
     <span class="doccomment">/// Test if `range` is strictly in this range. `range` must start after and
     /// end before this range for the result to be true.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;strictContainsRange&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"strictContainsRange"</span>)]
     </span><span class="kw">pub fn </span>strict_contains_range(this: <span class="kw-2">&amp;</span>Range, range: <span class="kw-2">&amp;</span>IRange) -&gt; bool;
     <span class="doccomment">/// Test if `otherRange` is strinctly in `range` (must start after, and end
     /// before). If the ranges are equal, will return false.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;strictContainsRange&quot;</span>, static_method_of = Range)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"strictContainsRange"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>strict_contains_range_static(range: <span class="kw-2">&amp;</span>IRange, other_range: <span class="kw-2">&amp;</span>IRange) -&gt; bool;
     <span class="doccomment">/// A reunion of the two ranges.
     /// The smallest position will be used as the start point, and the largest
     /// one as the end point.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;plusRange&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"plusRange"</span>)]
     </span><span class="kw">pub fn </span>plus_range(this: <span class="kw-2">&amp;</span>Range, range: <span class="kw-2">&amp;</span>IRange) -&gt; Range;
     <span class="doccomment">/// A reunion of the two ranges.
     /// The smallest position will be used as the start point, and the largest
     /// one as the end point.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;plusRange&quot;</span>, static_method_of = Range)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"plusRange"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>plus_range_static(a: <span class="kw-2">&amp;</span>IRange, b: <span class="kw-2">&amp;</span>IRange) -&gt; Range;
     <span class="doccomment">/// A intersection of the two ranges.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;intersectRanges&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"intersectRanges"</span>)]
     </span><span class="kw">pub fn </span>intersect_ranges(this: <span class="kw-2">&amp;</span>Range, range: <span class="kw-2">&amp;</span>IRange) -&gt; <span class="prelude-ty">Option</span>&lt;Range&gt;;
     <span class="doccomment">/// A intersection of the two ranges.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;intersectRanges&quot;</span>, static_method_of = Range)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"intersectRanges"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>intersect_ranges_static(a: <span class="kw-2">&amp;</span>IRange, b: <span class="kw-2">&amp;</span>IRange) -&gt; <span class="prelude-ty">Option</span>&lt;Range&gt;;
     <span class="doccomment">/// Test if this range equals other.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;equalsRange&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"equalsRange"</span>)]
     </span><span class="kw">pub fn </span>equals_range(this: <span class="kw-2">&amp;</span>Range, other: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>IRange&gt;) -&gt; bool;
     <span class="doccomment">/// Test if range `a` equals `b`.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;equalsRange&quot;</span>, static_method_of = Range)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"equalsRange"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>equals_range_static(a: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>IRange&gt;, b: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>IRange&gt;) -&gt; bool;
     <span class="doccomment">/// Return the end position (which will be after or equal to the start
     /// position)
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;getEndPosition&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"getEndPosition"</span>)]
     </span><span class="kw">pub fn </span>get_end_position(this: <span class="kw-2">&amp;</span>Range) -&gt; Position;
     <span class="doccomment">/// Return the start position (which will be before or equal to the end
     /// position)
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;getStartPosition&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"getStartPosition"</span>)]
     </span><span class="kw">pub fn </span>get_start_position(this: <span class="kw-2">&amp;</span>Range) -&gt; Position;
     <span class="doccomment">/// Transform to a user presentable string representation.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;toString&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"toString"</span>)]
     </span><span class="kw">pub fn </span>to_string(this: <span class="kw-2">&amp;</span>Range) -&gt; String;
-    <span class="doccomment">/// Create a new range using this range&#39;s start position, and using
+    <span class="doccomment">/// Create a new range using this range's start position, and using
     /// endLineNumber and endColumn as the end position.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;setEndPosition&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"setEndPosition"</span>)]
     </span><span class="kw">pub fn </span>set_end_position(this: <span class="kw-2">&amp;</span>Range, end_line_number: f64, end_column: f64) -&gt; Range;
-    <span class="doccomment">/// Create a new range using this range&#39;s end position, and using
+    <span class="doccomment">/// Create a new range using this range's end position, and using
     /// startLineNumber and startColumn as the start position.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;setStartPosition&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"setStartPosition"</span>)]
     </span><span class="kw">pub fn </span>set_start_position(this: <span class="kw-2">&amp;</span>Range, start_line_number: f64, start_column: f64) -&gt; Range;
-    <span class="doccomment">/// Create a new empty range using this range&#39;s start position.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;collapseToStart&quot;</span>)]
+    <span class="doccomment">/// Create a new empty range using this range's start position.
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Range"</span>, js_name = <span class="string">"collapseToStart"</span>)]
     </span><span class="kw">pub fn </span>collapse_to_start(this: <span class="kw-2">&amp;</span>Range) -&gt; Range;
-    <span class="doccomment">/// Create a new empty range using this range&#39;s start position.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;collapseToStart&quot;</span>, static_method_of = Range)]
+    <span class="doccomment">/// Create a new empty range using this range's start position.
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"collapseToStart"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>collapse_to_start_static(range: <span class="kw-2">&amp;</span>IRange) -&gt; Range;
-    <span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;fromPositions&quot;</span>, static_method_of = Range)]
+    <span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"fromPositions"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>from_positions(start: <span class="kw-2">&amp;</span>IPosition, end: <span class="kw-2">&amp;</span>IPosition) -&gt; Range;
-    <span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;lift&quot;</span>, static_method_of = Range)]
+    <span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"lift"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>lift(range: <span class="kw-2">&amp;</span>IRange) -&gt; Range;
     <span class="doccomment">/// Test if `obj` is an `IRange`.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;isIRange&quot;</span>, static_method_of = Range)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"isIRange"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>is_irange(obj: <span class="kw-2">&amp;</span>JsValue) -&gt; bool;
     <span class="doccomment">/// Test if the two ranges are touching in any way.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;areIntersectingOrTouching&quot;</span>, static_method_of = Range)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"areIntersectingOrTouching"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>are_intersecting_or_touching(a: <span class="kw-2">&amp;</span>IRange, b: <span class="kw-2">&amp;</span>IRange) -&gt; bool;
     <span class="doccomment">/// Test if the two ranges are intersecting. If the ranges are touching it
     /// returns true.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;areIntersecting&quot;</span>, static_method_of = Range)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"areIntersecting"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>are_intersecting(a: <span class="kw-2">&amp;</span>IRange, b: <span class="kw-2">&amp;</span>IRange) -&gt; bool;
     <span class="doccomment">/// A function that compares ranges, useful for sorting ranges
     /// It will first compare ranges on the startPosition and then on the
     /// endPosition
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;compareRangesUsingStarts&quot;</span>, static_method_of = Range)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"compareRangesUsingStarts"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>compare_ranges_using_starts(a: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>IRange&gt;, b: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>IRange&gt;) -&gt; f64;
     <span class="doccomment">/// A function that compares ranges, useful for sorting ranges
     /// It will first compare ranges on the endPosition and then on the
     /// startPosition
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;compareRangesUsingEnds&quot;</span>, static_method_of = Range)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"compareRangesUsingEnds"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>compare_ranges_using_ends(a: <span class="kw-2">&amp;</span>IRange, b: <span class="kw-2">&amp;</span>IRange) -&gt; f64;
     <span class="doccomment">/// Test if the range spans multiple lines.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Range&quot;</span>, js_name = <span class="string">&quot;spansMultipleLines&quot;</span>, static_method_of = Range)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Range"</span>, js_name = <span class="string">"spansMultipleLines"</span>, static_method_of = Range)]
     </span><span class="kw">pub fn </span>spans_multiple_lines(range: <span class="kw-2">&amp;</span>IRange) -&gt; bool;
 
     <span class="doccomment">/// A selection in the editor.
@@ -1229,19 +1231,19 @@
     #[wasm_bindgen(extends = Range)]
     </span><span class="kw">pub type </span>Selection;
     <span class="doccomment">/// The line number on which the selection has started.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;selectionStartLineNumber&quot;</span>, getter = selectionStartLineNumber)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"selectionStartLineNumber"</span>, getter = selectionStartLineNumber)]
     </span><span class="kw">pub fn </span>selection_start_line_number(this: <span class="kw-2">&amp;</span>Selection) -&gt; f64;
     <span class="doccomment">/// The column on `selectionStartLineNumber` where the selection has
     /// started.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;selectionStartColumn&quot;</span>, getter = selectionStartColumn)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"selectionStartColumn"</span>, getter = selectionStartColumn)]
     </span><span class="kw">pub fn </span>selection_start_column(this: <span class="kw-2">&amp;</span>Selection) -&gt; f64;
     <span class="doccomment">/// The line number on which the selection has ended.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;positionLineNumber&quot;</span>, getter = positionLineNumber)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"positionLineNumber"</span>, getter = positionLineNumber)]
     </span><span class="kw">pub fn </span>position_line_number(this: <span class="kw-2">&amp;</span>Selection) -&gt; f64;
     <span class="doccomment">/// The column on `positionLineNumber` where the selection has ended.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;positionColumn&quot;</span>, getter = positionColumn)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"positionColumn"</span>, getter = positionColumn)]
     </span><span class="kw">pub fn </span>position_column(this: <span class="kw-2">&amp;</span>Selection) -&gt; f64;
-    <span class="attr">#[wasm_bindgen(constructor, js_class = <span class="string">&quot;Selection&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(constructor, js_class = <span class="string">"Selection"</span>)]
     </span><span class="kw">pub fn </span>new(
         selection_start_line_number: f64,
         selection_start_column: f64,
@@ -1249,37 +1251,37 @@
         position_column: f64,
     ) -&gt; Selection;
     <span class="doccomment">/// Transform to a human-readable representation.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;toString&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"toString"</span>)]
     </span><span class="kw">pub fn </span>to_string(this: <span class="kw-2">&amp;</span>Selection) -&gt; String;
     <span class="doccomment">/// Test if equals other selection.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;equalsSelection&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"equalsSelection"</span>)]
     </span><span class="kw">pub fn </span>equals_selection(this: <span class="kw-2">&amp;</span>Selection, other: <span class="kw-2">&amp;</span>ISelection) -&gt; bool;
     <span class="doccomment">/// Test if the two selections are equal.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;selectionsEqual&quot;</span>, static_method_of = Selection)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"selectionsEqual"</span>, static_method_of = Selection)]
     </span><span class="kw">pub fn </span>selections_equal(a: <span class="kw-2">&amp;</span>ISelection, b: <span class="kw-2">&amp;</span>ISelection) -&gt; bool;
     <span class="doccomment">/// Get directions (LTR or RTL).
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;getDirection&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"getDirection"</span>)]
     </span><span class="kw">pub fn </span>get_direction(this: <span class="kw-2">&amp;</span>Selection) -&gt; SelectionDirection;
     <span class="doccomment">/// Create a new selection with a different `positionLineNumber` and
     /// `positionColumn`.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;setEndPosition&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"setEndPosition"</span>)]
     </span><span class="kw">pub fn </span>set_end_position(this: <span class="kw-2">&amp;</span>Selection, end_line_number: f64, end_column: f64) -&gt; Selection;
     <span class="doccomment">/// Get the position at `positionLineNumber` and `positionColumn`.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;getPosition&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"getPosition"</span>)]
     </span><span class="kw">pub fn </span>get_position(this: <span class="kw-2">&amp;</span>Selection) -&gt; Position;
     <span class="doccomment">/// Create a new selection with a different `selectionStartLineNumber` and
     /// `selectionStartColumn`.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;setStartPosition&quot;</span>)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"setStartPosition"</span>)]
     </span><span class="kw">pub fn </span>set_start_position(
         this: <span class="kw-2">&amp;</span>Selection,
         start_line_number: f64,
         start_column: f64,
     ) -&gt; Selection;
     <span class="doccomment">/// Create a `Selection` from one or two positions
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;fromPositions&quot;</span>, static_method_of = Selection)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"fromPositions"</span>, static_method_of = Selection)]
     </span><span class="kw">pub fn </span>from_positions(start: <span class="kw-2">&amp;</span>IPosition, end: <span class="kw-2">&amp;</span>IPosition) -&gt; Selection;
     <span class="doccomment">/// Create a `Selection` from an `ISelection`.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;liftSelection&quot;</span>, static_method_of = Selection)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"liftSelection"</span>, static_method_of = Selection)]
     </span><span class="kw">pub fn </span>lift_selection(sel: <span class="kw-2">&amp;</span>ISelection) -&gt; Selection;
     <span class="doccomment">/// `a` equals `b`.
     ///
@@ -1287,13 +1289,13 @@
     ///
     /// * `a` - `ISelection[]`
     /// * `b` - `ISelection[]`
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;selectionsArrEqual&quot;</span>, static_method_of = Selection)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"selectionsArrEqual"</span>, static_method_of = Selection)]
     </span><span class="kw">pub fn </span>selections_arr_equal(a: <span class="kw-2">&amp;</span>Array, b: <span class="kw-2">&amp;</span>Array) -&gt; bool;
     <span class="doccomment">/// Test if `obj` is an `ISelection`.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;isISelection&quot;</span>, static_method_of = Selection)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"isISelection"</span>, static_method_of = Selection)]
     </span><span class="kw">pub fn </span>is_iselection(obj: <span class="kw-2">&amp;</span>JsValue) -&gt; bool;
     <span class="doccomment">/// Create with a direction.
-    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">&quot;Selection&quot;</span>, js_name = <span class="string">&quot;createWithDirection&quot;</span>, static_method_of = Selection)]
+    </span><span class="attr">#[wasm_bindgen(js_class = <span class="string">"Selection"</span>, js_name = <span class="string">"createWithDirection"</span>, static_method_of = Selection)]
     </span><span class="kw">pub fn </span>create_with_direction(
         start_line_number: f64,
         start_column: f64,
@@ -1304,57 +1306,57 @@
 
     <span class="attr">#[derive(Debug)]
     </span><span class="kw">pub type </span>Token;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Token&quot;</span>, js_name = <span class="string">&quot;offset&quot;</span>, getter = offset)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Token"</span>, js_name = <span class="string">"offset"</span>, getter = offset)]
     </span><span class="kw">pub fn </span>offset(this: <span class="kw-2">&amp;</span>Token) -&gt; f64;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Token&quot;</span>, js_name = <span class="string">&quot;type&quot;</span>, getter = <span class="kw">type</span>)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Token"</span>, js_name = <span class="string">"type"</span>, getter = <span class="kw">type</span>)]
     </span><span class="kw">pub fn </span>type_(this: <span class="kw-2">&amp;</span>Token) -&gt; String;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Token&quot;</span>, js_name = <span class="string">&quot;language&quot;</span>, getter = language)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Token"</span>, js_name = <span class="string">"language"</span>, getter = language)]
     </span><span class="kw">pub fn </span>language(this: <span class="kw-2">&amp;</span>Token) -&gt; String;
-    <span class="attr">#[wasm_bindgen(constructor, js_class = <span class="string">&quot;Token&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(constructor, js_class = <span class="string">"Token"</span>)]
     </span><span class="kw">pub fn </span>new(offset: f64, type_: <span class="kw-2">&amp;</span>str, language: <span class="kw-2">&amp;</span>str) -&gt; Token;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Token&quot;</span>, js_name = <span class="string">&quot;toString&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Token"</span>, js_name = <span class="string">"toString"</span>)]
     </span><span class="kw">pub fn </span>to_string(this: <span class="kw-2">&amp;</span>Token) -&gt; String;
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+</span><span class="kw">extern </span><span class="string">"C" </span>{
     <span class="attr">#[derive(Debug)]
     #[wasm_bindgen(extends = Object)]
     </span><span class="kw">pub type </span>Environment;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Environment&quot;</span>, js_name = <span class="string">&quot;baseUrl&quot;</span>, getter = baseUrl)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Environment"</span>, js_name = <span class="string">"baseUrl"</span>, getter = baseUrl)]
     </span><span class="kw">pub fn </span>base_url(this: <span class="kw-2">&amp;</span>Environment) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt;;
     <span class="doccomment">/// Set the `baseUrl` property.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Environment&quot;</span>, js_name = <span class="string">&quot;baseUrl&quot;</span>, setter = baseUrl)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Environment"</span>, js_name = <span class="string">"baseUrl"</span>, setter = baseUrl)]
     </span><span class="kw">pub fn </span>set_base_url(this: <span class="kw-2">&amp;</span>Environment, val: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;);
     <span class="doccomment">/// Type: `(workerId: string, label: string) =&gt; Worker`
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Environment&quot;</span>, js_name = <span class="string">&quot;getWorker&quot;</span>, getter = getWorker)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Environment"</span>, js_name = <span class="string">"getWorker"</span>, getter = getWorker)]
     </span><span class="kw">pub fn </span>get_worker(this: <span class="kw-2">&amp;</span>Environment) -&gt; <span class="prelude-ty">Option</span>&lt;Function&gt;;
     <span class="doccomment">/// Set the `getWorker` property.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Environment&quot;</span>, js_name = <span class="string">&quot;getWorker&quot;</span>, setter = getWorker)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Environment"</span>, js_name = <span class="string">"getWorker"</span>, setter = getWorker)]
     </span><span class="kw">pub fn </span>set_get_worker(this: <span class="kw-2">&amp;</span>Environment, val: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Function&gt;);
     <span class="doccomment">/// Type: `(workerId: string, label: string) =&gt; string`
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Environment&quot;</span>, js_name = <span class="string">&quot;getWorkerUrl&quot;</span>, getter = getWorkerUrl)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Environment"</span>, js_name = <span class="string">"getWorkerUrl"</span>, getter = getWorkerUrl)]
     </span><span class="kw">pub fn </span>get_worker_url(this: <span class="kw-2">&amp;</span>Environment) -&gt; <span class="prelude-ty">Option</span>&lt;Function&gt;;
     <span class="doccomment">/// Set the `getWorkerUrl` property.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;Environment&quot;</span>, js_name = <span class="string">&quot;getWorkerUrl&quot;</span>, setter = getWorkerUrl)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"Environment"</span>, js_name = <span class="string">"getWorkerUrl"</span>, setter = getWorkerUrl)]
     </span><span class="kw">pub fn </span>set_get_worker_url(this: <span class="kw-2">&amp;</span>Environment, val: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Function&gt;);
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+</span><span class="kw">extern </span><span class="string">"C" </span>{
     <span class="attr">#[derive(Debug)]
     #[wasm_bindgen(extends = Object)]
     </span><span class="kw">pub type </span>IDisposable;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IDisposable&quot;</span>, js_name = <span class="string">&quot;dispose&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IDisposable"</span>, js_name = <span class="string">"dispose"</span>)]
     </span><span class="kw">pub fn </span>dispose(this: <span class="kw-2">&amp;</span>IDisposable);
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+</span><span class="kw">extern </span><span class="string">"C" </span>{
     <span class="attr">#[derive(Debug)]
     #[wasm_bindgen(extends = Object)]
     </span><span class="kw">pub type </span>CancellationToken;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;CancellationToken&quot;</span>, js_name = <span class="string">&quot;isCancellationRequested&quot;</span>, getter = isCancellationRequested)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"CancellationToken"</span>, js_name = <span class="string">"isCancellationRequested"</span>, getter = isCancellationRequested)]
     </span><span class="kw">pub fn </span>is_cancellation_requested(this: <span class="kw-2">&amp;</span>CancellationToken) -&gt; bool;
     <span class="doccomment">/// An event emitted when cancellation is requested
     /// @event
@@ -1363,206 +1365,206 @@
     ///       listener: (e: any) =&gt; any,
     ///       thisArg?: any
     ///     ) =&gt; IDisposable`
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;CancellationToken&quot;</span>, js_name = <span class="string">&quot;onCancellationRequested&quot;</span>, getter = onCancellationRequested)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"CancellationToken"</span>, js_name = <span class="string">"onCancellationRequested"</span>, getter = onCancellationRequested)]
     </span><span class="kw">pub fn </span>on_cancellation_requested(this: <span class="kw-2">&amp;</span>CancellationToken) -&gt; Function;
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+</span><span class="kw">extern </span><span class="string">"C" </span>{
     <span class="attr">#[derive(Debug)]
     #[wasm_bindgen(extends = Object)]
     </span><span class="kw">pub type </span>UriComponents;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;UriComponents&quot;</span>, js_name = <span class="string">&quot;scheme&quot;</span>, getter = scheme)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"UriComponents"</span>, js_name = <span class="string">"scheme"</span>, getter = scheme)]
     </span><span class="kw">pub fn </span>scheme(this: <span class="kw-2">&amp;</span>UriComponents) -&gt; String;
     <span class="doccomment">/// Set the `scheme` property.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;UriComponents&quot;</span>, js_name = <span class="string">&quot;scheme&quot;</span>, setter = scheme)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"UriComponents"</span>, js_name = <span class="string">"scheme"</span>, setter = scheme)]
     </span><span class="kw">pub fn </span>set_scheme(this: <span class="kw-2">&amp;</span>UriComponents, val: <span class="kw-2">&amp;</span>str);
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;UriComponents&quot;</span>, js_name = <span class="string">&quot;authority&quot;</span>, getter = authority)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"UriComponents"</span>, js_name = <span class="string">"authority"</span>, getter = authority)]
     </span><span class="kw">pub fn </span>authority(this: <span class="kw-2">&amp;</span>UriComponents) -&gt; String;
     <span class="doccomment">/// Set the `authority` property.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;UriComponents&quot;</span>, js_name = <span class="string">&quot;authority&quot;</span>, setter = authority)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"UriComponents"</span>, js_name = <span class="string">"authority"</span>, setter = authority)]
     </span><span class="kw">pub fn </span>set_authority(this: <span class="kw-2">&amp;</span>UriComponents, val: <span class="kw-2">&amp;</span>str);
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;UriComponents&quot;</span>, js_name = <span class="string">&quot;path&quot;</span>, getter = path)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"UriComponents"</span>, js_name = <span class="string">"path"</span>, getter = path)]
     </span><span class="kw">pub fn </span>path(this: <span class="kw-2">&amp;</span>UriComponents) -&gt; String;
     <span class="doccomment">/// Set the `path` property.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;UriComponents&quot;</span>, js_name = <span class="string">&quot;path&quot;</span>, setter = path)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"UriComponents"</span>, js_name = <span class="string">"path"</span>, setter = path)]
     </span><span class="kw">pub fn </span>set_path(this: <span class="kw-2">&amp;</span>UriComponents, val: <span class="kw-2">&amp;</span>str);
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;UriComponents&quot;</span>, js_name = <span class="string">&quot;query&quot;</span>, getter = query)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"UriComponents"</span>, js_name = <span class="string">"query"</span>, getter = query)]
     </span><span class="kw">pub fn </span>query(this: <span class="kw-2">&amp;</span>UriComponents) -&gt; String;
     <span class="doccomment">/// Set the `query` property.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;UriComponents&quot;</span>, js_name = <span class="string">&quot;query&quot;</span>, setter = query)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"UriComponents"</span>, js_name = <span class="string">"query"</span>, setter = query)]
     </span><span class="kw">pub fn </span>set_query(this: <span class="kw-2">&amp;</span>UriComponents, val: <span class="kw-2">&amp;</span>str);
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;UriComponents&quot;</span>, js_name = <span class="string">&quot;fragment&quot;</span>, getter = fragment)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"UriComponents"</span>, js_name = <span class="string">"fragment"</span>, getter = fragment)]
     </span><span class="kw">pub fn </span>fragment(this: <span class="kw-2">&amp;</span>UriComponents) -&gt; String;
     <span class="doccomment">/// Set the `fragment` property.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;UriComponents&quot;</span>, js_name = <span class="string">&quot;fragment&quot;</span>, setter = fragment)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"UriComponents"</span>, js_name = <span class="string">"fragment"</span>, setter = fragment)]
     </span><span class="kw">pub fn </span>set_fragment(this: <span class="kw-2">&amp;</span>UriComponents, val: <span class="kw-2">&amp;</span>str);
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+</span><span class="kw">extern </span><span class="string">"C" </span>{
     <span class="attr">#[derive(Debug)]
     #[wasm_bindgen(extends = Object)]
     </span><span class="kw">pub type </span>IMarkdownString;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMarkdownString&quot;</span>, js_name = <span class="string">&quot;value&quot;</span>, getter = value)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMarkdownString"</span>, js_name = <span class="string">"value"</span>, getter = value)]
     </span><span class="kw">pub fn </span>value(this: <span class="kw-2">&amp;</span>IMarkdownString) -&gt; String;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMarkdownString&quot;</span>, js_name = <span class="string">&quot;isTrusted&quot;</span>, getter = isTrusted)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMarkdownString"</span>, js_name = <span class="string">"isTrusted"</span>, getter = isTrusted)]
     </span><span class="kw">pub fn </span>is_trusted(this: <span class="kw-2">&amp;</span>IMarkdownString) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt;;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMarkdownString&quot;</span>, js_name = <span class="string">&quot;supportThemeIcons&quot;</span>, getter = supportThemeIcons)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMarkdownString"</span>, js_name = <span class="string">"supportThemeIcons"</span>, getter = supportThemeIcons)]
     </span><span class="kw">pub fn </span>support_theme_icons(this: <span class="kw-2">&amp;</span>IMarkdownString) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt;;
     <span class="doccomment">/// Type: `{ [href: string]: UriComponents }`
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMarkdownString&quot;</span>, js_name = <span class="string">&quot;uris&quot;</span>, getter = uris)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMarkdownString"</span>, js_name = <span class="string">"uris"</span>, getter = uris)]
     </span><span class="kw">pub fn </span>uris(this: <span class="kw-2">&amp;</span>IMarkdownString) -&gt; <span class="prelude-ty">Option</span>&lt;Object&gt;;
     <span class="doccomment">/// Set the `uris` property.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMarkdownString&quot;</span>, js_name = <span class="string">&quot;uris&quot;</span>, setter = uris)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMarkdownString"</span>, js_name = <span class="string">"uris"</span>, setter = uris)]
     </span><span class="kw">pub fn </span>set_uris(this: <span class="kw-2">&amp;</span>IMarkdownString, val: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Object&gt;);
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+</span><span class="kw">extern </span><span class="string">"C" </span>{
     <span class="attr">#[derive(Debug)]
     #[wasm_bindgen(extends = Object)]
     </span><span class="kw">pub type </span>IKeyboardEvent;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IKeyboardEvent&quot;</span>, js_name = <span class="string">&quot;browserEvent&quot;</span>, getter = browserEvent)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IKeyboardEvent"</span>, js_name = <span class="string">"browserEvent"</span>, getter = browserEvent)]
     </span><span class="kw">pub fn </span>browser_event(this: <span class="kw-2">&amp;</span>IKeyboardEvent) -&gt; KeyboardEvent;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IKeyboardEvent&quot;</span>, js_name = <span class="string">&quot;target&quot;</span>, getter = target)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IKeyboardEvent"</span>, js_name = <span class="string">"target"</span>, getter = target)]
     </span><span class="kw">pub fn </span>target(this: <span class="kw-2">&amp;</span>IKeyboardEvent) -&gt; HtmlElement;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IKeyboardEvent&quot;</span>, js_name = <span class="string">&quot;ctrlKey&quot;</span>, getter = ctrlKey)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IKeyboardEvent"</span>, js_name = <span class="string">"ctrlKey"</span>, getter = ctrlKey)]
     </span><span class="kw">pub fn </span>ctrl_key(this: <span class="kw-2">&amp;</span>IKeyboardEvent) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IKeyboardEvent&quot;</span>, js_name = <span class="string">&quot;shiftKey&quot;</span>, getter = shiftKey)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IKeyboardEvent"</span>, js_name = <span class="string">"shiftKey"</span>, getter = shiftKey)]
     </span><span class="kw">pub fn </span>shift_key(this: <span class="kw-2">&amp;</span>IKeyboardEvent) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IKeyboardEvent&quot;</span>, js_name = <span class="string">&quot;altKey&quot;</span>, getter = altKey)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IKeyboardEvent"</span>, js_name = <span class="string">"altKey"</span>, getter = altKey)]
     </span><span class="kw">pub fn </span>alt_key(this: <span class="kw-2">&amp;</span>IKeyboardEvent) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IKeyboardEvent&quot;</span>, js_name = <span class="string">&quot;metaKey&quot;</span>, getter = metaKey)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IKeyboardEvent"</span>, js_name = <span class="string">"metaKey"</span>, getter = metaKey)]
     </span><span class="kw">pub fn </span>meta_key(this: <span class="kw-2">&amp;</span>IKeyboardEvent) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IKeyboardEvent&quot;</span>, js_name = <span class="string">&quot;keyCode&quot;</span>, getter = keyCode)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IKeyboardEvent"</span>, js_name = <span class="string">"keyCode"</span>, getter = keyCode)]
     </span><span class="kw">pub fn </span>key_code(this: <span class="kw-2">&amp;</span>IKeyboardEvent) -&gt; KeyCode;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IKeyboardEvent&quot;</span>, js_name = <span class="string">&quot;code&quot;</span>, getter = code)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IKeyboardEvent"</span>, js_name = <span class="string">"code"</span>, getter = code)]
     </span><span class="kw">pub fn </span>code(this: <span class="kw-2">&amp;</span>IKeyboardEvent) -&gt; String;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IKeyboardEvent&quot;</span>, js_name = <span class="string">&quot;equals&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IKeyboardEvent"</span>, js_name = <span class="string">"equals"</span>)]
     </span><span class="kw">pub fn </span>equals(this: <span class="kw-2">&amp;</span>IKeyboardEvent, keybinding: f64) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IKeyboardEvent&quot;</span>, js_name = <span class="string">&quot;preventDefault&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IKeyboardEvent"</span>, js_name = <span class="string">"preventDefault"</span>)]
     </span><span class="kw">pub fn </span>prevent_default(this: <span class="kw-2">&amp;</span>IKeyboardEvent);
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IKeyboardEvent&quot;</span>, js_name = <span class="string">&quot;stopPropagation&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IKeyboardEvent"</span>, js_name = <span class="string">"stopPropagation"</span>)]
     </span><span class="kw">pub fn </span>stop_propagation(this: <span class="kw-2">&amp;</span>IKeyboardEvent);
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+</span><span class="kw">extern </span><span class="string">"C" </span>{
     <span class="attr">#[derive(Debug)]
     #[wasm_bindgen(extends = Object)]
     </span><span class="kw">pub type </span>IMouseEvent;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;browserEvent&quot;</span>, getter = browserEvent)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"browserEvent"</span>, getter = browserEvent)]
     </span><span class="kw">pub fn </span>browser_event(this: <span class="kw-2">&amp;</span>IMouseEvent) -&gt; MouseEvent;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;leftButton&quot;</span>, getter = leftButton)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"leftButton"</span>, getter = leftButton)]
     </span><span class="kw">pub fn </span>left_button(this: <span class="kw-2">&amp;</span>IMouseEvent) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;middleButton&quot;</span>, getter = middleButton)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"middleButton"</span>, getter = middleButton)]
     </span><span class="kw">pub fn </span>middle_button(this: <span class="kw-2">&amp;</span>IMouseEvent) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;rightButton&quot;</span>, getter = rightButton)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"rightButton"</span>, getter = rightButton)]
     </span><span class="kw">pub fn </span>right_button(this: <span class="kw-2">&amp;</span>IMouseEvent) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;buttons&quot;</span>, getter = buttons)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"buttons"</span>, getter = buttons)]
     </span><span class="kw">pub fn </span>buttons(this: <span class="kw-2">&amp;</span>IMouseEvent) -&gt; f64;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;target&quot;</span>, getter = target)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"target"</span>, getter = target)]
     </span><span class="kw">pub fn </span>target(this: <span class="kw-2">&amp;</span>IMouseEvent) -&gt; HtmlElement;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;detail&quot;</span>, getter = detail)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"detail"</span>, getter = detail)]
     </span><span class="kw">pub fn </span>detail(this: <span class="kw-2">&amp;</span>IMouseEvent) -&gt; f64;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;posx&quot;</span>, getter = posx)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"posx"</span>, getter = posx)]
     </span><span class="kw">pub fn </span>posx(this: <span class="kw-2">&amp;</span>IMouseEvent) -&gt; f64;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;posy&quot;</span>, getter = posy)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"posy"</span>, getter = posy)]
     </span><span class="kw">pub fn </span>posy(this: <span class="kw-2">&amp;</span>IMouseEvent) -&gt; f64;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;ctrlKey&quot;</span>, getter = ctrlKey)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"ctrlKey"</span>, getter = ctrlKey)]
     </span><span class="kw">pub fn </span>ctrl_key(this: <span class="kw-2">&amp;</span>IMouseEvent) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;shiftKey&quot;</span>, getter = shiftKey)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"shiftKey"</span>, getter = shiftKey)]
     </span><span class="kw">pub fn </span>shift_key(this: <span class="kw-2">&amp;</span>IMouseEvent) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;altKey&quot;</span>, getter = altKey)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"altKey"</span>, getter = altKey)]
     </span><span class="kw">pub fn </span>alt_key(this: <span class="kw-2">&amp;</span>IMouseEvent) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;metaKey&quot;</span>, getter = metaKey)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"metaKey"</span>, getter = metaKey)]
     </span><span class="kw">pub fn </span>meta_key(this: <span class="kw-2">&amp;</span>IMouseEvent) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;timestamp&quot;</span>, getter = timestamp)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"timestamp"</span>, getter = timestamp)]
     </span><span class="kw">pub fn </span>timestamp(this: <span class="kw-2">&amp;</span>IMouseEvent) -&gt; f64;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;preventDefault&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"preventDefault"</span>)]
     </span><span class="kw">pub fn </span>prevent_default(this: <span class="kw-2">&amp;</span>IMouseEvent);
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IMouseEvent&quot;</span>, js_name = <span class="string">&quot;stopPropagation&quot;</span>)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IMouseEvent"</span>, js_name = <span class="string">"stopPropagation"</span>)]
     </span><span class="kw">pub fn </span>stop_propagation(this: <span class="kw-2">&amp;</span>IMouseEvent);
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+</span><span class="kw">extern </span><span class="string">"C" </span>{
     <span class="attr">#[derive(Debug)]
     #[wasm_bindgen(extends = Object)]
     </span><span class="kw">pub type </span>IScrollEvent;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IScrollEvent&quot;</span>, js_name = <span class="string">&quot;scrollTop&quot;</span>, getter = scrollTop)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IScrollEvent"</span>, js_name = <span class="string">"scrollTop"</span>, getter = scrollTop)]
     </span><span class="kw">pub fn </span>scroll_top(this: <span class="kw-2">&amp;</span>IScrollEvent) -&gt; f64;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IScrollEvent&quot;</span>, js_name = <span class="string">&quot;scrollLeft&quot;</span>, getter = scrollLeft)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IScrollEvent"</span>, js_name = <span class="string">"scrollLeft"</span>, getter = scrollLeft)]
     </span><span class="kw">pub fn </span>scroll_left(this: <span class="kw-2">&amp;</span>IScrollEvent) -&gt; f64;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IScrollEvent&quot;</span>, js_name = <span class="string">&quot;scrollWidth&quot;</span>, getter = scrollWidth)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IScrollEvent"</span>, js_name = <span class="string">"scrollWidth"</span>, getter = scrollWidth)]
     </span><span class="kw">pub fn </span>scroll_width(this: <span class="kw-2">&amp;</span>IScrollEvent) -&gt; f64;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IScrollEvent&quot;</span>, js_name = <span class="string">&quot;scrollHeight&quot;</span>, getter = scrollHeight)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IScrollEvent"</span>, js_name = <span class="string">"scrollHeight"</span>, getter = scrollHeight)]
     </span><span class="kw">pub fn </span>scroll_height(this: <span class="kw-2">&amp;</span>IScrollEvent) -&gt; f64;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IScrollEvent&quot;</span>, js_name = <span class="string">&quot;scrollTopChanged&quot;</span>, getter = scrollTopChanged)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IScrollEvent"</span>, js_name = <span class="string">"scrollTopChanged"</span>, getter = scrollTopChanged)]
     </span><span class="kw">pub fn </span>scroll_top_changed(this: <span class="kw-2">&amp;</span>IScrollEvent) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IScrollEvent&quot;</span>, js_name = <span class="string">&quot;scrollLeftChanged&quot;</span>, getter = scrollLeftChanged)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IScrollEvent"</span>, js_name = <span class="string">"scrollLeftChanged"</span>, getter = scrollLeftChanged)]
     </span><span class="kw">pub fn </span>scroll_left_changed(this: <span class="kw-2">&amp;</span>IScrollEvent) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IScrollEvent&quot;</span>, js_name = <span class="string">&quot;scrollWidthChanged&quot;</span>, getter = scrollWidthChanged)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IScrollEvent"</span>, js_name = <span class="string">"scrollWidthChanged"</span>, getter = scrollWidthChanged)]
     </span><span class="kw">pub fn </span>scroll_width_changed(this: <span class="kw-2">&amp;</span>IScrollEvent) -&gt; bool;
-    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IScrollEvent&quot;</span>, js_name = <span class="string">&quot;scrollHeightChanged&quot;</span>, getter = scrollHeightChanged)]
+    <span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IScrollEvent"</span>, js_name = <span class="string">"scrollHeightChanged"</span>, getter = scrollHeightChanged)]
     </span><span class="kw">pub fn </span>scroll_height_changed(this: <span class="kw-2">&amp;</span>IScrollEvent) -&gt; bool;
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+</span><span class="kw">extern </span><span class="string">"C" </span>{
     <span class="doccomment">/// A position in the editor. This interface is suitable for serialization.
     </span><span class="attr">#[derive(Debug)]
     #[wasm_bindgen(extends = Object)]
     </span><span class="kw">pub type </span>IPosition;
     <span class="doccomment">/// line number (starts at 1)
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IPosition&quot;</span>, js_name = <span class="string">&quot;lineNumber&quot;</span>, getter = lineNumber)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IPosition"</span>, js_name = <span class="string">"lineNumber"</span>, getter = lineNumber)]
     </span><span class="kw">pub fn </span>line_number(this: <span class="kw-2">&amp;</span>IPosition) -&gt; f64;
     <span class="doccomment">/// column (the first character in a line is between column 1 and column 2)
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IPosition&quot;</span>, js_name = <span class="string">&quot;column&quot;</span>, getter = column)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IPosition"</span>, js_name = <span class="string">"column"</span>, getter = column)]
     </span><span class="kw">pub fn </span>column(this: <span class="kw-2">&amp;</span>IPosition) -&gt; f64;
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+</span><span class="kw">extern </span><span class="string">"C" </span>{
     <span class="doccomment">/// A range in the editor. This interface is suitable for serialization.
     </span><span class="attr">#[derive(Debug)]
     #[wasm_bindgen(extends = Object)]
     </span><span class="kw">pub type </span>IRange;
     <span class="doccomment">/// Line number on which the range starts (starts at 1).
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IRange&quot;</span>, js_name = <span class="string">&quot;startLineNumber&quot;</span>, getter = startLineNumber)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IRange"</span>, js_name = <span class="string">"startLineNumber"</span>, getter = startLineNumber)]
     </span><span class="kw">pub fn </span>start_line_number(this: <span class="kw-2">&amp;</span>IRange) -&gt; f64;
     <span class="doccomment">/// Column on which the range starts in line `startLineNumber` (starts at
     /// 1).
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IRange&quot;</span>, js_name = <span class="string">&quot;startColumn&quot;</span>, getter = startColumn)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IRange"</span>, js_name = <span class="string">"startColumn"</span>, getter = startColumn)]
     </span><span class="kw">pub fn </span>start_column(this: <span class="kw-2">&amp;</span>IRange) -&gt; f64;
     <span class="doccomment">/// Line number on which the range ends.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IRange&quot;</span>, js_name = <span class="string">&quot;endLineNumber&quot;</span>, getter = endLineNumber)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IRange"</span>, js_name = <span class="string">"endLineNumber"</span>, getter = endLineNumber)]
     </span><span class="kw">pub fn </span>end_line_number(this: <span class="kw-2">&amp;</span>IRange) -&gt; f64;
     <span class="doccomment">/// Column on which the range ends in line `endLineNumber`.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;IRange&quot;</span>, js_name = <span class="string">&quot;endColumn&quot;</span>, getter = endColumn)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"IRange"</span>, js_name = <span class="string">"endColumn"</span>, getter = endColumn)]
     </span><span class="kw">pub fn </span>end_column(this: <span class="kw-2">&amp;</span>IRange) -&gt; f64;
 }
 
 <span class="attr">#[wasm_bindgen]
-</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+</span><span class="kw">extern </span><span class="string">"C" </span>{
     <span class="doccomment">/// A selection in the editor.
     /// The selection is a range that has an orientation.
     </span><span class="attr">#[derive(Debug)]
     #[wasm_bindgen(extends = Object)]
     </span><span class="kw">pub type </span>ISelection;
     <span class="doccomment">/// The line number on which the selection has started.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;ISelection&quot;</span>, js_name = <span class="string">&quot;selectionStartLineNumber&quot;</span>, getter = selectionStartLineNumber)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"ISelection"</span>, js_name = <span class="string">"selectionStartLineNumber"</span>, getter = selectionStartLineNumber)]
     </span><span class="kw">pub fn </span>selection_start_line_number(this: <span class="kw-2">&amp;</span>ISelection) -&gt; f64;
     <span class="doccomment">/// The column on `selectionStartLineNumber` where the selection has
     /// started.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;ISelection&quot;</span>, js_name = <span class="string">&quot;selectionStartColumn&quot;</span>, getter = selectionStartColumn)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"ISelection"</span>, js_name = <span class="string">"selectionStartColumn"</span>, getter = selectionStartColumn)]
     </span><span class="kw">pub fn </span>selection_start_column(this: <span class="kw-2">&amp;</span>ISelection) -&gt; f64;
     <span class="doccomment">/// The line number on which the selection has ended.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;ISelection&quot;</span>, js_name = <span class="string">&quot;positionLineNumber&quot;</span>, getter = positionLineNumber)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"ISelection"</span>, js_name = <span class="string">"positionLineNumber"</span>, getter = positionLineNumber)]
     </span><span class="kw">pub fn </span>position_line_number(this: <span class="kw-2">&amp;</span>ISelection) -&gt; f64;
     <span class="doccomment">/// The column on `positionLineNumber` where the selection has ended.
-    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">&quot;ISelection&quot;</span>, js_name = <span class="string">&quot;positionColumn&quot;</span>, getter = positionColumn)]
+    </span><span class="attr">#[wasm_bindgen(method, js_class = <span class="string">"ISelection"</span>, js_name = <span class="string">"positionColumn"</span>, getter = positionColumn)]
     </span><span class="kw">pub fn </span>position_column(this: <span class="kw-2">&amp;</span>ISelection) -&gt; f64;
 }
 
@@ -1666,37 +1668,37 @@
         Numlock = <span class="number">78</span>,
         Scrolllock = <span class="number">79</span>,
         <span class="doccomment">/// Used for miscellaneous characters; it can vary by keyboard.
-        /// For the US standard keyboard, the &#39;;:&#39; key
+        /// For the US standard keyboard, the ';:' key
         </span>UsSemicolon = <span class="number">80</span>,
-        <span class="doccomment">/// For any country/region, the &#39;+&#39; key
-        /// For the US standard keyboard, the &#39;=+&#39; key
+        <span class="doccomment">/// For any country/region, the '+' key
+        /// For the US standard keyboard, the '=+' key
         </span>UsEqual = <span class="number">81</span>,
-        <span class="doccomment">/// For any country/region, the &#39;,&#39; key
-        /// For the US standard keyboard, the &#39;,&lt;&#39; key
+        <span class="doccomment">/// For any country/region, the ',' key
+        /// For the US standard keyboard, the ',&lt;' key
         </span>UsComma = <span class="number">82</span>,
-        <span class="doccomment">/// For any country/region, the &#39;-&#39; key
-        /// For the US standard keyboard, the &#39;-_&#39; key
+        <span class="doccomment">/// For any country/region, the '-' key
+        /// For the US standard keyboard, the '-_' key
         </span>UsMinus = <span class="number">83</span>,
-        <span class="doccomment">/// For any country/region, the &#39;.&#39; key
-        /// For the US standard keyboard, the &#39;.&gt;&#39; key
+        <span class="doccomment">/// For any country/region, the '.' key
+        /// For the US standard keyboard, the '.&gt;' key
         </span>UsDot = <span class="number">84</span>,
         <span class="doccomment">/// Used for miscellaneous characters; it can vary by keyboard.
-        /// For the US standard keyboard, the &#39;/?&#39; key
+        /// For the US standard keyboard, the '/?' key
         </span>UsSlash = <span class="number">85</span>,
         <span class="doccomment">/// Used for miscellaneous characters; it can vary by keyboard.
-        /// For the US standard keyboard, the &#39;`~&#39; key
+        /// For the US standard keyboard, the '`~' key
         </span>UsBacktick = <span class="number">86</span>,
         <span class="doccomment">/// Used for miscellaneous characters; it can vary by keyboard.
-        /// For the US standard keyboard, the &#39;[{&#39; key
+        /// For the US standard keyboard, the '[{' key
         </span>UsOpenSquareBracket = <span class="number">87</span>,
         <span class="doccomment">/// Used for miscellaneous characters; it can vary by keyboard.
-        /// For the US standard keyboard, the &#39;\|&#39; key
+        /// For the US standard keyboard, the '\|' key
         </span>UsBackslash = <span class="number">88</span>,
         <span class="doccomment">/// Used for miscellaneous characters; it can vary by keyboard.
-        /// For the US standard keyboard, the &#39;]}&#39; key
+        /// For the US standard keyboard, the ']}' key
         </span>UsCloseSquareBracket = <span class="number">89</span>,
         <span class="doccomment">/// Used for miscellaneous characters; it can vary by keyboard.
-        /// For the US standard keyboard, the &#39;&#39;&quot;&#39; key
+        /// For the US standard keyboard, the ''"' key
         </span>UsQuote = <span class="number">90</span>,
         <span class="doccomment">/// Used for miscellaneous characters; it can vary by keyboard.
         </span>Oem8 = <span class="number">91</span>,
@@ -1736,5 +1738,4 @@
         </span>Rtl = <span class="number">1</span>,
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="monaco" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

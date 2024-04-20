@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["interval","Creates a Stream that yields an item after every period has elapsed."],["sleep","Waits until duration has elapsed."]]};
+window.SIDEBAR_ITEMS = {"fn":["interval","sleep"]};

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/gloo-net-0.2.6/src/eventsource/futures.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>futures.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../gloo_net/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gloo-net-0.4.0/src/eventsource/futures.rs`."><title>futures.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gloo_net" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../gloo_net/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -271,7 +273,7 @@
 <a href="#271" id="271">271</a>
 <a href="#272" id="272">272</a>
 <a href="#273" id="273">273</a>
-</pre><pre class="rust"><code><span class="doccomment">//! A wrapper around the `EventSource` API using the Futures API to be used with async rust.
+</pre></div><pre class="rust"><code><span class="doccomment">//! A wrapper around the `EventSource` API using the Futures API to be used with async rust.
 //!
 //! EventSource is similar to WebSocket with the major differences being:
 //!
@@ -294,16 +296,16 @@
 //! #    ($($expr:expr),*) =&gt; {{}};
 //! # }
 //! # fn no_run() {
-//! let mut es = EventSource::new(&quot;http://api.example.com/ssedemo.php&quot;).unwrap();
-//! let stream_1 = es.subscribe(&quot;some-event-type&quot;).unwrap();
-//! let stream_2 = es.subscribe(&quot;another-event-type&quot;).unwrap();
+//! let mut es = EventSource::new("http://api.example.com/ssedemo.php").unwrap();
+//! let stream_1 = es.subscribe("some-event-type").unwrap();
+//! let stream_2 = es.subscribe("another-event-type").unwrap();
 //!
 //! spawn_local(async move {
 //!     let mut all_streams = stream::select(stream_1, stream_2);
 //!     while let Some(Ok((event_type, msg))) = all_streams.next().await {
-//!         console_log!(format!(&quot;1. {}: {:?}&quot;, event_type, msg))
+//!         console_log!(format!("1. {}: {:?}", event_type, msg))
 //!     }
-//!     console_log!(&quot;EventSource Closed&quot;);
+//!     console_log!("EventSource Closed");
 //! })
 //! # }
 //! ```
@@ -321,7 +323,7 @@
 <span class="kw">use </span>wasm_bindgen::JsCast;
 <span class="kw">use </span>web_sys::MessageEvent;
 
-<span class="doccomment">/// Wrapper around browser&#39;s EventSource API. Dropping
+<span class="doccomment">/// Wrapper around browser's EventSource API. Dropping
 /// this will close the underlying event source.
 </span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>EventSource {
@@ -329,16 +331,16 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>EventSource {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;EventSource&quot;</span>)
-            .field(<span class="string">&quot;url&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.es.url())
-            .field(<span class="string">&quot;with_credentials&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.es.with_credentials())
-            .field(<span class="string">&quot;ready_state&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.state())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"EventSource"</span>)
+            .field(<span class="string">"url"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.es.url())
+            .field(<span class="string">"with_credentials"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.es.with_credentials())
+            .field(<span class="string">"ready_state"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.state())
             .finish_non_exhaustive()
     }
 }
 
-<span class="doccomment">/// Wrapper around browser&#39;s EventSource API.
+<span class="doccomment">/// Wrapper around browser's EventSource API.
 </span><span class="attr">#[pin_project(PinnedDrop)]
 </span><span class="kw">pub struct </span>EventSourceSubscription {
     <span class="attr">#[allow(clippy::type_complexity)]
@@ -351,10 +353,10 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>EventSourceSubscription {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">&quot;EventSourceSubscription&quot;</span>)
-            .field(<span class="string">&quot;event_source&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.es)
-            .field(<span class="string">&quot;event_type&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.event_type)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">"EventSourceSubscription"</span>)
+            .field(<span class="string">"event_source"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.es)
+            .field(<span class="string">"event_type"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.event_type)
             .finish_non_exhaustive()
     }
 }
@@ -379,7 +381,7 @@
     /// All events for this type are streamed back given the subscription
     /// returned.
     ///
-    /// The event type of &quot;message&quot; is a special case, as it will capture
+    /// The event type of "message" is a special case, as it will capture
     /// events without an event field as well as events that have the
     /// specific type `event: message`. It will not trigger on any
     /// other event type.
@@ -420,7 +422,7 @@
         };
 
         <span class="self">self</span>.es
-            .add_event_listener_with_callback(<span class="string">&quot;error&quot;</span>, error_callback.as_ref().unchecked_ref())
+            .add_event_listener_with_callback(<span class="string">"error"</span>, error_callback.as_ref().unchecked_ref())
             .map_err(js_to_js_error)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(EventSourceSubscription {
@@ -444,7 +446,7 @@
         <span class="self">self</span>.es.close();
         <span class="comment">// Fire an error event to cause all subscriber
         // streams to close down.
-        </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(event) = web_sys::Event::new(<span class="string">&quot;error&quot;</span>) {
+        </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(event) = web_sys::Event::new(<span class="string">"error"</span>) {
             <span class="kw">let _ </span>= <span class="self">self</span>.es.dispatch_event(<span class="kw-2">&amp;</span>event);
         }
     }
@@ -476,7 +478,7 @@
 <span class="kw">impl </span>Stream <span class="kw">for </span>EventSourceSubscription {
     <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;(String, MessageEvent), EventSourceError&gt;;
 
-    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
+    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
         <span class="kw">let </span>msg = <span class="macro">ready!</span>(<span class="self">self</span>.project().message_receiver.poll_next(cx));
         <span class="kw">match </span>msg {
             <span class="prelude-val">Some</span>(StreamMessage::Message(event_type, msg)) =&gt; {
@@ -494,7 +496,7 @@
 </span><span class="kw">impl </span>PinnedDrop <span class="kw">for </span>EventSourceSubscription {
     <span class="kw">fn </span>drop(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) {
         <span class="kw">let _ </span>= <span class="self">self</span>.es.remove_event_listener_with_callback(
-            <span class="string">&quot;error&quot;</span>,
+            <span class="string">"error"</span>,
             <span class="self">self</span>.error_callback.as_ref().unchecked_ref(),
         );
 
@@ -517,22 +519,22 @@
     <span class="attr">#[wasm_bindgen_test]
     </span><span class="kw">fn </span>eventsource_works() {
         <span class="kw">let </span>sse_echo_server_url =
-            <span class="macro">option_env!</span>(<span class="string">&quot;SSE_ECHO_SERVER_URL&quot;</span>).expect(<span class="string">&quot;Did you set SSE_ECHO_SERVER_URL?&quot;</span>);
+            <span class="macro">option_env!</span>(<span class="string">"SSE_ECHO_SERVER_URL"</span>).expect(<span class="string">"Did you set SSE_ECHO_SERVER_URL?"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>es = EventSource::new(sse_echo_server_url).unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>servers = es.subscribe(<span class="string">&quot;server&quot;</span>).unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>requests = es.subscribe(<span class="string">&quot;request&quot;</span>).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>servers = es.subscribe(<span class="string">"server"</span>).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>requests = es.subscribe(<span class="string">"request"</span>).unwrap();
 
         spawn_local(<span class="kw">async move </span>{
-            <span class="macro">assert_eq!</span>(servers.next().<span class="kw">await</span>.unwrap().unwrap().<span class="number">0</span>, <span class="string">&quot;server&quot;</span>);
-            <span class="macro">assert_eq!</span>(requests.next().<span class="kw">await</span>.unwrap().unwrap().<span class="number">0</span>, <span class="string">&quot;request&quot;</span>);
+            <span class="macro">assert_eq!</span>(servers.next().<span class="kw">await</span>.unwrap().unwrap().<span class="number">0</span>, <span class="string">"server"</span>);
+            <span class="macro">assert_eq!</span>(requests.next().<span class="kw">await</span>.unwrap().unwrap().<span class="number">0</span>, <span class="string">"request"</span>);
         });
     }
 
     <span class="attr">#[wasm_bindgen_test]
     </span><span class="kw">fn </span>eventsource_connect_failure_works() {
-        <span class="kw">let </span><span class="kw-2">mut </span>es = EventSource::new(<span class="string">&quot;rubbish&quot;</span>).unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>servers = es.subscribe(<span class="string">&quot;server&quot;</span>).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>es = EventSource::new(<span class="string">"rubbish"</span>).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>servers = es.subscribe(<span class="string">"server"</span>).unwrap();
 
         spawn_local(<span class="kw">async move </span>{
             <span class="comment">// we should expect an immediate failure
@@ -544,5 +546,4 @@
         })
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gloo_net" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

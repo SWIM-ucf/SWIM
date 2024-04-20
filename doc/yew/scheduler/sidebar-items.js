@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["push","Push a generic [Runnable] to be executed"]],"trait":[["Runnable","A routine which could be run."]],"type":[["Shared","Alias for `Rc<RefCell<T>>`"]]};
+window.SIDEBAR_ITEMS = {"fn":["push"],"trait":["Runnable"],"type":["Shared"]};

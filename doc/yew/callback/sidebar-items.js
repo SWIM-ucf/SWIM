@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Callback","Universal callback wrapper."]]};
+window.SIDEBAR_ITEMS = {"struct":["Callback"]};

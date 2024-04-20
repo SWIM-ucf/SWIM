@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"swim":[["impl <a class=\"trait\" href=\"yew/functional/hooks/use_reducer/trait.Reducible.html\" title=\"trait yew::functional::hooks::use_reducer::Reducible\">Reducible</a> for <a class=\"struct\" href=\"swim/agent/datapath_reducer/struct.DatapathReducer.html\" title=\"struct swim::agent::datapath_reducer::DatapathReducer\">DatapathReducer</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

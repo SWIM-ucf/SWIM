@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/ui/regview/component.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>component.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../../swim/index.html"><img class="rust-logo" src="../../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/ui/regview/component.rs`."><title>component.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="swim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../swim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -269,26 +271,63 @@
 <a href="#269" id="269">269</a>
 <a href="#270" id="270">270</a>
 <a href="#271" id="271">271</a>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::emulation_core::mips::registers::{GpRegisterType, GpRegisters};
-<span class="comment">//use gloo::console::log;
-</span><span class="kw">use </span>wasm_bindgen::JsCast;
-<span class="kw">use </span>web_sys::HtmlElement;
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::agent::datapath_communicator::DatapathCommunicator;
+<span class="kw">use </span><span class="kw">crate</span>::emulation_core::register::RegisterType;
+<span class="kw">use </span><span class="kw">crate</span>::ui::swim_editor::tab::Tab;
+<span class="kw">use </span>std::rc::Rc;
+<span class="kw">use </span>wasm_bindgen::JsCast;
+<span class="kw">use </span>web_sys::{HtmlInputElement, InputEvent};
 <span class="kw">use </span>yew::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>yew::{html, Html};
 
-<span class="comment">// datapath.coprocessor.fpr
+<span class="comment">// ** Register View Component ** //
+// Container for the general purpose and floating point registers
+// Is architecture-independent, as long as the registers implement the RegisterType trait
+
 </span><span class="attr">#[derive(PartialEq, Properties)]
 </span><span class="kw">pub struct </span>Regviewprops {
-    <span class="kw">pub </span>gp: GpRegisters,
-    <span class="kw">pub </span>fp: [u64; <span class="number">32</span>],
+    <span class="kw">pub </span>gp: Vec&lt;(Rc&lt;<span class="kw">dyn </span>RegisterType&gt;, u64)&gt;,
+    <span class="kw">pub </span>fp: Vec&lt;(Rc&lt;<span class="kw">dyn </span>RegisterType&gt;, u64)&gt;,
+    <span class="kw">pub </span>pc_limit: usize,
+    <span class="kw">pub </span>communicator: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>DatapathCommunicator,
+}
+<span class="attr">#[derive(PartialEq, Default)]
+</span><span class="kw">pub enum </span>RegviewTabState {
+    <span class="attr">#[default]
+    </span>Gp,
+    Fp,
 }
 
-<span class="attr">#[derive(PartialEq, Properties)]
-</span><span class="kw">pub struct </span>Viewswitch {
-    <span class="kw">pub </span>switch_view: bool,
-}
-
-<span class="attr">#[derive(Default, PartialEq)]
-</span><span class="kw">enum </span>UnitState {
+<span class="attr">#[derive(Default, PartialEq, Clone, Copy, Debug)]
+</span><span class="kw">pub enum </span>UnitState {
     <span class="attr">#[default]
     </span>Dec,
     Hex,
@@ -296,243 +335,262 @@
     Float,
     Double,
 }
+<span class="comment">// Stores the value and event data of the input
+</span><span class="kw">pub struct </span>InputData {
+    <span class="kw">pub </span>value: String,
+    <span class="kw">pub </span>event: InputEvent,
+}
 
 <span class="comment">//Convert register to html through iterator
-</span><span class="kw">pub fn </span>generate_gpr_rows(gp: GpRegisters) -&gt; Html {
-    gp.into_iter()
+// ============= General Purpose Registers =============
+</span><span class="kw">pub fn </span>generate_gpr_rows(props: <span class="kw-2">&amp;</span>Regviewprops, radix: u32) -&gt; Html {
+    <span class="kw">let </span>communicator = props.communicator;
+    <span class="kw">let </span>pc_limit = props.pc_limit;
+    <span class="kw">let </span>registers = props.gp.clone();
+
+    registers
+        .into_iter()
         .map(|(register, data)| {
+            <span class="kw">let </span>format_string = <span class="kw">match </span>radix {
+                <span class="number">16 </span>=&gt; <span class="macro">format!</span>(<span class="string">"{:#04x?}"</span>, data),
+                <span class="number">2 </span>=&gt; <span class="macro">format!</span>(<span class="string">"{:#b}"</span>, data),
+                <span class="kw">_ </span>=&gt; data.to_string(),
+            };
             <span class="macro">html! </span>{
                 &lt;tr&gt;
-                    &lt;td&gt;{get_gpr_name(register)}&lt;/td&gt;
-                    &lt;td&gt;{(data <span class="kw">as </span>i64).to_string()}&lt;/td&gt;
-                &lt;/tr&gt;
-            }
-        })
-        .collect::&lt;Html&gt;()
-}
-<span class="kw">pub fn </span>generate_gpr_rows_hex(gp: GpRegisters) -&gt; Html {
-    gp.into_iter()
-        .map(|(register, data)| {
-            <span class="macro">html! </span>{
-                &lt;tr&gt;
-                    &lt;td&gt;{get_gpr_name(register)}&lt;/td&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{data:#04x?}&quot;</span>).to_string()}&lt;/td&gt;
-                &lt;/tr&gt;
-            }
-        })
-        .collect::&lt;Html&gt;()
-}
-<span class="kw">pub fn </span>generate_gpr_rows_bin(gp: GpRegisters) -&gt; Html {
-    gp.into_iter()
-        .map(|(register, data)| {
-            <span class="macro">html! </span>{
-                &lt;tr&gt;
-                    &lt;td&gt;{get_gpr_name(register)}&lt;/td&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{data:#b}&quot;</span>).to_string()}&lt;/td&gt;
-                &lt;/tr&gt;
-            }
-        })
-        .collect::&lt;Html&gt;()
-}
-<span class="kw">pub fn </span>generate_fpr_rows(fp: [u64; <span class="number">32</span>]) -&gt; Html {
-    fp.iter()
-        .enumerate()
-        .map(|(register, data)| {
-            <span class="macro">html! </span>{
-                &lt;tr&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;f{register}&quot;</span>)}&lt;/td&gt;
-                    &lt;td&gt;{(<span class="kw-2">*</span>data <span class="kw">as </span>i64).to_string()}&lt;/td&gt;
-                &lt;/tr&gt;
-            }
-        })
-        .collect::&lt;Html&gt;()
-}
-<span class="kw">pub fn </span>generate_fpr_rows_hex(fp: [u64; <span class="number">32</span>]) -&gt; Html {
-    fp.iter()
-        .enumerate()
-        .map(|(register, data)| {
-            <span class="macro">html! </span>{
-                &lt;tr&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;f{register}&quot;</span>)}&lt;/td&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{data:#04x?}&quot;</span>).to_string()}&lt;/td&gt;
-                &lt;/tr&gt;
-            }
-        })
-        .collect::&lt;Html&gt;()
-}
-<span class="kw">pub fn </span>generate_fpr_rows_bin(fp: [u64; <span class="number">32</span>]) -&gt; Html {
-    fp.iter()
-        .enumerate()
-        .map(|(register, data)| {
-            <span class="macro">html! </span>{
-                &lt;tr&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;f{register}&quot;</span>)}&lt;/td&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{data:#b}&quot;</span>).to_string()}&lt;/td&gt;
+                    &lt;td&gt;{register.get_register_name()}&lt;/td&gt;
+                    &lt;td&gt;
+                        &lt;input <span class="kw">type</span>=<span class="string">"text" </span>id={register.to_string()}
+                        oninput={<span class="kw">move </span>|e: InputEvent| {
+                            <span class="kw">let </span>target = e.target();
+                            <span class="kw">let </span>input = target.unwrap().unchecked_into::&lt;HtmlInputElement&gt;();
+                            <span class="kw">let </span>input_string = input.value();
+                            <span class="kw">let </span><span class="kw-2">mut </span>number = input_string.as_str();
+                            <span class="comment">// remove prefix from hex and binary inputs
+                            </span><span class="kw">if </span>radix == <span class="number">2 </span>|| radix == <span class="number">16 </span>{
+                                number = <span class="kw-2">&amp;</span>input_string[<span class="number">2</span>..];
+                            }
+                            <span class="comment">// use rust built-in parsing to convert string to u64
+                            </span><span class="kw">let </span>val = <span class="kw">match </span>u64::from_str_radix(number, radix) {
+                                <span class="prelude-val">Ok</span>(value) =&gt; {
+                                    input.set_class_name(<span class="string">""</span>);
+                                    value
+                                },
+                                <span class="prelude-val">Err</span>(_err) =&gt; {
+                                    input.set_class_name(<span class="string">"text-accent-red-200"</span>);
+                                    <span class="kw">return
+                                </span>}
+                            };
+                            <span class="comment">// if rust is like "yeah that's a perfectly valid u64 number right there", double check with the architecture
+                            </span><span class="kw">if </span>register.is_valid_register_value(val, pc_limit) {
+                                communicator.set_register(register.to_string(), val);
+                                input.set_class_name(<span class="string">""</span>);
+                            } <span class="kw">else </span>{
+                                input.set_class_name(<span class="string">"text-accent-red-200"</span>);
+                            }
+                        }}
+                        value={format_string}/&gt;
+                    &lt;/td&gt;
                 &lt;/tr&gt;
             }
         })
         .collect::&lt;Html&gt;()
 }
 
-<span class="kw">pub fn </span>generate_fpr_rows_float(fp: [u64; <span class="number">32</span>]) -&gt; Html {
-    fp.iter()
-        .enumerate()
+<span class="comment">// ============= Coprocessor Registers =============
+</span><span class="kw">pub fn </span>generate_fpr_rows(props: <span class="kw-2">&amp;</span>Regviewprops, unit_type: UnitState) -&gt; Html {
+    <span class="kw">let </span>communicator = props.communicator;
+    <span class="kw">let </span>pc_limit = props.pc_limit;
+    <span class="kw">let </span>registers = props.fp.clone();
+
+    registers
+        .into_iter()
         .map(|(register, data)| {
             <span class="macro">html! </span>{
                 &lt;tr&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;f{register}&quot;</span>)}&lt;/td&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{:e}&quot;</span>,f32::from_bits((<span class="kw-2">*</span>data).try_into().unwrap())).to_string()}&lt;/td&gt;
+                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">"{register}"</span>)}&lt;/td&gt;
+                    &lt;td&gt;
+                        &lt;input <span class="kw">type</span>=<span class="string">"text" </span>id={register.to_string()}
+                        oninput={<span class="kw">move </span>|e: InputEvent| {
+                            <span class="kw">let </span>target = e.target();
+                            <span class="kw">let </span>input = target.unwrap().unchecked_into::&lt;HtmlInputElement&gt;();
+                            <span class="kw">let </span>input_string = input.value();
+                            <span class="comment">// parse the input depending on the unit type
+                            </span><span class="kw">let </span>value = <span class="kw">match </span>unit_type {
+                                UnitState::Float =&gt; {
+                                    <span class="kw">match </span>input_string.parse::&lt;f32&gt;() {
+                                        <span class="prelude-val">Ok</span>(value) =&gt; {
+                                            input.set_class_name(<span class="string">""</span>);
+                                            value.to_bits() <span class="kw">as </span>u64 <span class="comment">// need to convert to bits to store in u64
+                                        </span>},
+                                        <span class="prelude-val">Err</span>(_err) =&gt; {
+                                            input.set_class_name(<span class="string">"text-accent-red-200"</span>);
+                                            <span class="kw">return
+                                        </span>}
+                                    }
+                                },
+                                UnitState::Double =&gt; {
+                                    <span class="kw">match </span>input_string.parse::&lt;f64&gt;() {
+                                        <span class="prelude-val">Ok</span>(value) =&gt; {
+                                            input.set_class_name(<span class="string">""</span>);
+                                            value.to_bits() <span class="comment">// need to convert to bits to store in u64
+                                        </span>},
+                                        <span class="prelude-val">Err</span>(_err) =&gt; {
+                                            input.set_class_name(<span class="string">"text-accent-red-200"</span>);
+                                            <span class="kw">return
+                                        </span>}
+                                    }
+                                },
+                                UnitState::Hex =&gt; {
+                                    <span class="kw">match </span>u64::from_str_radix(<span class="kw-2">&amp;</span>input_string[<span class="number">2</span>..], <span class="number">16</span>) {
+                                        <span class="prelude-val">Ok</span>(value) =&gt; {
+                                            input.set_class_name(<span class="string">""</span>);
+                                            value
+                                        },
+                                        <span class="prelude-val">Err</span>(_err) =&gt; {
+                                            input.set_class_name(<span class="string">"text-accent-red-200"</span>);
+                                            <span class="kw">return
+                                        </span>}
+                                    }
+                                },
+                                UnitState::Bin =&gt; {
+                                    <span class="kw">match </span>u64::from_str_radix(<span class="kw-2">&amp;</span>input_string[<span class="number">2</span>..], <span class="number">2</span>) {
+                                        <span class="prelude-val">Ok</span>(value) =&gt; {
+                                            input.set_class_name(<span class="string">""</span>);
+                                            value
+                                        },
+                                        <span class="prelude-val">Err</span>(_err) =&gt; {
+                                            input.set_class_name(<span class="string">"text-accent-red-200"</span>);
+                                            <span class="kw">return
+                                        </span>}
+                                    }
+                                },
+                                <span class="kw">_ </span>=&gt; {
+                                    <span class="kw">match </span>input_string.parse::&lt;u64&gt;() {
+                                        <span class="prelude-val">Ok</span>(value) =&gt; {
+                                            input.set_class_name(<span class="string">""</span>);
+                                            value
+                                        },
+                                        <span class="prelude-val">Err</span>(_err) =&gt; {
+                                            input.set_class_name(<span class="string">"text-accent-red-200"</span>);
+                                            <span class="kw">return
+                                        </span>}
+                                    }
+                                }
+                            };
+                            <span class="kw">if </span>register.is_valid_register_value(value, pc_limit) {
+                                communicator.set_fp_register(register.to_string(), value);
+                                input.set_class_name(<span class="string">""</span>);
+                            } <span class="kw">else </span>{
+                                input.set_class_name(<span class="string">"text-accent-red-200"</span>);
+                            }
+                        }}
+                        value={
+                            <span class="kw">match </span>unit_type {
+                                UnitState::Float =&gt; <span class="macro">format!</span>(<span class="string">"{:e}"</span>, f32::from_bits(data <span class="kw">as </span>u32)).to_string(),
+                                UnitState::Double =&gt; <span class="macro">format!</span>(<span class="string">"{:e}"</span>, f64::from_bits(data)).to_string(),
+                                UnitState::Hex =&gt; <span class="macro">format!</span>(<span class="string">"{:#04x?}"</span>, data).to_string(),
+                                UnitState::Bin =&gt; <span class="macro">format!</span>(<span class="string">"{:#b}"</span>, data).to_string(),
+                                <span class="kw">_ </span>=&gt; <span class="macro">format!</span>(<span class="string">"{:?}"</span>, data).to_string(),
+                            }
+                        }/&gt;
+                    &lt;/td&gt;
                 &lt;/tr&gt;
             }
         })
         .collect::&lt;Html&gt;()
-}
-
-<span class="kw">pub fn </span>generate_fpr_rows_double(fp: [u64; <span class="number">32</span>]) -&gt; Html {
-    fp.iter()
-        .enumerate()
-        .map(|(register, data)| {
-            <span class="macro">html! </span>{
-                &lt;tr&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;f{register}&quot;</span>)}&lt;/td&gt;
-                    &lt;td&gt;{<span class="macro">format!</span>(<span class="string">&quot;{:e}&quot;</span>, f64::from_bits(<span class="kw-2">*</span>data)).to_string()}&lt;/td&gt;
-                &lt;/tr&gt;
-            }
-        })
-        .collect::&lt;Html&gt;()
-}
-
-<span class="doccomment">/// Returns the text to be shown for a general-purpose register.
-</span><span class="kw">pub fn </span>get_gpr_name(register: GpRegisterType) -&gt; String {
-    <span class="kw">if </span>register == GpRegisterType::Pc {
-        register.to_string()
-    } <span class="kw">else </span>{
-        <span class="macro">format!</span>(<span class="string">&quot;{} (r{})&quot;</span>, register, register <span class="kw">as </span>u32)
-    }
 }
 
 <span class="attr">#[function_component(Regview)]
 </span><span class="kw">pub fn </span>regview(props: <span class="kw-2">&amp;</span>Regviewprops) -&gt; Html {
     <span class="kw">let </span>active_view = use_state_eq(UnitState::default);
-    <span class="kw">let </span>switch_flag = use_state_eq(|| <span class="bool-val">true</span>);
-    <span class="kw">let </span>change_view = {
+    <span class="kw">let </span>active_tab = use_state_eq(RegviewTabState::default);
+
+    <span class="comment">// Change the unit type
+    </span><span class="kw">let </span>change_view = {
         <span class="kw">let </span>active_view = active_view.clone();
-        Callback::from(<span class="kw">move </span>|event: MouseEvent| {
-            <span class="kw">let </span>target = event.target().unwrap().dyn_into::&lt;HtmlElement&gt;().unwrap();
-            <span class="kw">let </span>mode = target
-                .get_attribute(<span class="string">&quot;label&quot;</span>)
-                .unwrap_or(String::from(<span class="string">&quot;regview&quot;</span>));
+        Callback::from(<span class="kw">move </span>|event: Event| {
+            <span class="kw">let </span>target = event.target().unwrap().unchecked_into::&lt;HtmlInputElement&gt;();
+            <span class="kw">let </span>mode = target.value();
 
             <span class="kw">let </span>new_mode = <span class="kw">match </span>mode.as_str() {
-                <span class="string">&quot;bin&quot; </span>=&gt; UnitState::Bin,
-                <span class="string">&quot;hex&quot; </span>=&gt; UnitState::Hex,
-                <span class="string">&quot;dec&quot; </span>=&gt; UnitState::Dec,
-                <span class="string">&quot;float&quot; </span>=&gt; UnitState::Float,
-                <span class="string">&quot;double&quot; </span>=&gt; UnitState::Double,
+                <span class="string">"bin" </span>=&gt; UnitState::Bin,
+                <span class="string">"hex" </span>=&gt; UnitState::Hex,
+                <span class="string">"dec" </span>=&gt; UnitState::Dec,
+                <span class="string">"float" </span>=&gt; UnitState::Float,
+                <span class="string">"double" </span>=&gt; UnitState::Double,
                 <span class="kw">_ </span>=&gt; UnitState::default(),
             };
 
             active_view.set(new_mode);
         })
     };
-    <span class="kw">let </span>on_switch_clicked_fp = {
-        <span class="kw">let </span>switch_flag = switch_flag.clone();
-        use_callback(
-            <span class="kw">move </span>|<span class="kw">_</span>, switch_flag| {
-                <span class="kw">if </span><span class="kw-2">**</span>switch_flag {
-                    switch_flag.set(<span class="bool-val">false</span>);
-                }
-            },
-            switch_flag,
-        )
-    };
-    <span class="kw">let </span>on_switch_clicked_gp = {
-        <span class="kw">let </span>switch_flag = switch_flag.clone();
-        use_callback(
-            <span class="kw">move </span>|<span class="kw">_</span>, switch_flag| {
-                <span class="kw">if </span>!(<span class="kw-2">**</span>switch_flag) {
-                    switch_flag.set(<span class="bool-val">true</span>);
-                }
-            },
-            switch_flag,
-        )
-    };
-    <span class="comment">//log!(&quot;This is &quot;, *switch_flag);
-    </span><span class="macro">html! </span>{
-        &lt;div style=<span class="string">&quot;flex-grow: 1; gap: 8px; display: flex; flex-direction: column; flex-wrap: nowrap;&quot;</span>&gt;
-            &lt;div class=<span class="string">&quot;button-bar tabs&quot;</span>&gt;
-                <span class="kw">if </span><span class="kw-2">*</span>active_view == UnitState::Dec {
-                    &lt;button class={<span class="macro">classes!</span>(<span class="string">&quot;tab&quot;</span>, <span class="string">&quot;pressed&quot;</span>)} label=<span class="string">&quot;dec&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Dec&quot;</span>}&lt;/button&gt;
-                } <span class="kw">else </span>{
-                    &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;dec&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Dec&quot;</span>}&lt;/button&gt;
-                }
+    <span class="comment">// Change the active tab to GP or FP
+    </span><span class="kw">let </span>change_tab = {
+        <span class="kw">let </span>active_tab = active_tab.clone();
+        Callback::from(<span class="kw">move </span>|event: MouseEvent| {
+            <span class="kw">let </span>target = event
+                .target()
+                .unwrap()
+                .dyn_into::&lt;web_sys::HtmlElement&gt;()
+                .unwrap();
+            <span class="kw">let </span>tab_name = target.get_attribute(<span class="string">"label"</span>).unwrap_or(String::from(<span class="string">"gp"</span>));
 
-                <span class="kw">if </span><span class="kw-2">*</span>active_view == UnitState::Bin {
-                    &lt;button class={<span class="macro">classes!</span>(<span class="string">&quot;tab&quot;</span>, <span class="string">&quot;pressed&quot;</span>)} label=<span class="string">&quot;bin&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Bin&quot;</span>}&lt;/button&gt;
-                } <span class="kw">else </span>{
-                    &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;bin&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Bin&quot;</span>}&lt;/button&gt;
-                }
+            <span class="kw">let </span>new_tab = <span class="kw">match </span>tab_name.as_str() {
+                <span class="string">"gp" </span>=&gt; RegviewTabState::Gp,
+                <span class="string">"fp" </span>=&gt; RegviewTabState::Fp,
+                <span class="kw">_ </span>=&gt; RegviewTabState::default(),
+            };
 
-                <span class="kw">if </span><span class="kw-2">*</span>active_view == UnitState::Hex {
-                    &lt;button class={<span class="macro">classes!</span>(<span class="string">&quot;tab&quot;</span>, <span class="string">&quot;pressed&quot;</span>)} label=<span class="string">&quot;hex&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Hex&quot;</span>}&lt;/button&gt;
-                } <span class="kw">else </span>{
-                    &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;hex&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Hex&quot;</span>}&lt;/button&gt;
-                }
-                <span class="kw">if </span>!<span class="kw-2">*</span>switch_flag{
-                    <span class="kw">if </span><span class="kw-2">*</span>active_view == UnitState::Float {
-                        &lt;button class={<span class="macro">classes!</span>(<span class="string">&quot;tab&quot;</span>, <span class="string">&quot;pressed&quot;</span>)} label=<span class="string">&quot;float&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Float&quot;</span>}&lt;/button&gt;
-                    } <span class="kw">else </span>{
-                        &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;float&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Float&quot;</span>}&lt;/button&gt;
+            active_tab.set(new_tab);
+        })
+    };
+
+    <span class="macro">html! </span>{
+        &lt;div class=<span class="string">"grow flex flex-col flex-no-wrap mt-12 min-w-0"</span>&gt;
+            &lt;div class=<span class="string">"flex flex-row justify-between"</span>&gt;
+                &lt;div&gt;
+                    &lt;Tab&lt;RegviewTabState&gt; label=<span class="string">"gp" </span>text=<span class="string">"GP" </span>on_click={change_tab.clone()} disabled={<span class="bool-val">false</span>} active_tab={active_tab.clone()} tab_name={RegviewTabState::Gp}/&gt;
+                    &lt;Tab&lt;RegviewTabState&gt; label=<span class="string">"fp" </span>text=<span class="string">"FP" </span>on_click={change_tab.clone()} disabled={<span class="bool-val">false</span>} active_tab={active_tab.clone()} tab_name={RegviewTabState::Fp}/&gt;
+                &lt;/div&gt;
+                &lt;select class=<span class="string">"text-right bg-primary-600 text-primary-200 flex items-center flex-row" </span>name=<span class="string">"units" </span>onchange={change_view.clone()} value={
+                    <span class="kw">match </span><span class="kw-2">*</span>active_view {
+                        UnitState::Bin =&gt; <span class="string">"Binary"</span>,
+                        UnitState::Dec =&gt; <span class="string">"Decimal"</span>,
+                        UnitState::Hex =&gt; <span class="string">"Hex"</span>,
+                        UnitState::Float =&gt; <span class="string">"Float"</span>,
+                        UnitState::Double =&gt; <span class="string">"Double"
+                    </span>}
+                }&gt;
+                    &lt;option value=<span class="string">"hex"</span>&gt;{<span class="string">"Hex"</span>}&lt;/option&gt;
+                    &lt;option value=<span class="string">"bin"</span>&gt;{<span class="string">"Binary"</span>}&lt;/option&gt;
+                    &lt;option value=<span class="string">"dec"</span>&gt;{<span class="string">"Decimal"</span>}&lt;/option&gt;
+                    <span class="kw">if </span><span class="kw-2">*</span>active_tab == RegviewTabState::Fp {
+                        &lt;option value=<span class="string">"float"</span>&gt;{<span class="string">"Float"</span>}&lt;/option&gt;
+                        &lt;option value=<span class="string">"double"</span>&gt;{<span class="string">"Double"</span>}&lt;/option&gt;
                     }
-                    <span class="kw">if </span><span class="kw-2">*</span>active_view == UnitState::Double {
-                        &lt;button class={<span class="macro">classes!</span>(<span class="string">&quot;tab&quot;</span>, <span class="string">&quot;pressed&quot;</span>)} label=<span class="string">&quot;double&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Double&quot;</span>}&lt;/button&gt;
-                    } <span class="kw">else </span>{
-                        &lt;button class=<span class="string">&quot;tab&quot; </span>label=<span class="string">&quot;double&quot; </span>onclick={change_view.clone()}&gt;{<span class="string">&quot;Double&quot;</span>}&lt;/button&gt;
-                    }
-                }
+                &lt;/select&gt;
             &lt;/div&gt;
-            &lt;div class=<span class="string">&quot;button-bar tabs&quot;</span>&gt;
-            <span class="kw">if </span><span class="kw-2">*</span>switch_flag {
-                &lt;button class={<span class="macro">classes!</span>(<span class="string">&quot;tab&quot;</span>, <span class="string">&quot;pressed&quot;</span>)} style=<span class="string">&quot;width: 50%;&quot; </span>onclick={on_switch_clicked_gp.clone()}&gt;{<span class="string">&quot;GP&quot;</span>}&lt;/button&gt;
-            } <span class="kw">else </span>{
-                &lt;button class=<span class="string">&quot;tab&quot; </span>style=<span class="string">&quot;width: 50%;&quot; </span>onclick={on_switch_clicked_gp.clone()}&gt;{<span class="string">&quot;GP&quot;</span>}&lt;/button&gt;
-            }
-            <span class="kw">if </span>!(<span class="kw-2">*</span>switch_flag){
-                &lt;button class={<span class="macro">classes!</span>(<span class="string">&quot;tab&quot;</span>, <span class="string">&quot;pressed&quot;</span>)} style=<span class="string">&quot;width: 50%;&quot; </span>onclick={on_switch_clicked_fp.clone()}&gt;{<span class="string">&quot;FP&quot;</span>}&lt;/button&gt;
-            } <span class="kw">else </span>{
-                &lt;button class=<span class="string">&quot;tab&quot; </span>style=<span class="string">&quot;width: 50%;&quot; </span>onclick={on_switch_clicked_fp.clone()}&gt;{<span class="string">&quot;FP&quot;</span>}&lt;/button&gt;
-            }
-            &lt;/div&gt;
-            &lt;div class=<span class="string">&quot;table-wrapper&quot;</span>&gt;
-                &lt;table style=<span class="string">&quot;background-color: #ffffff&quot;</span>&gt;
+            &lt;div class=<span class="string">"overflow-y-auto"</span>&gt;
+                &lt;table&gt;
                     &lt;thead&gt;
                         &lt;tr&gt;
-                            &lt;th&gt;{<span class="string">&quot;Register Name&quot;</span>}&lt;/th&gt;
-                            &lt;th&gt;{<span class="string">&quot;Data&quot;</span>}&lt;/th&gt;
+                            &lt;th class=<span class="string">"bg-primary-800"</span>&gt;{<span class="string">"Register Name"</span>}&lt;/th&gt;
+                            &lt;th class=<span class="string">"bg-primary-800"</span>&gt;{<span class="string">"Data"</span>}&lt;/th&gt;
                         &lt;/tr&gt;
                     &lt;/thead&gt;
                     &lt;tbody&gt;
-                        <span class="kw">if </span><span class="kw-2">*</span>switch_flag{
+                        <span class="kw">if </span><span class="kw-2">*</span>active_tab == RegviewTabState::Gp {
                             <span class="kw">if </span><span class="kw-2">*</span>active_view == UnitState::Bin {
-                                {generate_gpr_rows_bin(props.gp)}
+                                {generate_gpr_rows(props, <span class="number">2</span>)}
                             }
                             <span class="kw">else if </span><span class="kw-2">*</span>active_view == UnitState::Hex {
-                                {generate_gpr_rows_hex(props.gp)}
+                                {generate_gpr_rows(props, <span class="number">16</span>)}
                             } <span class="kw">else </span>{
-                                {generate_gpr_rows(props.gp)}
+                                {generate_gpr_rows(props, <span class="number">10</span>)}
                             }
                         } <span class="kw">else </span>{
-                            <span class="kw">if </span><span class="kw-2">*</span>active_view == UnitState::Bin {
-                                {generate_fpr_rows_bin(props.fp)}
-                            } <span class="kw">else if </span><span class="kw-2">*</span>active_view == UnitState::Hex{
-                                {generate_fpr_rows_hex(props.fp)}
-                            } <span class="kw">else if </span><span class="kw-2">*</span>active_view == UnitState::Float{
-                                {generate_fpr_rows_float(props.fp)}
-                            } <span class="kw">else if </span><span class="kw-2">*</span>active_view == UnitState::Double{
-                                {generate_fpr_rows_double(props.fp)}
-                            } <span class="kw">else if </span><span class="kw-2">*</span>active_view == UnitState::Dec {
-                                {generate_fpr_rows(props.fp)}
-                            }
+                            {generate_fpr_rows(props, <span class="kw-2">*</span>active_view.clone())}
                         }
                     &lt;/tbody&gt;
                 &lt;/table&gt;
@@ -540,5 +598,4 @@
         &lt;/div&gt;
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="swim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

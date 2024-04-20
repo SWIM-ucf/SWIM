@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"attr":["oneshot"],"fn":["use_oneshot_runner"],"struct":["OneshotBridge","OneshotProvider","OneshotRegistrar","OneshotSpawner","UseOneshotRunnerHandle"],"trait":["Oneshot"]};

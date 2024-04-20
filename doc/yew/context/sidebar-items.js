@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["ContextHandle","Owns the connection to a context provider. When dropped, the component will no longer receive updates from the provider."],["ContextProvider","The context provider component."],["ContextProviderProps","Props for [`ContextProvider`]"]]};
+window.SIDEBAR_ITEMS = {"struct":["ContextHandle","ContextProvider","ContextProviderProps"]};
