@@ -1,8 +1,6 @@
 use gloo::file::FileList;
-use gloo_console::log;
+use gloo_console::warn;
 use js_sys::Object;
-use log::debug;
-use log::Level;
 use monaco::{
     api::TextModel,
     sys::{editor::IMarkerData, MarkerSeverity},
@@ -225,8 +223,6 @@ fn app(props: &AppProps) -> Html {
         )
     };
 
-    log!("Re-rendered!");
-
     // This is where the code will get executed. If you execute further
     // than when the code ends, the program crashes. This is remedied via the
     // syscall instruction, which will halt the datapath. As you execute the
@@ -403,7 +399,7 @@ fn app(props: &AppProps) -> Html {
                             {
                                 Ok(data) => data,
                                 Err(e) => {
-                                    debug!("{:?}", e);
+                                    warn!("{:?}", e);
                                     0
                                 }
                             };
@@ -522,7 +518,7 @@ fn app(props: &AppProps) -> Html {
                         }
                     }
                     Err(err) => {
-                        debug!("Error updating memory: {}", err)
+                        warn!("Error updating memory: {}", err)
                     }
                 }
 
@@ -749,7 +745,6 @@ pub fn on_upload_file_clicked() {
 }
 
 fn main() {
-    console_log::init_with_level(Level::Debug).unwrap();
     // Initialize and leak the communicator to ensure that the thread spawns immediately and the bridge to it lives
     // for the remainder of the program.
     let bridge = EmulationCoreAgent::spawner().spawn("./worker.js");
