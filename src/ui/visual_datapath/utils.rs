@@ -1,7 +1,6 @@
 //! Helpful common functions used for the visual datapath.
 
 use gloo::utils::{document, window};
-use gloo_console::log;
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlCollection, HtmlElement, HtmlObjectElement, MouseEvent};
 use yew::UseReducerHandle;

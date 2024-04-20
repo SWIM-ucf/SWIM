@@ -12,7 +12,6 @@ use crate::emulation_core::riscv::registers::{
     RiscFpRegisters, RiscGpRegisterType, RiscGpRegisters,
 };
 use crate::emulation_core::stack::Stack;
-use gloo_console::log;
 use std::rc::Rc;
 use yew::Reducible;
 

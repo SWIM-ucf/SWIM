@@ -8,7 +8,6 @@ use crate::emulation_core::datapath::{Datapath, DatapathUpdateSignal, Syscall, U
 use crate::emulation_core::mips::datapath::MipsDatapath;
 use crate::emulation_core::riscv::datapath::RiscDatapath;
 use futures::{FutureExt, SinkExt, StreamExt};
-use gloo_console::log;
 use instant::Instant;
 use messages::DatapathUpdate;
 use std::collections::HashSet;

@@ -10,7 +10,6 @@ use crate::emulation_core::stack::Stack;
 // use monaco::api::TextModel;
 use crate::parser::parser_structs_and_enums::ProgramInfo;
 use crate::ui::swim_editor::tab::TabState;
-use log::debug;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, HtmlInputElement};
 use yew::prelude::*;
@@ -74,7 +73,6 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
             let input = target.unwrap().unchecked_into::<HtmlInputElement>();
 
             if input.checked() {
-                debug!("Breakpoint set at {:08x}", address as u64);
                 communicator.set_breakpoint(address as u64);
                 breakpoints.set({
                     let mut new_breakpoints = breakpoints.deref().clone();
@@ -82,7 +80,6 @@ pub fn TextSegment(props: &TextSegmentProps) -> Html {
                     new_breakpoints
                 });
             } else {
-                debug!("Breakpoint removed at {:08x}", address as u64);
                 communicator.remove_breakpoint(address as u64);
                 breakpoints.set({
                     let mut new_breakpoints = breakpoints.deref().clone();
