@@ -54,39 +54,6 @@ body {
   }
 }
 
-/****** Footer ******/
-
-.console-input {
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  color: #aeaeae;
-  position: relative;
-  width: 100%;
-}
-
-.console-input .command {
-  margin-left: 25px;
-}
-
-.console-input input {
-  background: #012456;
-  color: white !important;
-  outline: none;
-}
-
-.console-input .prompt {
-  color: white !important;
-}
-
-.console-arrow {
-  height: 15px;
-  width: 15px;
-  fill: white;
-  position: absolute;
-  left: 0px;
-}
-
 /****** Tables ******/
 th {
   background-color: #303030;

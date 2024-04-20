@@ -94,6 +94,8 @@ fn app(props: &AppProps) -> Html {
 
     let datapath_state = use_reducer(DatapathReducer::default);
 
+    let parser_found_errors = use_state(|| false);
+
     // Start listening for messages from the communicator. This effectively links the worker thread to the main thread
     // and will force updates whenever its internal state changes.
     {
@@ -131,6 +133,7 @@ fn app(props: &AppProps) -> Html {
         let editor_curr_line = editor_curr_line.clone();
         let breakpoints = breakpoints.clone();
         let communicator = props.communicator;
+        let parser_found_errors = parser_found_errors.clone();
 
         // Clone the value before moving it into the closure
         let pc_limit = pc_limit.clone();
@@ -139,12 +142,15 @@ fn app(props: &AppProps) -> Html {
         let labels_ref = Rc::clone(&labels_ref);
 
         use_callback(
-            move |_, (text_model, editor_curr_line, memory_curr_instr, datapath_state)| {
+            move |_,
+                  (
+                text_model,
+                editor_curr_line,
+                memory_curr_instr,
+                datapath_state,
+                parser_found_errors,
+            )| {
                 let text_model = text_model.clone();
-                log!(format!(
-                    "Current arch: {:?}",
-                    datapath_state.current_architecture
-                ));
                 // parses through the code to assemble the binary and retrieves programinfo for error marking and mouse hover
                 let (program_info, assembled, labels) =
                     parser(text_model.get_value(), datapath_state.current_architecture);
@@ -202,6 +208,9 @@ fn app(props: &AppProps) -> Html {
                     *program_info_ref.borrow_mut() = program_info.clone();
                     *binary_ref.borrow_mut() = assembled.clone();
                     *labels_ref.borrow_mut() = labels.clone();
+                    parser_found_errors.set(false);
+                } else {
+                    parser_found_errors.set(true);
                 }
 
                 trigger.force_update();
@@ -211,6 +220,7 @@ fn app(props: &AppProps) -> Html {
                 editor_curr_line,
                 memory_curr_instr,
                 datapath_state,
+                parser_found_errors,
             ),
         )
     };
@@ -385,30 +395,10 @@ fn app(props: &AppProps) -> Html {
                 let current_memory_text_model_value = memory_text_model.get_value();
 
                 match parse_hexdump(&current_memory_text_model_value) {
-                    Ok(instructions) => {
+                    Ok((hex_instructions, ascii_instructions)) => {
                         let mut changed_lines: Vec<UpdatedLine> = vec![];
-                        for (i, data) in instructions.iter().enumerate() {
+                        for (i, data) in hex_instructions.iter().enumerate() {
                             let address = i as u64;
-                            // change string version based on architecture
-                            let string_version = match datapath_state.current_architecture {
-                                AvailableDatapaths::MIPS => {
-                                    match MipsInstruction::get_string_version(*data) {
-                                        Ok(string) => string,
-                                        Err(string) => string,
-                                    }
-                                }
-                                AvailableDatapaths::RISCV => {
-                                    match RiscInstruction::get_string_version(
-                                        *data,
-                                        labels_ref.borrow().clone(),
-                                    ) {
-                                        Ok(string) => string,
-                                        Err(string) => string,
-                                    }
-                                }
-                            };
-                            // log::debug!("String version: {}", string_version);
-
                             let curr_word = match datapath_state.get_memory().load_word(address * 4)
                             {
                                 Ok(data) => data,
@@ -417,10 +407,49 @@ fn app(props: &AppProps) -> Html {
                                     0
                                 }
                             };
-                            if curr_word != *data {
-                                changed_lines.push(UpdatedLine::new(string_version, i));
 
-                                communicator.set_memory(address * 4, *data);
+                            let mut new_word = 0;
+                            let mut differs = false;
+                            // hex portion gets priority when checking for changes
+                            if curr_word != *data {
+                                // hex portion was changed
+                                differs = true;
+                                new_word = *data;
+                            } else if i < ascii_instructions.len()
+                                && curr_word != ascii_instructions[i]
+                                && ascii_instructions[i] != 0
+                            {
+                                // ascii portion was changed
+                                differs = true;
+                                new_word = ascii_instructions[i];
+                            }
+
+                            if differs {
+                                // change string version based on architecture
+                                let string_version = match datapath_state.current_architecture {
+                                    AvailableDatapaths::MIPS => {
+                                        match MipsInstruction::get_string_version(
+                                            new_word,
+                                            labels_ref.borrow().clone(),
+                                            i,
+                                        ) {
+                                            Ok(string) => string,
+                                            Err(string) => string,
+                                        }
+                                    }
+                                    AvailableDatapaths::RISCV => {
+                                        match RiscInstruction::get_string_version(
+                                            new_word,
+                                            labels_ref.borrow().clone(),
+                                        ) {
+                                            Ok(string) => string,
+                                            Err(string) => string,
+                                        }
+                                    }
+                                };
+
+                                changed_lines.push(UpdatedLine::new(string_version, i));
+                                communicator.set_memory(address * 4, new_word);
                             }
                         }
                         // Memory updated successfully
@@ -595,13 +624,13 @@ fn app(props: &AppProps) -> Html {
                                     <path d="M18 4.30769L14 0H0V28H32V4.30769H18ZM16 11.8462L23 19.3846H18V28H14V19.3846H9L16 11.8462Z" fill="#BBBBBB"/>
                                 </svg>
                             </button>
-                            <button class="group disabled:opacity-30 duration-300 " title="Assemble" onclick={on_assemble_clicked} disabled={datapath_state.initialized}>
+                            <button class="group disabled:opacity-30 duration-300 " title="Assemble" onclick={on_assemble_clicked}>
                                 <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path class="group-hover:group-enabled:stroke-primary-100 group-hover:group-enabled:fill-primary-100" fill-rule="evenodd" clip-rule="evenodd" d="M34.1794 19.1007C34.1794 23.0891 32.595 26.9142 29.7748 29.7345C26.9545 32.5547 23.1294 34.1392 19.141 34.1392C15.1525 34.1392 11.3274 32.5547 8.50714 29.7345C5.68688 26.9142 4.10247 23.0891 4.10247 19.1007C4.10247 15.1122 5.68688 11.2871 8.50714 8.46686C11.3274 5.6466 15.1525 4.06219 19.141 4.06219C23.1294 4.06219 26.9545 5.6466 29.7748 8.46686C32.595 11.2871 34.1794 15.1122 34.1794 19.1007ZM34.1183 17.5507L36.2416 19.1007L34.1183 20.4552L35.9114 22.4366L33.5523 23.3059L34.941 25.6444L32.4369 25.9915L33.3606 28.6029L30.6009 28.8385L31.2344 31.1941L28.5455 30.894L28.6432 33.3203L26.1295 32.508L25.6847 34.9007L23.4439 33.6234L22.4768 35.8711L20.5932 34.0981L19.141 36.2013L17.6887 34.0981L15.8051 35.8711L14.838 33.532L12.5972 34.9007L12.1524 32.4167L9.63871 33.3203L9.5403 30.8617L7.04749 31.1941L7.48485 28.8063L4.92128 28.6029L5.87082 26.3903L3.34095 25.6444L4.75548 23.7047L2.3705 22.4366L4.18939 20.4552L2.04028 19.1007L4.18939 17.5507L2.3705 15.7648L4.75548 14.7L3.34095 12.5569L5.87082 12.0144L4.92128 9.59843H7.48485L7.04749 7.00721L9.64964 7.44457L9.63871 4.881L12.0656 5.83053L12.5972 3.30066L14.7512 4.7152L15.8051 2.33022L17.6019 4.14911L19.141 2L20.4564 3.97315L22.4768 2.33022L23.4161 4.30201L25.6847 3.30066L26.2272 5.83053L28.6432 4.881V7.44457L31.2344 7.00721L30.6986 9.50002L33.3606 9.59843L32.3127 11.916L34.941 12.5569L33.5523 14.7L35.9114 15.7648L34.1183 17.5507Z" stroke="#BBBBBB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path class="group-hover:group-enabled:stroke-primary-100 group-hover:group-enabled:fill-primary-100" d="M27.4664 24.3107L22.6243 19.1458C22.3246 18.8261 21.8341 18.8261 21.5343 19.1458L21.171 19.5333L18.2164 16.3818L23.0667 11.2081H17.9283L15.6471 13.6413L15.4214 13.4005H14.3314V14.5632L14.5571 14.804L11.2483 18.3334L13.8175 21.0739L17.1263 17.5445L20.0809 20.6961L19.7176 21.0836C19.4178 21.4034 19.4178 21.9266 19.7176 22.2463L24.5597 27.4112C24.8594 27.731 25.3499 27.731 25.6497 27.4112L27.4664 25.4734C27.7662 25.1537 27.7662 24.6305 27.4664 24.3107Z" fill="#BBBBBB"/>
                                 </svg>
                             </button>
-                            <button class="group hover:stroke-primary-100 disabled:opacity-30 duration-300 " title="Execute" onclick={on_continue_execution} disabled={datapath_state.executing || !datapath_state.initialized}>
+                            <button class="group hover:stroke-primary-100 disabled:opacity-30 duration-300 " title="Execute" onclick={on_continue_execution} disabled={datapath_state.executing || !datapath_state.initialized || *parser_found_errors}>
                                 <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path class="fill-accent-red-200 stroke-accent-red-200 group-hover:group-enabled:stroke-accent-red-100 group-hover:group-enabled:fill-accent-red-100" fill-rule="evenodd" clip-rule="evenodd" d="M33.9311 19.1007C33.9311 23.0891 32.3467 26.9142 29.5265 29.7345C26.7062 32.5547 22.8811 34.1392 18.8927 34.1392C14.9042 34.1392 11.0791 32.5547 8.25885 29.7345C5.43859 26.9142 3.85418 23.0891 3.85418 19.1007C3.85418 15.1122 5.43859 11.2871 8.25885 8.46686C11.0791 5.6466 14.9042 4.06219 18.8927 4.06219C22.8811 4.06219 26.7062 5.6466 29.5265 8.46686C32.3467 11.2871 33.9311 15.1122 33.9311 19.1007ZM33.8701 17.5507L35.9933 19.1007L33.8701 20.4552L35.6631 22.4366L33.304 23.3059L34.6927 25.6444L32.1886 25.9915L33.1123 28.6029L30.3526 28.8385L30.9861 31.1941L28.2972 30.894L28.3949 33.3203L25.8812 32.508L25.4364 34.9007L23.1956 33.6234L22.2286 35.8711L20.345 34.0981L18.8927 36.2013L17.4404 34.0981L15.5568 35.8711L14.5897 33.532L12.3489 34.9007L11.9041 32.4167L9.39042 33.3203L9.29201 30.8617L6.7992 31.1941L7.23656 28.8063L4.67299 28.6029L5.62253 26.3903L3.09265 25.6444L4.50719 23.7047L2.12221 22.4366L3.9411 20.4552L1.79199 19.1007L3.9411 17.5507L2.12221 15.7648L4.50719 14.7L3.09265 12.5569L5.62253 12.0144L4.67299 9.59843H7.23656L6.7992 7.00721L9.40135 7.44457L9.39042 4.881L11.8173 5.83053L12.3489 3.30066L14.5029 4.7152L15.5568 2.33022L17.3536 4.14911L18.8927 2L20.2081 3.97315L22.2286 2.33022L23.1678 4.30201L25.4364 3.30066L25.9789 5.83053L28.3949 4.881V7.44457L30.9861 7.00721L30.4504 9.50002L33.1123 9.59843L32.0644 11.916L34.6927 12.5569L33.304 14.7L35.6631 15.7648L33.8701 17.5507Z" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path class="fill-accent-red-200 stroke-accent-red-200 group-hover:group-enabled:stroke-accent-red-100 group-hover:group-enabled:fill-accent-red-100" d="M15.1309 13.536C15.1309 13.1414 15.5664 12.9023 15.8993 13.1142L24.6438 18.6789C24.9526 18.8753 24.9526 19.326 24.6438 19.5225L15.8993 25.0872C15.5664 25.2991 15.1309 25.0599 15.1309 24.6654V13.536Z" stroke-width="3"/>
@@ -613,14 +642,14 @@ fn app(props: &AppProps) -> Html {
                                     <path class="fill-accent-green-200 stroke-accent-green-200 group-hover:group-enabled:stroke-accent-green-100 group-hover:group-enabled:fill-accent-green-100" d="M13.228 13.1812H18.435V25.6779H13.228V13.1812ZM20.5177 13.1812H25.7247V25.6779H20.5177V13.1812Z"/>
                                 </svg>
                             </button>
-                            <button class="disabled:opacity-30 group duration-300 " title="Execute Next Stage" onclick={on_execute_stage_clicked} disabled={!datapath_state.initialized}>
+                            <button class="disabled:opacity-30 group duration-300 " title="Execute Next Stage" onclick={on_execute_stage_clicked} disabled={!datapath_state.initialized || *parser_found_errors}>
                                 <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
                                     <path class="stroke-primary-200 fill-transparent group-enabled:group-hover:stroke-primary-100"  fill-rule="evenodd" clip-rule="evenodd" d="M33.6829 19.1007C33.6829 23.0891 32.0984 26.9142 29.2782 29.7345C26.4579 32.5547 22.6328 34.1392 18.6444 34.1392C14.6559 34.1392 10.8308 32.5547 8.01056 29.7345C5.1903 26.9142 3.60589 23.0891 3.60589 19.1007C3.60589 15.1122 5.1903 11.2871 8.01056 8.46686C10.8308 5.6466 14.6559 4.06219 18.6444 4.06219C22.6328 4.06219 26.4579 5.6466 29.2782 8.46686C32.0984 11.2871 33.6829 15.1122 33.6829 19.1007ZM33.6218 17.5507L35.745 19.1007L33.6218 20.4552L35.4148 22.4366L33.0557 23.3059L34.4444 25.6444L31.9403 25.9915L32.864 28.6029L30.1043 28.8385L30.7378 31.1941L28.0489 30.894L28.1466 33.3203L25.6329 32.508L25.1881 34.9007L22.9473 33.6234L21.9803 35.8711L20.0967 34.0981L18.6444 36.2013L17.1921 34.0981L15.3085 35.8711L14.3414 33.532L12.1006 34.9007L11.6558 32.4167L9.14213 33.3203L9.04372 30.8617L6.55091 31.1941L6.98827 28.8063L4.4247 28.6029L5.37424 26.3903L2.84436 25.6444L4.2589 23.7047L1.87392 22.4366L3.69281 20.4552L1.5437 19.1007L3.69281 17.5507L1.87392 15.7648L4.2589 14.7L2.84436 12.5569L5.37424 12.0144L4.4247 9.59843H6.98827L6.55091 7.00721L9.15306 7.44457L9.14213 4.881L11.5691 5.83053L12.1006 3.30066L14.2546 4.7152L15.3085 2.33022L17.1053 4.14911L18.6444 2L19.9598 3.97315L21.9803 2.33022L22.9195 4.30201L25.1881 3.30066L25.7306 5.83053L28.1466 4.881V7.44457L30.7378 7.00721L30.2021 9.50002L32.864 9.59843L31.8161 11.916L34.4444 12.5569L33.0557 14.7L35.4148 15.7648L33.6218 17.5507Z" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path class="stroke-primary-200 fill-transparent group-enabled:group-hover:stroke-primary-100" d="M10.094 19.2668C10.094 6.98941 26.2081 6.66046 26.2081 18.9379M26.2081 18.9379L23.4875 16.5044M26.2081 18.9379L28.5101 15.8905" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                                     <rect class="stroke-primary-200 fill-primary-200 group-enabled:group-hover:stroke-primary-100 group-enabled:group-hover:fill-primary-100" x="17" y="17" width="4" height="4" rx="2"/>
                                 </svg>
                             </button>
-                            <button class="hover:stroke-primary-100 disabled:opacity-30 duration-300 group " title="Execute Next Instruction" onclick={on_execute_clicked} disabled={!datapath_state.initialized}>
+                            <button class="hover:stroke-primary-100 disabled:opacity-30 duration-300 group " title="Execute Next Instruction" onclick={on_execute_clicked} disabled={!datapath_state.initialized || *parser_found_errors}>
                                 <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
                                     <path class="stroke-primary-200 fill-transparent group-enabled:group-hover:stroke-primary-100" fill-rule="evenodd" clip-rule="evenodd" d="M34.4346 19.1007C34.4346 23.0891 32.8502 26.9142 30.0299 29.7345C27.2096 32.5547 23.3845 34.1392 19.3961 34.1392C15.4076 34.1392 11.5825 32.5547 8.76227 29.7345C5.94201 26.9142 4.3576 23.0891 4.3576 19.1007C4.3576 15.1122 5.94201 11.2871 8.76227 8.46686C11.5825 5.6466 15.4076 4.06219 19.3961 4.06219C23.3845 4.06219 27.2096 5.6466 30.0299 8.46686C32.8502 11.2871 34.4346 15.1122 34.4346 19.1007ZM34.3735 17.5507L36.4968 19.1007L34.3735 20.4552L36.1665 22.4366L33.8074 23.3059L35.1961 25.6444L32.6921 25.9915L33.6158 28.6029L30.8561 28.8385L31.4895 31.1941L28.8006 30.894L28.8983 33.3203L26.3846 32.508L25.9398 34.9007L23.699 33.6234L22.732 35.8711L20.8484 34.0981L19.3961 36.2013L17.9438 34.0981L16.0602 35.8711L15.0931 33.532L12.8523 34.9007L12.4076 32.4167L9.89384 33.3203L9.79543 30.8617L7.30262 31.1941L7.73998 28.8063L5.17641 28.6029L6.12595 26.3903L3.59607 25.6444L5.01061 23.7047L2.62563 22.4366L4.44452 20.4552L2.29541 19.1007L4.44452 17.5507L2.62563 15.7648L5.01061 14.7L3.59607 12.5569L6.12595 12.0144L5.17641 9.59843H7.73998L7.30262 7.00721L9.90477 7.44457L9.89384 4.881L12.3208 5.83053L12.8523 3.30066L15.0063 4.7152L16.0602 2.33022L17.857 4.14911L19.3961 2L20.7115 3.97315L22.732 2.33022L23.6712 4.30201L25.9398 3.30066L26.4823 5.83053L28.8983 4.881V7.44457L31.4895 7.00721L30.9538 9.50002L33.6158 9.59843L32.5678 11.916L35.1961 12.5569L33.8074 14.7L36.1665 15.7648L34.3735 17.5507Z" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path class="stroke-primary-200 fill-transparent group-enabled:group-hover:stroke-primary-100" d="M14.9766 13.536C14.9766 13.1414 15.4121 12.9023 15.745 13.1142L24.4895 18.6789C24.7983 18.8753 24.7983 19.326 24.4895 19.5225L15.745 25.0872C15.4121 25.2991 14.9766 25.0599 14.9766 24.6654V13.536Z" stroke-width="3"/>
@@ -679,6 +708,17 @@ fn app(props: &AppProps) -> Html {
 
                 // Right column
                 <Regview gp={datapath_state.get_dyn_gp_registers()} fp={datapath_state.get_dyn_fp_registers()} pc_limit={*pc_limit} communicator={props.communicator}/>
+            </div>
+            <div class="absolute w-8 top-2 right-2 hover:w-9 duration-300">
+                <a href="https://github.com/SWIM-ucf/SWIM/issues" target="_blank" class="group">
+                    <img src="/static/github-mark-white.svg" alt="GitHub"/>
+                    // tooltip for hovering over github link
+                    <div class="hidden group-hover:block absolute top-[0.4rem] right-12 w-[5.8rem] bg-primary-100 text-primary-900 p-1 rounded-md text-xs">
+                        <p>{"Report an issue"}</p>
+                        // create arrow
+                        <div class="absolute w-2 h-2 bg-primary-100 top-2 right-[-4px] transform rotate-45"></div>
+                    </div>
+                </a>
             </div>
         </div>
     }

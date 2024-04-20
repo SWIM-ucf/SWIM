@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::parser::parser_structs_and_enums::RISCV_GP_REGISTERS;
+use crate::parser::parser_structs_and_enums::{RISCV_FP_REGISTERS, RISCV_GP_REGISTERS};
 
 use super::constants::*;
 
@@ -296,9 +296,9 @@ impl RiscInstruction {
 
         match struct_representation {
             RiscInstruction::RType(r_type) => {
-                let rs1 = find_register_name(r_type.rs1).unwrap();
-                let rs2 = find_register_name(r_type.rs2).unwrap();
-                let rd = find_register_name(r_type.rd).unwrap();
+                let mut rs1 = find_register_name(r_type.rs1).unwrap();
+                let mut rs2 = find_register_name(r_type.rs2).unwrap();
+                let mut rd = find_register_name(r_type.rd).unwrap();
                 match r_type.op {
                     OPCODE_OP => match r_type.funct3 {
                         0 => match r_type.funct7 {
@@ -450,63 +450,23 @@ impl RiscInstruction {
                         _ => (),
                     },
                     // RISCV64F
-                    OPCODE_OP_FP => match r_type.funct7 >> 2 {
-                        0 => match r_type.funct7 & 0b11 {
-                            0 => {
-                                string_version
-                                    .push_str(&format!("{} {}, {}, {}", "fadd.s", rd, rs1, rs2));
-                            }
-                            1 => {
-                                string_version
-                                    .push_str(&format!("{} {}, {}, {}", "fadd.d", rd, rs1, rs2));
-                            }
-                            _ => (),
-                        },
-                        1 => match r_type.funct7 & 0b11 {
-                            0 => {
-                                string_version
-                                    .push_str(&format!("{} {}, {}, {}", "fsub.s", rd, rs1, rs2));
-                            }
-                            1 => {
-                                string_version
-                                    .push_str(&format!("{} {}, {}, {}", "fsub.d", rd, rs1, rs2));
-                            }
-                            _ => (),
-                        },
-                        2 => match r_type.funct7 & 0b11 {
-                            0 => {
-                                string_version
-                                    .push_str(&format!("{} {}, {}, {}", "fmul.s", rd, rs1, rs2));
-                            }
-                            1 => {
-                                string_version
-                                    .push_str(&format!("{} {}, {}, {}", "fmul.d", rd, rs1, rs2));
-                            }
-                            _ => (),
-                        },
-                        3 => match r_type.funct7 & 0b11 {
-                            0 => {
-                                string_version
-                                    .push_str(&format!("{} {}, {}, {}", "fdiv.s", rd, rs1, rs2));
-                            }
-                            1 => {
-                                string_version
-                                    .push_str(&format!("{} {}, {}, {}", "fdiv.d", rd, rs1, rs2));
-                            }
-                            _ => (),
-                        },
-                        4 => match r_type.funct3 {
+                    OPCODE_OP_FP => {
+                        rd = find_register_name_fp(r_type.rd).unwrap();
+                        rs1 = find_register_name_fp(r_type.rs1).unwrap();
+                        rs2 = find_register_name_fp(r_type.rs2).unwrap();
+
+                        match r_type.funct7 >> 2 {
                             0 => match r_type.funct7 & 0b11 {
                                 0 => {
                                     string_version.push_str(&format!(
                                         "{} {}, {}, {}",
-                                        "fsgnj.s", rd, rs1, rs2
+                                        "fadd.s", rd, rs1, rs2
                                     ));
                                 }
                                 1 => {
                                     string_version.push_str(&format!(
                                         "{} {}, {}, {}",
-                                        "fsgnj.d", rd, rs1, rs2
+                                        "fadd.d", rd, rs1, rs2
                                     ));
                                 }
                                 _ => (),
@@ -515,13 +475,13 @@ impl RiscInstruction {
                                 0 => {
                                     string_version.push_str(&format!(
                                         "{} {}, {}, {}",
-                                        "fsgnjn.s", rd, rs1, rs2
+                                        "fsub.s", rd, rs1, rs2
                                     ));
                                 }
                                 1 => {
                                     string_version.push_str(&format!(
                                         "{} {}, {}, {}",
-                                        "fsgnjn.d", rd, rs1, rs2
+                                        "fsub.d", rd, rs1, rs2
                                     ));
                                 }
                                 _ => (),
@@ -530,202 +490,320 @@ impl RiscInstruction {
                                 0 => {
                                     string_version.push_str(&format!(
                                         "{} {}, {}, {}",
-                                        "fsgnjx.s", rd, rs1, rs2
+                                        "fmul.s", rd, rs1, rs2
                                     ));
                                 }
                                 1 => {
                                     string_version.push_str(&format!(
                                         "{} {}, {}, {}",
-                                        "fsgnjx.d", rd, rs1, rs2
+                                        "fmul.d", rd, rs1, rs2
                                     ));
                                 }
                                 _ => (),
                             },
-                            _ => (),
-                        },
-                        5 => match r_type.funct3 {
-                            0 => match r_type.funct7 & 0b11 {
+                            3 => match r_type.funct7 & 0b11 {
                                 0 => {
                                     string_version.push_str(&format!(
                                         "{} {}, {}, {}",
-                                        "fmin.s", rd, rs1, rs2
+                                        "fdiv.s", rd, rs1, rs2
                                     ));
                                 }
                                 1 => {
                                     string_version.push_str(&format!(
                                         "{} {}, {}, {}",
-                                        "fmin.d", rd, rs1, rs2
+                                        "fdiv.d", rd, rs1, rs2
                                     ));
                                 }
                                 _ => (),
                             },
-                            1 => match r_type.funct7 & 0b11 {
+                            4 => match r_type.funct3 {
+                                0 => match r_type.funct7 & 0b11 {
+                                    0 => {
+                                        string_version.push_str(&format!(
+                                            "{} {}, {}, {}",
+                                            "fsgnj.s", rd, rs1, rs2
+                                        ));
+                                    }
+                                    1 => {
+                                        string_version.push_str(&format!(
+                                            "{} {}, {}, {}",
+                                            "fsgnj.d", rd, rs1, rs2
+                                        ));
+                                    }
+                                    _ => (),
+                                },
+                                1 => match r_type.funct7 & 0b11 {
+                                    0 => {
+                                        string_version.push_str(&format!(
+                                            "{} {}, {}, {}",
+                                            "fsgnjn.s", rd, rs1, rs2
+                                        ));
+                                    }
+                                    1 => {
+                                        string_version.push_str(&format!(
+                                            "{} {}, {}, {}",
+                                            "fsgnjn.d", rd, rs1, rs2
+                                        ));
+                                    }
+                                    _ => (),
+                                },
+                                2 => match r_type.funct7 & 0b11 {
+                                    0 => {
+                                        string_version.push_str(&format!(
+                                            "{} {}, {}, {}",
+                                            "fsgnjx.s", rd, rs1, rs2
+                                        ));
+                                    }
+                                    1 => {
+                                        string_version.push_str(&format!(
+                                            "{} {}, {}, {}",
+                                            "fsgnjx.d", rd, rs1, rs2
+                                        ));
+                                    }
+                                    _ => (),
+                                },
+                                _ => (),
+                            },
+                            5 => match r_type.funct3 {
+                                0 => match r_type.funct7 & 0b11 {
+                                    0 => {
+                                        string_version.push_str(&format!(
+                                            "{} {}, {}, {}",
+                                            "fmin.s", rd, rs1, rs2
+                                        ));
+                                    }
+                                    1 => {
+                                        string_version.push_str(&format!(
+                                            "{} {}, {}, {}",
+                                            "fmin.d", rd, rs1, rs2
+                                        ));
+                                    }
+                                    _ => (),
+                                },
+                                1 => match r_type.funct7 & 0b11 {
+                                    0 => {
+                                        string_version.push_str(&format!(
+                                            "{} {}, {}, {}",
+                                            "fmax.s", rd, rs1, rs2
+                                        ));
+                                    }
+                                    1 => {
+                                        string_version.push_str(&format!(
+                                            "{} {}, {}, {}",
+                                            "fmax.d", rd, rs1, rs2
+                                        ));
+                                    }
+                                    _ => (),
+                                },
+                                _ => (),
+                            },
+                            8 => match r_type.rs2 {
                                 0 => {
                                     string_version.push_str(&format!(
                                         "{} {}, {}, {}",
-                                        "fmax.s", rd, rs1, rs2
+                                        "fcvt.d.s", rd, rs1, rs2
                                     ));
                                 }
                                 1 => {
                                     string_version.push_str(&format!(
                                         "{} {}, {}, {}",
-                                        "fmax.d", rd, rs1, rs2
+                                        "fcvt.s.d", rd, rs1, rs2
                                     ));
                                 }
                                 _ => (),
                             },
+                            11 => match r_type.funct7 & 0b11 {
+                                0 => {
+                                    string_version.push_str(&format!(
+                                        "{} {}, {}, {}",
+                                        "fsqrt.s", rd, rs1, rs2
+                                    ));
+                                }
+                                1 => {
+                                    string_version.push_str(&format!(
+                                        "{} {}, {}, {}",
+                                        "fsqrt.d", rd, rs1, rs2
+                                    ));
+                                }
+                                _ => (),
+                            },
+                            20 => {
+                                rd = find_register_name(r_type.rd).unwrap();
+                                match r_type.funct3 {
+                                    0 => match r_type.funct7 & 0b11 {
+                                        0 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}, {}",
+                                                "fle.s", rd, rs1, rs2
+                                            ));
+                                        }
+                                        1 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}, {}",
+                                                "fle.d", rd, rs1, rs2
+                                            ));
+                                        }
+                                        _ => (),
+                                    },
+                                    1 => match r_type.funct7 & 0b11 {
+                                        0 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}, {}",
+                                                "flt.s", rd, rs1, rs2
+                                            ));
+                                        }
+                                        1 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}, {}",
+                                                "flt.d", rd, rs1, rs2
+                                            ));
+                                        }
+                                        _ => (),
+                                    },
+                                    2 => match r_type.funct7 & 0b11 {
+                                        0 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}, {}",
+                                                "feq.s", rd, rs1, rs2
+                                            ));
+                                        }
+                                        1 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}, {}",
+                                                "feq.d", rd, rs1, rs2
+                                            ));
+                                        }
+                                        _ => (),
+                                    },
+                                    _ => (),
+                                }
+                            }
+                            24 => {
+                                rd = find_register_name(r_type.rd).unwrap();
+                                match r_type.rs2 {
+                                    0 => match r_type.funct7 & 0b11 {
+                                        0 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}",
+                                                "fcvt.w.s", rd, rs1
+                                            ));
+                                        }
+                                        1 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}",
+                                                "fcvt.w.d", rd, rs1
+                                            ));
+                                        }
+                                        _ => (),
+                                    },
+                                    1 => match r_type.funct7 & 0b11 {
+                                        0 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}",
+                                                "fcvt.wu.s", rd, rs1
+                                            ));
+                                        }
+                                        1 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}",
+                                                "fcvt.wu.d", rd, rs1
+                                            ));
+                                        }
+                                        _ => (),
+                                    },
+                                    2 => {
+                                        string_version
+                                            .push_str(&format!("{} {}, {}", "fcvt.l.s", rd, rs1));
+                                    }
+                                    3 => {
+                                        string_version
+                                            .push_str(&format!("{} {}, {}", "fcvt.lu.s", rd, rs1));
+                                    }
+                                    _ => (),
+                                }
+                            }
+                            26 => {
+                                rs1 = find_register_name(r_type.rs1).unwrap();
+                                match r_type.rs2 {
+                                    0 => match r_type.funct7 & 0b11 {
+                                        0 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}",
+                                                "fcvt.s.w", rd, rs1
+                                            ));
+                                        }
+                                        1 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}",
+                                                "fcvt.d.w", rd, rs1
+                                            ));
+                                        }
+                                        _ => (),
+                                    },
+                                    1 => match r_type.funct7 & 0b11 {
+                                        0 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}",
+                                                "fcvt.s.wu", rd, rs1
+                                            ));
+                                        }
+                                        1 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}",
+                                                "fcvt.d.wu", rd, rs1
+                                            ));
+                                        }
+                                        _ => (),
+                                    },
+                                    2 => {
+                                        string_version
+                                            .push_str(&format!("{} {}, {}", "fcvt.s.l", rd, rs1));
+                                    }
+                                    3 => {
+                                        string_version
+                                            .push_str(&format!("{} {}, {}", "fcvt.s.lu", rd, rs1));
+                                    }
+                                    _ => (),
+                                }
+                            }
+                            28 => {
+                                rd = find_register_name(r_type.rd).unwrap();
+                                match r_type.funct3 {
+                                    0 => {
+                                        string_version
+                                            .push_str(&format!("{} {}, {}", "fmv.x.w", rd, rs1));
+                                    }
+                                    1 => match r_type.funct7 & 0b11 {
+                                        0 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}",
+                                                "fclass.s", rd, rs1
+                                            ));
+                                        }
+                                        1 => {
+                                            string_version.push_str(&format!(
+                                                "{} {}, {}",
+                                                "fclass.d", rd, rs1
+                                            ));
+                                        }
+                                        _ => (),
+                                    },
+                                    _ => (),
+                                }
+                            }
+                            30 => {
+                                rs1 = find_register_name(r_type.rs1).unwrap();
+                                string_version.push_str(&format!("{} {}, {}", "fmv.w.x", rd, rs1));
+                            }
                             _ => (),
-                        },
-                        8 => match r_type.rs2 {
-                            0 => {
-                                string_version
-                                    .push_str(&format!("{} {}, {}, {}", "fcvt.d.s", rd, rs1, rs2));
-                            }
-                            1 => {
-                                string_version
-                                    .push_str(&format!("{} {}, {}, {}", "fcvt.s.d", rd, rs1, rs2));
-                            }
-                            _ => (),
-                        },
-                        11 => match r_type.funct7 & 0b11 {
-                            0 => {
-                                string_version
-                                    .push_str(&format!("{} {}, {}, {}", "fsqrt.s", rd, rs1, rs2));
-                            }
-                            1 => {
-                                string_version
-                                    .push_str(&format!("{} {}, {}, {}", "fsqrt.d", rd, rs1, rs2));
-                            }
-                            _ => (),
-                        },
-                        20 => match r_type.funct3 {
-                            0 => match r_type.funct7 & 0b11 {
-                                0 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}, {}", "fle.s", rd, rs1, rs2));
-                                }
-                                1 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}, {}", "fle.d", rd, rs1, rs2));
-                                }
-                                _ => (),
-                            },
-                            1 => match r_type.funct7 & 0b11 {
-                                0 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}, {}", "flt.s", rd, rs1, rs2));
-                                }
-                                1 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}, {}", "flt.d", rd, rs1, rs2));
-                                }
-                                _ => (),
-                            },
-                            2 => match r_type.funct7 & 0b11 {
-                                0 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}, {}", "feq.s", rd, rs1, rs2));
-                                }
-                                1 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}, {}", "feq.d", rd, rs1, rs2));
-                                }
-                                _ => (),
-                            },
-                            _ => (),
-                        },
-                        24 => match r_type.rs2 {
-                            0 => match r_type.funct7 & 0b11 {
-                                0 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}", "fcvt.w.s", rd, rs1));
-                                }
-                                1 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}", "fcvt.w.d", rd, rs1));
-                                }
-                                _ => (),
-                            },
-                            1 => match r_type.funct7 & 0b11 {
-                                0 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}", "fcvt.wu.s", rd, rs1));
-                                }
-                                1 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}", "fcvt.wu.d", rd, rs1));
-                                }
-                                _ => (),
-                            },
-                            2 => {
-                                string_version.push_str(&format!("{} {}, {}", "fcvt.l.s", rd, rs1));
-                            }
-                            3 => {
-                                string_version
-                                    .push_str(&format!("{} {}, {}", "fcvt.lu.s", rd, rs1));
-                            }
-                            _ => (),
-                        },
-                        26 => match r_type.rs2 {
-                            0 => match r_type.funct7 & 0b11 {
-                                0 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}", "fcvt.s.w", rd, rs1));
-                                }
-                                1 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}", "fcvt.s.d", rd, rs1));
-                                }
-                                _ => (),
-                            },
-                            1 => match r_type.funct7 & 0b11 {
-                                0 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}", "fcvt.s.wu", rd, rs1));
-                                }
-                                1 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}", "fcvt.d.wu", rd, rs1));
-                                }
-                                _ => (),
-                            },
-                            2 => {
-                                string_version.push_str(&format!("{} {}, {}", "fcvt.s.l", rd, rs1));
-                            }
-                            3 => {
-                                string_version
-                                    .push_str(&format!("{} {}, {}", "fcvt.s.lu", rd, rs1));
-                            }
-                            _ => (),
-                        },
-                        28 => match r_type.funct3 {
-                            0 => {
-                                string_version.push_str(&format!("{} {}, {}", "fmv.x.w", rd, rs1));
-                            }
-                            1 => match r_type.funct7 & 0b11 {
-                                0 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}", "fclass.s", rd, rs1));
-                                }
-                                1 => {
-                                    string_version
-                                        .push_str(&format!("{} {}, {}", "fclass.d", rd, rs1));
-                                }
-                                _ => (),
-                            },
-                            _ => (),
-                        },
-                        30 => {
-                            string_version.push_str(&format!("{} {}, {}", "fmv.w.x", rd, rs1));
                         }
-                        _ => (),
-                    },
+                    }
                     _ => (),
                 }
             }
             RiscInstruction::IType(i_type) => {
                 let rs1 = find_register_name(i_type.rs1).unwrap();
-                let rd = find_register_name(i_type.rd).unwrap();
+                let mut rd = find_register_name(i_type.rd).unwrap();
                 let imm = i_type.imm as i32;
 
                 // Check if immediate is negative
@@ -771,7 +849,8 @@ impl RiscInstruction {
                             string_version
                                 .push_str(&format!("{} {}, {}, {}", "xori", rd, rs1, i_type.imm));
                         }
-                        5 => match i_type.imm {
+                        // match first 6 bits of imm
+                        5 => match i_type.imm >> 6 {
                             0b000000 => {
                                 string_version.push_str(&format!(
                                     "{} {}, {}, {}",
@@ -875,15 +954,20 @@ impl RiscInstruction {
                         }
                         _ => (),
                     },
-                    OPCODE_LOAD_FP => match i_type.funct3 {
-                        2 => {
-                            string_version.push_str(&format!("{} {}, {}({})", "flw", rd, imm, rs1));
+                    OPCODE_LOAD_FP => {
+                        rd = find_register_name_fp(i_type.rd).unwrap();
+                        match i_type.funct3 {
+                            2 => {
+                                string_version
+                                    .push_str(&format!("{} {}, {}({})", "flw", rd, imm, rs1));
+                            }
+                            3 => {
+                                string_version
+                                    .push_str(&format!("{} {}, {}({})", "fld", rd, imm, rs1));
+                            }
+                            _ => (),
                         }
-                        3 => {
-                            string_version.push_str(&format!("{} {}, {}({})", "fld", rd, imm, rs1));
-                        }
-                        _ => (),
-                    },
+                    }
                     OPCODE_SYSTEM => match i_type.funct3 {
                         0 => match i_type.imm {
                             0 => {
@@ -892,7 +976,7 @@ impl RiscInstruction {
                             1 => {
                                 string_version.push_str("ebreak");
                             }
-                            0b000000000010 => {
+                            2 => {
                                 string_version.push_str("uret");
                             }
                             0b000100000010 => {
@@ -901,7 +985,7 @@ impl RiscInstruction {
                             0b001100000010 => {
                                 string_version.push_str("mret");
                             }
-                            0b0001000001010 => {
+                            0b000100000101 => {
                                 string_version.push_str("wfi");
                             }
                             _ => (),
@@ -937,7 +1021,7 @@ impl RiscInstruction {
             }
             RiscInstruction::SType(s_type) => {
                 let rs1 = find_register_name(s_type.rs1).unwrap();
-                let rs2 = find_register_name(s_type.rs2).unwrap();
+                let mut rs2 = find_register_name(s_type.rs2).unwrap();
                 let offset = (s_type.imm1 as i32) << 5 | s_type.imm2 as i32;
                 match s_type.op {
                     OPCODE_STORE => match s_type.funct3 {
@@ -959,17 +1043,20 @@ impl RiscInstruction {
                         }
                         _ => (),
                     },
-                    OPCODE_STORE_FP => match s_type.funct3 {
-                        2 => {
-                            string_version
-                                .push_str(&format!("{} {}, {}({})", "fsw", rs2, offset, rs1));
+                    OPCODE_STORE_FP => {
+                        rs2 = find_register_name_fp(s_type.rs2).unwrap();
+                        match s_type.funct3 {
+                            2 => {
+                                string_version
+                                    .push_str(&format!("{} {}, {}({})", "fsw", rs2, offset, rs1));
+                            }
+                            3 => {
+                                string_version
+                                    .push_str(&format!("{} {}, {}({})", "fsd", rs2, offset, rs1));
+                            }
+                            _ => (),
                         }
-                        3 => {
-                            string_version
-                                .push_str(&format!("{} {}, {}({})", "fsd", rs2, offset, rs1));
-                        }
-                        _ => (),
-                    },
+                    }
                     _ => (),
                 }
             }
@@ -977,10 +1064,9 @@ impl RiscInstruction {
                 let rs1 = find_register_name(b_type.rs1).unwrap();
                 let rs2 = find_register_name(b_type.rs2).unwrap();
                 if b_type.op == OPCODE_BRANCH {
-                    let mut str_label = format!("{}", b_type.imm);
+                    let mut str_label = format!("0x{:x}", b_type.imm);
 
                     for label in labels {
-                        // log::debug!("label: {} {:?}", label.0, label.1);
                         if label.1 == (b_type.imm as usize) * 4 {
                             str_label = label.0;
                         }
@@ -1027,47 +1113,91 @@ impl RiscInstruction {
                 }
             }
             RiscInstruction::JType(j_type) => {
+                // TODO get current address
                 let rd = find_register_name(j_type.rd).unwrap();
+                let mut str_label = format!("0x{:x}", j_type.imm.wrapping_shl(2));
+                for label in labels {
+                    if label.1 == (j_type.imm as usize) * 4 {
+                        str_label = label.0;
+                    }
+                }
                 if j_type.op == OPCODE_JAL {
-                    string_version.push_str(&format!("{} {},  {}", "jal", rd, j_type.imm));
+                    string_version.push_str(&format!("{} {}, {}", "jal", rd, str_label));
                 }
             }
             RiscInstruction::R4Type(r4_type) => {
-                let rs1 = find_register_name(r4_type.rs1).unwrap();
-                let rs2 = find_register_name(r4_type.rs2).unwrap();
-                let rs3 = find_register_name(r4_type.rs3).unwrap();
+                let rs1 = find_register_name_fp(r4_type.rs1).unwrap();
+                let rs2 = find_register_name_fp(r4_type.rs2).unwrap();
+                let rs3 = find_register_name_fp(r4_type.rs3).unwrap();
+                let rd = find_register_name_fp(r4_type.rd).unwrap();
                 match r4_type.op {
-                    OPCODE_MADD => {
-                        string_version.push_str(&format!(
-                            "{} {}, {}, {}, {}",
-                            "fmadd.s", r4_type.rd, rs1, rs2, rs3
-                        ));
-                    }
-                    OPCODE_MSUB => {
-                        string_version.push_str(&format!(
-                            "{} {}, {}, {}, {}",
-                            "fmsub.s", rs1, rs2, rs3, r4_type.rd
-                        ));
-                    }
-                    OPCODE_NMSUB => {
-                        string_version.push_str(&format!(
-                            "{} {}, {}, {}, {}",
-                            "fnmsub.s", rs1, rs2, rs3, r4_type.rd
-                        ));
-                    }
-                    OPCODE_NMADD => {
-                        string_version.push_str(&format!(
-                            "{} {}, {}, {}, {}",
-                            "fnmadd.s", rs1, rs2, rs3, r4_type.rd
-                        ));
-                    }
+                    OPCODE_MADD => match r4_type.funct2 {
+                        0 => {
+                            string_version.push_str(&format!(
+                                "{} {}, {}, {}, {}",
+                                "fmadd.s", rd, rs1, rs2, rs3
+                            ));
+                        }
+                        1 => {
+                            string_version.push_str(&format!(
+                                "{} {}, {}, {}, {}",
+                                "fmadd.d", rd, rs1, rs2, rs3
+                            ));
+                        }
+                        _ => (),
+                    },
+                    OPCODE_MSUB => match r4_type.funct2 {
+                        0 => {
+                            string_version.push_str(&format!(
+                                "{} {}, {}, {}, {}",
+                                "fmsub.s", rd, rs1, rs2, rs3
+                            ));
+                        }
+                        1 => {
+                            string_version.push_str(&format!(
+                                "{} {}, {}, {}, {}",
+                                "fmsub.d", rd, rs1, rs2, rs3
+                            ));
+                        }
+                        _ => (),
+                    },
+                    OPCODE_NMSUB => match r4_type.funct2 {
+                        0 => {
+                            string_version.push_str(&format!(
+                                "{} {}, {}, {}, {}",
+                                "fnmsub.s", rd, rs1, rs2, rs3
+                            ));
+                        }
+                        1 => {
+                            string_version.push_str(&format!(
+                                "{} {}, {}, {}, {}",
+                                "fnmsub.d", rd, rs1, rs2, rs3
+                            ));
+                        }
+                        _ => (),
+                    },
+                    OPCODE_NMADD => match r4_type.funct2 {
+                        0 => {
+                            string_version.push_str(&format!(
+                                "{} {}, {}, {}, {}",
+                                "fnmadd.s", rd, rs1, rs2, rs3
+                            ));
+                        }
+                        1 => {
+                            string_version.push_str(&format!(
+                                "{} {}, {}, {}, {}",
+                                "fnmadd.d", rd, rs1, rs2, rs3
+                            ));
+                        }
+                        _ => (),
+                    },
                     _ => (),
                 }
             }
         }
 
         if string_version.is_empty() {
-            Err(format!("opcode `{}` not supported", value))
+            Err(format!("instruction `{}` not supported", value))
         } else {
             Ok(string_version)
         }
@@ -1076,6 +1206,17 @@ impl RiscInstruction {
 
 pub fn find_register_name(binary: u8) -> Option<&'static str> {
     for register in RISCV_GP_REGISTERS {
+        if register.binary == binary {
+            // If a match is found, return the first name in the names array
+            return Some(register.names[0]);
+        }
+    }
+    // If no match is found, return None
+    None
+}
+
+pub fn find_register_name_fp(binary: u8) -> Option<&'static str> {
+    for register in RISCV_FP_REGISTERS {
         if register.binary == binary {
             // If a match is found, return the first name in the names array
             return Some(register.names[0]);

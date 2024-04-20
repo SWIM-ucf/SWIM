@@ -36,6 +36,9 @@ module.exports = {
                     200: '#006591',
                     100: '#0178ab',
                 }
+            },
+            console: {
+                bg: '#012456'
             }
         },
         boxShadow: {

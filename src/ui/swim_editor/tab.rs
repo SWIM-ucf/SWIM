@@ -2,6 +2,9 @@ use std::str::FromStr;
 use strum_macros::Display;
 use yew::prelude::*;
 
+// Custom TabState component that can be easily extended to include new tabs
+// (and would allow in the future for the tabs to be movable)
+
 #[derive(PartialEq, Clone, Copy, Default, Display)]
 pub enum TabState {
     #[default]
@@ -58,6 +61,7 @@ pub fn tab<T: PartialEq + 'static>(props: &TabProps<T>) -> Html {
             label={props.label.clone()}
             onclick={props.on_click.clone()}
             disabled={props.disabled}
+            title={props.label.clone()}
         >
             {props.text.clone()}
         </button>
