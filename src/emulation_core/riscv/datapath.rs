@@ -26,7 +26,6 @@ use super::registers::RiscGpRegisterType;
 use super::{super::mips::memory::Memory, registers::RiscGpRegisters};
 use crate::emulation_core::architectures::DatapathRef;
 use crate::emulation_core::datapath::{DatapathUpdateSignal, Syscall};
-use crate::emulation_core::riscv::registers::FpRegisterType;
 use crate::emulation_core::riscv::registers::RiscGpRegisterType::{X10, X11};
 use crate::emulation_core::stack::Stack;
 use crate::emulation_core::stack::StackFrame;
