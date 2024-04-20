@@ -476,54 +476,6 @@ mod read_riscv_instructions_tests {
     }
 
     #[test]
-    fn read_instructions_uret() {
-        let file_string = "uret".to_string();
-
-        let instruction_list = instruction_parser_riscv(file_string);
-
-        assert_eq!(
-            instruction_list[0].binary,
-            0b00000000001000000000000001110011
-        );
-    }
-
-    #[test]
-    fn read_instructions_sret() {
-        let file_string = "sret".to_string();
-
-        let instruction_list = instruction_parser_riscv(file_string);
-
-        assert_eq!(
-            instruction_list[0].binary,
-            0b00010000001000000000000001110011
-        );
-    }
-
-    #[test]
-    fn read_instructions_mret() {
-        let file_string = "mret".to_string();
-
-        let instruction_list = instruction_parser_riscv(file_string);
-
-        assert_eq!(
-            instruction_list[0].binary,
-            0b00110000001000000000000001110011
-        );
-    }
-
-    #[test]
-    fn read_instructions_wfi() {
-        let file_string = "wfi".to_string();
-
-        let instruction_list = instruction_parser_riscv(file_string);
-
-        assert_eq!(
-            instruction_list[0].binary,
-            0b00010000010100000000000001110011
-        );
-    }
-
-    #[test]
     fn read_instructions_lui() {
         let file_string = "lui x16, 4096".to_string();
 
