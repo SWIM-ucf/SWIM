@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT_TRUNK_VERSION: 'v0.16.0'
+  PROJECT_TRUNK_VERSION: 'v0.17.5'
   # Specify the primary crate of the project.
   RUST_PRIMARY_CRATE: swim
 
