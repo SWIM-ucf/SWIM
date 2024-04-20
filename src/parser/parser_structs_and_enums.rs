@@ -269,7 +269,7 @@ pub const SUPPORTED_INSTRUCTIONS_MIPS: [&str; 64] = [
     "sll", "slt", "sltu", "sub", "sub.d", "sub.s", "sw", "swc1",
 ];
 
-pub const SUPPORTED_INSTRUCTIONS_RISCV: [&str; 128] = [
+pub const SUPPORTED_INSTRUCTIONS_RISCV: [&str; 123] = [
     // RV32I
     "lui",
     "auipc",
@@ -286,7 +286,6 @@ pub const SUPPORTED_INSTRUCTIONS_RISCV: [&str; 128] = [
     "sll",
     "slt",
     "sltu",
-    "cor",
     "srl",
     "sra",
     "or",
@@ -299,10 +298,6 @@ pub const SUPPORTED_INSTRUCTIONS_RISCV: [&str; 128] = [
     "csrrci",
     "ecall",
     "ebreak",
-    "uret",
-    "sret",
-    "mret",
-    "wfi",
     "lb",
     "lh",
     "lw",
@@ -817,7 +812,11 @@ pub const UNSUPPORTED_INSTRUCTIONS_MIPS: [&str; 408] = [
     "xori",
 ];
 
-pub const UNSUPPORTED_INSTRUCTIONS_RISCV: [&str; 69] = [
+pub const UNSUPPORTED_INSTRUCTIONS_RISCV: [&str; 73] = [
+    "fence",
+    "fence.i",
+    "sfence.vma",
+    "uret",
     "lr.w",
     "sc.w",
     "amoswap.w",
