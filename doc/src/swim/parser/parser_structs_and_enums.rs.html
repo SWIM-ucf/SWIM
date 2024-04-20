@@ -1487,10 +1487,6 @@
 <a href="#1485" id="1485">1485</a>
 <a href="#1486" id="1486">1486</a>
 <a href="#1487" id="1487">1487</a>
-<a href="#1488" id="1488">1488</a>
-<a href="#1489" id="1489">1489</a>
-<a href="#1490" id="1490">1490</a>
-<a href="#1491" id="1491">1491</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::default::Default;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::fmt::Formatter;
@@ -1762,7 +1758,7 @@
     <span class="string">"sll"</span>, <span class="string">"slt"</span>, <span class="string">"sltu"</span>, <span class="string">"sub"</span>, <span class="string">"sub.d"</span>, <span class="string">"sub.s"</span>, <span class="string">"sw"</span>, <span class="string">"swc1"</span>,
 ];
 
-<span class="kw">pub const </span>SUPPORTED_INSTRUCTIONS_RISCV: [<span class="kw-2">&amp;</span>str; <span class="number">131</span>] = [
+<span class="kw">pub const </span>SUPPORTED_INSTRUCTIONS_RISCV: [<span class="kw-2">&amp;</span>str; <span class="number">123</span>] = [
     <span class="comment">// RV32I
     </span><span class="string">"lui"</span>,
     <span class="string">"auipc"</span>,
@@ -1779,13 +1775,10 @@
     <span class="string">"sll"</span>,
     <span class="string">"slt"</span>,
     <span class="string">"sltu"</span>,
-    <span class="string">"cor"</span>,
     <span class="string">"srl"</span>,
     <span class="string">"sra"</span>,
     <span class="string">"or"</span>,
     <span class="string">"and"</span>,
-    <span class="string">"fence"</span>,
-    <span class="string">"fence.i"</span>,
     <span class="string">"csrrw"</span>,
     <span class="string">"csrrs"</span>,
     <span class="string">"csrrc"</span>,
@@ -1794,11 +1787,6 @@
     <span class="string">"csrrci"</span>,
     <span class="string">"ecall"</span>,
     <span class="string">"ebreak"</span>,
-    <span class="string">"uret"</span>,
-    <span class="string">"sret"</span>,
-    <span class="string">"mret"</span>,
-    <span class="string">"wfi"</span>,
-    <span class="string">"sfence.vma"</span>,
     <span class="string">"lb"</span>,
     <span class="string">"lh"</span>,
     <span class="string">"lw"</span>,
@@ -2313,7 +2301,11 @@
     <span class="string">"xori"</span>,
 ];
 
-<span class="kw">pub const </span>UNSUPPORTED_INSTRUCTIONS_RISCV: [<span class="kw-2">&amp;</span>str; <span class="number">69</span>] = [
+<span class="kw">pub const </span>UNSUPPORTED_INSTRUCTIONS_RISCV: [<span class="kw-2">&amp;</span>str; <span class="number">73</span>] = [
+    <span class="string">"fence"</span>,
+    <span class="string">"fence.i"</span>,
+    <span class="string">"sfence.vma"</span>,
+    <span class="string">"uret"</span>,
     <span class="string">"lr.w"</span>,
     <span class="string">"sc.w"</span>,
     <span class="string">"amoswap.w"</span>,
