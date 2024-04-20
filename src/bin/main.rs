@@ -707,7 +707,7 @@ fn app(props: &AppProps) -> Html {
             </div>
             <div class="absolute w-8 top-2 right-2 hover:w-9 duration-300">
                 <a href="https://github.com/SWIM-ucf/SWIM/issues" target="_blank" class="group">
-                    <img src="/static/github-mark-white.svg" alt="GitHub"/>
+                    <img src="static/github-mark-white.svg" alt="GitHub"/>
                     // tooltip for hovering over github link
                     <div class="hidden group-hover:block absolute top-[0.4rem] right-12 w-[5.8rem] bg-primary-100 text-primary-900 p-1 rounded-md text-xs">
                         <p>{"Report an issue"}</p>
